@@ -271,7 +271,8 @@ async def get_lesson(db: AsyncSession, lesson_id: uuid.UUID, user: User | None =
 async def update_lesson(
     db: AsyncSession, lesson_id: uuid.UUID, data: LessonUpdate, user: User
 ) -> Lesson:
-    lesson = await get_lesson(db, lesson_id)
+    lesson = await get_lesson(db, lesson_id, user)
+    _check_course_owner(lesson.module.course, user)
 
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(lesson, field, value)

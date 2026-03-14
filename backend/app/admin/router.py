@@ -318,8 +318,13 @@ async def create_user_endpoint(
         from fastapi import HTTPException as _HTTPException
         raise _HTTPException(403, "Only super admin can create admin users")
 
+    # Only super_admin can set org_id; regular admin always uses their own org
+    org_id = admin.org_id
+    if data.get("org_id") and admin.role == UserRole.super_admin:
+        org_id = data["org_id"]
+
     new_user = User(
-        org_id=data.get("org_id", admin.org_id),
+        org_id=org_id,
         email=data["email"],
         hashed_password=hash_password(data["password"]),
         full_name=data["full_name"],

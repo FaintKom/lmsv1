@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 
+from app.auth.dependencies import get_current_user
+from app.auth.models import User
 from app.math_problems.service import (
     generate_arithmetic,
     generate_algebra,
@@ -31,6 +33,7 @@ async def generate_problems(
     type: str = Query("arithmetic", description="Problem type: arithmetic, algebra, geometry"),
     difficulty: str = Query("easy", description="Difficulty: easy, medium, hard"),
     count: int = Query(5, ge=1, le=20, description="Number of problems to generate"),
+    user: User = Depends(get_current_user),
 ):
     """Generate randomized math problems."""
     generator = GENERATORS.get(type)
@@ -47,7 +50,7 @@ async def generate_problems(
 
 
 @router.post("/check")
-async def check_answers(data: BatchAnswerCheck):
+async def check_answers(data: BatchAnswerCheck, user: User = Depends(get_current_user)):
     """Check a batch of answers. Returns results with correct/incorrect status."""
     results = []
     correct_count = 0
