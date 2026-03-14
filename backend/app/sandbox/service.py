@@ -80,7 +80,12 @@ async def create_challenge(db: AsyncSession, data: dict) -> CodeChallenge:
     challenge = CodeChallenge(**data)
     db.add(challenge)
     await db.flush()
-    return challenge
+    result = await db.execute(
+        select(CodeChallenge)
+        .where(CodeChallenge.id == challenge.id)
+        .options(selectinload(CodeChallenge.test_cases))
+    )
+    return result.scalar_one()
 
 
 async def add_test_case(db: AsyncSession, challenge_id: uuid.UUID, data: dict) -> TestCase:

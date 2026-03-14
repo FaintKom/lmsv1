@@ -12,10 +12,28 @@ from app.common.exceptions import NotFoundError
 
 
 async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
+    questions_data = data.pop("questions", [])
     quiz = Quiz(**data)
     db.add(quiz)
     await db.flush()
-    return quiz
+
+    for i, q in enumerate(questions_data):
+        options = [{"id": j, "text": opt, "is_correct": j == q["correct"]} for j, opt in enumerate(q["options"])]
+        question = Question(
+            quiz_id=quiz.id,
+            question_text=q["text"],
+            question_type="multiple_choice",
+            options=options,
+            correct_answer=str(q["correct"]),
+            sort_order=i,
+        )
+        db.add(question)
+
+    await db.flush()
+    result = await db.execute(
+        select(Quiz).where(Quiz.id == quiz.id).options(selectinload(Quiz.questions))
+    )
+    return result.scalar_one()
 
 
 async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID) -> Quiz:

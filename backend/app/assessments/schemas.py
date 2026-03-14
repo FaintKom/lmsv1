@@ -3,11 +3,18 @@ import uuid
 from pydantic import BaseModel
 
 
+class QuizQuestionInline(BaseModel):
+    text: str
+    options: list[str]
+    correct: int  # index of correct option
+
+
 class QuizCreate(BaseModel):
     lesson_id: uuid.UUID
     title: str
     passing_score: int = 70
     time_limit_minutes: int | None = None
+    questions: list[QuizQuestionInline] = []
 
 
 class QuestionCreate(BaseModel):
