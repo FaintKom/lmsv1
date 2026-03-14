@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,11 +56,15 @@ async def list_users_endpoint(
     return [UserResponse.model_validate(u) for u in users]
 
 
+class _UpdateUserBody(BaseModel):
+    role: str | None = None
+    is_active: bool | None = None
+
+
 @router.put("/users/{user_id}", response_model=UserResponse)
 async def update_user_endpoint(
     user_id: uuid.UUID,
-    role: str | None = None,
-    is_active: bool | None = None,
+    body: _UpdateUserBody,
     admin: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
@@ -69,10 +74,10 @@ async def update_user_endpoint(
     if not target_user:
         raise NotFoundError("User not found")
 
-    if role is not None:
-        target_user.role = role
-    if is_active is not None:
-        target_user.is_active = is_active
+    if body.role is not None:
+        target_user.role = body.role
+    if body.is_active is not None:
+        target_user.is_active = body.is_active
 
     await db.flush()
     return UserResponse.model_validate(target_user)
