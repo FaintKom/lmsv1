@@ -207,7 +207,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
 
             {q.question_type === "multiple_choice" && q.options && (
               <div className="ml-8 space-y-2">
-                {q.options.map((opt) => (
+                {q.options.map((opt, optIndex) => (
                   <button
                     key={opt.id}
                     onClick={() => setAnswers({ ...answers, [q.id]: opt.id })}
@@ -224,7 +224,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                           : "border-slate-300 text-slate-400"
                       }`}
                     >
-                      {String(opt.id).toUpperCase()}
+                      {String.fromCharCode(65 + optIndex)}
                     </span>
                     {opt.text}
                   </button>

@@ -322,7 +322,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                             type="text"
                             value={opt.text}
                             onChange={(e) => updateOption(i, "text", e.target.value)}
-                            placeholder={`Option ${String(opt.id).toUpperCase()}`}
+                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
                             className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
                           />
                           {newQuestion.options.length > 2 && (

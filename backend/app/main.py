@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    import asyncio
+
     # Auto-create all tables on startup
     from app.db.base import Base
     from app.db.session import engine
@@ -41,9 +43,22 @@ async def lifespan(app: FastAPI):
     import app.gamification.models  # noqa
     import app.certificates.models  # noqa
 
-    # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
+    # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
+    for attempt in range(5):
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(sa_text("SELECT 1"))
+            break
+        except Exception as e:
+            if attempt < 4:
+                logger.warning(f"DB not ready (attempt {attempt + 1}/5): {e}")
+                await asyncio.sleep(3)
+            else:
+                logger.error(f"Could not connect to DB after 5 attempts: {e}")
+                raise
 
+    # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
     for enum_type, val in [
         ("contenttype", "file_upload"),
         ("contenttype", "interactive"),
