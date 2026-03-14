@@ -4,6 +4,7 @@ import { useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Save, CheckCircle, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploadConfigProps {
   courseId: string;
@@ -65,8 +66,9 @@ export default function FileUploadConfig({
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       if (onSaved) onSaved();
+      toast.success("Configuration saved");
     } catch {
-      alert("Failed to save configuration");
+      toast.error("Failed to save configuration");
     } finally {
       setSaving(false);
     }

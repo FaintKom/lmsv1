@@ -12,6 +12,8 @@ import {
   Code,
   CheckCircle,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 interface TestCase {
   id?: string;
@@ -52,6 +54,7 @@ export default function ChallengeBuilder({
   existingChallenge,
   onSaved,
 }: ChallengeBuilderProps) {
+  const confirm = useConfirm();
   const [challenge, setChallenge] = useState<Challenge | null>(existingChallenge || null);
   const [loading, setLoading] = useState(!existingChallenge);
   const [saving, setSaving] = useState(false);
@@ -148,8 +151,9 @@ export default function ChallengeBuilder({
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       onSaved?.();
+      toast.success("Challenge saved");
     } catch {
-      alert("Failed to save challenge");
+      toast.error("Failed to save challenge");
     } finally {
       setSaving(false);
     }
@@ -157,7 +161,7 @@ export default function ChallengeBuilder({
 
   const handleAddTestCase = async () => {
     if (!challenge) {
-      alert("Save the challenge first before adding test cases.");
+      toast.error("Save the challenge first before adding test cases.");
       return;
     }
     try {
@@ -173,19 +177,21 @@ export default function ChallengeBuilder({
       setNewTestCase({ input: "", expected_output: "", is_hidden: false, sort_order: 0 });
       setAddingTestCase(false);
       onSaved?.();
+      toast.success("Test case added");
     } catch {
-      alert("Failed to add test case");
+      toast.error("Failed to add test case");
     }
   };
 
   const handleDeleteTestCase = async (tcId: string) => {
-    if (!challenge || !confirm("Delete this test case?")) return;
+    if (!challenge || !(await confirm({ message: "Delete this test case?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/sandbox/challenges/${challenge.id}/test-cases/${tcId}/`);
       setTestCases(testCases.filter((tc) => tc.id !== tcId));
       onSaved?.();
+      toast.success("Test case deleted");
     } catch {
-      alert("Failed to delete test case");
+      toast.error("Failed to delete test case");
     }
   };
 

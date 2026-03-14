@@ -3,6 +3,7 @@
 import { useState } from "react";
 import apiClient from "@/lib/api-client";
 import { CheckCircle, XCircle, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import MatchingExercise from "./exercises/matching";
 import OrderingExercise from "./exercises/ordering";
 import FillBlanksExercise from "./exercises/fill-blanks";
@@ -45,8 +46,9 @@ export default function InteractiveTaker({
       if (data.passed && onComplete) {
         onComplete();
       }
+      toast.success("Exercise submitted");
     } catch {
-      alert("Failed to submit");
+      toast.error("Failed to submit");
     } finally {
       setSubmitting(false);
     }

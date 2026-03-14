@@ -5,6 +5,7 @@ import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2, Save, CheckCircle, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface QuizQuestion {
   id?: string;
@@ -68,8 +69,9 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
       });
       setQuizId(data.id);
       onSaved?.();
+      toast.success("Quiz created");
     } catch {
-      alert("Failed to create quiz. A quiz may already exist for this lesson.");
+      toast.error("Failed to create quiz. A quiz may already exist for this lesson.");
     } finally {
       setSaving(false);
     }
@@ -108,8 +110,9 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
       });
       setShowAddQuestion(false);
       onSaved?.();
+      toast.success("Question added");
     } catch {
-      alert("Failed to add question");
+      toast.error("Failed to add question");
     } finally {
       setSaving(false);
     }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Save, CheckCircle, Plus, Trash2, Puzzle } from "lucide-react";
+import { toast } from "sonner";
 
 interface InteractiveBuilderProps {
   courseId: string;
@@ -113,8 +114,9 @@ export default function InteractiveBuilder({
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       if (onSaved) onSaved();
+      toast.success("Exercise saved");
     } catch {
-      alert("Failed to save");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }

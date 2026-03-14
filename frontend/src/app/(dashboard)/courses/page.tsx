@@ -5,6 +5,7 @@ import apiClient from "@/lib/api-client";
 import { CourseCard } from "@/components/courses/course-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Course } from "@/types/api";
 
 export default function CoursesPage() {
@@ -21,9 +22,23 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
-          <div className="h-full w-1/2 animate-pulse rounded-full bg-indigo-500" />
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="mt-2 h-4 w-64" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-slate-200 p-5">
+              <Skeleton className="mb-4 h-40 w-full rounded-lg" />
+              <Skeleton className="mb-2 h-5 w-3/4" />
+              <Skeleton className="mb-4 h-4 w-full" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

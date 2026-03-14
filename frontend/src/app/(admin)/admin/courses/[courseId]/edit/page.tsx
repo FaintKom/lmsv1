@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -47,6 +49,7 @@ import QuizBuilder from "@/components/assessments/quiz-builder";
 import ChallengeBuilder from "@/components/code-editor/challenge-builder";
 import FileUploadConfig from "@/components/submissions/file-upload-config";
 import InteractiveBuilder from "@/components/submissions/interactive-builder";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 function SortableLessonItem({
   id,
@@ -98,6 +101,7 @@ const CONTENT_TYPE_OPTIONS = [
 export default function CourseEditorPage() {
   const params = useParams();
   const router = useRouter();
+  const confirm = useConfirm();
   const courseId = params.courseId as string;
 
   const [course, setCourse] = useState<Course | null>(null);
@@ -165,7 +169,7 @@ export default function CourseEditorPage() {
         const ids = new Set<string>((data.modules || []).map((m: Module) => m.id));
         setExpandedModules(ids);
       })
-      .catch(() => alert("Failed to load course"))
+      .catch(() => toast.error("Failed to load course"))
       .finally(() => setLoading(false));
   }, [courseId]);
 
@@ -192,22 +196,24 @@ export default function CourseEditorPage() {
     setSaving(true);
     try {
       await apiClient.put(`/courses/${courseId}/`, { title, description, category: category || null });
+      toast.success("Course details saved");
       fetchCourse();
     } catch {
-      alert("Failed to save");
+      toast.error("Failed to save");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteCourse = async () => {
-    if (!confirm("Are you sure you want to delete this course? This cannot be undone.")) return;
+    if (!(await confirm({ message: "Are you sure you want to delete this course? This cannot be undone.", variant: "danger", confirmLabel: "Delete" }))) return;
     setDeleting(true);
     try {
       await apiClient.delete(`/courses/${courseId}/`);
+      toast.success("Course deleted");
       router.push("/admin/courses");
     } catch {
-      alert("Failed to delete course");
+      toast.error("Failed to delete course");
       setDeleting(false);
     }
   };
@@ -215,9 +221,10 @@ export default function CourseEditorPage() {
   const handlePublish = async () => {
     try {
       await apiClient.post(`/courses/${courseId}/publish/`);
+      toast.success("Course published");
       fetchCourse();
     } catch {
-      alert("Failed to publish");
+      toast.error("Failed to publish");
     }
   };
 
@@ -228,9 +235,10 @@ export default function CourseEditorPage() {
     try {
       await apiClient.post(`/courses/${courseId}/modules/`, { title: newModuleTitle.trim() });
       setNewModuleTitle("");
+      toast.success("Module added");
       fetchCourse();
     } catch {
-      alert("Failed to add module");
+      toast.error("Failed to add module");
     } finally {
       setAddingModule(false);
     }
@@ -241,19 +249,21 @@ export default function CourseEditorPage() {
     try {
       await apiClient.put(`/courses/${courseId}/modules/${moduleId}/`, { title: editingModuleTitle.trim() });
       setEditingModuleId(null);
+      toast.success("Module updated");
       fetchCourse();
     } catch {
-      alert("Failed to update module");
+      toast.error("Failed to update module");
     }
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (!confirm("Delete this module and all its lessons?")) return;
+    if (!(await confirm({ message: "Delete this module and all its lessons?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/`);
+      toast.success("Module deleted");
       fetchCourse();
     } catch {
-      alert("Failed to delete module");
+      toast.error("Failed to delete module");
     }
   };
 
@@ -269,9 +279,10 @@ export default function CourseEditorPage() {
       });
       setLessonForm({ title: "", content_type: "text", content: {}, duration_minutes: "" });
       setAddingLessonToModule(null);
+      toast.success("Lesson added");
       fetchCourse();
     } catch {
-      alert("Failed to add lesson");
+      toast.error("Failed to add lesson");
     }
   };
 
@@ -284,19 +295,21 @@ export default function CourseEditorPage() {
         duration_minutes: editLessonForm.duration_minutes ? parseInt(editLessonForm.duration_minutes) : null,
       });
       setEditingLessonId(null);
+      toast.success("Lesson updated");
       fetchCourse();
     } catch {
-      alert("Failed to update lesson");
+      toast.error("Failed to update lesson");
     }
   };
 
   const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
-    if (!confirm("Delete this lesson?")) return;
+    if (!(await confirm({ message: "Delete this lesson?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`);
+      toast.success("Lesson deleted");
       fetchCourse();
     } catch {
-      alert("Failed to delete lesson");
+      toast.error("Failed to delete lesson");
     }
   };
 
@@ -305,19 +318,21 @@ export default function CourseEditorPage() {
     try {
       await apiClient.post("/admin/enroll/", { user_id: enrollingUser, course_id: courseId });
       setEnrollingUser("");
+      toast.success("Student enrolled");
       fetchStudents();
     } catch {
-      alert("Failed to enroll user");
+      toast.error("Failed to enroll user");
     }
   };
 
   const handleUnenroll = async (enrollmentId: string) => {
-    if (!confirm("Remove this student from the course?")) return;
+    if (!(await confirm({ message: "Remove this student from the course?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/admin/enrollments/${enrollmentId}/`);
+      toast.success("Student removed");
       fetchStudents();
     } catch {
-      alert("Failed to unenroll student");
+      toast.error("Failed to unenroll student");
     }
   };
 
@@ -355,7 +370,7 @@ export default function CourseEditorPage() {
       );
       fetchCourse();
     } catch {
-      alert("Failed to reorder lessons");
+      toast.error("Failed to reorder lessons");
       fetchCourse();
     }
   };
@@ -395,6 +410,7 @@ export default function CourseEditorPage() {
 
   return (
     <div className="mx-auto max-w-4xl pb-12">
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin Courses", href: "/admin/courses" }, { label: course.title }, { label: "Editor" }]} />
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button

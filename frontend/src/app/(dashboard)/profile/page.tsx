@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import { LOCALES, type Locale } from "@/lib/i18n/translations";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +57,10 @@ export default function ProfilePage() {
       await fetchUser();
       setSaved(true);
       setEditing(false);
+      toast.success("Profile updated");
       setTimeout(() => setSaved(false), 3000);
     } catch {
-      alert("Failed to update profile");
+      toast.error("Failed to update profile");
     } finally {
       setSaving(false);
     }

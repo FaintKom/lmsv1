@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,8 @@ import {
   ExternalLink,
   CheckCircle,
 } from "lucide-react";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Plan {
   id: string;
@@ -97,7 +100,7 @@ export default function AdminBillingPage() {
       window.location.href = data.checkout_url;
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "Checkout failed";
-      alert(msg);
+      toast.error(msg);
     } finally {
       setCheckingOut(null);
     }
@@ -108,7 +111,7 @@ export default function AdminBillingPage() {
       const { data } = await apiClient.post("/billing/portal");
       window.location.href = data.portal_url;
     } catch {
-      alert("Could not open billing portal. Make sure Stripe is configured.");
+      toast.error("Could not open billing portal. Make sure Stripe is configured.");
     }
   };
 
@@ -116,14 +119,39 @@ export default function AdminBillingPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+      <div className="mx-auto max-w-6xl">
+        <Skeleton className="mb-2 h-4 w-48" />
+        <Skeleton className="mb-8 h-8 w-52" />
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-slate-200 p-5">
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="mb-4 h-6 w-36" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-slate-200 p-5">
+              <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
+              <Skeleton className="mb-2 h-6 w-24" />
+              <Skeleton className="mb-4 h-10 w-20" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+              <Skeleton className="mt-4 h-10 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-6xl">
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Billing" }]} />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Billing & Plans</h1>
         <p className="mt-1 text-sm text-slate-500">

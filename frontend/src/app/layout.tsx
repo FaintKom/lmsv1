@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n/context";
+import { Toaster } from "@/components/ui/toaster";
+import { ConfirmProvider } from "@/components/ui/confirm-dialog";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -22,8 +25,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
         <I18nProvider>
-          {children}
+          <ConfirmProvider>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </ConfirmProvider>
         </I18nProvider>
+        <Toaster />
       </body>
     </html>
   );

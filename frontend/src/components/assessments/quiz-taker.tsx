@@ -5,6 +5,7 @@ import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
+import { toast } from "sonner";
 
 interface QuizOption {
   id: string;
@@ -93,8 +94,9 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
       });
       setResult({ score: data.score, passed: data.passed });
       onComplete?.();
+      toast.success("Quiz submitted");
     } catch {
-      alert("Failed to submit quiz");
+      toast.error("Failed to submit quiz");
     } finally {
       setSubmitting(false);
     }

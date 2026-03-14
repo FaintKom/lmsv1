@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Trash2 } from "lucide-react";
 import type { User } from "@/types/api";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function AdminUsersPage() {
+  const confirm = useConfirm();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -31,21 +35,23 @@ export default function AdminUsersPage() {
       await apiClient.post("/admin/users/", form);
       setForm({ full_name: "", email: "", password: "", role: "student" });
       setShowForm(false);
+      toast.success("User created successfully");
       fetchUsers();
     } catch {
-      alert("Failed to create user");
+      toast.error("Failed to create user");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    if (!(await confirm({ message: "Are you sure you want to delete this user?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/admin/users/${userId}/`);
+      toast.success("User deleted");
       fetchUsers();
     } catch {
-      alert("Failed to delete user");
+      toast.error("Failed to delete user");
     }
   };
 
@@ -54,7 +60,7 @@ export default function AdminUsersPage() {
       await apiClient.put(`/admin/users/${userId}/`, { role: newRole });
       fetchUsers();
     } catch {
-      alert("Failed to update role");
+      toast.error("Failed to update role");
     }
   };
 
@@ -63,7 +69,7 @@ export default function AdminUsersPage() {
       await apiClient.put(`/admin/users/${userId}/`, { is_active: !isActive });
       fetchUsers();
     } catch {
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
   };
 
@@ -77,6 +83,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Users" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Users</h1>

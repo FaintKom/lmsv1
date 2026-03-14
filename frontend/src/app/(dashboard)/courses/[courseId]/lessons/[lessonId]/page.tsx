@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -125,8 +128,9 @@ export default function LessonViewerPage() {
     try {
       await apiClient.post(`/progress/lessons/${lessonId}/complete/`);
       setCompletedLessons((prev) => new Set(prev).add(lessonId));
+      toast.success("Lesson marked as complete!");
     } catch {
-      alert("Failed to mark as complete. Make sure you are enrolled.");
+      toast.error("Failed to mark as complete. Make sure you are enrolled.");
     } finally {
       setCompleting(false);
     }
@@ -143,8 +147,29 @@ export default function LessonViewerPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        <div className="w-80 border-r border-slate-200 bg-white p-4">
+          <Skeleton className="mb-4 h-4 w-24" />
+          <Skeleton className="mb-6 h-5 w-48" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 px-6 py-8">
+          <div className="mx-auto max-w-3xl">
+            <Skeleton className="mb-4 h-4 w-64" />
+            <Skeleton className="mb-2 h-5 w-24 rounded-full" />
+            <Skeleton className="mb-6 h-8 w-96" />
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -245,6 +270,17 @@ export default function LessonViewerPage() {
         </button>
 
         <div className="mx-auto max-w-3xl px-6 py-8">
+          {/* Breadcrumbs */}
+          <div className="mb-4">
+            <Breadcrumbs
+              items={[
+                { label: "Courses", href: "/courses" },
+                { label: course.title, href: `/courses/${courseId}` },
+                { label: lesson.title },
+              ]}
+            />
+          </div>
+
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">

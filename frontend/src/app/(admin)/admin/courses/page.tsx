@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BookOpen, Plus, Pencil, Trash2 } from "lucide-react";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminCourse {
   id: string;
@@ -19,6 +23,7 @@ interface AdminCourse {
 
 export default function AdminCoursesPage() {
   const router = useRouter();
+  const confirm = useConfirm();
   const [courses, setCourses] = useState<AdminCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -42,9 +47,10 @@ export default function AdminCoursesPage() {
       await apiClient.post("/courses/", form);
       setForm({ title: "", description: "", category: "" });
       setShowForm(false);
+      toast.success("Course created successfully");
       fetchCourses();
     } catch {
-      alert("Failed to create course");
+      toast.error("Failed to create course");
     } finally {
       setSubmitting(false);
     }
@@ -53,26 +59,42 @@ export default function AdminCoursesPage() {
   const handlePublish = async (courseId: string) => {
     try {
       await apiClient.post(`/courses/${courseId}/publish/`);
+      toast.success("Course published");
       fetchCourses();
     } catch {
-      alert("Failed to publish course");
+      toast.error("Failed to publish course");
     }
   };
 
   const handleDelete = async (courseId: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
+    if (!(await confirm({ message: "Are you sure you want to delete this course?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/courses/${courseId}/`);
+      toast.success("Course deleted");
       fetchCourses();
     } catch {
-      alert("Failed to delete course");
+      toast.error("Failed to delete course");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <div className="mx-auto max-w-5xl">
+        <Skeleton className="mb-2 h-4 w-48" />
+        <Skeleton className="mb-6 h-8 w-56" />
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 p-4">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="flex-1">
+                <Skeleton className="mb-1 h-5 w-48" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -92,6 +114,7 @@ export default function AdminCoursesPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Courses" }]} />
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
         <Button onClick={() => setShowForm(!showForm)}>
@@ -114,6 +137,7 @@ export default function AdminCoursesPage() {
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 required
+                autoFocus
               />
               <textarea
                 placeholder="Description"

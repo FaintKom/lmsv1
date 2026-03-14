@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,6 +17,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import type { Course } from "@/types/api";
 
 const CONTENT_ICONS: Record<string, React.ElementType> = {
@@ -70,8 +72,9 @@ export default function CourseDetailPage() {
         course_id: params.courseId,
       });
       setEnrolled(true);
+      toast.success("Successfully enrolled in the course!");
     } catch {
-      alert("Failed to enroll (may already be enrolled)");
+      toast.error("Failed to enroll (may already be enrolled)");
     } finally {
       setEnrolling(false);
     }
@@ -95,13 +98,10 @@ export default function CourseDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link
-        href="/courses"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Courses
-      </Link>
+      <Breadcrumbs items={[
+        { label: "Courses", href: "/courses" },
+        { label: course.title },
+      ]} />
 
       {/* Course Header */}
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-white">

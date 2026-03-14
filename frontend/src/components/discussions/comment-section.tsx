@@ -5,6 +5,8 @@ import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/auth-store";
 import { MessageSquare, Send, Trash2, Reply, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 interface CommentData {
   id: string;
@@ -23,6 +25,7 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ lessonId }: CommentSectionProps) {
+  const confirm = useConfirm();
   const user = useAuthStore((s) => s.user);
   const [comments, setComments] = useState<CommentData[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -48,8 +51,9 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
       );
       setComments([data, ...comments]);
       setNewComment("");
+      toast.success("Comment posted");
     } catch {
-      alert("Failed to post comment");
+      toast.error("Failed to post comment");
     } finally {
       setSubmitting(false);
     }
@@ -69,13 +73,14 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
             : c
         )
       );
+      toast.success("Reply posted");
     } catch {
-      alert("Failed to reply");
+      toast.error("Failed to reply");
     }
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm("Delete this comment?")) return;
+    if (!(await confirm({ message: "Delete this comment?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/discussions/comments/${commentId}`);
       // Remove from top-level or from replies
@@ -87,8 +92,9 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
             replies: c.replies.filter((r) => r.id !== commentId),
           }))
       );
+      toast.success("Comment deleted");
     } catch {
-      alert("Failed to delete");
+      toast.error("Failed to delete");
     }
   };
 
