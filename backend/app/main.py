@@ -85,9 +85,7 @@ def create_app() -> FastAPI:
 
     @app.middleware("http")
     async def strip_trailing_slash(request, call_next):
-        # Strip trailing slashes to avoid 307 redirects that break POST through proxies
-        from starlette.datastructures import URL
-
+        """Strip trailing slashes so both /path and /path/ work without 307 redirects."""
         path = request.scope["path"]
         if path != "/" and path.endswith("/"):
             request.scope["path"] = path.rstrip("/")

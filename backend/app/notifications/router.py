@@ -17,7 +17,7 @@ from app.notifications.service import (
 router = APIRouter()
 
 
-@router.get("/", response_model=list[NotificationResponse])
+@router.get("", response_model=list[NotificationResponse])
 async def list_notifications_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

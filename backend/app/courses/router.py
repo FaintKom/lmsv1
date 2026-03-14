@@ -54,7 +54,7 @@ async def search_endpoint(
     }
 
 
-@router.get("/", response_model=dict)
+@router.get("", response_model=dict)
 async def list_courses_endpoint(
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
@@ -71,7 +71,7 @@ async def list_courses_endpoint(
     }
 
 
-@router.post("/", response_model=CourseResponse)
+@router.post("", response_model=CourseResponse)
 async def create_course_endpoint(
     data: CourseCreate,
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
