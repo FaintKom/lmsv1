@@ -30,7 +30,7 @@ services:
       - key: JWT_REFRESH_TOKEN_EXPIRE_DAYS
         value: "7"
       - key: CORS_ORIGINS
-        sync: false
+        value: https://lms-frontend-uy53.onrender.com
       - key: DEBUG
         value: "true"
       - key: APP_NAME
@@ -49,7 +49,4 @@ services:
     plan: free
     envVars:
       - key: BACKEND_URL
-        fromService:
-          type: web
-          name: lms-backend
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://lms-backend-0b8v.onrender.com
