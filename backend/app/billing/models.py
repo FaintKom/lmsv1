@@ -26,7 +26,7 @@ class InvoiceStatus(str, enum.Enum):
 class Plan(Base, IDMixin, TimestampMixin):
     __tablename__ = "plans"
 
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     stripe_price_id: Mapped[str] = mapped_column(String(255), nullable=False)
     price_monthly: Mapped[float] = mapped_column(Numeric, nullable=False)
     max_students: Mapped[int] = mapped_column(Integer, default=-1)

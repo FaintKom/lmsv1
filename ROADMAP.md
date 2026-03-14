@@ -297,13 +297,54 @@
 - New org registration: `/register-org` -> creates org + admin
 - Super admin panel: `/super-admin/orgs` — list all orgs, stats, blocking
 
-### C9. Course Import/Export
+### C9. New Assignment Types
+**Audio Recording:**
+- Student records audio directly in the browser (MediaRecorder API)
+- Model `AudioSubmission`: lesson_id, student_id, audio_url, duration_seconds, transcription (optional)
+- Teacher can play back, add timestamped comments
+- Use case: language learning pronunciation, oral presentations
+
+**Video Recording:**
+- Student records video via webcam (MediaRecorder API)
+- Upload to object storage (S3/R2), generate thumbnail
+- Model `VideoSubmission`: lesson_id, student_id, video_url, duration_seconds, thumbnail_url
+- Teacher reviews with timestamped feedback
+- Use case: presentation skills, sign language, lab demonstrations
+
+**Essay with Rich Text Editor:**
+- Replace plain textarea with TipTap (ProseMirror-based) or Lexical editor
+- Formatting: bold, italic, headings, lists, blockquotes, code blocks, images, tables
+- Auto-save drafts (localStorage + server)
+- Model `EssaySubmission`: lesson_id, student_id, content_html, content_text, word_count
+- Plagiarism indicator (optional), word count, reading time
+- Teacher sees rendered HTML with inline annotation/commenting tools
+
+### C10. Protected Group Video Calls
+- Jitsi Meet integration with JWT authentication (only enrolled students + teacher can join)
+- Model `VideoRoom`: course_id, group_id, room_id, jwt_secret, started_at, ended_at, recording_url
+- Teacher starts room → students get notification + "Join" button
+- Room locked by default — teacher admits students from lobby
+- Optional recording with cloud storage (Jitsi Jibri or browser-based)
+- Breakout rooms support for group exercises
+- Screen sharing for code review / presentation
+
+### C11. Lesson Whiteboard
+- Real-time collaborative whiteboard embedded in lesson (Excalidraw or tldraw)
+- WebSocket-based sync (all participants see live drawing)
+- Teacher controls: lock/unlock student drawing, clear canvas, save snapshot
+- Tools: pen, shapes, text, arrow, eraser, color picker, undo/redo
+- Model `WhiteboardSession`: lesson_id, room_id, snapshot_json, created_by
+- Export as PNG/SVG for download
+- Replay mode: playback of drawing steps (for review)
+- Use case: math explanations, architecture diagrams, brainstorming
+
+### C12. Course Import/Export (was C9)
 - `GET /courses/{id}/export` -> ZIP (JSON metadata + files)
 - `POST /courses/import` -> upload ZIP -> create course with modules, lessons, quizzes
 - Format: `course.json` + `/lessons/` + `/quizzes/` + `/challenges/`
 - Admin UI: "Export" button on course page, "Import Course" button in course list
 
-### C10. School Reports (PDF)
+### C13. School Reports (PDF)
 - `GET /admin/reports/student/{id}?period=quarter` -> PDF
 - Content: name, photo, period, grade table, attendance %, course progress, skills (radar), teacher comment
 - Generation via WeasyPrint or Puppeteer (HTML -> PDF)

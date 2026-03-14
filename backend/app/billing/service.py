@@ -219,42 +219,46 @@ async def get_invoices(db: AsyncSession, org_id: uuid.UUID) -> list[Invoice]:
 
 
 async def seed_default_plans(db: AsyncSession) -> None:
-    """Create default plans if none exist. Deduplicates on name."""
-    from sqlalchemy import func, delete as sa_delete
+    """Create default plans if none exist. Deduplicates on name (keeps earliest)."""
+    from sqlalchemy import func, delete as sa_delete, text
 
-    # Remove duplicates: keep only the first plan per name
-    subq = select(func.min(Plan.id).label("keep_id")).group_by(Plan.name).subquery()
-    result = await db.execute(select(Plan.id))
-    all_ids = {row[0] for row in result.all()}
-    result2 = await db.execute(select(subq.c.keep_id))
-    keep_ids = {row[0] for row in result2.all()}
-    remove_ids = all_ids - keep_ids
-    if remove_ids:
-        await db.execute(sa_delete(Plan).where(Plan.id.in_(remove_ids)))
+    # ── Step 1: remove duplicates — keep only the earliest plan per name ──
+    try:
+        # Use a raw SQL subquery that works reliably with UUIDs
+        dupes_query = text("""
+            DELETE FROM plans
+            WHERE id NOT IN (
+                SELECT DISTINCT ON (name) id
+                FROM plans
+                ORDER BY name, created_at ASC NULLS LAST, id ASC
+            )
+        """)
+        await db.execute(dupes_query)
         await db.flush()
+    except Exception:
+        pass  # table might not exist on first run
+
+    # ── Step 2: upsert default plans ──
+    defaults = [
+        {"name": "Free", "stripe_price_id": "free", "price_monthly": 0,
+         "max_students": 10, "max_courses": 3,
+         "features": {"sandbox": True, "analytics": False, "certificates": False, "ai_hints": False}},
+        {"name": "Starter", "stripe_price_id": "price_starter", "price_monthly": 29,
+         "max_students": 50, "max_courses": 10,
+         "features": {"sandbox": True, "analytics": True, "certificates": True, "ai_hints": False}},
+        {"name": "Professional", "stripe_price_id": "price_pro", "price_monthly": 79,
+         "max_students": 200, "max_courses": -1,
+         "features": {"sandbox": True, "analytics": True, "certificates": True, "ai_hints": True}},
+        {"name": "Enterprise", "stripe_price_id": "price_enterprise", "price_monthly": 199,
+         "max_students": -1, "max_courses": -1,
+         "features": {"sandbox": True, "analytics": True, "certificates": True, "ai_hints": True, "white_label": True, "custom_domain": True}},
+    ]
 
     result = await db.execute(select(Plan))
-    if result.scalars().first():
-        return
+    existing = {p.name: p for p in result.scalars().all()}
 
-    plans = [
-        Plan(name="Free", stripe_price_id="free", price_monthly=0,
-             max_students=10, max_courses=3,
-             features={"sandbox": True, "analytics": False, "certificates": False, "ai_hints": False},
-             is_active=True),
-        Plan(name="Starter", stripe_price_id="price_starter", price_monthly=29,
-             max_students=50, max_courses=10,
-             features={"sandbox": True, "analytics": True, "certificates": True, "ai_hints": False},
-             is_active=True),
-        Plan(name="Professional", stripe_price_id="price_pro", price_monthly=79,
-             max_students=200, max_courses=-1,
-             features={"sandbox": True, "analytics": True, "certificates": True, "ai_hints": True},
-             is_active=True),
-        Plan(name="Enterprise", stripe_price_id="price_enterprise", price_monthly=199,
-             max_students=-1, max_courses=-1,
-             features={"sandbox": True, "analytics": True, "certificates": True, "ai_hints": True, "white_label": True, "custom_domain": True},
-             is_active=True),
-    ]
-    for p in plans:
-        db.add(p)
+    for d in defaults:
+        if d["name"] not in existing:
+            db.add(Plan(**d, is_active=True))
+
     await db.flush()

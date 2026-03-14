@@ -27,7 +27,14 @@ router = APIRouter()
 @router.get("/plans", response_model=list[PlanResponse])
 async def list_plans_endpoint(db: AsyncSession = Depends(get_db)):
     plans = await list_plans(db)
-    return [PlanResponse.model_validate(p) for p in plans]
+    # Deduplicate by name (keep first occurrence) — safety net
+    seen: set[str] = set()
+    unique: list = []
+    for p in plans:
+        if p.name not in seen:
+            seen.add(p.name)
+            unique.append(p)
+    return [PlanResponse.model_validate(p) for p in unique]
 
 
 @router.get("/subscription", response_model=SubscriptionResponse | None)

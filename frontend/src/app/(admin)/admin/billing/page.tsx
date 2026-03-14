@@ -84,7 +84,14 @@ export default function AdminBillingPage() {
       apiClient.get("/billing/invoices").then(({ data }) => data).catch(() => []),
     ])
       .then(([plansData, subData, invoicesData]) => {
-        setPlans(plansData);
+        // Deduplicate plans by name (keep first occurrence)
+        const seen = new Set<string>();
+        const unique = (plansData as Plan[]).filter((p) => {
+          if (seen.has(p.name)) return false;
+          seen.add(p.name);
+          return true;
+        });
+        setPlans(unique);
         setSubscription(subData);
         setInvoices(invoicesData);
       })
@@ -99,8 +106,12 @@ export default function AdminBillingPage() {
       });
       window.location.href = data.checkout_url;
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "Checkout failed";
-      toast.error(msg);
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "";
+      if (detail.includes("Stripe is not configured")) {
+        toast.error("Оплата временно недоступна. Stripe ещё не подключён.");
+      } else {
+        toast.error(detail || "Не удалось оформить подписку");
+      }
     } finally {
       setCheckingOut(null);
     }
@@ -271,14 +282,14 @@ export default function AdminBillingPage() {
                   ))}
                 </div>
 
-                {isCurrent ? (
+                {isCurrent || (plan.price_monthly === 0 && !subscription) ? (
                   <Button disabled className="w-full">
                     <CheckCircle className="mr-1 h-4 w-4" />
-                    Current Plan
+                    Текущий план
                   </Button>
                 ) : plan.price_monthly === 0 ? (
                   <Button variant="outline" disabled className="w-full">
-                    Free tier
+                    Бесплатный
                   </Button>
                 ) : (
                   <Button
@@ -287,7 +298,7 @@ export default function AdminBillingPage() {
                     disabled={!!checkingOut}
                   >
                     {checkingOut === plan.id && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                    Subscribe
+                    Подписаться
                   </Button>
                 )}
               </CardContent>

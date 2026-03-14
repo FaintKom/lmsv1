@@ -82,6 +82,12 @@ async def lifespan(app: FastAPI):
     alter_statements = [
         "ALTER TABLE user_streaks ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0",
         "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS progress_percent NUMERIC DEFAULT 0",
+        # Remove duplicate plans before adding unique constraint
+        """DELETE FROM plans WHERE id NOT IN (
+            SELECT DISTINCT ON (name) id FROM plans ORDER BY name, created_at ASC NULLS LAST, id ASC
+        )""",
+        "ALTER TABLE plans DROP CONSTRAINT IF EXISTS uq_plans_name",
+        "ALTER TABLE plans ADD CONSTRAINT uq_plans_name UNIQUE (name)",
     ]
     for stmt in alter_statements:
         try:
