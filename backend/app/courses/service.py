@@ -9,6 +9,7 @@ from app.auth.models import User, UserRole
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.courses.schemas import CourseCreate, CourseUpdate, LessonCreate, LessonUpdate, ModuleCreate, ModuleUpdate
+from app.progress.models import Enrollment
 
 
 async def list_courses(
@@ -18,15 +19,23 @@ async def list_courses(
 
     if user.role == UserRole.super_admin:
         pass  # no org filter — see all courses
-    else:
-        query = query.where(Course.org_id == user.org_id)
-
-    if user.role == "student":
-        query = query.where(Course.status == CourseStatus.published)
-    elif user.role == "teacher":
-        query = query.where(
-            (Course.teacher_id == user.id) | (Course.status == CourseStatus.published)
+    elif user.role == UserRole.student:
+        # Students see: published courses in their org OR courses they're enrolled in
+        enrolled_course_ids = select(Enrollment.course_id).where(
+            Enrollment.student_id == user.id
         )
+        query = query.where(
+            Course.org_id == user.org_id,
+            (Course.status == CourseStatus.published) | (Course.id.in_(enrolled_course_ids)),
+        )
+    elif user.role == UserRole.teacher:
+        query = query.where(
+            Course.org_id == user.org_id,
+            (Course.teacher_id == user.id) | (Course.status == CourseStatus.published),
+        )
+    else:
+        # admin — all courses in their org
+        query = query.where(Course.org_id == user.org_id)
 
     total_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(total_query)).scalar() or 0
