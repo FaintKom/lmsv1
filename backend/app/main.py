@@ -79,22 +79,19 @@ def create_app() -> FastAPI:
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
+        redirect_slashes=False,
         lifespan=lifespan,
     )
 
-    # Trust X-Forwarded-Proto from reverse proxy (Cloudflare/nginx)
-    from starlette.middleware.trustedhost import TrustedHostMiddleware  # noqa
-
     @app.middleware("http")
-    async def fix_redirect_scheme(request, call_next):
-        response = await call_next(request)
-        # Fix 307 redirects to use the original scheme (https) from proxy
-        if response.status_code == 307 and "location" in response.headers:
-            location = response.headers["location"]
-            forwarded_proto = request.headers.get("x-forwarded-proto", "")
-            if forwarded_proto == "https" and location.startswith("http://"):
-                response.headers["location"] = location.replace("http://", "https://", 1)
-        return response
+    async def strip_trailing_slash(request, call_next):
+        # Strip trailing slashes to avoid 307 redirects that break POST through proxies
+        from starlette.datastructures import URL
+
+        path = request.scope["path"]
+        if path != "/" and path.endswith("/"):
+            request.scope["path"] = path.rstrip("/")
+        return await call_next(request)
 
     app.add_middleware(
         CORSMiddleware,
