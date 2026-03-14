@@ -1,0 +1,41 @@
+import { GraduationCap } from "lucide-react";
+import Link from "next/link";
+
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-h-screen">
+      {/* Left side - branding */}
+      <div className="hidden w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 lg:flex lg:flex-col lg:items-center lg:justify-center">
+        <div className="max-w-md px-8 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
+            <GraduationCap className="h-8 w-8 text-white" />
+          </div>
+          <h2 className="mb-3 text-3xl font-bold text-white">LearnHub</h2>
+          <p className="text-lg leading-relaxed text-indigo-200">
+            The modern learning platform for schools and online courses.
+            Programming, languages, and mathematics.
+          </p>
+        </div>
+      </div>
+      {/* Right side - form */}
+      <div className="flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2">
+        <div className="w-full max-w-md">
+          <Link
+            href="/"
+            className="mb-8 flex items-center justify-center gap-2 lg:hidden"
+          >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
+              <GraduationCap className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-slate-900">LearnHub</span>
+          </Link>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}

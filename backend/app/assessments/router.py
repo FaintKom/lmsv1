@@ -1,0 +1,86 @@
+import uuid
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.assessments.schemas import (
+    QuestionCreate,
+    QuestionResponse,
+    QuizCreate,
+    QuizResponse,
+    QuizSubmitRequest,
+    SubmissionResponse,
+)
+from app.assessments.service import add_question, create_quiz, get_quiz, get_quiz_by_lesson, submit_quiz
+from app.auth.dependencies import get_current_user, require_role
+from app.auth.models import User, UserRole
+from app.db.session import get_db
+
+router = APIRouter()
+
+
+def _strip_answers_for_student(quiz_data: dict, user: User) -> dict:
+    """Remove correct answers from quiz data for students."""
+    if user.role in ("admin", "teacher"):
+        return quiz_data
+    if quiz_data.get("questions"):
+        for q in quiz_data["questions"]:
+            if q.get("options"):
+                for opt in q["options"]:
+                    opt.pop("is_correct", None)
+            q.pop("correct_answer", None)
+    return quiz_data
+
+
+@router.post("/quizzes", response_model=QuizResponse)
+async def create_quiz_endpoint(
+    data: QuizCreate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    quiz = await create_quiz(db, data.model_dump())
+    return QuizResponse.model_validate(quiz)
+
+
+@router.get("/quizzes/{quiz_id}", response_model=QuizResponse)
+async def get_quiz_endpoint(
+    quiz_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    quiz = await get_quiz(db, quiz_id)
+    data = QuizResponse.model_validate(quiz).model_dump()
+    return _strip_answers_for_student(data, user)
+
+
+@router.get("/lessons/{lesson_id}/quiz", response_model=QuizResponse)
+async def get_quiz_by_lesson_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    quiz = await get_quiz_by_lesson(db, lesson_id)
+    data = QuizResponse.model_validate(quiz).model_dump()
+    return _strip_answers_for_student(data, user)
+
+
+@router.post("/quizzes/{quiz_id}/questions", response_model=QuestionResponse)
+async def add_question_endpoint(
+    quiz_id: uuid.UUID,
+    data: QuestionCreate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    question = await add_question(db, quiz_id, data.model_dump())
+    return QuestionResponse.model_validate(question)
+
+
+@router.post("/quizzes/{quiz_id}/submit", response_model=SubmissionResponse)
+async def submit_quiz_endpoint(
+    quiz_id: uuid.UUID,
+    data: QuizSubmitRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    submission = await submit_quiz(db, quiz_id, data.answers, user)
+    return SubmissionResponse.model_validate(submission)

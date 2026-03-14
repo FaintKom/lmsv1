@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lms-stack",
+      "runtimeExecutable": "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+      "runtimeArgs": ["compose", "-f", "docker-compose.prod.yml", "up", "--build"],
+      "port": 80
+    }
+  ]
+}

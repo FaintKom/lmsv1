@@ -1,0 +1,87 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lms}
+      POSTGRES_USER: ${POSTGRES_USER:-lms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lms}
+      SANDBOX_URL: http://sandbox:8001
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/data/uploads
+    networks:
+      - internal
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+
+  frontend:
+    build: ./frontend
+    networks:
+      - internal
+    restart: unless-stopped
+
+  sandbox:
+    build: ./sandbox
+    command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 512M
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
+    security_opt:
+      - "no-new-privileges:true"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - internal
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://nginx:80
+    networks:
+      - internal
+    restart: unless-stopped
+    depends_on:
+      - nginx
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  internal:
