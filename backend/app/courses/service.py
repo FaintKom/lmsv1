@@ -33,7 +33,7 @@ async def list_courses(
 
     courses = (
         await db.execute(
-            query.options(selectinload(Course.modules))
+            query.options(selectinload(Course.modules).selectinload(Module.lessons))
             .offset((page - 1) * per_page).limit(per_page).order_by(Course.created_at.desc())
         )
     ).scalars().unique().all()
