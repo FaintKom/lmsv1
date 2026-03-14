@@ -78,6 +78,19 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database tables created/verified")
 
+    # Add missing columns to existing tables (create_all doesn't alter tables)
+    alter_statements = [
+        "ALTER TABLE user_streaks ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0",
+        "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS progress_percent NUMERIC DEFAULT 0",
+    ]
+    for stmt in alter_statements:
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(sa_text(stmt))
+                await conn.commit()
+        except Exception:
+            pass
+
     # Try Alembic migrations if available
     try:
         from alembic.config import Config
@@ -152,6 +165,15 @@ def create_app() -> FastAPI:
         redirect_slashes=False,
         lifespan=lifespan,
     )
+
+    from fastapi import Request
+    from fastapi.responses import JSONResponse
+    import traceback
+
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
+        return JSONResponse(status_code=500, content={"detail": str(exc)})
 
     @app.middleware("http")
     async def strip_trailing_slash(request, call_next):
