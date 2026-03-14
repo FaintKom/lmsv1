@@ -5,7 +5,7 @@ interface User {
   id: string;
   email: string;
   full_name: string;
-  role: "admin" | "teacher" | "student";
+  role: "super_admin" | "admin" | "teacher" | "student";
   org_id: string;
   avatar_url: string | null;
   bio: string | null;

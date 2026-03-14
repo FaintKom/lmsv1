@@ -34,7 +34,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const logout = useAuthStore((s) => s.logout);
   const { t } = useTranslation();
 
-  const isAdmin = user?.role === "admin" || user?.role === "teacher";
+  const isAdmin = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
 
   const studentNav = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },

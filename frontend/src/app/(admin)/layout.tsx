@@ -26,6 +26,7 @@ export default function AdminLayout({
     if (!isLoading && user && user.role === "student") {
       router.push("/dashboard");
     }
+    // super_admin is allowed in admin routes
   }, [isLoading, isAuthenticated, user, router]);
 
   if (isLoading) {

@@ -25,7 +25,7 @@ import { EditorLayout } from "@/components/code-editor/editor-layout";
 import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import CommentSection from "@/components/discussions/comment-section";
-import { MathRenderer, containsMath } from "@/components/common/math-renderer";
+import { ContentRenderer } from "@/components/common/content-renderer";
 
 interface LessonProgressItem {
   lesson_id: string;
@@ -271,15 +271,10 @@ export default function LessonViewerPage() {
           <div className="mb-8">
             {lesson.content_type === "text" && (
               <div className="prose prose-slate max-w-none">
-                {containsMath((lesson.content.body as string) || "") ? (
-                  <MathRenderer content={(lesson.content.body as string) || "<p>No content yet.</p>"} />
-                ) : (
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: (lesson.content.body as string) || "<p>No content yet.</p>",
-                    }}
-                  />
-                )}
+                <ContentRenderer
+                  body={(lesson.content.body as string) || ""}
+                  format={(lesson.content.format as "markdown" | "html") || "markdown"}
+                />
               </div>
             )}
 

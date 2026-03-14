@@ -40,6 +40,7 @@ import {
   Puzzle,
   Users,
   UserPlus,
+  Eye,
 } from "lucide-react";
 import type { Course, Module, Lesson } from "@/types/api";
 import QuizBuilder from "@/components/assessments/quiz-builder";
@@ -374,8 +375,8 @@ export default function CourseEditorPage() {
     return JSON.stringify(content, null, 2);
   };
 
-  const setContentFromText = (text: string, contentType: string): Record<string, unknown> => {
-    if (contentType === "text") return { body: text };
+  const setContentFromText = (text: string, contentType: string, existingContent?: Record<string, unknown>): Record<string, unknown> => {
+    if (contentType === "text") return { body: text, format: existingContent?.format || "markdown" };
     if (contentType === "video") return { url: text };
     try { return JSON.parse(text); } catch { return {}; }
   };
@@ -404,6 +405,13 @@ export default function CourseEditorPage() {
           Back to Courses
         </button>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => window.open(`/courses/${courseId}`, "_blank")}
+          >
+            <Eye className="mr-1 h-4 w-4" />
+            Preview as Student
+          </Button>
           {course.status === "draft" && (
             <Button variant="outline" onClick={handlePublish}>
               Publish
@@ -552,16 +560,37 @@ export default function CourseEditorPage() {
                               placeholder="Lesson title"
                               className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                             />
+                            {lesson.content_type === "text" && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-slate-500">Format:</span>
+                                {(["markdown", "html"] as const).map((fmt) => (
+                                  <button
+                                    key={fmt}
+                                    onClick={() => setEditLessonForm({
+                                      ...editLessonForm,
+                                      content: { ...editLessonForm.content, format: fmt },
+                                    })}
+                                    className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                                      (editLessonForm.content.format || "markdown") === fmt
+                                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                    }`}
+                                  >
+                                    {fmt === "markdown" ? "Markdown" : "HTML"}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                             <textarea
                               value={getContentText(editLessonForm.content, lesson.content_type)}
                               onChange={(e) =>
                                 setEditLessonForm({
                                   ...editLessonForm,
-                                  content: setContentFromText(e.target.value, lesson.content_type),
+                                  content: setContentFromText(e.target.value, lesson.content_type, editLessonForm.content),
                                 })
                               }
-                              placeholder={lesson.content_type === "video" ? "Video URL" : "Content..."}
-                              rows={4}
+                              placeholder={lesson.content_type === "video" ? "Video URL" : lesson.content_type === "text" ? "Content (Markdown or HTML)..." : "Content..."}
+                              rows={8}
                               className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                             />
                             <input
@@ -771,16 +800,37 @@ export default function CourseEditorPage() {
                           </button>
                         ))}
                       </div>
+                      {lessonForm.content_type === "text" && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-slate-500">Format:</span>
+                          {(["markdown", "html"] as const).map((fmt) => (
+                            <button
+                              key={fmt}
+                              onClick={() => setLessonForm({
+                                ...lessonForm,
+                                content: { ...lessonForm.content, format: fmt },
+                              })}
+                              className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                                (lessonForm.content.format || "markdown") === fmt
+                                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                  : "border-slate-200 text-slate-500 hover:border-slate-300"
+                              }`}
+                            >
+                              {fmt === "markdown" ? "Markdown" : "HTML"}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <textarea
                         value={getContentText(lessonForm.content, lessonForm.content_type)}
                         onChange={(e) =>
                           setLessonForm({
                             ...lessonForm,
-                            content: setContentFromText(e.target.value, lessonForm.content_type),
+                            content: setContentFromText(e.target.value, lessonForm.content_type, lessonForm.content),
                           })
                         }
-                        placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content text..."}
-                        rows={4}
+                        placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
+                        rows={8}
                         className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                       />
                       <input

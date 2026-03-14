@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Clock,
 } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 import type { Course } from "@/types/api";
 
 const CONTENT_ICONS: Record<string, React.ElementType> = {
@@ -33,10 +34,15 @@ const CONTENT_COLORS: Record<string, string> = {
 
 export default function CourseDetailPage() {
   const params = useParams();
+  const user = useAuthStore((s) => s.user);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
+
+  // Admins/teachers/super_admins can always access lessons (preview mode)
+  const canPreview = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
+  const canAccessLessons = enrolled || canPreview;
 
   useEffect(() => {
     apiClient
@@ -122,7 +128,12 @@ export default function CourseDetailPage() {
             </div>
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mt-6 flex items-center gap-3">
+          {canPreview && !enrolled && (
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
+              Preview Mode
+            </span>
+          )}
           {enrolled ? (
             <Button
               variant="secondary"
@@ -132,7 +143,7 @@ export default function CourseDetailPage() {
               <CheckCircle className="h-4 w-4" />
               Enrolled
             </Button>
-          ) : (
+          ) : !canPreview ? (
             <Button
               onClick={handleEnroll}
               disabled={enrolling}
@@ -140,7 +151,7 @@ export default function CourseDetailPage() {
             >
               {enrolling ? "Enrolling..." : "Enroll in Course"}
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -165,7 +176,7 @@ export default function CourseDetailPage() {
                     CONTENT_COLORS[lesson.content_type] || "bg-slate-50 text-slate-500";
                   return (
                     <li key={lesson.id}>
-                      {enrolled ? (
+                      {canAccessLessons ? (
                         <Link
                           href={`/courses/${params.courseId}/lessons/${lesson.id}`}
                           className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-indigo-50"
