@@ -6,7 +6,7 @@ from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.models import User
+from app.auth.models import User, UserRole
 from app.common.exceptions import NotFoundError
 from app.config import settings
 from app.courses.models import Lesson
@@ -94,7 +94,7 @@ async def get_file_submissions(
 ) -> list[FileSubmission]:
     query = select(FileSubmission).where(FileSubmission.lesson_id == lesson_id)
     # Students see only their own
-    if user.role == "student":
+    if user.role == UserRole.student:
         query = query.where(FileSubmission.student_id == user.id)
     query = query.order_by(FileSubmission.created_at.desc())
     result = await db.execute(query)
@@ -111,7 +111,7 @@ async def get_file_submission(
     if not submission:
         raise NotFoundError("File submission not found")
     # Students can only download their own files
-    if user.role == "student" and submission.student_id != user.id:
+    if user.role == UserRole.student and submission.student_id != user.id:
         raise NotFoundError("File submission not found")
     return submission
 
@@ -232,7 +232,7 @@ async def get_interactive_submissions(
         select(InteractiveSubmission)
         .where(InteractiveSubmission.lesson_id == lesson_id)
     )
-    if user.role == "student":
+    if user.role == UserRole.student:
         query = query.where(InteractiveSubmission.student_id == user.id)
     query = query.order_by(InteractiveSubmission.created_at.desc())
     result = await db.execute(query)

@@ -45,15 +45,11 @@ async def get_current_user(
 
 def require_role(*roles: UserRole):
     """Check that the user has one of the required roles.
-    super_admin always passes.  admin also implies teacher access."""
+    super_admin always passes.  Each endpoint must explicitly list allowed roles."""
     async def role_checker(user: User = Depends(get_current_user)) -> User:
         if user.role == UserRole.super_admin:
             return user
-        # If admin is required, teacher is also allowed (teacher manages their own content)
-        allowed = set(roles)
-        if UserRole.admin in allowed:
-            allowed.add(UserRole.teacher)
-        if user.role not in allowed:
+        if user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions",

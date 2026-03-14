@@ -169,7 +169,7 @@ async def get_lesson_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    lesson = await get_lesson(db, lesson_id)
+    lesson = await get_lesson(db, lesson_id, user)
     return LessonResponse.model_validate(lesson)
 
 

@@ -60,6 +60,18 @@ async def get_course(db: AsyncSession, course_id: uuid.UUID, user: User) -> Cour
     course = result.scalar_one_or_none()
     if not course:
         raise NotFoundError("Course not found")
+
+    # Students can only see published courses OR courses they're enrolled in
+    if user.role == UserRole.student and course.status != CourseStatus.published:
+        enrolled = await db.execute(
+            select(Enrollment.id).where(
+                Enrollment.course_id == course_id,
+                Enrollment.student_id == user.id,
+            )
+        )
+        if not enrolled.scalar_one_or_none():
+            raise NotFoundError("Course not found")
+
     return course
 
 
@@ -227,11 +239,32 @@ async def create_lesson(
     return lesson
 
 
-async def get_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> Lesson:
-    result = await db.execute(select(Lesson).where(Lesson.id == lesson_id))
+async def get_lesson(db: AsyncSession, lesson_id: uuid.UUID, user: User | None = None) -> Lesson:
+    result = await db.execute(
+        select(Lesson).where(Lesson.id == lesson_id).options(
+            selectinload(Lesson.module).selectinload(Module.course)
+        )
+    )
     lesson = result.scalar_one_or_none()
     if not lesson:
         raise NotFoundError("Lesson not found")
+
+    if user is not None:
+        course = lesson.module.course
+        # Org isolation (except super_admin)
+        if user.role != UserRole.super_admin and course.org_id != user.org_id:
+            raise NotFoundError("Lesson not found")
+        # Students: only published courses or enrolled
+        if user.role == UserRole.student and course.status != CourseStatus.published:
+            enrolled = await db.execute(
+                select(Enrollment.id).where(
+                    Enrollment.course_id == course.id,
+                    Enrollment.student_id == user.id,
+                )
+            )
+            if not enrolled.scalar_one_or_none():
+                raise NotFoundError("Lesson not found")
+
     return lesson
 
 
@@ -318,7 +351,7 @@ async def search_courses_and_lessons(
     )
     if user.role != UserRole.super_admin:
         course_query = course_query.where(Course.org_id == user.org_id)
-    if user.role == "student":
+    if user.role == UserRole.student:
         course_query = course_query.where(Course.status == CourseStatus.published)
 
     courses_result = await db.execute(course_query.limit(20))
@@ -333,7 +366,7 @@ async def search_courses_and_lessons(
     )
     if user.role != UserRole.super_admin:
         lesson_query = lesson_query.where(Course.org_id == user.org_id)
-    if user.role == "student":
+    if user.role == UserRole.student:
         lesson_query = lesson_query.where(Course.status == CourseStatus.published)
 
     lessons_result = await db.execute(

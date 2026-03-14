@@ -21,7 +21,7 @@ router = APIRouter()
 
 def _strip_answers_for_student(quiz_data: dict, user: User) -> dict:
     """Remove correct answers from quiz data for students."""
-    if user.role in ("admin", "teacher"):
+    if user.role in (UserRole.admin, UserRole.teacher, UserRole.super_admin):
         return quiz_data
     if quiz_data.get("questions"):
         for q in quiz_data["questions"]:

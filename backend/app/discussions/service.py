@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.models import User
+from app.auth.models import User, UserRole
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.discussions.models import Comment
 from app.notifications.service import create_notification
@@ -120,8 +120,8 @@ async def delete_comment(
     if not comment:
         raise NotFoundError("Comment not found")
 
-    # Only author or admin can delete
-    if comment.user_id != user.id and user.role != "admin":
+    # Author, admin, super_admin, or teacher can delete
+    if comment.user_id != user.id and user.role not in (UserRole.admin, UserRole.super_admin, UserRole.teacher):
         raise ForbiddenError("Cannot delete this comment")
 
     await db.delete(comment)

@@ -28,7 +28,7 @@ def _user_org_filter(admin: User):
 
 @router.get("/dashboard", response_model=DashboardStats)
 async def dashboard_endpoint(
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_dashboard_stats(db, user)
@@ -36,7 +36,7 @@ async def dashboard_endpoint(
 
 @router.get("/analytics/detailed", response_model=DetailedAnalytics)
 async def detailed_analytics_endpoint(
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     return await get_detailed_analytics(db, user)
@@ -76,6 +76,10 @@ async def update_user_endpoint(
         raise NotFoundError("User not found")
 
     if body.role is not None:
+        # Only super_admin can assign the admin role
+        if body.role == UserRole.admin.value and admin.role != UserRole.super_admin:
+            from fastapi import HTTPException as _HTTPException
+            raise _HTTPException(403, "Only super admin can assign admin role")
         target_user.role = body.role
     if body.is_active is not None:
         target_user.is_active = body.is_active
@@ -120,7 +124,7 @@ async def list_organizations(
 
 @router.get("/courses")
 async def list_courses_admin(
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     from app.courses.models import Course
@@ -192,7 +196,7 @@ async def delete_user_endpoint(
 @router.post("/enroll")
 async def admin_enroll_endpoint(
     data: dict,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Admin enrolls a student into a course."""
@@ -244,7 +248,7 @@ async def admin_enroll_endpoint(
 @router.get("/courses/{course_id}/students")
 async def list_course_students(
     course_id: uuid.UUID,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """List all students enrolled in a course."""
@@ -276,7 +280,7 @@ async def list_course_students(
 @router.delete("/enrollments/{enrollment_id}")
 async def admin_unenroll_endpoint(
     enrollment_id: uuid.UUID,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Admin removes a student enrollment."""
@@ -308,12 +312,18 @@ async def create_user_endpoint(
 ):
     from app.auth.security import hash_password
 
+    role = data.get("role", "student")
+    # Only super_admin can create admin users
+    if role == UserRole.admin.value and admin.role != UserRole.super_admin:
+        from fastapi import HTTPException as _HTTPException
+        raise _HTTPException(403, "Only super admin can create admin users")
+
     new_user = User(
         org_id=data.get("org_id", admin.org_id),
         email=data["email"],
         hashed_password=hash_password(data["password"]),
         full_name=data["full_name"],
-        role=data.get("role", "student"),
+        role=role,
     )
     db.add(new_user)
     await db.flush()
@@ -325,7 +335,7 @@ async def create_user_endpoint(
 
 @router.get("/groups")
 async def list_groups_endpoint(
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """List all student groups in the org."""
@@ -352,7 +362,7 @@ async def list_groups_endpoint(
 @router.post("/groups")
 async def create_group_endpoint(
     data: dict,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new student group."""
@@ -372,7 +382,7 @@ async def create_group_endpoint(
 async def update_group_endpoint(
     group_id: uuid.UUID,
     data: dict,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Update group name/description."""
@@ -397,7 +407,7 @@ async def update_group_endpoint(
 @router.delete("/groups/{group_id}")
 async def delete_group_endpoint(
     group_id: uuid.UUID,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Delete a student group."""
@@ -417,7 +427,7 @@ async def delete_group_endpoint(
 @router.get("/groups/{group_id}/members")
 async def list_group_members_endpoint(
     group_id: uuid.UUID,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """List members of a group with user details."""
@@ -453,7 +463,7 @@ async def list_group_members_endpoint(
 async def add_group_members_endpoint(
     group_id: uuid.UUID,
     data: dict,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Add one or more users to a group. data: {user_ids: [uuid, ...]}"""
@@ -487,7 +497,7 @@ async def add_group_members_endpoint(
 async def remove_group_member_endpoint(
     group_id: uuid.UUID,
     user_id: uuid.UUID,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Remove a user from a group."""
@@ -510,7 +520,7 @@ async def remove_group_member_endpoint(
 async def enroll_group_endpoint(
     group_id: uuid.UUID,
     data: dict,
-    admin: User = Depends(require_role(UserRole.admin)),
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Enroll all members of a group into a course. data: {course_id: uuid}"""
@@ -562,7 +572,7 @@ async def enroll_group_endpoint(
 
 @router.get("/analytics/export-csv")
 async def export_analytics_csv(
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     """Export enrollment analytics as a CSV file."""

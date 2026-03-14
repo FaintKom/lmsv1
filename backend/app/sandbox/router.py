@@ -54,7 +54,7 @@ async def get_challenge_by_lesson_endpoint(
 ):
     challenge = await get_challenge_by_lesson(db, lesson_id)
     response = ChallengeResponse.model_validate(challenge)
-    if user.role == "student" and response.test_cases:
+    if user.role == UserRole.student and response.test_cases:
         response.test_cases = [tc for tc in response.test_cases if not tc.is_hidden]
     return response
 
@@ -93,7 +93,7 @@ async def list_challenges_endpoint(
         tcs = [
             {"id": str(tc.id), "input": tc.input, "expected_output": tc.expected_output, "is_hidden": tc.is_hidden}
             for tc in ch.test_cases
-            if not tc.is_hidden or user.role != "student"
+            if not tc.is_hidden or user.role != UserRole.student
         ]
         items.append({
             "id": str(ch.id), "title": ch.title, "description": ch.description,
@@ -112,7 +112,7 @@ async def get_challenge_endpoint(
 ):
     challenge = await get_challenge(db, challenge_id)
     response = ChallengeResponse.model_validate(challenge)
-    if user.role == "student" and response.test_cases:
+    if user.role == UserRole.student and response.test_cases:
         response.test_cases = [tc for tc in response.test_cases if not tc.is_hidden]
     return response
 

@@ -35,7 +35,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const logout = useAuthStore((s) => s.logout);
   const { t } = useTranslation();
 
-  const isAdmin = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
+  const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
+  const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
 
   const studentNav = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
@@ -48,14 +49,14 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const adminNav = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: "/admin/users", label: t("nav.users"), icon: Users },
+    ...(isAdminOnly ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
     { href: "/admin/groups", label: t("nav.groups") || "Groups", icon: UsersRound },
     { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
     { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
-    { href: "/admin/billing", label: t("nav.billing"), icon: CreditCard },
+    ...(isAdminOnly ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
   ];
 
-  const nav = isAdmin ? adminNav : studentNav;
+  const nav = isAdminOrTeacher ? adminNav : studentNav;
 
   const handleLogout = () => {
     logout();
