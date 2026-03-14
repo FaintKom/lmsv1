@@ -167,5 +167,12 @@ async def submit_code_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    submission = await submit_code(db, challenge_id, data.source_code, data.language, user)
-    return CodeSubmissionResponse.model_validate(submission)
+    import logging
+    logger = logging.getLogger(__name__)
+    try:
+        submission = await submit_code(db, challenge_id, data.source_code, data.language, user)
+        logger.info(f"Submission {submission.id}: status={submission.status}, results={submission.results}")
+        return CodeSubmissionResponse.model_validate(submission)
+    except Exception as e:
+        logger.exception(f"Submit code failed: {e}")
+        raise

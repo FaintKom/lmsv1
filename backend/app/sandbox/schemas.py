@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from pydantic import BaseModel
@@ -68,10 +69,10 @@ class CodeSubmissionResponse(BaseModel):
     source_code: str
     language: str
     status: str
-    results: list[dict] | None
+    results: list[dict] | None = None
     total_passed: int
     total_tests: int
-    execution_time_ms: int | None
-    submitted_at: str
+    execution_time_ms: int | None = None
+    submitted_at: datetime.datetime
 
     model_config = {"from_attributes": True}
