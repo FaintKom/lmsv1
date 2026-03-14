@@ -13,7 +13,12 @@ import {
   ArrowRight,
   UserPlus,
   Plus,
+  LinkIcon,
+  Copy,
+  Check,
 } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
+import { toast } from "sonner";
 
 interface Stats {
   total_users: number;
@@ -24,6 +29,19 @@ interface Stats {
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [copied, setCopied] = useState(false);
+  const user = useAuthStore((s) => s.user);
+
+  const inviteLink = typeof window !== "undefined"
+    ? `${window.location.origin}/register?org=${user?.org_id}`
+    : "";
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    toast.success("Invite link copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     apiClient
@@ -112,6 +130,35 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Invite Students */}
+      <Card className="mb-8 border-indigo-100 bg-indigo-50/30">
+        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-indigo-100 p-2.5">
+              <LinkIcon className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Invite Students</p>
+              <p className="text-xs text-slate-500">
+                Share this link so students can join your school
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="hidden rounded-lg bg-white px-3 py-1.5 text-xs text-slate-600 shadow-sm sm:block">
+              {inviteLink.length > 50 ? inviteLink.slice(0, 50) + "..." : inviteLink}
+            </code>
+            <Button size="sm" onClick={copyInviteLink} variant="outline">
+              {copied ? (
+                <><Check className="h-3.5 w-3.5 text-emerald-600" /> Copied</>
+              ) : (
+                <><Copy className="h-3.5 w-3.5" /> Copy Link</>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Links */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

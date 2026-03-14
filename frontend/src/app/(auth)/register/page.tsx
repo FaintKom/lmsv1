@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,16 @@ interface OrgOption {
 }
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const register = useAuthStore((s) => s.register);
   const [form, setForm] = useState({
     org_name: "",
@@ -29,6 +38,7 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [inviteOrg, setInviteOrg] = useState<OrgOption | null>(null);
 
   // Org search state
   const [orgSearch, setOrgSearch] = useState("");
@@ -36,6 +46,31 @@ export default function RegisterPage() {
   const [showOrgDropdown, setShowOrgDropdown] = useState(false);
   const [selectedOrgName, setSelectedOrgName] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle invite link: ?org=<org_id>
+  useEffect(() => {
+    const orgParam = searchParams.get("org");
+    if (orgParam) {
+      // Fetch org name by ID
+      apiClient
+        .get("/auth/organizations", { params: { q: "" } })
+        .then(({ data }) => {
+          const found = data.find((o: OrgOption) => o.id === orgParam);
+          if (found) {
+            setInviteOrg(found);
+            setForm((prev) => ({
+              ...prev,
+              role: "student",
+              org_id: found.id,
+              org_name: found.name,
+            }));
+            setSelectedOrgName(found.name);
+            setOrgSearch(found.name);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [searchParams]);
 
   // Search organizations when typing
   useEffect(() => {
@@ -106,10 +141,12 @@ export default function RegisterPage() {
   return (
     <div>
       <h1 className="mb-2 text-center text-2xl font-bold text-slate-900">
-        Create your account
+        {inviteOrg ? `Join ${inviteOrg.name}` : "Create your account"}
       </h1>
       <p className="mb-6 text-center text-sm text-slate-500">
-        Start building your learning platform today
+        {inviteOrg
+          ? "Create your student account to start learning"
+          : "Start building your learning platform today"}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -119,8 +156,15 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* Role Selector */}
-        <div>
+        {/* Invite banner */}
+        {inviteOrg && (
+          <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+            You&apos;re joining <strong>{inviteOrg.name}</strong> as a student
+          </div>
+        )}
+
+        {/* Role Selector — hidden if invited */}
+        {!inviteOrg && (<div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
             I am a...
           </label>
@@ -174,10 +218,10 @@ export default function RegisterPage() {
               </span>
             </button>
           </div>
-        </div>
+        </div>)}
 
-        {/* Organization field — different for teacher vs student */}
-        {form.role && (
+        {/* Organization field — different for teacher vs student, hidden if invited */}
+        {form.role && !inviteOrg && (
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
               {form.role === "student" ? "Find your school" : "School / Organization Name"}
