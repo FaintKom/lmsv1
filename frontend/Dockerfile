@@ -9,6 +9,7 @@ RUN npm ci
 COPY . .
 
 ENV NEXT_PUBLIC_API_URL=""
+ENV BACKEND_URL="https://lms-backend-0b8v.onrender.com"
 RUN npm run build
 
 # Stage 2: Production
@@ -26,5 +27,4 @@ COPY --from=builder /app/public ./public
 EXPOSE 3000
 
 ENV HOSTNAME="0.0.0.0"
-ENV BACKEND_URL=""
 CMD ["node", "server.js"]
