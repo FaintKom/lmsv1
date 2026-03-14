@@ -63,7 +63,7 @@ export default function AdminLayout({
             <span className="text-sm font-bold text-slate-900">LearnHub</span>
           </div>
         </div>
-        <main className="flex-1 overflow-auto p-4 md:p-8">{children}</main>
+        <main className="flex-1 overflow-auto px-4 py-6 md:px-8 md:py-10">{children}</main>
       </div>
     </div>
   );
