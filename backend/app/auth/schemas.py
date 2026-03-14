@@ -5,7 +5,8 @@ from pydantic import BaseModel, EmailStr
 
 
 class RegisterRequest(BaseModel):
-    org_name: str
+    org_name: str = ""  # For teachers creating a new org
+    org_id: str | None = None  # For students joining an existing org
     full_name: str
     email: EmailStr
     password: str

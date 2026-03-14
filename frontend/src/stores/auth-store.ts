@@ -18,6 +18,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (data: {
     org_name: string;
+    org_id?: string;
     full_name: string;
     email: string;
     password: string;

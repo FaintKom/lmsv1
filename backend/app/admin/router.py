@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.admin.service import get_dashboard_stats, get_detailed_analytics
 from app.auth.dependencies import require_role
-from app.auth.models import User, UserRole
+from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
 from app.common.exceptions import NotFoundError
 from app.db.session import get_db
@@ -59,6 +59,7 @@ async def list_users_endpoint(
 class _UpdateUserBody(BaseModel):
     role: str | None = None
     is_active: bool | None = None
+    org_id: str | None = None  # super_admin only
 
 
 @router.put("/users/{user_id}", response_model=UserResponse)
@@ -78,9 +79,43 @@ async def update_user_endpoint(
         target_user.role = body.role
     if body.is_active is not None:
         target_user.is_active = body.is_active
+    if body.org_id is not None and admin.role == UserRole.super_admin:
+        target_user.org_id = uuid.UUID(body.org_id)
 
     await db.flush()
     return UserResponse.model_validate(target_user)
+
+
+@router.get("/organizations")
+async def list_organizations(
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all organizations. Super admin sees all, regular admin sees own."""
+    from sqlalchemy import func
+
+    query = select(Organization)
+    if admin.role != UserRole.super_admin:
+        query = query.where(Organization.id == admin.org_id)
+    result = await db.execute(query.order_by(Organization.name))
+    orgs = result.scalars().all()
+
+    org_list = []
+    for o in orgs:
+        # Count users in this org
+        count_result = await db.execute(
+            select(func.count()).select_from(User).where(User.org_id == o.id)
+        )
+        user_count = count_result.scalar() or 0
+        org_list.append({
+            "id": str(o.id),
+            "name": o.name,
+            "slug": o.slug,
+            "is_active": o.is_active,
+            "user_count": user_count,
+            "created_at": str(o.created_at) if hasattr(o, 'created_at') and o.created_at else None,
+        })
+    return org_list
 
 
 @router.get("/courses")

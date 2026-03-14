@@ -16,29 +16,40 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
     if existing.scalar_one_or_none():
         raise BadRequestError("Email already registered")
 
-    # Create organization
-    slug = slugify(data.org_name)
-    # Ensure unique slug
-    base_slug = slug
-    counter = 1
-    while True:
-        existing_org = await db.execute(
-            select(Organization).where(Organization.slug == slug)
-        )
-        if not existing_org.scalar_one_or_none():
-            break
-        slug = f"{base_slug}-{counter}"
-        counter += 1
-
-    org = Organization(name=data.org_name, slug=slug)
-    db.add(org)
-    await db.flush()
-
-    # Determine role: teachers get admin access, students get student role
+    # Determine role
     if data.role == "student":
         user_role = UserRole.student
     else:
         user_role = UserRole.admin  # teachers are org admins
+
+    # Students join existing org, teachers create a new one
+    if data.org_id and data.role == "student":
+        # Join existing organization
+        result = await db.execute(
+            select(Organization).where(Organization.id == uuid.UUID(data.org_id))
+        )
+        org = result.scalar_one_or_none()
+        if not org:
+            raise BadRequestError("Organization not found")
+    else:
+        # Create new organization
+        if not data.org_name:
+            raise BadRequestError("Organization name is required")
+        slug = slugify(data.org_name)
+        base_slug = slug
+        counter = 1
+        while True:
+            existing_org = await db.execute(
+                select(Organization).where(Organization.slug == slug)
+            )
+            if not existing_org.scalar_one_or_none():
+                break
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        org = Organization(name=data.org_name, slug=slug)
+        db.add(org)
+        await db.flush()
 
     user = User(
         org_id=org.id,

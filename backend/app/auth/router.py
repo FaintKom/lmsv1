@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.auth.models import User
+from app.auth.models import Organization, User
 from app.auth.schemas import (
     LoginRequest,
     RefreshRequest,
@@ -17,6 +18,21 @@ from app.common.exceptions import BadRequestError
 from app.db.session import get_db
 
 router = APIRouter()
+
+
+@router.get("/organizations")
+async def search_organizations(
+    q: str = Query("", min_length=0),
+    db: AsyncSession = Depends(get_db),
+):
+    """Search organizations by name — public endpoint for registration."""
+    query = select(Organization).where(Organization.is_active == True)  # noqa: E712
+    if q:
+        query = query.where(Organization.name.ilike(f"%{q}%"))
+    query = query.order_by(Organization.name).limit(20)
+    result = await db.execute(query)
+    orgs = result.scalars().all()
+    return [{"id": str(o.id), "name": o.name, "slug": o.slug} for o in orgs]
 
 
 @router.post("/register", response_model=TokenResponse)

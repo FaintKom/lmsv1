@@ -1,19 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, GraduationCap, BookOpen } from "lucide-react";
+import { UserPlus, GraduationCap, BookOpen, Search, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import apiClient from "@/lib/api-client";
+
+interface OrgOption {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
   const register = useAuthStore((s) => s.register);
   const [form, setForm] = useState({
     org_name: "",
+    org_id: "",
     full_name: "",
     email: "",
     password: "",
@@ -22,10 +30,48 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Org search state
+  const [orgSearch, setOrgSearch] = useState("");
+  const [orgs, setOrgs] = useState<OrgOption[]>([]);
+  const [showOrgDropdown, setShowOrgDropdown] = useState(false);
+  const [selectedOrgName, setSelectedOrgName] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Search organizations when typing
+  useEffect(() => {
+    if (form.role !== "student") return;
+    const timer = setTimeout(() => {
+      apiClient
+        .get("/auth/organizations", { params: { q: orgSearch } })
+        .then(({ data }) => setOrgs(data))
+        .catch(() => setOrgs([]));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [orgSearch, form.role]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowOrgDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.role) {
       setError("Please select your role");
+      return;
+    }
+    if (form.role === "student" && !form.org_id) {
+      setError("Please select your school/organization");
+      return;
+    }
+    if (form.role === "teacher" && !form.org_name.trim()) {
+      setError("Please enter your organization name");
       return;
     }
     setError("");
@@ -49,6 +95,13 @@ export default function RegisterPage() {
 
   const update = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  const selectOrg = (org: OrgOption) => {
+    setForm((prev) => ({ ...prev, org_id: org.id, org_name: org.name }));
+    setSelectedOrgName(org.name);
+    setOrgSearch(org.name);
+    setShowOrgDropdown(false);
+  };
 
   return (
     <div>
@@ -74,7 +127,12 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => update("role", "teacher")}
+              onClick={() => {
+                update("role", "teacher");
+                setForm((prev) => ({ ...prev, role: "teacher", org_id: "", org_name: "" }));
+                setSelectedOrgName("");
+                setOrgSearch("");
+              }}
               className={cn(
                 "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                 form.role === "teacher"
@@ -93,7 +151,12 @@ export default function RegisterPage() {
             </button>
             <button
               type="button"
-              onClick={() => update("role", "student")}
+              onClick={() => {
+                update("role", "student");
+                setForm((prev) => ({ ...prev, role: "student", org_id: "", org_name: "" }));
+                setSelectedOrgName("");
+                setOrgSearch("");
+              }}
               className={cn(
                 "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                 form.role === "student"
@@ -113,17 +176,80 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            {form.role === "student" ? "School / Organization" : "School / Organization Name"}
-          </label>
-          <Input
-            value={form.org_name}
-            onChange={(e) => update("org_name", e.target.value)}
-            placeholder={form.role === "student" ? "Your school name" : "My School"}
-            required
-          />
-        </div>
+        {/* Organization field — different for teacher vs student */}
+        {form.role && (
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              {form.role === "student" ? "Find your school" : "School / Organization Name"}
+            </label>
+            {form.role === "student" ? (
+              <div className="relative" ref={dropdownRef}>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={orgSearch}
+                    onChange={(e) => {
+                      setOrgSearch(e.target.value);
+                      setShowOrgDropdown(true);
+                      if (selectedOrgName && e.target.value !== selectedOrgName) {
+                        setSelectedOrgName("");
+                        setForm((prev) => ({ ...prev, org_id: "" }));
+                      }
+                    }}
+                    onFocus={() => setShowOrgDropdown(true)}
+                    placeholder="Search for your school..."
+                    className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                  <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
+                {showOrgDropdown && (
+                  <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg">
+                    {orgs.length === 0 ? (
+                      <div className="px-4 py-3 text-sm text-slate-400">
+                        {orgSearch ? "No organizations found" : "Start typing to search..."}
+                      </div>
+                    ) : (
+                      orgs.map((org) => (
+                        <button
+                          key={org.id}
+                          type="button"
+                          onClick={() => selectOrg(org)}
+                          className={cn(
+                            "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-indigo-50",
+                            form.org_id === org.id
+                              ? "bg-indigo-50 font-medium text-indigo-700"
+                              : "text-slate-700"
+                          )}
+                        >
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-500">
+                            {org.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="block">{org.name}</span>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+                {selectedOrgName && (
+                  <p className="mt-1 text-xs text-emerald-600">
+                    Joining: {selectedOrgName}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Input
+                value={form.org_name}
+                onChange={(e) => update("org_name", e.target.value)}
+                placeholder="My School"
+                required
+              />
+            )}
+          </div>
+        )}
+
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Full Name
