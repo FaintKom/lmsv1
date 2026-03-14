@@ -43,6 +43,7 @@ import {
   Users,
   UserPlus,
   Eye,
+  Settings2,
 } from "lucide-react";
 import type { Course, Module, Lesson } from "@/types/api";
 import QuizBuilder from "@/components/assessments/quiz-builder";
@@ -93,10 +94,28 @@ const CONTENT_TYPE_OPTIONS = [
   { value: "text", label: "Text", icon: FileText },
   { value: "video", label: "Video", icon: PlayCircle },
   { value: "quiz", label: "Quiz", icon: CheckCircle },
-  { value: "code_challenge", label: "Code Challenge", icon: Code },
+  { value: "code_challenge", label: "Code", icon: Code },
   { value: "file_upload", label: "File Upload", icon: Upload },
   { value: "interactive", label: "Interactive", icon: Puzzle },
 ];
+
+const TYPE_COLORS: Record<string, string> = {
+  text: "bg-slate-100 text-slate-600 border-slate-200",
+  video: "bg-rose-50 text-rose-600 border-rose-200",
+  quiz: "bg-indigo-50 text-indigo-600 border-indigo-200",
+  code_challenge: "bg-emerald-50 text-emerald-600 border-emerald-200",
+  file_upload: "bg-amber-50 text-amber-600 border-amber-200",
+  interactive: "bg-violet-50 text-violet-600 border-violet-200",
+};
+
+const TYPE_EXPANDED_BG: Record<string, string> = {
+  text: "border-slate-200 bg-slate-50/50",
+  video: "border-rose-200 bg-rose-50/30",
+  quiz: "border-indigo-200 bg-indigo-50/30",
+  code_challenge: "border-emerald-200 bg-emerald-50/30",
+  file_upload: "border-amber-200 bg-amber-50/30",
+  interactive: "border-violet-200 bg-violet-50/30",
+};
 
 export default function CourseEditorPage() {
   const params = useParams();
@@ -132,8 +151,8 @@ export default function CourseEditorPage() {
     duration_minutes: "",
   });
 
-  // Lesson editing
-  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+  // Expanded lesson (single expanded lesson for editing)
+  const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
   const [editLessonForm, setEditLessonForm] = useState({
     title: "",
     content: {} as Record<string, unknown>,
@@ -141,21 +160,16 @@ export default function CourseEditorPage() {
   });
 
   // Quiz management
-  const [managingQuizForLesson, setManagingQuizForLesson] = useState<string | null>(null);
   const [existingQuiz, setExistingQuiz] = useState<Record<string, unknown> | null>(null);
-
-  // Challenge management
-  const [managingChallengeForLesson, setManagingChallengeForLesson] = useState<string | null>(null);
-
-  // File upload / Interactive management
-  const [managingUploadForLesson, setManagingUploadForLesson] = useState<string | null>(null);
-  const [managingInteractiveForLesson, setManagingInteractiveForLesson] = useState<string | null>(null);
 
   // Students management
   const [students, setStudents] = useState<{ id: string; full_name: string; email: string; enrollment_id: string; progress_percent: number; enrolled_at: string }[]>([]);
   const [allUsers, setAllUsers] = useState<{ id: string; full_name: string; email: string; role: string }[]>([]);
   const [showStudents, setShowStudents] = useState(false);
   const [enrollingUser, setEnrollingUser] = useState("");
+
+  // Active tab for expanded lesson
+  const [lessonTab, setLessonTab] = useState<"content" | "settings">("content");
 
   const fetchCourse = useCallback(() => {
     apiClient
@@ -165,7 +179,6 @@ export default function CourseEditorPage() {
         setTitle(data.title);
         setDescription(data.description || "");
         setCategory(data.category || "");
-        // Expand all modules by default
         const ids = new Set<string>((data.modules || []).map((m: Module) => m.id));
         setExpandedModules(ids);
       })
@@ -191,6 +204,31 @@ export default function CourseEditorPage() {
       fetchAllUsers();
     }
   }, [showStudents, fetchStudents, fetchAllUsers]);
+
+  // When expanding a quiz lesson, load quiz data
+  const loadQuizForLesson = useCallback((lessonId: string) => {
+    apiClient
+      .get(`/assessments/lessons/${lessonId}/quiz`)
+      .then(({ data }) => setExistingQuiz(data))
+      .catch(() => setExistingQuiz(null));
+  }, []);
+
+  const handleExpandLesson = (lesson: Lesson) => {
+    if (expandedLessonId === lesson.id) {
+      setExpandedLessonId(null);
+      return;
+    }
+    setExpandedLessonId(lesson.id);
+    setEditLessonForm({
+      title: lesson.title,
+      content: lesson.content || {},
+      duration_minutes: lesson.duration_minutes?.toString() || "",
+    });
+    setLessonTab("content");
+    if (lesson.content_type === "quiz") {
+      loadQuizForLesson(lesson.id);
+    }
+  };
 
   const handleSaveMeta = async () => {
     setSaving(true);
@@ -294,7 +332,6 @@ export default function CourseEditorPage() {
         content: editLessonForm.content,
         duration_minutes: editLessonForm.duration_minutes ? parseInt(editLessonForm.duration_minutes) : null,
       });
-      setEditingLessonId(null);
       toast.success("Lesson updated");
       fetchCourse();
     } catch {
@@ -306,6 +343,7 @@ export default function CourseEditorPage() {
     if (!(await confirm({ message: "Delete this lesson?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`);
+      if (expandedLessonId === lessonId) setExpandedLessonId(null);
       toast.success("Lesson deleted");
       fetchCourse();
     } catch {
@@ -354,8 +392,6 @@ export default function CourseEditorPage() {
     if (oldIndex === -1 || newIndex === -1) return;
 
     const reordered = arrayMove(module.lessons, oldIndex, newIndex);
-
-    // Optimistic update
     setCourse({
       ...course,
       modules: course.modules!.map((m) =>
@@ -396,6 +432,33 @@ export default function CourseEditorPage() {
     try { return JSON.parse(text); } catch { return {}; }
   };
 
+  // Content summary for collapsed lesson
+  const getContentSummary = (lesson: Lesson): string => {
+    const content = lesson.content || {};
+    switch (lesson.content_type) {
+      case "text": {
+        const body = (content.body as string) || "";
+        return body.length > 80 ? body.slice(0, 80) + "..." : body || "No content yet";
+      }
+      case "video":
+        return (content.url as string) || "No video URL";
+      case "quiz":
+        return "Click to manage quiz questions";
+      case "code_challenge":
+        return "Click to manage code challenge & test cases";
+      case "file_upload": {
+        const types = (content.allowed_types as string[]) || [];
+        return types.length ? `Accepts: ${types.join(", ")}` : "Click to configure";
+      }
+      case "interactive": {
+        const exType = (content.exercise_type as string) || "";
+        return exType ? `Type: ${exType.replace("_", " ")}` : "Click to build exercise";
+      }
+      default:
+        return "Click to edit";
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -426,7 +489,7 @@ export default function CourseEditorPage() {
             onClick={() => window.open(`/courses/${courseId}`, "_blank")}
           >
             <Eye className="mr-1 h-4 w-4" />
-            Preview as Student
+            Preview
           </Button>
           {course.status === "draft" && (
             <Button variant="outline" onClick={handlePublish}>
@@ -435,7 +498,7 @@ export default function CourseEditorPage() {
           )}
           <Button variant="destructive" onClick={handleDeleteCourse} disabled={deleting}>
             <Trash2 className="mr-1 h-4 w-4" />
-            {deleting ? "Deleting..." : "Delete Course"}
+            {deleting ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </div>
@@ -559,228 +622,239 @@ export default function CourseEditorPage() {
                   items={module.lessons?.map((l) => l.id) || []}
                   strategy={verticalListSortingStrategy}
                 >
-                <ul className="space-y-1">
+                <ul className="space-y-2">
                   {module.lessons?.map((lesson) => {
                     const typeOption = CONTENT_TYPE_OPTIONS.find((o) => o.value === lesson.content_type);
                     const Icon = typeOption?.icon || FileText;
-
-                    if (editingLessonId === lesson.id) {
-                      return (
-                        <SortableLessonItem key={lesson.id} id={lesson.id}>
-                        <div className="rounded-lg border border-indigo-200 bg-indigo-50/50 p-3">
-                          <div className="space-y-3">
-                            <input
-                              type="text"
-                              value={editLessonForm.title}
-                              onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
-                              placeholder="Lesson title"
-                              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
-                            />
-                            {lesson.content_type === "text" && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-slate-500">Format:</span>
-                                {(["markdown", "html"] as const).map((fmt) => (
-                                  <button
-                                    key={fmt}
-                                    onClick={() => setEditLessonForm({
-                                      ...editLessonForm,
-                                      content: { ...editLessonForm.content, format: fmt },
-                                    })}
-                                    className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                                      (editLessonForm.content.format || "markdown") === fmt
-                                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                        : "border-slate-200 text-slate-500 hover:border-slate-300"
-                                    }`}
-                                  >
-                                    {fmt === "markdown" ? "Markdown" : "HTML"}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                            <textarea
-                              value={getContentText(editLessonForm.content, lesson.content_type)}
-                              onChange={(e) =>
-                                setEditLessonForm({
-                                  ...editLessonForm,
-                                  content: setContentFromText(e.target.value, lesson.content_type, editLessonForm.content),
-                                })
-                              }
-                              placeholder={lesson.content_type === "video" ? "Video URL" : lesson.content_type === "text" ? "Content (Markdown or HTML)..." : "Content..."}
-                              rows={8}
-                              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm font-mono focus:border-indigo-500 focus:outline-none"
-                            />
-                            <input
-                              type="number"
-                              value={editLessonForm.duration_minutes}
-                              onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
-                              placeholder="Duration (minutes)"
-                              className="w-32 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
-                            />
-                            <div className="flex gap-2">
-                              <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
-                                <Save className="mr-1 h-3 w-3" /> Save
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={() => setEditingLessonId(null)}>
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                        </SortableLessonItem>
-                      );
-                    }
+                    const isExpanded = expandedLessonId === lesson.id;
+                    const typeBadgeClass = TYPE_COLORS[lesson.content_type] || TYPE_COLORS.text;
 
                     return (
                       <SortableLessonItem key={lesson.id} id={lesson.id}>
-                        <div className="group flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-slate-50">
-                          <Icon className="h-4 w-4 text-slate-400" />
-                          <span className="flex-1 text-sm text-slate-700">{lesson.title}</span>
-                          {lesson.duration_minutes && (
-                            <span className="text-xs text-slate-400">{lesson.duration_minutes} min</span>
-                          )}
-                          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-slate-400">
-                            {lesson.content_type}
-                          </span>
-                          {lesson.content_type === "quiz" && (
-                            <button
-                              onClick={() => {
-                                if (managingQuizForLesson === lesson.id) {
-                                  setManagingQuizForLesson(null);
-                                } else {
-                                  setManagingQuizForLesson(lesson.id);
-                                  setManagingChallengeForLesson(null);
-                                  setManagingUploadForLesson(null);
-                                  setManagingInteractiveForLesson(null);
-                                  apiClient
-                                    .get(`/assessments/lessons/${lesson.id}/quiz`)
-                                    .then(({ data }) => setExistingQuiz(data))
-                                    .catch(() => setExistingQuiz(null));
-                                }
-                              }}
-                              className="rounded bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600 hover:bg-indigo-100"
-                            >
-                              {managingQuizForLesson === lesson.id ? "Close Quiz" : "Manage Quiz"}
-                            </button>
-                          )}
-                          {lesson.content_type === "code_challenge" && (
-                            <button
-                              onClick={() => {
-                                if (managingChallengeForLesson === lesson.id) {
-                                  setManagingChallengeForLesson(null);
-                                } else {
-                                  setManagingChallengeForLesson(lesson.id);
-                                  setManagingQuizForLesson(null);
-                                  setManagingUploadForLesson(null);
-                                  setManagingInteractiveForLesson(null);
-                                }
-                              }}
-                              className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 hover:bg-emerald-100"
-                            >
-                              {managingChallengeForLesson === lesson.id ? "Close Challenge" : "Manage Challenge"}
-                            </button>
-                          )}
-                          {lesson.content_type === "file_upload" && (
-                            <button
-                              onClick={() => {
-                                if (managingUploadForLesson === lesson.id) {
-                                  setManagingUploadForLesson(null);
-                                } else {
-                                  setManagingUploadForLesson(lesson.id);
-                                  setManagingQuizForLesson(null);
-                                  setManagingChallengeForLesson(null);
-                                  setManagingInteractiveForLesson(null);
-                                }
-                              }}
-                              className="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600 hover:bg-amber-100"
-                            >
-                              {managingUploadForLesson === lesson.id ? "Close Config" : "Configure Upload"}
-                            </button>
-                          )}
-                          {lesson.content_type === "interactive" && (
-                            <button
-                              onClick={() => {
-                                if (managingInteractiveForLesson === lesson.id) {
-                                  setManagingInteractiveForLesson(null);
-                                } else {
-                                  setManagingInteractiveForLesson(lesson.id);
-                                  setManagingQuizForLesson(null);
-                                  setManagingChallengeForLesson(null);
-                                  setManagingUploadForLesson(null);
-                                }
-                              }}
-                              className="rounded bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-600 hover:bg-violet-100"
-                            >
-                              {managingInteractiveForLesson === lesson.id ? "Close Exercise" : "Build Exercise"}
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              setEditingLessonId(lesson.id);
-                              setEditLessonForm({
-                                title: lesson.title,
-                                content: lesson.content,
-                                duration_minutes: lesson.duration_minutes?.toString() || "",
-                              });
-                            }}
-                            className="invisible rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 group-hover:visible"
+                        {/* Lesson card */}
+                        <div
+                          className={`rounded-lg border transition-all ${
+                            isExpanded
+                              ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
+                              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                          }`}
+                        >
+                          {/* Lesson header — always visible */}
+                          <div
+                            className="flex cursor-pointer items-center gap-2.5 px-3 py-2.5"
+                            onClick={() => handleExpandLesson(lesson)}
                           >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteLesson(module.id, lesson.id)}
-                            className="invisible rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 group-hover:visible"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                            <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-800">{lesson.title}</span>
+                                {lesson.duration_minutes && (
+                                  <span className="text-xs text-slate-400">{lesson.duration_minutes} min</span>
+                                )}
+                              </div>
+                              {!isExpanded && (
+                                <p className="mt-0.5 truncate text-xs text-slate-400">
+                                  {getContentSummary(lesson)}
+                                </p>
+                              )}
+                            </div>
+                            <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${typeBadgeClass}`}>
+                              {typeOption?.label || lesson.content_type}
+                            </span>
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLesson(module.id, lesson.id);
+                              }}
+                              className="shrink-0 rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Expanded lesson editor */}
+                          {isExpanded && (
+                            <div className="border-t px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                              {/* Tabs */}
+                              <div className="mb-4 flex gap-1 rounded-lg bg-white/80 p-1">
+                                <button
+                                  onClick={() => setLessonTab("content")}
+                                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                                    lessonTab === "content"
+                                      ? "bg-white text-slate-800 shadow-sm"
+                                      : "text-slate-500 hover:text-slate-700"
+                                  }`}
+                                >
+                                  <FileText className="h-3.5 w-3.5" />
+                                  Content
+                                </button>
+                                <button
+                                  onClick={() => setLessonTab("settings")}
+                                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                                    lessonTab === "settings"
+                                      ? "bg-white text-slate-800 shadow-sm"
+                                      : "text-slate-500 hover:text-slate-700"
+                                  }`}
+                                >
+                                  <Settings2 className="h-3.5 w-3.5" />
+                                  Settings
+                                </button>
+                              </div>
+
+                              {lessonTab === "settings" && (
+                                <div className="space-y-3">
+                                  <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-600">Lesson Title</label>
+                                    <input
+                                      type="text"
+                                      value={editLessonForm.title}
+                                      onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
+                                      className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="mb-1 block text-xs font-medium text-slate-600">Duration (minutes)</label>
+                                    <input
+                                      type="number"
+                                      value={editLessonForm.duration_minutes}
+                                      onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
+                                      placeholder="Optional"
+                                      className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                    />
+                                  </div>
+                                  <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
+                                    <Save className="mr-1 h-3 w-3" /> Save Settings
+                                  </Button>
+                                </div>
+                              )}
+
+                              {lessonTab === "content" && (
+                                <div className="space-y-3">
+                                  {/* TEXT lesson */}
+                                  {lesson.content_type === "text" && (
+                                    <>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium text-slate-500">Format:</span>
+                                        {(["markdown", "html"] as const).map((fmt) => (
+                                          <button
+                                            key={fmt}
+                                            onClick={() => setEditLessonForm({
+                                              ...editLessonForm,
+                                              content: { ...editLessonForm.content, format: fmt },
+                                            })}
+                                            className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                                              (editLessonForm.content.format || "markdown") === fmt
+                                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                                : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                            }`}
+                                          >
+                                            {fmt === "markdown" ? "Markdown" : "HTML"}
+                                          </button>
+                                        ))}
+                                      </div>
+                                      <textarea
+                                        value={getContentText(editLessonForm.content, "text")}
+                                        onChange={(e) =>
+                                          setEditLessonForm({
+                                            ...editLessonForm,
+                                            content: setContentFromText(e.target.value, "text", editLessonForm.content),
+                                          })
+                                        }
+                                        placeholder="Write your lesson content here (Markdown supported)..."
+                                        rows={12}
+                                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                                      />
+                                      <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
+                                        <Save className="mr-1 h-3 w-3" /> Save Content
+                                      </Button>
+                                    </>
+                                  )}
+
+                                  {/* VIDEO lesson */}
+                                  {lesson.content_type === "video" && (
+                                    <>
+                                      <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-600">Video URL (YouTube, Vimeo, etc.)</label>
+                                        <input
+                                          type="text"
+                                          value={getContentText(editLessonForm.content, "video")}
+                                          onChange={(e) =>
+                                            setEditLessonForm({
+                                              ...editLessonForm,
+                                              content: setContentFromText(e.target.value, "video"),
+                                            })
+                                          }
+                                          placeholder="https://www.youtube.com/watch?v=..."
+                                          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                        />
+                                      </div>
+                                      {getContentText(editLessonForm.content, "video") && (
+                                        <div className="rounded-lg border border-slate-200 bg-white p-2">
+                                          <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
+                                          <a
+                                            href={getContentText(editLessonForm.content, "video")}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs text-indigo-600 hover:underline"
+                                          >
+                                            {getContentText(editLessonForm.content, "video")}
+                                          </a>
+                                        </div>
+                                      )}
+                                      <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
+                                        <Save className="mr-1 h-3 w-3" /> Save Video
+                                      </Button>
+                                    </>
+                                  )}
+
+                                  {/* QUIZ lesson */}
+                                  {lesson.content_type === "quiz" && (
+                                    <QuizBuilder
+                                      lessonId={lesson.id}
+                                      existingQuiz={existingQuiz as never}
+                                      onSaved={() => loadQuizForLesson(lesson.id)}
+                                    />
+                                  )}
+
+                                  {/* CODE CHALLENGE lesson */}
+                                  {lesson.content_type === "code_challenge" && (
+                                    <ChallengeBuilder
+                                      lessonId={lesson.id}
+                                      onSaved={() => {}}
+                                    />
+                                  )}
+
+                                  {/* FILE UPLOAD lesson */}
+                                  {lesson.content_type === "file_upload" && (
+                                    <FileUploadConfig
+                                      courseId={courseId}
+                                      moduleId={module.id}
+                                      lessonId={lesson.id}
+                                      initialContent={lesson.content || {}}
+                                      onSaved={() => fetchCourse()}
+                                    />
+                                  )}
+
+                                  {/* INTERACTIVE lesson */}
+                                  {lesson.content_type === "interactive" && (
+                                    <InteractiveBuilder
+                                      courseId={courseId}
+                                      moduleId={module.id}
+                                      lessonId={lesson.id}
+                                      initialContent={lesson.content || {}}
+                                      onSaved={() => fetchCourse()}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {managingQuizForLesson === lesson.id && (
-                          <div className="mx-3 mb-2 mt-1 rounded-lg border border-indigo-100 bg-indigo-50/30 p-3">
-                            <QuizBuilder
-                              lessonId={lesson.id}
-                              existingQuiz={existingQuiz as never}
-                              onSaved={() => {
-                                apiClient
-                                  .get(`/assessments/lessons/${lesson.id}/quiz`)
-                                  .then(({ data }) => setExistingQuiz(data))
-                                  .catch(() => {});
-                              }}
-                            />
-                          </div>
-                        )}
-                        {managingChallengeForLesson === lesson.id && (
-                          <div className="mx-3 mb-2 mt-1 rounded-lg border border-emerald-100 bg-emerald-50/30 p-3">
-                            <ChallengeBuilder
-                              lessonId={lesson.id}
-                              onSaved={() => {}}
-                            />
-                          </div>
-                        )}
-                        {managingUploadForLesson === lesson.id && (
-                          <div className="mx-3 mb-2 mt-1 rounded-lg border border-amber-100 bg-amber-50/30 p-3">
-                            <FileUploadConfig
-                              courseId={courseId}
-                              moduleId={module.id}
-                              lessonId={lesson.id}
-                              initialContent={lesson.content}
-                              onSaved={() => {
-                                fetchCourse();
-                              }}
-                            />
-                          </div>
-                        )}
-                        {managingInteractiveForLesson === lesson.id && (
-                          <div className="mx-3 mb-2 mt-1 rounded-lg border border-violet-100 bg-violet-50/30 p-3">
-                            <InteractiveBuilder
-                              courseId={courseId}
-                              moduleId={module.id}
-                              lessonId={lesson.id}
-                              initialContent={lesson.content}
-                              onSaved={() => {
-                                fetchCourse();
-                              }}
-                            />
-                          </div>
-                        )}
                       </SortableLessonItem>
                     );
                   })}
@@ -790,71 +864,91 @@ export default function CourseEditorPage() {
 
                 {/* Add lesson form */}
                 {addingLessonToModule === module.id ? (
-                  <div className="mt-3 rounded-lg border border-dashed border-slate-300 p-3">
+                  <div className="mt-3 rounded-lg border border-dashed border-slate-300 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">New Lesson</p>
                     <div className="space-y-3">
                       <input
                         type="text"
                         value={lessonForm.title}
                         onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
                         placeholder="Lesson title"
-                        className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                         autoFocus
                       />
-                      <div className="flex gap-2">
-                        {CONTENT_TYPE_OPTIONS.map((opt) => (
-                          <button
-                            key={opt.value}
-                            onClick={() => setLessonForm({ ...lessonForm, content_type: opt.value, content: {} })}
-                            className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                              lessonForm.content_type === opt.value
-                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                : "border-slate-200 text-slate-500 hover:border-slate-300"
-                            }`}
-                          >
-                            <opt.icon className="h-3 w-3" />
-                            {opt.label}
-                          </button>
-                        ))}
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Content Type</label>
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                          {CONTENT_TYPE_OPTIONS.map((opt) => {
+                            const selected = lessonForm.content_type === opt.value;
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => setLessonForm({ ...lessonForm, content_type: opt.value, content: {} })}
+                                className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition-all ${
+                                  selected
+                                    ? `${TYPE_COLORS[opt.value]} border-current`
+                                    : "border-transparent bg-slate-50 text-slate-500 hover:bg-slate-100"
+                                }`}
+                              >
+                                <opt.icon className="h-4 w-4" />
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      {lessonForm.content_type === "text" && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-slate-500">Format:</span>
-                          {(["markdown", "html"] as const).map((fmt) => (
-                            <button
-                              key={fmt}
-                              onClick={() => setLessonForm({
+                      {/* Only show content textarea for text/video */}
+                      {(lessonForm.content_type === "text" || lessonForm.content_type === "video") && (
+                        <>
+                          {lessonForm.content_type === "text" && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-slate-500">Format:</span>
+                              {(["markdown", "html"] as const).map((fmt) => (
+                                <button
+                                  key={fmt}
+                                  onClick={() => setLessonForm({
+                                    ...lessonForm,
+                                    content: { ...lessonForm.content, format: fmt },
+                                  })}
+                                  className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                                    (lessonForm.content.format || "markdown") === fmt
+                                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                                      : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                  }`}
+                                >
+                                  {fmt === "markdown" ? "Markdown" : "HTML"}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <textarea
+                            value={getContentText(lessonForm.content, lessonForm.content_type)}
+                            onChange={(e) =>
+                              setLessonForm({
                                 ...lessonForm,
-                                content: { ...lessonForm.content, format: fmt },
-                              })}
-                              className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                                (lessonForm.content.format || "markdown") === fmt
-                                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                  : "border-slate-200 text-slate-500 hover:border-slate-300"
-                              }`}
-                            >
-                              {fmt === "markdown" ? "Markdown" : "HTML"}
-                            </button>
-                          ))}
+                                content: setContentFromText(e.target.value, lessonForm.content_type, lessonForm.content),
+                              })
+                            }
+                            placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
+                            rows={6}
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                          />
+                        </>
+                      )}
+                      {/* Info for complex types */}
+                      {!["text", "video"].includes(lessonForm.content_type) && (
+                        <div className="rounded-lg border border-slate-200 bg-white p-3">
+                          <p className="text-xs text-slate-500">
+                            Create the lesson first, then click on it to configure the {lessonForm.content_type === "quiz" ? "quiz questions" : lessonForm.content_type === "code_challenge" ? "challenge & test cases" : lessonForm.content_type === "file_upload" ? "upload settings" : "exercise"}.
+                          </p>
                         </div>
                       )}
-                      <textarea
-                        value={getContentText(lessonForm.content, lessonForm.content_type)}
-                        onChange={(e) =>
-                          setLessonForm({
-                            ...lessonForm,
-                            content: setContentFromText(e.target.value, lessonForm.content_type, lessonForm.content),
-                          })
-                        }
-                        placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
-                        rows={8}
-                        className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm font-mono focus:border-indigo-500 focus:outline-none"
-                      />
                       <input
                         type="number"
                         value={lessonForm.duration_minutes}
                         onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
-                        placeholder="Duration (minutes)"
-                        className="w-32 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                        placeholder="Duration (minutes, optional)"
+                        className="w-48 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => handleAddLesson(module.id)}>
@@ -876,9 +970,9 @@ export default function CourseEditorPage() {
                 ) : (
                   <button
                     onClick={() => setAddingLessonToModule(module.id)}
-                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-2 text-xs font-medium text-slate-400 hover:border-indigo-300 hover:text-indigo-500"
+                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-3.5 w-3.5" />
                     Add Lesson
                   </button>
                 )}

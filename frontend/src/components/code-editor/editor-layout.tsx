@@ -49,7 +49,7 @@ export function EditorLayout({
 
   useEffect(() => {
     apiClient
-      .get("/sandbox/languages/")
+      .get("/sandbox/languages")
       .then(({ data }) => {
         if (data.languages?.length > 0) setLangs(data.languages);
       })
@@ -62,7 +62,7 @@ export function EditorLayout({
     setIsRunning(true);
     setActiveTab("output");
     try {
-      const { data } = await apiClient.post("/sandbox/execute/", {
+      const { data } = await apiClient.post("/sandbox/execute", {
         language: selectedLang,
         source_code: code,
         stdin: "",

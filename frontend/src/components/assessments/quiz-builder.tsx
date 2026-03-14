@@ -61,7 +61,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
   const handleCreateQuiz = async () => {
     setSaving(true);
     try {
-      const { data } = await apiClient.post("/assessments/quizzes/", {
+      const { data } = await apiClient.post("/assessments/quizzes", {
         lesson_id: lessonId,
         title,
         passing_score: passingScore,
@@ -93,7 +93,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
       }
 
       const { data } = await apiClient.post(
-        `/assessments/quizzes/${quizId}/questions/`,
+        `/assessments/quizzes/${quizId}/questions`,
         payload
       );
       setQuestions([...questions, data]);

@@ -64,7 +64,7 @@ export default function ChallengeBuilder({
   // Fetch available languages
   useEffect(() => {
     apiClient
-      .get("/sandbox/languages/")
+      .get("/sandbox/languages")
       .then(({ data }) => {
         const langs = (data.languages || []).map((l: { key: string; name: string }) => ({
           value: l.key,
@@ -144,7 +144,7 @@ export default function ChallengeBuilder({
         const { data } = await apiClient.put(`/sandbox/challenges/${challenge.id}/`, payload);
         savedChallenge = data;
       } else {
-        const { data } = await apiClient.post("/sandbox/challenges/", payload);
+        const { data } = await apiClient.post("/sandbox/challenges", payload);
         savedChallenge = data;
       }
       setChallenge(savedChallenge);

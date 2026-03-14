@@ -89,7 +89,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
         return { question_id: questionId, text: value };
       });
 
-      const { data } = await apiClient.post(`/assessments/quizzes/${quiz.id}/submit/`, {
+      const { data } = await apiClient.post(`/assessments/quizzes/${quiz.id}/submit`, {
         answers: answersList,
       });
       setResult({ score: data.score, passed: data.passed });
