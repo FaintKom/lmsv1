@@ -134,10 +134,40 @@ async def list_courses_admin(
         {
             "id": str(c.id), "title": c.title, "slug": c.slug,
             "description": c.description, "status": c.status.value if hasattr(c.status, 'value') else c.status,
-            "category": c.category, "created_at": str(c.created_at),
+            "category": c.category, "org_id": str(c.org_id), "created_at": str(c.created_at),
         }
         for c in courses
     ]
+
+
+class _UpdateCourseAdminBody(BaseModel):
+    org_id: str | None = None
+
+
+@router.put("/courses/{course_id}")
+async def update_course_admin(
+    course_id: uuid.UUID,
+    body: _UpdateCourseAdminBody,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super admin can change course org_id."""
+    from app.courses.models import Course
+
+    if admin.role != UserRole.super_admin:
+        from fastapi import HTTPException
+        raise HTTPException(403, "Only super admin can change course organization")
+
+    result = await db.execute(select(Course).where(Course.id == course_id))
+    course = result.scalar_one_or_none()
+    if not course:
+        raise NotFoundError("Course not found")
+
+    if body.org_id is not None:
+        course.org_id = uuid.UUID(body.org_id)
+
+    await db.flush()
+    return {"ok": True}
 
 
 @router.delete("/users/{user_id}")

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { BookOpen, Plus, Pencil, Trash2 } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthStore } from "@/stores/auth-store";
 
 interface AdminCourse {
   id: string;
@@ -18,13 +19,22 @@ interface AdminCourse {
   description: string;
   status: string;
   category: string | null;
+  org_id: string;
   created_at: string;
+}
+
+interface OrgOption {
+  id: string;
+  name: string;
 }
 
 export default function AdminCoursesPage() {
   const router = useRouter();
   const confirm = useConfirm();
+  const currentUser = useAuthStore((s) => s.user);
+  const isSuperAdmin = currentUser?.role === "super_admin";
   const [courses, setCourses] = useState<AdminCourse[]>([]);
+  const [orgs, setOrgs] = useState<OrgOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", category: "" });
@@ -38,7 +48,19 @@ export default function AdminCoursesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(fetchCourses, []);
+  const fetchOrgs = () => {
+    if (!isSuperAdmin) return;
+    apiClient
+      .get("/admin/organizations")
+      .then(({ data }) => setOrgs(data))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchCourses();
+    fetchOrgs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +96,16 @@ export default function AdminCoursesPage() {
       fetchCourses();
     } catch {
       toast.error("Failed to delete course");
+    }
+  };
+
+  const handleOrgChange = async (courseId: string, newOrgId: string) => {
+    try {
+      await apiClient.put(`/admin/courses/${courseId}`, { org_id: newOrgId });
+      toast.success("Organization updated");
+      fetchCourses();
+    } catch {
+      toast.error("Failed to update organization");
     }
   };
 
@@ -116,7 +148,12 @@ export default function AdminCoursesPage() {
     <div>
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Courses" }]} />
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
+          {isSuperAdmin && (
+            <p className="mt-1 text-sm text-slate-500">{courses.length} courses across all organizations</p>
+          )}
+        </div>
         <Button onClick={() => setShowForm(!showForm)}>
           <Plus className="mr-2 h-4 w-4" />
           New Course
@@ -182,6 +219,22 @@ export default function AdminCoursesPage() {
                   <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                     {course.category}
                   </span>
+                )}
+                {/* Organization selector for super admin */}
+                {isSuperAdmin && orgs.length > 0 && (
+                  <div className="mt-2">
+                    <select
+                      value={course.org_id}
+                      onChange={(e) => handleOrgChange(course.id, e.target.value)}
+                      className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none"
+                    >
+                      {orgs.map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 )}
                 <div className="mt-3 flex gap-2">
                   <Button
