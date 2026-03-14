@@ -219,7 +219,20 @@ async def get_invoices(db: AsyncSession, org_id: uuid.UUID) -> list[Invoice]:
 
 
 async def seed_default_plans(db: AsyncSession) -> None:
-    """Create default plans if none exist."""
+    """Create default plans if none exist. Deduplicates on name."""
+    from sqlalchemy import func, delete as sa_delete
+
+    # Remove duplicates: keep only the first plan per name
+    subq = select(func.min(Plan.id).label("keep_id")).group_by(Plan.name).subquery()
+    result = await db.execute(select(Plan.id))
+    all_ids = {row[0] for row in result.all()}
+    result2 = await db.execute(select(subq.c.keep_id))
+    keep_ids = {row[0] for row in result2.all()}
+    remove_ids = all_ids - keep_ids
+    if remove_ids:
+        await db.execute(sa_delete(Plan).where(Plan.id.in_(remove_ids)))
+        await db.flush()
+
     result = await db.execute(select(Plan))
     if result.scalars().first():
         return
