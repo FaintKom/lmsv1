@@ -75,6 +75,23 @@ async def add_question_endpoint(
     return QuestionResponse.model_validate(question)
 
 
+@router.delete("/quizzes/{quiz_id}")
+async def delete_quiz_endpoint(
+    quiz_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy import select
+    from app.assessments.models import Quiz
+    result = await db.execute(select(Quiz).where(Quiz.id == quiz_id))
+    quiz = result.scalar_one_or_none()
+    if not quiz:
+        raise __import__("app.common.exceptions", fromlist=["NotFoundError"]).NotFoundError("Quiz not found")
+    await db.delete(quiz)
+    await db.flush()
+    return {"status": "ok"}
+
+
 @router.post("/quizzes/{quiz_id}/submit", response_model=SubmissionResponse)
 async def submit_quiz_endpoint(
     quiz_id: uuid.UUID,
