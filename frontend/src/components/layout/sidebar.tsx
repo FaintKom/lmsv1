@@ -10,6 +10,7 @@ import {
   Code,
   BarChart3,
   Users,
+  UsersRound,
   CreditCard,
   LogOut,
   LayoutDashboard,
@@ -48,6 +49,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const adminNav = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/admin/users", label: t("nav.users"), icon: Users },
+    { href: "/admin/groups", label: t("nav.groups") || "Groups", icon: UsersRound },
     { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
     { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
     { href: "/admin/billing", label: t("nav.billing"), icon: CreditCard },

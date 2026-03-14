@@ -250,6 +250,246 @@ async def create_user_endpoint(
     return UserResponse.model_validate(new_user)
 
 
+# ─── Group Management ─────────────────────────────────────────────────
+
+
+@router.get("/groups")
+async def list_groups_endpoint(
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all student groups in the org."""
+    from sqlalchemy.orm import selectinload
+    from app.admin.models import StudentGroup
+
+    query = select(StudentGroup).options(selectinload(StudentGroup.members))
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query.order_by(StudentGroup.created_at.desc()))
+    groups = result.scalars().unique().all()
+    return [
+        {
+            "id": str(g.id),
+            "name": g.name,
+            "description": g.description,
+            "member_count": len(g.members),
+            "created_at": str(g.created_at),
+        }
+        for g in groups
+    ]
+
+
+@router.post("/groups")
+async def create_group_endpoint(
+    data: dict,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new student group."""
+    from app.admin.models import StudentGroup
+
+    group = StudentGroup(
+        org_id=admin.org_id,
+        name=data["name"],
+        description=data.get("description"),
+    )
+    db.add(group)
+    await db.flush()
+    return {"id": str(group.id), "name": group.name}
+
+
+@router.put("/groups/{group_id}")
+async def update_group_endpoint(
+    group_id: uuid.UUID,
+    data: dict,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update group name/description."""
+    from app.admin.models import StudentGroup
+
+    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query)
+    group = result.scalar_one_or_none()
+    if not group:
+        raise NotFoundError("Group not found")
+
+    if "name" in data:
+        group.name = data["name"]
+    if "description" in data:
+        group.description = data["description"]
+    await db.flush()
+    return {"id": str(group.id), "name": group.name}
+
+
+@router.delete("/groups/{group_id}")
+async def delete_group_endpoint(
+    group_id: uuid.UUID,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a student group."""
+    from app.admin.models import StudentGroup
+
+    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query)
+    group = result.scalar_one_or_none()
+    if not group:
+        raise NotFoundError("Group not found")
+    await db.delete(group)
+    return {"ok": True}
+
+
+@router.get("/groups/{group_id}/members")
+async def list_group_members_endpoint(
+    group_id: uuid.UUID,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List members of a group with user details."""
+    from app.admin.models import StudentGroup, StudentGroupMember
+
+    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query)
+    if not result.scalar_one_or_none():
+        raise NotFoundError("Group not found")
+
+    result = await db.execute(
+        select(User, StudentGroupMember)
+        .join(StudentGroupMember, StudentGroupMember.user_id == User.id)
+        .where(StudentGroupMember.group_id == group_id)
+        .order_by(User.full_name)
+    )
+    rows = result.all()
+    return [
+        {
+            "id": str(u.id),
+            "full_name": u.full_name,
+            "email": u.email,
+            "role": u.role.value if hasattr(u.role, "value") else u.role,
+            "member_id": str(m.id),
+        }
+        for u, m in rows
+    ]
+
+
+@router.post("/groups/{group_id}/members")
+async def add_group_members_endpoint(
+    group_id: uuid.UUID,
+    data: dict,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add one or more users to a group. data: {user_ids: [uuid, ...]}"""
+    from app.admin.models import StudentGroup, StudentGroupMember
+
+    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query)
+    if not result.scalar_one_or_none():
+        raise NotFoundError("Group not found")
+
+    user_ids = data.get("user_ids", [])
+    added = 0
+    for uid in user_ids:
+        existing = await db.execute(
+            select(StudentGroupMember).where(
+                StudentGroupMember.group_id == group_id,
+                StudentGroupMember.user_id == uid,
+            )
+        )
+        if existing.scalar_one_or_none():
+            continue
+        db.add(StudentGroupMember(group_id=group_id, user_id=uid))
+        added += 1
+    await db.flush()
+    return {"added": added}
+
+
+@router.delete("/groups/{group_id}/members/{user_id}")
+async def remove_group_member_endpoint(
+    group_id: uuid.UUID,
+    user_id: uuid.UUID,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove a user from a group."""
+    from app.admin.models import StudentGroupMember
+
+    result = await db.execute(
+        select(StudentGroupMember).where(
+            StudentGroupMember.group_id == group_id,
+            StudentGroupMember.user_id == user_id,
+        )
+    )
+    member = result.scalar_one_or_none()
+    if not member:
+        raise NotFoundError("Member not found in group")
+    await db.delete(member)
+    return {"ok": True}
+
+
+@router.post("/groups/{group_id}/enroll")
+async def enroll_group_endpoint(
+    group_id: uuid.UUID,
+    data: dict,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Enroll all members of a group into a course. data: {course_id: uuid}"""
+    from datetime import datetime, timezone
+    from app.admin.models import StudentGroup, StudentGroupMember
+    from app.courses.models import Course
+    from app.progress.models import Enrollment
+
+    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        query = query.where(StudentGroup.org_id == admin.org_id)
+    result = await db.execute(query)
+    if not result.scalar_one_or_none():
+        raise NotFoundError("Group not found")
+
+    course_id = data.get("course_id")
+    if not course_id:
+        from fastapi import HTTPException
+        raise HTTPException(400, "course_id required")
+
+    result = await db.execute(
+        select(StudentGroupMember.user_id).where(StudentGroupMember.group_id == group_id)
+    )
+    member_user_ids = [row[0] for row in result.all()]
+
+    enrolled = 0
+    for uid in member_user_ids:
+        existing = await db.execute(
+            select(Enrollment).where(
+                Enrollment.course_id == course_id,
+                Enrollment.student_id == uid,
+            )
+        )
+        if existing.scalar_one_or_none():
+            continue
+        db.add(Enrollment(
+            course_id=course_id,
+            student_id=uid,
+            enrolled_at=datetime.now(timezone.utc),
+        ))
+        enrolled += 1
+
+    await db.flush()
+    return {"enrolled": enrolled, "total_members": len(member_user_ids)}
+
+
+# ─── Analytics ────────────────────────────────────────────────────────
+
+
 @router.get("/analytics/export-csv")
 async def export_analytics_csv(
     user: User = Depends(require_role(UserRole.admin)),

@@ -42,6 +42,7 @@ async def lifespan(app: FastAPI):
     import app.notifications.models  # noqa
     import app.gamification.models  # noqa
     import app.certificates.models  # noqa
+    import app.admin.models  # noqa
 
     # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
