@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
 from app.math_problems.service import (
     generate_arithmetic,
     generate_algebra,
     generate_geometry,
+    check_answer,
 )
 
 router = APIRouter()
@@ -13,6 +15,15 @@ GENERATORS = {
     "algebra": generate_algebra,
     "geometry": generate_geometry,
 }
+
+
+class AnswerCheck(BaseModel):
+    user_answer: str
+    correct_answer: str
+
+
+class BatchAnswerCheck(BaseModel):
+    answers: list[AnswerCheck]
 
 
 @router.get("/generate")
@@ -33,3 +44,25 @@ async def generate_problems(
 
     problems = [generator(difficulty) for _ in range(count)]
     return problems
+
+
+@router.post("/check")
+async def check_answers(data: BatchAnswerCheck):
+    """Check a batch of answers. Returns results with correct/incorrect status."""
+    results = []
+    correct_count = 0
+    for item in data.answers:
+        is_correct = check_answer(item.user_answer, item.correct_answer)
+        if is_correct:
+            correct_count += 1
+        results.append({
+            "user_answer": item.user_answer,
+            "correct_answer": item.correct_answer,
+            "is_correct": is_correct,
+        })
+    return {
+        "results": results,
+        "total": len(results),
+        "correct": correct_count,
+        "score_percent": round(correct_count / len(results) * 100) if results else 0,
+    }

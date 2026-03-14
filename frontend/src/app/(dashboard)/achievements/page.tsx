@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCard } from "@/components/gamification/badge-card";
-import { Trophy, Flame, Medal } from "lucide-react";
+import { Trophy, Flame, Medal, Star, Zap, TrendingUp } from "lucide-react";
 
 interface BadgeData {
   id: string;
@@ -16,10 +16,22 @@ interface BadgeData {
   earned_at: string | null;
 }
 
+interface LeagueInfo {
+  name: string;
+  icon: string;
+  min_xp: number;
+  color: string;
+  next_league: string | null;
+  next_xp: number | null;
+  progress: number;
+}
+
 interface StreakData {
   current_streak: number;
   longest_streak: number;
   last_activity_date: string | null;
+  total_xp: number;
+  league: LeagueInfo | null;
 }
 
 interface LeaderboardEntry {
@@ -28,6 +40,8 @@ interface LeaderboardEntry {
   completed_lessons: number;
   current_streak: number;
   badge_count: number;
+  total_xp: number;
+  league: LeagueInfo | null;
 }
 
 export default function AchievementsPage() {
@@ -60,18 +74,80 @@ export default function AchievementsPage() {
   }
 
   const earnedCount = badges.filter((b) => b.earned).length;
+  const league = streak?.league;
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Achievements</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Track your progress and earn badges
+          Track your progress, earn XP, and climb the leagues
         </p>
       </div>
 
+      {/* XP & League Card */}
+      {league && (
+        <Card className="mb-6 overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex flex-col sm:flex-row">
+              {/* League info */}
+              <div className="flex items-center gap-4 p-6" style={{ background: `${league.color}15` }}>
+                <span className="text-5xl">{league.icon}</span>
+                <div>
+                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Current League</p>
+                  <p className="text-2xl font-bold" style={{ color: league.color === "#FFD700" ? "#B8860B" : league.color === "#C0C0C0" ? "#6B7280" : league.color }}>
+                    {league.name}
+                  </p>
+                </div>
+              </div>
+              {/* XP info */}
+              <div className="flex flex-1 items-center gap-6 p-6">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  <div>
+                    <p className="text-xs text-slate-400">Total XP</p>
+                    <p className="text-xl font-bold text-slate-900">{streak?.total_xp || 0}</p>
+                  </div>
+                </div>
+                {league.next_league && (
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                      <span>Progress to {league.next_league}</span>
+                      <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(league.progress, 100)}%`,
+                          background: `linear-gradient(90deg, ${league.color}, ${league.color}cc)`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats row */}
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <Card className="hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-5">
+            <div className="rounded-xl bg-yellow-50 p-3">
+              <Zap className="h-5 w-5 text-yellow-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-slate-400">Total XP</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {streak?.total_xp || 0}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-5">
             <div className="rounded-xl bg-orange-50 p-3">
@@ -103,7 +179,7 @@ export default function AchievementsPage() {
         <Card className="hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-5">
             <div className="rounded-xl bg-indigo-50 p-3">
-              <Flame className="h-5 w-5 text-indigo-500" />
+              <TrendingUp className="h-5 w-5 text-indigo-500" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400">Longest Streak</p>
@@ -182,11 +258,18 @@ export default function AchievementsPage() {
                         {i + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-700">
-                          {entry.user_name}
-                        </p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="truncate text-sm font-medium text-slate-700">
+                            {entry.user_name}
+                          </p>
+                          {entry.league && (
+                            <span className="text-xs" title={entry.league.name}>
+                              {entry.league.icon}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[10px] text-slate-400">
-                          {entry.completed_lessons} lessons · {entry.badge_count} badges
+                          {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges
                         </p>
                       </div>
                       {entry.current_streak > 0 && (
@@ -203,6 +286,36 @@ export default function AchievementsPage() {
           </Card>
         </div>
       </div>
+
+      {/* XP Earning Guide */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Star className="h-4 w-4 text-yellow-500" />
+            How to Earn XP
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="rounded-lg bg-blue-50 p-4 text-center">
+              <p className="text-2xl font-bold text-blue-600">+10</p>
+              <p className="mt-1 text-xs text-blue-500">Complete a lesson</p>
+            </div>
+            <div className="rounded-lg bg-emerald-50 p-4 text-center">
+              <p className="text-2xl font-bold text-emerald-600">+25</p>
+              <p className="mt-1 text-xs text-emerald-500">Pass a quiz</p>
+            </div>
+            <div className="rounded-lg bg-violet-50 p-4 text-center">
+              <p className="text-2xl font-bold text-violet-600">+50</p>
+              <p className="mt-1 text-xs text-violet-500">Pass a code challenge</p>
+            </div>
+            <div className="rounded-lg bg-orange-50 p-4 text-center">
+              <p className="text-2xl font-bold text-orange-600">+5</p>
+              <p className="mt-1 text-xs text-orange-500">Daily streak bonus</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

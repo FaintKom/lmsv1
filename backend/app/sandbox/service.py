@@ -148,4 +148,13 @@ async def submit_code(
     )
 
     await db.flush()
+
+    # Award XP for passing code challenge
+    if submission.status == SubmissionStatus.passed:
+        try:
+            from app.gamification.service import award_xp, XP_CODE_CHALLENGE_PASSED
+            await award_xp(db, user.id, XP_CODE_CHALLENGE_PASSED, "code_challenge_passed")
+        except Exception:
+            pass
+
     return submission

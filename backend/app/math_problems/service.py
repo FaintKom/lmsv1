@@ -174,3 +174,41 @@ def generate_geometry(difficulty: str) -> dict:
         "explanation": explanation,
         "latex": latex,
     }
+
+
+def check_answer(user_answer: str, correct_answer: str) -> bool:
+    """Check if user's answer matches the correct answer.
+    Handles numeric comparison with tolerance for floating point."""
+    user_answer = user_answer.strip()
+    correct_answer = correct_answer.strip()
+
+    # Direct string match
+    if user_answer.lower() == correct_answer.lower():
+        return True
+
+    # Try numeric comparison
+    try:
+        user_val = float(user_answer)
+        correct_val = float(correct_answer)
+        return abs(user_val - correct_val) < 0.02
+    except ValueError:
+        pass
+
+    # Handle "x = A or x = B" style answers
+    if "or" in correct_answer.lower():
+        parts = correct_answer.lower().replace("x =", "").replace("x=", "").split("or")
+        correct_vals = set()
+        for p in parts:
+            p = p.strip()
+            try:
+                correct_vals.add(float(p))
+            except ValueError:
+                correct_vals.add(p)
+        try:
+            user_val = float(user_answer)
+            if user_val in correct_vals:
+                return True
+        except ValueError:
+            pass
+
+    return False

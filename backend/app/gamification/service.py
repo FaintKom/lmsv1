@@ -9,6 +9,21 @@ from app.gamification.models import Badge, UserBadge, UserStreak
 from app.progress.models import LessonProgress, LessonStatus
 
 
+# XP rewards
+XP_LESSON_COMPLETE = 10
+XP_QUIZ_PASSED = 25
+XP_CODE_CHALLENGE_PASSED = 50
+XP_DAILY_STREAK_BONUS = 5
+
+# League thresholds
+LEAGUES = [
+    {"name": "Bronze", "icon": "🥉", "min_xp": 0, "color": "#CD7F32"},
+    {"name": "Silver", "icon": "🥈", "min_xp": 100, "color": "#C0C0C0"},
+    {"name": "Gold", "icon": "🥇", "min_xp": 500, "color": "#FFD700"},
+    {"name": "Platinum", "icon": "💎", "min_xp": 1500, "color": "#E5E4E2"},
+    {"name": "Diamond", "icon": "👑", "min_xp": 5000, "color": "#B9F2FF"},
+]
+
 DEFAULT_BADGES = [
     {"name": "First Steps", "description": "Complete your first lesson", "icon": "🎯", "criteria_key": "first_lesson", "criteria": {"lessons": 1}},
     {"name": "Dedicated Learner", "description": "Complete 10 lessons", "icon": "📚", "criteria_key": "lessons_10", "criteria": {"lessons": 10}},
@@ -18,7 +33,41 @@ DEFAULT_BADGES = [
     {"name": "Week Warrior", "description": "Maintain a 7-day streak", "icon": "🔥", "criteria_key": "streak_7", "criteria": {"streak": 7}},
     {"name": "Month Master", "description": "Maintain a 30-day streak", "icon": "💎", "criteria_key": "streak_30", "criteria": {"streak": 30}},
     {"name": "Code Warrior", "description": "Pass 10 code challenges", "icon": "⚔️", "criteria_key": "code_10", "criteria": {"code_passed": 10}},
+    {"name": "XP Hunter", "description": "Earn 500 XP", "icon": "⭐", "criteria_key": "xp_500", "criteria": {"xp": 500}},
+    {"name": "XP Master", "description": "Earn 5000 XP", "icon": "🌟", "criteria_key": "xp_5000", "criteria": {"xp": 5000}},
 ]
+
+
+def get_league(xp: int) -> dict:
+    """Get league info for given XP amount."""
+    league = LEAGUES[0]
+    for l in LEAGUES:
+        if xp >= l["min_xp"]:
+            league = l
+    # Calculate progress to next league
+    current_idx = LEAGUES.index(league)
+    if current_idx < len(LEAGUES) - 1:
+        next_league = LEAGUES[current_idx + 1]
+        progress = (xp - league["min_xp"]) / (next_league["min_xp"] - league["min_xp"]) * 100
+        return {**league, "next_league": next_league["name"], "next_xp": next_league["min_xp"], "progress": round(progress, 1)}
+    return {**league, "next_league": None, "next_xp": None, "progress": 100.0}
+
+
+async def award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: str = "") -> int:
+    """Award XP to a user. Returns new total XP."""
+    result = await db.execute(
+        select(UserStreak).where(UserStreak.user_id == user_id)
+    )
+    streak = result.scalar_one_or_none()
+
+    if not streak:
+        streak = UserStreak(user_id=user_id, total_xp=amount)
+        db.add(streak)
+    else:
+        streak.total_xp = (streak.total_xp or 0) + amount
+
+    await db.flush()
+    return streak.total_xp
 
 
 async def seed_default_badges(db: AsyncSession, org_id: uuid.UUID) -> None:
@@ -26,11 +75,17 @@ async def seed_default_badges(db: AsyncSession, org_id: uuid.UUID) -> None:
     result = await db.execute(
         select(func.count(Badge.id)).where(Badge.org_id == org_id)
     )
-    if result.scalar() > 0:
+    count = result.scalar()
+    if count >= len(DEFAULT_BADGES):
         return
 
+    # Get existing criteria keys
+    existing = await db.execute(select(Badge.criteria_key).where(Badge.org_id == org_id))
+    existing_keys = set(existing.scalars().all())
+
     for b in DEFAULT_BADGES:
-        db.add(Badge(org_id=org_id, **b))
+        if b["criteria_key"] not in existing_keys:
+            db.add(Badge(org_id=org_id, **b))
     await db.flush()
 
 
@@ -49,6 +104,7 @@ async def update_streak(db: AsyncSession, user_id: uuid.UUID) -> UserStreak:
             current_streak=1,
             longest_streak=1,
             last_activity_date=today,
+            total_xp=XP_DAILY_STREAK_BONUS,
         )
         db.add(streak)
         await db.flush()
@@ -68,6 +124,10 @@ async def update_streak(db: AsyncSession, user_id: uuid.UUID) -> UserStreak:
 
     streak.longest_streak = max(streak.longest_streak, streak.current_streak)
     streak.last_activity_date = today
+
+    # Streak bonus XP
+    streak.total_xp = (streak.total_xp or 0) + XP_DAILY_STREAK_BONUS
+
     await db.flush()
     return streak
 
@@ -113,6 +173,7 @@ async def check_and_award_badges(
     )
     streak = streak_result.scalar_one_or_none()
     current_streak = streak.current_streak if streak else 0
+    total_xp = (streak.total_xp if streak else 0) or 0
 
     from app.sandbox.models import CodeSubmission
     code_result = await db.execute(
@@ -149,6 +210,10 @@ async def check_and_award_badges(
         elif badge.criteria_key == "streak_30" and current_streak >= criteria.get("streak", 30):
             earned = True
         elif badge.criteria_key == "code_10" and code_passed >= criteria.get("code_passed", 10):
+            earned = True
+        elif badge.criteria_key == "xp_500" and total_xp >= criteria.get("xp", 500):
+            earned = True
+        elif badge.criteria_key == "xp_5000" and total_xp >= criteria.get("xp", 5000):
             earned = True
 
         if earned:
@@ -195,16 +260,19 @@ async def get_user_streak(db: AsyncSession, user_id: uuid.UUID) -> dict:
     )
     streak = result.scalar_one_or_none()
     if not streak:
-        return {"current_streak": 0, "longest_streak": 0, "last_activity_date": None}
+        return {"current_streak": 0, "longest_streak": 0, "last_activity_date": None, "total_xp": 0, "league": get_league(0)}
+    xp = streak.total_xp or 0
     return {
         "current_streak": streak.current_streak,
         "longest_streak": streak.longest_streak,
         "last_activity_date": str(streak.last_activity_date) if streak.last_activity_date else None,
+        "total_xp": xp,
+        "league": get_league(xp),
     }
 
 
 async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) -> list[dict]:
-    """Get leaderboard for an organization."""
+    """Get leaderboard for an organization, sorted by XP."""
     from app.progress.models import Enrollment
 
     # Students in this org
@@ -226,7 +294,7 @@ async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) 
         )
         completed = lessons_result.scalar() or 0
 
-        # Streak
+        # Streak + XP
         streak_result = await db.execute(
             select(UserStreak).where(UserStreak.user_id == student.id)
         )
@@ -238,14 +306,22 @@ async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) 
         )
         badges = badge_result.scalar() or 0
 
+        xp = (streak.total_xp if streak else 0) or 0
         leaderboard.append({
             "user_id": student.id,
             "user_name": student.full_name,
             "completed_lessons": completed,
             "current_streak": streak.current_streak if streak else 0,
             "badge_count": badges,
+            "total_xp": xp,
+            "league": get_league(xp),
         })
 
-    # Sort by completed lessons desc, then streaks
-    leaderboard.sort(key=lambda x: (x["completed_lessons"], x["current_streak"]), reverse=True)
+    # Sort by XP desc, then lessons, then streaks
+    leaderboard.sort(key=lambda x: (x["total_xp"], x["completed_lessons"], x["current_streak"]), reverse=True)
     return leaderboard[:limit]
+
+
+async def get_leagues_info() -> list[dict]:
+    """Return league tier information."""
+    return LEAGUES

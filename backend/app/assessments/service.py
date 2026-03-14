@@ -94,4 +94,13 @@ async def submit_quiz(
     )
     db.add(submission)
     await db.flush()
+
+    # Award XP for passing quiz
+    if passed:
+        try:
+            from app.gamification.service import award_xp, XP_QUIZ_PASSED
+            await award_xp(db, user.id, XP_QUIZ_PASSED, "quiz_passed")
+        except Exception:
+            pass
+
     return submission

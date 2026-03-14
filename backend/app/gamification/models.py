@@ -43,3 +43,4 @@ class UserStreak(Base, IDMixin):
     current_streak: Mapped[int] = mapped_column(Integer, default=0)
     longest_streak: Mapped[int] = mapped_column(Integer, default=0)
     last_activity_date: Mapped[date | None] = mapped_column(Date)
+    total_xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

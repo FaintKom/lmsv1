@@ -30,3 +30,15 @@ class SubscriptionResponse(BaseModel):
     current_period_end: str
 
     model_config = {"from_attributes": True}
+
+
+class InvoiceResponse(BaseModel):
+    id: uuid.UUID
+    amount_cents: int
+    status: str
+    invoice_url: str | None = None
+    period_start: str
+    period_end: str
+    created_at: str
+
+    model_config = {"from_attributes": True}

@@ -113,6 +113,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Super admin setup: {e}")
 
+    # Seed default billing plans
+    try:
+        from app.billing.service import seed_default_plans
+        async with async_session_factory() as session:
+            await seed_default_plans(session)
+            await session.commit()
+            logger.info("Default billing plans seeded")
+    except Exception as e:
+        logger.debug(f"Plan seeding: {e}")
+
     logger.info("LearnHub Backend started")
     yield
 

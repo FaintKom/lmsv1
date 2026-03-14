@@ -113,6 +113,13 @@ async def complete_lesson(
         except Exception:
             pass
 
+    # Award XP for lesson completion
+    try:
+        from app.gamification.service import award_xp, XP_LESSON_COMPLETE
+        await award_xp(db, user.id, XP_LESSON_COMPLETE, "lesson_complete")
+    except Exception:
+        pass
+
     await db.flush()
     return progress
 
