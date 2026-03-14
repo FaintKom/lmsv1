@@ -224,7 +224,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                           : "border-slate-300 text-slate-400"
                       }`}
                     >
-                      {opt.id.toUpperCase()}
+                      {String(opt.id).toUpperCase()}
                     </span>
                     {opt.text}
                   </button>
