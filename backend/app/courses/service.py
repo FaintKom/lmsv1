@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from slugify import slugify
 
-from app.auth.models import User
+from app.auth.models import User, UserRole
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.courses.schemas import CourseCreate, CourseUpdate, LessonCreate, LessonUpdate, ModuleCreate, ModuleUpdate
@@ -14,7 +14,12 @@ from app.courses.schemas import CourseCreate, CourseUpdate, LessonCreate, Lesson
 async def list_courses(
     db: AsyncSession, user: User, page: int = 1, per_page: int = 20
 ) -> tuple[list[Course], int]:
-    query = select(Course).where(Course.org_id == user.org_id)
+    query = select(Course)
+
+    if user.role == UserRole.super_admin:
+        pass  # no org filter — see all courses
+    else:
+        query = query.where(Course.org_id == user.org_id)
 
     if user.role == "student":
         query = query.where(Course.status == CourseStatus.published)
@@ -37,10 +42,11 @@ async def list_courses(
 
 
 async def get_course(db: AsyncSession, course_id: uuid.UUID, user: User) -> Course:
+    query = select(Course).where(Course.id == course_id)
+    if user.role != UserRole.super_admin:
+        query = query.where(Course.org_id == user.org_id)
     result = await db.execute(
-        select(Course)
-        .where(Course.id == course_id, Course.org_id == user.org_id)
-        .options(selectinload(Course.modules).selectinload(Module.lessons))
+        query.options(selectinload(Course.modules).selectinload(Module.lessons))
     )
     course = result.scalar_one_or_none()
     if not course:
@@ -298,13 +304,11 @@ async def search_courses_and_lessons(
     pattern = f"%{query}%"
 
     # Search courses
-    course_query = (
-        select(Course)
-        .where(
-            Course.org_id == user.org_id,
-            (Course.title.ilike(pattern)) | (Course.description.ilike(pattern)),
-        )
+    course_query = select(Course).where(
+        (Course.title.ilike(pattern)) | (Course.description.ilike(pattern)),
     )
+    if user.role != UserRole.super_admin:
+        course_query = course_query.where(Course.org_id == user.org_id)
     if user.role == "student":
         course_query = course_query.where(Course.status == CourseStatus.published)
 
@@ -316,11 +320,10 @@ async def search_courses_and_lessons(
         select(Lesson)
         .join(Module, Lesson.module_id == Module.id)
         .join(Course, Module.course_id == Course.id)
-        .where(
-            Course.org_id == user.org_id,
-            Lesson.title.ilike(pattern),
-        )
+        .where(Lesson.title.ilike(pattern))
     )
+    if user.role != UserRole.super_admin:
+        lesson_query = lesson_query.where(Course.org_id == user.org_id)
     if user.role == "student":
         lesson_query = lesson_query.where(Course.status == CourseStatus.published)
 
@@ -335,7 +338,7 @@ async def search_courses_and_lessons(
 
 
 def _check_course_owner(course: Course, user: User) -> None:
-    if user.role == "admin":
+    if user.role in (UserRole.admin, UserRole.super_admin):
         return
     if course.teacher_id != user.id:
         raise ForbiddenError("You don't have permission to modify this course")

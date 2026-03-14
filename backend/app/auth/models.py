@@ -9,6 +9,7 @@ from app.db.base import Base, IDMixin, TimestampMixin
 
 
 class UserRole(str, enum.Enum):
+    super_admin = "super_admin"
     admin = "admin"
     teacher = "teacher"
     student = "student"

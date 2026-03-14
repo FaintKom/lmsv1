@@ -18,6 +18,13 @@ from app.db.session import get_db
 router = APIRouter()
 
 
+def _user_org_filter(admin: User):
+    """Return org filter for User queries — empty for super_admin."""
+    if admin.role == UserRole.super_admin:
+        return []
+    return [User.org_id == admin.org_id]
+
+
 @router.get("/dashboard", response_model=DashboardStats)
 async def dashboard_endpoint(
     user: User = Depends(require_role(UserRole.admin)),
@@ -40,7 +47,7 @@ async def list_users_endpoint(
     user: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(User).where(User.org_id == user.org_id)
+    query = select(User).where(*_user_org_filter(user))
     if role:
         query = query.where(User.role == role)
     result = await db.execute(query.order_by(User.created_at.desc()))
@@ -56,9 +63,8 @@ async def update_user_endpoint(
     admin: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(User).where(User.id == user_id, User.org_id == admin.org_id)
-    )
+    query = select(User).where(User.id == user_id, *_user_org_filter(admin))
+    result = await db.execute(query)
     target_user = result.scalar_one_or_none()
     if not target_user:
         raise NotFoundError("User not found")
@@ -79,9 +85,10 @@ async def list_courses_admin(
 ):
     from app.courses.models import Course
 
-    result = await db.execute(
-        select(Course).where(Course.org_id == user.org_id).order_by(Course.created_at.desc())
-    )
+    query = select(Course)
+    if user.role != UserRole.super_admin:
+        query = query.where(Course.org_id == user.org_id)
+    result = await db.execute(query.order_by(Course.created_at.desc()))
     courses = result.scalars().all()
     return [
         {
@@ -101,9 +108,8 @@ async def delete_user_endpoint(
 ):
     from fastapi import HTTPException
 
-    result = await db.execute(
-        select(User).where(User.id == user_id, User.org_id == admin.org_id)
-    )
+    query = select(User).where(User.id == user_id, *_user_org_filter(admin))
+    result = await db.execute(query)
     target = result.scalar_one_or_none()
     if not target:
         raise NotFoundError("User not found")
@@ -130,18 +136,18 @@ async def admin_enroll_endpoint(
         from fastapi import HTTPException
         raise HTTPException(400, "user_id and course_id required")
 
-    # Verify user belongs to same org
-    result = await db.execute(
-        select(User).where(User.id == user_id, User.org_id == admin.org_id)
-    )
+    # Verify user (super_admin can enroll any user)
+    query = select(User).where(User.id == user_id, *_user_org_filter(admin))
+    result = await db.execute(query)
     target_user = result.scalar_one_or_none()
     if not target_user:
         raise NotFoundError("User not found")
 
-    # Verify course belongs to same org
-    result = await db.execute(
-        select(Course).where(Course.id == course_id, Course.org_id == admin.org_id)
-    )
+    # Verify course
+    course_q = select(Course).where(Course.id == course_id)
+    if admin.role != UserRole.super_admin:
+        course_q = course_q.where(Course.org_id == admin.org_id)
+    result = await db.execute(course_q)
     course = result.scalar_one_or_none()
     if not course:
         raise NotFoundError("Course not found")
@@ -174,12 +180,14 @@ async def list_course_students(
     """List all students enrolled in a course."""
     from app.progress.models import Enrollment
 
-    result = await db.execute(
+    query = (
         select(User, Enrollment)
         .join(Enrollment, Enrollment.student_id == User.id)
-        .where(Enrollment.course_id == course_id, User.org_id == admin.org_id)
-        .order_by(Enrollment.enrolled_at.desc())
+        .where(Enrollment.course_id == course_id)
     )
+    if admin.role != UserRole.super_admin:
+        query = query.where(User.org_id == admin.org_id)
+    result = await db.execute(query.order_by(Enrollment.enrolled_at.desc()))
     rows = result.all()
     return [
         {
@@ -205,11 +213,14 @@ async def admin_unenroll_endpoint(
     from app.progress.models import Enrollment
     from app.courses.models import Course
 
-    result = await db.execute(
+    query = (
         select(Enrollment)
         .join(Course, Enrollment.course_id == Course.id)
-        .where(Enrollment.id == enrollment_id, Course.org_id == admin.org_id)
+        .where(Enrollment.id == enrollment_id)
     )
+    if admin.role != UserRole.super_admin:
+        query = query.where(Course.org_id == admin.org_id)
+    result = await db.execute(query)
     enrollment = result.scalar_one_or_none()
     if not enrollment:
         raise NotFoundError("Enrollment not found")
@@ -228,7 +239,7 @@ async def create_user_endpoint(
     from app.auth.security import hash_password
 
     new_user = User(
-        org_id=admin.org_id,
+        org_id=data.get("org_id", admin.org_id),
         email=data["email"],
         hashed_password=hash_password(data["password"]),
         full_name=data["full_name"],
@@ -248,13 +259,14 @@ async def export_analytics_csv(
     from app.courses.models import Course
     from app.progress.models import Enrollment
 
-    result = await db.execute(
+    query = (
         select(User.full_name, User.email, Course.title, Enrollment.progress_percent, Enrollment.enrolled_at, Enrollment.completed_at)
         .join(Enrollment, Enrollment.student_id == User.id)
         .join(Course, Enrollment.course_id == Course.id)
-        .where(User.org_id == user.org_id)
-        .order_by(Enrollment.enrolled_at.desc())
     )
+    if user.role != UserRole.super_admin:
+        query = query.where(User.org_id == user.org_id)
+    result = await db.execute(query.order_by(Enrollment.enrolled_at.desc()))
     rows = result.all()
 
     def generate_csv():

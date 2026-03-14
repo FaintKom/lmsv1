@@ -44,11 +44,15 @@ async def lifespan(app: FastAPI):
     # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
     from sqlalchemy import text as sa_text
 
-    for val in ("file_upload", "interactive"):
+    for enum_type, val in [
+        ("contenttype", "file_upload"),
+        ("contenttype", "interactive"),
+        ("userrole", "super_admin"),
+    ]:
         try:
             async with engine.connect() as conn:
                 await conn.execute(sa_text(
-                    f"ALTER TYPE contenttype ADD VALUE IF NOT EXISTS '{val}'"
+                    f"ALTER TYPE {enum_type} ADD VALUE IF NOT EXISTS '{val}'"
                 ))
                 await conn.commit()
         except Exception:
@@ -68,6 +72,46 @@ async def lifespan(app: FastAPI):
         logger.info("Database migrations applied successfully")
     except Exception as e:
         logger.debug(f"Alembic migrations skipped: {e}")
+
+    # Ensure super_admin user exists
+    try:
+        from app.db.session import async_session_factory
+        from app.auth.models import User, UserRole, Organization
+        from app.auth.security import hash_password
+        from sqlalchemy import select
+
+        async with async_session_factory() as session:
+            result = await session.execute(
+                select(User).where(User.email == "faintkom@gmail.com")
+            )
+            sa_user = result.scalar_one_or_none()
+            if not sa_user:
+                # Create system org
+                result = await session.execute(
+                    select(Organization).where(Organization.slug == "system")
+                )
+                sys_org = result.scalar_one_or_none()
+                if not sys_org:
+                    sys_org = Organization(name="System", slug="system")
+                    session.add(sys_org)
+                    await session.flush()
+
+                sa_user = User(
+                    org_id=sys_org.id,
+                    email="faintkom@gmail.com",
+                    hashed_password=hash_password("REDACTED_PASSWORD"),
+                    full_name="Super Admin",
+                    role=UserRole.super_admin,
+                )
+                session.add(sa_user)
+                await session.commit()
+                logger.info("Super admin user created")
+            elif sa_user.role != UserRole.super_admin:
+                sa_user.role = UserRole.super_admin
+                await session.commit()
+                logger.info("Super admin role updated")
+    except Exception as e:
+        logger.warning(f"Super admin setup: {e}")
 
     logger.info("LearnHub Backend started")
     yield
