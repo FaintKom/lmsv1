@@ -40,5 +40,6 @@ class User(Base, IDMixin, TimestampMixin):
     avatar_url: Mapped[str | None] = mapped_column(String(500))
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_methodist: Mapped[bool] = mapped_column(Boolean, default=False)
 
     organization: Mapped["Organization"] = relationship(back_populates="users")

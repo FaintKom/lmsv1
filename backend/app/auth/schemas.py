@@ -38,6 +38,7 @@ class UserResponse(BaseModel):
     avatar_url: str | None = None
     bio: str | None = None
     is_active: bool = True
+    is_methodist: bool = False
     created_at: datetime | None = None
 
     model_config = {"from_attributes": True}

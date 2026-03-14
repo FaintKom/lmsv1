@@ -7,10 +7,11 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { BookOpen, Plus, Pencil, Trash2 } from "lucide-react";
+import { BookOpen, Plus, Pencil, Trash2, Copy, FileStack, Loader2 } from "lucide-react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
+import type { Course } from "@/types/api";
 
 interface AdminCourse {
   id: string;
@@ -21,6 +22,7 @@ interface AdminCourse {
   category: string | null;
   org_id: string;
   created_at: string;
+  is_template?: boolean;
 }
 
 interface OrgOption {
@@ -33,12 +35,17 @@ export default function AdminCoursesPage() {
   const confirm = useConfirm();
   const currentUser = useAuthStore((s) => s.user);
   const isSuperAdmin = currentUser?.role === "super_admin";
+  const isAdmin = currentUser?.role === "admin" || isSuperAdmin;
+  const isTeacher = currentUser?.role === "teacher";
+  const isMethodist = isTeacher && currentUser?.is_methodist;
   const [courses, setCourses] = useState<AdminCourse[]>([]);
+  const [templates, setTemplates] = useState<Course[]>([]);
   const [orgs, setOrgs] = useState<OrgOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", category: "" });
+  const [form, setForm] = useState({ title: "", description: "", category: "", is_template: false });
   const [submitting, setSubmitting] = useState(false);
+  const [copying, setCopying] = useState<string | null>(null);
 
   const fetchCourses = () => {
     apiClient
@@ -46,6 +53,13 @@ export default function AdminCoursesPage() {
       .then(({ data }) => setCourses(data))
       .catch(() => {})
       .finally(() => setLoading(false));
+  };
+
+  const fetchTemplates = () => {
+    apiClient
+      .get("/courses/templates")
+      .then(({ data }) => setTemplates(data))
+      .catch(() => {});
   };
 
   const fetchOrgs = () => {
@@ -58,6 +72,7 @@ export default function AdminCoursesPage() {
 
   useEffect(() => {
     fetchCourses();
+    fetchTemplates();
     fetchOrgs();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -67,10 +82,11 @@ export default function AdminCoursesPage() {
     setSubmitting(true);
     try {
       await apiClient.post("/courses/", form);
-      setForm({ title: "", description: "", category: "" });
+      setForm({ title: "", description: "", category: "", is_template: false });
       setShowForm(false);
       toast.success("Course created successfully");
       fetchCourses();
+      if (form.is_template) fetchTemplates();
     } catch {
       toast.error("Failed to create course");
     } finally {
@@ -94,8 +110,23 @@ export default function AdminCoursesPage() {
       await apiClient.delete(`/courses/${courseId}/`);
       toast.success("Course deleted");
       fetchCourses();
+      fetchTemplates();
     } catch {
       toast.error("Failed to delete course");
+    }
+  };
+
+  const handleCopy = async (courseId: string) => {
+    setCopying(courseId);
+    try {
+      const { data } = await apiClient.post(`/courses/${courseId}/copy`);
+      toast.success("Course copied successfully");
+      fetchCourses();
+      router.push(`/admin/courses/${data.id}/edit`);
+    } catch {
+      toast.error("Failed to copy course");
+    } finally {
+      setCopying(null);
     }
   };
 
@@ -141,6 +172,106 @@ export default function AdminCoursesPage() {
       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-600"}`}>
         {status}
       </span>
+    );
+  };
+
+  const canCreateTemplate = isAdmin || isMethodist;
+
+  const renderCourseCard = (course: AdminCourse | Course, opts: { showCopy?: boolean; showEdit?: boolean; showDelete?: boolean } = {}) => {
+    const { showCopy = false, showEdit = true, showDelete = true } = opts;
+    const isTemplate = 'is_template' in course && course.is_template;
+    return (
+      <Card key={course.id} className="transition-shadow hover:shadow-md">
+        <CardContent className="p-6">
+          <div className="mb-3 flex items-center justify-between">
+            <div className={`rounded-lg p-2 ${isTemplate ? "bg-violet-100" : "bg-blue-100"}`}>
+              {isTemplate ? <FileStack className="h-5 w-5 text-violet-600" /> : <BookOpen className="h-5 w-5 text-blue-600" />}
+            </div>
+            <div className="flex items-center gap-1.5">
+              {isTemplate && (
+                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-medium text-violet-700">
+                  Template
+                </span>
+              )}
+              {statusBadge(course.status)}
+            </div>
+          </div>
+          <h3 className="mb-1 font-semibold text-gray-900">{course.title}</h3>
+          <p className="mb-3 line-clamp-2 text-sm text-gray-500">
+            {course.description || "No description"}
+          </p>
+          {('category' in course) && course.category && (
+            <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+              {course.category}
+            </span>
+          )}
+          {/* Organization selector for super admin */}
+          {isSuperAdmin && orgs.length > 0 && 'org_id' in course && (
+            <div className="mt-2">
+              <select
+                value={course.org_id}
+                onChange={(e) => handleOrgChange(course.id, e.target.value)}
+                className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none"
+              >
+                {orgs.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="mt-3 flex gap-2">
+            {showCopy && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => handleCopy(course.id)}
+                disabled={copying === course.id}
+              >
+                {copying === course.id ? (
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                ) : (
+                  <Copy className="mr-1 h-3 w-3" />
+                )}
+                Copy
+              </Button>
+            )}
+            {showEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
+              >
+                <Pencil className="mr-1 h-3 w-3" />
+                Edit
+              </Button>
+            )}
+            {course.status === "draft" && showEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => handlePublish(course.id)}
+              >
+                Publish
+              </Button>
+            )}
+            {showDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                onClick={() => handleDelete(course.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -190,6 +321,18 @@ export default function AdminCoursesPage() {
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
+              {canCreateTemplate && (
+                <label className="flex items-center gap-2 text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={form.is_template}
+                    onChange={(e) => setForm({ ...form, is_template: e.target.checked })}
+                    className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                  />
+                  Create as organization template
+                  <span className="text-xs text-slate-400">(visible to all teachers for copying)</span>
+                </label>
+              )}
               <Button type="submit" disabled={submitting}>
                 {submitting ? "Creating..." : "Create Course"}
               </Button>
@@ -198,76 +341,37 @@ export default function AdminCoursesPage() {
         </Card>
       )}
 
-      {courses.length === 0 ? (
-        <p className="text-gray-500">No courses yet. Create your first course!</p>
+      {/* Organization Templates — visible to all teachers/admins */}
+      {templates.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
+            <FileStack className="h-5 w-5 text-violet-500" />
+            Organization Templates
+            <span className="text-sm font-normal text-slate-400">({templates.length})</span>
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {templates.map((t) =>
+              renderCourseCard(t, {
+                showCopy: true,
+                showEdit: isAdmin || isMethodist,
+                showDelete: isAdmin || isMethodist,
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* My Courses / All Courses */}
+      <h2 className="mb-4 text-lg font-semibold text-slate-900">
+        {isTeacher ? "My Courses" : "All Courses"}
+      </h2>
+      {courses.filter((c) => !c.is_template).length === 0 ? (
+        <p className="text-gray-500">No courses yet. Create your first course or copy a template!</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
-            <Card key={course.id} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-6">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="rounded-lg bg-blue-100 p-2">
-                    <BookOpen className="h-5 w-5 text-blue-600" />
-                  </div>
-                  {statusBadge(course.status)}
-                </div>
-                <h3 className="mb-1 font-semibold text-gray-900">{course.title}</h3>
-                <p className="mb-3 line-clamp-2 text-sm text-gray-500">
-                  {course.description || "No description"}
-                </p>
-                {course.category && (
-                  <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                    {course.category}
-                  </span>
-                )}
-                {/* Organization selector for super admin */}
-                {isSuperAdmin && orgs.length > 0 && (
-                  <div className="mt-2">
-                    <select
-                      value={course.org_id}
-                      onChange={(e) => handleOrgChange(course.id, e.target.value)}
-                      className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none"
-                    >
-                      {orgs.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
-                  >
-                    <Pencil className="mr-1 h-3 w-3" />
-                    Edit
-                  </Button>
-                  {course.status === "draft" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handlePublish(course.id)}
-                    >
-                      Publish
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-500 hover:bg-red-50 hover:text-red-600"
-                    onClick={() => handleDelete(course.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {courses
+            .filter((c) => !c.is_template)
+            .map((course) => renderCourseCard(course))}
         </div>
       )}
     </div>

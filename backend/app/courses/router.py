@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.courses.schemas import (
+    CopyLessonRequest,
+    CopyModuleRequest,
     CourseCreate,
     CourseResponse,
     CourseUpdate,
@@ -19,6 +21,9 @@ from app.courses.schemas import (
     SearchLessonResponse,
 )
 from app.courses.service import (
+    copy_course,
+    copy_lesson,
+    copy_module,
     create_course,
     create_lesson,
     create_module,
@@ -28,6 +33,7 @@ from app.courses.service import (
     get_course,
     get_lesson,
     list_courses,
+    list_template_courses,
     publish_course,
     reorder_lessons,
     reorder_modules,
@@ -79,6 +85,49 @@ async def create_course_endpoint(
 ):
     course = await create_course(db, data, user)
     return CourseResponse.model_validate(course)
+
+
+@router.get("/templates", response_model=list[CourseResponse])
+async def list_templates_endpoint(
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all template courses in the user's org."""
+    templates = await list_template_courses(db, user)
+    return [CourseResponse.model_validate(c) for c in templates]
+
+
+@router.post("/{course_id}/copy", response_model=CourseResponse)
+async def copy_course_endpoint(
+    course_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Deep copy an entire course (modules, lessons, quizzes, challenges)."""
+    course = await copy_course(db, course_id, user)
+    return CourseResponse.model_validate(course)
+
+
+@router.post("/copy-module", response_model=ModuleResponse)
+async def copy_module_endpoint(
+    data: CopyModuleRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Copy a single module into a target course."""
+    module = await copy_module(db, data.source_module_id, data.target_course_id, user)
+    return ModuleResponse.model_validate(module)
+
+
+@router.post("/copy-lesson", response_model=LessonResponse)
+async def copy_lesson_endpoint(
+    data: CopyLessonRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Copy a single lesson into a target module."""
+    lesson = await copy_lesson(db, data.source_lesson_id, data.target_module_id, user)
+    return LessonResponse.model_validate(lesson)
 
 
 @router.get("/{course_id}", response_model=CourseResponse)

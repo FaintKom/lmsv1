@@ -88,6 +88,11 @@ async def lifespan(app: FastAPI):
         )""",
         "ALTER TABLE plans DROP CONSTRAINT IF EXISTS uq_plans_name",
         "ALTER TABLE plans ADD CONSTRAINT uq_plans_name UNIQUE (name)",
+        # Methodist & template courses
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_methodist BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS source_course_id UUID REFERENCES courses(id) ON DELETE SET NULL",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
     ]
     for stmt in alter_statements:
         try:

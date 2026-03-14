@@ -20,21 +20,24 @@ async def list_courses(
     if user.role == UserRole.super_admin:
         pass  # no org filter — see all courses
     elif user.role == UserRole.student:
-        # Students see: published courses in their org OR courses they're enrolled in
+        # Students see: published non-template courses in their org OR courses they're enrolled in
         enrolled_course_ids = select(Enrollment.course_id).where(
             Enrollment.student_id == user.id
         )
         query = query.where(
             Course.org_id == user.org_id,
+            Course.is_template == False,  # noqa: E712
             (Course.status == CourseStatus.published) | (Course.id.in_(enrolled_course_ids)),
         )
     elif user.role == UserRole.teacher:
+        # Teachers see their own courses + published non-template courses
         query = query.where(
             Course.org_id == user.org_id,
+            Course.is_template == False,  # noqa: E712
             (Course.teacher_id == user.id) | (Course.status == CourseStatus.published),
         )
     else:
-        # admin — all courses in their org
+        # admin — all courses in their org (including templates)
         query = query.where(Course.org_id == user.org_id)
 
     total_query = select(func.count()).select_from(query.subquery())
@@ -88,6 +91,12 @@ async def create_course(db: AsyncSession, data: CourseCreate, user: User) -> Cou
         slug = f"{base_slug}-{counter}"
         counter += 1
 
+    # Only methodists and admins can create template courses
+    is_template = data.is_template if hasattr(data, 'is_template') else False
+    if is_template:
+        if user.role not in (UserRole.admin, UserRole.super_admin) and not getattr(user, 'is_methodist', False):
+            raise ForbiddenError("Only methodists and admins can create template courses")
+
     course = Course(
         org_id=user.org_id,
         teacher_id=user.id,
@@ -95,6 +104,7 @@ async def create_course(db: AsyncSession, data: CourseCreate, user: User) -> Cou
         slug=slug,
         description=data.description,
         category=data.category,
+        is_template=is_template,
     )
     db.add(course)
     await db.flush()
@@ -116,6 +126,11 @@ async def update_course(
 
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(course, field, value)
+
+    # Increment template version and notify teachers who copied this template
+    if course.is_template:
+        course.template_version = (course.template_version or 1) + 1
+        await _notify_template_update(db, course)
 
     await db.flush()
 
@@ -383,5 +398,273 @@ async def search_courses_and_lessons(
 def _check_course_owner(course: Course, user: User) -> None:
     if user.role in (UserRole.admin, UserRole.super_admin):
         return
+    # Template courses: only methodists (or admin/super_admin above) can edit
+    if course.is_template:
+        if not getattr(user, 'is_methodist', False):
+            raise ForbiddenError("Only methodists and admins can modify template courses")
+        return
     if course.teacher_id != user.id:
         raise ForbiddenError("You don't have permission to modify this course")
+
+
+async def _notify_template_update(db: AsyncSession, course: Course) -> None:
+    """Notify teachers who copied this template that a new version is available."""
+    from app.notifications.service import create_notification
+
+    copies = await db.execute(
+        select(Course.teacher_id).where(
+            Course.source_course_id == course.id
+        ).distinct()
+    )
+    teacher_ids = [row[0] for row in copies.all()]
+    for tid in teacher_ids:
+        await create_notification(
+            db, tid,
+            title=f"Template updated: {course.title}",
+            body=f"A new version (v{course.template_version}) is available.",
+            link=f"/courses/{course.id}",
+        )
+
+
+async def list_template_courses(
+    db: AsyncSession, user: User
+) -> list[Course]:
+    """List all template courses in the user's org."""
+    query = select(Course).where(
+        Course.org_id == user.org_id,
+        Course.is_template == True,  # noqa: E712
+    ).options(
+        selectinload(Course.modules).selectinload(Module.lessons)
+    ).order_by(Course.created_at.desc())
+
+    result = await db.execute(query)
+    return list(result.scalars().unique().all())
+
+
+async def _generate_unique_slug(db: AsyncSession, org_id: uuid.UUID, title: str) -> str:
+    """Generate a unique slug within the org."""
+    slug = slugify(title)
+    base_slug = slug
+    counter = 1
+    while True:
+        existing = await db.execute(
+            select(Course).where(Course.org_id == org_id, Course.slug == slug)
+        )
+        if not existing.scalar_one_or_none():
+            break
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+    return slug
+
+
+async def _copy_lesson_entity(
+    db: AsyncSession, source_lesson: Lesson, target_module_id: uuid.UUID, sort_order: int
+) -> Lesson:
+    """Copy a single lesson and its associated quiz/challenge."""
+    new_lesson = Lesson(
+        module_id=target_module_id,
+        title=source_lesson.title,
+        content_type=source_lesson.content_type,
+        content=source_lesson.content.copy() if source_lesson.content else {},
+        sort_order=sort_order,
+        duration_minutes=source_lesson.duration_minutes,
+    )
+    db.add(new_lesson)
+    await db.flush()
+
+    # Copy quiz if exists
+    from app.assessments.models import Quiz, Question
+    quiz_result = await db.execute(
+        select(Quiz).where(Quiz.lesson_id == source_lesson.id)
+        .options(selectinload(Quiz.questions))
+    )
+    source_quiz = quiz_result.scalar_one_or_none()
+    if source_quiz:
+        new_quiz = Quiz(
+            lesson_id=new_lesson.id,
+            title=source_quiz.title,
+            passing_score=source_quiz.passing_score,
+            time_limit_minutes=source_quiz.time_limit_minutes,
+        )
+        db.add(new_quiz)
+        await db.flush()
+        for q in source_quiz.questions:
+            new_q = Question(
+                quiz_id=new_quiz.id,
+                question_text=q.question_text,
+                question_type=q.question_type,
+                options=q.options.copy() if q.options else None,
+                correct_answer=q.correct_answer,
+                points=q.points,
+                sort_order=q.sort_order,
+            )
+            db.add(new_q)
+
+    # Copy code challenge if exists
+    from app.sandbox.models import CodeChallenge, TestCase
+    challenge_result = await db.execute(
+        select(CodeChallenge).where(CodeChallenge.lesson_id == source_lesson.id)
+        .options(selectinload(CodeChallenge.test_cases))
+    )
+    source_challenge = challenge_result.scalar_one_or_none()
+    if source_challenge:
+        new_challenge = CodeChallenge(
+            lesson_id=new_lesson.id,
+            title=source_challenge.title,
+            description=source_challenge.description,
+            language=source_challenge.language,
+            starter_code=source_challenge.starter_code,
+            solution_code=source_challenge.solution_code,
+            time_limit_seconds=source_challenge.time_limit_seconds,
+            memory_limit_mb=source_challenge.memory_limit_mb,
+        )
+        db.add(new_challenge)
+        await db.flush()
+        for tc in source_challenge.test_cases:
+            new_tc = TestCase(
+                challenge_id=new_challenge.id,
+                input=tc.input,
+                expected_output=tc.expected_output,
+                is_hidden=tc.is_hidden,
+                sort_order=tc.sort_order,
+            )
+            db.add(new_tc)
+
+    await db.flush()
+    return new_lesson
+
+
+async def copy_course(
+    db: AsyncSession, source_course_id: uuid.UUID, user: User
+) -> Course:
+    """Deep copy a course (modules → lessons → quizzes → challenges)."""
+    # Load source with full tree
+    result = await db.execute(
+        select(Course).where(Course.id == source_course_id)
+        .options(selectinload(Course.modules).selectinload(Module.lessons))
+    )
+    source = result.scalar_one_or_none()
+    if not source:
+        raise NotFoundError("Source course not found")
+
+    # Org check
+    if user.role != UserRole.super_admin and source.org_id != user.org_id:
+        raise NotFoundError("Source course not found")
+
+    slug = await _generate_unique_slug(db, user.org_id, source.title)
+
+    new_course = Course(
+        org_id=user.org_id,
+        teacher_id=user.id,
+        title=source.title,
+        slug=slug,
+        description=source.description,
+        thumbnail_url=source.thumbnail_url,
+        category=source.category,
+        is_template=False,
+        source_course_id=source.id,
+        template_version=source.template_version,
+    )
+    db.add(new_course)
+    await db.flush()
+
+    # Copy modules and lessons
+    for src_module in source.modules:
+        new_module = Module(
+            course_id=new_course.id,
+            title=src_module.title,
+            sort_order=src_module.sort_order,
+        )
+        db.add(new_module)
+        await db.flush()
+
+        for src_lesson in src_module.lessons:
+            await _copy_lesson_entity(db, src_lesson, new_module.id, src_lesson.sort_order)
+
+    await db.flush()
+
+    # Reload with relationships
+    result = await db.execute(
+        select(Course).where(Course.id == new_course.id)
+        .options(selectinload(Course.modules).selectinload(Module.lessons))
+    )
+    return result.scalar_one()
+
+
+async def copy_module(
+    db: AsyncSession, source_module_id: uuid.UUID, target_course_id: uuid.UUID, user: User
+) -> Module:
+    """Copy a single module (with lessons) into a target course."""
+    # Validate target course ownership
+    target_course = await get_course(db, target_course_id, user)
+    _check_course_owner(target_course, user)
+
+    # Load source module
+    result = await db.execute(
+        select(Module).where(Module.id == source_module_id)
+        .options(selectinload(Module.lessons), selectinload(Module.course))
+    )
+    src_module = result.scalar_one_or_none()
+    if not src_module:
+        raise NotFoundError("Source module not found")
+
+    # Org check on source
+    if user.role != UserRole.super_admin and src_module.course.org_id != user.org_id:
+        raise NotFoundError("Source module not found")
+
+    # Get next sort order
+    max_order = await db.execute(
+        select(func.coalesce(func.max(Module.sort_order), -1)).where(
+            Module.course_id == target_course_id
+        )
+    )
+    next_order = (max_order.scalar() or 0) + 1
+
+    new_module = Module(
+        course_id=target_course_id,
+        title=src_module.title,
+        sort_order=next_order,
+    )
+    db.add(new_module)
+    await db.flush()
+
+    for src_lesson in src_module.lessons:
+        await _copy_lesson_entity(db, src_lesson, new_module.id, src_lesson.sort_order)
+
+    await db.flush()
+
+    # Reload
+    result = await db.execute(
+        select(Module).where(Module.id == new_module.id)
+        .options(selectinload(Module.lessons))
+    )
+    return result.scalar_one()
+
+
+async def copy_lesson(
+    db: AsyncSession, source_lesson_id: uuid.UUID, target_module_id: uuid.UUID, user: User
+) -> Lesson:
+    """Copy a single lesson (with quiz/challenge) into a target module."""
+    # Validate target module ownership
+    result = await db.execute(
+        select(Module).where(Module.id == target_module_id)
+        .options(selectinload(Module.course))
+    )
+    target_module = result.scalar_one_or_none()
+    if not target_module:
+        raise NotFoundError("Target module not found")
+    _check_course_owner(target_module.course, user)
+
+    # Load source lesson
+    source_lesson = await get_lesson(db, source_lesson_id, user)
+
+    # Get next sort order
+    max_order = await db.execute(
+        select(func.coalesce(func.max(Lesson.sort_order), -1)).where(
+            Lesson.module_id == target_module_id
+        )
+    )
+    next_order = (max_order.scalar() or 0) + 1
+
+    new_lesson = await _copy_lesson_entity(db, source_lesson, target_module_id, next_order)
+    return new_lesson

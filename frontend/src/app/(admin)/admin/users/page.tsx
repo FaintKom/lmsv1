@@ -107,6 +107,16 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleToggleMethodist = async (userId: string, isMethodist: boolean) => {
+    try {
+      await apiClient.put(`/admin/users/${userId}/`, { is_methodist: !isMethodist });
+      toast.success(!isMethodist ? "Methodist role granted" : "Methodist role revoked");
+      fetchUsers();
+    } catch {
+      toast.error("Failed to update methodist status");
+    }
+  };
+
   const getOrgName = (orgId: string) => {
     const org = orgs.find((o) => o.id === orgId);
     return org?.name || orgId.slice(0, 8) + "...";
@@ -198,6 +208,7 @@ export default function AdminUsersPage() {
                   <th className="px-5 py-3">Name</th>
                   <th className="px-5 py-3">Email</th>
                   <th className="px-5 py-3">Role</th>
+                  <th className="px-5 py-3">Methodist</th>
                   {isSuperAdmin && <th className="px-5 py-3">Organization</th>}
                   <th className="px-5 py-3">Status</th>
                   <th className="px-5 py-3">Joined</th>
@@ -227,6 +238,22 @@ export default function AdminUsersPage() {
                         <option value="admin">admin</option>
                         {isSuperAdmin && <option value="super_admin">super_admin</option>}
                       </select>
+                    </td>
+                    <td className="px-5 py-4">
+                      {u.role === "teacher" ? (
+                        <button
+                          onClick={() => handleToggleMethodist(u.id, !!u.is_methodist)}
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                            u.is_methodist
+                              ? "bg-violet-50 text-violet-600"
+                              : "bg-slate-50 text-slate-400"
+                          }`}
+                        >
+                          {u.is_methodist ? "Methodist" : "Regular"}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
                     </td>
                     {isSuperAdmin && (
                       <td className="px-5 py-4">

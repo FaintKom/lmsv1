@@ -8,6 +8,7 @@ class CourseCreate(BaseModel):
     title: str
     description: str = ""
     category: str | None = None
+    is_template: bool = False
 
 
 class CourseUpdate(BaseModel):
@@ -26,6 +27,9 @@ class CourseResponse(BaseModel):
     status: str
     category: str | None
     teacher_id: uuid.UUID
+    is_template: bool = False
+    source_course_id: uuid.UUID | None = None
+    template_version: int = 1
     created_at: datetime | None = None
     updated_at: datetime | None = None
     modules: list["ModuleResponse"] | None = None
@@ -101,3 +105,13 @@ class SearchLessonResponse(BaseModel):
             "course_title": obj.module.course.title if obj.module and obj.module.course else None,
         }
         return cls(**data)
+
+
+class CopyModuleRequest(BaseModel):
+    source_module_id: uuid.UUID
+    target_course_id: uuid.UUID
+
+
+class CopyLessonRequest(BaseModel):
+    source_lesson_id: uuid.UUID
+    target_module_id: uuid.UUID

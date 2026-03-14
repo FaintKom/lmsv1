@@ -2,10 +2,11 @@ export interface User {
   id: string;
   email: string;
   full_name: string;
-  role: "admin" | "teacher" | "student";
+  role: "admin" | "teacher" | "student" | "super_admin";
   org_id: string;
   avatar_url: string | null;
   is_active: boolean;
+  is_methodist: boolean;
   created_at: string;
 }
 
@@ -18,6 +19,9 @@ export interface Course {
   status: "draft" | "published" | "archived";
   category: string | null;
   teacher_id: string;
+  is_template: boolean;
+  source_course_id: string | null;
+  template_version: number;
   created_at: string;
   updated_at: string;
   modules?: Module[];

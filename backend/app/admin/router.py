@@ -59,6 +59,7 @@ async def list_users_endpoint(
 class _UpdateUserBody(BaseModel):
     role: str | None = None
     is_active: bool | None = None
+    is_methodist: bool | None = None
     org_id: str | None = None  # super_admin only
 
 
@@ -83,6 +84,8 @@ async def update_user_endpoint(
         target_user.role = body.role
     if body.is_active is not None:
         target_user.is_active = body.is_active
+    if body.is_methodist is not None:
+        target_user.is_methodist = body.is_methodist
     if body.org_id is not None and admin.role == UserRole.super_admin:
         target_user.org_id = uuid.UUID(body.org_id)
 
@@ -139,6 +142,7 @@ async def list_courses_admin(
             "id": str(c.id), "title": c.title, "slug": c.slug,
             "description": c.description, "status": c.status.value if hasattr(c.status, 'value') else c.status,
             "category": c.category, "org_id": str(c.org_id), "created_at": str(c.created_at),
+            "is_template": getattr(c, 'is_template', False),
         }
         for c in courses
     ]
@@ -329,6 +333,7 @@ async def create_user_endpoint(
         hashed_password=hash_password(data["password"]),
         full_name=data["full_name"],
         role=role,
+        is_methodist=data.get("is_methodist", False),
     )
     db.add(new_user)
     await db.flush()

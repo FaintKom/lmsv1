@@ -1,7 +1,7 @@
 import enum
 import uuid
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -38,9 +38,15 @@ class Course(Base, IDMixin, TimestampMixin):
     thumbnail_url: Mapped[str | None] = mapped_column(String(500))
     status: Mapped[CourseStatus] = mapped_column(Enum(CourseStatus), default=CourseStatus.draft)
     category: Mapped[str | None] = mapped_column(String(100))
+    is_template: Mapped[bool] = mapped_column(Boolean, default=False)
+    source_course_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("courses.id", ondelete="SET NULL"), nullable=True
+    )
+    template_version: Mapped[int] = mapped_column(Integer, default=1)
 
     modules: Mapped[list["Module"]] = relationship(
-        back_populates="course", cascade="all, delete-orphan", order_by="Module.sort_order"
+        back_populates="course", cascade="all, delete-orphan", order_by="Module.sort_order",
+        foreign_keys="[Module.course_id]",
     )
 
 
