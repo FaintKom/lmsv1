@@ -34,13 +34,18 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
     db.add(org)
     await db.flush()
 
-    # Create admin user
+    # Determine role: teachers get admin access, students get student role
+    if data.role == "student":
+        user_role = UserRole.student
+    else:
+        user_role = UserRole.admin  # teachers are org admins
+
     user = User(
         org_id=org.id,
         email=data.email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
-        role=UserRole.admin,
+        role=user_role,
     )
     db.add(user)
     await db.flush()

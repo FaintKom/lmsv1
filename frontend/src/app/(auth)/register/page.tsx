@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus } from "lucide-react";
+import { UserPlus, GraduationCap, BookOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,18 +17,27 @@ export default function RegisterPage() {
     full_name: "",
     email: "",
     password: "",
+    role: "" as "teacher" | "student" | "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.role) {
+      setError("Please select your role");
+      return;
+    }
     setError("");
     setLoading(true);
 
     try {
       await register(form);
-      router.push("/dashboard");
+      if (form.role === "student") {
+        router.push("/dashboard");
+      } else {
+        router.push("/admin");
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Registration failed";
@@ -45,7 +55,7 @@ export default function RegisterPage() {
       <h1 className="mb-2 text-center text-2xl font-bold text-slate-900">
         Create your account
       </h1>
-      <p className="mb-8 text-center text-sm text-slate-500">
+      <p className="mb-6 text-center text-sm text-slate-500">
         Start building your learning platform today
       </p>
 
@@ -55,14 +65,62 @@ export default function RegisterPage() {
             {error}
           </div>
         )}
+
+        {/* Role Selector */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            I am a...
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => update("role", "teacher")}
+              className={cn(
+                "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                form.role === "teacher"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
+                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+              )}
+            >
+              <BookOpen className={cn(
+                "h-6 w-6",
+                form.role === "teacher" ? "text-indigo-600" : "text-slate-400"
+              )} />
+              <span className="text-sm font-semibold">Teacher</span>
+              <span className="text-[11px] leading-tight text-center opacity-70">
+                Create courses & manage students
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => update("role", "student")}
+              className={cn(
+                "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
+                form.role === "student"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
+                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+              )}
+            >
+              <GraduationCap className={cn(
+                "h-6 w-6",
+                form.role === "student" ? "text-indigo-600" : "text-slate-400"
+              )} />
+              <span className="text-sm font-semibold">Student</span>
+              <span className="text-[11px] leading-tight text-center opacity-70">
+                Learn & complete courses
+              </span>
+            </button>
+          </div>
+        </div>
+
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            School / Organization
+            {form.role === "student" ? "School / Organization" : "School / Organization Name"}
           </label>
           <Input
             value={form.org_name}
             onChange={(e) => update("org_name", e.target.value)}
-            placeholder="My School"
+            placeholder={form.role === "student" ? "Your school name" : "My School"}
             required
           />
         </div>
@@ -102,7 +160,7 @@ export default function RegisterPage() {
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading || !form.role}>
           <UserPlus className="h-4 w-4" />
           {loading ? "Creating account..." : "Create Account"}
         </Button>

@@ -21,6 +21,7 @@ interface AuthState {
     full_name: string;
     email: string;
     password: string;
+    role: string;
   }) => Promise<void>;
   logout: () => void;
   fetchUser: () => Promise<void>;

@@ -59,7 +59,7 @@ export default function DashboardLayout({
             <span className="text-sm font-bold text-slate-900">LearnHub</span>
           </div>
         </div>
-        <main className="flex-1 overflow-auto px-4 py-6 md:px-8 md:py-10">{children}</main>
+        <main className="flex-1 overflow-auto p-6 md:p-10 lg:p-12">{children}</main>
       </div>
     </div>
   );

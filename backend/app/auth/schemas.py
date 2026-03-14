@@ -9,6 +9,7 @@ class RegisterRequest(BaseModel):
     full_name: str
     email: EmailStr
     password: str
+    role: str = "teacher"  # "teacher" or "student"
 
 
 class LoginRequest(BaseModel):
