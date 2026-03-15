@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n/context";
@@ -11,9 +11,22 @@ const inter = Inter({
   subsets: ["latin", "cyrillic", "latin-ext"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#4f46e5",
+};
+
 export const metadata: Metadata = {
   title: "LearnHub — Modern Learning Platform",
   description: "A powerful LMS for schools and online courses. Programming, languages, and mathematics.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "LearnHub",
+  },
 };
 
 export default function RootLayout({

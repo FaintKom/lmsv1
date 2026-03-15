@@ -19,6 +19,7 @@ from app.gamification.router import router as gamification_router
 from app.certificates.router import router as certificates_router
 from app.math_problems.router import router as math_problems_router
 from app.assignments.router import router as assignments_router
+from app.learning_paths.router import router as learning_paths_router
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI):
     import app.certificates.models  # noqa
     import app.admin.models  # noqa
     import app.assignments.models  # noqa
+    import app.learning_paths.models  # noqa
 
     # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
@@ -218,6 +220,7 @@ def create_app() -> FastAPI:
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])
+    app.include_router(learning_paths_router, prefix="/api/v1/learning-paths", tags=["Learning Paths"])
 
     @app.get("/health")
     async def health():

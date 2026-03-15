@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
+import apiClient from "@/lib/api-client";
 import {
   BookOpen,
   ClipboardList,
@@ -19,6 +21,9 @@ import {
   TrendingUp,
   Trophy,
   Award,
+  Table2,
+  Inbox,
+  Route,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
@@ -39,23 +44,37 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
   const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
+  const [reviewCount, setReviewCount] = useState(0);
 
-  const studentNav = [
+  useEffect(() => {
+    if (!isAdminOrTeacher) return;
+    apiClient.get("/admin/review-queue/count").then(({ data }) => setReviewCount(data.count)).catch(() => {});
+    const interval = setInterval(() => {
+      apiClient.get("/admin/review-queue/count").then(({ data }) => setReviewCount(data.count)).catch(() => {});
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [isAdminOrTeacher]);
+
+  const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/courses", label: t("nav.courses"), icon: BookOpen },
     { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
     { href: "/challenges", label: t("nav.challenges"), icon: Code },
+    { href: "/paths", label: t("nav.paths"), icon: Route },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
     { href: "/certificates", label: t("nav.certificates"), icon: Award },
   ];
 
-  const adminNav = [
+  const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
     ...(isAdminOnly ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
     { href: "/admin/groups", label: t("nav.groups") || "Groups", icon: UsersRound },
     { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
     { href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList },
+    { href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 },
+    { href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount },
+    { href: "/admin/paths", label: t("nav.paths"), icon: Route },
     { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
     ...(isAdminOnly ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
   ];
@@ -132,6 +151,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     aria-hidden="true"
                   />
                   {item.label}
+                  {item.badge ? (
+                    <span className="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {item.badge > 99 ? "99+" : item.badge}
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             );

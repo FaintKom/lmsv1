@@ -1,9 +1,13 @@
+import uuid
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.auth.models import Organization, User
+from app.auth.models import Organization, PasswordResetToken, User
 from app.auth.schemas import (
     LoginRequest,
     RefreshRequest,
@@ -12,7 +16,7 @@ from app.auth.schemas import (
     UserResponse,
     UserUpdate,
 )
-from app.auth.security import create_access_token, create_refresh_token, decode_token
+from app.auth.security import create_access_token, create_refresh_token, decode_token, hash_password
 from app.auth.service import authenticate, get_user_by_id, register
 from app.common.exceptions import BadRequestError
 from app.db.session import get_db
@@ -41,6 +45,13 @@ async def register_endpoint(data: RegisterRequest, db: AsyncSession = Depends(ge
 
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    # Send welcome email
+    try:
+        from app.email.service import send_welcome
+        send_welcome(user.email, user.full_name)
+    except Exception:
+        pass  # Don't fail registration if email fails
 
     return TokenResponse(
         access_token=access_token,
@@ -119,3 +130,120 @@ async def update_profile_endpoint(
     db.add(user)
     await db.flush()
     return UserResponse.model_validate(user)
+
+
+# ─── Email Preferences ─────────────────────────────────────────────────
+
+
+@router.get("/me/email-preferences")
+async def get_email_preferences(user: User = Depends(get_current_user)):
+    defaults = {"assignments": True, "grades": True, "deadlines": True, "courses": True}
+    prefs = user.email_preferences or defaults
+    return {**defaults, **prefs}
+
+
+class EmailPreferencesUpdate(BaseModel):
+    assignments: bool = True
+    grades: bool = True
+    deadlines: bool = True
+    courses: bool = True
+
+
+@router.put("/me/email-preferences")
+async def update_email_preferences(
+    data: EmailPreferencesUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user.email_preferences = data.model_dump()
+    db.add(user)
+    await db.flush()
+    return user.email_preferences
+
+
+# ─── Password Reset ────────────────────────────────────────────────────
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+@router.post("/forgot-password")
+async def forgot_password_endpoint(
+    data: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate a password reset token. Always returns success to avoid email enumeration."""
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if user:
+        # Invalidate any existing tokens
+        existing = await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.user_id == user.id,
+                PasswordResetToken.used == False,  # noqa: E712
+            )
+        )
+        for t in existing.scalars().all():
+            t.used = True
+
+        # Create new token
+        token = str(uuid.uuid4())
+        reset_token = PasswordResetToken(
+            user_id=user.id,
+            token=token,
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        )
+        db.add(reset_token)
+        await db.flush()
+
+        # Send reset email
+        from app.email.service import send_password_reset
+        send_password_reset(data.email, token)
+
+    # Always return success to prevent email enumeration
+    return {"message": "If the email exists, a reset link has been sent."}
+
+
+@router.post("/reset-password")
+async def reset_password_endpoint(
+    data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Reset password using a valid token."""
+    result = await db.execute(
+        select(PasswordResetToken).where(
+            PasswordResetToken.token == data.token,
+            PasswordResetToken.used == False,  # noqa: E712
+        )
+    )
+    reset_token = result.scalar_one_or_none()
+
+    if not reset_token:
+        raise BadRequestError("Invalid or expired reset token")
+
+    if reset_token.expires_at < datetime.now(timezone.utc):
+        reset_token.used = True
+        await db.flush()
+        raise BadRequestError("Reset token has expired")
+
+    if len(data.new_password) < 6:
+        raise BadRequestError("Password must be at least 6 characters")
+
+    # Update password
+    result = await db.execute(select(User).where(User.id == reset_token.user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise BadRequestError("User not found")
+
+    user.hashed_password = hash_password(data.new_password)
+    reset_token.used = True
+    await db.flush()
+
+    return {"message": "Password has been reset successfully"}

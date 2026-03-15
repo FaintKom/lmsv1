@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import { LOCALES, type Locale } from "@/lib/i18n/translations";
@@ -17,6 +17,7 @@ import {
   X,
   Globe,
   FileText,
+  Bell,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -30,6 +31,31 @@ export default function ProfilePage() {
   const [bio, setBio] = useState(user?.bio || "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [emailPrefs, setEmailPrefs] = useState({
+    assignments: true,
+    grades: true,
+    deadlines: true,
+    courses: true,
+  });
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
+  useEffect(() => {
+    apiClient.get("/auth/me/email-preferences").then(({ data }) => {
+      setEmailPrefs(data);
+    }).catch(() => {});
+  }, []);
+
+  const handleSavePrefs = async () => {
+    setSavingPrefs(true);
+    try {
+      await apiClient.put("/auth/me/email-preferences", emailPrefs);
+      toast.success("Notification preferences saved");
+    } catch {
+      toast.error("Failed to save preferences");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   const handleEdit = () => {
     setFullName(user?.full_name || "");
@@ -256,6 +282,41 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Email Notifications */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Bell className="h-4 w-4" />
+            Email Notifications
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[
+            { key: "assignments" as const, label: "New assignments", desc: "When a new assignment is posted" },
+            { key: "grades" as const, label: "Grades & feedback", desc: "When your work is graded" },
+            { key: "deadlines" as const, label: "Deadline reminders", desc: "24 hours before a deadline" },
+            { key: "courses" as const, label: "New courses", desc: "When you're enrolled in a new course" },
+          ].map((item) => (
+            <label key={item.key} className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={emailPrefs[item.key]}
+                onChange={(e) => setEmailPrefs({ ...emailPrefs, [item.key]: e.target.checked })}
+                className="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <div>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">{item.desc}</p>
+              </div>
+            </label>
+          ))}
+          <Button onClick={handleSavePrefs} disabled={savingPrefs} className="mt-2">
+            <Save className="mr-1 h-4 w-4" />
+            {savingPrefs ? "Saving..." : "Save Preferences"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Language selector */}
       <Card>

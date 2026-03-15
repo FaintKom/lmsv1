@@ -26,6 +26,16 @@ class Settings(BaseSettings):
     upload_dir: str = "/data/uploads"
     max_upload_mb: int = 50
 
+    # Email
+    email_enabled: bool = False
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    email_from: str = "noreply@learnhub.io"
+    email_from_name: str = "LearnHub"
+    app_url: str = "http://localhost:3000"
+
     # App
     app_name: str = "LMS"
     debug: bool = False

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { GraduationCap, Menu } from "lucide-react";
 
 export default function AdminLayout({
@@ -70,8 +71,9 @@ export default function AdminLayout({
             <span className="text-sm font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
           </div>
         </div>
-        <main id="main-content" className="flex-1 overflow-auto p-6 md:p-10 lg:p-12">{children}</main>
+        <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12">{children}</main>
       </div>
+      <MobileTabBar />
     </div>
   );
 }
