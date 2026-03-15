@@ -99,6 +99,24 @@ def main():
             "python", "# Write your code here\n", 'print("Hello, World!")',
             [{"input": "", "expected_output": "Hello, World!\n", "is_hidden": False}])
 
+    create_lesson(token, c1_id, m1_id, "Match Python Concepts", "interactive", {
+        "exercise_type": "matching",
+        "instruction": "Match each Python concept to its description",
+        "pairs": [
+            {"left": "print()", "right": "Display output to the console"},
+            {"left": "variable", "right": "A named container for storing data"},
+            {"left": "string", "right": "Text data enclosed in quotes"},
+            {"left": "boolean", "right": "True or False value"},
+        ]
+    }, 10)
+
+    create_lesson(token, c1_id, m1_id, "True or False: Python Basics", "interactive", {
+        "exercise_type": "true_false",
+        "instruction": "Is this statement true?",
+        "statement": "In Python, variable names can start with a number.",
+        "correct_answer": False
+    }, 5)
+
     lid = create_lesson(token, c1_id, m1_id, "Quiz: Python Basics", "quiz", {}, 10)
     if lid:
         create_quiz(token, lid, "Python Basics Quiz", [
@@ -144,6 +162,22 @@ def main():
                 {"input": "15", "expected_output": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n", "is_hidden": True},
             ])
 
+    create_lesson(token, c1_id, m2_id, "Categorize: Statements vs Expressions", "interactive", {
+        "exercise_type": "categorize",
+        "instruction": "Drag each item to the correct category",
+        "categories": [
+            {"name": "Statements", "items": ["if x > 0:", "for i in range(5):", "import os", "break"]},
+            {"name": "Expressions", "items": ["x + 5", "len(name)", "True and False", "3 * 7"]},
+        ],
+        "allItems": ["if x > 0:", "x + 5", "for i in range(5):", "len(name)", "import os", "True and False", "break", "3 * 7"]
+    }, 10)
+
+    create_lesson(token, c1_id, m2_id, "Order the Code", "interactive", {
+        "exercise_type": "ordering",
+        "instruction": "Put these lines in the correct order to print numbers 1-5",
+        "items": ["for i in range(1, 6):", "    print(i)", "# Loop through 1 to 5"]
+    }, 10)
+
     api("POST", f"/courses/{c1_id}/publish", token)
     print(f"PUBLISHED: Python Programming\n")
 
@@ -182,6 +216,20 @@ def main():
             {"text": "What is 100 / 4?", "options": ["20", "25", "40", "50"], "correct": 1, "points": 5},
         ])
 
+    create_lesson(token, c2_id, m1_id, "True or False: Arithmetic", "interactive", {
+        "exercise_type": "true_false",
+        "instruction": "Is this statement true?",
+        "statement": "The order of operations says we should always calculate from left to right.",
+        "correct_answer": False
+    }, 5)
+
+    create_lesson(token, c2_id, m1_id, "Fill in the Blanks: PEMDAS", "interactive", {
+        "exercise_type": "fill_blanks",
+        "instruction": "Complete the order of operations",
+        "text_template": "The order of operations is: {{blank}}, Exponents, {{blank}}, Division, {{blank}}, Subtraction.",
+        "blanks": ["Parentheses", "Multiplication", "Addition"]
+    }, 10)
+
     # Module 2: Algebra
     m2 = api("POST", f"/courses/{c2_id}/modules", token, {"title": "Module 2: Basic Algebra"})
     m2_id = m2["id"]
@@ -205,6 +253,17 @@ def main():
             {"text": "Solve: 2x - 5 = 11", "options": ["x = 3", "x = 6", "x = 8", "x = 16"], "correct": 2, "points": 10},
         ])
 
+    create_lesson(token, c2_id, m2_id, "Match: Equation to Solution", "interactive", {
+        "exercise_type": "matching",
+        "instruction": "Match each equation to its solution",
+        "pairs": [
+            {"left": "x + 5 = 12", "right": "x = 7"},
+            {"left": "3x = 18", "right": "x = 6"},
+            {"left": "x - 4 = 10", "right": "x = 14"},
+            {"left": "x / 2 = 8", "right": "x = 16"},
+        ]
+    }, 10)
+
     # Module 3: Geometry
     m3 = api("POST", f"/courses/{c2_id}/modules", token, {"title": "Module 3: Geometry Basics"})
     m3_id = m3["id"]
@@ -221,6 +280,16 @@ def main():
             {"text": "What is the perimeter of a square with side 5?", "options": ["10", "15", "20", "25"], "correct": 2, "points": 10},
             {"text": "Area of a triangle with base 10 and height 6?", "options": ["60", "30", "16", "36"], "correct": 1, "points": 10},
         ])
+
+    create_lesson(token, c2_id, m3_id, "Categorize: 2D vs 3D Shapes", "interactive", {
+        "exercise_type": "categorize",
+        "instruction": "Sort these shapes into 2D and 3D categories",
+        "categories": [
+            {"name": "2D Shapes", "items": ["Circle", "Rectangle", "Triangle", "Square"]},
+            {"name": "3D Shapes", "items": ["Sphere", "Cube", "Cylinder", "Cone"]},
+        ],
+        "allItems": ["Circle", "Sphere", "Rectangle", "Cube", "Triangle", "Cylinder", "Square", "Cone"]
+    }, 10)
 
     api("POST", f"/courses/{c2_id}/publish", token)
     print(f"PUBLISHED: Mathematics Fundamentals\n")
@@ -257,6 +326,24 @@ def main():
             {"text": "In 'She sings beautifully', what is 'beautifully'?", "options": ["noun", "verb", "adjective", "adverb"], "correct": 3, "points": 10},
         ])
 
+    create_lesson(token, c3_id, m1_id, "Fill in the Blanks: Parts of Speech", "interactive", {
+        "exercise_type": "fill_blanks",
+        "instruction": "Complete each sentence with the correct part of speech label",
+        "text_template": "The word 'quickly' is an {{blank}}. The word 'dog' is a {{blank}}. The word 'beautiful' is an {{blank}}.",
+        "blanks": ["adverb", "noun", "adjective"]
+    }, 10)
+
+    create_lesson(token, c3_id, m1_id, "Categorize: Parts of Speech", "interactive", {
+        "exercise_type": "categorize",
+        "instruction": "Sort these words into the correct part of speech",
+        "categories": [
+            {"name": "Nouns", "items": ["dog", "happiness", "London", "teacher"]},
+            {"name": "Verbs", "items": ["run", "think", "become", "write"]},
+            {"name": "Adjectives", "items": ["big", "fast", "clever", "beautiful"]},
+        ],
+        "allItems": ["dog", "run", "big", "happiness", "think", "fast", "London", "become", "clever", "teacher", "write", "beautiful"]
+    }, 10)
+
     # Module 2: Reading & Vocabulary
     m2 = api("POST", f"/courses/{c3_id}/modules", token, {"title": "Module 2: Reading & Vocabulary"})
     m2_id = m2["id"]
@@ -278,6 +365,24 @@ def main():
             {"text": "What is the moral of the story?", "options": ["Never give up", "Grapes are sour", "We often reject what we cannot have", "Foxes are clever"], "correct": 2, "points": 10},
         ])
 
+    create_lesson(token, c3_id, m2_id, "Match: Vocabulary", "interactive", {
+        "exercise_type": "matching",
+        "instruction": "Match each word to its definition",
+        "pairs": [
+            {"left": "orchard", "right": "A garden of fruit trees"},
+            {"left": "quench", "right": "To satisfy thirst"},
+            {"left": "in vain", "right": "Without success"},
+            {"left": "despise", "right": "To look down on"},
+        ]
+    }, 10)
+
+    create_lesson(token, c3_id, m2_id, "True or False: Reading", "interactive", {
+        "exercise_type": "true_false",
+        "instruction": "Is this statement true about 'The Fox and the Grapes'?",
+        "statement": "The Fox said the grapes were sour because he tasted them and didn't like them.",
+        "correct_answer": False
+    }, 5)
+
     # Module 3: Writing
     m3 = api("POST", f"/courses/{c3_id}/modules", token, {"title": "Module 3: Writing Skills"})
     m3_id = m3["id"]
@@ -286,6 +391,17 @@ def main():
         "body": "# How to Write a Paragraph\n\n## Structure\nEvery good paragraph has three parts:\n\n### 1. Topic Sentence\nThe main idea of the paragraph. It tells the reader what the paragraph is about.\n\n### 2. Supporting Sentences\nDetails, examples, and explanations that support the topic sentence.\n\n### 3. Concluding Sentence\nWraps up the paragraph and reinforces the main idea.\n\n## Example\n> **Dogs make wonderful pets.** They are loyal and loving companions who greet you at the door every day. They encourage you to exercise by needing daily walks. Studies show that dog owners have lower blood pressure and less stress. **For all these reasons, a dog is the perfect addition to any family.**\n\n## Tips\n- Keep paragraphs focused on ONE main idea\n- Use transition words: however, moreover, therefore, in addition\n- Vary your sentence length\n- Proofread for grammar and spelling",
         "format": "markdown"
     }, 15)
+
+    create_lesson(token, c3_id, m3_id, "Order the Paragraph", "interactive", {
+        "exercise_type": "ordering",
+        "instruction": "Put these sentences in the correct order to form a proper paragraph",
+        "items": [
+            "Dogs make wonderful pets.",
+            "They are loyal and loving companions.",
+            "They encourage you to exercise by needing daily walks.",
+            "For all these reasons, a dog is the perfect addition to any family."
+        ]
+    }, 10)
 
     create_lesson(token, c3_id, m3_id, "Assignment: Write a Paragraph", "file_upload", {
         "instructions": "Write a paragraph (5-7 sentences) about your favorite hobby. Include a topic sentence, supporting details, and a concluding sentence. Upload your work as a text file or PDF."

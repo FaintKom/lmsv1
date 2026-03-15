@@ -23,6 +23,10 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
     else:
         user_role = UserRole.admin  # teachers are org admins
 
+    # Students can only register via invite link (must have org_id)
+    if data.role == "student" and not data.org_id:
+        raise BadRequestError("Student accounts can only be created via invitation link")
+
     # Students join existing org, teachers create a new one
     if data.org_id and data.role == "student":
         # Join existing organization

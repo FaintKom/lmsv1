@@ -27,6 +27,8 @@ import {
   Calendar,
   Video,
   Zap,
+  Building2,
+  Settings,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
@@ -47,8 +49,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
   const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
+  const isSuperAdmin = user?.role === "super_admin";
   const isParent = user?.role === "parent";
   const [reviewCount, setReviewCount] = useState(0);
+  const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!isAdminOrTeacher) return;
@@ -58,6 +62,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     }, 60000);
     return () => clearInterval(interval);
   }, [isAdminOrTeacher]);
+
+  // Load menu visibility settings from org
+  useEffect(() => {
+    if (!isAdminOrTeacher || !user?.org_id) return;
+    apiClient
+      .get(`/admin/organizations/${user.org_id}`)
+      .then(({ data }) => {
+        setMenuVisibility(data.settings?.menu_visibility || {});
+      })
+      .catch(() => {});
+  }, [isAdminOrTeacher, user?.org_id]);
+
+  const isMenuVisible = (key: string) => menuVisibility[key] !== false; // default visible
 
   const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
@@ -75,17 +92,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
-    ...(isAdminOnly ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
-    { href: "/admin/groups", label: t("nav.groups"), icon: UsersRound },
-    { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
-    { href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList },
-    { href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 },
-    { href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount },
-    { href: "/admin/paths", label: t("nav.paths"), icon: Route },
-    { href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar },
-    { href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video },
-    { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
-    ...(isAdminOnly ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
+    ...(isAdminOnly && isMenuVisible("users") ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
+    ...(isMenuVisible("groups") ? [{ href: "/admin/groups", label: t("nav.groups"), icon: UsersRound }] : []),
+    ...(isMenuVisible("courses") ? [{ href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap }] : []),
+    ...(isMenuVisible("assignments") ? [{ href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList }] : []),
+    ...(isMenuVisible("gradebook") ? [{ href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 }] : []),
+    ...(isMenuVisible("review") ? [{ href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount }] : []),
+    ...(isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
+    ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
+    ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
+    ...(isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
+    ...(isAdminOnly && isMenuVisible("billing") ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
+    ...(isSuperAdmin ? [{ href: "/admin/organizations", label: "Organizations", icon: Building2 }] : []),
+    ...(isAdminOnly ? [{ href: "/admin/settings", label: "Settings", icon: Settings }] : []),
   ];
 
   const parentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [

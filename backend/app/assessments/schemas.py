@@ -32,6 +32,15 @@ class QuizUpdate(BaseModel):
     time_limit_minutes: int | None = None
 
 
+class QuestionUpdate(BaseModel):
+    question_text: str | None = None
+    question_type: str | None = None
+    options: list[dict] | None = None
+    correct_answer: str | None = None
+    points: int | None = None
+    sort_order: int | None = None
+
+
 class QuizSubmitRequest(BaseModel):
     answers: list[dict]  # [{question_id, selected_option or text}]
 

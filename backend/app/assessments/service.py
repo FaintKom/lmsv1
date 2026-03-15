@@ -89,6 +89,27 @@ async def add_question(db: AsyncSession, quiz_id: uuid.UUID, data: dict) -> Ques
     return question
 
 
+async def update_question(db: AsyncSession, question_id: uuid.UUID, data: dict) -> Question:
+    result = await db.execute(select(Question).where(Question.id == question_id))
+    question = result.scalar_one_or_none()
+    if not question:
+        raise NotFoundError("Question not found")
+    for key, value in data.items():
+        if value is not None:
+            setattr(question, key, value)
+    await db.flush()
+    return question
+
+
+async def delete_question(db: AsyncSession, question_id: uuid.UUID) -> None:
+    result = await db.execute(select(Question).where(Question.id == question_id))
+    question = result.scalar_one_or_none()
+    if not question:
+        raise NotFoundError("Question not found")
+    await db.delete(question)
+    await db.commit()
+
+
 async def submit_quiz(
     db: AsyncSession, quiz_id: uuid.UUID, answers: list[dict], user: User
 ) -> QuizSubmission:

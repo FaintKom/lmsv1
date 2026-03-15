@@ -19,6 +19,118 @@ from app.db.session import get_db
 router = APIRouter()
 
 
+# ─── Organization Management ──────────────────────────────────────────
+
+
+class OrgUpdate(BaseModel):
+    name: str | None = None
+    is_active: bool | None = None
+    settings: dict | None = None
+
+
+@router.get("/organizations")
+async def list_organizations_endpoint(
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """List organizations. Super admin sees all, regular admin sees own only."""
+    query = select(Organization)
+    if admin.role != UserRole.super_admin:
+        query = query.where(Organization.id == admin.org_id)
+    result = await db.execute(query.order_by(Organization.name))
+    orgs = result.scalars().all()
+    return [
+        {
+            "id": str(o.id),
+            "name": o.name,
+            "slug": o.slug,
+            "is_active": o.is_active,
+            "settings": o.settings or {},
+            "created_at": str(o.created_at) if o.created_at else None,
+        }
+        for o in orgs
+    ]
+
+
+@router.get("/organizations/{org_id}")
+async def get_organization_endpoint(
+    org_id: uuid.UUID,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get single organization."""
+    if admin.role != UserRole.super_admin and admin.org_id != org_id:
+        raise NotFoundError("Organization not found")
+    result = await db.execute(select(Organization).where(Organization.id == org_id))
+    org = result.scalar_one_or_none()
+    if not org:
+        raise NotFoundError("Organization not found")
+    return {
+        "id": str(org.id),
+        "name": org.name,
+        "slug": org.slug,
+        "is_active": org.is_active,
+        "settings": org.settings or {},
+        "created_at": str(org.created_at) if org.created_at else None,
+    }
+
+
+@router.put("/organizations/{org_id}")
+async def update_organization_endpoint(
+    org_id: uuid.UUID,
+    data: OrgUpdate,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update organization. Admin can update own org, super admin can update any."""
+    if admin.role != UserRole.super_admin and admin.org_id != org_id:
+        raise NotFoundError("Organization not found")
+    result = await db.execute(select(Organization).where(Organization.id == org_id))
+    org = result.scalar_one_or_none()
+    if not org:
+        raise NotFoundError("Organization not found")
+    if data.name is not None:
+        org.name = data.name
+    if data.is_active is not None and admin.role == UserRole.super_admin:
+        org.is_active = data.is_active
+    if data.settings is not None:
+        # Merge with existing settings
+        current = org.settings or {}
+        current.update(data.settings)
+        org.settings = current
+    await db.commit()
+    return {
+        "id": str(org.id),
+        "name": org.name,
+        "slug": org.slug,
+        "is_active": org.is_active,
+        "settings": org.settings or {},
+    }
+
+
+@router.delete("/organizations/{org_id}")
+async def delete_organization_endpoint(
+    org_id: uuid.UUID,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete organization. Super admin only."""
+    if admin.role != UserRole.super_admin:
+        from fastapi import HTTPException
+        raise HTTPException(403, "Only super admin can delete organizations")
+    result = await db.execute(select(Organization).where(Organization.id == org_id))
+    org = result.scalar_one_or_none()
+    if not org:
+        raise NotFoundError("Organization not found")
+    # Prevent deleting own org
+    if org.id == admin.org_id:
+        from fastapi import HTTPException
+        raise HTTPException(400, "Cannot delete your own organization")
+    await db.delete(org)
+    await db.commit()
+    return {"status": "ok"}
+
+
 def _user_org_filter(admin: User):
     """Return org filter for User queries — empty for super_admin."""
     if admin.role == UserRole.super_admin:
