@@ -62,6 +62,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
+      <h2 className="sr-only">Learning Stats</h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
@@ -203,6 +204,12 @@ export default function DashboardPage() {
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
                   Enroll in a course to start learning!
                 </p>
+                <Link
+                  href="/courses"
+                  className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                >
+                  Browse courses <ArrowRight className="h-3 w-3" />
+                </Link>
               </div>
             ) : (
               <div className="space-y-3">

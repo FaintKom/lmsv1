@@ -138,7 +138,7 @@ export function NotificationBell() {
                 >
                   <div className="mt-0.5 shrink-0">
                     {notif.is_read ? (
-                      <Check className="h-4 w-4 text-slate-300" />
+                      <Check className="h-4 w-4 text-slate-400" />
                     ) : (
                       <div className="h-2 w-2 rounded-full bg-indigo-500" />
                     )}

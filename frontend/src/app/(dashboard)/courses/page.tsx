@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { CourseCard } from "@/components/courses/course-card";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Course } from "@/types/api";
 
@@ -61,9 +62,15 @@ export default function CoursesPage() {
             <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
               No courses available
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="mb-4 text-base text-slate-500 dark:text-slate-400">
               Courses will appear here once your admin publishes them.
             </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+            >
+              Back to dashboard <ArrowRight className="h-3 w-3" />
+            </Link>
           </CardContent>
         </Card>
       ) : (

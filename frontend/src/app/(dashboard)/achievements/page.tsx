@@ -133,6 +133,7 @@ export default function AchievementsPage() {
       )}
 
       {/* Stats row */}
+      <h2 className="sr-only">Your Stats</h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
         <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
@@ -191,6 +192,7 @@ export default function AchievementsPage() {
         </Card>
       </div>
 
+      <h2 className="sr-only">Badges and Leaderboard</h2>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Badges */}
         <div className="lg:col-span-2">

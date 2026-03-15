@@ -90,7 +90,7 @@ export function NewcomerChecklist({
             {item.done ? (
               <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-500" />
             ) : (
-              <Circle className="h-5 w-5 flex-shrink-0 text-slate-300" />
+              <Circle className="h-5 w-5 flex-shrink-0 text-slate-400" />
             )}
             <span
               className={
