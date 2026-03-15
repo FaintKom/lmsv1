@@ -732,7 +732,7 @@ async def gradebook_endpoint(
     from app.sandbox.models import CodeChallenge, CodeSubmission
     from app.submissions.models import InteractiveSubmission
     from app.assignments.models import Assignment, AssignmentSubmission
-    from app.courses.models import Lesson
+    from app.courses.models import Lesson, Module
 
     # Verify course access
     course_q = select(Course).where(Course.id == course_id)
@@ -758,7 +758,9 @@ async def gradebook_endpoint(
 
     # Get all lessons in this course (for quizzes, code challenges, interactive)
     result = await db.execute(
-        select(Lesson.id).where(Lesson.course_id == course_id)
+        select(Lesson.id)
+        .join(Module, Lesson.module_id == Module.id)
+        .where(Module.course_id == course_id)
     )
     lesson_ids = [r[0] for r in result.all()]
 
