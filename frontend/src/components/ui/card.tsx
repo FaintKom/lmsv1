@@ -30,7 +30,7 @@ const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, as: Tag = "h3", ...props }, ref) => (
     <Tag
       ref={ref}
-      className={cn("text-lg font-semibold text-slate-900", className)}
+      className={cn("text-lg font-semibold text-slate-900 dark:text-slate-100", className)}
       {...props}
     />
   )
