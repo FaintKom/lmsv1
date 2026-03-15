@@ -181,23 +181,23 @@ export default function AdminCoursesPage() {
     const { showCopy = false, showEdit = true, showDelete = true } = opts;
     const isTemplate = 'is_template' in course && course.is_template;
     return (
-      <Card key={course.id} className="transition-shadow hover:shadow-md">
+      <Card key={course.id} className={`transition-shadow hover:shadow-md ${isTemplate ? "border-l-4 border-l-violet-400" : "border-l-4 border-l-blue-400"}`}>
         <CardContent className="p-6">
-          <div className="mb-3 flex items-center justify-between">
-            <div className={`rounded-lg p-2 ${isTemplate ? "bg-violet-100" : "bg-blue-100"}`}>
+          <div className="mb-4 flex items-center justify-between">
+            <div className={`rounded-lg p-2.5 ${isTemplate ? "bg-violet-100" : "bg-blue-100"}`}>
               {isTemplate ? <FileStack className="h-5 w-5 text-violet-600" /> : <BookOpen className="h-5 w-5 text-blue-600" />}
             </div>
             <div className="flex items-center gap-1.5">
               {isTemplate && (
-                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-medium text-violet-700">
+                <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-medium text-violet-700">
                   Template
                 </span>
               )}
               {statusBadge(course.status)}
             </div>
           </div>
-          <h3 className="mb-1 font-semibold text-gray-900">{course.title}</h3>
-          <p className="mb-3 line-clamp-2 text-sm text-gray-500">
+          <h3 className="mb-1.5 font-semibold text-gray-900">{course.title}</h3>
+          <p className="mb-4 line-clamp-2 text-sm text-gray-500">
             {course.description || "No description"}
           </p>
           {('category' in course) && course.category && (

@@ -171,9 +171,9 @@ export default function AdminAnalyticsPage() {
 
       {/* Main stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-indigo-50 p-3">
+        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-indigo-100 p-3">
               <Users className="h-5 w-5 text-indigo-600" />
             </div>
             <div>
@@ -183,9 +183,9 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-emerald-50 p-3">
+        <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-emerald-100 p-3">
               <BookOpen className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
@@ -195,9 +195,9 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-violet-50 p-3">
+        <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-violet-100 p-3">
               <GraduationCap className="h-5 w-5 text-violet-600" />
             </div>
             <div>
@@ -207,9 +207,9 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-amber-50 p-3">
+        <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-amber-100 p-3">
               <TrendingUp className="h-5 w-5 text-amber-600" />
             </div>
             <div>
@@ -223,9 +223,9 @@ export default function AdminAnalyticsPage() {
       {/* Performance metrics */}
       {detailed && (
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Card className="hover:shadow-md">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="rounded-xl bg-emerald-50 p-3">
+          <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
+            <CardContent className="flex items-center gap-4 p-6">
+              <div className="rounded-xl bg-emerald-100 p-3">
                 <Target className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
@@ -235,9 +235,9 @@ export default function AdminAnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="rounded-xl bg-violet-50 p-3">
+          <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+            <CardContent className="flex items-center gap-4 p-6">
+              <div className="rounded-xl bg-violet-100 p-3">
                 <Award className="h-5 w-5 text-violet-600" />
               </div>
               <div>
@@ -249,9 +249,9 @@ export default function AdminAnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="rounded-xl bg-indigo-50 p-3">
+          <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+            <CardContent className="flex items-center gap-4 p-6">
+              <div className="rounded-xl bg-indigo-100 p-3">
                 <Code className="h-5 w-5 text-indigo-600" />
               </div>
               <div>

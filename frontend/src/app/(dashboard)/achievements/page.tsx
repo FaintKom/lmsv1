@@ -134,9 +134,9 @@ export default function AchievementsPage() {
 
       {/* Stats row */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-yellow-50 p-3">
+        <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-yellow-100 p-3">
               <Zap className="h-5 w-5 text-yellow-500" />
             </div>
             <div>
@@ -148,9 +148,9 @@ export default function AchievementsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-orange-50 p-3">
+        <Card className="border-l-4 border-l-orange-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-orange-100 p-3">
               <Flame className="h-5 w-5 text-orange-500" />
             </div>
             <div>
@@ -162,9 +162,9 @@ export default function AchievementsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-amber-50 p-3">
+        <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-amber-100 p-3">
               <Trophy className="h-5 w-5 text-amber-500" />
             </div>
             <div>
@@ -176,9 +176,9 @@ export default function AchievementsPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md">
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-indigo-50 p-3">
+        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-indigo-100 p-3">
               <TrendingUp className="h-5 w-5 text-indigo-500" />
             </div>
             <div>

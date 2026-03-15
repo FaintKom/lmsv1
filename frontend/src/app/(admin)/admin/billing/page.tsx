@@ -172,9 +172,9 @@ export default function AdminBillingPage() {
 
       {/* Current subscription info */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-emerald-50 p-3">
+        <Card className="border-l-4 border-l-emerald-400">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-emerald-100 p-3">
               <DollarSign className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
@@ -186,9 +186,9 @@ export default function AdminBillingPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-blue-50 p-3">
+        <Card className="border-l-4 border-l-blue-400">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-blue-100 p-3">
               <CreditCard className="h-5 w-5 text-blue-500" />
             </div>
             <div>
@@ -206,9 +206,9 @@ export default function AdminBillingPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="rounded-xl bg-violet-50 p-3">
+        <Card className="border-l-4 border-l-violet-400">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="rounded-xl bg-violet-100 p-3">
               <Receipt className="h-5 w-5 text-violet-500" />
             </div>
             <div>
