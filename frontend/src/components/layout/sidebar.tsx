@@ -20,13 +20,11 @@ import {
   GraduationCap,
   TrendingUp,
   Trophy,
-  Award,
   Table2,
   Inbox,
   Route,
   Calendar,
   Video,
-  Zap,
   Building2,
   Settings,
 } from "lucide-react";
@@ -84,10 +82,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { href: "/paths", label: t("nav.paths"), icon: Route },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
-    { href: "/certificates", label: t("nav.certificates"), icon: Award },
     { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
     { href: "/meetings", label: t("nav.meetings"), icon: Video },
-    { href: "/skills", label: t("nav.skills"), icon: Zap },
   ];
 
   const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
@@ -146,10 +142,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <NotificationBell />
       </div>
 
-      {/* Search */}
-      <div className="border-b border-slate-100 py-3 dark:border-white/10">
-        <SearchBar />
-      </div>
+      {/* Search — admin/teacher only */}
+      {isAdminOrTeacher && (
+        <div className="border-b border-slate-100 py-3 dark:border-white/10">
+          <SearchBar />
+        </div>
+      )}
 
       {/* Navigation */}
       <nav aria-label="Main navigation" className="flex-1 px-3 py-4">

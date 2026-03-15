@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 
 from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.admin.service import get_dashboard_stats, get_detailed_analytics
@@ -94,10 +95,11 @@ async def update_organization_endpoint(
     if data.is_active is not None and admin.role == UserRole.super_admin:
         org.is_active = data.is_active
     if data.settings is not None:
-        # Merge with existing settings
-        current = org.settings or {}
+        # Merge with existing settings — must flag_modified for JSONB
+        current = dict(org.settings or {})
         current.update(data.settings)
         org.settings = current
+        flag_modified(org, "settings")
     await db.commit()
     return {
         "id": str(org.id),
