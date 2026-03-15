@@ -14,6 +14,7 @@ class UserRole(str, enum.Enum):
     admin = "admin"
     teacher = "teacher"
     student = "student"
+    parent = "parent"
 
 
 class Organization(Base, IDMixin, TimestampMixin):
@@ -47,6 +48,17 @@ class User(Base, IDMixin, TimestampMixin):
     )
 
     organization: Mapped["Organization"] = relationship(back_populates="users")
+
+
+class ParentChild(Base, IDMixin, TimestampMixin):
+    __tablename__ = "parent_children"
+
+    parent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    child_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
 
 
 class PasswordResetToken(Base, IDMixin, TimestampMixin):

@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   full_name: string;
-  role: "admin" | "teacher" | "student" | "super_admin";
+  role: "admin" | "teacher" | "student" | "super_admin" | "parent";
   org_id: string;
   avatar_url: string | null;
   is_active: boolean;
@@ -151,6 +151,36 @@ export interface AssignmentSubmission {
   graded_by: string | null;
   graded_at: string | null;
   status: string;
+  created_at: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  event_type: "deadline" | "lesson" | "meeting" | "custom";
+  start_time: string;
+  end_time: string | null;
+  all_day: boolean;
+  course_id: string | null;
+  group_id: string | null;
+  created_by: string;
+  recurrence: string | null;
+  source?: "event" | "assignment";
+}
+
+export interface Meeting {
+  id: string;
+  title: string;
+  description: string | null;
+  room_url: string;
+  course_id: string | null;
+  created_by: string;
+  scheduled_at: string | null;
+  duration_minutes: number;
+  is_active: boolean;
+  ended_at: string | null;
+  recording_url: string | null;
   created_at: string;
 }
 

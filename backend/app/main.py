@@ -20,6 +20,11 @@ from app.certificates.router import router as certificates_router
 from app.math_problems.router import router as math_problems_router
 from app.assignments.router import router as assignments_router
 from app.learning_paths.router import router as learning_paths_router
+from app.calendar.router import router as calendar_router
+from app.meetings.router import router as meetings_router
+from app.parent.router import router as parent_router
+from app.skills.router import router as skills_router
+from app.recommendations.router import router as recommendations_router
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +52,9 @@ async def lifespan(app: FastAPI):
     import app.admin.models  # noqa
     import app.assignments.models  # noqa
     import app.learning_paths.models  # noqa
+    import app.calendar.models  # noqa
+    import app.meetings.models  # noqa
+    import app.skills.models  # noqa
 
     # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
@@ -68,6 +76,7 @@ async def lifespan(app: FastAPI):
         ("contenttype", "file_upload"),
         ("contenttype", "interactive"),
         ("userrole", "super_admin"),
+        ("userrole", "parent"),
     ]:
         try:
             async with engine.connect() as conn:
@@ -221,6 +230,11 @@ def create_app() -> FastAPI:
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])
     app.include_router(learning_paths_router, prefix="/api/v1/learning-paths", tags=["Learning Paths"])
+    app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
+    app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
+    app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
+    app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
+    app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
 
     @app.get("/health")
     async def health():

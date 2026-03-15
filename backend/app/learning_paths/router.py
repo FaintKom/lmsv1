@@ -34,7 +34,7 @@ class PathUpdate(BaseModel):
 # ─── Admin endpoints ──────────────────────────────────────────────────
 
 
-@router.post("/")
+@router.post("")
 async def create_path(
     body: PathCreate,
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
@@ -62,7 +62,7 @@ async def create_path(
     return {"id": str(path.id), "title": path.title}
 
 
-@router.get("/")
+@router.get("")
 async def list_paths(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

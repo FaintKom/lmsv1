@@ -6,8 +6,16 @@ import { useAuthStore } from "@/stores/auth-store";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CourseCard } from "@/components/courses/course-card";
-import { BookOpen, Code, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame } from "lucide-react";
-import type { Enrollment, Course } from "@/types/api";
+import { BookOpen, Code, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame, Calendar, Lightbulb } from "lucide-react";
+import type { Enrollment, Course, CalendarEvent } from "@/types/api";
+
+interface Recommendation {
+  type: "review" | "continue" | "new" | "almost_done";
+  title: string;
+  description: string;
+  link: string;
+  priority: number;
+}
 import { StreakWidget } from "@/components/gamification/streak-widget";
 import { NewcomerChecklist } from "@/components/onboarding/newcomer-checklist";
 
@@ -16,6 +24,13 @@ export default function DashboardPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [upcomingEvents, setUpcomingEvents] = useState<CalendarEvent[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+
+  useEffect(() => {
+    apiClient.get("/calendar/upcoming?limit=5").then(({ data }) => setUpcomingEvents(data)).catch(() => {});
+    apiClient.get("/recommendations/").then(({ data }) => setRecommendations(data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     Promise.all([
@@ -127,6 +142,35 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* Recommendations */}
+      {recommendations.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <Lightbulb className="h-5 w-5 text-amber-500" /> Recommended for You
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {recommendations.slice(0, 4).map((rec, i) => {
+              const colors = {
+                review: "border-l-orange-400 bg-orange-50 dark:bg-orange-500/5",
+                continue: "border-l-blue-400 bg-blue-50 dark:bg-blue-500/5",
+                new: "border-l-indigo-400 bg-indigo-50 dark:bg-indigo-500/5",
+                almost_done: "border-l-emerald-400 bg-emerald-50 dark:bg-emerald-500/5",
+              };
+              return (
+                <Link key={i} href={rec.link}>
+                  <Card className={`border-l-4 transition-shadow hover:shadow-md ${colors[rec.type] || ""}`}>
+                    <CardContent className="p-4">
+                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{rec.title}</p>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{rec.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Enrolled courses with progress */}
       {enrolledCourses.length > 0 && (
         <div className="mb-8">
@@ -154,7 +198,7 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -185,6 +229,34 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
               </div>
             </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-red-500" />
+              Upcoming
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {upcomingEvents.length === 0 ? (
+              <p className="py-4 text-center text-sm text-slate-400">No upcoming events</p>
+            ) : (
+              <div className="space-y-2">
+                {upcomingEvents.map((ev) => (
+                  <Link key={ev.id} href="/calendar" className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{
+                      backgroundColor: ev.event_type === "deadline" ? "#ef4444" : ev.event_type === "lesson" ? "#3b82f6" : ev.event_type === "meeting" ? "#22c55e" : "#8b5cf6"
+                    }} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">{ev.title}</p>
+                      <p className="text-xs text-slate-400">{new Date(ev.start_time).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

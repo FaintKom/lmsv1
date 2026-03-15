@@ -24,6 +24,9 @@ import {
   Table2,
   Inbox,
   Route,
+  Calendar,
+  Video,
+  Zap,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
@@ -44,6 +47,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const isAdminOrTeacher = user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
   const isAdminOnly = user?.role === "super_admin" || user?.role === "admin";
+  const isParent = user?.role === "parent";
   const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
@@ -64,22 +68,32 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
     { href: "/certificates", label: t("nav.certificates"), icon: Award },
+    { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
+    { href: "/meetings", label: t("nav.meetings"), icon: Video },
+    { href: "/skills", label: t("nav.skills"), icon: Zap },
   ];
 
   const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
     ...(isAdminOnly ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
-    { href: "/admin/groups", label: t("nav.groups") || "Groups", icon: UsersRound },
+    { href: "/admin/groups", label: t("nav.groups"), icon: UsersRound },
     { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
     { href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList },
     { href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 },
     { href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount },
     { href: "/admin/paths", label: t("nav.paths"), icon: Route },
+    { href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar },
+    { href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video },
     { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
     ...(isAdminOnly ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
   ];
 
-  const nav = isAdminOrTeacher ? adminNav : studentNav;
+  const parentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
+    { href: "/parent", label: t("nav.dashboard") || "Dashboard", icon: LayoutDashboard },
+    { href: "/parent/children", label: t("nav.children") || "My Children", icon: Users },
+  ];
+
+  const nav = isParent ? parentNav : isAdminOrTeacher ? adminNav : studentNav;
 
   const handleLogout = () => {
     logout();
