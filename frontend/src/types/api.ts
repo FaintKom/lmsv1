@@ -108,6 +108,52 @@ export interface InteractiveSubmission {
   created_at: string;
 }
 
+export interface Assignment {
+  id: string;
+  course_id: string;
+  group_id: string | null;
+  created_by: string;
+  title: string;
+  description: string;
+  due_date: string;
+  max_score: number;
+  allow_late: boolean;
+  created_at: string;
+  updated_at: string;
+  submission_count?: number;
+  course_title?: string;
+}
+
+export interface AssignmentListItem {
+  id: string;
+  course_id: string;
+  title: string;
+  due_date: string;
+  max_score: number;
+  allow_late: boolean;
+  created_at: string;
+  course_title: string | null;
+  status: string | null;
+  score: number | null;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignment_id: string;
+  student_id: string;
+  student_name?: string;
+  content: string | null;
+  file_path: string | null;
+  original_filename: string | null;
+  submitted_at: string;
+  score: number | null;
+  feedback: string | null;
+  graded_by: string | null;
+  graded_at: string | null;
+  status: string;
+  created_at: string;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;

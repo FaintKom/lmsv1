@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import {
   BookOpen,
+  ClipboardList,
   Code,
   BarChart3,
   Users,
@@ -42,7 +43,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const studentNav = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/courses", label: t("nav.courses"), icon: BookOpen },
-    { href: "/assignments", label: t("nav.challenges"), icon: Code },
+    { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
+    { href: "/challenges", label: t("nav.challenges"), icon: Code },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
     { href: "/certificates", label: t("nav.certificates"), icon: Award },
@@ -53,6 +55,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     ...(isAdminOnly ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
     { href: "/admin/groups", label: t("nav.groups") || "Groups", icon: UsersRound },
     { href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap },
+    { href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList },
     { href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 },
     ...(isAdminOnly ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
   ];

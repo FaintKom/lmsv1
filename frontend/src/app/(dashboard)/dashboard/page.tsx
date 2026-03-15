@@ -174,7 +174,7 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
               </div>
             </Link>
-            <Link href="/assignments">
+            <Link href="/challenges">
               <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5">
                 <div className="flex items-center gap-3">
                   <Code className="h-5 w-5 text-slate-400 dark:text-slate-500" />

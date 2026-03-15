@@ -15,6 +15,7 @@ const en: TranslationMap = {
   // Nav
   "nav.dashboard": "Dashboard",
   "nav.courses": "Courses",
+  "nav.assignments": "Assignments",
   "nav.challenges": "Challenges",
   "nav.progress": "Progress",
   "nav.achievements": "Achievements",
@@ -222,6 +223,7 @@ const en: TranslationMap = {
 const es: TranslationMap = {
   "nav.dashboard": "Panel",
   "nav.courses": "Cursos",
+  "nav.assignments": "Tareas",
   "nav.challenges": "Desafios",
   "nav.progress": "Progreso",
   "nav.achievements": "Logros",
@@ -397,6 +399,7 @@ const es: TranslationMap = {
 const ru: TranslationMap = {
   "nav.dashboard": "Главная",
   "nav.courses": "Курсы",
+  "nav.assignments": "Задания",
   "nav.challenges": "Задачи",
   "nav.progress": "Прогресс",
   "nav.achievements": "Достижения",
@@ -572,6 +575,7 @@ const ru: TranslationMap = {
 const tr: TranslationMap = {
   "nav.dashboard": "Panel",
   "nav.courses": "Kurslar",
+  "nav.assignments": "Odevler",
   "nav.challenges": "Gorevler",
   "nav.progress": "Ilerleme",
   "nav.achievements": "Basarilar",
