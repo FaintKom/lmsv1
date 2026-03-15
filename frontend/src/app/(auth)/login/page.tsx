@@ -33,11 +33,6 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemo = (type: "admin" | "student") => {
-    setEmail(type === "admin" ? "admin@demo.com" : "student@demo.com");
-    setPassword("password");
-  };
-
   return (
     <div>
       <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -86,29 +81,6 @@ export default function LoginPage() {
           {loading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
-
-      {/* Demo buttons */}
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-[#2C2C2C]">
-        <p className="mb-3 text-center text-xs font-medium text-slate-400 dark:text-slate-500">
-          Quick demo access
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fillDemo("admin")}
-          >
-            Admin Demo
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fillDemo("student")}
-          >
-            Student Demo
-          </Button>
-        </div>
-      </div>
 
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Don&apos;t have an account?{" "}
