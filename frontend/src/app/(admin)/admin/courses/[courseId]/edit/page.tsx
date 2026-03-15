@@ -100,21 +100,21 @@ const CONTENT_TYPE_OPTIONS = [
 ];
 
 const TYPE_COLORS: Record<string, string> = {
-  text: "bg-slate-100 text-slate-600 border-slate-200",
-  video: "bg-rose-50 text-rose-600 border-rose-200",
-  quiz: "bg-indigo-50 text-indigo-600 border-indigo-200",
-  code_challenge: "bg-emerald-50 text-emerald-600 border-emerald-200",
-  file_upload: "bg-amber-50 text-amber-600 border-amber-200",
-  interactive: "bg-violet-50 text-violet-600 border-violet-200",
+  text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10",
+  video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 border-rose-200 dark:border-white/10",
+  quiz: "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 border-indigo-200 dark:border-white/10",
+  code_challenge: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
+  file_upload: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 border-amber-200 dark:border-white/10",
+  interactive: "bg-violet-50 dark:bg-violet-500/20 text-violet-600 border-violet-200 dark:border-white/10",
 };
 
 const TYPE_EXPANDED_BG: Record<string, string> = {
-  text: "border-slate-200 bg-slate-50/50",
-  video: "border-rose-200 bg-rose-50/30",
-  quiz: "border-indigo-200 bg-indigo-50/30",
-  code_challenge: "border-emerald-200 bg-emerald-50/30",
-  file_upload: "border-amber-200 bg-amber-50/30",
-  interactive: "border-violet-200 bg-violet-50/30",
+  text: "border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5",
+  video: "border-rose-200 dark:border-white/10 bg-rose-50/30 dark:bg-rose-500/20",
+  quiz: "border-indigo-200 dark:border-white/10 bg-indigo-50/30 dark:bg-indigo-500/20",
+  code_challenge: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
+  file_upload: "border-amber-200 dark:border-white/10 bg-amber-50/30 dark:bg-amber-500/20",
+  interactive: "border-violet-200 dark:border-white/10 bg-violet-50/30 dark:bg-violet-500/20",
 };
 
 export default function CourseEditorPage() {
@@ -468,7 +468,7 @@ export default function CourseEditorPage() {
   }
 
   if (!course) {
-    return <div className="text-center text-slate-500">Course not found</div>;
+    return <div className="text-center text-slate-500 dark:text-slate-400">Course not found</div>;
   }
 
   return (
@@ -478,7 +478,7 @@ export default function CourseEditorPage() {
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={() => router.push("/admin/courses")}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Courses
@@ -510,31 +510,31 @@ export default function CourseEditorPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Title</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Description</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Category</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., programming, math, languages"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </div>
           <Button onClick={handleSaveMeta} disabled={saving}>
@@ -546,14 +546,14 @@ export default function CourseEditorPage() {
 
       {/* Modules */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Modules & Lessons</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Modules & Lessons</h2>
       </div>
 
       <div className="space-y-3">
         {course.modules?.map((module, mi) => (
           <Card key={module.id}>
             <div
-              className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-slate-50"
+              className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5"
               onClick={() => toggleModule(module.id)}
             >
               <GripVertical className="h-4 w-4 text-slate-300" />
@@ -562,7 +562,7 @@ export default function CourseEditorPage() {
               ) : (
                 <ChevronRight className="h-4 w-4 text-slate-400" />
               )}
-              <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 text-xs font-bold text-indigo-600">
+              <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 dark:bg-indigo-500/20 text-xs font-bold text-indigo-600">
                 {mi + 1}
               </span>
 
@@ -573,7 +573,7 @@ export default function CourseEditorPage() {
                     value={editingModuleTitle}
                     onChange={(e) => setEditingModuleTitle(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleUpdateModule(module.id)}
-                    className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
+                    className="flex-1 rounded border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
                     autoFocus
                   />
                   <Button size="sm" onClick={() => handleUpdateModule(module.id)}>
@@ -585,7 +585,7 @@ export default function CourseEditorPage() {
                 </div>
               ) : (
                 <>
-                  <span className="flex-1 text-sm font-medium text-slate-800">{module.title}</span>
+                  <span className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-200">{module.title}</span>
                   <span className="text-xs text-slate-400">{module.lessons?.length || 0} lessons</span>
                   <button
                     onClick={(e) => {
@@ -593,7 +593,7 @@ export default function CourseEditorPage() {
                       setEditingModuleId(module.id);
                       setEditingModuleTitle(module.title);
                     }}
-                    className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600 dark:hover:text-slate-300"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -636,7 +636,7 @@ export default function CourseEditorPage() {
                           className={`rounded-lg border transition-all ${
                             isExpanded
                               ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
-                              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                              : "border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5"
                           }`}
                         >
                           {/* Lesson header — always visible */}
@@ -647,7 +647,7 @@ export default function CourseEditorPage() {
                             <Icon className="h-4 w-4 shrink-0 text-slate-400" />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-slate-800">{lesson.title}</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{lesson.title}</span>
                                 {lesson.duration_minutes && (
                                   <span className="text-xs text-slate-400">{lesson.duration_minutes} min</span>
                                 )}
@@ -681,13 +681,13 @@ export default function CourseEditorPage() {
                           {isExpanded && (
                             <div className="border-t px-4 py-4" onClick={(e) => e.stopPropagation()}>
                               {/* Tabs */}
-                              <div className="mb-4 flex gap-1 rounded-lg bg-white/80 p-1">
+                              <div className="mb-4 flex gap-1 rounded-lg bg-white/80 dark:bg-white/5 p-1">
                                 <button
                                   onClick={() => setLessonTab("content")}
                                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                                     lessonTab === "content"
-                                      ? "bg-white text-slate-800 shadow-sm"
-                                      : "text-slate-500 hover:text-slate-700"
+                                      ? "bg-white dark:bg-[#2C2C2C] text-slate-800 dark:text-slate-200 shadow-sm"
+                                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                                   }`}
                                 >
                                   <FileText className="h-3.5 w-3.5" />
@@ -697,8 +697,8 @@ export default function CourseEditorPage() {
                                   onClick={() => setLessonTab("settings")}
                                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                                     lessonTab === "settings"
-                                      ? "bg-white text-slate-800 shadow-sm"
-                                      : "text-slate-500 hover:text-slate-700"
+                                      ? "bg-white dark:bg-[#2C2C2C] text-slate-800 dark:text-slate-200 shadow-sm"
+                                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                                   }`}
                                 >
                                   <Settings2 className="h-3.5 w-3.5" />
@@ -709,22 +709,22 @@ export default function CourseEditorPage() {
                               {lessonTab === "settings" && (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-600">Lesson Title</label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Lesson Title</label>
                                     <input
                                       type="text"
                                       value={editLessonForm.title}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
-                                      className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                                     />
                                   </div>
                                   <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-600">Duration (minutes)</label>
+                                    <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Duration (minutes)</label>
                                     <input
                                       type="number"
                                       value={editLessonForm.duration_minutes}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
                                       placeholder="Optional"
-                                      className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                      className="w-32 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                                     />
                                   </div>
                                   <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
@@ -739,7 +739,7 @@ export default function CourseEditorPage() {
                                   {lesson.content_type === "text" && (
                                     <>
                                       <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-slate-500">Format:</span>
+                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Format:</span>
                                         {(["markdown", "html"] as const).map((fmt) => (
                                           <button
                                             key={fmt}
@@ -749,8 +749,8 @@ export default function CourseEditorPage() {
                                             })}
                                             className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                                               (editLessonForm.content.format || "markdown") === fmt
-                                                ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                                : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                                ? "border-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400"
+                                                : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
                                             }`}
                                           >
                                             {fmt === "markdown" ? "Markdown" : "HTML"}
@@ -767,7 +767,7 @@ export default function CourseEditorPage() {
                                         }
                                         placeholder="Write your lesson content here (Markdown supported)..."
                                         rows={12}
-                                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                                       />
                                       <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
                                         <Save className="mr-1 h-3 w-3" /> Save Content
@@ -779,7 +779,7 @@ export default function CourseEditorPage() {
                                   {lesson.content_type === "video" && (
                                     <>
                                       <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-600">Video URL (YouTube, Vimeo, etc.)</label>
+                                        <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Video URL (YouTube, Vimeo, etc.)</label>
                                         <input
                                           type="text"
                                           value={getContentText(editLessonForm.content, "video")}
@@ -790,11 +790,11 @@ export default function CourseEditorPage() {
                                             })
                                           }
                                           placeholder="https://www.youtube.com/watch?v=..."
-                                          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                          className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                                         />
                                       </div>
                                       {getContentText(editLessonForm.content, "video") && (
-                                        <div className="rounded-lg border border-slate-200 bg-white p-2">
+                                        <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
                                           <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
                                           <a
                                             href={getContentText(editLessonForm.content, "video")}
@@ -864,7 +864,7 @@ export default function CourseEditorPage() {
 
                 {/* Add lesson form */}
                 {addingLessonToModule === module.id ? (
-                  <div className="mt-3 rounded-lg border border-dashed border-slate-300 p-4">
+                  <div className="mt-3 rounded-lg border border-dashed border-slate-300 dark:border-white/20 p-4">
                     <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">New Lesson</p>
                     <div className="space-y-3">
                       <input
@@ -872,11 +872,11 @@ export default function CourseEditorPage() {
                         value={lessonForm.title}
                         onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
                         placeholder="Lesson title"
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
                         autoFocus
                       />
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-600">Content Type</label>
+                        <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">Content Type</label>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                           {CONTENT_TYPE_OPTIONS.map((opt) => {
                             const selected = lessonForm.content_type === opt.value;
@@ -887,7 +887,7 @@ export default function CourseEditorPage() {
                                 className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition-all ${
                                   selected
                                     ? `${TYPE_COLORS[opt.value]} border-current`
-                                    : "border-transparent bg-slate-50 text-slate-500 hover:bg-slate-100"
+                                    : "border-transparent bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
                                 }`}
                               >
                                 <opt.icon className="h-4 w-4" />
@@ -902,7 +902,7 @@ export default function CourseEditorPage() {
                         <>
                           {lessonForm.content_type === "text" && (
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-slate-500">Format:</span>
+                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Format:</span>
                               {(["markdown", "html"] as const).map((fmt) => (
                                 <button
                                   key={fmt}
@@ -912,8 +912,8 @@ export default function CourseEditorPage() {
                                   })}
                                   className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                                     (lessonForm.content.format || "markdown") === fmt
-                                      ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                      : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                      ? "border-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400"
+                                      : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
                                   }`}
                                 >
                                   {fmt === "markdown" ? "Markdown" : "HTML"}
@@ -931,14 +931,14 @@ export default function CourseEditorPage() {
                             }
                             placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
                             rows={6}
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                           />
                         </>
                       )}
                       {/* Info for complex types */}
                       {!["text", "video"].includes(lessonForm.content_type) && (
-                        <div className="rounded-lg border border-slate-200 bg-white p-3">
-                          <p className="text-xs text-slate-500">
+                        <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-3">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             Create the lesson first, then click on it to configure the {lessonForm.content_type === "quiz" ? "quiz questions" : lessonForm.content_type === "code_challenge" ? "challenge & test cases" : lessonForm.content_type === "file_upload" ? "upload settings" : "exercise"}.
                           </p>
                         </div>
@@ -948,7 +948,7 @@ export default function CourseEditorPage() {
                         value={lessonForm.duration_minutes}
                         onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
                         placeholder="Duration (minutes, optional)"
-                        className="w-48 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-48 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => handleAddLesson(module.id)}>
@@ -970,7 +970,7 @@ export default function CourseEditorPage() {
                 ) : (
                   <button
                     onClick={() => setAddingLessonToModule(module.id)}
-                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
+                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Lesson
@@ -990,7 +990,7 @@ export default function CourseEditorPage() {
           onChange={(e) => setNewModuleTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
           placeholder="New module title..."
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
         <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
           <Plus className="mr-1 h-4 w-4" />
@@ -1012,7 +1012,7 @@ export default function CourseEditorPage() {
             ) : (
               <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
             )}
-            <span className="ml-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
+            <span className="ml-1 rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-xs font-medium text-indigo-600">
               {students.length}
             </span>
           </CardTitle>
@@ -1024,7 +1024,7 @@ export default function CourseEditorPage() {
               <select
                 value={enrollingUser}
                 onChange={(e) => setEnrollingUser(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 <option value="">Select a user to enroll...</option>
                 {allUsers
@@ -1051,9 +1051,9 @@ export default function CourseEditorPage() {
                 {students.map((student) => (
                   <div
                     key={student.enrollment_id}
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50"
+                    className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50 dark:hover:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-xs font-bold text-indigo-600">
                       {student.full_name
                         .split(" ")
                         .map((n) => n[0])
@@ -1062,13 +1062,13 @@ export default function CourseEditorPage() {
                         .toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-700">{student.full_name}</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{student.full_name}</p>
                       <p className="text-xs text-slate-400">{student.email}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="text-xs font-medium text-slate-600">{student.progress_percent}%</p>
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{student.progress_percent}%</p>
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                           <div
                             className="h-full rounded-full bg-indigo-500 transition-all"
                             style={{ width: `${student.progress_percent}%` }}

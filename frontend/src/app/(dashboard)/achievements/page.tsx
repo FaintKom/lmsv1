@@ -79,8 +79,8 @@ export default function AchievementsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Achievements</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Achievements</h1>
+        <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
           Track your progress, earn XP, and climb the leagues
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function AchievementsPage() {
               <div className="flex items-center gap-4 p-6" style={{ background: `${league.color}15` }}>
                 <span className="text-5xl">{league.icon}</span>
                 <div>
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Current League</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Current League</p>
                   <p className="text-2xl font-bold" style={{ color: league.color === "#FFD700" ? "#B8860B" : league.color === "#C0C0C0" ? "#6B7280" : league.color }}>
                     {league.name}
                   </p>
@@ -105,17 +105,17 @@ export default function AchievementsPage() {
                 <div className="flex items-center gap-2">
                   <Star className="h-5 w-5 text-yellow-500" />
                   <div>
-                    <p className="text-xs text-slate-400">Total XP</p>
-                    <p className="text-xl font-bold text-slate-900">{streak?.total_xp || 0}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Total XP</p>
+                    <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{streak?.total_xp || 0}</p>
                   </div>
                 </div>
                 {league.next_league && (
                   <div className="flex-1">
-                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
                       <span>Progress to {league.next_league}</span>
                       <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
                     </div>
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -136,12 +136,12 @@ export default function AchievementsPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
         <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-yellow-100 p-3">
+            <div className="rounded-xl bg-yellow-100 dark:bg-yellow-500/20 p-3">
               <Zap className="h-5 w-5 text-yellow-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Total XP</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total XP</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {streak?.total_xp || 0}
               </p>
             </div>
@@ -150,12 +150,12 @@ export default function AchievementsPage() {
 
         <Card className="border-l-4 border-l-orange-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-orange-100 p-3">
+            <div className="rounded-xl bg-orange-100 dark:bg-orange-500/20 p-3">
               <Flame className="h-5 w-5 text-orange-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Current Streak</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Current Streak</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {streak?.current_streak || 0} days
               </p>
             </div>
@@ -164,12 +164,12 @@ export default function AchievementsPage() {
 
         <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-amber-100 p-3">
+            <div className="rounded-xl bg-amber-100 dark:bg-amber-500/20 p-3">
               <Trophy className="h-5 w-5 text-amber-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Badges Earned</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Badges Earned</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {earnedCount} / {badges.length}
               </p>
             </div>
@@ -178,12 +178,12 @@ export default function AchievementsPage() {
 
         <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 p-3">
+            <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
               <TrendingUp className="h-5 w-5 text-indigo-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Longest Streak</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Longest Streak</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {streak?.longest_streak || 0} days
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function AchievementsPage() {
                 ))}
               </div>
               {badges.length === 0 && (
-                <p className="py-8 text-center text-sm text-slate-400">
+                <p className="py-8 text-center text-sm text-slate-500">
                   No badges available yet
                 </p>
               )}
@@ -234,7 +234,7 @@ export default function AchievementsPage() {
             </CardHeader>
             <CardContent>
               {leaderboard.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">
+                <p className="py-8 text-center text-sm text-slate-500">
                   No students yet
                 </p>
               ) : (
@@ -242,24 +242,24 @@ export default function AchievementsPage() {
                   {leaderboard.map((entry, i) => (
                     <div
                       key={entry.user_id}
-                      className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2"
+                      className="flex items-center gap-3 rounded-lg bg-slate-50 dark:bg-white/5 px-3 py-2"
                     >
                       <span
                         className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
                           i === 0
-                            ? "bg-amber-100 text-amber-700"
+                            ? "bg-amber-100 dark:bg-amber-500/20 text-amber-700"
                             : i === 1
-                            ? "bg-slate-200 text-slate-600"
+                            ? "bg-slate-200 dark:bg-white/10 text-slate-600"
                             : i === 2
-                            ? "bg-orange-100 text-orange-600"
-                            : "bg-slate-100 text-slate-400"
+                            ? "bg-orange-100 dark:bg-orange-500/20 text-orange-600"
+                            : "bg-slate-100 dark:bg-white/10 text-slate-400"
                         }`}
                       >
                         {i + 1}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <p className="truncate text-sm font-medium text-slate-700">
+                          <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
                             {entry.user_name}
                           </p>
                           {entry.league && (
@@ -268,12 +268,12 @@ export default function AchievementsPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges
                         </p>
                       </div>
                       {entry.current_streak > 0 && (
-                        <span className="flex items-center gap-0.5 text-[10px] font-medium text-orange-500">
+                        <span className="flex items-center gap-0.5 text-xs font-medium text-orange-500">
                           <Flame className="h-3 w-3" />
                           {entry.current_streak}
                         </span>
@@ -297,19 +297,19 @@ export default function AchievementsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg bg-blue-50 p-4 text-center">
+            <div className="rounded-lg bg-blue-50 dark:bg-blue-500/10 p-4 text-center">
               <p className="text-2xl font-bold text-blue-600">+10</p>
               <p className="mt-1 text-xs text-blue-500">Complete a lesson</p>
             </div>
-            <div className="rounded-lg bg-emerald-50 p-4 text-center">
+            <div className="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 p-4 text-center">
               <p className="text-2xl font-bold text-emerald-600">+25</p>
               <p className="mt-1 text-xs text-emerald-500">Pass a quiz</p>
             </div>
-            <div className="rounded-lg bg-violet-50 p-4 text-center">
+            <div className="rounded-lg bg-violet-50 dark:bg-violet-500/10 p-4 text-center">
               <p className="text-2xl font-bold text-violet-600">+50</p>
               <p className="mt-1 text-xs text-violet-500">Pass a code challenge</p>
             </div>
-            <div className="rounded-lg bg-orange-50 p-4 text-center">
+            <div className="rounded-lg bg-orange-50 dark:bg-orange-500/10 p-4 text-center">
               <p className="text-2xl font-bold text-orange-600">+5</p>
               <p className="mt-1 text-xs text-orange-500">Daily streak bonus</p>
             </div>

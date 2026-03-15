@@ -148,7 +148,7 @@ export default function LessonViewerPage() {
   if (loading) {
     return (
       <div className="flex min-h-[calc(100vh-4rem)]">
-        <div className="w-80 border-r border-slate-200 bg-white p-4">
+        <div className="w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
           <Skeleton className="mb-4 h-4 w-24" />
           <Skeleton className="mb-6 h-5 w-48" />
           <div className="space-y-2">
@@ -191,40 +191,40 @@ export default function LessonViewerPage() {
     <div className="flex min-h-[calc(100vh-4rem)]">
       {/* Sidebar */}
       <div
-        className={`border-r border-slate-200 bg-white transition-all ${
+        className={`border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-all ${
           sidebarOpen ? "w-80" : "w-0 overflow-hidden"
         }`}
       >
         <div className="sticky top-0 h-full overflow-y-auto p-4">
           <Link
             href={`/courses/${courseId}`}
-            className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <ArrowLeft className="h-3 w-3" />
             Back to course
           </Link>
-          <h3 className="mb-3 text-sm font-semibold text-slate-900">{course.title}</h3>
+          <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{course.title}</h3>
 
           <div className="space-y-1">
             {course.modules?.map((module, mi) => (
               <div key={module.id}>
                 <button
                   onClick={() => toggleModule(module.id)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
                 >
                   {expandedModules.has(module.id) ? (
                     <ChevronDown className="h-3 w-3 text-slate-400" />
                   ) : (
                     <ChevronRight className="h-3 w-3 text-slate-400" />
                   )}
-                  <span className="flex h-5 w-5 items-center justify-center rounded bg-indigo-50 text-[10px] font-bold text-indigo-600">
+                  <span className="flex h-5 w-5 items-center justify-center rounded bg-indigo-50 text-[10px] font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
                     {mi + 1}
                   </span>
                   <span className="flex-1 truncate">{module.title}</span>
                 </button>
 
                 {expandedModules.has(module.id) && (
-                  <ul className="ml-5 space-y-0.5 border-l border-slate-100 pl-3">
+                  <ul className="ml-5 space-y-0.5 border-l border-slate-100 dark:border-white/10 pl-3">
                     {module.lessons?.map((l) => {
                       const isActive = l.id === lessonId;
                       const isDone = completedLessons.has(l.id);
@@ -236,8 +236,8 @@ export default function LessonViewerPage() {
                             href={`/courses/${courseId}/lessons/${l.id}`}
                             className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors ${
                               isActive
-                                ? "bg-indigo-50 font-semibold text-indigo-700"
-                                : "text-slate-600 hover:bg-slate-50"
+                                ? "bg-indigo-50 font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                                : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
                             }`}
                           >
                             {isDone ? (
@@ -264,7 +264,7 @@ export default function LessonViewerPage() {
         {/* Toggle sidebar button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed left-0 top-20 z-10 rounded-r-lg border border-l-0 border-slate-200 bg-white px-1 py-3 text-slate-400 hover:text-slate-600 md:hidden"
+          className="fixed left-0 top-20 z-10 rounded-r-lg border border-l-0 border-slate-200 bg-white px-1 py-3 text-slate-400 hover:text-slate-600 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-500 dark:hover:text-slate-300 md:hidden"
         >
           {sidebarOpen ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
         </button>
@@ -284,7 +284,7 @@ export default function LessonViewerPage() {
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600">
+              <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
                 {lesson.content_type.replace("_", " ")}
               </span>
               {lesson.duration_minutes && (
@@ -300,13 +300,13 @@ export default function LessonViewerPage() {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">{lesson.title}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{lesson.title}</h1>
           </div>
 
           {/* Content */}
           <div className="mb-8">
             {lesson.content_type === "text" && (
-              <div className="prose prose-slate max-w-none">
+              <div className="prose prose-slate max-w-prose dark:prose-invert">
                 <ContentRenderer
                   body={(lesson.content.body as string) || ""}
                   format={(lesson.content.format as "markdown" | "html") || "markdown"}
@@ -334,11 +334,11 @@ export default function LessonViewerPage() {
             {lesson.content_type === "code_challenge" && challenge && (
               <div>
                 {challenge.description && (
-                  <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
-                    <h3 className="mb-2 text-sm font-semibold text-slate-700">
+                  <div className="mb-4 rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
+                    <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
                       {challenge.title}
                     </h3>
-                    <div className="prose prose-sm prose-slate max-w-none text-slate-600">
+                    <div className="prose prose-sm prose-slate max-w-none text-slate-600 dark:text-slate-400">
                       <p>{challenge.description}</p>
                     </div>
                   </div>
@@ -355,7 +355,7 @@ export default function LessonViewerPage() {
             )}
 
             {lesson.content_type === "code_challenge" && !challenge && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 text-center">
                 <Code className="mx-auto mb-2 h-10 w-10 text-slate-400" />
                 <p className="text-sm text-slate-500">
                   No challenge has been configured for this lesson yet.
@@ -395,15 +395,15 @@ export default function LessonViewerPage() {
           )}
 
           {/* Prev/Next navigation */}
-          <div className="flex items-center justify-between border-t border-slate-200 pt-6">
+          <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-6">
             {prevLesson ? (
               <Link
                 href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/5"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <div className="text-left">
-                  <div className="text-[10px] uppercase text-slate-400">Previous</div>
+                  <div className="text-xs uppercase text-slate-400">Previous</div>
                   <div className="max-w-[200px] truncate">{prevLesson.lesson.title}</div>
                 </div>
               </Link>
@@ -414,10 +414,10 @@ export default function LessonViewerPage() {
             {nextLesson ? (
               <Link
                 href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-                className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100"
+                className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30"
               >
                 <div className="text-right">
-                  <div className="text-[10px] uppercase text-indigo-400">Next</div>
+                  <div className="text-xs uppercase text-indigo-400">Next</div>
                   <div className="max-w-[200px] truncate">{nextLesson.lesson.title}</div>
                 </div>
                 <ArrowRight className="h-4 w-4" />
@@ -425,7 +425,7 @@ export default function LessonViewerPage() {
             ) : (
               <Link
                 href={`/courses/${courseId}`}
-                className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
+                className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-300 dark:hover:bg-emerald-500/30"
               >
                 <CheckCircle className="h-4 w-4" />
                 Back to Course

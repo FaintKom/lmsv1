@@ -25,13 +25,15 @@ export default function LocaleSwitcher() {
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-        title="Change language"
+        aria-label="Change language"
+        aria-expanded={open}
+        aria-haspopup="listbox"
       >
-        <Globe className="h-3.5 w-3.5" />
+        <Globe className="h-3.5 w-3.5" aria-hidden="true" />
         <span>{current?.flag}</span>
       </button>
       {open && (
-        <div className="absolute bottom-full left-0 mb-1 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+        <div role="listbox" aria-label="Select language" className="absolute bottom-full left-0 mb-1 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
           {LOCALES.map((l) => (
             <button
               key={l.code}

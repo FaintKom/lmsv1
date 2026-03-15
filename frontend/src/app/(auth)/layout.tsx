@@ -22,7 +22,7 @@ export default function AuthLayout({
         </div>
       </div>
       {/* Right side - form */}
-      <div className="flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2">
+      <div className="flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2 dark:bg-[#1E1E1E]">
         <div className="w-full max-w-md">
           <Link
             href="/"
@@ -31,7 +31,7 @@ export default function AuthLayout({
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">LearnHub</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
           </Link>
           {children}
         </div>

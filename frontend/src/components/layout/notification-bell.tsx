@@ -95,23 +95,26 @@ export function NotificationBell() {
       <button
         onClick={handleOpen}
         className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
+        aria-expanded={open}
+        aria-haspopup="true"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-5 w-5" aria-hidden="true" />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white" aria-hidden="true">
             {unread > 99 ? "99+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
+        <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h3 className="text-sm font-semibold text-slate-800">Notifications</h3>
             {unread > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-700"
+                className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700"
               >
                 <CheckCheck className="h-3 w-3" />
                 Mark all read
@@ -121,7 +124,7 @@ export function NotificationBell() {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-slate-400">
+              <div className="px-4 py-8 text-center text-sm text-slate-500">
                 No notifications yet
               </div>
             ) : (
@@ -145,12 +148,12 @@ export function NotificationBell() {
                       {notif.title}
                     </p>
                     {notif.body && (
-                      <p className="mt-0.5 truncate text-xs text-slate-400">
+                      <p className="mt-0.5 truncate text-sm text-slate-500">
                         {notif.body}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 text-[10px] text-slate-400">
+                  <span className="shrink-0 text-xs text-slate-500">
                     {timeAgo(notif.created_at)}
                   </span>
                 </button>

@@ -40,41 +40,45 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900">
+      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
         Welcome back
       </h1>
-      <p className="mb-8 text-center text-sm text-slate-500">
+      <p className="mb-8 text-center text-sm text-slate-500 dark:text-slate-400">
         Sign in to your account to continue
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div role="alert" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Email
           </label>
           <Input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
+            aria-required="true"
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Password
           </label>
           <Input
+            id="login-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Your password"
             required
+            aria-required="true"
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
@@ -84,8 +88,8 @@ export default function LoginPage() {
       </form>
 
       {/* Demo buttons */}
-      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <p className="mb-3 text-center text-xs font-medium text-slate-400">
+      <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-[#2C2C2C]">
+        <p className="mb-3 text-center text-xs font-medium text-slate-400 dark:text-slate-500">
           Quick demo access
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -106,7 +110,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

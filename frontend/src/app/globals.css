@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -40,8 +42,44 @@ body {
   background: #94a3b8;
 }
 
+/* Dark theme */
+.dark {
+  --background: #1E1E1E;
+  --foreground: #E0E0E0;
+  --primary: #818cf8;
+  --primary-dark: #a5b4fc;
+  --primary-light: #312e81;
+  --accent: #a78bfa;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+}
+
 /* Selection */
 ::selection {
   background: #c7d2fe;
   color: #312e81;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+.dark ::selection {
+  background: #4338ca;
+  color: #e0e7ff;
+}
+
+/* Accessibility: respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

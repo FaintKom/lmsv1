@@ -55,10 +55,10 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  Free: "border-slate-200 bg-white",
-  Starter: "border-blue-200 bg-blue-50",
-  Professional: "border-indigo-300 bg-indigo-50 ring-2 ring-indigo-500",
-  Enterprise: "border-amber-200 bg-amber-50",
+  Free: "border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C]",
+  Starter: "border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/20",
+  Professional: "border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/20 ring-2 ring-indigo-500",
+  Enterprise: "border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/20",
 };
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -135,7 +135,7 @@ export default function AdminBillingPage() {
         <Skeleton className="mb-8 h-8 w-52" />
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 p-5">
+            <div key={i} className="rounded-xl border border-slate-200 dark:border-white/10 p-5">
               <Skeleton className="h-12 w-full" />
             </div>
           ))}
@@ -143,7 +143,7 @@ export default function AdminBillingPage() {
         <Skeleton className="mb-4 h-6 w-36" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 p-5">
+            <div key={i} className="rounded-xl border border-slate-200 dark:border-white/10 p-5">
               <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
               <Skeleton className="mb-2 h-6 w-24" />
               <Skeleton className="mb-4 h-10 w-20" />
@@ -164,8 +164,8 @@ export default function AdminBillingPage() {
     <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Billing" }]} />
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Billing & Plans</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Billing & Plans</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Manage your subscription and billing
         </p>
       </div>
@@ -174,12 +174,12 @@ export default function AdminBillingPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card className="border-l-4 border-l-emerald-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-emerald-100 p-3">
+            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
               <DollarSign className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Current Plan</p>
-              <p className="text-xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Current Plan</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 {currentPlan?.name || "Free"}
               </p>
             </div>
@@ -188,12 +188,12 @@ export default function AdminBillingPage() {
 
         <Card className="border-l-4 border-l-blue-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-blue-100 p-3">
+            <div className="rounded-xl bg-blue-100 dark:bg-blue-500/20 p-3">
               <CreditCard className="h-5 w-5 text-blue-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Status</p>
-              <p className="text-xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Status</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 {subscription ? (
                   <span className={subscription.status === "active" ? "text-emerald-600" : "text-amber-600"}>
                     {subscription.status}
@@ -208,12 +208,12 @@ export default function AdminBillingPage() {
 
         <Card className="border-l-4 border-l-violet-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 p-3">
+            <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
               <Receipt className="h-5 w-5 text-violet-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Monthly Cost</p>
-              <p className="text-xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Monthly Cost</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
                 ${currentPlan?.price_monthly || 0}/mo
               </p>
             </div>
@@ -227,7 +227,7 @@ export default function AdminBillingPage() {
       </div>
 
       {/* Plans grid */}
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">Available Plans</h2>
+      <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Available Plans</h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
           const isCurrent = plan.id === subscription?.plan_id;
@@ -236,7 +236,7 @@ export default function AdminBillingPage() {
           return (
             <Card
               key={plan.id}
-              className={`relative overflow-hidden transition-shadow hover:shadow-lg ${PLAN_COLORS[plan.name] || "border-slate-200"}`}
+              className={`relative overflow-hidden transition-shadow hover:shadow-lg ${PLAN_COLORS[plan.name] || "border-slate-200 dark:border-white/10"}`}
             >
               {recommended && (
                 <div className="absolute right-0 top-0 bg-indigo-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
@@ -245,37 +245,37 @@ export default function AdminBillingPage() {
               )}
               <CardContent className="p-5">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className={`rounded-xl p-2 ${recommended ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-600"}`}>
+                  <div className={`rounded-xl p-2 ${recommended ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600" : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400"}`}>
                     {PLAN_ICONS[plan.name] || <Zap className="h-6 w-6" />}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{plan.name}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">{plan.name}</h3>
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <span className="text-3xl font-bold text-slate-900">${plan.price_monthly}</span>
-                  <span className="text-sm text-slate-400">/month</span>
+                  <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">${plan.price_monthly}</span>
+                  <span className="text-sm text-slate-400 dark:text-slate-400">/month</span>
                 </div>
 
                 <div className="mb-4 space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-slate-600">
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                     <Check className="h-4 w-4 text-emerald-500" />
                     {plan.max_students === -1 ? "Unlimited" : plan.max_students} students
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600">
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                     <Check className="h-4 w-4 text-emerald-500" />
                     {plan.max_courses === -1 ? "Unlimited" : plan.max_courses} courses
                   </div>
                   {Object.entries(plan.features).map(([key, enabled]) => (
                     <div
                       key={key}
-                      className={`flex items-center gap-2 ${enabled ? "text-slate-600" : "text-slate-300 line-through"}`}
+                      className={`flex items-center gap-2 ${enabled ? "text-slate-600 dark:text-slate-400" : "text-slate-300 dark:text-slate-600 line-through"}`}
                     >
                       {enabled ? (
                         <Check className="h-4 w-4 text-emerald-500" />
                       ) : (
-                        <span className="inline-block h-4 w-4 text-center text-slate-300">-</span>
+                        <span className="inline-block h-4 w-4 text-center text-slate-300 dark:text-slate-600">-</span>
                       )}
                       {FEATURE_LABELS[key] || key}
                     </div>
@@ -320,7 +320,7 @@ export default function AdminBillingPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-slate-400">
+                  <tr className="border-b dark:border-white/10 text-left text-slate-400 dark:text-slate-400">
                     <th className="pb-2 font-medium">Date</th>
                     <th className="pb-2 font-medium">Amount</th>
                     <th className="pb-2 font-medium">Status</th>
@@ -330,21 +330,21 @@ export default function AdminBillingPage() {
                 </thead>
                 <tbody>
                   {invoices.map((inv) => (
-                    <tr key={inv.id} className="border-b last:border-0">
-                      <td className="py-3 text-slate-700">
+                    <tr key={inv.id} className="border-b dark:border-white/10 last:border-0">
+                      <td className="py-3 text-slate-700 dark:text-slate-300">
                         {new Date(inv.created_at).toLocaleDateString()}
                       </td>
-                      <td className="py-3 font-medium text-slate-900">
+                      <td className="py-3 font-medium text-slate-900 dark:text-slate-100">
                         ${(inv.amount_cents / 100).toFixed(2)}
                       </td>
                       <td className="py-3">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          inv.status === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                          inv.status === "paid" ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700" : "bg-amber-100 dark:bg-amber-500/20 text-amber-700"
                         }`}>
                           {inv.status}
                         </span>
                       </td>
-                      <td className="py-3 text-slate-500">
+                      <td className="py-3 text-slate-500 dark:text-slate-400">
                         {new Date(inv.period_start).toLocaleDateString()} - {new Date(inv.period_end).toLocaleDateString()}
                       </td>
                       <td className="py-3">

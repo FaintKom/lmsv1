@@ -77,10 +77,10 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {t("nav.profile") === "nav.profile" ? "Profile" : t("nav.profile")}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Manage your account settings
           </p>
         </div>
@@ -107,18 +107,18 @@ export default function ProfilePage() {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
               {user?.full_name}
             </h2>
-            <p className="text-sm text-slate-500">{user?.email}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
             <div className="mt-1.5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600">
+              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
                 <Shield className="h-3 w-3" />
                 {user?.role}
               </span>
             </div>
             {user?.bio && !editing && (
-              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {user.bio}
               </p>
             )}
@@ -134,7 +134,7 @@ export default function ProfilePage() {
               <CardTitle className="text-base">Edit Profile</CardTitle>
               <button
                 onClick={handleCancel}
-                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -143,7 +143,7 @@ export default function ProfilePage() {
           <CardContent>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700">
+                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                   <User className="h-3.5 w-3.5" />
                   Full Name
                 </label>
@@ -151,13 +151,13 @@ export default function ProfilePage() {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700">
+                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                   <Mail className="h-3.5 w-3.5" />
                   Email
                 </label>
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                   type="email"
                   value={user?.email || ""}
                   disabled
-                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400"
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400 dark:bg-white/5 dark:text-slate-500"
                 />
                 <p className="mt-1 text-xs text-slate-400">
                   Email cannot be changed
@@ -173,7 +173,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Avatar URL
                 </label>
                 <input
@@ -181,12 +181,12 @@ export default function ProfilePage() {
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
                   placeholder="https://example.com/avatar.jpg"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                 />
               </div>
 
               <div>
-                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700">
+                <label className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                   <FileText className="h-3.5 w-3.5" />
                   Bio
                 </label>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="Tell us about yourself..."
                   rows={3}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                 />
               </div>
 
@@ -224,32 +224,32 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start gap-3">
-              <User className="mt-0.5 h-4 w-4 text-slate-400" />
+              <User className="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
               <div>
-                <p className="text-xs font-medium text-slate-400">Full Name</p>
-                <p className="text-sm text-slate-700">{user?.full_name}</p>
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500">Full Name</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">{user?.full_name}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Mail className="mt-0.5 h-4 w-4 text-slate-400" />
+              <Mail className="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
               <div>
-                <p className="text-xs font-medium text-slate-400">Email</p>
-                <p className="text-sm text-slate-700">{user?.email}</p>
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500">Email</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">{user?.email}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Shield className="mt-0.5 h-4 w-4 text-slate-400" />
+              <Shield className="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
               <div>
-                <p className="text-xs font-medium text-slate-400">Role</p>
-                <p className="text-sm capitalize text-slate-700">{user?.role}</p>
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-500">Role</p>
+                <p className="text-sm capitalize text-slate-700 dark:text-slate-300">{user?.role}</p>
               </div>
             </div>
             {user?.bio && (
               <div className="flex items-start gap-3">
-                <FileText className="mt-0.5 h-4 w-4 text-slate-400" />
+                <FileText className="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
                 <div>
-                  <p className="text-xs font-medium text-slate-400">Bio</p>
-                  <p className="text-sm text-slate-700">{user.bio}</p>
+                  <p className="text-xs font-medium text-slate-400 dark:text-slate-500">Bio</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">{user.bio}</p>
                 </div>
               </div>
             )}
@@ -273,8 +273,8 @@ export default function ProfilePage() {
                 onClick={() => setLocale(l.code as Locale)}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
                   locale === l.code
-                    ? "border-indigo-300 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                    ? "border-indigo-300 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:border-indigo-500/50 dark:bg-indigo-500/20 dark:text-indigo-400"
+                    : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20 dark:hover:bg-white/5"
                 }`}
               >
                 <span className="text-base">{l.flag}</span>

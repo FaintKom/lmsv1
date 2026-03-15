@@ -155,8 +155,8 @@ export default function AdminAnalyticsPage() {
     <div className="mx-auto max-w-6xl">
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Analytics</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Overview of your organization&apos;s metrics
           </p>
         </div>
@@ -173,48 +173,48 @@ export default function AdminAnalyticsPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 p-3">
+            <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
               <Users className="h-5 w-5 text-indigo-600" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Total Users</p>
-              <p className="text-2xl font-bold text-slate-900">{stats?.total_users || 0}</p>
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Total Users</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats?.total_users || 0}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-emerald-100 p-3">
+            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
               <BookOpen className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Courses</p>
-              <p className="text-2xl font-bold text-slate-900">{stats?.total_courses || 0}</p>
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Courses</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats?.total_courses || 0}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 p-3">
+            <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
               <GraduationCap className="h-5 w-5 text-violet-600" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Enrollments</p>
-              <p className="text-2xl font-bold text-slate-900">{stats?.total_enrollments || 0}</p>
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Enrollments</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats?.total_enrollments || 0}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-amber-100 p-3">
+            <div className="rounded-xl bg-amber-100 dark:bg-amber-500/20 p-3">
               <TrendingUp className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Active Students</p>
-              <p className="text-2xl font-bold text-slate-900">{stats?.active_students || 0}</p>
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Active Students</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stats?.active_students || 0}</p>
             </div>
           </CardContent>
         </Card>
@@ -225,24 +225,24 @@ export default function AdminAnalyticsPage() {
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-emerald-100 p-3">
+              <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
                 <Target className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-400">Completion Rate</p>
-                <p className="text-2xl font-bold text-slate-900">{detailed.completion_rate}%</p>
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Completion Rate</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{detailed.completion_rate}%</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-violet-100 p-3">
+              <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
                 <Award className="h-5 w-5 text-violet-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-400">Avg Quiz Score</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Avg Quiz Score</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   {detailed.avg_quiz_score !== null ? `${detailed.avg_quiz_score}%` : "N/A"}
                 </p>
               </div>
@@ -251,12 +251,12 @@ export default function AdminAnalyticsPage() {
 
           <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-indigo-100 p-3">
+              <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
                 <Code className="h-5 w-5 text-indigo-600" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-400">Code Pass Rate</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Code Pass Rate</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   {detailed.avg_code_pass_rate !== null ? `${detailed.avg_code_pass_rate}%` : "N/A"}
                 </p>
               </div>
@@ -380,7 +380,7 @@ export default function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent>
             {categories.length === 0 ? (
-              <p className="text-sm text-slate-400">No courses yet</p>
+              <p className="text-sm text-slate-400 dark:text-slate-400">No courses yet</p>
             ) : (
               <div className="space-y-3">
                 {categories.map(([cat, count]) => (
@@ -430,10 +430,10 @@ export default function AdminAnalyticsPage() {
               <BarItem label="Published" value={publishedCount} total={courses.length} color="bg-emerald-500" />
               <BarItem label="Draft" value={draftCount} total={courses.length} color="bg-amber-500" />
             </div>
-            <div className="mt-4 rounded-lg bg-slate-50 p-3">
-              <p className="text-xs font-medium text-slate-500">Enrollment Rate</p>
+            <div className="mt-4 rounded-lg bg-slate-50 dark:bg-white/5 p-3">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Enrollment Rate</p>
               <p className="text-lg font-bold text-indigo-600">{enrollmentRate}%</p>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-slate-400 dark:text-slate-400">
                 {stats?.total_enrollments || 0} enrollments across {stats?.total_users || 0} users
               </p>
             </div>
@@ -450,22 +450,22 @@ export default function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent>
             {courses.length === 0 ? (
-              <p className="text-sm text-slate-400">No courses yet</p>
+              <p className="text-sm text-slate-400 dark:text-slate-400">No courses yet</p>
             ) : (
               <div className="space-y-2">
                 {courses.slice(0, 5).map((course) => (
-                  <div key={course.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <div key={course.id} className="flex items-center justify-between rounded-lg bg-slate-50 dark:bg-white/5 px-3 py-2">
                     <div>
-                      <p className="text-sm font-medium text-slate-700">{course.title}</p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{course.title}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-400">
                         {course.category || "No category"}
                       </p>
                     </div>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                         course.status === "published"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-amber-50 text-amber-600"
+                          ? "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600"
+                          : "bg-amber-50 dark:bg-amber-500/20 text-amber-600"
                       }`}
                     >
                       {course.status}
@@ -496,10 +496,10 @@ function BarItem({
   return (
     <div>
       <div className="mb-1 flex justify-between text-xs">
-        <span className="font-medium text-slate-600">{label}</span>
-        <span className="text-slate-400">{value}</span>
+        <span className="font-medium text-slate-600 dark:text-slate-400">{label}</span>
+        <span className="text-slate-400 dark:text-slate-400">{value}</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
         <div
           className={`h-full rounded-full ${color} transition-all`}
           style={{ width: `${pct}%` }}

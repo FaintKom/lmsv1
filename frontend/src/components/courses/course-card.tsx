@@ -21,7 +21,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
 
   return (
     <Link href={`/courses/${course.id}`}>
-      <Card className="group overflow-hidden transition-all hover:shadow-lg hover:shadow-indigo-100">
+      <Card className="group overflow-hidden transition-all hover:shadow-lg hover:shadow-indigo-100 dark:hover:shadow-none">
         {course.thumbnail_url ? (
           <div className="h-36 overflow-hidden">
             <img
@@ -39,23 +39,23 @@ export function CourseCard({ course, progress }: CourseCardProps) {
         )}
         <CardContent className="p-5">
           {course.category && (
-            <span className="mb-2 inline-block rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-indigo-600">
+            <span className="mb-2 inline-block rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
               {course.category}
             </span>
           )}
-          <h3 className="mb-1 font-semibold text-slate-900">{course.title}</h3>
-          <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-slate-500">
+          <h3 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">{course.title}</h3>
+          <p className="mb-3 line-clamp-2 text-base leading-relaxed text-slate-500 dark:text-slate-400">
             {course.description}
           </p>
           {progress !== undefined && (
             <div>
-              <div className="mb-1 flex justify-between text-xs text-slate-500">
+              <div className="mb-1 flex justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Progress</span>
                 <span className="font-semibold text-indigo-600">
                   {Math.round(progress)}%
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                 <div
                   className="h-full rounded-full bg-indigo-500 transition-all"
                   style={{ width: `${progress}%` }}

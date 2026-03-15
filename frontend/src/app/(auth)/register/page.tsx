@@ -140,10 +140,10 @@ function RegisterForm() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900">
+      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
         {inviteOrg ? `Join ${inviteOrg.name}` : "Create your account"}
       </h1>
-      <p className="mb-6 text-center text-sm text-slate-500">
+      <p className="mb-6 text-center text-sm text-slate-500 dark:text-slate-400">
         {inviteOrg
           ? "Create your student account to start learning"
           : "Start building your learning platform today"}
@@ -151,21 +151,21 @@ function RegisterForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div role="alert" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {error}
           </div>
         )}
 
         {/* Invite banner */}
         {inviteOrg && (
-          <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+          <div className="rounded-xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/20 px-4 py-3 text-sm text-indigo-700 dark:text-indigo-400">
             You&apos;re joining <strong>{inviteOrg.name}</strong> as a student
           </div>
         )}
 
         {/* Role Selector — hidden if invited */}
         {!inviteOrg && (<div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
+          <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
             I am a...
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -180,13 +180,13 @@ function RegisterForm() {
               className={cn(
                 "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                 form.role === "teacher"
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
-                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 shadow-sm"
+                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5"
               )}
             >
               <BookOpen className={cn(
                 "h-6 w-6",
-                form.role === "teacher" ? "text-indigo-600" : "text-slate-400"
+                form.role === "teacher" ? "text-indigo-600" : "text-slate-400 dark:text-slate-500"
               )} />
               <span className="text-sm font-semibold">Teacher</span>
               <span className="text-[11px] leading-tight text-center opacity-70">
@@ -204,13 +204,13 @@ function RegisterForm() {
               className={cn(
                 "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                 form.role === "student"
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
-                  : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 shadow-sm"
+                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5"
               )}
             >
               <GraduationCap className={cn(
                 "h-6 w-6",
-                form.role === "student" ? "text-indigo-600" : "text-slate-400"
+                form.role === "student" ? "text-indigo-600" : "text-slate-400 dark:text-slate-500"
               )} />
               <span className="text-sm font-semibold">Student</span>
               <span className="text-[11px] leading-tight text-center opacity-70">
@@ -223,7 +223,7 @@ function RegisterForm() {
         {/* Organization field — different for teacher vs student, hidden if invited */}
         {form.role && !inviteOrg && (
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
               {form.role === "student" ? "Find your school" : "School / Organization Name"}
             </label>
             {form.role === "student" ? (
@@ -243,12 +243,12 @@ function RegisterForm() {
                     }}
                     onFocus={() => setShowOrgDropdown(true)}
                     placeholder="Search for your school..."
-                    className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 py-2.5 pl-10 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 </div>
                 {showOrgDropdown && (
-                  <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg">
+                  <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#383838] shadow-lg">
                     {orgs.length === 0 ? (
                       <div className="px-4 py-3 text-sm text-slate-400">
                         {orgSearch ? "No organizations found" : "Start typing to search..."}
@@ -260,13 +260,13 @@ function RegisterForm() {
                           type="button"
                           onClick={() => selectOrg(org)}
                           className={cn(
-                            "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-indigo-50",
+                            "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-500/10",
                             form.org_id === org.id
-                              ? "bg-indigo-50 font-medium text-indigo-700"
-                              : "text-slate-700"
+                              ? "bg-indigo-50 dark:bg-indigo-500/20 font-medium text-indigo-700 dark:text-indigo-400"
+                              : "text-slate-700 dark:text-slate-300"
                           )}
                         >
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-500">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-500 dark:text-slate-400">
                             {org.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -295,39 +295,45 @@ function RegisterForm() {
         )}
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Full Name
           </label>
           <Input
+            id="reg-fullname"
             value={form.full_name}
             onChange={(e) => update("full_name", e.target.value)}
             placeholder="John Doe"
             required
+            aria-required="true"
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Email
           </label>
           <Input
+            id="reg-email"
             type="email"
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
             placeholder="you@example.com"
             required
+            aria-required="true"
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
+          <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Password
           </label>
           <Input
+            id="reg-password"
             type="password"
             value={form.password}
             onChange={(e) => update("password", e.target.value)}
             placeholder="Min 8 characters"
             minLength={8}
             required
+            aria-required="true"
           />
         </div>
         <Button type="submit" className="w-full" disabled={loading || !form.role}>
@@ -336,7 +342,7 @@ function RegisterForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Already have an account?{" "}
         <Link
           href="/login"

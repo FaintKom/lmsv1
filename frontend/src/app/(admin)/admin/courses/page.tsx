@@ -147,7 +147,7 @@ export default function AdminCoursesPage() {
         <Skeleton className="mb-6 h-8 w-56" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 p-4">
+            <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-white/10 p-4">
               <Skeleton className="h-10 w-10 rounded-lg" />
               <div className="flex-1">
                 <Skeleton className="mb-1 h-5 w-48" />
@@ -164,12 +164,12 @@ export default function AdminCoursesPage() {
 
   const statusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      draft: "bg-yellow-100 text-yellow-700",
-      published: "bg-green-100 text-green-700",
-      archived: "bg-gray-100 text-gray-600",
+      draft: "bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+      published: "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300",
+      archived: "bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400",
     };
     return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-600"}`}>
+      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400"}`}>
         {status}
       </span>
     );
@@ -184,24 +184,24 @@ export default function AdminCoursesPage() {
       <Card key={course.id} className={`transition-shadow hover:shadow-md ${isTemplate ? "border-l-4 border-l-violet-400" : "border-l-4 border-l-blue-400"}`}>
         <CardContent className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <div className={`rounded-lg p-2.5 ${isTemplate ? "bg-violet-100" : "bg-blue-100"}`}>
+            <div className={`rounded-lg p-2.5 ${isTemplate ? "bg-violet-100 dark:bg-violet-500/20" : "bg-blue-100 dark:bg-blue-500/20"}`}>
               {isTemplate ? <FileStack className="h-5 w-5 text-violet-600" /> : <BookOpen className="h-5 w-5 text-blue-600" />}
             </div>
             <div className="flex items-center gap-1.5">
               {isTemplate && (
-                <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-medium text-violet-700">
+                <span className="rounded-full bg-violet-100 dark:bg-violet-500/20 px-2.5 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300">
                   Template
                 </span>
               )}
               {statusBadge(course.status)}
             </div>
           </div>
-          <h3 className="mb-1.5 font-semibold text-gray-900">{course.title}</h3>
-          <p className="mb-4 line-clamp-2 text-sm text-gray-500">
+          <h3 className="mb-1.5 font-semibold text-gray-900 dark:text-slate-100">{course.title}</h3>
+          <p className="mb-4 line-clamp-2 text-sm text-gray-500 dark:text-slate-400">
             {course.description || "No description"}
           </p>
           {('category' in course) && course.category && (
-            <span className="mr-2 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+            <span className="mr-2 rounded-full bg-gray-100 dark:bg-white/10 px-2 py-0.5 text-xs text-gray-500 dark:text-slate-400">
               {course.category}
             </span>
           )}
@@ -211,7 +211,7 @@ export default function AdminCoursesPage() {
               <select
                 value={course.org_id}
                 onChange={(e) => handleOrgChange(course.id, e.target.value)}
-                className="w-full rounded border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none"
+                className="w-full rounded border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-2 py-1 text-xs text-slate-600 dark:text-slate-400 focus:border-indigo-300 focus:outline-none"
               >
                 {orgs.map((o) => (
                   <option key={o.id} value={o.id}>
@@ -263,7 +263,7 @@ export default function AdminCoursesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600"
                 onClick={() => handleDelete(course.id)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -280,9 +280,9 @@ export default function AdminCoursesPage() {
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Courses" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Courses</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Courses</h1>
           {isSuperAdmin && (
-            <p className="mt-1 text-sm text-slate-500">{courses.length} courses across all organizations</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{courses.length} courses across all organizations</p>
           )}
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
@@ -303,7 +303,7 @@ export default function AdminCoursesPage() {
                 placeholder="Course Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                 required
                 autoFocus
               />
@@ -311,7 +311,7 @@ export default function AdminCoursesPage() {
                 placeholder="Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                 rows={3}
               />
               <input
@@ -319,10 +319,10 @@ export default function AdminCoursesPage() {
                 placeholder="Category (e.g., programming, math)"
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
               />
               {canCreateTemplate && (
-                <label className="flex items-center gap-2 text-sm text-slate-600">
+                <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <input
                     type="checkbox"
                     checked={form.is_template}
@@ -344,10 +344,10 @@ export default function AdminCoursesPage() {
       {/* Organization Templates — visible to all teachers/admins */}
       {templates.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             <FileStack className="h-5 w-5 text-violet-500" />
             Organization Templates
-            <span className="text-sm font-normal text-slate-400">({templates.length})</span>
+            <span className="text-sm font-normal text-slate-400 dark:text-slate-500">({templates.length})</span>
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {templates.map((t) =>
@@ -362,11 +362,11 @@ export default function AdminCoursesPage() {
       )}
 
       {/* My Courses / All Courses */}
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">
+      <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
         {isTeacher ? "My Courses" : "All Courses"}
       </h2>
       {courses.filter((c) => !c.is_template).length === 0 ? (
-        <p className="text-gray-500">No courses yet. Create your first course or copy a template!</p>
+        <p className="text-gray-500 dark:text-slate-400">No courses yet. Create your first course or copy a template!</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {courses

@@ -113,11 +113,12 @@ export function SearchBar() {
             setOpen(true);
             setTimeout(() => inputRef.current?.focus(), 50);
           }}
-          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-400 transition-colors hover:border-slate-300 hover:bg-white"
+          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500 transition-colors hover:border-slate-300 hover:bg-white"
+          aria-label="Search courses and lessons"
         >
-          <Search className="h-3.5 w-3.5" />
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
           <span className="flex-1 text-left">{t("search.placeholder") === "search.placeholder" ? "Search..." : t("search.placeholder")}</span>
-          <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 sm:inline-block">
+          <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs font-medium text-slate-500 sm:inline-block">
             Ctrl+K
           </kbd>
         </button>
@@ -144,23 +145,24 @@ export function SearchBar() {
                   inputRef.current?.focus();
                 }}
                 className="text-slate-400 hover:text-slate-600"
+                aria-label="Clear search"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             )}
           </div>
 
           {/* Dropdown results */}
           {(hasResults || noResults || loading) && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+            <div role="listbox" aria-label="Search results" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
               {loading && (
-                <div className="px-3 py-4 text-center text-xs text-slate-400">
+                <div className="px-3 py-4 text-center text-xs text-slate-500">
                   Searching...
                 </div>
               )}
 
               {!loading && noResults && (
-                <div className="px-3 py-4 text-center text-xs text-slate-400">
+                <div className="px-3 py-4 text-center text-xs text-slate-500">
                   No results found
                 </div>
               )}
@@ -169,7 +171,7 @@ export function SearchBar() {
                 <>
                   {results!.courses.length > 0 && (
                     <div>
-                      <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                         Courses
                       </p>
                       {results!.courses.map((course) => (
@@ -182,7 +184,7 @@ export function SearchBar() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium text-slate-700">{course.title}</p>
                             {course.description && (
-                              <p className="truncate text-[11px] text-slate-400">{course.description}</p>
+                              <p className="truncate text-xs text-slate-500">{course.description}</p>
                             )}
                           </div>
                         </button>
@@ -192,7 +194,7 @@ export function SearchBar() {
 
                   {results!.lessons.length > 0 && (
                     <div>
-                      <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                         Lessons
                       </p>
                       {results!.lessons.map((lesson) => (
@@ -205,7 +207,7 @@ export function SearchBar() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium text-slate-700">{lesson.title}</p>
                             {lesson.course_title && (
-                              <p className="truncate text-[11px] text-slate-400">
+                              <p className="truncate text-xs text-slate-500">
                                 in {lesson.course_title}
                               </p>
                             )}

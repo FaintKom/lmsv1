@@ -37,8 +37,8 @@ export default function CertificatesPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">My Certificates</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">My Certificates</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Certificates earned upon course completion
         </p>
       </div>
@@ -46,11 +46,11 @@ export default function CertificatesPage() {
       {certificates.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="mb-4 rounded-full bg-slate-100 p-4">
+            <div className="mb-4 rounded-full bg-slate-100 dark:bg-white/10 p-4">
               <Award className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-600">No certificates yet</h3>
-            <p className="mt-1 text-sm text-slate-400">
+            <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-300">No certificates yet</h3>
+            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
               Complete a course to earn your first certificate!
             </p>
           </CardContent>
@@ -64,10 +64,10 @@ export default function CertificatesPage() {
                   <Award className="h-6 w-6 text-amber-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-slate-800">
+                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                     {cert.course_title}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
                     Certificate #{cert.certificate_number} · Issued{" "}
                     {new Date(cert.issued_at).toLocaleDateString()}
                   </p>
@@ -76,7 +76,7 @@ export default function CertificatesPage() {
                   href={`/api/v1/certificates/${cert.id}/download`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+                  className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30"
                 >
                   <Download className="h-3.5 w-3.5" />
                   View

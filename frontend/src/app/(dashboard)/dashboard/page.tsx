@@ -9,6 +9,7 @@ import { CourseCard } from "@/components/courses/course-card";
 import { BookOpen, Code, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame } from "lucide-react";
 import type { Enrollment, Course } from "@/types/api";
 import { StreakWidget } from "@/components/gamification/streak-widget";
+import { NewcomerChecklist } from "@/components/onboarding/newcomer-checklist";
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -51,11 +52,11 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-6xl">
       {/* Welcome */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           Welcome back, {user?.full_name}{" "}
           <span className="inline-block">&#128075;</span>
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
           Here&apos;s an overview of your learning progress
         </p>
       </div>
@@ -64,14 +65,14 @@ export default function DashboardPage() {
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 p-3">
-              <BookOpen className="h-5 w-5 text-indigo-600" />
+            <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
+              <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 Enrolled Courses
               </p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {loading ? "..." : enrolledCount}
               </p>
             </div>
@@ -80,14 +81,14 @@ export default function DashboardPage() {
 
         <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-emerald-100 p-3">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
+            <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-500/20">
+              <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 Completed
               </p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {loading ? "..." : completedCount}
               </p>
             </div>
@@ -96,12 +97,12 @@ export default function DashboardPage() {
 
         <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 p-3">
-              <TrendingUp className="h-5 w-5 text-violet-600" />
+            <div className="rounded-xl bg-violet-100 p-3 dark:bg-violet-500/20">
+              <TrendingUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400">Avg. Progress</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Avg. Progress</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {loading ? "..." : `${avgProgress}%`}
               </p>
             </div>
@@ -115,11 +116,21 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+      {/* Newcomer onboarding checklist */}
+      {!loading && (
+        <NewcomerChecklist
+          hasProfile={!!user?.full_name}
+          hasBrowsed={true}
+          hasEnrollment={enrollments.length > 0}
+          hasCompletedLesson={enrollments.some((e) => e.completed_at !== null)}
+        />
+      )}
+
       {/* Enrolled courses with progress */}
       {enrolledCourses.length > 0 && (
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Continue Learning
             </h2>
             <Link
@@ -152,25 +163,25 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/courses">
-              <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50">
+              <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5">
                 <div className="flex items-center gap-3">
                   <BookOpen className="h-5 w-5 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-700">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Browse available courses
                   </span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-300" />
+                <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
               </div>
             </Link>
             <Link href="/assignments">
-              <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50">
+              <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5">
                 <div className="flex items-center gap-3">
-                  <Code className="h-5 w-5 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-700">
+                  <Code className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Try coding challenges
                   </span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-300" />
+                <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
               </div>
             </Link>
           </CardContent>
@@ -183,13 +194,13 @@ export default function DashboardPage() {
           <CardContent>
             {enrolledCourses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="mb-3 rounded-full bg-slate-100 p-3">
-                  <Clock className="h-5 w-5 text-slate-400" />
+                <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
+                  <Clock className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                 </div>
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   No activity yet
                 </p>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
                   Enroll in a course to start learning!
                 </p>
               </div>
@@ -199,20 +210,20 @@ export default function DashboardPage() {
                   <Link
                     key={enrollment.id}
                     href={`/courses/${enrollment.course_id}`}
-                    className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-colors hover:bg-slate-50"
+                    className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50">
-                      <BookOpen className="h-4 w-4 text-indigo-500" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-500/20">
+                      <BookOpen className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-700">
+                      <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
                         {course?.title}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {Math.round(enrollment.progress_percent)}% complete
                       </p>
                     </div>
-                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                       <div
                         className="h-full rounded-full bg-indigo-500"
                         style={{ width: `${enrollment.progress_percent}%` }}
