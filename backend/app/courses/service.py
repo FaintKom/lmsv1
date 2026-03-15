@@ -300,7 +300,7 @@ async def delete_course(db: AsyncSession, course_id: uuid.UUID, user: User) -> N
     course = await get_course(db, course_id, user)
     _check_course_owner(course, user)
     await db.delete(course)
-    await db.flush()
+    await db.commit()
 
 
 async def update_module(

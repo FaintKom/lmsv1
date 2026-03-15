@@ -20,7 +20,7 @@ class Enrollment(Base, IDMixin):
     __table_args__ = (UniqueConstraint("course_id", "student_id"),)
 
     course_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("courses.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("courses.id", ondelete="CASCADE"), nullable=False
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
@@ -38,7 +38,7 @@ class LessonProgress(Base, IDMixin):
         UUID(as_uuid=True), ForeignKey("enrollments.id", ondelete="CASCADE"), nullable=False
     )
     lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("lessons.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("lessons.id", ondelete="CASCADE"), nullable=False
     )
     status: Mapped[LessonStatus] = mapped_column(
         Enum(LessonStatus), default=LessonStatus.not_started

@@ -18,7 +18,7 @@ class Quiz(Base, IDMixin, TimestampMixin):
     __tablename__ = "quizzes"
 
     lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("lessons.id"), unique=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("lessons.id", ondelete="CASCADE"), unique=True, nullable=False
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     passing_score: Mapped[int] = mapped_column(Integer, default=70)
@@ -49,7 +49,7 @@ class QuizSubmission(Base, IDMixin):
     __tablename__ = "quiz_submissions"
 
     quiz_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("quizzes.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=False
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False

@@ -22,7 +22,7 @@ class CodeChallenge(Base, IDMixin, TimestampMixin):
     __tablename__ = "code_challenges"
 
     lesson_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("lessons.id"), unique=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("lessons.id", ondelete="CASCADE"), unique=True, nullable=False
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, default="")
@@ -55,7 +55,7 @@ class CodeSubmission(Base, IDMixin):
     __tablename__ = "code_submissions"
 
     challenge_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("code_challenges.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("code_challenges.id", ondelete="CASCADE"), nullable=False
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
