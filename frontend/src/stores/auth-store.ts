@@ -9,6 +9,8 @@ interface User {
   org_id: string;
   avatar_url: string | null;
   bio: string | null;
+  is_active: boolean;
+  is_methodist: boolean;
 }
 
 interface AuthState {
