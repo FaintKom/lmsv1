@@ -22,6 +22,7 @@ from app.notifications.models import *  # noqa: F401, F403
 from app.calendar.models import *  # noqa: F401, F403
 from app.meetings.models import *  # noqa: F401, F403
 from app.skills.models import *  # noqa: F401, F403
+from app.exercises.models import *  # noqa: F401, F403
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.get_database_url())

@@ -27,6 +27,7 @@ import {
   Video,
   Building2,
   Settings,
+  Library,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
@@ -91,6 +92,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     ...(isAdminOnly && isMenuVisible("users") ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
     ...(isMenuVisible("groups") ? [{ href: "/admin/groups", label: t("nav.groups"), icon: UsersRound }] : []),
     ...(isMenuVisible("courses") ? [{ href: "/admin/courses", label: t("nav.courses"), icon: GraduationCap }] : []),
+    ...(isMenuVisible("content_library") ? [{ href: "/admin/content-library", label: "Content Library", icon: Library }] : []),
     ...(isMenuVisible("assignments") ? [{ href: "/admin/assignments", label: t("nav.assignments"), icon: ClipboardList }] : []),
     ...(isMenuVisible("gradebook") ? [{ href: "/admin/gradebook", label: t("nav.gradebook"), icon: Table2 }] : []),
     ...(isMenuVisible("review") ? [{ href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount }] : []),

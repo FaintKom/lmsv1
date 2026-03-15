@@ -40,8 +40,11 @@ class CodeChallenge(Base, IDMixin, TimestampMixin):
 class TestCase(Base, IDMixin, TimestampMixin):
     __tablename__ = "test_cases"
 
-    challenge_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("code_challenges.id", ondelete="CASCADE"), nullable=False
+    challenge_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("code_challenges.id", ondelete="CASCADE"), nullable=True
+    )
+    exercise_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("exercises.id", ondelete="CASCADE"), nullable=True
     )
     input: Mapped[str] = mapped_column(Text, default="")
     expected_output: Mapped[str] = mapped_column(Text, nullable=False)
@@ -49,6 +52,7 @@ class TestCase(Base, IDMixin, TimestampMixin):
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
 
     challenge: Mapped["CodeChallenge"] = relationship(back_populates="test_cases")
+    exercise: Mapped["Exercise"] = relationship(back_populates="test_cases", foreign_keys=[exercise_id])  # noqa: F821
 
 
 class CodeSubmission(Base, IDMixin):

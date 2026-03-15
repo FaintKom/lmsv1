@@ -78,3 +78,7 @@ class Lesson(Base, IDMixin, TimestampMixin):
     duration_minutes: Mapped[int | None] = mapped_column(Integer)
 
     module: Mapped["Module"] = relationship(back_populates="lessons")
+    exercises: Mapped[list["Exercise"]] = relationship(  # noqa: F821
+        back_populates="lesson", cascade="all, delete-orphan", order_by="Exercise.sort_order",
+        foreign_keys="[Exercise.lesson_id]",
+    )

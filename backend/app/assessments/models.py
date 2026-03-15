@@ -32,8 +32,11 @@ class Quiz(Base, IDMixin, TimestampMixin):
 class Question(Base, IDMixin, TimestampMixin):
     __tablename__ = "questions"
 
-    quiz_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=False
+    quiz_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=True
+    )
+    exercise_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("exercises.id", ondelete="CASCADE"), nullable=True
     )
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
     question_type: Mapped[QuestionType] = mapped_column(Enum(QuestionType), nullable=False)
@@ -43,6 +46,7 @@ class Question(Base, IDMixin, TimestampMixin):
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
 
     quiz: Mapped["Quiz"] = relationship(back_populates="questions")
+    exercise: Mapped["Exercise"] = relationship(back_populates="questions", foreign_keys=[exercise_id])  # noqa: F821
 
 
 class QuizSubmission(Base, IDMixin):

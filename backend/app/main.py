@@ -25,6 +25,7 @@ from app.meetings.router import router as meetings_router
 from app.parent.router import router as parent_router
 from app.skills.router import router as skills_router
 from app.recommendations.router import router as recommendations_router
+from app.exercises.router import router as exercises_router
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ async def lifespan(app: FastAPI):
     import app.calendar.models  # noqa
     import app.meetings.models  # noqa
     import app.skills.models  # noqa
+    import app.exercises.models  # noqa
 
     # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
@@ -77,6 +79,14 @@ async def lifespan(app: FastAPI):
         ("contenttype", "interactive"),
         ("userrole", "super_admin"),
         ("userrole", "parent"),
+        ("exercisetype", "quiz"),
+        ("exercisetype", "code_challenge"),
+        ("exercisetype", "matching"),
+        ("exercisetype", "ordering"),
+        ("exercisetype", "fill_blanks"),
+        ("exercisetype", "true_false"),
+        ("exercisetype", "categorize"),
+        ("exercisetype", "file_upload"),
     ]:
         try:
             async with engine.connect() as conn:
@@ -235,6 +245,7 @@ def create_app() -> FastAPI:
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
     app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
+    app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
 
     @app.get("/health")
     async def health():

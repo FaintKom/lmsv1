@@ -1,0 +1,277 @@
+import uuid
+
+from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi.responses import FileResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.auth.dependencies import get_current_user, require_role
+from app.auth.models import User, UserRole
+from app.db.session import get_db
+from app.exercises.models import ExerciseType
+from app.exercises.schemas import (
+    ExerciseCreate,
+    ExerciseListResponse,
+    ExerciseResponse,
+    ExerciseSubmissionResponse,
+    ExerciseUpdate,
+    QuestionCreate,
+    QuestionInExercise,
+    QuestionUpdate,
+    SubmissionListResponse,
+    SubmitExerciseRequest,
+    TestCaseCreate,
+    TestCaseInExercise,
+)
+from app.exercises.service import (
+    add_question_to_exercise,
+    add_test_case_to_exercise,
+    create_exercise,
+    delete_exercise,
+    delete_question_from_exercise,
+    delete_test_case_from_exercise,
+    get_exercise,
+    get_exercises_by_lesson,
+    list_exercises,
+    list_submissions,
+    submit_exercise,
+    update_exercise,
+    update_question_in_exercise,
+    upload_file_submission,
+)
+
+router = APIRouter()
+
+
+# ─── Exercise CRUD ───────────────────────────────────────────────────
+
+@router.post("/", response_model=ExerciseResponse)
+async def create_exercise_endpoint(
+    data: ExerciseCreate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    exercise = await create_exercise(db, user, data.model_dump())
+    return ExerciseResponse.model_validate(exercise)
+
+
+@router.get("/", response_model=ExerciseListResponse)
+async def list_exercises_endpoint(
+    exercise_type: ExerciseType | None = None,
+    lesson_id: uuid.UUID | None = None,
+    search: str | None = None,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    items, total = await list_exercises(
+        db, user, exercise_type=exercise_type, lesson_id=lesson_id,
+        search=search, page=page, per_page=per_page,
+    )
+    return ExerciseListResponse(
+        items=[ExerciseResponse.model_validate(e) for e in items],
+        total=total,
+        page=page,
+        per_page=per_page,
+    )
+
+
+@router.get("/submissions/{submission_id}/download")
+async def download_file_endpoint(
+    submission_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy import select
+    from app.exercises.models import ExerciseSubmission
+    from app.common.exceptions import NotFoundError
+
+    result = await db.execute(
+        select(ExerciseSubmission).where(ExerciseSubmission.id == submission_id)
+    )
+    submission = result.scalar_one_or_none()
+    if not submission:
+        raise NotFoundError("Submission not found")
+
+    if user.role == UserRole.student and submission.student_id != user.id:
+        raise NotFoundError("Submission not found")
+
+    if not submission.file_path:
+        raise NotFoundError("No file attached to this submission")
+
+    return FileResponse(
+        path=submission.file_path,
+        filename=submission.original_filename,
+        media_type=submission.mime_type or "application/octet-stream",
+    )
+
+
+@router.get("/by-lesson/{lesson_id}", response_model=list[ExerciseResponse])
+async def get_exercises_by_lesson_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    exercises = await get_exercises_by_lesson(db, lesson_id)
+
+    # Strip answers for students
+    result = []
+    for ex in exercises:
+        resp = ExerciseResponse.model_validate(ex)
+        if user.role == UserRole.student:
+            resp = _strip_answers(resp)
+        result.append(resp)
+    return result
+
+
+@router.get("/{exercise_id}", response_model=ExerciseResponse)
+async def get_exercise_endpoint(
+    exercise_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    exercise = await get_exercise(db, exercise_id, user)
+    resp = ExerciseResponse.model_validate(exercise)
+    if user.role == UserRole.student:
+        resp = _strip_answers(resp)
+    return resp
+
+
+@router.put("/{exercise_id}", response_model=ExerciseResponse)
+async def update_exercise_endpoint(
+    exercise_id: uuid.UUID,
+    data: ExerciseUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    exercise = await update_exercise(db, exercise_id, user, data.model_dump(exclude_unset=True))
+    return ExerciseResponse.model_validate(exercise)
+
+
+@router.delete("/{exercise_id}")
+async def delete_exercise_endpoint(
+    exercise_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    await delete_exercise(db, exercise_id, user)
+    return {"status": "ok"}
+
+
+# ─── Questions (quiz exercises) ─────────────────────────────────────
+
+@router.post("/{exercise_id}/questions", response_model=QuestionInExercise)
+async def add_question_endpoint(
+    exercise_id: uuid.UUID,
+    data: QuestionCreate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    question = await add_question_to_exercise(db, exercise_id, user, data.model_dump())
+    return QuestionInExercise.model_validate(question)
+
+
+@router.put("/{exercise_id}/questions/{question_id}", response_model=QuestionInExercise)
+async def update_question_endpoint(
+    exercise_id: uuid.UUID,
+    question_id: uuid.UUID,
+    data: QuestionUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    question = await update_question_in_exercise(db, question_id, user, data.model_dump(exclude_unset=True))
+    return QuestionInExercise.model_validate(question)
+
+
+@router.delete("/{exercise_id}/questions/{question_id}")
+async def delete_question_endpoint(
+    exercise_id: uuid.UUID,
+    question_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    await delete_question_from_exercise(db, question_id, user)
+    return {"status": "ok"}
+
+
+# ─── Test cases (code challenge exercises) ──────────────────────────
+
+@router.post("/{exercise_id}/test-cases", response_model=TestCaseInExercise)
+async def add_test_case_endpoint(
+    exercise_id: uuid.UUID,
+    data: TestCaseCreate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    tc = await add_test_case_to_exercise(db, exercise_id, user, data.model_dump())
+    return TestCaseInExercise.model_validate(tc)
+
+
+@router.delete("/{exercise_id}/test-cases/{test_case_id}")
+async def delete_test_case_endpoint(
+    exercise_id: uuid.UUID,
+    test_case_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    await delete_test_case_from_exercise(db, test_case_id, user)
+    return {"status": "ok"}
+
+
+# ─── Submissions ─────────────────────────────────────────────────────
+
+@router.post("/{exercise_id}/submit", response_model=ExerciseSubmissionResponse)
+async def submit_exercise_endpoint(
+    exercise_id: uuid.UUID,
+    data: SubmitExerciseRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    submission = await submit_exercise(db, exercise_id, user, data.model_dump())
+    return ExerciseSubmissionResponse.model_validate(submission)
+
+
+@router.post("/{exercise_id}/upload", response_model=ExerciseSubmissionResponse)
+async def upload_file_endpoint(
+    exercise_id: uuid.UUID,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    submission = await upload_file_submission(db, exercise_id, user, file)
+    return ExerciseSubmissionResponse.model_validate(submission)
+
+
+@router.get("/{exercise_id}/submissions", response_model=SubmissionListResponse)
+async def list_submissions_endpoint(
+    exercise_id: uuid.UUID,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    items, total = await list_submissions(db, exercise_id, user, page, per_page)
+    return SubmissionListResponse(
+        items=[ExerciseSubmissionResponse.model_validate(s) for s in items],
+        total=total,
+        page=page,
+        per_page=per_page,
+    )
+
+
+# ─── Helpers ─────────────────────────────────────────────────────────
+
+def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
+    """Remove correct answers from response for students."""
+    if resp.questions:
+        for q in resp.questions:
+            if q.options:
+                for opt in q.options:
+                    opt.pop("is_correct", None)
+            q.correct_answer = None
+    if resp.test_cases:
+        resp.test_cases = [tc for tc in resp.test_cases if not tc.is_hidden]
+    # Strip solution from config
+    if resp.config:
+        resp.config = {k: v for k, v in resp.config.items() if k not in ("solution_code", "correct_order", "blanks", "correct_answer")}
+    return resp
