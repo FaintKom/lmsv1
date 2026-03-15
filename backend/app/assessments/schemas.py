@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -23,6 +24,12 @@ class QuestionCreate(BaseModel):
     options: list[dict] | None = None  # [{id, text, is_correct}]
     correct_answer: str | None = None
     points: int = 1
+
+
+class QuizUpdate(BaseModel):
+    title: str | None = None
+    passing_score: int | None = None
+    time_limit_minutes: int | None = None
 
 
 class QuizSubmitRequest(BaseModel):
@@ -56,6 +63,6 @@ class SubmissionResponse(BaseModel):
     quiz_id: uuid.UUID
     score: float | None
     passed: bool | None
-    submitted_at: str
+    submitted_at: datetime
 
     model_config = {"from_attributes": True}

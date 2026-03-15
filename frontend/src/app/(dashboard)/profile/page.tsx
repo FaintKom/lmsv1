@@ -18,6 +18,7 @@ import {
   Globe,
   FileText,
   Bell,
+  Download,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -38,6 +39,7 @@ export default function ProfilePage() {
     courses: true,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
 
   useEffect(() => {
     apiClient.get("/auth/me/email-preferences").then(({ data }) => {
@@ -54,6 +56,27 @@ export default function ProfilePage() {
       toast.error("Failed to save preferences");
     } finally {
       setSavingPrefs(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    setExportingData(true);
+    try {
+      const { data } = await apiClient.get("/auth/me/data-export");
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "my-data-export.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Data exported successfully");
+    } catch {
+      toast.error("Failed to export data");
+    } finally {
+      setExportingData(false);
     }
   };
 
@@ -314,6 +337,25 @@ export default function ProfilePage() {
           <Button onClick={handleSavePrefs} disabled={savingPrefs} className="mt-2">
             <Save className="mr-1 h-4 w-4" />
             {savingPrefs ? "Saving..." : "Save Preferences"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Privacy & Data */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Shield className="h-4 w-4" />
+            Privacy &amp; Data
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
+            Export all your personal data as a JSON file
+          </p>
+          <Button onClick={handleExportData} disabled={exportingData} variant="outline">
+            <Download className="mr-1.5 h-4 w-4" />
+            {exportingData ? "Exporting..." : "Download My Data"}
           </Button>
         </CardContent>
       </Card>

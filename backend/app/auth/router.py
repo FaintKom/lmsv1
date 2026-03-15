@@ -161,6 +161,20 @@ async def update_email_preferences(
     return user.email_preferences
 
 
+# ─── GDPR Data Export ─────────────────────────────────────────────────
+
+
+@router.get("/me/data-export")
+async def data_export_endpoint(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export all personal data for the current user (GDPR Art. 20)."""
+    from app.auth.gdpr import export_user_data
+
+    return await export_user_data(db, user.id)
+
+
 # ─── Password Reset ────────────────────────────────────────────────────
 
 

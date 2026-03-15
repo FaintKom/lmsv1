@@ -55,7 +55,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
                   {Math.round(progress)}%
                 </span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+              <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={"Course progress: " + Math.round(progress) + "%"}>
                 <div
                   className="h-full rounded-full bg-indigo-500 transition-all"
                   style={{ width: `${progress}%` }}

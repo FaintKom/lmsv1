@@ -36,6 +36,29 @@ async def create_meeting(
     return meeting
 
 
+async def update_meeting(
+    db: AsyncSession,
+    meeting_id: uuid.UUID,
+    user: User,
+    data: dict,
+) -> Meeting:
+    result = await db.execute(
+        select(Meeting).where(
+            Meeting.id == meeting_id,
+            Meeting.org_id == user.org_id,
+        )
+    )
+    meeting = result.scalar_one_or_none()
+    if not meeting:
+        raise ValueError("Meeting not found")
+    for key, value in data.items():
+        if value is not None:
+            setattr(meeting, key, value)
+    await db.commit()
+    await db.refresh(meeting)
+    return meeting
+
+
 async def end_meeting(
     db: AsyncSession,
     meeting_id: uuid.UUID,

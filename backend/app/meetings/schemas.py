@@ -12,6 +12,13 @@ class MeetingCreate(BaseModel):
     duration_minutes: int = 60
 
 
+class MeetingUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    scheduled_at: datetime | None = None
+    duration_minutes: int | None = None
+
+
 class MeetingResponse(BaseModel):
     id: uuid.UUID
     title: str

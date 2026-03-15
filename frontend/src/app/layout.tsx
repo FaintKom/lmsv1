@@ -5,6 +5,7 @@ import { I18nProvider } from "@/lib/i18n/context";
 import { Toaster } from "@/components/ui/toaster";
 import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import CookieConsent from "@/components/cookie-consent";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -55,6 +56,7 @@ export default function RootLayout({
           </ConfirmProvider>
         </I18nProvider>
         <Toaster />
+        <CookieConsent />
       </body>
     </html>
   );

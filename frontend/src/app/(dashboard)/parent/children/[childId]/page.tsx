@@ -6,6 +6,7 @@ import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, Trophy, Flame, Loader2, TrendingUp, CheckCircle } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface ChildProgress {
   enrollments: {
@@ -33,6 +34,7 @@ interface Grade {
 export default function ChildDetailPage() {
   const params = useParams();
   const childId = params.childId as string;
+  const { t } = useTranslation();
   const [progress, setProgress] = useState<ChildProgress | null>(null);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ export default function ChildDetailPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <Link href="/parent" className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
-        <ArrowLeft className="h-4 w-4" /> Back to Children
+        <ArrowLeft className="h-4 w-4" /> {t("parent.backToChildren")}
       </Link>
 
       {/* Stats */}
@@ -67,7 +69,7 @@ export default function ChildDetailPage() {
                 <BookOpen className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Courses</p>
+                <p className="text-xs text-slate-500">{t("parent.courses")}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{progress.total_courses}</p>
               </div>
             </CardContent>
@@ -78,7 +80,7 @@ export default function ChildDetailPage() {
                 <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Completed</p>
+                <p className="text-xs text-slate-500">{t("parent.completed")}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{progress.completed_courses}</p>
               </div>
             </CardContent>
@@ -89,7 +91,7 @@ export default function ChildDetailPage() {
                 <TrendingUp className="h-4 w-4 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Avg Progress</p>
+                <p className="text-xs text-slate-500">{t("parent.avgProgress")}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{progress.avg_progress}%</p>
               </div>
             </CardContent>
@@ -100,7 +102,7 @@ export default function ChildDetailPage() {
                 <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Streak</p>
+                <p className="text-xs text-slate-500">{t("parent.streak")}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{progress.current_streak} days</p>
               </div>
             </CardContent>
@@ -110,17 +112,17 @@ export default function ChildDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-white/5">
-        {(["progress", "grades"] as const).map((t) => (
+        {(["progress", "grades"] as const).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              tab === t
+              tab === tabKey
                 ? "bg-white text-slate-800 shadow-sm dark:bg-[#232323] dark:text-slate-200"
                 : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
             }`}
           >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
+            {t(`parent.${tabKey}`)}
           </button>
         ))}
       </div>
@@ -129,7 +131,7 @@ export default function ChildDetailPage() {
       {tab === "progress" && progress && (
         <div className="space-y-3">
           {progress.enrollments.length === 0 ? (
-            <Card><CardContent className="py-8 text-center text-sm text-slate-400">No courses enrolled</CardContent></Card>
+            <Card><CardContent className="py-8 text-center text-sm text-slate-400">{t("parent.noCourses")}</CardContent></Card>
           ) : (
             progress.enrollments.map((e, i) => (
               <Card key={i}>
@@ -157,7 +159,7 @@ export default function ChildDetailPage() {
       {tab === "grades" && (
         <div className="space-y-3">
           {grades.length === 0 ? (
-            <Card><CardContent className="py-8 text-center text-sm text-slate-400">No assignments graded yet</CardContent></Card>
+            <Card><CardContent className="py-8 text-center text-sm text-slate-400">{t("parent.noGrades")}</CardContent></Card>
           ) : (
             grades.map((g, i) => (
               <Card key={i}>

@@ -6,10 +6,12 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from "@/stores/auth-store";
 import { Video, Plus, X, Loader2, ExternalLink, StopCircle } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 import type { Meeting } from "@/types/api";
 
 export default function AdminMeetingsPage() {
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -62,14 +64,14 @@ export default function AdminMeetingsPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Video Conferences</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Start and manage live lessons via Jitsi Meet</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("meet.adminTitle")}</h1>
+          <p className="text-base text-slate-500 dark:text-slate-400">{t("meet.adminSubtitle")}</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
-          <Plus className="h-4 w-4" /> Start Live Lesson
+          <Plus className="h-4 w-4" /> {t("meet.startLesson")}
         </button>
       </div>
 
@@ -122,7 +124,7 @@ export default function AdminMeetingsPage() {
       {activeMeetings.length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Live Now ({activeMeetings.length})
+            {t("meet.liveNow")} ({activeMeetings.length})
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {activeMeetings.map((m) => (
@@ -138,7 +140,7 @@ export default function AdminMeetingsPage() {
                     </div>
                     <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/20 dark:text-green-400">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-                      Live
+                      {t("meet.live")}
                     </span>
                   </div>
                   <div className="mt-3 flex gap-2">
@@ -148,13 +150,13 @@ export default function AdminMeetingsPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
                     >
-                      <ExternalLink className="h-3.5 w-3.5" /> Join
+                      <ExternalLink className="h-3.5 w-3.5" /> {t("meet.join")}
                     </a>
                     <button
                       onClick={() => handleEnd(m.id)}
                       className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
                     >
-                      <StopCircle className="h-3.5 w-3.5" /> End
+                      <StopCircle className="h-3.5 w-3.5" /> {t("meet.end")}
                     </button>
                   </div>
                 </CardContent>
@@ -166,11 +168,11 @@ export default function AdminMeetingsPage() {
 
       {/* Past meetings */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">Past Meetings</h2>
+        <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">{t("meet.pastMeetings")}</h2>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-indigo-500" /></div>
         ) : pastMeetings.length === 0 ? (
-          <Card><CardContent className="py-8 text-center text-sm text-slate-400">No meetings yet</CardContent></Card>
+          <Card><CardContent className="py-8 text-center text-sm text-slate-400">{t("meet.noMeetings")}</CardContent></Card>
         ) : (
           <div className="space-y-2">
             {pastMeetings.map((m) => (

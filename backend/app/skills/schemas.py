@@ -27,6 +27,12 @@ class UserSkillResponse(BaseModel):
     level: int
 
 
+class SkillUpdate(BaseModel):
+    name: str | None = None
+    icon: str | None = None
+    category: str | None = None
+
+
 class LessonSkillLink(BaseModel):
     lesson_id: uuid.UUID
     skill_id: uuid.UUID

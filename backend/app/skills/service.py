@@ -5,6 +5,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
+from app.courses.models import Lesson, Module, Course
 from app.skills.models import Skill, LessonSkill, UserSkill
 
 
@@ -30,6 +31,21 @@ async def list_skills(db: AsyncSession, org_id: uuid.UUID) -> list[Skill]:
     return list(result.scalars().all())
 
 
+async def update_skill(db: AsyncSession, skill_id: uuid.UUID, org_id: uuid.UUID, data: dict) -> Skill:
+    result = await db.execute(
+        select(Skill).where(Skill.id == skill_id, Skill.org_id == org_id)
+    )
+    skill = result.scalar_one_or_none()
+    if not skill:
+        raise ValueError("Skill not found")
+    for key, value in data.items():
+        if value is not None:
+            setattr(skill, key, value)
+    await db.commit()
+    await db.refresh(skill)
+    return skill
+
+
 async def delete_skill(db: AsyncSession, skill_id: uuid.UUID, org_id: uuid.UUID) -> None:
     result = await db.execute(
         select(Skill).where(Skill.id == skill_id, Skill.org_id == org_id)
@@ -45,8 +61,26 @@ async def link_skill_to_lesson(
     db: AsyncSession,
     lesson_id: uuid.UUID,
     skill_id: uuid.UUID,
+    org_id: uuid.UUID,
     xp_amount: int = 10,
 ) -> LessonSkill:
+    # Verify lesson belongs to org
+    lesson_check = await db.execute(
+        select(Lesson.id)
+        .join(Module, Lesson.module_id == Module.id)
+        .join(Course, Module.course_id == Course.id)
+        .where(Lesson.id == lesson_id, Course.org_id == org_id)
+    )
+    if not lesson_check.scalar_one_or_none():
+        raise ValueError("Lesson not found")
+
+    # Verify skill belongs to org
+    skill_check = await db.execute(
+        select(Skill.id).where(Skill.id == skill_id, Skill.org_id == org_id)
+    )
+    if not skill_check.scalar_one_or_none():
+        raise ValueError("Skill not found")
+
     link = LessonSkill(lesson_id=lesson_id, skill_id=skill_id, xp_amount=xp_amount)
     db.add(link)
     await db.commit()
@@ -58,7 +92,18 @@ async def unlink_skill_from_lesson(
     db: AsyncSession,
     lesson_id: uuid.UUID,
     skill_id: uuid.UUID,
+    org_id: uuid.UUID,
 ) -> None:
+    # Verify lesson belongs to org
+    lesson_check = await db.execute(
+        select(Lesson.id)
+        .join(Module, Lesson.module_id == Module.id)
+        .join(Course, Module.course_id == Course.id)
+        .where(Lesson.id == lesson_id, Course.org_id == org_id)
+    )
+    if not lesson_check.scalar_one_or_none():
+        raise ValueError("Lesson not found")
+
     await db.execute(
         delete(LessonSkill).where(
             LessonSkill.lesson_id == lesson_id,
@@ -68,7 +113,17 @@ async def unlink_skill_from_lesson(
     await db.commit()
 
 
-async def get_lesson_skills(db: AsyncSession, lesson_id: uuid.UUID) -> list[dict]:
+async def get_lesson_skills(db: AsyncSession, lesson_id: uuid.UUID, org_id: uuid.UUID) -> list[dict]:
+    # Verify lesson belongs to org
+    lesson_check = await db.execute(
+        select(Lesson.id)
+        .join(Module, Lesson.module_id == Module.id)
+        .join(Course, Module.course_id == Course.id)
+        .where(Lesson.id == lesson_id, Course.org_id == org_id)
+    )
+    if not lesson_check.scalar_one_or_none():
+        raise ValueError("Lesson not found")
+
     result = await db.execute(
         select(LessonSkill, Skill.name, Skill.icon, Skill.category)
         .join(Skill, LessonSkill.skill_id == Skill.id)

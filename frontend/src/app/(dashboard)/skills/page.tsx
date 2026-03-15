@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Zap } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 import {
   RadarChart,
   PolarGrid,
@@ -38,6 +39,7 @@ export default function SkillsPage() {
   const [skills, setSkills] = useState<UserSkill[]>([]);
   const [radarData, setRadarData] = useState<RadarPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     Promise.all([
@@ -58,8 +60,8 @@ export default function SkillsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">My Skills</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Track your skill development across courses</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("skills.title")}</h1>
+        <p className="text-base text-slate-500 dark:text-slate-400">{t("skills.subtitle")}</p>
       </div>
 
       {skills.length === 0 ? (
@@ -68,8 +70,8 @@ export default function SkillsPage() {
             <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
               <Zap className="h-6 w-6 text-slate-400" />
             </div>
-            <p className="text-sm font-medium text-slate-500">No skills earned yet</p>
-            <p className="mt-1 text-xs text-slate-400">Complete lessons to start building your skill profile</p>
+            <p className="text-sm font-medium text-slate-500">{t("skills.noSkills")}</p>
+            <p className="mt-1 text-xs text-slate-400">{t("skills.noSkillsHint")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -78,7 +80,7 @@ export default function SkillsPage() {
           {radarData.length >= 3 && (
             <Card>
               <CardHeader>
-                <CardTitle>Skill Radar</CardTitle>
+                <CardTitle>{t("skills.radar")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -119,7 +121,7 @@ export default function SkillsPage() {
                               <span className="font-medium text-slate-800 dark:text-slate-200">{s.skill_name}</span>
                             </div>
                             <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
-                              Lv.{s.level}
+                              {t("skills.level")}{s.level}
                             </span>
                           </div>
                           <div className="mt-3">

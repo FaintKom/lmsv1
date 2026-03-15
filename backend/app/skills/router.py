@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
-from app.skills.schemas import SkillCreate, SkillResponse, LessonSkillLink
+from app.skills.schemas import SkillCreate, SkillUpdate, SkillResponse, LessonSkillLink
 from app.skills.service import (
     create_skill,
+    update_skill,
     list_skills,
     delete_skill,
     link_skill_to_lesson,
@@ -40,6 +41,20 @@ async def create_skill_endpoint(
     return SkillResponse.model_validate(skill)
 
 
+@router.put("/{skill_id}", response_model=SkillResponse)
+async def update_skill_endpoint(
+    skill_id: uuid.UUID,
+    data: SkillUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        skill = await update_skill(db, skill_id, user.org_id, data.model_dump(exclude_unset=True))
+        return SkillResponse.model_validate(skill)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+
 @router.delete("/{skill_id}")
 async def delete_skill_endpoint(
     skill_id: uuid.UUID,
@@ -59,8 +74,11 @@ async def link_skill_endpoint(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    await link_skill_to_lesson(db, data.lesson_id, data.skill_id, data.xp_amount)
-    return {"status": "ok"}
+    try:
+        await link_skill_to_lesson(db, data.lesson_id, data.skill_id, user.org_id, data.xp_amount)
+        return {"status": "ok"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.delete("/lessons/{lesson_id}/skills/{skill_id}")
@@ -70,8 +88,11 @@ async def unlink_skill_endpoint(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    await unlink_skill_from_lesson(db, lesson_id, skill_id)
-    return {"status": "ok"}
+    try:
+        await unlink_skill_from_lesson(db, lesson_id, skill_id, user.org_id)
+        return {"status": "ok"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/lessons/{lesson_id}")
@@ -80,7 +101,10 @@ async def lesson_skills_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return await get_lesson_skills(db, lesson_id)
+    try:
+        return await get_lesson_skills(db, lesson_id, user.org_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/my")

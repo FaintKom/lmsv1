@@ -12,7 +12,7 @@ class FileSubmission(Base, IDMixin, TimestampMixin):
     __tablename__ = "file_submissions"
 
     student_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     lesson_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("lessons.id"), nullable=False
@@ -28,7 +28,7 @@ class InteractiveSubmission(Base, IDMixin, TimestampMixin):
     __tablename__ = "interactive_submissions"
 
     student_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     lesson_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("lessons.id"), nullable=False

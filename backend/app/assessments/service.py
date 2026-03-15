@@ -60,6 +60,20 @@ async def get_quiz_by_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> Quiz:
     return quiz
 
 
+async def update_quiz(db: AsyncSession, quiz_id: uuid.UUID, data: dict) -> Quiz:
+    result = await db.execute(
+        select(Quiz).where(Quiz.id == quiz_id).options(selectinload(Quiz.questions))
+    )
+    quiz = result.scalar_one_or_none()
+    if not quiz:
+        raise NotFoundError("Quiz not found")
+    for key, value in data.items():
+        if value is not None:
+            setattr(quiz, key, value)
+    await db.flush()
+    return quiz
+
+
 async def add_question(db: AsyncSession, quiz_id: uuid.UUID, data: dict) -> Question:
     max_order = (
         await db.execute(

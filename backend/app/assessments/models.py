@@ -52,7 +52,7 @@ class QuizSubmission(Base, IDMixin):
         UUID(as_uuid=True), ForeignKey("quizzes.id"), nullable=False
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     answers: Mapped[dict] = mapped_column(JSONB, default=dict)
     score: Mapped[float | None] = mapped_column(Numeric)

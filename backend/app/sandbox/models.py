@@ -58,7 +58,7 @@ class CodeSubmission(Base, IDMixin):
         UUID(as_uuid=True), ForeignKey("code_challenges.id"), nullable=False
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     source_code: Mapped[str] = mapped_column(Text, nullable=False)
     language: Mapped[str] = mapped_column(String(50), nullable=False)

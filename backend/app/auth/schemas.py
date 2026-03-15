@@ -11,6 +11,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     role: str = "teacher"  # "teacher" or "student"
+    consent_accepted: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -40,6 +41,7 @@ class UserResponse(BaseModel):
     is_active: bool = True
     is_methodist: bool = False
     created_at: datetime | None = None
+    consent_accepted_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

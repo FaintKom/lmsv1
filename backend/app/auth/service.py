@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,12 +52,17 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
         db.add(org)
         await db.flush()
 
+    if not data.consent_accepted:
+        raise BadRequestError("You must accept the Privacy Policy and Terms of Service")
+
     user = User(
         org_id=org.id,
         email=data.email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
         role=user_role,
+        consent_accepted_at=datetime.now(tz=timezone.utc),
+        privacy_policy_version="1.0",
     )
     db.add(user)
     await db.flush()

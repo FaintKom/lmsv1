@@ -35,6 +35,7 @@ function RegisterForm() {
     email: "",
     password: "",
     role: "" as "teacher" | "student" | "",
+    consent: false,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -109,11 +110,15 @@ function RegisterForm() {
       setError("Please enter your organization name");
       return;
     }
+    if (!form.consent) {
+      setError("You must accept the Privacy Policy and Terms of Service");
+      return;
+    }
     setError("");
     setLoading(true);
 
     try {
-      await register(form);
+      await register({ ...form, consent_accepted: form.consent });
       if (form.role === "student") {
         router.push("/dashboard");
       } else {
@@ -223,7 +228,7 @@ function RegisterForm() {
         {/* Organization field — different for teacher vs student, hidden if invited */}
         {form.role && !inviteOrg && (
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
               {form.role === "student" ? "Find your school" : "School / Organization Name"}
             </label>
             {form.role === "student" ? (
@@ -231,6 +236,7 @@ function RegisterForm() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
+                    id="reg-org"
                     type="text"
                     value={orgSearch}
                     onChange={(e) => {
@@ -336,6 +342,22 @@ function RegisterForm() {
             aria-required="true"
           />
         </div>
+        <div className="flex items-start gap-2">
+          <input
+            id="reg-consent"
+            type="checkbox"
+            checked={form.consent}
+            onChange={(e) => setForm((prev) => ({ ...prev, consent: e.target.checked }))}
+            className="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          />
+          <label htmlFor="reg-consent" className="text-sm text-slate-600 dark:text-slate-400">
+            I agree to the{" "}
+            <Link href="/privacy" className="font-medium text-indigo-600 hover:text-indigo-700">Privacy Policy</Link>
+            {" "}and{" "}
+            <Link href="/terms" className="font-medium text-indigo-600 hover:text-indigo-700">Terms of Service</Link>
+          </label>
+        </div>
+
         <Button type="submit" className="w-full" disabled={loading || !form.role}>
           <UserPlus className="h-4 w-4" />
           {loading ? "Creating account..." : "Create Account"}

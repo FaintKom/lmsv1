@@ -8,6 +8,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen">
+      <a href="#auth-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-indigo-600 focus:px-4 focus:py-2 focus:text-white">Skip to content</a>
       {/* Left side - branding */}
       <div className="hidden w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 lg:flex lg:flex-col lg:items-center lg:justify-center">
         <div className="max-w-md px-8 text-center">
@@ -23,7 +24,7 @@ export default function AuthLayout({
       </div>
       {/* Right side - form */}
       <div className="flex w-full items-center justify-center bg-slate-50 px-6 lg:w-1/2 dark:bg-[#1E1E1E]">
-        <div className="w-full max-w-md">
+        <div id="auth-content" className="w-full max-w-md">
           <Link
             href="/"
             className="mb-8 flex items-center justify-center gap-2 lg:hidden"

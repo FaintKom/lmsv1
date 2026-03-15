@@ -208,7 +208,29 @@ async def update_path(
             db.add(step)
 
     await db.flush()
-    return {"ok": True}
+
+    # Reload with steps to return full object
+    result = await db.execute(
+        select(LearningPath)
+        .options(selectinload(LearningPath.steps))
+        .where(LearningPath.id == path_id)
+    )
+    path = result.scalars().first()
+    return {
+        "id": str(path.id),
+        "title": path.title,
+        "description": path.description,
+        "is_published": path.is_published,
+        "steps": [
+            {
+                "id": str(s.id),
+                "course_id": str(s.course_id),
+                "sort_order": s.sort_order,
+                "is_required": s.is_required,
+            }
+            for s in path.steps
+        ],
+    }
 
 
 @router.delete("/{path_id}")

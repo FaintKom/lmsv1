@@ -46,6 +46,10 @@ class User(Base, IDMixin, TimestampMixin):
     email_preferences: Mapped[dict] = mapped_column(
         JSONB, default=lambda: {"assignments": True, "grades": True, "deadlines": True, "courses": True}
     )
+    consent_accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    privacy_policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     organization: Mapped["Organization"] = relationship(back_populates="users")
 

@@ -7,11 +7,12 @@ from app.assessments.schemas import (
     QuestionCreate,
     QuestionResponse,
     QuizCreate,
+    QuizUpdate,
     QuizResponse,
     QuizSubmitRequest,
     SubmissionResponse,
 )
-from app.assessments.service import add_question, create_quiz, get_quiz, get_quiz_by_lesson, submit_quiz
+from app.assessments.service import add_question, create_quiz, update_quiz, get_quiz, get_quiz_by_lesson, submit_quiz
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
@@ -73,6 +74,17 @@ async def add_question_endpoint(
 ):
     question = await add_question(db, quiz_id, data.model_dump())
     return QuestionResponse.model_validate(question)
+
+
+@router.put("/quizzes/{quiz_id}", response_model=QuizResponse)
+async def update_quiz_endpoint(
+    quiz_id: uuid.UUID,
+    data: QuizUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    quiz = await update_quiz(db, quiz_id, data.model_dump(exclude_unset=True))
+    return QuizResponse.model_validate(quiz)
 
 
 @router.delete("/quizzes/{quiz_id}")

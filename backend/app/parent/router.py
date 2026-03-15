@@ -26,7 +26,7 @@ async def list_children_endpoint(
     user: User = Depends(require_role(UserRole.parent)),
     db: AsyncSession = Depends(get_db),
 ):
-    return await get_children(db, user.id)
+    return await get_children(db, user.id, user.org_id)
 
 
 @router.post("/children/link")
@@ -48,7 +48,7 @@ async def child_progress_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        return await get_child_progress(db, user.id, child_id)
+        return await get_child_progress(db, user.id, child_id, user.org_id)
     except PermissionError:
         raise HTTPException(status_code=403, detail="Not your child")
 
@@ -60,6 +60,6 @@ async def child_grades_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        return await get_child_grades(db, user.id, child_id)
+        return await get_child_grades(db, user.id, child_id, user.org_id)
     except PermissionError:
         raise HTTPException(status_code=403, detail="Not your child")

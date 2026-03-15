@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Child {
   id: string;
@@ -17,6 +18,7 @@ interface Child {
 
 export default function ParentDashboard() {
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [linkEmail, setLinkEmail] = useState("");
@@ -55,23 +57,23 @@ export default function ParentDashboard() {
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          Welcome, {user?.full_name}
+          {t("parent.welcome")} {user?.full_name}
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Monitor your children&apos;s learning progress
+        <p className="text-base text-slate-500 dark:text-slate-400">
+          {t("parent.subtitle")}
         </p>
       </div>
 
       {/* Link child */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Link a Child</CardTitle>
+          <CardTitle className="text-sm">{t("parent.linkChild")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLink} className="flex gap-2">
             <input
               type="email"
-              placeholder="Child's email address"
+              placeholder={t("parent.childEmail")}
               value={linkEmail}
               onChange={(e) => setLinkEmail(e.target.value)}
               required
@@ -83,7 +85,7 @@ export default function ParentDashboard() {
               className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               {linking ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Link
+              {t("parent.link")}
             </button>
           </form>
         </CardContent>
@@ -98,8 +100,8 @@ export default function ParentDashboard() {
             <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
               <Users className="h-6 w-6 text-slate-400" />
             </div>
-            <p className="text-sm font-medium text-slate-500">No children linked yet</p>
-            <p className="mt-1 text-xs text-slate-400">Enter your child&apos;s email above to get started</p>
+            <p className="text-sm font-medium text-slate-500">{t("parent.noChildren")}</p>
+            <p className="mt-1 text-xs text-slate-400">{t("parent.noChildrenHint")}</p>
           </CardContent>
         </Card>
       ) : (

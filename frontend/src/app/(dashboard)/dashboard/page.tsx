@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CourseCard } from "@/components/courses/course-card";
 import { BookOpen, Code, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame, Calendar, Lightbulb } from "lucide-react";
 import type { Enrollment, Course, CalendarEvent } from "@/types/api";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Recommendation {
   type: "review" | "continue" | "new" | "almost_done";
@@ -21,6 +22,7 @@ import { NewcomerChecklist } from "@/components/onboarding/newcomer-checklist";
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +148,7 @@ export default function DashboardPage() {
       {recommendations.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            <Lightbulb className="h-5 w-5 text-amber-500" /> Recommended for You
+            <Lightbulb className="h-5 w-5 text-amber-500" /> {t("dash.recommended")}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {recommendations.slice(0, 4).map((rec, i) => {
@@ -236,12 +238,12 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-red-500" />
-              Upcoming
+              {t("dash.upcoming")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {upcomingEvents.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">No upcoming events</p>
+              <p className="py-4 text-center text-sm text-slate-400">{t("dash.noEvents")}</p>
             ) : (
               <div className="space-y-2">
                 {upcomingEvents.map((ev) => (

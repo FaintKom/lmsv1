@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
-from app.meetings.schemas import MeetingCreate, MeetingResponse
+from app.meetings.schemas import MeetingCreate, MeetingUpdate, MeetingResponse
 from app.meetings.service import (
     create_meeting,
+    update_meeting,
     end_meeting,
     list_meetings,
     get_meeting,
@@ -56,6 +57,20 @@ async def get_meeting_endpoint(
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return MeetingResponse.model_validate(meeting)
+
+
+@router.put("/{meeting_id}", response_model=MeetingResponse)
+async def update_meeting_endpoint(
+    meeting_id: uuid.UUID,
+    data: MeetingUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        meeting = await update_meeting(db, meeting_id, user, data.model_dump(exclude_unset=True))
+        return MeetingResponse.model_validate(meeting)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Meeting not found")
 
 
 @router.post("/{meeting_id}/end", response_model=MeetingResponse)
