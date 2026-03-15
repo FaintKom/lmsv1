@@ -63,16 +63,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     return () => clearInterval(interval);
   }, [isAdminOrTeacher]);
 
-  // Load menu visibility settings from org
+  // Load menu visibility settings from org (admin-only endpoint)
   useEffect(() => {
-    if (!isAdminOrTeacher || !user?.org_id) return;
+    if (!isAdminOnly || !user?.org_id) return;
     apiClient
       .get(`/admin/organizations/${user.org_id}`)
       .then(({ data }) => {
         setMenuVisibility(data.settings?.menu_visibility || {});
       })
       .catch(() => {});
-  }, [isAdminOrTeacher, user?.org_id]);
+  }, [isAdminOnly, user?.org_id]);
 
   const isMenuVisible = (key: string) => menuVisibility[key] !== false; // default visible
 
