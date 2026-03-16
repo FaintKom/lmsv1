@@ -23,6 +23,8 @@ interface AdminCourse {
   org_id: string;
   created_at: string;
   is_template?: boolean;
+  source_course_id?: string | null;
+  template_version?: number;
 }
 
 interface OrgOption {
@@ -105,7 +107,18 @@ export default function AdminCoursesPage() {
   };
 
   const handleDelete = async (courseId: string) => {
-    if (!(await confirm({ message: "Are you sure you want to delete this course?", variant: "danger", confirmLabel: "Delete" }))) return;
+    // Check enrollment count for warning
+    let enrolledCount = 0;
+    try {
+      const { data } = await apiClient.get(`/courses/${courseId}`);
+      enrolledCount = data.enrolled_count || 0;
+    } catch { /* proceed with default message */ }
+
+    const message = enrolledCount > 0
+      ? `${enrolledCount} student(s) are enrolled in this course. Their progress will be permanently deleted. Are you sure?`
+      : "Are you sure you want to delete this course?";
+
+    if (!(await confirm({ message, variant: "danger", confirmLabel: "Delete" }))) return;
     try {
       await apiClient.delete(`/courses/${courseId}/`);
       toast.success("Course deleted");
@@ -203,6 +216,11 @@ export default function AdminCoursesPage() {
           {('category' in course) && course.category && (
             <span className="mr-2 rounded-full bg-gray-100 dark:bg-white/10 px-2 py-0.5 text-xs text-gray-500 dark:text-slate-400">
               {course.category}
+            </span>
+          )}
+          {'source_course_id' in course && course.source_course_id && (
+            <span className="rounded-full bg-violet-50 dark:bg-violet-500/10 px-2 py-0.5 text-xs font-medium text-violet-600 dark:text-violet-400">
+              From template{('template_version' in course && course.template_version) ? ` (v${course.template_version})` : ""}
             </span>
           )}
           {/* Organization selector for super admin */}

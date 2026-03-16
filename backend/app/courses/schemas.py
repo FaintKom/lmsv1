@@ -33,6 +33,7 @@ class CourseResponse(BaseModel):
     created_at: datetime | None = None
     updated_at: datetime | None = None
     modules: list["ModuleResponse"] | None = None
+    enrolled_count: int | None = None
 
     model_config = {"from_attributes": True}
 
@@ -105,6 +106,10 @@ class SearchLessonResponse(BaseModel):
             "course_title": obj.module.course.title if obj.module and obj.module.course else None,
         }
         return cls(**data)
+
+
+class CopyWithGroupRequest(BaseModel):
+    group_ids: list[uuid.UUID] = []
 
 
 class CopyModuleRequest(BaseModel):

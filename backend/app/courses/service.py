@@ -30,11 +30,11 @@ async def list_courses(
             (Course.status == CourseStatus.published) | (Course.id.in_(enrolled_course_ids)),
         )
     elif user.role == UserRole.teacher:
-        # Teachers see their own courses + published non-template courses
+        # Teachers see only their own courses (non-template)
         query = query.where(
             Course.org_id == user.org_id,
             Course.is_template == False,  # noqa: E712
-            (Course.teacher_id == user.id) | (Course.status == CourseStatus.published),
+            Course.teacher_id == user.id,
         )
     else:
         # admin — all courses in their org (including templates)

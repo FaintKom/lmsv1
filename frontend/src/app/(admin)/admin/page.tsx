@@ -24,6 +24,7 @@ import {
   Inbox,
   TrendingUp,
   Clock,
+  Library,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { toast } from "sonner";
@@ -199,7 +200,18 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/admin/content-library">
+            <Card className="cursor-pointer border-l-4 border-l-violet-400 hover:shadow-md">
+              <CardContent className="flex items-center justify-between p-5">
+                <div className="flex items-center gap-3">
+                  <Library className="h-5 w-5 text-violet-500" />
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Browse Templates</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
+              </CardContent>
+            </Card>
+          </Link>
           <Link href="/admin/courses">
             <Card className="cursor-pointer border-l-4 border-l-blue-400 hover:shadow-md">
               <CardContent className="flex items-center justify-between p-5">

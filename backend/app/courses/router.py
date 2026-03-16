@@ -1,13 +1,16 @@
 import uuid
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
+from app.common.exceptions import NotFoundError
 from app.courses.schemas import (
     CopyLessonRequest,
     CopyModuleRequest,
+    CopyWithGroupRequest,
     CourseCreate,
     CourseResponse,
     CourseUpdate,
@@ -108,6 +111,73 @@ async def copy_course_endpoint(
     return CourseResponse.model_validate(course)
 
 
+@router.post("/{course_id}/copy-with-group")
+async def copy_course_with_group_endpoint(
+    course_id: uuid.UUID,
+    data: CopyWithGroupRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Copy a template course and enroll group members."""
+    from datetime import datetime, timezone
+    from app.admin.models import StudentGroup, StudentGroupMember
+    from app.progress.models import Enrollment
+    from app.courses.models import Course as CourseModel
+
+    # Verify source is a published template
+    source = (await db.execute(
+        select(CourseModel).where(CourseModel.id == course_id)
+    )).scalar_one_or_none()
+    if not source:
+        raise NotFoundError("Course not found")
+    if user.role != UserRole.super_admin and source.org_id != user.org_id:
+        raise NotFoundError("Course not found")
+
+    # Copy course
+    new_course = await copy_course(db, course_id, user)
+
+    # Enroll group members
+    enrolled = 0
+    for group_id in data.group_ids:
+        # Validate group belongs to org
+        grp = (await db.execute(
+            select(StudentGroup).where(
+                StudentGroup.id == group_id,
+                StudentGroup.org_id == user.org_id,
+            )
+        )).scalar_one_or_none()
+        if not grp:
+            continue
+
+        members = (await db.execute(
+            select(StudentGroupMember.user_id).where(
+                StudentGroupMember.group_id == group_id
+            )
+        )).all()
+
+        for (uid,) in members:
+            existing = (await db.execute(
+                select(Enrollment).where(
+                    Enrollment.course_id == new_course.id,
+                    Enrollment.student_id == uid,
+                )
+            )).scalar_one_or_none()
+            if not existing:
+                db.add(Enrollment(
+                    course_id=new_course.id,
+                    student_id=uid,
+                    enrolled_at=datetime.now(timezone.utc),
+                ))
+                enrolled += 1
+
+    await db.flush()
+
+    return {
+        "course": CourseResponse.model_validate(new_course),
+        "enrolled_count": enrolled,
+    }
+
+
 @router.post("/copy-module", response_model=ModuleResponse)
 async def copy_module_endpoint(
     data: CopyModuleRequest,
@@ -136,8 +206,18 @@ async def get_course_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    from sqlalchemy import func
+    from app.progress.models import Enrollment
+
     course = await get_course(db, course_id, user)
-    return CourseResponse.model_validate(course)
+    resp = CourseResponse.model_validate(course)
+
+    # Add enrolled student count
+    count_result = await db.execute(
+        select(func.count()).where(Enrollment.course_id == course_id)
+    )
+    resp.enrolled_count = count_result.scalar() or 0
+    return resp
 
 
 @router.put("/{course_id}", response_model=CourseResponse)
