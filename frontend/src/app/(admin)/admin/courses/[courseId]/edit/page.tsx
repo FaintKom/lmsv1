@@ -51,6 +51,13 @@ import ChallengeBuilder from "@/components/code-editor/challenge-builder";
 import FileUploadConfig from "@/components/submissions/file-upload-config";
 import InteractiveBuilder from "@/components/submissions/interactive-builder";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import dynamic from "next/dynamic";
+import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
+
+const BlockEditor = dynamic(
+  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
+  { ssr: false, loading: () => <div className="flex h-[300px] items-center justify-center rounded-lg border border-slate-200 dark:border-white/10"><p className="text-sm text-slate-400">Loading editor...</p></div> }
+);
 
 function SortableLessonItem({
   id,
@@ -437,6 +444,12 @@ export default function CourseEditorPage() {
     const content = lesson.content || {};
     switch (lesson.content_type) {
       case "text": {
+        if (content.format === "tiptap") {
+          // Extract text from TipTap JSON
+          const doc = content.body as { content?: Array<{ content?: Array<{ text?: string }> }> };
+          const firstText = doc?.content?.[0]?.content?.[0]?.text || "";
+          return firstText.length > 80 ? firstText.slice(0, 80) + "..." : firstText || "Block editor content";
+        }
         const body = (content.body as string) || "";
         return body.length > 80 ? body.slice(0, 80) + "..." : body || "No content yet";
       }
@@ -738,36 +751,41 @@ export default function CourseEditorPage() {
                                   {/* TEXT lesson */}
                                   {lesson.content_type === "text" && (
                                     <>
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Format:</span>
-                                        {(["markdown", "html"] as const).map((fmt) => (
+                                      {/* Legacy content banner */}
+                                      {editLessonForm.content.format && editLessonForm.content.format !== "tiptap" && editLessonForm.content.body && (
+                                        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 dark:border-amber-500/30 dark:bg-amber-500/10">
+                                          <span className="text-xs text-amber-700 dark:text-amber-300">
+                                            This lesson uses legacy {String(editLessonForm.content.format)} format.
+                                          </span>
                                           <button
-                                            key={fmt}
-                                            onClick={() => setEditLessonForm({
-                                              ...editLessonForm,
-                                              content: { ...editLessonForm.content, format: fmt },
-                                            })}
-                                            className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                                              (editLessonForm.content.format || "markdown") === fmt
-                                                ? "border-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400"
-                                                : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
-                                            }`}
+                                            onClick={() => {
+                                              const converted = markdownToTiptap(
+                                                editLessonForm.content.body as string || "",
+                                                (editLessonForm.content.format as string) || "markdown"
+                                              );
+                                              setEditLessonForm({
+                                                ...editLessonForm,
+                                                content: { format: "tiptap", body: converted },
+                                              });
+                                            }}
+                                            className="rounded-md bg-amber-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-700"
                                           >
-                                            {fmt === "markdown" ? "Markdown" : "HTML"}
+                                            Convert to Block Editor
                                           </button>
-                                        ))}
-                                      </div>
-                                      <textarea
-                                        value={getContentText(editLessonForm.content, "text")}
-                                        onChange={(e) =>
+                                        </div>
+                                      )}
+                                      <BlockEditor
+                                        content={
+                                          editLessonForm.content.format === "tiptap"
+                                            ? (editLessonForm.content.body as Record<string, unknown>) ?? null
+                                            : null
+                                        }
+                                        onChange={(json) =>
                                           setEditLessonForm({
                                             ...editLessonForm,
-                                            content: setContentFromText(e.target.value, "text", editLessonForm.content),
+                                            content: { format: "tiptap", body: json },
                                           })
                                         }
-                                        placeholder="Write your lesson content here (Markdown supported)..."
-                                        rows={12}
-                                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
                                       />
                                       <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
                                         <Save className="mr-1 h-3 w-3" /> Save Content

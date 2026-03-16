@@ -306,10 +306,10 @@ export default function LessonViewerPage() {
           {/* Content */}
           <div className="mb-8">
             {lesson.content_type === "text" && (
-              <div className="prose prose-slate max-w-prose dark:prose-invert">
+              <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-prose dark:prose-invert"}>
                 <ContentRenderer
-                  body={(lesson.content.body as string) || ""}
-                  format={(lesson.content.format as "markdown" | "html") || "markdown"}
+                  body={lesson.content.format === "tiptap" ? (lesson.content.body as Record<string, unknown>) : ((lesson.content.body as string) || "")}
+                  format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
                 />
               </div>
             )}
