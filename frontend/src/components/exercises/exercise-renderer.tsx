@@ -15,7 +15,7 @@ interface Question {
   id: string;
   question_text: string;
   question_type: string;
-  options: { label: string; value: string }[] | null;
+  options: { text: string; is_correct?: boolean }[] | null;
   correct_answer: string | null;
   points: number;
   sort_order: number;
@@ -289,11 +289,11 @@ function QuizExercise({
             {qi + 1}. {q.question_text}
           </p>
           <div className="space-y-2">
-            {(q.options || []).map((opt) => (
+            {(q.options || []).map((opt, oi) => (
               <label
-                key={opt.value}
+                key={oi}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
-                  selected[q.id] === opt.value
+                  selected[q.id] === opt.text
                     ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-300"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20"
                 }`}
@@ -301,12 +301,12 @@ function QuizExercise({
                 <input
                   type="radio"
                   name={`question-${q.id}`}
-                  value={opt.value}
-                  checked={selected[q.id] === opt.value}
-                  onChange={() => handleSelect(q.id, opt.value)}
+                  value={opt.text}
+                  checked={selected[q.id] === opt.text}
+                  onChange={() => handleSelect(q.id, opt.text)}
                   className="h-4 w-4 text-indigo-600"
                 />
-                {opt.label}
+                {opt.text}
               </label>
             ))}
           </div>
