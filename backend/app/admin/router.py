@@ -249,7 +249,7 @@ async def detailed_analytics_endpoint(
 @router.get("/users", response_model=list[UserResponse])
 async def list_users_endpoint(
     role: str | None = Query(None),
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(User).where(*_user_org_filter(user))
