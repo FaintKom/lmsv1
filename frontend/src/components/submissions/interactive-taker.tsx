@@ -130,6 +130,7 @@ export default function InteractiveTaker({
         <FillBlanksExercise
           textTemplate={(content.text_template as string) || ""}
           blankCount={((content.blanks as string[]) || []).length}
+          words={(content.blanks as string[]) || []}
           onSubmit={handleSubmit}
         />
       )}
