@@ -20,11 +20,16 @@ export default function DashboardLayout({
     fetchUser();
   }, [fetchUser]);
 
+  const user = useAuthStore((s) => s.user);
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
     }
-  }, [isLoading, isAuthenticated, router]);
+    if (!isLoading && user && (user.role === "super_admin" || user.role === "admin" || user.role === "teacher")) {
+      router.push("/admin");
+    }
+  }, [isLoading, isAuthenticated, user, router]);
 
   if (isLoading) {
     return (
@@ -40,6 +45,7 @@ export default function DashboardLayout({
   }
 
   if (!isAuthenticated) return null;
+  if (user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher") return null;
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#1E1E1E]">

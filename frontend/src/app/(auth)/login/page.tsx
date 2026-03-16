@@ -23,7 +23,9 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push("/dashboard");
+      const role = useAuthStore.getState().user?.role;
+      const isAdminOrTeacher = role === "super_admin" || role === "admin" || role === "teacher";
+      router.push(isAdminOrTeacher ? "/admin" : "/dashboard");
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Invalid email or password";
