@@ -22,6 +22,7 @@ interface AdminCourse {
   org_id: string;
   created_at: string;
   is_template?: boolean;
+  thumbnail_url?: string | null;
   source_course_id?: string | null;
   template_version?: number;
 }
@@ -189,46 +190,84 @@ export default function AdminCoursesPage() {
 
   const canCreateTemplate = isAdmin || isMethodist;
 
+  const CATEGORY_GRADIENTS: Record<string, string> = {
+    programming: "from-indigo-500 to-violet-600",
+    math: "from-emerald-500 to-teal-600",
+    languages: "from-amber-500 to-orange-600",
+  };
+
   const renderCourseCard = (course: AdminCourse | Course, opts: { showCopy?: boolean; showEdit?: boolean; showDelete?: boolean } = {}) => {
     const { showCopy = false, showEdit = true, showDelete = true } = opts;
     const isTemplate = 'is_template' in course && course.is_template;
+    const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
+    const category = 'category' in course ? course.category : null;
+    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-violet-500 to-purple-600" : "from-indigo-500 to-violet-600");
+
     return (
-      <Card key={course.id} className={`transition-shadow hover:shadow-md ${isTemplate ? "border-l-4 border-l-violet-400" : "border-l-4 border-l-blue-400"}`}>
-        <CardContent className="p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <div className={`rounded-lg p-2.5 ${isTemplate ? "bg-violet-100 dark:bg-violet-500/20" : "bg-blue-100 dark:bg-blue-500/20"}`}>
-              {isTemplate ? <FileStack className="h-5 w-5 text-violet-600" /> : <BookOpen className="h-5 w-5 text-blue-600" />}
-            </div>
-            <div className="flex items-center gap-1.5">
+      <Card key={course.id} className="group overflow-hidden transition-all hover:shadow-lg dark:hover:shadow-none">
+        {/* Thumbnail / Gradient header */}
+        {thumbnailUrl ? (
+          <div className="relative h-32 overflow-hidden">
+            <img
+              src={thumbnailUrl}
+              alt={course.title}
+              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute right-2 top-2 flex items-center gap-1.5">
               {isTemplate && (
-                <span className="rounded-full bg-violet-100 dark:bg-violet-500/20 px-2.5 py-0.5 text-[10px] font-medium text-violet-700 dark:text-violet-300">
+                <span className="rounded-full bg-violet-500/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
                   Template
                 </span>
               )}
               {statusBadge(course.status)}
             </div>
           </div>
-          <h3 className="mb-1.5 font-semibold text-gray-900 dark:text-slate-100">{course.title}</h3>
-          <p className="mb-4 line-clamp-2 text-sm text-gray-500 dark:text-slate-400">
+        ) : (
+          <div className={`relative flex h-32 items-center justify-center bg-gradient-to-br ${gradient}`}>
+            {isTemplate ? (
+              <FileStack className="h-10 w-10 text-white/80" />
+            ) : (
+              <BookOpen className="h-10 w-10 text-white/80" />
+            )}
+            <div className="absolute right-2 top-2 flex items-center gap-1.5">
+              {isTemplate && (
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                  Template
+                </span>
+              )}
+              {statusBadge(course.status)}
+            </div>
+          </div>
+        )}
+
+        <CardContent className="p-4">
+          {/* Category + source badges */}
+          <div className="mb-2 flex flex-wrap items-center gap-1.5">
+            {category && (
+              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                {category}
+              </span>
+            )}
+            {'source_course_id' in course && course.source_course_id && (
+              <span className="rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+                From template{('template_version' in course && course.template_version) ? ` v${course.template_version}` : ""}
+              </span>
+            )}
+          </div>
+
+          <h3 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">{course.title}</h3>
+          <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             {course.description || "No description"}
           </p>
-          {('category' in course) && course.category && (
-            <span className="mr-2 rounded-full bg-gray-100 dark:bg-white/10 px-2 py-0.5 text-xs text-gray-500 dark:text-slate-400">
-              {course.category}
-            </span>
-          )}
-          {'source_course_id' in course && course.source_course_id && (
-            <span className="rounded-full bg-violet-50 dark:bg-violet-500/10 px-2 py-0.5 text-xs font-medium text-violet-600 dark:text-violet-400">
-              From template{('template_version' in course && course.template_version) ? ` (v${course.template_version})` : ""}
-            </span>
-          )}
+
           {/* Organization selector for super admin */}
           {isSuperAdmin && orgs.length > 0 && 'org_id' in course && (
-            <div className="mt-2">
+            <div className="mb-3">
               <select
                 value={course.org_id}
                 onChange={(e) => handleOrgChange(course.id, e.target.value)}
-                className="w-full rounded border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-2 py-1 text-xs text-slate-600 dark:text-slate-400 focus:border-indigo-300 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
               >
                 {orgs.map((o) => (
                   <option key={o.id} value={o.id}>
@@ -238,7 +277,9 @@ export default function AdminCoursesPage() {
               </select>
             </div>
           )}
-          <div className="mt-3 flex gap-2">
+
+          {/* Actions */}
+          <div className="flex gap-2">
             {showCopy && (
               <Button
                 variant="outline"
@@ -248,11 +289,11 @@ export default function AdminCoursesPage() {
                 disabled={copying === course.id}
               >
                 {copying === course.id ? (
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                 ) : (
-                  <Copy className="mr-1 h-3 w-3" />
+                  <Copy className="mr-1 h-3.5 w-3.5" />
                 )}
-                Copy
+                {isTemplate ? "Use Template" : "Copy"}
               </Button>
             )}
             {showEdit && (
@@ -262,7 +303,7 @@ export default function AdminCoursesPage() {
                 className="flex-1"
                 onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
               >
-                <Pencil className="mr-1 h-3 w-3" />
+                <Pencil className="mr-1 h-3.5 w-3.5" />
                 Edit
               </Button>
             )}
@@ -280,7 +321,7 @@ export default function AdminCoursesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600"
+                className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
                 onClick={() => handleDelete(course.id)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -319,7 +360,7 @@ export default function AdminCoursesPage() {
                 placeholder="Course Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                 required
                 autoFocus
               />
@@ -327,7 +368,7 @@ export default function AdminCoursesPage() {
                 placeholder="Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
                 rows={3}
               />
               <input
@@ -335,7 +376,7 @@ export default function AdminCoursesPage() {
                 placeholder="Category (e.g., programming, math)"
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
               />
               {canCreateTemplate && (
                 <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
@@ -360,12 +401,17 @@ export default function AdminCoursesPage() {
       {/* Organization Templates — visible to all teachers/admins */}
       {templates.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-            <FileStack className="h-5 w-5 text-violet-500" />
-            Organization Templates
-            <span className="text-sm font-normal text-slate-400 dark:text-slate-500">({templates.length})</span>
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mb-4">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <FileStack className="h-5 w-5 text-violet-500" />
+              Organization Templates
+              <span className="text-sm font-normal text-slate-400 dark:text-slate-500">({templates.length})</span>
+            </h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Ready-made courses you can copy and customize for your students
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((t) =>
               renderCourseCard(t, {
                 showCopy: true,
@@ -378,13 +424,27 @@ export default function AdminCoursesPage() {
       )}
 
       {/* My Courses / All Courses */}
-      <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
-        {isTeacher ? "My Courses" : "All Courses"}
-      </h2>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {isTeacher ? "My Courses" : "All Courses"}
+        </h2>
+      </div>
       {courses.filter((c) => !c.is_template).length === 0 ? (
-        <p className="text-gray-500 dark:text-slate-400">No courses yet. Create your first course or copy a template!</p>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
+              <BookOpen className="h-8 w-8 text-slate-400" />
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">No courses yet</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {templates.length > 0
+                ? "Create your first course or copy a template above to get started!"
+                : "Create your first course to get started!"}
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses
             .filter((c) => !c.is_template)
             .map((course) => renderCourseCard(course))}

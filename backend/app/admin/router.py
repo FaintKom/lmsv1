@@ -347,6 +347,9 @@ async def list_courses_admin(
             "description": c.description, "status": c.status.value if hasattr(c.status, 'value') else c.status,
             "category": c.category, "org_id": str(c.org_id), "created_at": str(c.created_at),
             "is_template": getattr(c, 'is_template', False),
+            "thumbnail_url": getattr(c, 'thumbnail_url', None),
+            "source_course_id": str(c.source_course_id) if getattr(c, 'source_course_id', None) else None,
+            "template_version": getattr(c, 'template_version', 0),
         }
         for c in courses
     ]
