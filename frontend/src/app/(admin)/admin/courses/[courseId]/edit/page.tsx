@@ -1017,8 +1017,8 @@ export default function CourseEditorPage() {
         </Button>
       </div>
 
-      {/* Students Section */}
-      <Card className="mt-8">
+      {/* Students Section — hidden for template courses */}
+      {!course?.is_template && <Card className="mt-8">
         <CardHeader
           className="cursor-pointer"
           onClick={() => setShowStudents(!showStudents)}
@@ -1108,7 +1108,7 @@ export default function CourseEditorPage() {
             )}
           </CardContent>
         )}
-      </Card>
+      </Card>}
     </div>
   );
 }

@@ -434,6 +434,11 @@ async def admin_enroll_endpoint(
     if not course:
         raise NotFoundError("Course not found")
 
+    # Cannot enroll into template courses
+    if getattr(course, "is_template", False):
+        from fastapi import HTTPException
+        raise HTTPException(400, "Cannot enroll students into a template course. Copy the template first.")
+
     # Check not already enrolled
     result = await db.execute(
         select(Enrollment).where(
@@ -754,6 +759,15 @@ async def enroll_group_endpoint(
     if not course_id:
         from fastapi import HTTPException
         raise HTTPException(400, "course_id required")
+
+    # Cannot enroll into template courses
+    course_result = await db.execute(select(Course).where(Course.id == course_id))
+    course = course_result.scalar_one_or_none()
+    if not course:
+        raise NotFoundError("Course not found")
+    if getattr(course, "is_template", False):
+        from fastapi import HTTPException
+        raise HTTPException(400, "Cannot enroll students into a template course. Copy the template first.")
 
     result = await db.execute(
         select(StudentGroupMember.user_id).where(StudentGroupMember.group_id == group_id)
