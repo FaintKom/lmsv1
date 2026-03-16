@@ -868,6 +868,9 @@ export default function CourseEditorPage() {
                                       onSaved={() => fetchCourse()}
                                     />
                                   )}
+
+                                  {/* Unified Exercises (shown for all lesson types) */}
+                                  <LessonExercises lessonId={lesson.id} />
                                 </div>
                               )}
                             </div>
@@ -1108,6 +1111,158 @@ export default function CourseEditorPage() {
           </CardContent>
         )}
       </Card>
+    </div>
+  );
+}
+
+
+// ─── Lesson Exercises Manager ─────────────────────────────────────────
+const EXERCISE_TYPE_LABELS: Record<string, string> = {
+  quiz: "Quiz",
+  code_challenge: "Code Challenge",
+  matching: "Matching",
+  ordering: "Ordering",
+  fill_blanks: "Fill Blanks",
+  true_false: "True / False",
+  categorize: "Categorize",
+  file_upload: "File Upload",
+};
+
+function LessonExercises({ lessonId }: { lessonId: string }) {
+  const [exercises, setExercises] = useState<
+    { id: string; exercise_type: string; title: string; display_id: string; sort_order: number }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newType, setNewType] = useState("quiz");
+  const [adding, setAdding] = useState(false);
+  const confirm = useConfirm();
+
+  const fetchExercises = useCallback(async () => {
+    try {
+      const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
+      setExercises(data || []);
+    } catch {
+      setExercises([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [lessonId]);
+
+  useEffect(() => {
+    fetchExercises();
+  }, [fetchExercises]);
+
+  const handleAdd = async () => {
+    if (!newTitle.trim()) return;
+    setAdding(true);
+    try {
+      await apiClient.post("/exercises", {
+        lesson_id: lessonId,
+        exercise_type: newType,
+        title: newTitle.trim(),
+        config: {},
+      });
+      toast.success("Exercise added");
+      setNewTitle("");
+      setShowAdd(false);
+      await fetchExercises();
+    } catch {
+      toast.error("Failed to add exercise");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDelete = async (exId: string, title: string) => {
+    const ok = await confirm({
+      title: "Delete exercise?",
+      message: `Delete "${title}" and all its submissions?`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/exercises/${exId}`);
+      toast.success("Exercise deleted");
+      await fetchExercises();
+    } catch {
+      toast.error("Failed to delete exercise");
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <div className="mt-4 rounded-lg border border-slate-200 dark:border-white/10">
+      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5 dark:border-white/5">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Exercises ({exercises.length})
+        </h4>
+        <button
+          onClick={() => setShowAdd(!showAdd)}
+          className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+        >
+          <Plus className="h-3 w-3" />
+          Add
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="border-b border-slate-100 p-3 dark:border-white/5">
+          <div className="flex gap-2">
+            <select
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              className="rounded border border-slate-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-200"
+            >
+              {Object.entries(EXERCISE_TYPE_LABELS).map(([val, label]) => (
+                <option key={val} value={val}>{label}</option>
+              ))}
+            </select>
+            <input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Exercise title..."
+              className="flex-1 rounded border border-slate-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-200"
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+            />
+            <Button size="sm" onClick={handleAdd} disabled={adding || !newTitle.trim()}>
+              {adding ? "..." : "Add"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {exercises.length === 0 && !showAdd && (
+        <p className="px-4 py-3 text-xs text-slate-400">No exercises attached to this lesson.</p>
+      )}
+
+      {exercises.length > 0 && (
+        <ul className="divide-y divide-slate-100 dark:divide-white/5">
+          {exercises.map((ex) => (
+            <li key={ex.id} className="group flex items-center gap-3 px-4 py-2.5">
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                {ex.display_id}
+              </span>
+              <span className="flex-1 text-xs font-medium text-slate-700 dark:text-slate-300">
+                {ex.title}
+              </span>
+              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+                {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
+              </span>
+              <button
+                onClick={() => handleDelete(ex.id, ex.title)}
+                className="invisible rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 group-hover:visible dark:hover:bg-red-500/10"
+                title="Delete exercise"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

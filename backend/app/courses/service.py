@@ -400,11 +400,13 @@ async def search_courses_and_lessons(
 def _check_course_owner(course: Course, user: User) -> None:
     if user.role in (UserRole.admin, UserRole.super_admin):
         return
-    # Template courses: only methodists (or admin/super_admin above) can edit
+    # Template courses: allow methodists or the assigned teacher
     if course.is_template:
-        if not getattr(user, 'is_methodist', False):
-            raise ForbiddenError("Only methodists and admins can modify template courses")
-        return
+        if course.teacher_id == user.id:
+            return
+        if getattr(user, 'is_methodist', False):
+            return
+        raise ForbiddenError("Only methodists and admins can modify template courses")
     if course.teacher_id != user.id:
         raise ForbiddenError("You don't have permission to modify this course")
 
@@ -525,6 +527,56 @@ async def _copy_lesson_entity(
         for tc in source_challenge.test_cases:
             new_tc = TestCase(
                 challenge_id=new_challenge.id,
+                input=tc.input,
+                expected_output=tc.expected_output,
+                is_hidden=tc.is_hidden,
+                sort_order=tc.sort_order,
+            )
+            db.add(new_tc)
+
+    # Copy unified exercises if any
+    from app.exercises.models import Exercise, ExerciseType
+    from app.exercises.service import generate_display_id
+    exercise_result = await db.execute(
+        select(Exercise).where(Exercise.lesson_id == source_lesson.id)
+        .options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
+    )
+    source_exercises = exercise_result.scalars().all()
+    for src_ex in source_exercises:
+        new_display_id = await generate_display_id(
+            db, src_ex.org_id, src_ex.exercise_type
+        )
+        new_ex = Exercise(
+            lesson_id=new_lesson.id,
+            org_id=src_ex.org_id,
+            display_id=new_display_id,
+            exercise_type=src_ex.exercise_type,
+            title=src_ex.title,
+            config=src_ex.config.copy() if src_ex.config else {},
+            sort_order=src_ex.sort_order,
+        )
+        db.add(new_ex)
+        await db.flush()
+
+        # Copy questions for quiz exercises
+        for q in src_ex.questions:
+            from app.assessments.models import Question as QModel
+            new_q = QModel(
+                exercise_id=new_ex.id,
+                question_text=q.question_text,
+                question_type=q.question_type,
+                options=q.options.copy() if q.options else None,
+                correct_answer=q.correct_answer,
+                points=q.points,
+                sort_order=q.sort_order,
+            )
+            db.add(new_q)
+
+        # Copy test cases for code challenge exercises
+        for tc in src_ex.test_cases:
+            from app.sandbox.models import TestCase as TCModel
+            new_tc = TCModel(
+                exercise_id=new_ex.id,
                 input=tc.input,
                 expected_output=tc.expected_output,
                 is_hidden=tc.is_hidden,
