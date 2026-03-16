@@ -13,6 +13,7 @@ import "katex/dist/katex.min.css";
 import "./editor-styles.css";
 
 import { Callout } from "./extensions/callout";
+import { MathBlock } from "./extensions/math-block";
 import { SlashCommands } from "./slash-commands";
 import { EditorBubbleMenu } from "./toolbar";
 
@@ -61,6 +62,7 @@ export function BlockEditor({ content, onChange, editable = true }: BlockEditorP
         },
       }),
       Callout,
+      MathBlock,
       ...(editable ? [SlashCommands] : []),
     ],
     content: content || { type: "doc", content: [{ type: "paragraph" }] },

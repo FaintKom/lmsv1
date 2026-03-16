@@ -75,8 +75,7 @@ const COMMANDS: CommandItem[] = [
     description: "LaTeX math formula",
     icon: Sigma,
     command: (editor) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (editor.commands as any).insertBlockMath({ latex: "E = mc^2" });
+      editor.commands.setMathBlock({ latex: "" });
     },
   },
   {

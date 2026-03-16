@@ -50,7 +50,7 @@ export function markdownToTiptap(body: string, format: string): JSONContent {
         latex = mathLines.join("\n").trim();
         if (i < lines.length) i++; // skip closing $$
       }
-      blocks.push({ type: "blockMath", attrs: { latex } });
+      blocks.push({ type: "mathBlock", attrs: { latex } });
       continue;
     }
 
