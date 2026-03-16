@@ -10,7 +10,6 @@ import apiClient from "@/lib/api-client";
 import {
   BookOpen,
   ClipboardList,
-  Code,
   BarChart3,
   Users,
   UsersRound,
@@ -79,8 +78,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/courses", label: t("nav.courses"), icon: BookOpen },
     { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
-    { href: "/challenges", label: t("nav.challenges"), icon: Code },
-    { href: "/paths", label: t("nav.paths"), icon: Route },
+{ href: "/paths", label: t("nav.paths"), icon: Route },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
     { href: "/calendar", label: t("nav.calendar"), icon: Calendar },

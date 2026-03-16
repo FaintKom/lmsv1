@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CourseCard } from "@/components/courses/course-card";
-import { BookOpen, Code, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame, Calendar, Lightbulb } from "lucide-react";
+import { BookOpen, TrendingUp, Clock, ArrowRight, Sparkles, CheckCircle, Flame, Calendar, Lightbulb } from "lucide-react";
 import type { Enrollment, Course, CalendarEvent } from "@/types/api";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -215,17 +215,6 @@ export default function DashboardPage() {
                   <BookOpen className="h-5 w-5 text-slate-400" />
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     Browse available courses
-                  </span>
-                </div>
-                <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
-              </div>
-            </Link>
-            <Link href="/challenges">
-              <div className="flex items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5">
-                <div className="flex items-center gap-3">
-                  <Code className="h-5 w-5 text-slate-400 dark:text-slate-500" />
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    Try coding challenges
                   </span>
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
