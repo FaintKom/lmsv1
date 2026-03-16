@@ -92,6 +92,10 @@ def upgrade() -> None:
     op.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE")
     op.execute("ALTER TABLE test_cases ADD COLUMN IF NOT EXISTS exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE")
 
+    # 4b. Make quiz_id and challenge_id nullable (new exercises don't have old quiz/challenge)
+    op.execute("ALTER TABLE questions ALTER COLUMN quiz_id DROP NOT NULL")
+    op.execute("ALTER TABLE test_cases ALTER COLUMN challenge_id DROP NOT NULL")
+
     # 5. Data migration — Quizzes → exercises
     op.execute("""
         INSERT INTO exercises (id, lesson_id, org_id, display_id, exercise_type, title, config, sort_order, created_at, updated_at)
