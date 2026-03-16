@@ -144,8 +144,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <NotificationBell />
       </div>
 
-      {/* Search — admin/teacher only */}
-      {isAdminOrTeacher && (
+      {/* Search — admin only */}
+      {isAdminOnly && (
         <div className="border-b border-slate-100 py-3 dark:border-white/10">
           <SearchBar />
         </div>
