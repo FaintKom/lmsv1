@@ -44,7 +44,7 @@ router = APIRouter()
 
 # ─── Exercise CRUD ───────────────────────────────────────────────────
 
-@router.post("/", response_model=ExerciseResponse)
+@router.post("", response_model=ExerciseResponse)
 async def create_exercise_endpoint(
     data: ExerciseCreate,
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
@@ -54,7 +54,7 @@ async def create_exercise_endpoint(
     return ExerciseResponse.model_validate(exercise)
 
 
-@router.get("/", response_model=ExerciseListResponse)
+@router.get("", response_model=ExerciseListResponse)
 async def list_exercises_endpoint(
     exercise_type: ExerciseType | None = None,
     lesson_id: uuid.UUID | None = None,

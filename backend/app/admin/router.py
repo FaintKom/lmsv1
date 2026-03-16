@@ -162,7 +162,7 @@ async def teacher_stats_endpoint(
     # My courses count
     course_q = select(func.count(Course.id)).where(Course.org_id == user.org_id)
     if user.role == UserRole.teacher:
-        course_q = course_q.where(Course.created_by == user.id)
+        course_q = course_q.where(Course.teacher_id == user.id)
     my_courses = (await db.execute(course_q)).scalar() or 0
 
     # My students (enrolled in my courses)
@@ -172,7 +172,7 @@ async def teacher_stats_endpoint(
         .where(Course.org_id == user.org_id)
     )
     if user.role == UserRole.teacher:
-        student_q = student_q.where(Course.created_by == user.id)
+        student_q = student_q.where(Course.teacher_id == user.id)
     my_students = (await db.execute(student_q)).scalar() or 0
 
     # Ungraded submissions

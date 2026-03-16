@@ -370,7 +370,9 @@ async def search_courses_and_lessons(
     if user.role == UserRole.student:
         course_query = course_query.where(Course.status == CourseStatus.published)
 
-    courses_result = await db.execute(course_query.limit(20))
+    courses_result = await db.execute(
+        course_query.options(selectinload(Course.modules).selectinload(Module.lessons)).limit(20)
+    )
     courses = courses_result.scalars().all()
 
     # Search lessons (join through module -> course to filter by org_id)
