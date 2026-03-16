@@ -99,7 +99,7 @@ export default function ContentLibraryPage() {
       title: "Delete Exercise",
       message: `Delete "${exercise.title}" (${exercise.display_id})? This will also delete all student submissions.`,
       confirmLabel: "Delete",
-      variant: "destructive",
+      variant: "danger",
     });
     if (!ok) return;
     try {
