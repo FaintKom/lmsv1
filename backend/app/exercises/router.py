@@ -271,7 +271,13 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
             q.correct_answer = None
     if resp.test_cases:
         resp.test_cases = [tc for tc in resp.test_cases if not tc.is_hidden]
-    # Strip solution from config
+    # Strip solution from config but keep shuffled blanks as word bank
     if resp.config:
+        import random
+        blanks = resp.config.get("blanks")
         resp.config = {k: v for k, v in resp.config.items() if k not in ("solution_code", "correct_order", "blanks", "correct_answer")}
+        if blanks:
+            shuffled = list(blanks)
+            random.shuffle(shuffled)
+            resp.config["word_bank"] = shuffled
     return resp

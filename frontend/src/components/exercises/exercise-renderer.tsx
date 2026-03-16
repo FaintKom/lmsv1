@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Upload, Code, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Upload, Code, Loader2, Play, Send, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
 import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
@@ -196,17 +197,15 @@ function ExerciseBody({
       );
 
     case "fill_blanks": {
-      const cfg = exercise.config as { text?: string; blanks?: string[] };
+      const cfg = exercise.config as { text?: string; blanks?: string[]; word_bank?: string[] };
       const text = cfg.text || "";
-      const blanks = cfg.blanks || [];
-      // Count blanks in template
+      const words = cfg.word_bank || cfg.blanks || [];
       const blankCount = (text.match(/\{\{blank\}\}/g) || []).length;
-      // Provide word bank: correct answers + maybe some distractors
       return (
         <FillBlanksExercise
           textTemplate={text}
           blankCount={blankCount}
-          words={blanks}
+          words={words}
           onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
         />
       );
@@ -238,9 +237,14 @@ function ExerciseBody({
     case "code_challenge":
       return (
         <CodeChallengeExercise
+          exerciseId={exercise.id}
           config={exercise.config as { language?: string; starter_code?: string }}
           testCases={exercise.test_cases || []}
-          onSubmit={(body) => onSubmit(body)}
+          onSubmit={(body) => {
+            if (!(body as { _already_submitted?: boolean })._already_submitted) {
+              onSubmit(body);
+            }
+          }}
         />
       );
 
@@ -326,64 +330,262 @@ function QuizExercise({
 
 // ─── Code Challenge ──────────────────────────────────────────────────
 
+interface LangInfo { key: string; name: string; monaco: string }
+
+const FALLBACK_LANGS: LangInfo[] = [
+  { key: "python", name: "Python 3", monaco: "python" },
+  { key: "javascript", name: "JavaScript (Node.js)", monaco: "javascript" },
+];
+
+interface CodeTestResult {
+  test_case_id: string;
+  passed: boolean;
+  actual_output: string;
+  time_ms: number;
+}
+
 function CodeChallengeExercise({
+  exerciseId,
   config,
   testCases,
   onSubmit,
 }: {
+  exerciseId: string;
   config: { language?: string; starter_code?: string };
   testCases: TestCase[];
   onSubmit: (body: Record<string, unknown>) => void;
 }) {
   const [code, setCode] = useState(config.starter_code || "");
-  const language = config.language || "python";
+  const [selectedLang, setSelectedLang] = useState(config.language || "python");
+  const [output, setOutput] = useState("");
+  const [results, setResults] = useState<CodeTestResult[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"output" | "tests">("output");
+  const [totalPassed, setTotalPassed] = useState(0);
+  const [totalTests, setTotalTests] = useState(0);
+  const [langs, setLangs] = useState<LangInfo[]>(FALLBACK_LANGS);
+
+  useEffect(() => {
+    apiClient.get("/sandbox/languages").then(({ data }) => {
+      if (data.languages?.length > 0) setLangs(data.languages);
+    }).catch(() => {});
+  }, []);
+
+  const monacoLang = langs.find((l) => l.key === selectedLang)?.monaco || "plaintext";
+  const visibleTests = testCases.filter((t) => !t.is_hidden);
+
+  const handleRun = async () => {
+    setIsRunning(true);
+    setActiveTab("output");
+    try {
+      const { data } = await apiClient.post("/sandbox/execute", {
+        language: selectedLang,
+        source_code: code,
+        stdin: "",
+      });
+      setOutput(data.stdout || data.stderr || "No output");
+    } catch {
+      setOutput("Error executing code");
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setActiveTab("tests");
+    try {
+      const { data } = await apiClient.post(`/exercises/${exerciseId}/submit`, {
+        source_code: code,
+        language: selectedLang,
+      });
+      const testResults = data.results?.test_results || data.results || [];
+      // Filter out hidden test cases from display
+      setResults(testResults.filter((r: Record<string, unknown>) => !r.is_hidden).map((r: Record<string, unknown>) => ({
+        test_case_id: r.test_case_id as string,
+        passed: r.passed as boolean,
+        actual_output: (r.actual as string) || (r.actual_output as string) || "",
+        time_ms: (r.execution_time_ms as number) || 0,
+      })));
+      setTotalPassed(data.total_passed ?? 0);
+      setTotalTests(data.total_tests ?? 0);
+      setOutput(
+        `${data.total_passed ?? 0}/${data.total_tests ?? 0} tests passed`
+      );
+      if (data.passed) {
+        toast.success("All tests passed!");
+      } else {
+        toast.info(`${data.total_passed ?? 0}/${data.total_tests ?? 0} tests passed`);
+      }
+      onSubmit({ _already_submitted: true });
+    } catch {
+      setOutput("Error submitting code");
+      toast.error("Failed to submit code");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-xs text-slate-500">
-        <Code className="h-3.5 w-3.5" />
-        Language: <span className="font-medium capitalize">{language}</span>
-        {testCases.length > 0 && (
-          <span className="ml-2">
-            {testCases.filter((t) => !t.is_hidden).length} visible test case(s)
-          </span>
-        )}
+    <div className="space-y-0 -mx-5 -mb-5">
+      {/* Visible test cases */}
+      {visibleTests.length > 0 && (
+        <div className="px-5 pb-3 space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Test Cases
+          </p>
+          {visibleTests.map((tc, i) => (
+            <div
+              key={tc.id}
+              className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-white/10 dark:bg-white/5"
+            >
+              <span className="font-semibold text-slate-600 dark:text-slate-300">Test {i + 1}</span>
+              <div className="mt-1 grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-slate-400">Input:</span>
+                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">{tc.input}</pre>
+                </div>
+                <div>
+                  <span className="text-slate-400">Expected:</span>
+                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">{tc.expected_output}</pre>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-between border-y border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#2C2C2C]">
+        <div className="relative">
+          <select
+            value={selectedLang}
+            onChange={(e) => setSelectedLang(e.target.value)}
+            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+          >
+            {langs.map((l) => (
+              <option key={l.key} value={l.key}>{l.name}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        </div>
+
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleRun} disabled={isRunning || !code.trim()}>
+            <Play className="h-3.5 w-3.5" />
+            {isRunning ? "Running..." : "Run"}
+          </Button>
+          <Button size="sm" onClick={handleSubmit} disabled={isSubmitting || !code.trim()}>
+            <Send className="h-3.5 w-3.5" />
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
       </div>
 
-      {/* Visible test cases */}
-      {testCases
-        .filter((t) => !t.is_hidden)
-        .map((tc) => (
-          <div
-            key={tc.id}
-            className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-white/10 dark:bg-white/5"
-          >
-            <div className="text-slate-500">
-              Input: <code className="font-mono text-slate-700 dark:text-slate-300">{tc.input}</code>
-            </div>
-            <div className="text-slate-500">
-              Expected:{" "}
-              <code className="font-mono text-slate-700 dark:text-slate-300">{tc.expected_output}</code>
-            </div>
+      {/* Editor + Output split */}
+      <div className="flex" style={{ height: 400 }}>
+        {/* Code Editor */}
+        <div className="flex-1 border-r border-slate-200 dark:border-white/10">
+          <Editor
+            height="100%"
+            language={monacoLang}
+            value={code}
+            onChange={(value) => setCode(value || "")}
+            theme="vs-light"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              lineNumbers: "on",
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              tabSize: 4,
+              padding: { top: 12 },
+              fontFamily: "'Geist Mono', 'Fira Code', 'Consolas', monospace",
+            }}
+          />
+        </div>
+
+        {/* Output Panel */}
+        <div className="flex w-[340px] flex-col bg-white dark:bg-[#2C2C2C]">
+          <div className="flex border-b border-slate-200 dark:border-white/10">
+            <button
+              onClick={() => setActiveTab("output")}
+              className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
+                activeTab === "output"
+                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Output
+            </button>
+            <button
+              onClick={() => setActiveTab("tests")}
+              className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
+                activeTab === "tests"
+                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Tests
+              {results.length > 0 && (
+                <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  totalPassed === totalTests ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                }`}>
+                  {totalPassed}/{totalTests}
+                </span>
+              )}
+            </button>
           </div>
-        ))}
 
-      <textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        rows={12}
-        className="w-full rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-sm text-slate-800 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
-        placeholder={`Write your ${language} solution here...`}
-        spellCheck={false}
-      />
-
-      <button
-        onClick={() => onSubmit({ source_code: code, language })}
-        disabled={!code.trim()}
-        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-      >
-        Run & Submit
-      </button>
+          <div className="flex-1 overflow-auto bg-slate-50 p-4 dark:bg-[#1E1E1E]">
+            {activeTab === "output" ? (
+              <pre className="whitespace-pre-wrap font-mono text-sm text-slate-700 dark:text-slate-300">
+                {output || <span className="text-slate-400">Click Run to execute your code</span>}
+              </pre>
+            ) : (
+              <div className="space-y-2.5">
+                {results.length === 0 ? (
+                  <p className="text-sm text-slate-400">Click Submit to run tests</p>
+                ) : (
+                  results.map((r, i) => (
+                    <div
+                      key={r.test_case_id || i}
+                      className={`rounded-xl border p-3 ${
+                        r.passed
+                          ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                          : "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-sm font-semibold">
+                          {r.passed ? (
+                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-500" />
+                          )}
+                          Test {i + 1}
+                        </span>
+                        {r.time_ms > 0 && (
+                          <span className="text-xs text-slate-400">{r.time_ms}ms</span>
+                        )}
+                      </div>
+                      {!r.passed && r.actual_output && (
+                        <div className="mt-2">
+                          <p className="text-[11px] font-medium uppercase text-slate-400">Output:</p>
+                          <pre className="mt-1 rounded-lg bg-white p-2 font-mono text-xs text-slate-700 dark:bg-[#2C2C2C] dark:text-slate-300">
+                            {r.actual_output}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
