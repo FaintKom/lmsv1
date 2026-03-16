@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Upload, Code, Loader2, Play, Send, ChevronDown } from "lucide-react";
+import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
