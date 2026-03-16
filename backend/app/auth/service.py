@@ -21,7 +21,7 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
     if data.role == "student":
         user_role = UserRole.student
     else:
-        user_role = UserRole.admin  # teachers are org admins
+        user_role = UserRole.teacher
 
     # Students can only register via invite link (must have org_id)
     if data.role == "student" and not data.org_id:
