@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table2, Download } from "lucide-react";
 
@@ -129,7 +128,6 @@ export default function GradebookPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Gradebook" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Gradebook</h1>

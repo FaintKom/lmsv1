@@ -17,7 +17,6 @@ import {
   ExternalLink,
   CheckCircle,
 } from "lucide-react";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Plan {
@@ -162,7 +161,6 @@ export default function AdminBillingPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Billing" }]} />
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Billing & Plans</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

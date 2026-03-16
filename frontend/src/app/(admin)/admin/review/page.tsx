@@ -5,7 +5,6 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InboxIcon, FileText, Clock, User, ChevronRight, Download } from "lucide-react";
 
@@ -84,7 +83,6 @@ export default function ReviewQueuePage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Review Queue" }]} />
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Review Queue</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

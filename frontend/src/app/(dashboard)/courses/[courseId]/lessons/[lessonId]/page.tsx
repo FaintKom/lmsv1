@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
@@ -289,17 +288,6 @@ export default function LessonViewerPage() {
         </button>
 
         <div className="mx-auto max-w-3xl px-6 py-8">
-          {/* Breadcrumbs */}
-          <div className="mb-4">
-            <Breadcrumbs
-              items={[
-                { label: "Courses", href: "/courses" },
-                { label: course.title, href: `/courses/${courseId}` },
-                { label: lesson.title },
-              ]}
-            />
-          </div>
-
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">

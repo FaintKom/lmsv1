@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   ArrowLeft,
   Check,
@@ -89,14 +88,6 @@ export default function SubmissionsViewerPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
-      <Breadcrumbs
-        items={[
-          { label: "Admin", href: "/admin" },
-          { label: "Content Library", href: "/admin/content-library" },
-          { label: exercise?.display_id || "...", href: `/admin/content-library/${exerciseId}` },
-          { label: "Submissions" },
-        ]}
-      />
 
       {/* Header */}
       <div className="flex items-center justify-between">

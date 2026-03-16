@@ -7,7 +7,6 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuthStore } from "@/stores/auth-store";
 import apiClient from "@/lib/api-client";
 import type { Course } from "@/types/api";
@@ -76,8 +75,6 @@ export default function ContentLibraryPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <Breadcrumbs items={[{ label: "Admin", href: "/admin" }, { label: "Content Library" }]} />
-
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
           <Library className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />

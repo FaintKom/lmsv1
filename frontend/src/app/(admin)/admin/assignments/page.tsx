@@ -8,7 +8,6 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Plus, Trash2, Clock, Users, ArrowRight } from "lucide-react";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 interface AdminAssignment {
   id: string;
@@ -111,7 +110,6 @@ export default function AdminAssignmentsPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Assignments" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Assignments</h1>

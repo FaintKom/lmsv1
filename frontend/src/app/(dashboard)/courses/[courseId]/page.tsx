@@ -17,7 +17,6 @@ import {
   Clock,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import type { Course } from "@/types/api";
 
 const CONTENT_ICONS: Record<string, React.ElementType> = {
@@ -98,11 +97,6 @@ export default function CourseDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Breadcrumbs items={[
-        { label: "Courses", href: "/courses" },
-        { label: course.title },
-      ]} />
-
       {/* Course Header */}
       <div className="mb-8 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-white">
         <div className="flex items-start justify-between">

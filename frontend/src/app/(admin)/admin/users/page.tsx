@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Trash2 } from "lucide-react";
 import type { User } from "@/types/api";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuthStore } from "@/stores/auth-store";
 
 interface OrgOption {
@@ -132,7 +131,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin", href: "/admin" }, { label: "Users" }]} />
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Users</h1>

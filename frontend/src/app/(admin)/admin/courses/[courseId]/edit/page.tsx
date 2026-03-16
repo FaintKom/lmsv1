@@ -50,7 +50,6 @@ import QuizBuilder from "@/components/assessments/quiz-builder";
 import ChallengeBuilder from "@/components/code-editor/challenge-builder";
 import FileUploadConfig from "@/components/submissions/file-upload-config";
 import InteractiveBuilder from "@/components/submissions/interactive-builder";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 
@@ -486,7 +485,6 @@ export default function CourseEditorPage() {
 
   return (
     <div className="mx-auto max-w-4xl pb-12">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Admin Courses", href: "/admin/courses" }, { label: course.title }, { label: "Editor" }]} />
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <button

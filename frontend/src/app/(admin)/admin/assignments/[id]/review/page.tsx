@@ -7,7 +7,6 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ArrowLeft, CheckCircle, Clock, FileText, Download, ChevronDown, ChevronUp } from "lucide-react";
 import type { Assignment, AssignmentSubmission } from "@/types/api";
 
@@ -86,14 +85,6 @@ export default function AssignmentReviewPage() {
 
   return (
     <div>
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Admin", href: "/admin" },
-          { label: "Assignments", href: "/admin/assignments" },
-          { label: "Review" },
-        ]}
-      />
 
       <Link
         href="/admin/assignments"
