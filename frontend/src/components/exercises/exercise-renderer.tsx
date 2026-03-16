@@ -97,7 +97,7 @@ export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C]">
+    <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
       {/* Header */}
       <div className="border-b border-slate-100 px-5 py-3 dark:border-white/5">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -320,7 +320,7 @@ function QuizExercise({
       <button
         onClick={handleSubmit}
         disabled={!allAnswered}
-        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
       >
         Submit Quiz
       </button>
@@ -365,11 +365,22 @@ function CodeChallengeExercise({
   const [totalPassed, setTotalPassed] = useState(0);
   const [totalTests, setTotalTests] = useState(0);
   const [langs, setLangs] = useState<LangInfo[]>(FALLBACK_LANGS);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     apiClient.get("/sandbox/languages").then(({ data }) => {
       if (data.languages?.length > 0) setLangs(data.languages);
     }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const check = () => setIsDark(document.documentElement.classList.contains("dark") || mq.matches);
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    mq.addEventListener("change", check);
+    return () => { obs.disconnect(); mq.removeEventListener("change", check); };
   }, []);
 
   const monacoLang = langs.find((l) => l.key === selectedLang)?.monaco || "plaintext";
@@ -457,7 +468,7 @@ function CodeChallengeExercise({
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-y border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#2C2C2C]">
+      <div className="flex items-center justify-between border-y border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="relative">
           <select
             value={selectedLang}
@@ -492,7 +503,7 @@ function CodeChallengeExercise({
             language={monacoLang}
             value={code}
             onChange={(value) => setCode(value || "")}
-            theme="vs-light"
+            theme={isDark ? "vs-dark" : "vs-light"}
             options={{
               minimap: { enabled: false },
               fontSize: 14,
@@ -507,30 +518,36 @@ function CodeChallengeExercise({
         </div>
 
         {/* Output Panel */}
-        <div className="flex w-[340px] flex-col bg-white dark:bg-[#2C2C2C]">
-          <div className="flex border-b border-slate-200 dark:border-white/10">
+        <div className="flex w-[340px] flex-col bg-white dark:bg-[#1E1E1E]">
+          <div className="flex border-b border-slate-200 dark:border-white/10" role="tablist" aria-label="Code output tabs">
             <button
+              role="tab"
+              aria-selected={activeTab === "output"}
+              aria-controls="panel-output"
               onClick={() => setActiveTab("output")}
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "output"
-                  ? "border-b-2 border-indigo-600 text-indigo-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
               Output
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === "tests"}
+              aria-controls="panel-tests"
               onClick={() => setActiveTab("tests")}
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "tests"
-                  ? "border-b-2 border-indigo-600 text-indigo-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
               Tests
               {results.length > 0 && (
-                <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                  totalPassed === totalTests ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold ${
+                  totalPassed === totalTests ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300"
                 }`}>
                   {totalPassed}/{totalTests}
                 </span>
@@ -538,7 +555,7 @@ function CodeChallengeExercise({
             </button>
           </div>
 
-          <div className="flex-1 overflow-auto bg-slate-50 p-4 dark:bg-[#1E1E1E]">
+          <div id={`panel-${activeTab}`} role="tabpanel" className="flex-1 overflow-auto bg-slate-50 p-4 dark:bg-[#1E1E1E]">
             {activeTab === "output" ? (
               <pre className="whitespace-pre-wrap font-mono text-sm text-slate-700 dark:text-slate-300">
                 {output || <span className="text-slate-400">Click Run to execute your code</span>}
@@ -572,8 +589,8 @@ function CodeChallengeExercise({
                       </div>
                       {!r.passed && r.actual_output && (
                         <div className="mt-2">
-                          <p className="text-[11px] font-medium uppercase text-slate-400">Output:</p>
-                          <pre className="mt-1 rounded-lg bg-white p-2 font-mono text-xs text-slate-700 dark:bg-[#2C2C2C] dark:text-slate-300">
+                          <p className="text-xs font-medium uppercase text-slate-400">Output:</p>
+                          <pre className="mt-1 rounded-lg bg-white p-2 font-mono text-sm text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">
                             {r.actual_output}
                           </pre>
                         </div>
@@ -638,7 +655,7 @@ function FileUploadExercise({
       <button
         onClick={() => file && onUpload(file)}
         disabled={!file}
-        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
       >
         Upload File
       </button>
