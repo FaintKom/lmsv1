@@ -29,6 +29,7 @@ import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import CommentSection from "@/components/discussions/comment-section";
 import { ContentRenderer } from "@/components/common/content-renderer";
+import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 
 interface LessonProgressItem {
   lesson_id: string;
@@ -57,6 +58,16 @@ export default function LessonViewerPage() {
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [exercises, setExercises] = useState<
+    {
+      id: string;
+      exercise_type: "quiz" | "code_challenge" | "matching" | "ordering" | "fill_blanks" | "true_false" | "categorize" | "file_upload";
+      title: string;
+      config: Record<string, unknown>;
+      questions?: unknown[];
+      test_cases?: unknown[];
+    }[]
+  >([]);
   const [challenge, setChallenge] = useState<{
     id: string;
     title: string;
@@ -110,6 +121,14 @@ export default function LessonViewerPage() {
         }
       } else {
         setChallenge(null);
+      }
+
+      // Load exercises attached to this lesson
+      try {
+        const exercisesRes = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
+        setExercises(exercisesRes.data || []);
+      } catch {
+        setExercises([]);
       }
     } catch {
       // Lesson might not be accessible
@@ -383,6 +402,18 @@ export default function LessonViewerPage() {
               />
             )}
           </div>
+
+          {/* Exercises */}
+          {exercises.length > 0 && (
+            <div className="mb-8 space-y-6">
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+                Exercises
+              </h2>
+              {exercises.map((ex) => (
+                <ExerciseRenderer key={ex.id} exercise={ex as any} />
+              ))}
+            </div>
+          )}
 
           {/* Complete button */}
           {!isCompleted && (
