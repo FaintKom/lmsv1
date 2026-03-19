@@ -33,6 +33,9 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio
+    import time
+
+    startup_start = time.monotonic()
 
     # Auto-create all tables on startup
     from app.db.base import Base
@@ -60,6 +63,7 @@ async def lifespan(app: FastAPI):
 
     # Retry DB connection up to 5 times (DB may not be ready on cold start)
     from sqlalchemy import text as sa_text
+    t0 = time.monotonic()
     for attempt in range(5):
         try:
             async with engine.connect() as conn:
@@ -72,6 +76,7 @@ async def lifespan(app: FastAPI):
             else:
                 logger.error(f"Could not connect to DB after 5 attempts: {e}")
                 raise
+    logger.info(f"DB connected in {time.monotonic() - t0:.1f}s")
 
     # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
     for enum_type, val in [
@@ -97,9 +102,10 @@ async def lifespan(app: FastAPI):
         except Exception:
             pass
 
+    t0 = time.monotonic()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables created/verified")
+    logger.info(f"Tables created/verified in {time.monotonic() - t0:.1f}s")
 
     # Add missing columns to existing tables (create_all doesn't alter tables)
     alter_statements = [
@@ -186,7 +192,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.debug(f"Plan seeding: {e}")
 
-    logger.info("LearnHub Backend started")
+    logger.info(f"LearnHub Backend started in {time.monotonic() - startup_start:.1f}s")
     yield
 
 
