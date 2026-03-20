@@ -8,6 +8,32 @@ const apiClient = axios.create({
   },
 });
 
+// Wake-up retry config
+const WAKE_RETRY_CODES = [502, 503];
+const MAX_WAKE_RETRIES = 5;
+const INITIAL_RETRY_DELAY = 2000; // 2s
+
+let wakeUpToastId: string | number | undefined;
+
+function showWakeUpToast() {
+  if (!wakeUpToastId) {
+    wakeUpToastId = toast.loading("Server is waking up, please wait...", {
+      duration: Infinity,
+    });
+  }
+}
+
+function dismissWakeUpToast() {
+  if (wakeUpToastId) {
+    toast.dismiss(wakeUpToastId);
+    wakeUpToastId = undefined;
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
@@ -19,9 +45,30 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    dismissWakeUpToast();
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
+
+    // Retry on 502/503 (server waking up) or network error (service fully down)
+    const isWakeError =
+      (error.response && WAKE_RETRY_CODES.includes(error.response.status)) ||
+      (!error.response && error.code === "ERR_NETWORK");
+
+    if (isWakeError && (originalRequest._wakeRetryCount ?? 0) < MAX_WAKE_RETRIES) {
+      originalRequest._wakeRetryCount = (originalRequest._wakeRetryCount ?? 0) + 1;
+      const delay = INITIAL_RETRY_DELAY * Math.pow(2, originalRequest._wakeRetryCount - 1);
+      showWakeUpToast();
+      await sleep(delay);
+      return apiClient(originalRequest);
+    }
+
+    // If wake retries exhausted, dismiss toast
+    if (originalRequest._wakeRetryCount) {
+      dismissWakeUpToast();
+    }
 
     // Don't show toast for 401 (handled via redirect)
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -53,8 +100,8 @@ apiClient.interceptors.response.use(
       toast.error("Server error. Please try again later.");
     }
 
-    // Show toast for network errors
-    if (!error.response && error.code === "ERR_NETWORK") {
+    // Show toast for network errors (only if not already handled by wake retry)
+    if (!error.response && error.code === "ERR_NETWORK" && !originalRequest._wakeRetryCount) {
       toast.error("Network error. Check your connection.");
     }
 

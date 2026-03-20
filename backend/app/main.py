@@ -1,8 +1,11 @@
+import asyncio
 import logging
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.auth.router import router as auth_router
@@ -30,16 +33,150 @@ from app.exercises.router import router as exercises_router
 logger = logging.getLogger(__name__)
 
 
+class StartupState:
+    """Tracks whether background DB setup has completed."""
+    def __init__(self):
+        self.ready = False
+        self.error: str | None = None
+
+startup_state = StartupState()
+
+
+async def _run_migrations():
+    """Heavy DB setup that runs in the background after the app starts serving."""
+    try:
+        from app.db.base import Base
+        from app.db.session import engine
+        from sqlalchemy import text as sa_text
+
+        t0 = time.monotonic()
+
+        # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
+        for enum_type, val in [
+            ("contenttype", "file_upload"),
+            ("contenttype", "interactive"),
+            ("userrole", "super_admin"),
+            ("userrole", "parent"),
+            ("exercisetype", "quiz"),
+            ("exercisetype", "code_challenge"),
+            ("exercisetype", "matching"),
+            ("exercisetype", "ordering"),
+            ("exercisetype", "fill_blanks"),
+            ("exercisetype", "true_false"),
+            ("exercisetype", "categorize"),
+            ("exercisetype", "file_upload"),
+        ]:
+            try:
+                async with engine.connect() as conn:
+                    await conn.execute(sa_text(
+                        f"ALTER TYPE {enum_type} ADD VALUE IF NOT EXISTS '{val}'"
+                    ))
+                    await conn.commit()
+            except Exception:
+                pass
+
+        # Create/verify all tables
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info(f"Tables created/verified in {time.monotonic() - t0:.1f}s")
+
+        # Add missing columns to existing tables (create_all doesn't alter tables)
+        alter_statements = [
+            "ALTER TABLE user_streaks ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0",
+            "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS progress_percent NUMERIC DEFAULT 0",
+            # Remove duplicate plans before adding unique constraint
+            """DELETE FROM plans WHERE id NOT IN (
+                SELECT DISTINCT ON (name) id FROM plans ORDER BY name, created_at ASC NULLS LAST, id ASC
+            )""",
+            "ALTER TABLE plans DROP CONSTRAINT IF EXISTS uq_plans_name",
+            "ALTER TABLE plans ADD CONSTRAINT uq_plans_name UNIQUE (name)",
+            # Methodist & template courses
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_methodist BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS source_course_id UUID REFERENCES courses(id) ON DELETE SET NULL",
+            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
+        ]
+        for stmt in alter_statements:
+            try:
+                async with engine.connect() as conn:
+                    await conn.execute(sa_text(stmt))
+                    await conn.commit()
+            except Exception:
+                pass
+
+        # Try Alembic migrations if available
+        try:
+            from alembic.config import Config
+            from alembic import command
+
+            alembic_cfg = Config("alembic.ini")
+            command.upgrade(alembic_cfg, "head")
+            logger.info("Database migrations applied successfully")
+        except Exception as e:
+            logger.debug(f"Alembic migrations skipped: {e}")
+
+        # Ensure super_admin user exists
+        try:
+            from app.db.session import async_session_factory
+            from app.auth.models import User, UserRole, Organization
+            from app.auth.security import hash_password
+            from sqlalchemy import select
+
+            async with async_session_factory() as session:
+                result = await session.execute(
+                    select(User).where(User.email == "faintkom@gmail.com")
+                )
+                sa_user = result.scalar_one_or_none()
+                if not sa_user:
+                    # Create system org
+                    result = await session.execute(
+                        select(Organization).where(Organization.slug == "system")
+                    )
+                    sys_org = result.scalar_one_or_none()
+                    if not sys_org:
+                        sys_org = Organization(name="System", slug="system")
+                        session.add(sys_org)
+                        await session.flush()
+
+                    sa_user = User(
+                        org_id=sys_org.id,
+                        email="faintkom@gmail.com",
+                        hashed_password=hash_password("REDACTED_PASSWORD"),
+                        full_name="Super Admin",
+                        role=UserRole.super_admin,
+                    )
+                    session.add(sa_user)
+                    await session.commit()
+                    logger.info("Super admin user created")
+                elif sa_user.role != UserRole.super_admin:
+                    sa_user.role = UserRole.super_admin
+                    await session.commit()
+                    logger.info("Super admin role updated")
+        except Exception as e:
+            logger.warning(f"Super admin setup: {e}")
+
+        # Seed default billing plans
+        try:
+            from app.db.session import async_session_factory
+            from app.billing.service import seed_default_plans
+            async with async_session_factory() as session:
+                await seed_default_plans(session)
+                await session.commit()
+                logger.info("Default billing plans seeded")
+        except Exception as e:
+            logger.debug(f"Plan seeding: {e}")
+
+        startup_state.ready = True
+        logger.info(f"Background startup completed in {time.monotonic() - t0:.1f}s")
+
+    except Exception as e:
+        startup_state.error = str(e)
+        logger.error(f"Background startup failed: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    import asyncio
-    import time
-
     startup_start = time.monotonic()
-
-    # Auto-create all tables on startup
-    from app.db.base import Base
-    from app.db.session import engine
 
     # Import all models so they register with Base metadata
     import app.auth.models  # noqa
@@ -61,139 +198,33 @@ async def lifespan(app: FastAPI):
     import app.skills.models  # noqa
     import app.exercises.models  # noqa
 
-    # Retry DB connection up to 5 times (DB may not be ready on cold start)
+    # Phase 1: Quick DB connectivity check — just verify we CAN connect
+    from app.db.session import engine
     from sqlalchemy import text as sa_text
-    t0 = time.monotonic()
-    for attempt in range(5):
+
+    for attempt in range(3):
         try:
             async with engine.connect() as conn:
                 await conn.execute(sa_text("SELECT 1"))
+            logger.info(f"DB connected in {time.monotonic() - startup_start:.1f}s")
             break
         except Exception as e:
-            if attempt < 4:
-                logger.warning(f"DB not ready (attempt {attempt + 1}/5): {e}")
-                await asyncio.sleep(3)
+            if attempt < 2:
+                logger.warning(f"DB not ready (attempt {attempt + 1}/3): {e}")
+                await asyncio.sleep(2)
             else:
-                logger.error(f"Could not connect to DB after 5 attempts: {e}")
-                raise
-    logger.info(f"DB connected in {time.monotonic() - t0:.1f}s")
+                logger.error(f"DB unreachable after 3 attempts: {e}")
+                startup_state.error = "Database unavailable"
 
-    # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
-    for enum_type, val in [
-        ("contenttype", "file_upload"),
-        ("contenttype", "interactive"),
-        ("userrole", "super_admin"),
-        ("userrole", "parent"),
-        ("exercisetype", "quiz"),
-        ("exercisetype", "code_challenge"),
-        ("exercisetype", "matching"),
-        ("exercisetype", "ordering"),
-        ("exercisetype", "fill_blanks"),
-        ("exercisetype", "true_false"),
-        ("exercisetype", "categorize"),
-        ("exercisetype", "file_upload"),
-    ]:
-        try:
-            async with engine.connect() as conn:
-                await conn.execute(sa_text(
-                    f"ALTER TYPE {enum_type} ADD VALUE IF NOT EXISTS '{val}'"
-                ))
-                await conn.commit()
-        except Exception:
-            pass
+    # Phase 2: Kick off heavy setup in background — app starts serving NOW
+    task = asyncio.create_task(_run_migrations())
+    logger.info(f"App accepting requests in {time.monotonic() - startup_start:.1f}s (migrations running in background)")
 
-    t0 = time.monotonic()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info(f"Tables created/verified in {time.monotonic() - t0:.1f}s")
-
-    # Add missing columns to existing tables (create_all doesn't alter tables)
-    alter_statements = [
-        "ALTER TABLE user_streaks ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0",
-        "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS progress_percent NUMERIC DEFAULT 0",
-        # Remove duplicate plans before adding unique constraint
-        """DELETE FROM plans WHERE id NOT IN (
-            SELECT DISTINCT ON (name) id FROM plans ORDER BY name, created_at ASC NULLS LAST, id ASC
-        )""",
-        "ALTER TABLE plans DROP CONSTRAINT IF EXISTS uq_plans_name",
-        "ALTER TABLE plans ADD CONSTRAINT uq_plans_name UNIQUE (name)",
-        # Methodist & template courses
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_methodist BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS source_course_id UUID REFERENCES courses(id) ON DELETE SET NULL",
-        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
-    ]
-    for stmt in alter_statements:
-        try:
-            async with engine.connect() as conn:
-                await conn.execute(sa_text(stmt))
-                await conn.commit()
-        except Exception:
-            pass
-
-    # Try Alembic migrations if available
-    try:
-        from alembic.config import Config
-        from alembic import command
-
-        alembic_cfg = Config("alembic.ini")
-        command.upgrade(alembic_cfg, "head")
-        logger.info("Database migrations applied successfully")
-    except Exception as e:
-        logger.debug(f"Alembic migrations skipped: {e}")
-
-    # Ensure super_admin user exists
-    try:
-        from app.db.session import async_session_factory
-        from app.auth.models import User, UserRole, Organization
-        from app.auth.security import hash_password
-        from sqlalchemy import select
-
-        async with async_session_factory() as session:
-            result = await session.execute(
-                select(User).where(User.email == "faintkom@gmail.com")
-            )
-            sa_user = result.scalar_one_or_none()
-            if not sa_user:
-                # Create system org
-                result = await session.execute(
-                    select(Organization).where(Organization.slug == "system")
-                )
-                sys_org = result.scalar_one_or_none()
-                if not sys_org:
-                    sys_org = Organization(name="System", slug="system")
-                    session.add(sys_org)
-                    await session.flush()
-
-                sa_user = User(
-                    org_id=sys_org.id,
-                    email="faintkom@gmail.com",
-                    hashed_password=hash_password("REDACTED_PASSWORD"),
-                    full_name="Super Admin",
-                    role=UserRole.super_admin,
-                )
-                session.add(sa_user)
-                await session.commit()
-                logger.info("Super admin user created")
-            elif sa_user.role != UserRole.super_admin:
-                sa_user.role = UserRole.super_admin
-                await session.commit()
-                logger.info("Super admin role updated")
-    except Exception as e:
-        logger.warning(f"Super admin setup: {e}")
-
-    # Seed default billing plans
-    try:
-        from app.billing.service import seed_default_plans
-        async with async_session_factory() as session:
-            await seed_default_plans(session)
-            await session.commit()
-            logger.info("Default billing plans seeded")
-    except Exception as e:
-        logger.debug(f"Plan seeding: {e}")
-
-    logger.info(f"LearnHub Backend started in {time.monotonic() - startup_start:.1f}s")
     yield
+
+    # Shutdown
+    task.cancel()
+    await engine.dispose()
 
 
 def create_app() -> FastAPI:
@@ -206,14 +237,28 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    from fastapi import Request
-    from fastapi.responses import JSONResponse
     import traceback
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"detail": str(exc)})
+
+    @app.middleware("http")
+    async def startup_gate(request: Request, call_next):
+        """Return 503 for API requests while background migrations are running."""
+        path = request.scope["path"]
+        # Always let health check, docs, and openapi through
+        if path in ("/health", "/docs", "/redoc", "/openapi.json"):
+            return await call_next(request)
+        # Gate API requests until migrations complete
+        if path.startswith("/api/") and not startup_state.ready:
+            return JSONResponse(
+                status_code=503,
+                content={"detail": "Server is starting up, please retry in a few seconds"},
+                headers={"Retry-After": "5"},
+            )
+        return await call_next(request)
 
     @app.middleware("http")
     async def strip_trailing_slash(request, call_next):
@@ -255,7 +300,11 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health():
-        return {"status": "ok"}
+        return {
+            "status": "ok",
+            "ready": startup_state.ready,
+            "error": startup_state.error,
+        }
 
     return app
 
