@@ -1,6 +1,6 @@
 databases:
   - name: lms-db
-    plan: free
+    plan: basic-256mb
     databaseName: lms
     user: lms
 
