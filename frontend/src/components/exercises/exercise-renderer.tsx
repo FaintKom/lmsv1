@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown } from "lucide-react";
@@ -11,6 +12,21 @@ import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
 import TrueFalseExercise from "@/components/submissions/exercises/true-false";
 import CategorizeExercise from "@/components/submissions/exercises/categorize";
+
+const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 2D Robot...</div>,
+});
+
+const MathExercise = dynamic(() => import("@/components/game/math/math-exercise"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Math Exercise...</div>,
+});
+
+const World3DExercise = dynamic(() => import("@/components/game/world-3d/world-3d-exercise"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 3D World...</div>,
+});
 
 interface Question {
   id: string;
@@ -40,7 +56,10 @@ interface Exercise {
     | "fill_blanks"
     | "true_false"
     | "categorize"
-    | "file_upload";
+    | "file_upload"
+    | "robot_2d"
+    | "math_interactive"
+    | "world_3d";
   title: string;
   config: Record<string, unknown>;
   questions?: Question[];
@@ -250,6 +269,33 @@ function ExerciseBody({
 
     case "file_upload":
       return <FileUploadExercise config={exercise.config} onUpload={onFileUpload} />;
+
+    case "robot_2d":
+      return (
+        <Robot2DExercise
+          exerciseId={exercise.id}
+          config={exercise.config}
+          onSubmit={(result) => onSubmit({ game_result: result })}
+        />
+      );
+
+    case "math_interactive":
+      return (
+        <MathExercise
+          exerciseId={exercise.id}
+          config={exercise.config}
+          onSubmit={(result) => onSubmit({ game_result: result })}
+        />
+      );
+
+    case "world_3d":
+      return (
+        <World3DExercise
+          exerciseId={exercise.id}
+          config={exercise.config}
+          onSubmit={(result) => onSubmit({ game_result: result })}
+        />
+      );
 
     default:
       return (

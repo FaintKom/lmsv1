@@ -1,0 +1,327 @@
+"use client";
+
+import { useState, useCallback, Suspense } from "react";
+import { Loader2, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MATH_TEMPLATES, TEMPLATE_LIST } from "./template-registry";
+import Editor from "@monaco-editor/react";
+
+interface MathEditorProps {
+  config: Record<string, unknown>;
+  onConfigChange: (config: Record<string, unknown>) => void;
+}
+
+export default function MathEditor({ config, onConfigChange }: MathEditorProps) {
+  const templateType = (config.template_type as string) || "coordinate_plane";
+  const customHtml = (config.custom_html as string) || "";
+  const instructions = (config.instructions as string) || "";
+  const templateConfig = (config.template_config as Record<string, unknown>) || {};
+
+  const [showPreview, setShowPreview] = useState(false);
+
+  const updateConfig = useCallback(
+    (updates: Partial<Record<string, unknown>>) => {
+      onConfigChange({ ...config, ...updates });
+    },
+    [config, onConfigChange]
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Template selector */}
+      <div>
+        <label className="mb-2 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          Template Type
+        </label>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {[...TEMPLATE_LIST, MATH_TEMPLATES.custom_html].map((tmpl) => (
+            <button
+              key={tmpl.type}
+              onClick={() => updateConfig({ template_type: tmpl.type })}
+              className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-colors ${
+                templateType === tmpl.type
+                  ? "border-teal-400 bg-teal-50 dark:border-teal-500 dark:bg-teal-500/10"
+                  : "border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20"
+              }`}
+            >
+              <span className="text-2xl">{tmpl.icon}</span>
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                {tmpl.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div>
+        <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          Instructions (shown to student)
+        </label>
+        <textarea
+          value={instructions}
+          onChange={(e) => updateConfig({ instructions: e.target.value })}
+          rows={2}
+          placeholder="Enter instructions for the student..."
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+        />
+      </div>
+
+      {/* Template-specific config */}
+      {templateType === "custom_html" ? (
+        <CustomHtmlEditor
+          html={customHtml}
+          onChange={(html) => updateConfig({ custom_html: html })}
+        />
+      ) : templateType === "coordinate_plane" ? (
+        <CoordinatePlaneConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "number_line" ? (
+        <NumberLineConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "visual_fractions" ? (
+        <FractionsConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "equation_balance" ? (
+        <EquationBalanceConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "arithmetic_puzzle" ? (
+        <ArithmeticPuzzleConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : null}
+
+      {/* Preview */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          <Eye className="mr-1.5 h-3.5 w-3.5" />
+          {showPreview ? "Hide Preview" : "Preview"}
+        </Button>
+      </div>
+
+      {showPreview && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-[#161622]">
+          <TemplatePreview templateType={templateType} config={templateConfig} customHtml={customHtml} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Template Config Forms ──────────────────────────────────────────
+
+function CoordinatePlaneConfig({
+  config,
+  onChange,
+}: {
+  config: Record<string, unknown>;
+  onChange: (c: Record<string, unknown>) => void;
+}) {
+  const points = (config.target_points as { x: number; y: number }[]) || [{ x: 3, y: 2 }];
+  const gridRange = (config.grid_range as number) || 6;
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Grid Range (±)</label>
+          <input type="number" min={3} max={20} value={gridRange}
+            onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) || 6 })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Tolerance</label>
+          <input type="number" step={0.1} min={0.1} max={2} value={(config.tolerance as number) || 0.5}
+            onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.5 })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Target Points</label>
+        {points.map((p, i) => (
+          <div key={i} className="mb-1.5 flex items-center gap-2">
+            <span className="text-xs text-slate-400">({i + 1})</span>
+            <input type="number" value={p.x} placeholder="x"
+              onChange={(e) => { const np = [...points]; np[i] = { ...np[i], x: parseFloat(e.target.value) || 0 }; onChange({ ...config, target_points: np }); }}
+              className="w-20 rounded border border-slate-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+            <input type="number" value={p.y} placeholder="y"
+              onChange={(e) => { const np = [...points]; np[i] = { ...np[i], y: parseFloat(e.target.value) || 0 }; onChange({ ...config, target_points: np }); }}
+              className="w-20 rounded border border-slate-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+            {points.length > 1 && (
+              <button onClick={() => onChange({ ...config, target_points: points.filter((_, j) => j !== i) })}
+                className="text-xs text-red-500 hover:text-red-700">&times;</button>
+            )}
+          </div>
+        ))}
+        <button onClick={() => onChange({ ...config, target_points: [...points, { x: 0, y: 0 }] })}
+          className="text-xs text-indigo-500 hover:text-indigo-700">+ Add point</button>
+      </div>
+    </div>
+  );
+}
+
+function NumberLineConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Min</label>
+        <input type="number" value={(config.range_min as number) ?? 0}
+          onChange={(e) => onChange({ ...config, range_min: parseInt(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Max</label>
+        <input type="number" value={(config.range_max as number) ?? 10}
+          onChange={(e) => onChange({ ...config, range_max: parseInt(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Targets (comma-sep)</label>
+        <input type="text" value={((config.targets as number[]) || [3, 7]).join(", ")}
+          onChange={(e) => onChange({ ...config, targets: e.target.value.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n)) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Tick Interval</label>
+        <input type="number" step={0.5} min={0.5} value={(config.tick_interval as number) || 1}
+          onChange={(e) => onChange({ ...config, tick_interval: parseFloat(e.target.value) || 1 })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function FractionsConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="grid grid-cols-3 gap-3">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Numerator</label>
+        <input type="number" min={1} value={(config.target_numerator as number) || 3}
+          onChange={(e) => onChange({ ...config, target_numerator: parseInt(e.target.value) || 1 })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Denominator</label>
+        <input type="number" min={2} value={(config.target_denominator as number) || 8}
+          onChange={(e) => onChange({ ...config, target_denominator: parseInt(e.target.value) || 2 })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Display</label>
+        <select value={(config.display_type as string) || "pie"}
+          onChange={(e) => onChange({ ...config, display_type: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200">
+          <option value="pie">Pie</option>
+          <option value="bar">Bar</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
+function EquationBalanceConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Left Side (comma-sep)</label>
+          <input type="text" value={((config.left_fixed as number[]) || [5]).join(", ")}
+            onChange={(e) => onChange({ ...config, left_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Right Side Fixed (comma-sep)</label>
+          <input type="text" value={((config.right_fixed as number[]) || [2]).join(", ")}
+            onChange={(e) => onChange({ ...config, right_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Available Terms (JSON array)</label>
+        <input type="text"
+          value={JSON.stringify((config.available_terms as unknown[]) || [{ value: 3, label: "3" }, { value: 4, label: "4" }])}
+          onChange={(e) => { try { onChange({ ...config, available_terms: JSON.parse(e.target.value) }); } catch { /* ignore */ } }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function ArithmeticPuzzleConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div>
+      <label className="mb-1 block text-xs text-slate-500">Equations (JSON)</label>
+      <textarea
+        value={JSON.stringify((config.equations as unknown[]) || [
+          { cells: [{ value: null, display: "_" }, { value: null, display: "+" }, { value: 3, display: "3" }, { value: null, display: "=" }, { value: 7, display: "7" }], answer: 4, blankIndex: 0 },
+        ], null, 2)}
+        rows={8}
+        onChange={(e) => { try { onChange({ ...config, equations: JSON.parse(e.target.value) }); } catch { /* ignore */ } }}
+        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+      />
+    </div>
+  );
+}
+
+// ─── Custom HTML Editor ─────────────────────────────────────────────
+
+function CustomHtmlEditor({ html, onChange }: { html: string; onChange: (h: string) => void }) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+        Custom HTML/JS/CSS
+      </label>
+      <p className="mb-2 text-xs text-slate-400">
+        Use <code className="bg-slate-100 px-1 rounded dark:bg-white/10">window.LMS.reportResult({"{"} passed: true, score: 1.0 {"}"})</code> to submit the result.
+      </p>
+      <div className="h-[300px] rounded-lg border border-slate-200 overflow-hidden dark:border-white/10">
+        <Editor
+          height="100%"
+          language="html"
+          value={html}
+          onChange={(v) => onChange(v || "")}
+          theme="vs-light"
+          options={{
+            minimap: { enabled: false },
+            fontSize: 13,
+            lineNumbers: "on",
+            wordWrap: "on",
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Template Preview ───────────────────────────────────────────────
+
+function TemplatePreview({
+  templateType,
+  config,
+  customHtml,
+}: {
+  templateType: string;
+  config: Record<string, unknown>;
+  customHtml: string;
+}) {
+  if (templateType === "custom_html") {
+    const bridgeScript = `<script>
+      window.LMS = { reportResult: function(r) { window.parent.postMessage({ type: 'lms-exercise-result', payload: r }, '*'); } };
+    </script>`;
+    const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:system-ui;margin:16px;}</style>${bridgeScript}</head><body>${customHtml}</body></html>`;
+    return (
+      <iframe srcDoc={srcdoc} sandbox="allow-scripts"
+        className="h-[300px] w-full rounded-lg border border-slate-200 dark:border-white/10" title="Preview" />
+    );
+  }
+
+  const template = MATH_TEMPLATES[templateType];
+  if (!template?.component) return <p className="text-sm text-slate-400">No preview available</p>;
+
+  const TemplateComponent = template.component;
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-8"><Loader2 className="h-4 w-4 animate-spin text-slate-400" /></div>}>
+      <TemplateComponent config={config} onComplete={() => {}} />
+    </Suspense>
+  );
+}

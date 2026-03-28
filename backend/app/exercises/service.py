@@ -305,6 +305,10 @@ async def submit_exercise(
         return await _submit_code(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.file_upload:
         raise BadRequestError("Use the /upload endpoint for file submissions")
+    elif exercise.exercise_type in (
+        ExerciseType.robot_2d, ExerciseType.math_interactive, ExerciseType.world_3d
+    ):
+        return await _submit_game_level(db, exercise, user, data, now)
     else:
         # Interactive types: matching, ordering, fill_blanks, true_false, categorize
         return await _submit_interactive(db, exercise, user, data, now)
@@ -531,6 +535,61 @@ async def list_submissions(
     items = list(result.scalars().all())
 
     return items, total
+
+
+# ─── Game Level Submission ────────────────────────────────────────────
+
+GAME_XP = {
+    ExerciseType.robot_2d: 30,
+    ExerciseType.math_interactive: 25,
+    ExerciseType.world_3d: 40,
+}
+
+
+async def _submit_game_level(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    game_result = data.get("game_result")
+    if not game_result or not isinstance(game_result, dict):
+        raise BadRequestError("game_result is required for game level exercises")
+
+    completed = bool(game_result.get("completed", False))
+    score_raw = game_result.get("score", 0.0)
+    score = max(0.0, min(1.0, float(score_raw)))
+    score_percent = score * 100
+
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers={
+            "game_result": {
+                "completed": completed,
+                "score": score,
+                "steps_used": game_result.get("steps_used", 0),
+                "time_seconds": game_result.get("time_seconds", 0),
+                "code_snapshot": game_result.get("code_snapshot"),
+                "replay_log": game_result.get("replay_log"),
+            }
+        },
+        score=score_percent,
+        passed=completed,
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    db.add(submission)
+    await db.flush()
+
+    if completed:
+        xp = GAME_XP.get(exercise.exercise_type, 25)
+        reason = f"{exercise.exercise_type.value}_completed"
+        await _award_xp(db, user.id, xp, reason)
+
+    return await _reload_submission(db, submission.id)
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────

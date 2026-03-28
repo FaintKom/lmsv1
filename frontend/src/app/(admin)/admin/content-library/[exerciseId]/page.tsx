@@ -32,6 +32,22 @@ import {
   type ExerciseTestCase,
 } from "@/lib/api/exercises";
 import { getApiError } from "@/lib/api-client";
+import dynamic from "next/dynamic";
+
+const Robot2DEditor = dynamic(
+  () => import("@/components/game/robot-2d/robot-2d-editor"),
+  { ssr: false }
+);
+
+const MathEditor = dynamic(
+  () => import("@/components/game/math/math-editor"),
+  { ssr: false }
+);
+
+const World3DEditor = dynamic(
+  () => import("@/components/game/world-3d/world-3d-editor"),
+  { ssr: false }
+);
 
 export default function ExerciseEditorPage() {
   const { exerciseId } = useParams<{ exerciseId: string }>();
@@ -189,6 +205,40 @@ export default function ExerciseEditorPage() {
               rows={12}
               className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-800 outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
             />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Game Level Editors */}
+      {exercise.exercise_type === "robot_2d" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>2D Robot Level Editor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Robot2DEditor config={config} onConfigChange={setConfig} />
+          </CardContent>
+        </Card>
+      )}
+
+      {exercise.exercise_type === "math_interactive" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Math Interactive Editor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MathEditor config={config} onConfigChange={setConfig} />
+          </CardContent>
+        </Card>
+      )}
+
+      {exercise.exercise_type === "world_3d" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>3D World Level Editor</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <World3DEditor config={config} onConfigChange={setConfig} />
           </CardContent>
         </Card>
       )}

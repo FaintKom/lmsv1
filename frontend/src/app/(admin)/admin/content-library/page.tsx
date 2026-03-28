@@ -32,6 +32,9 @@ import {
   Users,
   X,
   CheckCircle,
+  Bot,
+  Calculator,
+  Box,
 } from "lucide-react";
 import {
   exercisesApi,
@@ -52,11 +55,15 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
   true_false: ToggleLeft,
   categorize: FolderOpen,
   file_upload: Upload,
+  robot_2d: Bot,
+  math_interactive: Calculator,
+  world_3d: Box,
 };
 
 const ALL_TYPES: ExerciseType[] = [
   "quiz", "code_challenge", "matching", "ordering",
   "fill_blanks", "true_false", "categorize", "file_upload",
+  "robot_2d", "math_interactive", "world_3d",
 ];
 
 // ─── Types ───

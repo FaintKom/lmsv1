@@ -50,6 +50,39 @@ class FileUploadConfig(BaseModel):
     max_file_mb: int = 50
 
 
+class Robot2DConfig(BaseModel):
+    grid_width: int = 5
+    grid_height: int = 5
+    cells: list[dict] = []  # [{x, y, type: "wall"|"item"|"start"|"goal"|"empty"}]
+    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right"]
+    win_condition: str = "reach_goal"  # reach_goal | collect_all | custom
+    custom_win_js: str | None = None
+    max_blocks: int | None = None
+    difficulty: str = "beginner"  # beginner | intermediate | advanced
+    hints: list[str] = []
+    allow_python: bool = False
+
+
+class MathInteractiveConfig(BaseModel):
+    template_type: str = "coordinate_plane"
+    template_config: dict = {}
+    custom_html: str | None = None
+    success_condition: dict = {}
+    difficulty: str = "beginner"
+    instructions: str = ""
+
+
+class World3DConfig(BaseModel):
+    scene_objects: list[dict] = []  # [{type, position, rotation, scale, properties}]
+    player_start: dict = {"x": 0, "y": 0, "z": 0, "direction": 0}
+    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right"]
+    win_condition: str = "reach_goal"
+    custom_win_js: str | None = None
+    difficulty: str = "beginner"
+    hints: list[str] = []
+    allow_python: bool = False
+
+
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
 class ExerciseCreate(BaseModel):
@@ -123,6 +156,8 @@ class SubmitExerciseRequest(BaseModel):
     language: str | None = None
     # Interactive (matching, ordering, fill_blanks, true_false, categorize)
     interactive_answers: dict | None = None
+    # Game levels (robot_2d, math_interactive, world_3d)
+    game_result: dict | None = None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
 
 
 class ExerciseSubmissionResponse(BaseModel):

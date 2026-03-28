@@ -21,6 +21,9 @@ class ContentType(str, enum.Enum):
     code_challenge = "code_challenge"
     file_upload = "file_upload"
     interactive = "interactive"
+    robot_2d = "robot_2d"
+    math_interactive = "math_interactive"
+    world_3d = "world_3d"
 
 
 class Course(Base, IDMixin, TimestampMixin):

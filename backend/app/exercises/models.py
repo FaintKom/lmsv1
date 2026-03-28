@@ -20,6 +20,9 @@ class ExerciseType(str, enum.Enum):
     true_false = "true_false"
     categorize = "categorize"
     file_upload = "file_upload"
+    robot_2d = "robot_2d"
+    math_interactive = "math_interactive"
+    world_3d = "world_3d"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -31,6 +34,9 @@ EXERCISE_TYPE_PREFIX = {
     "true_false": "T",
     "categorize": "G",
     "file_upload": "FU",
+    "robot_2d": "R2",
+    "math_interactive": "MI",
+    "world_3d": "W3",
 }
 
 
