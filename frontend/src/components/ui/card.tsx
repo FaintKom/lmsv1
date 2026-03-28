@@ -27,13 +27,16 @@ interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 }
 
 const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, as: Tag = "h3", ...props }, ref) => (
-    <Tag
-      ref={ref}
-      className={cn("text-lg font-semibold text-slate-900 dark:text-slate-100", className)}
-      {...props}
-    />
-  )
+  ({ className, as: Tag = "h3", ...props }, ref) => {
+    const Comp = Tag as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    return (
+      <Comp
+        ref={ref}
+        className={cn("text-lg font-semibold text-slate-900 dark:text-slate-100", className)}
+        {...props}
+      />
+    );
+  }
 );
 CardTitle.displayName = "CardTitle";
 

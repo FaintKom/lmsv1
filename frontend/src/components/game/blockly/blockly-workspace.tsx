@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
-import Blockly from "blockly";
+import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { pythonGenerator } from "blockly/python";
 import type { ToolboxDef, Difficulty } from "./toolbox-configs";

@@ -20,6 +20,10 @@ import {
   ChevronRight,
   Upload,
   Puzzle,
+  Bot,
+  Calculator,
+  Box,
+  type LucideIcon,
 } from "lucide-react";
 import type { Course, Module, Lesson } from "@/types/api";
 import QuizTaker from "@/components/assessments/quiz-taker";
@@ -35,13 +39,16 @@ interface LessonProgressItem {
   status: string;
 }
 
-const CONTENT_ICONS: Record<string, React.ElementType> = {
+const CONTENT_ICONS: Record<string, LucideIcon> = {
   text: FileText,
   video: PlayCircle,
   quiz: CheckCircle,
   code_challenge: Code,
   file_upload: Upload,
   interactive: Puzzle,
+  robot_2d: Bot,
+  math_interactive: Calculator,
+  world_3d: Box,
 };
 
 export default function LessonViewerPage() {

@@ -15,15 +15,22 @@ import {
   CheckCircle,
   ArrowLeft,
   Clock,
+  Bot,
+  Calculator,
+  Box,
+  type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Course } from "@/types/api";
 
-const CONTENT_ICONS: Record<string, React.ElementType> = {
+const CONTENT_ICONS: Record<string, LucideIcon> = {
   text: FileText,
   video: PlayCircle,
   quiz: CheckCircle,
   code_challenge: Code,
+  robot_2d: Bot,
+  math_interactive: Calculator,
+  world_3d: Box,
 };
 
 const CONTENT_COLORS: Record<string, string> = {
