@@ -8,8 +8,8 @@ const apiClient = axios.create({
   },
 });
 
-// Wake-up retry config
-const WAKE_RETRY_CODES = [502, 503];
+// Wake-up / rate-limit retry config
+const RETRY_CODES = [429, 502, 503];
 const MAX_WAKE_RETRIES = 5;
 const INITIAL_RETRY_DELAY = 2000; // 2s
 
@@ -17,7 +17,7 @@ let wakeUpToastId: string | number | undefined;
 
 function showWakeUpToast() {
   if (!wakeUpToastId) {
-    wakeUpToastId = toast.loading("Server is waking up, please wait...", {
+    wakeUpToastId = toast.loading("Connecting to server, please wait...", {
       duration: Infinity,
     });
   }
@@ -52,14 +52,18 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Retry on 502/503 (server waking up) or network error (service fully down)
+    // Retry on 429/502/503 (rate limit or server waking up) or network error
     const isWakeError =
-      (error.response && WAKE_RETRY_CODES.includes(error.response.status)) ||
+      (error.response && RETRY_CODES.includes(error.response.status)) ||
       (!error.response && error.code === "ERR_NETWORK");
 
     if (isWakeError && (originalRequest._wakeRetryCount ?? 0) < MAX_WAKE_RETRIES) {
       originalRequest._wakeRetryCount = (originalRequest._wakeRetryCount ?? 0) + 1;
-      const delay = INITIAL_RETRY_DELAY * Math.pow(2, originalRequest._wakeRetryCount - 1);
+      // Respect Retry-After header from 429 responses
+      const retryAfter = error.response?.headers?.["retry-after"];
+      const delay = retryAfter
+        ? parseInt(retryAfter, 10) * 1000
+        : INITIAL_RETRY_DELAY * Math.pow(2, originalRequest._wakeRetryCount - 1);
       showWakeUpToast();
       await sleep(delay);
       return apiClient(originalRequest);
