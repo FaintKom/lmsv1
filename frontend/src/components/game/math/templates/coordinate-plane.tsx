@@ -10,6 +10,14 @@ interface Point {
   y: number;
 }
 
+const POINT_COLORS = [
+  { fill: "#6366f1", label: "#4f46e5", name: "A", bg: "bg-indigo-100 text-indigo-700" },
+  { fill: "#f59e0b", label: "#d97706", name: "B", bg: "bg-amber-100 text-amber-700" },
+  { fill: "#ec4899", label: "#db2777", name: "C", bg: "bg-pink-100 text-pink-700" },
+  { fill: "#22c55e", label: "#16a34a", name: "D", bg: "bg-emerald-100 text-emerald-700" },
+  { fill: "#8b5cf6", label: "#7c3aed", name: "E", bg: "bg-violet-100 text-violet-700" },
+];
+
 export default function CoordinatePlane({ config, onComplete }: MathTemplateProps) {
   const targetPoints = (config.target_points as { x: number; y: number; label?: string }[]) || [
     { x: 3, y: 2 },
@@ -102,9 +110,17 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
-        Drag the points to positions: {targetPoints.map((p, i) => `(${p.x}, ${p.y})`).join(", ")}
-      </p>
+      <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <span>Drag each point to its target:</span>
+        {targetPoints.map((p, i) => {
+          const color = POINT_COLORS[i % POINT_COLORS.length];
+          return (
+            <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${color.bg}`}>
+              {color.name} → ({p.x}, {p.y})
+            </span>
+          );
+        })}
+      </div>
 
       <svg
         ref={svgRef}
@@ -128,31 +144,31 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
             fill="none" stroke="#22c55e" strokeWidth={2} strokeDasharray="4 2" />
         ))}
 
-        {/* Draggable points */}
-        {userPoints.map((p, i) => (
-          <g key={p.id} onPointerDown={() => handlePointerDown(p.id)} style={{ cursor: "grab" }}>
-            <circle cx={toSvg(p.x, "x")} cy={toSvg(p.y, "y")} r={14} fill="transparent" />
-            <circle
-              cx={toSvg(p.x, "x")}
-              cy={toSvg(p.y, "y")}
-              r={8}
-              fill={checked ? (results[i] ? "#22c55e" : "#ef4444") : "#6366f1"}
-              stroke="white"
-              strokeWidth={2}
-              className="transition-colors"
-            />
-            <text
-              x={toSvg(p.x, "x")}
-              y={toSvg(p.y, "y") - 14}
-              textAnchor="middle"
-              fontSize={11}
-              fill="#6366f1"
-              fontWeight="600"
-            >
-              ({p.x}, {p.y})
-            </text>
-          </g>
-        ))}
+        {/* Draggable points — each with distinct color and letter */}
+        {userPoints.map((p, i) => {
+          const color = POINT_COLORS[i % POINT_COLORS.length];
+          const cx = toSvg(p.x, "x");
+          const cy = toSvg(p.y, "y");
+          return (
+            <g key={p.id} onPointerDown={() => handlePointerDown(p.id)} style={{ cursor: "grab" }}>
+              <circle cx={cx} cy={cy} r={16} fill="transparent" />
+              <circle
+                cx={cx} cy={cy} r={10}
+                fill={checked ? (results[i] ? "#22c55e" : "#ef4444") : color.fill}
+                stroke="white" strokeWidth={2.5}
+                className="transition-colors"
+              />
+              {/* Letter label inside point */}
+              <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="central"
+                fontSize={11} fill="white" fontWeight="bold">{color.name}</text>
+              {/* Coordinates above */}
+              <text x={cx} y={cy - 16} textAnchor="middle"
+                fontSize={10} fill={checked ? (results[i] ? "#22c55e" : "#ef4444") : color.label} fontWeight="600">
+                ({p.x}, {p.y})
+              </text>
+            </g>
+          );
+        })}
       </svg>
 
       <Button onClick={handleCheck} disabled={checked && results.every(Boolean)}>

@@ -71,13 +71,26 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
     );
   }
 
-  const MARKER_COLORS = ["#6366f1", "#f59e0b", "#ec4899", "#22c55e"];
+  const MARKER_STYLES = [
+    { fill: "#6366f1", name: "A", bg: "bg-indigo-100 text-indigo-700" },
+    { fill: "#f59e0b", name: "B", bg: "bg-amber-100 text-amber-700" },
+    { fill: "#ec4899", name: "C", bg: "bg-pink-100 text-pink-700" },
+    { fill: "#22c55e", name: "D", bg: "bg-emerald-100 text-emerald-700" },
+  ];
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
-        Place the marker{targets.length > 1 ? "s" : ""} at: {targets.join(", ")}
-      </p>
+      <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <span>Place each marker at its target:</span>
+        {targets.map((t, i) => {
+          const style = MARKER_STYLES[i % MARKER_STYLES.length];
+          return (
+            <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${style.bg}`}>
+              {style.name} → {t}
+            </span>
+          );
+        })}
+      </div>
 
       <svg
         ref={svgRef}
@@ -102,23 +115,25 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
           <circle key={`t${i}`} cx={toX(t)} cy={lineY} r={5} fill="none" stroke="#22c55e" strokeWidth={2} strokeDasharray="3 2" />
         ))}
 
-        {/* Draggable markers */}
+        {/* Draggable markers — each with distinct color and letter */}
         {markers.map((val, i) => {
           const x = toX(val);
-          const color = checked ? (results[i] ? "#22c55e" : "#ef4444") : MARKER_COLORS[i % MARKER_COLORS.length];
+          const style = MARKER_STYLES[i % MARKER_STYLES.length];
+          const color = checked ? (results[i] ? "#22c55e" : "#ef4444") : style.fill;
           return (
             <g key={i} onPointerDown={() => handlePointerDown(i)} style={{ cursor: "grab" }}>
               {/* Hit area */}
-              <rect x={x - 15} y={lineY - 30} width={30} height={50} fill="transparent" />
+              <rect x={x - 15} y={lineY - 35} width={30} height={55} fill="transparent" />
               {/* Marker triangle */}
               <polygon
-                points={`${x},${lineY - 4} ${x - 8},${lineY - 22} ${x + 8},${lineY - 22}`}
-                fill={color}
-                stroke="white"
-                strokeWidth={1.5}
+                points={`${x},${lineY - 4} ${x - 9},${lineY - 24} ${x + 9},${lineY - 24}`}
+                fill={color} stroke="white" strokeWidth={1.5}
               />
-              {/* Value label */}
-              <text x={x} y={lineY - 28} textAnchor="middle" fontSize={10} fill={color} fontWeight="600">
+              {/* Letter inside triangle */}
+              <text x={x} y={lineY - 13} textAnchor="middle" dominantBaseline="central"
+                fontSize={9} fill="white" fontWeight="bold">{style.name}</text>
+              {/* Value label above */}
+              <text x={x} y={lineY - 32} textAnchor="middle" fontSize={10} fill={color} fontWeight="600">
                 {val}
               </text>
             </g>

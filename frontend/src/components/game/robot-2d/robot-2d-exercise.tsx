@@ -19,10 +19,12 @@ import { GridEngine, type GridState, type Cell } from "./grid-engine";
 import {
   StepExecutor,
   parseCommands,
+  parsePythonCommands,
   type GameCommand,
 } from "@/components/game/engine/step-executor";
 import type { Difficulty } from "@/components/game/blockly/toolbox-configs";
 import { DIFFICULTY_TOOLBOXES } from "@/components/game/blockly/toolbox-configs";
+import Editor from "@monaco-editor/react";
 
 const BlocklyWorkspace = dynamic(
   () => import("@/components/game/blockly/blockly-workspace"),
@@ -56,9 +58,28 @@ export default function Robot2DExercise({
   const hints = (config.hints as string[]) || [];
   const allowPython = (config.allow_python as boolean) || false;
 
+  const PYTHON_STARTER = `# Available commands:
+# robot.move_forward()
+# robot.turn_left()
+# robot.turn_right()
+# robot.pick_up()
+# robot.place_item()
+#
+# Conditions:
+# robot.is_wall_ahead()
+# robot.is_item_here()
+# robot.is_at_goal()
+#
+# Example:
+# for i in range(3):
+#   robot.move_forward()
+
+`;
+
   // State
   const [gridState, setGridState] = useState<GridState | null>(null);
   const [mode, setMode] = useState<"blocks" | "python">("blocks");
+  const [pythonCode, setPythonCode] = useState(PYTHON_STARTER);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [speed, setSpeed] = useState(300);
@@ -67,6 +88,7 @@ export default function Robot2DExercise({
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const [stepsUsed, setStepsUsed] = useState(0);
+  const [isDark, setIsDark] = useState(false);
 
   // Refs
   const engineRef = useRef<GridEngine | null>(null);
@@ -83,6 +105,17 @@ export default function Robot2DExercise({
     setFailed(null);
     setStepsUsed(0);
   }, [gridWidth, gridHeight, cells, winCondition]);
+
+  // Dark mode detection
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const check = () => setIsDark(document.documentElement.classList.contains("dark") || mq.matches);
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    mq.addEventListener("change", check);
+    return () => { obs.disconnect(); mq.removeEventListener("change", check); };
+  }, []);
 
   const handleCodeChange = useCallback(
     (js: string, python: string, xml: string) => {
@@ -111,7 +144,9 @@ export default function Robot2DExercise({
     if (!executorRef.current.isRunning && !isRunning) {
       // Start fresh
       handleReset();
-      const commands = parseCommands(codeRef.current.js);
+      const commands = mode === "python"
+        ? parsePythonCommands(pythonCode)
+        : parseCommands(codeRef.current.js);
       executorRef.current.load(commands, (cond) =>
         engine.evaluateCondition(cond)
       );
@@ -137,10 +172,12 @@ export default function Robot2DExercise({
 
     // Reset first
     handleReset();
-    const commands = parseCommands(codeRef.current.js);
+    const commands = mode === "python"
+      ? parsePythonCommands(pythonCode)
+      : parseCommands(codeRef.current.js);
 
     if (commands.length === 0) {
-      setFailed("No commands to execute. Add some blocks!");
+      setFailed(mode === "python" ? "No commands found. Write robot.move_forward() etc." : "No commands to execute. Add some blocks!");
       return;
     }
 
@@ -200,7 +237,7 @@ export default function Robot2DExercise({
       score: 1.0,
       steps_used: stepsUsed,
       time_seconds: elapsed,
-      code_snapshot: codeRef.current.python || codeRef.current.js,
+      code_snapshot: mode === "python" ? pythonCode : (codeRef.current.python || codeRef.current.js),
     });
   }, [onSubmit, stepsUsed]);
 
@@ -290,17 +327,37 @@ export default function Robot2DExercise({
         </div>
       </div>
 
-      {/* Main content: Blockly + Grid */}
+      {/* Main content: Editor + Grid */}
       <div className="flex" style={{ height: 500 }}>
-        {/* Blockly workspace */}
+        {/* Code workspace */}
         <div className="flex-1 border-r border-slate-200 dark:border-white/10">
-          <BlocklyWorkspace
-            difficulty={difficulty}
-            mode={mode}
-            maxBlocks={maxBlocks}
-            onCodeChange={handleCodeChange}
-            className="h-full w-full"
-          />
+          {mode === "python" ? (
+            <Editor
+              height="100%"
+              language="python"
+              value={pythonCode}
+              onChange={(v) => setPythonCode(v || "")}
+              theme={isDark ? "vs-dark" : "vs-light"}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: "on",
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+                padding: { top: 12 },
+                fontFamily: "'Geist Mono', 'Fira Code', 'Consolas', monospace",
+              }}
+            />
+          ) : (
+            <BlocklyWorkspace
+              difficulty={difficulty}
+              mode="blocks"
+              maxBlocks={maxBlocks}
+              onCodeChange={handleCodeChange}
+              className="h-full w-full"
+            />
+          )}
         </div>
 
         {/* Grid + status */}

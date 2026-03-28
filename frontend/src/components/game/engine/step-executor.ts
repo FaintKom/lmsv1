@@ -7,6 +7,127 @@ export type StepCallback = (command: GameCommand, index: number) => boolean | vo
 export type CompleteCallback = (success: boolean, stepsUsed: number) => void;
 export type ErrorCallback = (message: string, index: number) => void;
 
+/** Map Python method names to JS method names used by the engine */
+const PYTHON_TO_JS: Record<string, string> = {
+  move_forward: "moveForward",
+  turn_left: "turnLeft",
+  turn_right: "turnRight",
+  pick_up: "pickUp",
+  place_item: "placeItem",
+  is_wall_ahead: "isWallAhead",
+  is_item_here: "isItemHere",
+  is_at_goal: "isAtGoal",
+  is_near_object: "isNearObject",
+};
+
+/**
+ * Parse Python code written by the user into GameCommands.
+ * Supports: robot.method(), for i in range(N):, while not robot.is_at_goal():, if/else
+ */
+export function parsePythonCommands(pythonCode: string): GameCommand[] {
+  const lines = pythonCode.split("\n");
+  const commands: GameCommand[] = [];
+
+  const parseLinesAtIndent = (startIdx: number, minIndent: number): { cmds: GameCommand[]; endIdx: number } => {
+    const result: GameCommand[] = [];
+    let i = startIdx;
+
+    while (i < lines.length) {
+      const raw = lines[i];
+      const stripped = raw.trimStart();
+      if (!stripped || stripped.startsWith("#")) { i++; continue; }
+
+      const currentIndent = raw.length - raw.trimStart().length;
+      if (currentIndent < minIndent) break;
+
+      // robot.method() calls
+      const methodMatch = stripped.match(/^robot\.(\w+)\(\)\s*$/);
+      if (methodMatch) {
+        const pyMethod = methodMatch[1];
+        const jsMethod = PYTHON_TO_JS[pyMethod] || pyMethod;
+        result.push({ type: jsMethod });
+        i++;
+        continue;
+      }
+
+      // for i in range(N):
+      const forMatch = stripped.match(/^for\s+\w+\s+in\s+range\((\d+)\)\s*:\s*$/);
+      if (forMatch) {
+        const times = parseInt(forMatch[1], 10);
+        const bodyIndent = currentIndent + 2; // at least 2 more
+        const body = parseLinesAtIndent(i + 1, bodyIndent);
+        for (let t = 0; t < times; t++) {
+          result.push(...body.cmds);
+        }
+        i = body.endIdx;
+        continue;
+      }
+
+      // while condition:
+      const whileMatch = stripped.match(/^while\s+(.+):\s*$/);
+      if (whileMatch) {
+        const condition = whileMatch[1].trim();
+        const bodyIndent = currentIndent + 2;
+        const body = parseLinesAtIndent(i + 1, bodyIndent);
+        // Convert Python condition to JS-style for evaluateCondition
+        let jsCond = condition;
+        if (condition.includes("not robot.is_at_goal()")) jsCond = "!robot.isAtGoal()";
+        else if (condition.includes("robot.is_wall_ahead()")) jsCond = "robot.isWallAhead()";
+        else if (condition.includes("not robot.is_wall_ahead()")) jsCond = "!robot.isWallAhead()";
+
+        result.push({
+          type: "_while",
+          args: { condition: jsCond, body: body.cmds, maxIterations: 100 },
+        });
+        i = body.endIdx;
+        continue;
+      }
+
+      // if condition:
+      const ifMatch = stripped.match(/^if\s+(.+):\s*$/);
+      if (ifMatch) {
+        const condition = ifMatch[1].trim();
+        const bodyIndent = currentIndent + 2;
+        const body = parseLinesAtIndent(i + 1, bodyIndent);
+        let jsCond = condition;
+        if (condition.includes("robot.is_wall_ahead()")) jsCond = "robot.isWallAhead()";
+        if (condition.includes("not robot.is_wall_ahead()")) jsCond = "!robot.isWallAhead()";
+        if (condition.includes("robot.is_item_here()")) jsCond = "robot.isItemHere()";
+        if (condition.includes("robot.is_at_goal()")) jsCond = "robot.isAtGoal()";
+
+        const ifCmd: GameCommand = {
+          type: "_if",
+          args: { condition: jsCond, body: body.cmds },
+        };
+
+        // Check for else/elif
+        if (body.endIdx < lines.length) {
+          const nextStripped = lines[body.endIdx]?.trimStart();
+          if (nextStripped?.startsWith("else:")) {
+            const elseBody = parseLinesAtIndent(body.endIdx + 1, bodyIndent);
+            ifCmd.args!.elseBody = elseBody.cmds;
+            i = elseBody.endIdx;
+          } else {
+            i = body.endIdx;
+          }
+        } else {
+          i = body.endIdx;
+        }
+
+        result.push(ifCmd);
+        continue;
+      }
+
+      // Unknown line — skip
+      i++;
+    }
+
+    return { cmds: result, endIdx: i };
+  };
+
+  return parseLinesAtIndent(0, 0).cmds;
+}
+
 /**
  * Parses generated Blockly JS code into a list of structured commands.
  * The generated code uses `robot.methodName()` calls which we parse into commands.

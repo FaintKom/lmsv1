@@ -398,18 +398,23 @@ export default function LessonViewerPage() {
             )}
           </div>
 
-          {/* Exercises */}
-          {exercises.length > 0 && (
-            <div className="mb-8 space-y-6">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                Exercises
-              </h2>
-              {exercises.map((ex) => (
-                <ExerciseRenderer key={ex.id} exercise={ex as any} />
-              ))}
-            </div>
-          )}
+          {/* Exercises (rendered below, full-width for game types) */}
+          {exercises.length === 0 && null}
+        </div>
 
+        {/* Exercises — full-width section for interactive/game types */}
+        {exercises.length > 0 && (
+          <div className="mb-8 space-y-6 px-4 sm:px-6">
+            <h2 className="mx-auto max-w-3xl text-lg font-semibold text-slate-800 dark:text-slate-200">
+              Exercises
+            </h2>
+            {exercises.map((ex) => (
+              <ExerciseRenderer key={ex.id} exercise={ex as any} />
+            ))}
+          </div>
+        )}
+
+        <div className="mx-auto max-w-3xl px-6">
           {/* Complete button */}
           {!isCompleted && (
             <div className="mb-8">
