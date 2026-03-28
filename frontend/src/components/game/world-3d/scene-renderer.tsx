@@ -2,9 +2,9 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Grid, Text } from "@react-three/drei";
+import { OrbitControls, Environment } from "@react-three/drei";
 import * as THREE from "three";
-import type { WorldState, SceneObject, Direction3D } from "./scene-engine";
+import type { WorldState, GridCell3D, Direction3D } from "./scene-engine";
 import { DIRECTION_ANGLE } from "./scene-engine";
 
 interface SceneRendererProps {
@@ -12,7 +12,8 @@ interface SceneRendererProps {
   isRunning: boolean;
 }
 
-const OBJECT_COLORS: Record<string, string> = {
+const CELL_COLORS: Record<string, string> = {
+  empty: "#334155",
   wall: "#475569",
   collectible: "#f59e0b",
   button: "#ef4444",
@@ -22,180 +23,158 @@ const OBJECT_COLORS: Record<string, string> = {
 };
 
 export default function SceneRenderer({ state, isRunning }: SceneRendererProps) {
+  const centerX = (state.gridWidth - 1) / 2;
+  const centerZ = (state.gridDepth - 1) / 2;
+
   return (
     <Canvas
-      camera={{ position: [5, 6, 5], fov: 50 }}
+      camera={{ position: [centerX + 5, 8, centerZ + 5], fov: 50 }}
       shadows
-      style={{ background: "linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)" }}
+      style={{ background: "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)" }}
     >
-      <ambientLight intensity={0.4} />
-      <directionalLight
-        position={[8, 12, 5]}
-        intensity={1.2}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[8, 15, 5]} intensity={1.5} castShadow
+        shadow-mapSize-width={1024} shadow-mapSize-height={1024}
+        shadow-camera-left={-10} shadow-camera-right={10}
+        shadow-camera-top={10} shadow-camera-bottom={-10}
       />
+      <pointLight position={[centerX, 5, centerZ]} intensity={0.3} color="#818cf8" />
 
-      {/* Ground */}
-      <mesh rotation-x={-Math.PI / 2} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color="#1e293b" />
-      </mesh>
-      <Grid
-        args={[20, 20]}
-        cellSize={1}
-        cellThickness={0.5}
-        cellColor="#334155"
-        sectionSize={5}
-        sectionThickness={1}
-        sectionColor="#475569"
-        position={[0, 0, 0]}
-        fadeDistance={20}
-      />
+      {/* Ground grid */}
+      <GridFloor width={state.gridWidth} depth={state.gridDepth} />
 
-      {/* Scene objects */}
-      {state.objects.map((obj) => (
-        <SceneObjectMesh key={obj.id} object={obj} />
+      {/* Grid cells */}
+      {state.cells.map((cell, i) => (
+        <CellMesh key={`${cell.x}-${cell.z}-${cell.type}-${i}`} cell={cell} />
       ))}
 
       {/* Player */}
-      <PlayerMesh
-        x={state.player.x}
-        z={state.player.z}
-        direction={state.player.direction}
-      />
+      <PlayerMesh player={state.player} />
 
-      {/* Camera controls */}
       <OrbitControls
         enablePan={false}
-        maxPolarAngle={Math.PI / 2.2}
-        minDistance={3}
-        maxDistance={15}
+        maxPolarAngle={Math.PI / 2.3}
+        minDistance={4}
+        maxDistance={20}
         enabled={!isRunning}
-        target={[state.player.x, 0.5, state.player.z]}
+        target={[state.player.x, state.player.y * 0.5 + 0.5, state.player.z]}
       />
 
-      <Environment preset="night" />
+      <fog attach="fog" args={["#0f172a", 15, 30]} />
     </Canvas>
   );
 }
 
-function PlayerMesh({
-  x,
-  z,
-  direction,
-}: {
-  x: number;
-  z: number;
-  direction: Direction3D;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const targetPos = useMemo(() => new THREE.Vector3(x, 0, z), [x, z]);
-  const targetAngle = DIRECTION_ANGLE[direction];
-
-  useFrame(() => {
-    if (!groupRef.current) return;
-    // Smooth movement
-    groupRef.current.position.lerp(targetPos, 0.15);
-    // Smooth rotation
-    const current = groupRef.current.rotation.y;
-    const diff = targetAngle - current;
-    const wrapped = ((diff + Math.PI) % (2 * Math.PI)) - Math.PI;
-    groupRef.current.rotation.y += wrapped * 0.15;
-  });
-
+/** Flat grid floor showing cell boundaries */
+function GridFloor({ width, depth }: { width: number; depth: number }) {
   return (
-    <group ref={groupRef} position={[x, 0, z]}>
-      {/* Body (capsule) */}
-      <mesh position={[0, 0.5, 0]} castShadow>
-        <capsuleGeometry args={[0.2, 0.4, 8, 16]} />
-        <meshStandardMaterial color="#6366f1" metalness={0.3} roughness={0.4} />
+    <group>
+      {/* Base plane */}
+      <mesh rotation-x={-Math.PI / 2} position={[(width - 1) / 2, -0.01, (depth - 1) / 2]} receiveShadow>
+        <planeGeometry args={[width + 0.5, depth + 0.5]} />
+        <meshStandardMaterial color="#1e293b" />
       </mesh>
-      {/* Head */}
-      <mesh position={[0, 0.95, 0]} castShadow>
-        <sphereGeometry args={[0.18, 16, 16]} />
-        <meshStandardMaterial color="#818cf8" metalness={0.2} roughness={0.5} />
-      </mesh>
-      {/* Direction indicator (nose) */}
-      <mesh position={[0, 0.95, -0.2]} castShadow>
-        <coneGeometry args={[0.06, 0.12, 8]} />
-        <meshStandardMaterial color="#c7d2fe" />
-      </mesh>
-      {/* Eyes */}
-      <mesh position={[-0.08, 1.0, -0.15]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[0.08, 1.0, -0.15]}>
-        <sphereGeometry args={[0.04, 8, 8]} />
-        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.3} />
-      </mesh>
+
+      {/* Individual grid cells */}
+      {Array.from({ length: depth }, (_, z) =>
+        Array.from({ length: width }, (_, x) => (
+          <mesh key={`floor-${x}-${z}`} rotation-x={-Math.PI / 2} position={[x, 0, z]} receiveShadow>
+            <planeGeometry args={[0.95, 0.95]} />
+            <meshStandardMaterial color="#243044" transparent opacity={0.8} />
+          </mesh>
+        ))
+      )}
+
+      {/* Grid lines */}
+      {Array.from({ length: width + 1 }, (_, i) => (
+        <mesh key={`gx-${i}`} position={[i - 0.5, 0.001, (depth - 1) / 2]}>
+          <boxGeometry args={[0.02, 0.001, depth]} />
+          <meshBasicMaterial color="#334155" />
+        </mesh>
+      ))}
+      {Array.from({ length: depth + 1 }, (_, i) => (
+        <mesh key={`gz-${i}`} position={[(width - 1) / 2, 0.001, i - 0.5]}>
+          <boxGeometry args={[width, 0.001, 0.02]} />
+          <meshBasicMaterial color="#334155" />
+        </mesh>
+      ))}
     </group>
   );
 }
 
-function SceneObjectMesh({ object }: { object: SceneObject }) {
-  const color = object.color || OBJECT_COLORS[object.type] || "#94a3b8";
-  const sx = object.scale?.x ?? 1;
-  const sy = object.scale?.y ?? 1;
-  const sz = object.scale?.z ?? 1;
+/** Render a single grid cell */
+function CellMesh({ cell }: { cell: GridCell3D }) {
+  const color = cell.color || CELL_COLORS[cell.type] || "#94a3b8";
+  const baseY = cell.y * 0.5; // Each elevation level is 0.5 units
 
-  if (object.collected) return null;
+  if (cell.collected || (cell.type === "door" && cell.activated)) return null;
 
-  switch (object.type) {
+  switch (cell.type) {
     case "wall":
       return (
-        <mesh position={[object.position.x, sy / 2, object.position.z]} castShadow receiveShadow>
-          <boxGeometry args={[sx, sy, sz]} />
+        <mesh position={[cell.x, baseY + 0.5, cell.z]} castShadow receiveShadow>
+          <boxGeometry args={[0.9, 1, 0.9]} />
           <meshStandardMaterial color={color} roughness={0.7} />
-        </mesh>
-      );
-
-    case "collectible":
-      return (
-        <CollectibleMesh position={[object.position.x, 0.5, object.position.z]} color={color} />
-      );
-
-    case "goal":
-      return (
-        <group position={[object.position.x, 0, object.position.z]}>
-          <mesh position={[0, 0.02, 0]} rotation-x={-Math.PI / 2}>
-            <ringGeometry args={[0.3, 0.45, 32]} />
-            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} side={THREE.DoubleSide} />
-          </mesh>
-          <GoalBeam color={color} />
-        </group>
-      );
-
-    case "button":
-      return (
-        <group position={[object.position.x, 0, object.position.z]}>
-          <mesh position={[0, 0.05, 0]} castShadow>
-            <cylinderGeometry args={[0.25, 0.3, 0.1, 16]} />
-            <meshStandardMaterial
-              color={object.activated ? "#22c55e" : color}
-              emissive={object.activated ? "#22c55e" : color}
-              emissiveIntensity={0.3}
-            />
-          </mesh>
-        </group>
-      );
-
-    case "door":
-      if (object.activated) return null; // Door open = invisible
-      return (
-        <mesh position={[object.position.x, 0.75, object.position.z]} castShadow>
-          <boxGeometry args={[0.9, 1.5, 0.15]} />
-          <meshStandardMaterial color={color} transparent opacity={0.8} roughness={0.3} />
         </mesh>
       );
 
     case "platform":
       return (
-        <mesh position={[object.position.x, 0.05, object.position.z]} receiveShadow>
-          <boxGeometry args={[sx, 0.1, sz]} />
-          <meshStandardMaterial color={color} roughness={0.6} />
+        <mesh position={[cell.x, baseY + 0.25, cell.z]} castShadow receiveShadow>
+          <boxGeometry args={[0.95, 0.5, 0.95]} />
+          <meshStandardMaterial color={color} roughness={0.5} metalness={0.2} />
+        </mesh>
+      );
+
+    case "collectible":
+      return <FloatingGem position={[cell.x, baseY + 0.6, cell.z]} color={color} />;
+
+    case "goal":
+      return (
+        <group position={[cell.x, baseY, cell.z]}>
+          {/* Glowing ring on ground */}
+          <mesh rotation-x={-Math.PI / 2} position={[0, 0.02, 0]}>
+            <ringGeometry args={[0.25, 0.4, 32]} />
+            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.8} side={THREE.DoubleSide} />
+          </mesh>
+          {/* Beacon */}
+          <GoalBeam color={color} />
+          {/* Flag */}
+          <mesh position={[0.3, 0.5, 0]}>
+            <boxGeometry args={[0.3, 0.2, 0.02]} />
+            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
+          </mesh>
+          <mesh position={[0.15, 0.25, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.7, 8]} />
+            <meshStandardMaterial color="#f8fafc" />
+          </mesh>
+        </group>
+      );
+
+    case "button":
+      return (
+        <group position={[cell.x, baseY, cell.z]}>
+          <mesh position={[0, 0.08, 0]} castShadow>
+            <cylinderGeometry args={[0.2, 0.25, 0.16, 16]} />
+            <meshStandardMaterial
+              color={cell.activated ? "#22c55e" : color}
+              emissive={cell.activated ? "#22c55e" : color}
+              emissiveIntensity={0.4}
+            />
+          </mesh>
+          {/* Base plate */}
+          <mesh position={[0, 0.01, 0]}>
+            <cylinderGeometry args={[0.35, 0.35, 0.02, 16]} />
+            <meshStandardMaterial color="#334155" />
+          </mesh>
+        </group>
+      );
+
+    case "door":
+      return (
+        <mesh position={[cell.x, baseY + 0.6, cell.z]} castShadow>
+          <boxGeometry args={[0.85, 1.2, 0.12]} />
+          <meshStandardMaterial color={color} transparent opacity={0.85} roughness={0.2} metalness={0.5} />
         </mesh>
       );
 
@@ -204,50 +183,108 @@ function SceneObjectMesh({ object }: { object: SceneObject }) {
   }
 }
 
-/** Rotating, floating collectible sphere */
-function CollectibleMesh({ position, color }: { position: [number, number, number]; color: string }) {
-  const ref = useRef<THREE.Mesh>(null);
+/** Player character on the grid */
+function PlayerMesh({ player }: { player: WorldState["player"] }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const targetPos = useMemo(
+    () => new THREE.Vector3(player.x, player.y * 0.5, player.z),
+    [player.x, player.y, player.z]
+  );
+  const targetAngle = DIRECTION_ANGLE[player.direction];
 
+  useFrame(() => {
+    if (!groupRef.current) return;
+    // Smooth position interpolation
+    const current = groupRef.current.position;
+    current.x += (targetPos.x - current.x) * 0.15;
+    current.z += (targetPos.z - current.z) * 0.15;
+
+    // Jump arc for Y
+    if (player.isJumping) {
+      const midY = targetPos.y + 0.6; // Jump arc peak
+      const t = 1 - Math.abs(current.y - midY) / 0.6;
+      current.y += (midY - current.y) * 0.1;
+      if (Math.abs(current.y - targetPos.y) > 0.3) {
+        // Going up
+      } else {
+        current.y += (targetPos.y - current.y) * 0.15;
+      }
+    } else {
+      current.y += (targetPos.y - current.y) * 0.15;
+    }
+
+    // Smooth rotation
+    const curAngle = groupRef.current.rotation.y;
+    const diff = targetAngle - curAngle;
+    const wrapped = ((diff + Math.PI) % (2 * Math.PI)) - Math.PI;
+    groupRef.current.rotation.y += wrapped * 0.15;
+  });
+
+  return (
+    <group ref={groupRef} position={[player.x, player.y * 0.5, player.z]}>
+      {/* Body */}
+      <mesh position={[0, 0.45, 0]} castShadow>
+        <capsuleGeometry args={[0.18, 0.35, 8, 16]} />
+        <meshStandardMaterial color="#6366f1" metalness={0.3} roughness={0.4} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 0.85, 0]} castShadow>
+        <sphereGeometry args={[0.16, 16, 16]} />
+        <meshStandardMaterial color="#818cf8" metalness={0.2} roughness={0.5} />
+      </mesh>
+      {/* Direction nose */}
+      <mesh position={[0, 0.85, -0.18]} castShadow>
+        <coneGeometry args={[0.05, 0.1, 8]} />
+        <meshStandardMaterial color="#c7d2fe" />
+      </mesh>
+      {/* Eyes */}
+      <mesh position={[-0.07, 0.9, -0.13]}>
+        <sphereGeometry args={[0.035, 8, 8]} />
+        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.5} />
+      </mesh>
+      <mesh position={[0.07, 0.9, -0.13]}>
+        <sphereGeometry args={[0.035, 8, 8]} />
+        <meshStandardMaterial color="white" emissive="white" emissiveIntensity={0.5} />
+      </mesh>
+      {/* Shadow below feet */}
+      <mesh rotation-x={-Math.PI / 2} position={[0, 0.01, 0]}>
+        <circleGeometry args={[0.2, 16]} />
+        <meshBasicMaterial color="black" transparent opacity={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
+/** Floating rotating gem for collectibles */
+function FloatingGem({ position, color }: { position: [number, number, number]; color: string }) {
+  const ref = useRef<THREE.Mesh>(null);
   useFrame((_, delta) => {
     if (!ref.current) return;
     ref.current.rotation.y += delta * 2;
-    ref.current.position.y = position[1] + Math.sin(Date.now() * 0.003) * 0.1;
+    ref.current.position.y = position[1] + Math.sin(Date.now() * 0.003) * 0.08;
   });
 
   return (
     <mesh ref={ref} position={position} castShadow>
-      <octahedronGeometry args={[0.15, 0]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.5}
-        metalness={0.8}
-        roughness={0.2}
-      />
+      <octahedronGeometry args={[0.14, 0]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.6} metalness={0.8} roughness={0.1} />
     </mesh>
   );
 }
 
-/** Glowing goal beam */
+/** Pulsing goal beam */
 function GoalBeam({ color }: { color: string }) {
   const ref = useRef<THREE.Mesh>(null);
-
   useFrame(() => {
     if (!ref.current) return;
-    const mat = ref.current.material as THREE.MeshStandardMaterial;
-    mat.opacity = 0.3 + Math.sin(Date.now() * 0.004) * 0.15;
+    (ref.current.material as THREE.MeshStandardMaterial).opacity =
+      0.25 + Math.sin(Date.now() * 0.004) * 0.15;
   });
 
   return (
-    <mesh ref={ref} position={[0, 1, 0]}>
-      <cylinderGeometry args={[0.1, 0.3, 2, 16]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={1}
-        transparent
-        opacity={0.4}
-      />
+    <mesh ref={ref} position={[0, 0.8, 0]}>
+      <cylinderGeometry args={[0.08, 0.25, 1.6, 16]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={1} transparent opacity={0.35} />
     </mesh>
   );
 }

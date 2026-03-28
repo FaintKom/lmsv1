@@ -14,7 +14,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SceneEngine, type WorldState, type SceneObject } from "./scene-engine";
+import { SceneEngine, type WorldState, type GridCell3D } from "./scene-engine";
 import {
   StepExecutor,
   parseCommands,
@@ -54,8 +54,10 @@ export default function World3DExercise({
   config,
   onSubmit,
 }: World3DExerciseProps) {
-  const sceneObjects = (config.scene_objects as SceneObject[]) || [];
-  const playerStart = (config.player_start as { x: number; y: number; z: number; direction?: "north" | "east" | "south" | "west" }) || { x: 0, y: 0, z: 0 };
+  const gridWidth = (config.grid_width as number) || 6;
+  const gridDepth = (config.grid_depth as number) || 6;
+  const cells = (config.cells as GridCell3D[]) || [];
+  const playerStart = (config.player_start as { x: number; y?: number; z: number; direction?: "north" | "east" | "south" | "west" }) || { x: 0, z: 0 };
   const winCondition = (config.win_condition as "reach_goal" | "collect_all" | "custom") || "reach_goal";
   const difficulty = (config.difficulty as Difficulty) || "beginner";
   const maxBlocks = config.max_blocks as number | undefined;
@@ -79,7 +81,7 @@ export default function World3DExercise({
   const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const engine = new SceneEngine(sceneObjects, playerStart, winCondition);
+    const engine = new SceneEngine(gridWidth, gridDepth, cells, playerStart, winCondition);
     engineRef.current = engine;
     setWorldState(engine.getState());
     setCompleted(false);
@@ -264,7 +266,7 @@ export default function World3DExercise({
               <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>
                   {winCondition === "reach_goal" ? "Navigate to the green goal" :
-                    winCondition === "collect_all" ? `Collect all items (${worldState.player.collected}/${worldState.objects.filter(o => o.type === "collectible").length})` :
+                    winCondition === "collect_all" ? `Collect all items (${worldState.player.collected}/${worldState.cells.filter(o => o.type === "collectible").length})` :
                       "Complete the objective"}
                 </span>
                 {hints.length > 0 && (

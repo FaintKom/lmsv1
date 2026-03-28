@@ -73,9 +73,11 @@ class MathInteractiveConfig(BaseModel):
 
 
 class World3DConfig(BaseModel):
-    scene_objects: list[dict] = []  # [{type, position, rotation, scale, properties}]
-    player_start: dict = {"x": 0, "y": 0, "z": 0, "direction": 0}
-    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right"]
+    grid_width: int = 6
+    grid_depth: int = 6
+    cells: list[dict] = []  # [{x, z, y, type, id?, color?, properties?}]
+    player_start: dict = {"x": 0, "y": 0, "z": 0, "direction": "east"}
+    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right", "jump"]
     win_condition: str = "reach_goal"
     custom_win_js: str | None = None
     difficulty: str = "beginner"

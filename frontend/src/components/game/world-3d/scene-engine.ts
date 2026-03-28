@@ -1,10 +1,15 @@
 export type Direction3D = "north" | "east" | "south" | "west";
 
-export interface SceneObject {
-  id: string;
-  type: "wall" | "collectible" | "button" | "door" | "platform" | "goal";
-  position: { x: number; y: number; z: number };
-  scale?: { x: number; y: number; z: number };
+/** Cell types on the 3D grid */
+export type CellType3D = "empty" | "wall" | "collectible" | "button" | "door" | "goal" | "platform";
+
+/** A single cell in the 3D grid */
+export interface GridCell3D {
+  x: number;
+  z: number;
+  y: number;         // elevation (0 = ground, 1 = one step up, etc.)
+  type: CellType3D;
+  id?: string;
   color?: string;
   properties?: Record<string, unknown>;
   collected?: boolean;
@@ -13,15 +18,18 @@ export interface SceneObject {
 
 export interface PlayerState {
   x: number;
-  y: number;
+  y: number;         // current elevation level
   z: number;
   direction: Direction3D;
   inventory: string[];
   collected: number;
+  isJumping: boolean;
 }
 
 export interface WorldState {
-  objects: SceneObject[];
+  gridWidth: number;
+  gridDepth: number;
+  cells: GridCell3D[];
   player: PlayerState;
   goalReached: boolean;
   stepsUsed: number;
@@ -50,19 +58,24 @@ export class SceneEngine {
   private winCondition: WinCondition3D;
 
   constructor(
-    objects: SceneObject[],
-    playerStart: { x: number; y: number; z: number; direction?: Direction3D },
+    gridWidth: number,
+    gridDepth: number,
+    cells: GridCell3D[],
+    playerStart: { x: number; y?: number; z: number; direction?: Direction3D },
     winCondition: WinCondition3D = "reach_goal"
   ) {
     this.state = {
-      objects: objects.map((o) => ({ ...o })),
+      gridWidth,
+      gridDepth,
+      cells: cells.map((c) => ({ ...c })),
       player: {
         x: playerStart.x,
-        y: playerStart.y || 0,
+        y: playerStart.y ?? 0,
         z: playerStart.z,
         direction: playerStart.direction || "north",
         inventory: [],
         collected: 0,
+        isJumping: false,
       },
       goalReached: false,
       stepsUsed: 0,
@@ -83,28 +96,44 @@ export class SceneEngine {
   private cloneState(s: WorldState): WorldState {
     return {
       ...s,
-      objects: s.objects.map((o) => ({ ...o, position: { ...o.position } })),
+      cells: s.cells.map((c) => ({ ...c })),
       player: { ...s.player, inventory: [...s.player.inventory] },
     };
   }
 
-  private isBlocked(x: number, z: number): boolean {
-    return this.state.objects.some(
-      (o) =>
-        o.type === "wall" &&
-        Math.abs(o.position.x - x) < 0.5 &&
-        Math.abs(o.position.z - z) < 0.5
+  /** Get all cells at a grid position */
+  private getCellsAt(x: number, z: number): GridCell3D[] {
+    return this.state.cells.filter((c) => c.x === x && c.z === z);
+  }
+
+  /** Get the top walkable surface height at a position */
+  private getGroundHeight(x: number, z: number): number {
+    const platforms = this.getCellsAt(x, z).filter(
+      (c) => c.type === "platform" || c.type === "wall"
+    );
+    if (platforms.length === 0) return 0;
+    // Wall = impassable at any height, platforms give elevation
+    const maxPlatformY = Math.max(...platforms.filter((c) => c.type === "platform").map((c) => c.y));
+    return maxPlatformY;
+  }
+
+  /** Check if a cell is a solid wall blocking movement at the given height */
+  private isWallAt(x: number, z: number, atY: number): boolean {
+    return this.getCellsAt(x, z).some(
+      (c) => c.type === "wall" && c.y <= atY + 1 && c.y >= atY
     );
   }
 
-  private isDoor(x: number, z: number): SceneObject | undefined {
-    return this.state.objects.find(
-      (o) =>
-        o.type === "door" &&
-        !o.activated &&
-        Math.abs(o.position.x - x) < 0.5 &&
-        Math.abs(o.position.z - z) < 0.5
+  /** Check if a locked door blocks this cell */
+  private isDoorAt(x: number, z: number): GridCell3D | undefined {
+    return this.state.cells.find(
+      (c) => c.type === "door" && !c.activated && c.x === x && c.z === z
     );
+  }
+
+  /** Check if position is within grid bounds */
+  private inBounds(x: number, z: number): boolean {
+    return x >= 0 && x < this.state.gridWidth && z >= 0 && z < this.state.gridDepth;
   }
 
   moveForward(): { success: boolean; message?: string } {
@@ -112,20 +141,36 @@ export class SceneEngine {
     const nx = this.state.player.x + dx;
     const nz = this.state.player.z + dz;
 
-    if (this.isBlocked(nx, nz) || this.isDoor(nx, nz)) {
-      return { success: false, message: "Path blocked" };
+    if (!this.inBounds(nx, nz)) {
+      return { success: false, message: "Can't move outside the grid" };
+    }
+
+    const currentY = this.state.player.y;
+    const targetGroundY = this.getGroundHeight(nx, nz);
+
+    // Can't walk up more than 1 level without jumping
+    if (targetGroundY > currentY + 1) {
+      return { success: false, message: "Too high to walk up — try jumping!" };
+    }
+
+    // Can't walk to a wall at current height
+    if (this.isWallAt(nx, nz, currentY)) {
+      return { success: false, message: "Blocked by a wall" };
+    }
+
+    // Can't walk through locked doors
+    if (this.isDoorAt(nx, nz)) {
+      return { success: false, message: "Door is locked!" };
     }
 
     this.state.player.x = nx;
     this.state.player.z = nz;
+    // Snap to ground level (can walk down freely, walk up 1 step)
+    this.state.player.y = Math.max(targetGroundY, 0);
+    this.state.player.isJumping = false;
     this.state.stepsUsed++;
 
-    // Check goal
-    const goal = this.state.objects.find(
-      (o) => o.type === "goal" && Math.abs(o.position.x - nx) < 0.5 && Math.abs(o.position.z - nz) < 0.5
-    );
-    if (goal) this.state.goalReached = true;
-
+    this._checkGoal();
     return { success: true };
   }
 
@@ -143,24 +188,57 @@ export class SceneEngine {
     return { success: true };
   }
 
-  jump(): { success: boolean } {
+  /** Jump forward — can go up 2 levels or over a 1-high wall */
+  jump(): { success: boolean; message?: string } {
+    const { dx, dz } = DIRECTION_DELTA[this.state.player.direction];
+    const nx = this.state.player.x + dx;
+    const nz = this.state.player.z + dz;
+
+    if (!this.inBounds(nx, nz)) {
+      return { success: false, message: "Can't jump outside the grid" };
+    }
+
+    const currentY = this.state.player.y;
+    const targetGroundY = this.getGroundHeight(nx, nz);
+
+    // Jump can reach up to 2 levels higher
+    if (targetGroundY > currentY + 2) {
+      return { success: false, message: "Too high even for jumping!" };
+    }
+
+    // Can jump over 1-high walls (wall.y == currentY, but player jumps to currentY+1)
+    const hasBlockingWall = this.getCellsAt(nx, nz).some(
+      (c) => c.type === "wall" && c.y > currentY + 1
+    );
+    if (hasBlockingWall) {
+      return { success: false, message: "Wall too high to jump over" };
+    }
+
+    // Can't jump through locked doors
+    if (this.isDoorAt(nx, nz)) {
+      return { success: false, message: "Door is locked!" };
+    }
+
+    this.state.player.x = nx;
+    this.state.player.z = nz;
+    this.state.player.y = Math.max(targetGroundY, 0);
+    this.state.player.isJumping = true;
     this.state.stepsUsed++;
-    return { success: true }; // Visual only for now
+
+    this._checkGoal();
+    return { success: true };
   }
 
   pickUp(): { success: boolean; message?: string } {
-    const nearby = this.state.objects.find(
-      (o) =>
-        o.type === "collectible" &&
-        !o.collected &&
-        Math.abs(o.position.x - this.state.player.x) < 0.8 &&
-        Math.abs(o.position.z - this.state.player.z) < 0.8
+    const { x, z } = this.state.player;
+    const item = this.state.cells.find(
+      (c) => c.type === "collectible" && !c.collected && c.x === x && c.z === z
     );
-    if (!nearby) return { success: false, message: "Nothing to pick up" };
+    if (!item) return { success: false, message: "Nothing to pick up here" };
 
-    nearby.collected = true;
+    item.collected = true;
     this.state.player.collected++;
-    this.state.player.inventory.push(nearby.id);
+    this.state.player.inventory.push(item.id || `item_${x}_${z}`);
     this.state.stepsUsed++;
     return { success: true };
   }
@@ -170,43 +248,48 @@ export class SceneEngine {
     const fx = this.state.player.x + dx;
     const fz = this.state.player.z + dz;
 
-    // Check for button
-    const button = this.state.objects.find(
-      (o) => o.type === "button" && Math.abs(o.position.x - fx) < 0.8 && Math.abs(o.position.z - fz) < 0.8
+    const button = this.state.cells.find(
+      (c) => c.type === "button" && c.x === fx && c.z === fz
     );
     if (button) {
       button.activated = !button.activated;
-      // Open linked door
       const doorId = button.properties?.doorId as string;
       if (doorId) {
-        const door = this.state.objects.find((o) => o.id === doorId);
+        const door = this.state.cells.find((c) => c.id === doorId);
         if (door) door.activated = true;
       }
       this.state.stepsUsed++;
       return { success: true };
     }
 
-    // Check for door
-    const door = this.isDoor(fx, fz);
+    const door = this.isDoorAt(fx, fz);
     if (door) return { success: false, message: "Door is locked. Find a button!" };
 
     return { success: false, message: "Nothing to interact with" };
+  }
+
+  private _checkGoal() {
+    const { x, z } = this.state.player;
+    const goal = this.state.cells.find(
+      (c) => c.type === "goal" && c.x === x && c.z === z
+    );
+    if (goal) this.state.goalReached = true;
   }
 
   // ─── Condition checks ─────────────────────────────────────────────
 
   isWallAhead(): boolean {
     const { dx, dz } = DIRECTION_DELTA[this.state.player.direction];
-    return this.isBlocked(this.state.player.x + dx, this.state.player.z + dz);
+    const nx = this.state.player.x + dx;
+    const nz = this.state.player.z + dz;
+    if (!this.inBounds(nx, nz)) return true;
+    return this.isWallAt(nx, nz, this.state.player.y) || !!this.isDoorAt(nx, nz);
   }
 
   isItemHere(): boolean {
-    return this.state.objects.some(
-      (o) =>
-        o.type === "collectible" &&
-        !o.collected &&
-        Math.abs(o.position.x - this.state.player.x) < 0.8 &&
-        Math.abs(o.position.z - this.state.player.z) < 0.8
+    const { x, z } = this.state.player;
+    return this.state.cells.some(
+      (c) => c.type === "collectible" && !c.collected && c.x === x && c.z === z
     );
   }
 
@@ -218,11 +301,8 @@ export class SceneEngine {
     const { dx, dz } = DIRECTION_DELTA[this.state.player.direction];
     const fx = this.state.player.x + dx;
     const fz = this.state.player.z + dz;
-    return this.state.objects.some(
-      (o) =>
-        (o.type === "button" || o.type === "door") &&
-        Math.abs(o.position.x - fx) < 0.8 &&
-        Math.abs(o.position.z - fz) < 0.8
+    return this.state.cells.some(
+      (c) => (c.type === "button" || c.type === "door") && c.x === fx && c.z === fz
     );
   }
 
@@ -231,7 +311,7 @@ export class SceneEngine {
       case "reach_goal":
         return this.state.goalReached;
       case "collect_all":
-        return this.state.objects.filter((o) => o.type === "collectible").every((o) => o.collected);
+        return this.state.cells.filter((c) => c.type === "collectible").every((c) => c.collected);
       default:
         return false;
     }
