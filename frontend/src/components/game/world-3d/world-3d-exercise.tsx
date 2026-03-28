@@ -178,7 +178,7 @@ export default function World3DExercise({
   if (!worldState) return null;
 
   return (
-    <div className="flex flex-col gap-0 -mx-5 -mb-5">
+    <div className="flex h-full flex-col gap-0 -mx-5 -mb-5">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ export default function World3DExercise({
       </div>
 
       {/* Main: Blockly + 3D Scene */}
-      <div className="flex" style={{ height: 520 }}>
+      <div className="flex flex-1" style={{ minHeight: 520 }}>
         {/* Blockly */}
         <div className="w-[380px] border-r border-slate-200 dark:border-white/10">
           <BlocklyWorkspace

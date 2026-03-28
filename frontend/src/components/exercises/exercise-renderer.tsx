@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown } from "lucide-react";
+import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
@@ -77,9 +78,35 @@ interface ExerciseRendererProps {
   exercise: Exercise;
 }
 
+const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d", "code_challenge"]);
+
 export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
+
+  // Auto-open fullscreen for game types
+  const openFullscreen = useCallback(() => setFullscreen(true), []);
+  const closeFullscreen = useCallback(() => setFullscreen(false), []);
+
+  // Escape key to exit fullscreen
+  useEffect(() => {
+    if (!fullscreen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeFullscreen();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [fullscreen, closeFullscreen]);
+
+  // Lock body scroll in fullscreen
+  useEffect(() => {
+    if (fullscreen) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [fullscreen]);
 
   const handleSubmit = async (body: Record<string, unknown>) => {
     setSubmitting(true);
@@ -91,6 +118,8 @@ export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
       } else {
         toast.info(`Score: ${Math.round((res.data.score ?? 0) * 100)}%`);
       }
+      // Close fullscreen on submission
+      if (res.data.passed) closeFullscreen();
     } catch {
       toast.error("Failed to submit exercise.");
     } finally {
@@ -115,34 +144,96 @@ export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
     }
   };
 
+  const exerciseContent = (
+    <>
+      {result ? (
+        <ResultDisplay result={result} onRetry={() => setResult(null)} />
+      ) : submitting ? (
+        <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Submitting...
+        </div>
+      ) : (
+        <ExerciseBody
+          exercise={exercise}
+          onSubmit={handleSubmit}
+          onFileUpload={handleFileUpload}
+        />
+      )}
+    </>
+  );
+
+  // Fullscreen portal for game types
+  if (fullscreen && typeof document !== "undefined") {
+    return (
+      <>
+        {/* Placeholder in the page flow */}
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
+          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-white/5">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
+              <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
+            </div>
+            <span className="text-xs text-indigo-500">Opened in fullscreen</span>
+          </div>
+        </div>
+
+        {/* Fullscreen overlay via portal */}
+        {createPortal(
+          <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#1E1E1E]">
+            {/* Fullscreen header */}
+            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/10 dark:bg-[#1E1E1E]">
+              <div className="flex items-center gap-3">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                  {exercise.exercise_type.replace(/_/g, " ")}
+                </span>
+              </div>
+              <button
+                onClick={closeFullscreen}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200"
+                title="Exit fullscreen (Esc)"
+              >
+                <Minimize2 className="h-3.5 w-3.5" />
+                Exit
+              </button>
+            </div>
+
+            {/* Fullscreen body — takes all remaining space */}
+            <div className="flex-1 overflow-auto">
+              {exerciseContent}
+            </div>
+          </div>,
+          document.body
+        )}
+      </>
+    );
+  }
+
+  // Normal card view
   return (
     <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
       {/* Header */}
-      <div className="border-b border-slate-100 px-5 py-3 dark:border-white/5">
-        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-          {exercise.title}
-        </h3>
-        <span className="text-xs capitalize text-slate-400">
-          {exercise.exercise_type.replace(/_/g, " ")}
-        </span>
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-white/5">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
+          <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
+        </div>
+        {isGameType && (
+          <button
+            onClick={openFullscreen}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+            title="Open fullscreen"
+          >
+            <Maximize2 className="h-3.5 w-3.5" />
+            Fullscreen
+          </button>
+        )}
       </div>
 
       {/* Body */}
       <div className="p-5">
-        {result ? (
-          <ResultDisplay result={result} onRetry={() => setResult(null)} />
-        ) : submitting ? (
-          <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Submitting...
-          </div>
-        ) : (
-          <ExerciseBody
-            exercise={exercise}
-            onSubmit={handleSubmit}
-            onFileUpload={handleFileUpload}
-          />
-        )}
+        {exerciseContent}
       </div>
     </div>
   );

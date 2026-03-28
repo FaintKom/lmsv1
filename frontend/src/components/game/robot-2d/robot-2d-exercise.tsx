@@ -244,7 +244,7 @@ export default function Robot2DExercise({
   if (!gridState) return null;
 
   return (
-    <div className="flex flex-col gap-0 -mx-5 -mb-5">
+    <div className="flex h-full flex-col gap-0 -mx-5 -mb-5">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="flex items-center gap-2">
@@ -328,7 +328,7 @@ export default function Robot2DExercise({
       </div>
 
       {/* Main content: Editor + Grid */}
-      <div className="flex" style={{ height: 500 }}>
+      <div className="flex flex-1" style={{ minHeight: 500 }}>
         {/* Code workspace */}
         <div className="flex-1 border-r border-slate-200 dark:border-white/10">
           {mode === "python" ? (
