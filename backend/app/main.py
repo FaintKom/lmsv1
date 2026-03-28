@@ -104,6 +104,23 @@ async def _run_migrations():
             except Exception:
                 pass
 
+        # Add new enum values (must run outside transaction)
+        enum_additions = [
+            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'robot_2d'",
+            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'math_interactive'",
+            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'world_3d'",
+            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'robot_2d'",
+            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'math_interactive'",
+            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'world_3d'",
+        ]
+        for stmt in enum_additions:
+            try:
+                async with engine.connect() as conn:
+                    await conn.execution_options(isolation_level="AUTOCOMMIT")
+                    await conn.execute(sa_text(stmt))
+            except Exception:
+                pass
+
         # Try Alembic migrations if available
         try:
             from alembic.config import Config
