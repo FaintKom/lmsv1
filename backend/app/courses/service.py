@@ -407,8 +407,12 @@ def _check_course_owner(course: Course, user: User) -> None:
         if getattr(user, 'is_methodist', False):
             return
         raise ForbiddenError("Only methodists and admins can modify template courses")
-    if course.teacher_id != user.id:
-        raise ForbiddenError("You don't have permission to modify this course")
+    # Teachers can modify courses they own or courses in their org without an owner
+    if course.teacher_id == user.id:
+        return
+    if course.teacher_id is None and course.org_id == user.org_id:
+        return
+    raise ForbiddenError("You don't have permission to modify this course")
 
 
 async def _notify_template_update(db: AsyncSession, course: Course) -> None:
