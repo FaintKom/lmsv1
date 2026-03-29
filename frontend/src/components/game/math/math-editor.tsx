@@ -91,6 +91,20 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
         <MCMathConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
       ) : templateType === "numeric_input" ? (
         <NumericInputConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "scatter_plot" ? (
+        <ScatterPlotConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "two_way_table" ? (
+        <TwoWayTableConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "card_sort" ? (
+        <CardSortConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "table_pattern" ? (
+        <TablePatternConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "inequality_graph" ? (
+        <InequalityConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "graph_transform" ? (
+        <GraphTransformConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "venn_diagram" ? (
+        <VennConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
       ) : null}
 
       {/* Preview */}
@@ -379,6 +393,229 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
         <label className="mb-1 block text-xs text-slate-500">Explanation</label>
         <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function ScatterPlotConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Mode</label>
+          <select value={(config.mode as string) || "best_fit"} onChange={(e) => onChange({ ...config, mode: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200">
+            <option value="best_fit">Best Fit Line</option>
+            <option value="correlation">Identify Correlation</option>
+            <option value="read_value">Read a Value</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Target Slope</label>
+          <input type="number" step={0.1} value={(config.target_slope as number) ?? 1} onChange={(e) => onChange({ ...config, target_slope: parseFloat(e.target.value) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Target Intercept</label>
+          <input type="number" step={0.5} value={(config.target_intercept as number) ?? 0} onChange={(e) => onChange({ ...config, target_intercept: parseFloat(e.target.value) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Data Points (JSON)</label>
+        <textarea rows={3} value={JSON.stringify((config.points as unknown[]) || [{x:1,y:2},{x:2,y:4},{x:3,y:5}], null, 2)}
+          onChange={(e) => { try { onChange({ ...config, points: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function TwoWayTableConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Row Headers (comma-sep)</label>
+          <input type="text" value={((config.row_headers as string[]) || ["Boys","Girls","Total"]).join(", ")}
+            onChange={(e) => onChange({ ...config, row_headers: e.target.value.split(",").map(s => s.trim()) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Column Headers (comma-sep)</label>
+          <input type="text" value={((config.col_headers as string[]) || ["Soccer","Basketball","Total"]).join(", ")}
+            onChange={(e) => onChange({ ...config, col_headers: e.target.value.split(",").map(s => s.trim()) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Cells (JSON, null = blank)</label>
+        <textarea rows={4} value={JSON.stringify((config.cells as unknown[]) || [[12,null,25],[null,10,23],[20,null,48]], null, 2)}
+          onChange={(e) => { try { onChange({ ...config, cells: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Answers (JSON: {"{"}&quot;r0c1&quot;: 13, ...{"}"})</label>
+        <input type="text" value={JSON.stringify((config.answers as Record<string,number>) || {})}
+          onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function CardSortConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Categories (JSON)</label>
+        <textarea rows={3} value={JSON.stringify((config.categories as unknown[]) || [
+          {id:"linear",label:"Linear",color:"#4C97FF"},{id:"quadratic",label:"Quadratic",color:"#FF8C1A"},{id:"exponential",label:"Exponential",color:"#40BF4A"}
+        ], null, 2)} onChange={(e) => { try { onChange({ ...config, categories: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Cards (JSON: [{"{"} id, text, category {"}"}])</label>
+        <textarea rows={5} value={JSON.stringify((config.cards as unknown[]) || [
+          {id:"c1",text:"y = 2x + 3",category:"linear"},{id:"c2",text:"y = x² - 4",category:"quadratic"}
+        ], null, 2)} onChange={(e) => { try { onChange({ ...config, cards: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function TablePatternConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">X Values (comma-sep)</label>
+          <input type="text" value={((config.x_values as number[]) || [1,2,3,4,5]).join(", ")}
+            onChange={(e) => onChange({ ...config, x_values: e.target.value.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Y Values (comma-sep, ? for blank)</label>
+          <input type="text" value={((config.y_values as (number|null)[]) || [3,5,null,9,null]).map(v => v === null ? "?" : v).join(", ")}
+            onChange={(e) => onChange({ ...config, y_values: e.target.value.split(",").map(s => s.trim() === "?" ? null : parseFloat(s.trim())) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Rule Label</label>
+          <input type="text" value={(config.rule_label as string) || ""} placeholder="e.g. f(x) =" onChange={(e) => onChange({ ...config, rule_label: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Rule Answer</label>
+          <input type="text" value={(config.rule_answer as string) || ""} placeholder="e.g. 2x+1" onChange={(e) => onChange({ ...config, rule_answer: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Answers (JSON: {"{"} index: value {"}"})</label>
+        <input type="text" value={JSON.stringify((config.answers as Record<number,number>) || {})}
+          onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function InequalityConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Slope</label>
+        <input type="number" step={0.5} value={(config.slope as number) ?? 1} onChange={(e) => onChange({ ...config, slope: parseFloat(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Intercept</label>
+        <input type="number" step={0.5} value={(config.intercept as number) ?? 0} onChange={(e) => onChange({ ...config, intercept: parseFloat(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Operator</label>
+        <select value={(config.operator as string) || ">="} onChange={(e) => onChange({ ...config, operator: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200">
+          <option value=">">{">"}</option><option value=">=">{"\u2265"}</option>
+          <option value="<">{"<"}</option><option value="<=">{"\u2264"}</option>
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Grid Range</label>
+        <input type="number" min={3} max={10} value={(config.grid_range as number) || 6} onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function GraphTransformConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Parent Function</label>
+        <select value={(config.parent_function as string) || "x^2"} onChange={(e) => onChange({ ...config, parent_function: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200">
+          <option value="x^2">x²</option><option value="|x|">|x|</option>
+          <option value="sqrt(x)">√x</option><option value="x^3">x³</option>
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Target H shift</label>
+        <input type="number" step={0.5} value={(config.target_h as number) ?? 2} onChange={(e) => onChange({ ...config, target_h: parseFloat(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Target V shift</label>
+        <input type="number" step={0.5} value={(config.target_v as number) ?? -1} onChange={(e) => onChange({ ...config, target_v: parseFloat(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Target stretch (a)</label>
+        <input type="number" step={0.25} value={(config.target_a as number) ?? 1} onChange={(e) => onChange({ ...config, target_a: parseFloat(e.target.value) })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function VennConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Set A Label</label>
+          <input type="text" value={(config.set_a_label as string) || "Set A"} onChange={(e) => onChange({ ...config, set_a_label: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Set B Label</label>
+          <input type="text" value={(config.set_b_label as string) || "Set B"} onChange={(e) => onChange({ ...config, set_b_label: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Total</label>
+          <input type="number" value={(config.total as number) || 40} onChange={(e) => onChange({ ...config, total: parseInt(e.target.value) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Regions (JSON: null = blank)</label>
+        <input type="text" value={JSON.stringify((config.regions as Record<string,number|null>) || {a_only:12,b_only:null,intersection:8,neither:null})}
+          onChange={(e) => { try { onChange({ ...config, regions: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Answers (JSON)</label>
+        <input type="text" value={JSON.stringify((config.answers as Record<string,number>) || {b_only:10,neither:10})}
+          onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
       </div>
     </div>
   );

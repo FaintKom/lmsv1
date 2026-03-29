@@ -260,231 +260,192 @@ export default function Robot2DExercise({
 
   if (!gridState) return null;
 
+  const taskText = winCondition === "reach_goal"
+    ? "🏁 Доведи робота до цели!"
+    : winCondition === "collect_all"
+      ? `⭐ Собери все предметы! (${gridState.robot.collected}/${gridState.totalItems})`
+      : "✅ Выполни задание!";
+
+  const gridCellSize = Math.floor(
+    Math.min(420, typeof window !== "undefined" ? window.innerHeight - 200 : 420)
+    / Math.max(gridWidth, gridHeight)
+  );
+
   return (
-    <div className="flex h-full flex-col gap-0 -mx-5 -mb-5">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
-        <div className="flex items-center gap-2">
-          {allowPython && (
-            <div className="flex rounded-lg border border-slate-200 dark:border-white/10">
+    <div className="flex h-full flex-col">
+      {/* Main: Grid (hero, left) + Code (right) */}
+      <div className="flex flex-1 min-h-0">
+
+        {/* LEFT: Grid area — the hero */}
+        <div className="flex w-[420px] shrink-0 flex-col border-r border-slate-200 dark:border-white/10">
+          {/* Task instruction banner */}
+          <div className={`px-4 py-2.5 text-sm font-semibold ${
+            winCondition === "reach_goal"
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+              : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+          }`}>
+            {taskText}
+          </div>
+
+          {/* Grid visualization */}
+          <div className="flex flex-1 items-center justify-center bg-slate-100 dark:bg-[#12121e] overflow-hidden p-3">
+            <GridRenderer state={gridState} cellSize={gridCellSize} />
+          </div>
+
+          {/* Playback controls bar */}
+          <div className="flex items-center justify-between border-t border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
+            {/* Left: stats */}
+            <div className="flex items-center gap-3 text-xs text-slate-400">
+              <span>Шагов: <b className="text-slate-600 dark:text-slate-300">{stepsUsed}</b></span>
+              {mode === "blocks" && (
+                <span className={maxBlocks && blockCount > maxBlocks ? "text-red-500 font-semibold" : ""}>
+                  Блоков: <b className="text-slate-600 dark:text-slate-300">{blockCount}</b>{maxBlocks ? `/${maxBlocks}` : ""}
+                </span>
+              )}
+            </div>
+
+            {/* Center: main controls */}
+            <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setMode("blocks")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                  mode === "blocks"
-                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
-                }`}
+                onClick={handleReset}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+                title="Сбросить"
               >
-                <Blocks className="h-3.5 w-3.5" />
-                Blocks
+                <RotateCcw className="h-4 w-4" />
               </button>
+
               <button
-                onClick={() => setMode("python")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                  mode === "python"
-                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
-                }`}
+                onClick={handleStep}
+                disabled={isRunning || completed}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-white/10 dark:hover:text-slate-300"
+                title="Один шаг"
               >
-                <Code className="h-3.5 w-3.5" />
-                Python
+                <SkipForward className="h-4 w-4" />
+              </button>
+
+              {isRunning ? (
+                <button
+                  onClick={handlePause}
+                  className="flex h-11 items-center gap-1.5 rounded-xl bg-amber-500 px-5 font-semibold text-white shadow-md transition-colors hover:bg-amber-600"
+                >
+                  {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                  {isPaused ? "Продолжить" : "Пауза"}
+                </button>
+              ) : (
+                <button
+                  onClick={handlePlay}
+                  disabled={completed}
+                  className="flex h-11 items-center gap-1.5 rounded-xl bg-emerald-500 px-6 font-semibold text-white shadow-md transition-colors hover:bg-emerald-600 disabled:opacity-40"
+                >
+                  <Play className="h-4 w-4" />
+                  Запуск
+                </button>
+              )}
+
+              {/* Speed */}
+              <div className="ml-2 flex items-center gap-1">
+                <Gauge className="h-3.5 w-3.5 text-slate-400" />
+                <input type="range" min={50} max={600} step={50}
+                  value={650 - speed} onChange={(e) => setSpeed(650 - parseInt(e.target.value))}
+                  className="h-1 w-14 accent-indigo-500" title="Скорость" />
+              </div>
+            </div>
+
+            {/* Right: hint */}
+            <div>
+              {hints.length > 0 && !completed && (
+                <button
+                  onClick={() => setShowHint(!showHint)}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-amber-500 transition-colors hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  Подсказка
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Status overlay: completion / failure / hint */}
+          {(completed || failed || showHint) && (
+            <div className="border-t border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#1E1E1E]">
+              {completed && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3].map((n) => (
+                        <span key={n} className={`text-xl transition-all ${n <= getStars(stepsUsed, blockCount) ? "text-amber-400 scale-110" : "text-slate-300 dark:text-slate-600"}`}>★</span>
+                      ))}
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Уровень пройден!</span>
+                      <span className="ml-2 text-xs text-slate-400">{stepsUsed} шагов · {blockCount} блоков</span>
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={handleSubmit}>Отправить</Button>
+                </div>
+              )}
+              {failed && !completed && (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-red-500 dark:text-red-400">{failed}</span>
+                  <Button variant="outline" size="sm" onClick={handleReset}>Попробовать ещё</Button>
+                </div>
+              )}
+              {showHint && hints.length > 0 && !completed && (
+                <div className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+                  <p>{hints[hintIndex]}</p>
+                  {hintIndex < hints.length - 1 && (
+                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-amber-600 underline dark:text-amber-400">Следующая подсказка</button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Code editor */}
+        <div className="flex flex-1 flex-col min-w-0">
+          {/* Mode toggle header */}
+          {allowPython && (
+            <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-[#161622]">
+              <button onClick={() => setMode("blocks")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                <Blocks className="h-3.5 w-3.5" /> Блоки
+              </button>
+              <button onClick={() => setMode("python")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                <Code className="h-3.5 w-3.5" /> Python
               </button>
             </div>
           )}
-          <span className="text-xs text-slate-400">
-            Steps: {stepsUsed}
-          </span>
-          {mode === "blocks" && (
-            <span className={`text-xs ${maxBlocks && blockCount > maxBlocks ? "text-red-500 font-semibold" : "text-slate-400"}`}>
-              Blocks: {blockCount}{maxBlocks ? `/${maxBlocks}` : ""}
-            </span>
-          )}
-        </div>
 
-        <div className="flex items-center gap-2">
-          {/* Speed control */}
-          <div className="flex items-center gap-1.5">
-            <Gauge className="h-3.5 w-3.5 text-slate-400" />
-            <input
-              type="range"
-              min={50}
-              max={600}
-              step={50}
-              value={650 - speed}
-              onChange={(e) => setSpeed(650 - parseInt(e.target.value))}
-              className="h-1.5 w-16 accent-indigo-500"
-              title="Speed"
-            />
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleStep}
-            disabled={isRunning || completed}
-            title="Step"
-          >
-            <SkipForward className="h-3.5 w-3.5" />
-          </Button>
-
-          {isRunning ? (
-            <Button size="sm" onClick={handlePause}>
-              {isPaused ? (
-                <Play className="h-3.5 w-3.5" />
-              ) : (
-                <Pause className="h-3.5 w-3.5" />
-              )}
-              {isPaused ? "Resume" : "Pause"}
-            </Button>
-          ) : (
-            <Button size="sm" onClick={handlePlay} disabled={completed}>
-              <Play className="h-3.5 w-3.5" />
-              Run
-            </Button>
-          )}
-
-          <Button variant="outline" size="sm" onClick={handleReset}>
-            <RotateCcw className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Main content: Editor + Grid */}
-      <div className="flex flex-1" style={{ minHeight: 500 }}>
-        {/* Code workspace */}
-        <div className="flex-1 border-r border-slate-200 dark:border-white/10">
-          {mode === "python" ? (
-            <Editor
-              height="100%"
-              language="python"
-              value={pythonCode}
-              onChange={(v) => setPythonCode(v || "")}
-              theme={isDark ? "vs-dark" : "vs-light"}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                lineNumbers: "on",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                tabSize: 2,
-                padding: { top: 12 },
-                fontFamily: "'Geist Mono', 'Fira Code', 'Consolas', monospace",
-              }}
-            />
-          ) : (
-            <BlocklyWorkspace
-              difficulty={difficulty}
-              mode="blocks"
-              maxBlocks={maxBlocks}
-              onCodeChange={handleCodeChange}
-              className="h-full w-full"
-            />
-          )}
-        </div>
-
-        {/* Grid + status */}
-        <div className="flex w-[380px] flex-col">
-          <div className="flex-1 flex items-center justify-center bg-slate-50 p-4 dark:bg-[#161622]">
-            <GridRenderer state={gridState} cellSize={Math.min(48, 320 / Math.max(gridWidth, gridHeight))} />
-          </div>
-
-          {/* Status bar */}
-          <div className="border-t border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1E1E1E]">
-            {completed ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {/* Star rating */}
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3].map((n) => (
-                      <span
-                        key={n}
-                        className={`text-lg transition-all ${
-                          n <= getStars(stepsUsed, blockCount)
-                            ? "text-amber-400 scale-110"
-                            : "text-slate-300 dark:text-slate-600"
-                        }`}
-                        style={{ animationDelay: `${n * 0.15}s` }}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                      Level Complete!
-                    </span>
-                    <span className="ml-2 text-xs text-slate-400">
-                      {stepsUsed} steps · {blockCount} blocks
-                    </span>
-                  </div>
-                </div>
-                <Button size="sm" onClick={handleSubmit}>
-                  Submit
-                </Button>
-              </div>
-            ) : failed ? (
-              <div className="space-y-2">
-                <p className="text-sm text-red-500 dark:text-red-400">
-                  {failed}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleReset}
-                  >
-                    Try Again
-                  </Button>
-                  {hints.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setShowHint(true);
-                        setHintIndex(
-                          Math.min(hintIndex, hints.length - 1)
-                        );
-                      }}
-                    >
-                      <Lightbulb className="mr-1 h-3.5 w-3.5" />
-                      Hint
-                    </Button>
-                  )}
-                </div>
-              </div>
+          {/* Code area */}
+          <div className="flex-1 min-h-0">
+            {mode === "python" ? (
+              <Editor
+                height="100%"
+                language="python"
+                value={pythonCode}
+                onChange={(v) => setPythonCode(v || "")}
+                theme={isDark ? "vs-dark" : "vs-light"}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 2,
+                  padding: { top: 12 },
+                  fontFamily: "'Geist Mono', 'Fira Code', 'Consolas', monospace",
+                }}
+              />
             ) : (
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>
-                  {winCondition === "reach_goal"
-                    ? "Guide the robot to the goal"
-                    : winCondition === "collect_all"
-                      ? `Collect all items (${gridState.robot.collected}/${gridState.totalItems})`
-                      : "Complete the objective"}
-                </span>
-                {hints.length > 0 && (
-                  <button
-                    onClick={() => setShowHint(!showHint)}
-                    className="flex items-center gap-1 text-amber-500 hover:text-amber-600"
-                  >
-                    <Lightbulb className="h-3 w-3" />
-                    Hint
-                  </button>
-                )}
-              </div>
-            )}
-
-            {showHint && hints.length > 0 && (
-              <div className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
-                <p>{hints[hintIndex]}</p>
-                {hints.length > 1 && hintIndex < hints.length - 1 && (
-                  <button
-                    onClick={() => setHintIndex(hintIndex + 1)}
-                    className="mt-1 text-amber-600 underline dark:text-amber-400"
-                  >
-                    Next hint
-                  </button>
-                )}
-              </div>
+              <BlocklyWorkspace
+                difficulty={difficulty}
+                mode="blocks"
+                maxBlocks={maxBlocks}
+                onCodeChange={handleCodeChange}
+                className="h-full w-full"
+              />
             )}
           </div>
         </div>

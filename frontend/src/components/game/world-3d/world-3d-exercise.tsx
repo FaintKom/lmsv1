@@ -178,7 +178,7 @@ export default function World3DExercise({
   if (!worldState) return null;
 
   return (
-    <div className="flex h-full flex-col gap-0 -mx-5 -mb-5">
+    <div className="flex h-full flex-col gap-0">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="flex items-center gap-2">

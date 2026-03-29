@@ -84,12 +84,12 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
               key={i}
               onClick={() => !submitted && setSelected(i)}
               disabled={submitted}
-              className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${borderClass} ${bgClass} ${
+              className={`flex w-full items-center gap-4 rounded-xl border-2 px-5 py-4 text-left transition-all ${borderClass} ${bgClass} ${
                 !submitted ? "hover:border-indigo-300 dark:hover:border-indigo-500/50" : ""
               }`}
             >
               <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
                   submitted && choice.correct
                     ? "bg-emerald-500 text-white"
                     : submitted && isThis && !choice.correct

@@ -88,7 +88,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  const svgSize = 400;
+  const svgSize = 440;
   const padding = 40;
   const plotSize = svgSize - padding * 2;
   const scale = plotSize / (grid_range * 2);
@@ -133,11 +133,11 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
     for (let i = -grid_range; i <= grid_range; i++) {
       lines.push(
         <line key={`v${i}`} x1={toSvgX(i)} y1={padding} x2={toSvgX(i)} y2={svgSize - padding}
-          stroke={i === 0 ? "#334155" : "#e2e8f0"} strokeWidth={i === 0 ? 2 : 0.5} />
+          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
       );
       lines.push(
         <line key={`h${i}`} x1={padding} y1={toSvgY(i)} x2={svgSize - padding} y2={toSvgY(i)}
-          stroke={i === 0 ? "#334155" : "#e2e8f0"} strokeWidth={i === 0 ? 2 : 0.5} />
+          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
       );
       if (i !== 0 && i % 2 === 0) {
         lines.push(

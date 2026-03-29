@@ -22,6 +22,13 @@ const FunctionGraph = lazy(() => import("./templates/function-graph"));
 const EquationSolver = lazy(() => import("./templates/equation-solver"));
 const MultipleChoiceMath = lazy(() => import("./templates/multiple-choice-math"));
 const NumericInput = lazy(() => import("./templates/numeric-input"));
+const ScatterPlot = lazy(() => import("./templates/scatter-plot"));
+const TwoWayTable = lazy(() => import("./templates/two-way-table"));
+const CardSort = lazy(() => import("./templates/card-sort"));
+const TablePattern = lazy(() => import("./templates/table-pattern"));
+const InequalityGraph = lazy(() => import("./templates/inequality-graph"));
+const GraphTransform = lazy(() => import("./templates/graph-transform"));
+const VennDiagram = lazy(() => import("./templates/venn-diagram"));
 
 export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
   coordinate_plane: {
@@ -86,6 +93,55 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
     description: "Enter a numeric answer (SAT grid-in format)",
     icon: "🔣",
     component: NumericInput,
+  },
+  scatter_plot: {
+    type: "scatter_plot",
+    label: "Scatter Plot",
+    description: "Draw a line of best fit, identify correlation, or read values from a scatter plot",
+    icon: "📊",
+    component: ScatterPlot,
+  },
+  two_way_table: {
+    type: "two_way_table",
+    label: "Two-Way Table",
+    description: "Fill in missing values in a frequency table (rows + columns = totals)",
+    icon: "📋",
+    component: TwoWayTable,
+  },
+  card_sort: {
+    type: "card_sort",
+    label: "Card Sort",
+    description: "Drag cards into the correct categories (classify expressions, functions, etc.)",
+    icon: "🃏",
+    component: CardSort,
+  },
+  table_pattern: {
+    type: "table_pattern",
+    label: "Table / Pattern",
+    description: "Complete a function table and identify the rule",
+    icon: "📐",
+    component: TablePattern,
+  },
+  inequality_graph: {
+    type: "inequality_graph",
+    label: "Inequality Graph",
+    description: "Graph a linear inequality and shade the solution region",
+    icon: "📐",
+    component: InequalityGraph,
+  },
+  graph_transform: {
+    type: "graph_transform",
+    label: "Graph Transformations",
+    description: "Apply shifts and stretches to match a target function",
+    icon: "🔄",
+    component: GraphTransform,
+  },
+  venn_diagram: {
+    type: "venn_diagram",
+    label: "Venn Diagram",
+    description: "Fill in missing values in a Venn diagram (probability/sets)",
+    icon: "⭕",
+    component: VennDiagram,
   },
   custom_html: {
     type: "custom_html",

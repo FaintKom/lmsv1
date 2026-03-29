@@ -48,9 +48,11 @@ export default function MathExercise({
   // Custom HTML mode
   if (templateType === "custom_html" || customHtml) {
     return (
-      <div className="space-y-3">
+      <div className="mx-auto max-w-2xl space-y-4 py-4">
         {instructions && (
-          <p className="text-sm text-slate-600 dark:text-slate-300 px-1">{instructions}</p>
+          <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+            {instructions}
+          </div>
         )}
         <HtmlSandbox html={customHtml || ""} onResult={handleComplete} />
       </div>
@@ -70,9 +72,11 @@ export default function MathExercise({
   const TemplateComponent = template.component;
 
   return (
-    <div className="space-y-3">
+    <div className="mx-auto max-w-2xl space-y-4 py-4">
       {instructions && (
-        <p className="text-sm text-slate-600 dark:text-slate-300 px-1">{instructions}</p>
+        <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+          📝 {instructions}
+        </div>
       )}
       <Suspense
         fallback={

@@ -83,10 +83,9 @@ const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d", "c
 export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
-  const [fullscreen, setFullscreen] = useState(false);
   const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
+  const [fullscreen, setFullscreen] = useState(isGameType); // auto-open for game types
 
-  // Auto-open fullscreen for game types
   const openFullscreen = useCallback(() => setFullscreen(true), []);
   const closeFullscreen = useCallback(() => setFullscreen(false), []);
 

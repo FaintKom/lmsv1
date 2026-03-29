@@ -27,6 +27,7 @@ import {
   Building2,
   Settings,
   Library,
+  Calculator,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { SearchBar } from "./search-bar";
@@ -77,6 +78,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { href: "/courses", label: t("nav.courses"), icon: BookOpen },
+    { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
     { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
 { href: "/paths", label: t("nav.paths"), icon: Route },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },

@@ -63,10 +63,9 @@ export default function GridRenderer({
   return (
     <svg
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      width="100%"
-      height="100%"
-      className={`max-h-full max-w-full ${className}`}
-      style={{ aspectRatio: `${width} / ${height}` }}
+      className={`block ${className}`}
+      style={{ width: "100%", height: "100%", maxWidth: svgWidth, maxHeight: svgHeight, objectFit: "contain" }}
+      preserveAspectRatio="xMidYMid meet"
     >
       {/* Grid cells */}
       {Array.from({ length: height }, (_, y) =>
