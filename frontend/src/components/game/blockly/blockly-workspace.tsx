@@ -79,38 +79,72 @@ export default function BlocklyWorkspace({
       workspaceRef.current.dispose();
     }
 
-    const theme = isDark
-      ? Blockly.Theme.defineTheme("dark", {
-          name: "dark",
-          base: Blockly.Themes.Classic,
-          componentStyles: {
-            workspaceBackgroundColour: "#1e1e2e",
-            toolboxBackgroundColour: "#181825",
-            toolboxForegroundColour: "#cdd6f4",
-            flyoutBackgroundColour: "#1e1e2e",
-            flyoutForegroundColour: "#cdd6f4",
-            flyoutOpacity: 0.95,
-            scrollbarColour: "#45475a",
-            insertionMarkerColour: "#cdd6f4",
-          },
-        })
-      : Blockly.Themes.Classic;
+    const blockStyles: Record<string, Blockly.Theme.BlockStyle> = {};
+    const categoryStyles: Record<string, Blockly.Theme.CategoryStyle> = {};
+
+    const lightTheme = Blockly.Theme.defineTheme("kidLight", {
+      name: "kidLight",
+      base: Blockly.Themes.Classic,
+      blockStyles,
+      categoryStyles,
+      componentStyles: {
+        workspaceBackgroundColour: "#f8fafc",
+        toolboxBackgroundColour: "#ffffff",
+        toolboxForegroundColour: "#1e293b",
+        flyoutBackgroundColour: "#f1f5f9",
+        flyoutForegroundColour: "#334155",
+        flyoutOpacity: 0.97,
+        scrollbarColour: "#cbd5e1",
+        insertionMarkerColour: "#6366f1",
+        scrollbarOpacity: 0.5,
+      },
+      fontStyle: {
+        family: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        weight: "bold",
+        size: 13,
+      },
+    });
+
+    const darkTheme = Blockly.Theme.defineTheme("kidDark", {
+      name: "kidDark",
+      base: Blockly.Themes.Classic,
+      blockStyles,
+      categoryStyles,
+      componentStyles: {
+        workspaceBackgroundColour: "#1a1a2e",
+        toolboxBackgroundColour: "#16162a",
+        toolboxForegroundColour: "#e2e8f0",
+        flyoutBackgroundColour: "#1e1e36",
+        flyoutForegroundColour: "#cbd5e1",
+        flyoutOpacity: 0.97,
+        scrollbarColour: "#334155",
+        insertionMarkerColour: "#818cf8",
+        scrollbarOpacity: 0.5,
+      },
+      fontStyle: {
+        family: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        weight: "bold",
+        size: 13,
+      },
+    });
+
+    const theme = isDark ? darkTheme : lightTheme;
 
     const workspace = Blockly.inject(containerRef.current, {
       toolbox: activeToolbox,
       theme,
       grid: {
-        spacing: 20,
+        spacing: 25,
         length: 3,
-        colour: isDark ? "#313244" : "#ccc",
+        colour: isDark ? "#2a2a44" : "#e2e8f0",
         snap: true,
       },
       zoom: {
         controls: true,
         wheel: true,
-        startScale: 0.9,
+        startScale: 1.0,
         maxScale: 2,
-        minScale: 0.3,
+        minScale: 0.4,
         scaleSpeed: 1.1,
       },
       trashcan: true,
@@ -121,6 +155,7 @@ export default function BlocklyWorkspace({
         drag: true,
         wheel: true,
       },
+      sounds: false,
     });
 
     workspaceRef.current = workspace;

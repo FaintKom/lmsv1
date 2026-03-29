@@ -14,8 +14,8 @@ export interface ToolboxDef {
 
 const MOVEMENT_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "Movement",
-  colour: "210",
+  name: "🚶 Движение",
+  colour: "#4C97FF",
   contents: [
     { kind: "block", type: "move_forward" },
     { kind: "block", type: "turn_left" },
@@ -25,8 +25,8 @@ const MOVEMENT_CATEGORY: ToolboxCategory = {
 
 const ITEMS_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "Items",
-  colour: "160",
+  name: "⭐ Предметы",
+  colour: "#FF8C1A",
   contents: [
     { kind: "block", type: "pick_up" },
     { kind: "block", type: "place_item" },
@@ -35,8 +35,8 @@ const ITEMS_CATEGORY: ToolboxCategory = {
 
 const LOOPS_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "Loops",
-  colour: "120",
+  name: "🔄 Циклы",
+  colour: "#40BF4A",
   contents: [
     {
       kind: "block",
@@ -53,8 +53,8 @@ const LOOPS_CATEGORY: ToolboxCategory = {
 
 const CONDITIONS_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "Conditions",
-  colour: "330",
+  name: "❓ Условия",
+  colour: "#FF6680",
   contents: [
     { kind: "block", type: "controls_if" },
     { kind: "block", type: "if_wall_ahead" },
@@ -65,8 +65,8 @@ const CONDITIONS_CATEGORY: ToolboxCategory = {
 
 const MATH_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "Math",
-  colour: "230",
+  name: "🔢 Числа",
+  colour: "#5C68A6",
   contents: [
     { kind: "block", type: "math_number" },
   ],
@@ -74,8 +74,8 @@ const MATH_CATEGORY: ToolboxCategory = {
 
 const WORLD_3D_CATEGORY: ToolboxCategory = {
   kind: "category",
-  name: "3D Actions",
-  colour: "260",
+  name: "🎮 Действия",
+  colour: "#9966FF",
   contents: [
     { kind: "block", type: "jump" },
     { kind: "block", type: "interact" },

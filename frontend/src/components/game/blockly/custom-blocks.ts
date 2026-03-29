@@ -6,11 +6,13 @@ import { pythonGenerator, Order as PythonOrder } from "blockly/python";
 
 Blockly.Blocks["move_forward"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("move forward");
+    this.appendDummyInput()
+      .appendField("⬆️")
+      .appendField("вперёд");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(210);
-    this.setTooltip("Move the robot one step forward");
+    this.setColour("#4C97FF");
+    this.setTooltip("Двигаться на одну клетку вперёд");
   },
 };
 
@@ -24,11 +26,13 @@ pythonGenerator.forBlock["move_forward"] = function () {
 
 Blockly.Blocks["turn_left"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("turn left");
+    this.appendDummyInput()
+      .appendField("↩️")
+      .appendField("влево");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(210);
-    this.setTooltip("Turn the robot 90 degrees to the left");
+    this.setColour("#4C97FF");
+    this.setTooltip("Повернуть налево на 90°");
   },
 };
 
@@ -42,11 +46,13 @@ pythonGenerator.forBlock["turn_left"] = function () {
 
 Blockly.Blocks["turn_right"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("turn right");
+    this.appendDummyInput()
+      .appendField("↪️")
+      .appendField("вправо");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(210);
-    this.setTooltip("Turn the robot 90 degrees to the right");
+    this.setColour("#4C97FF");
+    this.setTooltip("Повернуть направо на 90°");
   },
 };
 
@@ -62,11 +68,13 @@ pythonGenerator.forBlock["turn_right"] = function () {
 
 Blockly.Blocks["pick_up"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("pick up item");
+    this.appendDummyInput()
+      .appendField("⭐")
+      .appendField("подобрать");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
-    this.setTooltip("Pick up an item at the current position");
+    this.setColour("#FF8C1A");
+    this.setTooltip("Подобрать предмет на текущей клетке");
   },
 };
 
@@ -80,11 +88,13 @@ pythonGenerator.forBlock["pick_up"] = function () {
 
 Blockly.Blocks["place_item"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("place item");
+    this.appendDummyInput()
+      .appendField("📦")
+      .appendField("положить");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
-    this.setTooltip("Place an item at the current position");
+    this.setColour("#FF8C1A");
+    this.setTooltip("Положить предмет на текущую клетку");
   },
 };
 
@@ -102,13 +112,15 @@ Blockly.Blocks["repeat_times"] = {
   init(this: Blockly.Block) {
     this.appendValueInput("TIMES")
       .setCheck("Number")
-      .appendField("repeat");
-    this.appendDummyInput().appendField("times");
-    this.appendStatementInput("DO").appendField("do");
+      .appendField("🔄")
+      .appendField("повтори");
+    this.appendDummyInput().appendField("раз");
+    this.appendStatementInput("DO")
+      .appendField("делай");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(120);
-    this.setTooltip("Repeat commands a specific number of times");
+    this.setColour("#40BF4A");
+    this.setTooltip("Повторить команды указанное число раз");
   },
 };
 
@@ -134,10 +146,12 @@ pythonGenerator.forBlock["repeat_times"] = function (
 
 Blockly.Blocks["if_wall_ahead"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("wall ahead?");
+    this.appendDummyInput()
+      .appendField("🧱")
+      .appendField("стена впереди?");
     this.setOutput(true, "Boolean");
-    this.setColour(330);
-    this.setTooltip("Check if there is a wall in front of the robot");
+    this.setColour("#FF6680");
+    this.setTooltip("Проверить, есть ли стена впереди");
   },
 };
 
@@ -151,10 +165,12 @@ pythonGenerator.forBlock["if_wall_ahead"] = function () {
 
 Blockly.Blocks["if_item_here"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("item here?");
+    this.appendDummyInput()
+      .appendField("⭐")
+      .appendField("предмет здесь?");
     this.setOutput(true, "Boolean");
-    this.setColour(330);
-    this.setTooltip("Check if there is an item at the current position");
+    this.setColour("#FF6680");
+    this.setTooltip("Проверить, есть ли предмет на текущей клетке");
   },
 };
 
@@ -168,11 +184,13 @@ pythonGenerator.forBlock["if_item_here"] = function () {
 
 Blockly.Blocks["while_not_at_goal"] = {
   init(this: Blockly.Block) {
-    this.appendStatementInput("DO").appendField("while not at goal, do");
+    this.appendStatementInput("DO")
+      .appendField("🏁")
+      .appendField("пока не на цели, делай");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(120);
-    this.setTooltip("Repeat until the robot reaches the goal");
+    this.setColour("#40BF4A");
+    this.setTooltip("Повторять, пока робот не достигнет цели");
   },
 };
 
@@ -196,11 +214,13 @@ pythonGenerator.forBlock["while_not_at_goal"] = function (
 
 Blockly.Blocks["jump"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("jump");
+    this.appendDummyInput()
+      .appendField("🦘")
+      .appendField("прыжок");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(260);
-    this.setTooltip("Make the character jump");
+    this.setColour("#9966FF");
+    this.setTooltip("Прыгнуть вперёд (можно перепрыгнуть стену или забраться выше)");
   },
 };
 
@@ -214,11 +234,13 @@ pythonGenerator.forBlock["jump"] = function () {
 
 Blockly.Blocks["interact"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("interact");
+    this.appendDummyInput()
+      .appendField("👆")
+      .appendField("нажать");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(260);
-    this.setTooltip("Interact with nearby object (press button, open door)");
+    this.setColour("#9966FF");
+    this.setTooltip("Нажать кнопку или открыть дверь впереди");
   },
 };
 
@@ -232,10 +254,12 @@ pythonGenerator.forBlock["interact"] = function () {
 
 Blockly.Blocks["if_near_object"] = {
   init(this: Blockly.Block) {
-    this.appendDummyInput().appendField("near object?");
+    this.appendDummyInput()
+      .appendField("🔍")
+      .appendField("объект рядом?");
     this.setOutput(true, "Boolean");
-    this.setColour(330);
-    this.setTooltip("Check if the character is near an interactable object");
+    this.setColour("#FF6680");
+    this.setTooltip("Проверить, есть ли кнопка или дверь впереди");
   },
 };
 
