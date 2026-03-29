@@ -378,24 +378,5 @@ export const QUESTION_BANK: SATQuestion[] = [
   }},
 ];
 
-/** Generate a test with balanced domain distribution */
-export function generateTest(questionCount: number, difficulty?: SATDifficulty): SATQuestion[] {
-  let pool = [...QUESTION_BANK];
-  if (difficulty) pool = pool.filter((q) => q.difficulty === difficulty);
-
-  // Shuffle
-  pool.sort(() => Math.random() - 0.5);
-
-  // Balance domains
-  const domains: SATDomain[] = ["algebra", "advanced_math", "problem_solving", "geometry_trig"];
-  const perDomain = Math.ceil(questionCount / domains.length);
-  const selected: SATQuestion[] = [];
-
-  for (const domain of domains) {
-    const domainQs = pool.filter((q) => q.domain === domain);
-    selected.push(...domainQs.slice(0, perDomain));
-  }
-
-  // Trim to exact count and shuffle
-  return selected.slice(0, questionCount).sort(() => Math.random() - 0.5);
-}
+/** Generate a test with parametric question generation (infinite unique variations) */
+export { generateQuestions as generateTest } from "./question-generator";
