@@ -86,8 +86,11 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
     setResults(res);
     setChecked(true);
     const correct = res.filter(Boolean).length;
+    const score = correct / targetPoints.length;
     if (correct === targetPoints.length) {
       onComplete(true, 1.0);
+    } else if (correct > 0) {
+      onComplete(false, score);
     }
   };
 

@@ -18,6 +18,10 @@ const NumberLine = lazy(() => import("./templates/number-line"));
 const VisualFractions = lazy(() => import("./templates/visual-fractions"));
 const EquationBalance = lazy(() => import("./templates/equation-balance"));
 const ArithmeticPuzzle = lazy(() => import("./templates/arithmetic-puzzle"));
+const FunctionGraph = lazy(() => import("./templates/function-graph"));
+const EquationSolver = lazy(() => import("./templates/equation-solver"));
+const MultipleChoiceMath = lazy(() => import("./templates/multiple-choice-math"));
+const NumericInput = lazy(() => import("./templates/numeric-input"));
 
 export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
   coordinate_plane: {
@@ -54,6 +58,34 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
     description: "Fill in missing numbers in arithmetic operations",
     icon: "🧩",
     component: ArithmeticPuzzle,
+  },
+  function_graph: {
+    type: "function_graph",
+    label: "Function Graph",
+    description: "Match a function by adjusting parameters (linear, quadratic, exponential)",
+    icon: "📈",
+    component: FunctionGraph,
+  },
+  equation_solver: {
+    type: "equation_solver",
+    label: "Equation Solver",
+    description: "Solve equations step-by-step by choosing the right operations",
+    icon: "🔢",
+    component: EquationSolver,
+  },
+  multiple_choice_math: {
+    type: "multiple_choice_math",
+    label: "Multiple Choice (SAT)",
+    description: "SAT-style multiple choice with explanation",
+    icon: "📝",
+    component: MultipleChoiceMath,
+  },
+  numeric_input: {
+    type: "numeric_input",
+    label: "Numeric Input (Grid-in)",
+    description: "Enter a numeric answer (SAT grid-in format)",
+    icon: "🔣",
+    component: NumericInput,
   },
   custom_html: {
     type: "custom_html",

@@ -83,6 +83,14 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
         <EquationBalanceConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
       ) : templateType === "arithmetic_puzzle" ? (
         <ArithmeticPuzzleConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "function_graph" ? (
+        <FunctionGraphConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "equation_solver" ? (
+        <EquationSolverConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "multiple_choice_math" ? (
+        <MCMathConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
+      ) : templateType === "numeric_input" ? (
+        <NumericInputConfig config={templateConfig} onChange={(c) => updateConfig({ template_config: c })} />
       ) : null}
 
       {/* Preview */}
@@ -262,6 +270,119 @@ function ArithmeticPuzzleConfig({ config, onChange }: { config: Record<string, u
 }
 
 // ─── Custom HTML Editor ─────────────────────────────────────────────
+
+function FunctionGraphConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Function Type</label>
+        <select value={(config.function_type as string) || "linear"} onChange={(e) => onChange({ ...config, function_type: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200">
+          <option value="linear">Linear (y = mx + b)</option>
+          <option value="quadratic">Quadratic (y = ax² + bx + c)</option>
+          <option value="exponential">Exponential (y = a·base^x + c)</option>
+        </select>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Grid Range (±)</label>
+        <input type="number" min={3} max={20} value={(config.grid_range as number) || 6}
+          onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) || 6 })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Target Params (JSON)</label>
+        <input type="text" value={JSON.stringify((config.target_params as Record<string, number>) || { m: 2, b: -1 })}
+          onChange={(e) => { try { onChange({ ...config, target_params: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function EquationSolverConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Left Side</label>
+          <input type="text" value={(config.initial_left as string) || "2x + 5"} onChange={(e) => onChange({ ...config, initial_left: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Right Side</label>
+          <input type="text" value={(config.initial_right as string) || "17"} onChange={(e) => onChange({ ...config, initial_right: e.target.value })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Steps (JSON)</label>
+        <textarea rows={5} value={JSON.stringify((config.steps as unknown[]) || [], null, 2)}
+          onChange={(e) => { try { onChange({ ...config, steps: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Final Answer</label>
+        <input type="text" value={(config.final_answer as string) || "x = 6"} onChange={(e) => onChange({ ...config, final_answer: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function MCMathConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Question</label>
+        <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Choices (JSON)</label>
+        <textarea rows={4} value={JSON.stringify((config.choices as unknown[]) || [
+          { text: "A", correct: false }, { text: "B", correct: true }, { text: "C", correct: false }, { text: "D", correct: false }
+        ], null, 2)} onChange={(e) => { try { onChange({ ...config, choices: JSON.parse(e.target.value) }); } catch {} }}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Explanation</label>
+        <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+function NumericInputConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Question</label>
+        <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Correct Answers (comma-sep)</label>
+          <input type="text" value={((config.correct_answers as number[]) || [7]).join(", ")}
+            onChange={(e) => onChange({ ...config, correct_answers: e.target.value.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Tolerance</label>
+          <input type="number" step={0.01} value={(config.tolerance as number) || 0.01}
+            onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.01 })}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+        </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-slate-500">Explanation</label>
+        <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200" />
+      </div>
+    </div>
+  );
+}
 
 function CustomHtmlEditor({ html, onChange }: { html: string; onChange: (h: string) => void }) {
   return (

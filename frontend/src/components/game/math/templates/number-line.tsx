@@ -50,8 +50,12 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
     const res = targets.map((target, i) => Math.abs(markers[i] - target) <= tolerance);
     setResults(res);
     setChecked(true);
+    const correct = res.filter(Boolean).length;
+    const score = correct / targets.length;
     if (res.every(Boolean)) {
       onComplete(true, 1.0);
+    } else if (correct > 0) {
+      onComplete(false, score);
     }
   };
 

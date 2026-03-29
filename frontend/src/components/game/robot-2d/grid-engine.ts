@@ -15,6 +15,12 @@ export interface RobotState {
   inventory: string[];
 }
 
+export interface TrailPoint {
+  x: number;
+  y: number;
+  success: boolean; // false = collision happened here
+}
+
 export interface GridState {
   width: number;
   height: number;
@@ -23,6 +29,8 @@ export interface GridState {
   totalItems: number;
   goalReached: boolean;
   stepsUsed: number;
+  trail: TrailPoint[];
+  lastCollision: boolean; // for shake animation
 }
 
 export interface MoveResult {
@@ -72,6 +80,8 @@ export class GridEngine {
       totalItems,
       goalReached: false,
       stepsUsed: 0,
+      trail: [{ x: startX, y: startY, success: true }],
+      lastCollision: false,
     };
     this.initialState = this.cloneState(this.state);
     this.winCondition = winCondition;
@@ -91,6 +101,7 @@ export class GridEngine {
       ...s,
       cells: s.cells.map((c) => ({ ...c })),
       robot: { ...s.robot, inventory: [...s.robot.inventory] },
+      trail: s.trail.map((t) => ({ ...t })),
     };
   }
 
@@ -138,6 +149,8 @@ export class GridEngine {
     const newY = this.state.robot.y + dy;
 
     if (this.isBlocked(newX, newY)) {
+      this.state.lastCollision = true;
+      this.state.stepsUsed++;
       return {
         success: false,
         message: "Blocked by wall or boundary",
@@ -145,9 +158,11 @@ export class GridEngine {
       };
     }
 
+    this.state.lastCollision = false;
     this.state.robot.x = newX;
     this.state.robot.y = newY;
     this.state.stepsUsed++;
+    this.state.trail.push({ x: newX, y: newY, success: true });
 
     const cell = this.getCellAt(newX, newY);
     if (cell?.type === "goal") {

@@ -54,6 +54,8 @@ export default function Robot2DExercise({
   const cells = (config.cells as Cell[]) || [];
   const winCondition = (config.win_condition as "reach_goal" | "collect_all" | "custom") || "reach_goal";
   const maxBlocks = config.max_blocks as number | undefined;
+  const targetSteps = config.target_steps as number | undefined;
+  const optimalBlocks = config.optimal_blocks as number | undefined;
   const difficulty = (config.difficulty as Difficulty) || "beginner";
   const hints = (config.hints as string[]) || [];
   const allowPython = (config.allow_python as boolean) || false;
@@ -88,7 +90,18 @@ export default function Robot2DExercise({
   const [completed, setCompleted] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   const [stepsUsed, setStepsUsed] = useState(0);
+  const [blockCount, setBlockCount] = useState(0);
   const [isDark, setIsDark] = useState(false);
+
+  /** Calculate stars: 1=completed, 2=efficient steps, 3=optimal blocks */
+  const getStars = (steps: number, blocks: number): number => {
+    let stars = 1; // completed
+    if (targetSteps && steps <= targetSteps) stars = 2;
+    if (optimalBlocks && blocks <= optimalBlocks) stars = 3;
+    // If no targets configured, 3 stars for completion
+    if (!targetSteps && !optimalBlocks) stars = 3;
+    return stars;
+  };
 
   // Refs
   const engineRef = useRef<GridEngine | null>(null);
@@ -120,6 +133,9 @@ export default function Robot2DExercise({
   const handleCodeChange = useCallback(
     (js: string, python: string, xml: string) => {
       codeRef.current = { js, python, xml };
+      // Count blocks from XML (each <block type= is a block)
+      const count = (xml.match(/<block /g) || []).length;
+      setBlockCount(count);
     },
     []
   );
@@ -232,14 +248,15 @@ export default function Robot2DExercise({
 
   const handleSubmit = useCallback(() => {
     const elapsed = (Date.now() - startTimeRef.current) / 1000;
+    const stars = getStars(stepsUsed, blockCount);
     onSubmit({
       completed: true,
-      score: 1.0,
+      score: stars / 3,
       steps_used: stepsUsed,
       time_seconds: elapsed,
       code_snapshot: mode === "python" ? pythonCode : (codeRef.current.python || codeRef.current.js),
     });
-  }, [onSubmit, stepsUsed]);
+  }, [onSubmit, stepsUsed, blockCount]);
 
   if (!gridState) return null;
 
@@ -277,6 +294,11 @@ export default function Robot2DExercise({
           <span className="text-xs text-slate-400">
             Steps: {stepsUsed}
           </span>
+          {mode === "blocks" && (
+            <span className={`text-xs ${maxBlocks && blockCount > maxBlocks ? "text-red-500 font-semibold" : "text-slate-400"}`}>
+              Blocks: {blockCount}{maxBlocks ? `/${maxBlocks}` : ""}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -370,12 +392,31 @@ export default function Robot2DExercise({
           <div className="border-t border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1E1E1E]">
             {completed ? (
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                  <Trophy className="h-5 w-5" />
-                  <span className="text-sm font-semibold">Level Complete!</span>
-                  <span className="text-xs text-slate-400">
-                    {stepsUsed} steps
-                  </span>
+                <div className="flex items-center gap-3">
+                  {/* Star rating */}
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3].map((n) => (
+                      <span
+                        key={n}
+                        className={`text-lg transition-all ${
+                          n <= getStars(stepsUsed, blockCount)
+                            ? "text-amber-400 scale-110"
+                            : "text-slate-300 dark:text-slate-600"
+                        }`}
+                        style={{ animationDelay: `${n * 0.15}s` }}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                      Level Complete!
+                    </span>
+                    <span className="ml-2 text-xs text-slate-400">
+                      {stepsUsed} steps · {blockCount} blocks
+                    </span>
+                  </div>
                 </div>
                 <Button size="sm" onClick={handleSubmit}>
                   Submit

@@ -117,13 +117,15 @@ export default function Robot2DEditor({
   );
 
   // Build preview grid state
+  const startX = cells.find((c) => c.type === "start")?.x ?? 0;
+  const startY = cells.find((c) => c.type === "start")?.y ?? 0;
   const previewState: GridState = {
     width: gridWidth,
     height: gridHeight,
     cells,
     robot: {
-      x: cells.find((c) => c.type === "start")?.x ?? 0,
-      y: cells.find((c) => c.type === "start")?.y ?? 0,
+      x: startX,
+      y: startY,
       direction: "right",
       collected: 0,
       inventory: [],
@@ -131,6 +133,8 @@ export default function Robot2DEditor({
     totalItems: cells.filter((c) => c.type === "item").length,
     goalReached: false,
     stepsUsed: 0,
+    trail: [{ x: startX, y: startY, success: true }],
+    lastCollision: false,
   };
 
   return (

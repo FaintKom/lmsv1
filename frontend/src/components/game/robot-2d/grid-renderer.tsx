@@ -155,11 +155,42 @@ export default function GridRenderer({
         })
       )}
 
+      {/* Trail path */}
+      {!editMode && state.trail && state.trail.length > 1 && (
+        <polyline
+          points={state.trail
+            .map((t) => `${t.x * cellSize + cellSize / 2},${t.y * cellSize + cellSize / 2}`)
+            .join(" ")}
+          fill="none"
+          stroke={state.goalReached ? "#22c55e" : "#818cf8"}
+          strokeWidth={3}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeDasharray={state.goalReached ? "none" : "6 4"}
+          opacity={0.6}
+        />
+      )}
+
+      {/* Trail dots */}
+      {!editMode && state.trail && state.trail.map((t, i) => (
+        i > 0 && (
+          <circle
+            key={`trail-${i}`}
+            cx={t.x * cellSize + cellSize / 2}
+            cy={t.y * cellSize + cellSize / 2}
+            r={3}
+            fill={state.goalReached ? "#22c55e" : "#818cf8"}
+            opacity={0.5}
+          />
+        )
+      ))}
+
       {/* Robot */}
       {!editMode && (
         <g
+          className={state.lastCollision ? "robot-shake" : ""}
           style={{
-            transition: "transform 0.3s ease-in-out",
+            transition: "transform 0.25s ease-in-out",
             transform: `translate(${robot.x * cellSize + cellSize / 2}px, ${robot.y * cellSize + cellSize / 2}px)`,
           }}
         >
@@ -172,9 +203,10 @@ export default function GridRenderer({
             {/* Robot body */}
             <circle
               r={cellSize * 0.35}
-              fill="#6366f1"
-              stroke="#4f46e5"
+              fill={state.lastCollision ? "#ef4444" : "#6366f1"}
+              stroke={state.lastCollision ? "#dc2626" : "#4f46e5"}
               strokeWidth={2}
+              style={{ transition: "fill 0.2s, stroke 0.2s" }}
             />
             {/* Direction indicator (arrow) */}
             <polygon
@@ -199,12 +231,18 @@ export default function GridRenderer({
         </g>
       )}
 
-      {/* Dark mode CSS variables */}
+      {/* Animations */}
       <style>{`
-        @media (prefers-color-scheme: dark) {
-          .cell-bg { opacity: 0.9; }
-        }
+        @media (prefers-color-scheme: dark) { .cell-bg { opacity: 0.9; } }
         .dark .cell-bg { opacity: 0.9; }
+        @keyframes shake {
+          0%, 100% { transform: translate(0, 0); }
+          20% { transform: translate(-3px, 0); }
+          40% { transform: translate(3px, 0); }
+          60% { transform: translate(-2px, 0); }
+          80% { transform: translate(2px, 0); }
+        }
+        .robot-shake { animation: shake 0.4s ease-in-out; }
       `}</style>
     </svg>
   );
