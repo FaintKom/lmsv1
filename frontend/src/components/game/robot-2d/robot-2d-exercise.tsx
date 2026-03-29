@@ -279,87 +279,78 @@ export default function Robot2DExercise({
       <div className="flex flex-col lg:flex-row flex-1 min-h-0">
 
         {/* Grid area — the hero */}
-        <div className="flex w-full lg:w-[480px] shrink-0 flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-[#18181b] dark:to-[#1a1a1a]">
-          {/* Task instruction banner */}
-          <div className={`px-5 py-3 text-sm font-semibold border-b ${
-            winCondition === "reach_goal"
-              ? "bg-emerald-50/80 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20"
-              : "bg-amber-50/80 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20"
-          }`}>
-            {taskText}
+        <div className="flex w-full lg:w-[480px] shrink-0 flex-col bg-[#f2f0eb] dark:bg-[#1a1a1a]">
+          {/* Speech-bubble instruction (like Code.org) */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-[#e5e0d5] dark:bg-[#222] dark:border-[#333]">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4C97FF] text-white text-lg">
+              🤖
+            </div>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{taskText}</p>
           </div>
 
           {/* Grid visualization */}
-          <div className="flex flex-1 items-center justify-center overflow-hidden p-4 lg:p-6 max-h-[50vh] lg:max-h-none">
+          <div className="flex flex-1 items-center justify-center overflow-hidden p-3 lg:p-5 max-h-[50vh] lg:max-h-none">
             <GridRenderer state={gridState} cellSize={gridCellSize} />
           </div>
 
-          {/* Playback controls bar */}
-          <div className="flex items-center justify-between border-t border-slate-200/60 bg-white/80 backdrop-blur-sm px-4 py-2.5 dark:border-white/5 dark:bg-[#1E1E1E]/80">
-            {/* Left: stats */}
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span>Шагов: <b className="text-slate-600 dark:text-slate-300">{stepsUsed}</b></span>
+          {/* Playback controls — Code.org style */}
+          <div className="flex items-center justify-between bg-white border-t border-[#e5e0d5] px-3 py-2.5 dark:bg-[#222] dark:border-[#333]">
+            {/* Stats badges */}
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                {stepsUsed} шагов
+              </span>
               {mode === "blocks" && (
-                <span className={maxBlocks && blockCount > maxBlocks ? "text-red-500 font-semibold" : ""}>
-                  Блоков: <b className="text-slate-600 dark:text-slate-300">{blockCount}</b>{maxBlocks ? `/${maxBlocks}` : ""}
+                <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
+                  maxBlocks && blockCount > maxBlocks
+                    ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400"
+                    : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                }`}>
+                  {blockCount}{maxBlocks ? `/${maxBlocks}` : ""} блоков
                 </span>
               )}
             </div>
 
-            {/* Center: main controls */}
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleReset}
-                className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-95 dark:hover:bg-white/10 dark:hover:text-slate-300"
-                title="Сбросить"
-              >
-                <RotateCcw className="h-5 w-5" />
+            {/* Center controls */}
+            <div className="flex items-center gap-2">
+              <button onClick={handleReset} title="Сбросить"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#8B5CF6] text-white transition-all hover:bg-[#7c3aed] active:scale-95 shadow-sm">
+                <RotateCcw className="h-4 w-4" />
               </button>
 
-              <button
-                onClick={handleStep}
-                disabled={isRunning || completed}
-                className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-95 disabled:opacity-30 dark:hover:bg-white/10 dark:hover:text-slate-300"
-                title="Один шаг"
-              >
-                <SkipForward className="h-5 w-5" />
+              <button onClick={handleStep} disabled={isRunning || completed} title="Один шаг"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 text-slate-600 transition-all hover:bg-slate-300 active:scale-95 disabled:opacity-30 dark:bg-white/10 dark:text-slate-300">
+                <SkipForward className="h-4 w-4" />
               </button>
 
               {isRunning ? (
-                <button
-                  onClick={handlePause}
-                  className="flex h-11 items-center gap-1.5 rounded-xl bg-amber-500 px-5 font-semibold text-white shadow-md transition-colors hover:bg-amber-600"
-                >
+                <button onClick={handlePause}
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 dark:shadow-none">
                   {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                  {isPaused ? "Продолжить" : "Пауза"}
+                  {isPaused ? "▶" : "⏸"}
                 </button>
               ) : (
-                <button
-                  onClick={handlePlay}
-                  disabled={completed}
-                  className="flex h-11 items-center gap-1.5 rounded-xl bg-emerald-500 px-6 font-semibold text-white shadow-md transition-colors hover:bg-emerald-600 disabled:opacity-40"
-                >
+                <button onClick={handlePlay} disabled={completed}
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 disabled:opacity-40 dark:shadow-none">
                   <Play className="h-4 w-4" />
                   Запуск
                 </button>
               )}
 
-              {/* Speed */}
-              <div className="ml-2 flex items-center gap-1">
+              {/* Speed slider */}
+              <div className="hidden sm:flex items-center gap-1 ml-1">
                 <Gauge className="h-3.5 w-3.5 text-slate-400" />
                 <input type="range" min={50} max={600} step={50}
                   value={650 - speed} onChange={(e) => setSpeed(650 - parseInt(e.target.value))}
-                  className="h-1 w-14 accent-indigo-500" title="Скорость" />
+                  className="h-1 w-12 accent-[#FFA400]" />
               </div>
             </div>
 
-            {/* Right: hint */}
+            {/* Hint */}
             <div>
               {hints.length > 0 && !completed && (
-                <button
-                  onClick={() => setShowHint(!showHint)}
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-amber-500 transition-colors hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                >
+                <button onClick={() => setShowHint(!showHint)}
+                  className="flex items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-600 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20">
                   <Lightbulb className="h-3.5 w-3.5" />
                   Подсказка
                 </button>
@@ -405,7 +396,7 @@ export default function Robot2DExercise({
         </div>
 
         {/* Code editor (bottom on mobile, right on desktop) */}
-        <div className="flex flex-1 flex-col min-w-0 min-h-[250px] border-t lg:border-t-0 lg:border-l border-slate-200/60 dark:border-white/5">
+        <div className="flex flex-1 flex-col min-w-0 min-h-[250px] border-t lg:border-t-0 lg:border-l border-[#e5e0d5] dark:border-[#333]">
           {/* Mode toggle header */}
           {allowPython && (
             <div className="flex items-center gap-1 border-b border-slate-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">

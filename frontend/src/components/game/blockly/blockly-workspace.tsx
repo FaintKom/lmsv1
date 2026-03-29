@@ -88,14 +88,14 @@ export default function BlocklyWorkspace({
       blockStyles,
       categoryStyles,
       componentStyles: {
-        workspaceBackgroundColour: "#ffffff",
-        toolboxBackgroundColour: "#f8fafc",
+        workspaceBackgroundColour: "#faf9f6",
+        toolboxBackgroundColour: "#ffffff",
         toolboxForegroundColour: "#1e293b",
-        flyoutBackgroundColour: "#f1f5f9",
+        flyoutBackgroundColour: "#faf9f6",
         flyoutForegroundColour: "#334155",
         flyoutOpacity: 0.97,
-        scrollbarColour: "#e2e8f0",
-        insertionMarkerColour: "#6366f1",
+        scrollbarColour: "#d4c9b8",
+        insertionMarkerColour: "#4C97FF",
         scrollbarOpacity: 0.3,
       },
       fontStyle: {
@@ -134,9 +134,9 @@ export default function BlocklyWorkspace({
       toolbox: activeToolbox,
       theme,
       grid: {
-        spacing: 25,
-        length: 3,
-        colour: isDark ? "#2a2a44" : "#e2e8f0",
+        spacing: 28,
+        length: 1,
+        colour: isDark ? "#333" : "#d4c9b8",
         snap: true,
       },
       zoom: {
@@ -206,7 +206,12 @@ export default function BlocklyWorkspace({
       <style>{`
         .blocklySvg { border: none !important; }
         .blocklyScrollbarVertical, .blocklyScrollbarHorizontal { display: none !important; }
-        .blocklyToolboxDiv { border-right: 1px solid ${isDark ? "#334155" : "#e2e8f0"} !important; }
+        .blocklyToolboxDiv { border-right: 1px solid ${isDark ? "#333" : "#e5e0d5"} !important; padding-top: 4px !important; }
+        .blocklyTreeRow { margin-bottom: 2px !important; border-radius: 6px !important; padding: 6px 12px !important; }
+        .blocklyTreeLabel { font-size: 13px !important; font-weight: 600 !important; }
+        .blocklyFlyoutBackground { fill: ${isDark ? "#222" : "#faf9f6"} !important; }
+        .blocklyTrash { opacity: 0.4; }
+        .blocklyTrash:hover { opacity: 0.8; }
       `}</style>
       <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: 300 }} />
     </>
