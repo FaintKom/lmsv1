@@ -9,6 +9,10 @@ export type ErrorCallback = (message: string, index: number) => void;
 
 /** Map Python method names to JS method names used by the engine */
 const PYTHON_TO_JS: Record<string, string> = {
+  move_up: "moveUp",
+  move_down: "moveDown",
+  move_left: "moveLeft",
+  move_right: "moveRight",
   move_forward: "moveForward",
   turn_left: "turnLeft",
   turn_right: "turnRight",

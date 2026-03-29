@@ -58,21 +58,21 @@ export default function Robot2DExercise({
   const hints = (config.hints as string[]) || [];
   const allowPython = (config.allow_python as boolean) || false;
 
-  const PYTHON_STARTER = `# Available commands:
-# robot.move_forward()
-# robot.turn_left()
-# robot.turn_right()
-# robot.pick_up()
-# robot.place_item()
+  const PYTHON_STARTER = `# Команды движения:
+# robot.move_up()      — вверх
+# robot.move_down()    — вниз
+# robot.move_left()    — влево
+# robot.move_right()   — вправо
+# robot.pick_up()      — подобрать предмет
 #
-# Conditions:
-# robot.is_wall_ahead()
-# robot.is_item_here()
-# robot.is_at_goal()
+# Проверки:
+# robot.is_wall_ahead()  — стена впереди?
+# robot.is_item_here()   — предмет здесь?
+# robot.is_at_goal()     — на цели?
 #
-# Example:
+# Пример:
 # for i in range(3):
-#   robot.move_forward()
+#   robot.move_right()
 
 `;
 

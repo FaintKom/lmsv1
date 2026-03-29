@@ -88,15 +88,15 @@ export default function BlocklyWorkspace({
       blockStyles,
       categoryStyles,
       componentStyles: {
-        workspaceBackgroundColour: "#f8fafc",
-        toolboxBackgroundColour: "#ffffff",
+        workspaceBackgroundColour: "#ffffff",
+        toolboxBackgroundColour: "#f8fafc",
         toolboxForegroundColour: "#1e293b",
         flyoutBackgroundColour: "#f1f5f9",
         flyoutForegroundColour: "#334155",
         flyoutOpacity: 0.97,
-        scrollbarColour: "#cbd5e1",
+        scrollbarColour: "#e2e8f0",
         insertionMarkerColour: "#6366f1",
-        scrollbarOpacity: 0.5,
+        scrollbarOpacity: 0.3,
       },
       fontStyle: {
         family: "'Inter', 'Segoe UI', system-ui, sans-serif",
@@ -202,7 +202,14 @@ export default function BlocklyWorkspace({
   }
 
   return (
-    <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: 300 }} />
+    <>
+      <style>{`
+        .blocklySvg { border: none !important; }
+        .blocklyScrollbarVertical, .blocklyScrollbarHorizontal { display: none !important; }
+        .blocklyToolboxDiv { border-right: 1px solid ${isDark ? "#334155" : "#e2e8f0"} !important; }
+      `}</style>
+      <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: 300 }} />
+    </>
   );
 }
 

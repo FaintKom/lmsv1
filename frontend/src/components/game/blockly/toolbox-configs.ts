@@ -17,9 +17,10 @@ const MOVEMENT_CATEGORY: ToolboxCategory = {
   name: "🚶 Движение",
   colour: "#4C97FF",
   contents: [
-    { kind: "block", type: "move_forward" },
-    { kind: "block", type: "turn_left" },
-    { kind: "block", type: "turn_right" },
+    { kind: "block", type: "move_up" },
+    { kind: "block", type: "move_down" },
+    { kind: "block", type: "move_left" },
+    { kind: "block", type: "move_right" },
   ],
 };
 
@@ -150,13 +151,13 @@ export function buildToolboxFromBlocks(blocks: string[]): ToolboxDef {
 }
 
 export const DIFFICULTY_BLOCKS: Record<Difficulty, string[]> = {
-  beginner: ["move_forward", "turn_left", "turn_right"],
+  beginner: ["move_up", "move_down", "move_left", "move_right"],
   intermediate: [
-    "move_forward", "turn_left", "turn_right",
+    "move_up", "move_down", "move_left", "move_right",
     "pick_up", "place_item", "repeat_times", "math_number",
   ],
   advanced: [
-    "move_forward", "turn_left", "turn_right",
+    "move_up", "move_down", "move_left", "move_right",
     "pick_up", "place_item", "repeat_times",
     "while_not_at_goal", "controls_if", "if_wall_ahead",
     "if_item_here", "logic_negate", "math_number",

@@ -106,8 +106,34 @@ export class GridEngine {
     return cell?.type === "wall";
   }
 
+  /** Move in the robot's current facing direction */
   moveForward(): MoveResult {
     const { dx, dy } = DIRECTION_DELTA[this.state.robot.direction];
+    return this._moveBy(dx, dy);
+  }
+
+  /** Directional moves: face that direction + move one cell */
+  moveUp(): MoveResult {
+    this.state.robot.direction = "up";
+    return this._moveBy(0, -1);
+  }
+
+  moveDown(): MoveResult {
+    this.state.robot.direction = "down";
+    return this._moveBy(0, 1);
+  }
+
+  moveLeft(): MoveResult {
+    this.state.robot.direction = "left";
+    return this._moveBy(-1, 0);
+  }
+
+  moveRight(): MoveResult {
+    this.state.robot.direction = "right";
+    return this._moveBy(1, 0);
+  }
+
+  private _moveBy(dx: number, dy: number): MoveResult {
     const newX = this.state.robot.x + dx;
     const newY = this.state.robot.y + dy;
 
@@ -123,7 +149,6 @@ export class GridEngine {
     this.state.robot.y = newY;
     this.state.stepsUsed++;
 
-    // Check if reached goal
     const cell = this.getCellAt(newX, newY);
     if (cell?.type === "goal") {
       this.state.goalReached = true;
@@ -219,6 +244,14 @@ export class GridEngine {
     switch (type) {
       case "moveForward":
         return this.moveForward();
+      case "moveUp":
+        return this.moveUp();
+      case "moveDown":
+        return this.moveDown();
+      case "moveLeft":
+        return this.moveLeft();
+      case "moveRight":
+        return this.moveRight();
       case "turnLeft":
         return this.turnLeft();
       case "turnRight":
