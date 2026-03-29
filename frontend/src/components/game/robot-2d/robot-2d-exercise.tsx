@@ -14,6 +14,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 import GridRenderer from "./grid-renderer";
 import { GridEngine, type GridState, type Cell } from "./grid-engine";
 import {
@@ -59,6 +60,8 @@ export default function Robot2DExercise({
   const difficulty = (config.difficulty as Difficulty) || "beginner";
   const hints = (config.hints as string[]) || [];
   const allowPython = (config.allow_python as boolean) || false;
+
+  const { t } = useTranslation();
 
   const PYTHON_STARTER = `# Команды движения:
 # robot.move_up()      — вверх
@@ -193,7 +196,7 @@ export default function Robot2DExercise({
       : parseCommands(codeRef.current.js);
 
     if (commands.length === 0) {
-      setFailed(mode === "python" ? "No commands found. Write robot.move_forward() etc." : "No commands to execute. Add some blocks!");
+      setFailed(mode === "python" ? t("game.noCommandsPython") : t("game.noCommands"));
       return;
     }
 
@@ -221,7 +224,7 @@ export default function Robot2DExercise({
     executor.onComplete = () => {
       setIsRunning(false);
       if (!engine.checkWinCondition()) {
-        setFailed("Program finished but the goal was not reached.");
+        setFailed(t("game.goalNotReached"));
       }
     };
 
@@ -261,10 +264,10 @@ export default function Robot2DExercise({
   if (!gridState) return null;
 
   const taskText = winCondition === "reach_goal"
-    ? "🏁 Доведи робота до цели!"
+    ? `🏁 ${t("game.reachGoal")}`
     : winCondition === "collect_all"
-      ? `⭐ Собери все предметы! (${gridState.robot.collected}/${gridState.totalItems})`
-      : "✅ Выполни задание!";
+      ? `⭐ ${t("game.collectAll")} (${gridState.robot.collected}/${gridState.totalItems})`
+      : `✅ ${t("game.completeTask")}`;
 
   const gridCellSize = typeof window !== "undefined"
     ? Math.floor(Math.min(
@@ -298,7 +301,7 @@ export default function Robot2DExercise({
             {/* Stats badges */}
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-500 dark:bg-white/10 dark:text-slate-400">
-                {stepsUsed} шагов
+                {stepsUsed} {t("game.steps")}
               </span>
               {mode === "blocks" && (
                 <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
@@ -306,19 +309,19 @@ export default function Robot2DExercise({
                     ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400"
                     : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
                 }`}>
-                  {blockCount}{maxBlocks ? `/${maxBlocks}` : ""} блоков
+                  {blockCount}{maxBlocks ? `/${maxBlocks}` : ""} {t("game.blocks")}
                 </span>
               )}
             </div>
 
             {/* Center controls */}
             <div className="flex items-center gap-2">
-              <button onClick={handleReset} title="Сбросить"
+              <button onClick={handleReset} title={t("game.reset")}
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#8B5CF6] text-white transition-all hover:bg-[#7c3aed] active:scale-95 shadow-sm">
                 <RotateCcw className="h-4 w-4" />
               </button>
 
-              <button onClick={handleStep} disabled={isRunning || completed} title="Один шаг"
+              <button onClick={handleStep} disabled={isRunning || completed} title={t("game.step")}
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 text-slate-600 transition-all hover:bg-slate-300 active:scale-95 disabled:opacity-30 dark:bg-white/10 dark:text-slate-300">
                 <SkipForward className="h-4 w-4" />
               </button>
@@ -333,7 +336,7 @@ export default function Robot2DExercise({
                 <button onClick={handlePlay} disabled={completed}
                   className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 disabled:opacity-40 dark:shadow-none">
                   <Play className="h-4 w-4" />
-                  Запуск
+                  {t("game.run")}
                 </button>
               )}
 
@@ -352,7 +355,7 @@ export default function Robot2DExercise({
                 <button onClick={() => setShowHint(!showHint)}
                   className="flex items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-600 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20">
                   <Lightbulb className="h-3.5 w-3.5" />
-                  Подсказка
+                  {t("game.hint")}
                 </button>
               )}
             </div>
@@ -370,24 +373,24 @@ export default function Robot2DExercise({
                       ))}
                     </div>
                     <div>
-                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Уровень пройден!</span>
-                      <span className="ml-2 text-xs text-slate-400">{stepsUsed} шагов · {blockCount} блоков</span>
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t("game.levelComplete")}</span>
+                      <span className="ml-2 text-xs text-slate-400">{stepsUsed} {t("game.steps")} · {blockCount} {t("game.blocks")}</span>
                     </div>
                   </div>
-                  <Button size="sm" onClick={handleSubmit}>Отправить</Button>
+                  <Button size="sm" onClick={handleSubmit}>{t("game.submit")}</Button>
                 </div>
               )}
               {failed && !completed && (
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-red-500 dark:text-red-400">{failed}</span>
-                  <Button variant="outline" size="sm" onClick={handleReset}>Попробовать ещё</Button>
+                  <Button variant="outline" size="sm" onClick={handleReset}>{t("game.tryAgain")}</Button>
                 </div>
               )}
               {showHint && hints.length > 0 && !completed && (
                 <div className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
                   <p>{hints[hintIndex]}</p>
                   {hintIndex < hints.length - 1 && (
-                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-amber-600 underline dark:text-amber-400">Следующая подсказка</button>
+                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-amber-600 underline dark:text-amber-400">{t("game.nextHint")}</button>
                   )}
                 </div>
               )}

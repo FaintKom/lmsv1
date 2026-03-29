@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
 import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
@@ -91,6 +92,7 @@ const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d", "c
 
 export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson }: ExerciseRendererProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
@@ -183,7 +185,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
               <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
               <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
             </div>
-            <span className="text-xs text-indigo-500">Opened in fullscreen</span>
+            <span className="text-xs text-indigo-500">{t("game.fullscreen")}</span>
           </div>
         </div>
 
@@ -223,11 +225,11 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
                 title="Exit fullscreen (Esc)"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
-                Exit
+                {t("game.exit")}
               </button>
             </div>
 
-            {/* Fullscreen body — takes all remaining space */}
+            {/* Fullscreen body */}
             <div className="flex-1 overflow-auto">
               {exerciseContent}
             </div>
@@ -254,7 +256,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
             title="Open fullscreen"
           >
             <Maximize2 className="h-3.5 w-3.5" />
-            Fullscreen
+            {t("game.fullscreen")}
           </button>
         )}
       </div>
