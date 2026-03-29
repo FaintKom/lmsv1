@@ -181,10 +181,10 @@ export default function ExerciseRenderer({ exercise }: ExerciseRendererProps) {
         {createPortal(
           <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#1E1E1E]">
             {/* Fullscreen header */}
-            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/10 dark:bg-[#1E1E1E]">
-              <div className="flex items-center gap-3">
-                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-500 dark:bg-white/10 dark:text-slate-400">
+            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 sm:px-4 dark:border-white/10 dark:bg-[#1E1E1E]">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{exercise.title}</h3>
+                <span className="hidden sm:inline rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-500 dark:bg-white/10 dark:text-slate-400">
                   {exercise.exercise_type.replace(/_/g, " ")}
                 </span>
               </div>

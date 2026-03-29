@@ -21,9 +21,9 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
   const labels = ["A", "B", "C", "D"];
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="rounded-xl bg-slate-50 px-6 py-5 dark:bg-white/5">
-        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
+    <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
+      <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
+        <p className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
         {standard && (
           <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             {standard}
@@ -72,9 +72,9 @@ function NumericQuestion({ config, answer, onAnswer }: {
   const standard = config.standard as string | undefined;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="rounded-xl bg-slate-50 px-6 py-5 dark:bg-white/5">
-        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
+    <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
+      <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
+        <p className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
         {standard && (
           <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             {standard}
@@ -229,11 +229,11 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#1E1E1E]">
       {/* Top bar */}
-      <div className="flex h-12 shrink-0 items-center justify-between border-b border-slate-200 bg-slate-50 px-4 dark:border-white/10 dark:bg-[#161622]">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{config.name}</span>
-          <span className="rounded bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
-            Question {currentQ + 1} of {questions.length}
+      <div className="flex h-auto min-h-[48px] shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 dark:border-white/10 dark:bg-[#161622]">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{config.name}</span>
+          <span className="rounded bg-indigo-100 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+            {currentQ + 1}/{questions.length}
           </span>
         </div>
 
@@ -289,8 +289,8 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
       </div>
 
       {/* Bottom navigation bar */}
-      <div className="shrink-0 border-t border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-white/10 dark:bg-[#161622]">
-        <div className="flex items-center justify-between">
+      <div className="shrink-0 border-t border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 sm:py-2.5 dark:border-white/10 dark:bg-[#161622]">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:justify-between">
           {/* Prev / Flag / Next */}
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => goTo(currentQ - 1)} disabled={currentQ === 0}>
@@ -311,7 +311,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
           </div>
 
           {/* Question map */}
-          <div className="flex flex-wrap gap-1">
+          <div className="flex gap-1 overflow-x-auto max-w-full pb-1">
             {questions.map((_, i) => {
               const isAnswered = !!answers[questions[i].id];
               const isFlagged = flagged.has(i);
@@ -320,7 +320,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold transition-all ${
+                  className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
                     isCurrent
                       ? "bg-indigo-600 text-white ring-2 ring-indigo-300"
                       : isAnswered
@@ -338,7 +338,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
 
       {/* Formula reference sheet */}
       {showFormulas && (
-        <div className="fixed top-12 right-4 z-50 w-80 max-h-[70vh] overflow-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-[#1E1E1E]">
+        <div className="fixed top-12 right-2 sm:right-4 z-50 w-[calc(100%-16px)] sm:w-80 max-h-[70vh] overflow-auto rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xl dark:border-white/10 dark:bg-[#1E1E1E]">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Reference Sheet</h3>
             <button onClick={() => setShowFormulas(false)} className="text-slate-400 hover:text-slate-600"><X className="h-4 w-4" /></button>

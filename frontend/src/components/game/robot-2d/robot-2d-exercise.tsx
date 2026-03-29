@@ -266,18 +266,20 @@ export default function Robot2DExercise({
       ? `⭐ Собери все предметы! (${gridState.robot.collected}/${gridState.totalItems})`
       : "✅ Выполни задание!";
 
-  const gridCellSize = Math.floor(
-    Math.min(500, typeof window !== "undefined" ? window.innerHeight - 180 : 500)
-    / Math.max(gridWidth, gridHeight)
-  );
+  const gridCellSize = typeof window !== "undefined"
+    ? Math.floor(Math.min(
+        window.innerWidth < 1024 ? window.innerWidth - 40 : 460,
+        window.innerWidth < 1024 ? window.innerHeight * 0.4 : window.innerHeight - 180,
+      ) / Math.max(gridWidth, gridHeight))
+    : 60;
 
   return (
     <div className="flex h-full flex-col">
-      {/* Main: Grid (hero, left) + Code (right) */}
-      <div className="flex flex-1 min-h-0">
+      {/* Main: Grid (top on mobile, left on desktop) + Code */}
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0">
 
-        {/* LEFT: Grid area — the hero */}
-        <div className="flex w-[480px] shrink-0 flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-[#18181b] dark:to-[#1a1a1a]">
+        {/* Grid area — the hero */}
+        <div className="flex w-full lg:w-[480px] shrink-0 flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-[#18181b] dark:to-[#1a1a1a]">
           {/* Task instruction banner */}
           <div className={`px-5 py-3 text-sm font-semibold border-b ${
             winCondition === "reach_goal"
@@ -288,7 +290,7 @@ export default function Robot2DExercise({
           </div>
 
           {/* Grid visualization */}
-          <div className="flex flex-1 items-center justify-center overflow-hidden p-6">
+          <div className="flex flex-1 items-center justify-center overflow-hidden p-4 lg:p-6 max-h-[50vh] lg:max-h-none">
             <GridRenderer state={gridState} cellSize={gridCellSize} />
           </div>
 
@@ -402,8 +404,8 @@ export default function Robot2DExercise({
           )}
         </div>
 
-        {/* RIGHT: Code editor */}
-        <div className="flex flex-1 flex-col min-w-0 border-l border-slate-200/60 dark:border-white/5">
+        {/* Code editor (bottom on mobile, right on desktop) */}
+        <div className="flex flex-1 flex-col min-w-0 min-h-[250px] border-t lg:border-t-0 lg:border-l border-slate-200/60 dark:border-white/5">
           {/* Mode toggle header */}
           {allowPython && (
             <div className="flex items-center gap-1 border-b border-slate-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">
