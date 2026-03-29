@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { MathRenderer, containsMath } from "@/components/common/math-renderer";
 import type { MathTemplateProps } from "../template-registry";
 
 interface Choice {
@@ -49,10 +50,10 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
     <div className="flex flex-col gap-5">
       {/* Question */}
       <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-white/5">
-        <p className="text-base font-medium text-slate-800 dark:text-slate-200">
-          {cfg.question}
-        </p>
-        {cfg.standard && (
+        <div className="text-base font-medium text-slate-800 dark:text-slate-200">
+          {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
+        </div>
+        {false && cfg.standard && (
           <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             {cfg.standard}
           </span>
@@ -102,7 +103,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
                 {labels[i]}
               </span>
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {choice.text}
+                {containsMath(choice.text) ? <MathRenderer content={choice.text} /> : choice.text}
               </span>
               {submitted && choice.correct && (
                 <span className="ml-auto text-xs font-semibold text-emerald-600 dark:text-emerald-400">

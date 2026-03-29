@@ -409,7 +409,13 @@ export default function LessonViewerPage() {
               Exercises
             </h2>
             {exercises.map((ex) => (
-              <ExerciseRenderer key={ex.id} exercise={ex as any} />
+              <ExerciseRenderer
+                key={ex.id}
+                exercise={ex as any}
+                courseId={courseId}
+                prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
+                nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
+              />
             ))}
           </div>
         )}

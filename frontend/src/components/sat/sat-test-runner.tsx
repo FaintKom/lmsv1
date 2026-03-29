@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Flag, ChevronLeft, ChevronRight, Clock, X, Eye, EyeOff, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MathRenderer, containsMath } from "@/components/common/math-renderer";
 import DesmosCalculator from "./desmos-calculator";
+
+/** Render text with optional LaTeX support */
+function MathText({ text, className }: { text: string; className?: string }) {
+  if (containsMath(text)) return <MathRenderer content={text} className={className} />;
+  return <span className={className}>{text}</span>;
+}
 import SATResults from "./sat-results";
 import type { SATQuestion, SATTestConfig } from "./sat-question-bank";
 
@@ -23,8 +30,8 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
   return (
     <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
       <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
-        <p className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
-        {standard && (
+        <MathText text={question} className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200" />
+        {false && standard && (
           <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             {standard}
           </span>
@@ -37,7 +44,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
               <button key={i} onClick={() => onEliminate(i)}
                 className="flex w-full items-center gap-4 rounded-xl border-2 border-slate-200 px-5 py-4 text-left opacity-40 line-through dark:border-white/10">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-400 dark:bg-white/10">{labels[i]}</span>
-                <span className="text-sm text-slate-400">{choice.text}</span>
+                <MathText text={choice.text} className="text-sm text-slate-400" />
               </button>
             );
           }
@@ -53,7 +60,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
                 isSelected ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
               }`}>{labels[i]}</span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{choice.text}</span>
+              <MathText text={choice.text} className="text-sm font-medium text-slate-700 dark:text-slate-300" />
             </button>
           );
         })}
@@ -74,8 +81,8 @@ function NumericQuestion({ config, answer, onAnswer }: {
   return (
     <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
       <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
-        <p className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200">{question}</p>
-        {standard && (
+        <MathText text={question} className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200" />
+        {false && standard && (
           <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
             {standard}
           </span>

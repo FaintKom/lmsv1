@@ -188,7 +188,7 @@ const advancedMathGenerators: Gen[] = [
   () => {
     const r1 = randInt(-8, 8); const r2 = randInt(-8, 8);
     const b = -(r1 + r2); const c = r1 * r2;
-    return mc(uid(), "advanced_math", 2, `Factor: x² ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c}`,
+    return mc(uid(), "advanced_math", 2, `Factor: $x^2 ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c}$`,
       `(x ${r1 >= 0 ? "-" : "+"}${Math.abs(r1)})(x ${r2 >= 0 ? "-" : "+"}${Math.abs(r2)})`,
       `Zeros at x = ${r1} and x = ${r2}. So (x - ${r1})(x - ${r2}).`,
       [`(x + ${r1})(x + ${r2})`, `(x - ${r1 + 1})(x - ${r2 - 1})`, `(x + ${Math.abs(r1)})(x - ${Math.abs(r2)})`]);
@@ -199,7 +199,7 @@ const advancedMathGenerators: Gen[] = [
     const a = randNonZero(3); const b = randInt(-5, 5); const c = randInt(-5, 5);
     const x = randInt(-4, 4);
     const result = a * x * x + b * x + c;
-    return num(uid(), "advanced_math", 1, `If f(x) = ${a}x² ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c}, what is f(${x})?`, result,
+    return num(uid(), "advanced_math", 1, `If $f(x) = ${a}x^2 ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c}$, what is $f(${x})$?`, result,
       `f(${x}) = ${a}(${x})² + ${b}(${x}) + ${c} = ${a * x * x} + ${b * x} + ${c} = ${result}.`);
   },
 
@@ -215,17 +215,17 @@ const advancedMathGenerators: Gen[] = [
   // 4. Exponent rules
   () => {
     const a = randInt(2, 6); const b = randInt(2, 6);
-    return mc(uid(), "advanced_math", 1, `Simplify: x${superscript(a)} · x${superscript(b)}`,
-      `x${superscript(a + b)}`, `When multiplying like bases, add exponents: x^(${a}+${b}) = x${superscript(a + b)}.`,
-      [`x${superscript(a * b)}`, `${a + b}x`, `x${superscript(Math.abs(a - b))}`]);
+    return mc(uid(), "advanced_math", 1, `Simplify: $x^{${a}} \\cdot x^{${b}}$`,
+      `$x^{${a + b}}$`, `When multiplying like bases, add exponents: $x^{${a}+${b}} = x^{${a + b}}$.`,
+      [`$x^{${a * b}}$`, `${a + b}x`, `$x^{${Math.abs(a - b)}}$`]);
   },
 
   // 5. Expand (x + a)²
   () => {
     const a = randInt(1, 8);
-    return mc(uid(), "advanced_math", 1, `Expand: (x + ${a})²`,
-      `x² + ${2 * a}x + ${a * a}`, `(x + ${a})² = x² + 2(${a})x + ${a}² = x² + ${2 * a}x + ${a * a}.`,
-      [`x² + ${a * a}`, `x² + ${a}x + ${a * a}`, `2x + ${2 * a}`]);
+    return mc(uid(), "advanced_math", 1, `Expand: $(x + ${a})^2$`,
+      `$x^2 + ${2 * a}x + ${a * a}$`, `$(x + ${a})^2 = x^2 + 2(${a})x + ${a}^2 = x^2 + ${2 * a}x + ${a * a}$.`,
+      [`$x^2 + ${a * a}$`, `$x^2 + ${a}x + ${a * a}$`, `$2x + ${2 * a}$`]);
   },
 
   // 6. Quadratic formula
