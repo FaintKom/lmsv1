@@ -99,27 +99,27 @@ export const QUESTION_BANK: SATQuestion[] = [
   // ═══ ADVANCED MATH (13-15 questions on real SAT) ═══
 
   { id: "adv-01", domain: "advanced_math", difficulty: 1, template_type: "multiple_choice_math", config: {
-    question: "What are the solutions to x² - 9 = 0?",
+    question: "What are the solutions to $x^2 - 9 = 0$?",
     choices: [{ text: "x = 3 and x = -3", correct: true }, { text: "x = 9 and x = -9", correct: false }, { text: "x = 3 only", correct: false }, { text: "x = 9 only", correct: false }],
     explanation: "x² = 9 → x = ±3.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-02", domain: "advanced_math", difficulty: 2, template_type: "multiple_choice_math", config: {
-    question: "Factor: x² + 5x + 6",
+    question: "Factor: $x^2 + 5x + 6$",
     choices: [{ text: "(x + 2)(x + 3)", correct: true }, { text: "(x + 1)(x + 6)", correct: false }, { text: "(x - 2)(x - 3)", correct: false }, { text: "(x + 5)(x + 1)", correct: false }],
     explanation: "Find two numbers that multiply to 6 and add to 5: 2 and 3. So (x+2)(x+3).", standard: "SAT.Advanced Math",
   }},
   { id: "adv-03", domain: "advanced_math", difficulty: 2, template_type: "numeric_input", config: {
-    question: "If f(x) = 2x² - 3x + 1, what is f(3)?",
+    question: "If $f(x) = 2x^2 - 3x + 1$, what is $f(3)$?",
     correct_answers: [10], tolerance: 0.01, allow_fraction: false, allow_decimal: true,
     explanation: "f(3) = 2(9) - 3(3) + 1 = 18 - 9 + 1 = 10.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-04", domain: "advanced_math", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "The vertex of y = (x - 3)² + 2 is at which point?",
+    question: "The vertex of $y = (x - 3)^2 + 2$ is at which point?",
     choices: [{ text: "(3, 2)", correct: true }, { text: "(-3, 2)", correct: false }, { text: "(3, -2)", correct: false }, { text: "(-3, -2)", correct: false }],
     explanation: "Vertex form y = a(x-h)² + k → vertex at (h, k) = (3, 2).", standard: "SAT.Advanced Math",
   }},
   { id: "adv-05", domain: "advanced_math", difficulty: 2, template_type: "numeric_input", config: {
-    question: "Simplify: (3x²)(4x³)",
+    question: "Simplify: $(3x^2)(4x^3)$",
     correct_answers: [12], tolerance: 0.01, allow_fraction: false, allow_decimal: false,
     explanation: "3 × 4 = 12, x² × x³ = x⁵. Answer: 12x⁵. The coefficient is 12.", hint: "Multiply coefficients, add exponents.", standard: "SAT.Advanced Math",
   }},
@@ -129,7 +129,7 @@ export const QUESTION_BANK: SATQuestion[] = [
     explanation: "Min of ax² + bx + c is at x = -b/(2a) = 4/2 = 2.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-07", domain: "advanced_math", difficulty: 1, template_type: "multiple_choice_math", config: {
-    question: "Which expression is equivalent to (x + 4)²?",
+    question: "Which expression is equivalent to $(x + 4)^2$?",
     choices: [{ text: "x² + 8x + 16", correct: true }, { text: "x² + 16", correct: false }, { text: "x² + 4x + 16", correct: false }, { text: "2x + 8", correct: false }],
     explanation: "(x+4)² = x² + 2(4)(x) + 16 = x² + 8x + 16.", standard: "SAT.Advanced Math",
   }},
@@ -200,12 +200,12 @@ export const QUESTION_BANK: SATQuestion[] = [
     explanation: "V = l × w × h = 4 × 3 × 5 = 60.", standard: "SAT.Geometry",
   }},
   { id: "geo-06", domain: "geometry_trig", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "What is sin(30°)?",
+    question: "What is $\\sin(30°)$?",
     choices: [{ text: "1/2", correct: true }, { text: "√3/2", correct: false }, { text: "√2/2", correct: false }, { text: "1", correct: false }],
     explanation: "sin(30°) = 1/2 (from 30-60-90 triangle or unit circle).", standard: "SAT.Geometry",
   }},
   { id: "geo-07", domain: "geometry_trig", difficulty: 2, template_type: "numeric_input", config: {
-    question: "An arc of a circle has central angle 90° and radius 8. What is the arc length? (Use π ≈ 3.14)",
+    question: "An arc of a circle has central angle $90°$ and radius $8$. What is the arc length? (Use $\\pi \\approx 3.14$)",
     correct_answers: [12.56, 12.57, 4*3.14159], tolerance: 0.1, allow_fraction: true, allow_decimal: true,
     explanation: "Arc = (θ/360) × 2πr = (90/360) × 2π(8) = (1/4)(16π) = 4π ≈ 12.57.", standard: "SAT.Geometry",
   }},
@@ -258,42 +258,42 @@ export const QUESTION_BANK: SATQuestion[] = [
 
   // ═══ ADDITIONAL ADVANCED MATH ═══
   { id: "adv-09", domain: "advanced_math", difficulty: 1, template_type: "multiple_choice_math", config: {
-    question: "Simplify: x³ · x⁴",
+    question: "Simplify: $x^3 \\cdot x^4$",
     choices: [{ text: "x⁷", correct: true }, { text: "x¹²", correct: false }, { text: "x¹", correct: false }, { text: "2x⁷", correct: false }],
     explanation: "When multiplying like bases, add exponents: x³⁺⁴ = x⁷.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-10", domain: "advanced_math", difficulty: 2, template_type: "numeric_input", config: {
-    question: "If f(x) = x² - 4, what is f(-3)?",
+    question: "If $f(x) = x^2 - 4$, what is $f(-3)$?",
     correct_answers: [5], tolerance: 0.01, allow_fraction: false, allow_decimal: true,
     explanation: "f(-3) = (-3)² - 4 = 9 - 4 = 5.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-11", domain: "advanced_math", difficulty: 2, template_type: "multiple_choice_math", config: {
-    question: "What are the zeros of f(x) = x² - 7x + 12?",
+    question: "What are the zeros of $f(x) = x^2 - 7x + 12$?",
     choices: [{ text: "3 and 4", correct: true }, { text: "2 and 6", correct: false }, { text: "-3 and -4", correct: false }, { text: "1 and 12", correct: false }],
     explanation: "x² - 7x + 12 = (x-3)(x-4) = 0. Zeros: x = 3 and x = 4.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-12", domain: "advanced_math", difficulty: 3, template_type: "numeric_input", config: {
-    question: "Use the quadratic formula: x² + 2x - 8 = 0. What is the positive root?",
+    question: "Use the quadratic formula: $x^2 + 2x - 8 = 0$. What is the positive root?",
     correct_answers: [2], tolerance: 0.01, allow_fraction: false, allow_decimal: true,
     explanation: "x = (-2 ± √(4+32))/2 = (-2 ± 6)/2. Positive: (-2+6)/2 = 2.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-13", domain: "advanced_math", difficulty: 1, template_type: "multiple_choice_math", config: {
-    question: "What is √144?",
+    question: "What is $\\sqrt{144}$?",
     choices: [{ text: "12", correct: true }, { text: "14", correct: false }, { text: "72", correct: false }, { text: "11", correct: false }],
     explanation: "12 × 12 = 144, so √144 = 12.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-14", domain: "advanced_math", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "The function f(x) = -2(x+1)² + 5 has a maximum value of:",
+    question: "The function $f(x) = -2(x+1)^2 + 5$ has a maximum value of:",
     choices: [{ text: "5", correct: true }, { text: "-2", correct: false }, { text: "1", correct: false }, { text: "-1", correct: false }],
     explanation: "Vertex form: max/min at k. Since a=-2<0, it's a max at y=5.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-15", domain: "advanced_math", difficulty: 2, template_type: "numeric_input", config: {
-    question: "If f(x) = 3x + 1 and g(x) = x², what is g(f(2))?",
+    question: "If $f(x) = 3x + 1$ and $g(x) = x^2$, what is $g(f(2))$?",
     correct_answers: [49], tolerance: 0.01, allow_fraction: false, allow_decimal: false,
     explanation: "f(2) = 3(2)+1 = 7. g(7) = 7² = 49.", standard: "SAT.Advanced Math",
   }},
   { id: "adv-16", domain: "advanced_math", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "Which expression equals (x²-9)/(x-3) for x ≠ 3?",
+    question: "Which expression equals $\\frac{x^2-9}{x-3}$ for $x \\neq 3$?",
     choices: [{ text: "x + 3", correct: true }, { text: "x - 3", correct: false }, { text: "x² - 3", correct: false }, { text: "3x", correct: false }],
     explanation: "x² - 9 = (x+3)(x-3). Divide by (x-3): x+3.", standard: "SAT.Advanced Math",
   }},
@@ -347,12 +347,12 @@ export const QUESTION_BANK: SATQuestion[] = [
     explanation: "Supplementary angles sum to 180°. 180 - 65 = 115°.", standard: "SAT.Geometry",
   }},
   { id: "geo-10", domain: "geometry_trig", difficulty: 2, template_type: "numeric_input", config: {
-    question: "A cylinder has radius 3 and height 7. What is its volume? (Use π ≈ 3.14)",
+    question: "A cylinder has radius $3$ and height $7$. What is its volume? (Use $\\pi \\approx 3.14$)",
     correct_answers: [197.82, 197.92, 63*3.14159], tolerance: 0.5, allow_fraction: false, allow_decimal: true,
     explanation: "V = πr²h = π(9)(7) = 63π ≈ 197.92.", standard: "SAT.Geometry",
   }},
   { id: "geo-11", domain: "geometry_trig", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "What is cos(60°)?",
+    question: "What is $\\cos(60°)$?",
     choices: [{ text: "1/2", correct: true }, { text: "√3/2", correct: false }, { text: "√2/2", correct: false }, { text: "0", correct: false }],
     explanation: "cos(60°) = 1/2 (from 30-60-90 triangle).", standard: "SAT.Geometry",
   }},
@@ -367,12 +367,12 @@ export const QUESTION_BANK: SATQuestion[] = [
     explanation: "Scale factor = 6/3 = 2. x = 5 × 2 = 10.", standard: "SAT.Geometry",
   }},
   { id: "geo-14", domain: "geometry_trig", difficulty: 3, template_type: "multiple_choice_math", config: {
-    question: "A sector of a circle has radius 6 and central angle 120°. What is its area?",
+    question: "A sector of a circle has radius $6$ and central angle $120°$. What is its area?",
     choices: [{ text: "12π", correct: true }, { text: "36π", correct: false }, { text: "6π", correct: false }, { text: "24π", correct: false }],
     explanation: "Area = (120/360)πr² = (1/3)π(36) = 12π.", standard: "SAT.Geometry",
   }},
   { id: "geo-15", domain: "geometry_trig", difficulty: 3, template_type: "numeric_input", config: {
-    question: "In a 45-45-90 triangle, the legs are each 5. What is the hypotenuse? (Round to 2 decimals)",
+    question: "In a $45$-$45$-$90$ triangle, the legs are each $5$. What is the hypotenuse? (Round to 2 decimals)",
     correct_answers: [7.07, 5*1.41421], tolerance: 0.05, allow_fraction: false, allow_decimal: true,
     explanation: "Hypotenuse = leg × √2 = 5√2 ≈ 7.07.", standard: "SAT.Geometry",
   }},

@@ -90,15 +90,15 @@ const algebraGenerators: Gen[] = [
   () => {
     const a = randNonZero(8); const x = randInt(-10, 10); const b = randInt(-15, 15); const c = a * x + b;
     return pick([true, false])
-      ? mc(uid(), "algebra", 1, `Solve: ${a}x + ${b} = ${c}`, x, `${a}x = ${c} - ${b} = ${c - b}. x = ${c - b}/${a} = ${x}.`)
-      : num(uid(), "algebra", 1, `If ${a}x + ${b} = ${c}, what is x?`, x, `${a}x = ${c - b}, x = ${x}.`);
+      ? mc(uid(), "algebra", 1, `Solve: $${a}x + ${b} = ${c}$`, x, `$${a}x = ${c} - ${b} = ${c - b}$. $x = \\frac{${c - b}}{${a}} = ${x}$.`)
+      : num(uid(), "algebra", 1, `If $${a}x + ${b} = ${c}$, what is $x$?`, x, `$${a}x = ${c - b}$, $x = ${x}$.`);
   },
 
   // 2. Distribution: a(bx + c) = d
   () => {
     const a = randNonZero(4); const b = randNonZero(3); const x = randInt(-5, 5); const c = randInt(-8, 8);
     const d = a * (b * x + c);
-    return num(uid(), "algebra", 2, `Solve: ${a}(${b}x + ${c}) = ${d}`, x, `${a * b}x + ${a * c} = ${d}. ${a * b}x = ${d - a * c}. x = ${x}.`);
+    return num(uid(), "algebra", 2, `Solve: $${a}(${b}x + ${c}) = ${d}$`, x, `$${a * b}x + ${a * c} = ${d}$. $${a * b}x = ${d - a * c}$. $x = ${x}$.`);
   },
 
   // 3. Slope from two points
@@ -106,8 +106,8 @@ const algebraGenerators: Gen[] = [
     const x1 = randInt(-5, 5); const x2 = x1 + randInt(1, 6);
     const m = pick([1, 2, 3, -1, -2, -3, 0.5, -0.5]);
     const y1 = randInt(-5, 5); const y2 = y1 + m * (x2 - x1);
-    return mc(uid(), "algebra", 2, `What is the slope of the line through (${x1}, ${y1}) and (${x2}, ${fmt(y2)})?`, m,
-      `Slope = (${fmt(y2)} - ${y1}) / (${x2} - ${x1}) = ${fmt(y2 - y1)} / ${x2 - x1} = ${fmt(m)}.`);
+    return mc(uid(), "algebra", 2, `What is the slope of the line through $(${x1}, ${y1})$ and $(${x2}, ${fmt(y2)})$?`, m,
+      `$m = \\frac{${fmt(y2)} - ${y1}}{${x2} - ${x1}} = \\frac{${fmt(y2 - y1)}}{${x2 - x1}} = ${fmt(m)}$`);
   },
 
   // 4. Slope-intercept from standard form
@@ -115,15 +115,15 @@ const algebraGenerators: Gen[] = [
     const A = randNonZero(6); const B = pick([-4, -3, -2, -1, 1, 2, 3, 4].filter(b => b !== 0));
     const C = randInt(-10, 10);
     const slope = -A / B; const intercept = C / B;
-    return mc(uid(), "algebra", 2, `What is the slope of ${A}x + ${B}y = ${C}?`, slope,
-      `${B}y = -${A}x + ${C}. y = ${fmt(-A / B)}x + ${fmt(C / B)}. Slope = ${fmt(slope)}.`);
+    return mc(uid(), "algebra", 2, `What is the slope of $${A}x + ${B}y = ${C}$?`, slope,
+      `$${B}y = -${A}x + ${C}$. $y = ${fmt(-A / B)}x + ${fmt(C / B)}$. Slope $= ${fmt(slope)}$.`);
   },
 
   // 5. Y-intercept
   () => {
     const m = randNonZero(5); const b = randInt(-10, 10);
-    return mc(uid(), "algebra", 1, `What is the y-intercept of y = ${m}x + ${b}?`, b,
-      `In y = mx + b form, the y-intercept is b = ${b}.`, distractors(b));
+    return mc(uid(), "algebra", 1, `What is the y-intercept of $y = ${m}x + ${b}$?`, b,
+      `In $y = mx + b$ form, the y-intercept is $b = ${b}$.`, distractors(b));
   },
 
   // 6. System of equations (elimination)
@@ -132,24 +132,24 @@ const algebraGenerators: Gen[] = [
     const a1 = randNonZero(3); const b1 = randNonZero(3);
     const a2 = randNonZero(3); const b2 = randNonZero(3);
     const c1 = a1 * x + b1 * y; const c2 = a2 * x + b2 * y;
-    return num(uid(), "algebra", 2, `Solve: ${a1}x + ${b1}y = ${c1} and ${a2}x + ${b2}y = ${c2}. What is x?`, x,
-      `Using elimination or substitution: x = ${x}, y = ${y}.`);
+    return num(uid(), "algebra", 2, `Solve the system: $${a1}x + ${b1}y = ${c1}$ and $${a2}x + ${b2}y = ${c2}$. What is $x$?`, x,
+      `Using elimination: $x = ${x}$, $y = ${y}$.`);
   },
 
   // 7. Perpendicular slope
   () => {
     const m = pick([2, 3, 4, -2, -3, 1, -1, 0.5, -0.5]);
     const perpM = -1 / m;
-    return mc(uid(), "algebra", 2, `A line has slope ${fmt(m)}. What is the slope of a perpendicular line?`, perpM,
-      `Perpendicular slopes: m₁ × m₂ = -1. So m₂ = ${fmt(perpM)}.`);
+    return mc(uid(), "algebra", 2, `A line has slope $${fmt(m)}$. What is the slope of a perpendicular line?`, perpM,
+      `Perpendicular slopes: $m_1 \\cdot m_2 = -1$. So $m_2 = ${fmt(perpM)}$.`);
   },
 
   // 8. Absolute value
   () => {
     const a = randInt(1, 8); const b = randInt(1, 12);
     const x1 = a + b; const x2 = a - b;
-    return num(uid(), "algebra", 2, `If |x - ${a}| = ${b}, what is the positive value of x?`, Math.max(x1, x2),
-      `x - ${a} = ${b} → x = ${x1}, or x - ${a} = -${b} → x = ${x2}. Positive: ${Math.max(x1, x2)}.`);
+    return num(uid(), "algebra", 2, `If $|x - ${a}| = ${b}$, what is the positive value of $x$?`, Math.max(x1, x2),
+      `$x - ${a} = ${b} \\Rightarrow x = ${x1}$, or $x - ${a} = -${b} \\Rightarrow x = ${x2}$. Positive: $${Math.max(x1, x2)}$.`);
   },
 
   // 9. Linear inequality
@@ -157,16 +157,16 @@ const algebraGenerators: Gen[] = [
     const a = randInt(2, 6); const b = randInt(1, 20);
     const c = randInt(10, 50);
     const ans = Math.floor((c - b) / a);
-    return mc(uid(), "algebra", 1, `Which is the solution to ${a}x + ${b} ≤ ${c}?`,
-      `x ≤ ${ans}`, `${a}x ≤ ${c - b}. x ≤ ${ans}.`,
-      [`x ≥ ${ans}`, `x ≤ ${ans + 2}`, `x ≥ ${ans - 1}`]);
+    return mc(uid(), "algebra", 1, `Which is the solution to $${a}x + ${b} \\leq ${c}$?`,
+      `$x \\leq ${ans}$`, `$${a}x \\leq ${c - b}$. $x \\leq ${ans}$.`,
+      [`$x \\geq ${ans}$`, `$x \\leq ${ans + 2}$`, `$x \\geq ${ans - 1}$`]);
   },
 
   // 10. Parallel lines (no solution)
   () => {
     const m = randInt(1, 5); const b1 = randInt(-5, 5); const b2 = b1 + randNonZero(4);
-    return mc(uid(), "algebra", 3, `The system y = ${m}x + ${b1} and y = ${m}x + ${b2} has:`,
-      "No solution", `Same slope (${m}), different intercepts → parallel lines → no solution.`,
+    return mc(uid(), "algebra", 3, `The system $y = ${m}x + ${b1}$ and $y = ${m}x + ${b2}$ has:`,
+      "No solution", `Same slope ($${m}$), different intercepts → parallel lines → no solution.`,
       ["One solution", "Infinitely many solutions", "Two solutions"]);
   },
 
@@ -174,8 +174,8 @@ const algebraGenerators: Gen[] = [
   () => {
     const base = pick([2, 3, 4, 5]); const rate = pick([0.5, 0.75, 1, 1.5, 2]);
     const miles = randInt(5, 20); const cost = base + rate * miles;
-    return num(uid(), "algebra", 2, `A taxi charges $${base} plus $${fmt(rate)} per mile. How much for ${miles} miles?`, cost,
-      `Cost = ${base} + ${fmt(rate)} × ${miles} = $${fmt(cost)}.`);
+    return num(uid(), "algebra", 2, `A taxi charges $$${base}$ plus $$${fmt(rate)}$ per mile. How much for ${miles} miles?`, cost,
+      `$\\text{Cost} = ${base} + ${fmt(rate)} \\times ${miles} = ${fmt(cost)}$`);
   },
 ];
 
@@ -207,9 +207,9 @@ const advancedMathGenerators: Gen[] = [
   () => {
     const h = randInt(-5, 5); const k = randInt(-5, 5);
     const a = pick([1, -1, 2, -2]);
-    return mc(uid(), "advanced_math", 2, `The vertex of y = ${a}(x ${h >= 0 ? "-" : "+"}${Math.abs(h)})² + ${k} is:`,
-      `(${h}, ${k})`, `Vertex form y = a(x-h)² + k → vertex at (h,k) = (${h}, ${k}).`,
-      [`(${-h}, ${k})`, `(${h}, ${-k})`, `(${-h}, ${-k})`]);
+    return mc(uid(), "advanced_math", 2, `The vertex of $y = ${a}(x ${h >= 0 ? "-" : "+"}${Math.abs(h)})^2 + ${k}$ is:`,
+      `$(${h}, ${k})$`, `Vertex form $y = a(x-h)^2 + k$ → vertex at $(h,k) = (${h}, ${k})$.`,
+      [`$(${-h}, ${k})$`, `$(${h}, ${-k})$`, `$(${-h}, ${-k})$`]);
   },
 
   // 4. Exponent rules
@@ -232,16 +232,16 @@ const advancedMathGenerators: Gen[] = [
   () => {
     const r1 = randInt(1, 7); const r2 = randInt(-7, -1);
     const b = -(r1 + r2); const c = r1 * r2;
-    return num(uid(), "advanced_math", 3, `Solve x² ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c} = 0. What is the positive root?`, r1,
-      `Factors: (x - ${r1})(x + ${Math.abs(r2)}) = 0. Positive root: x = ${r1}.`);
+    return num(uid(), "advanced_math", 3, `Solve $x^2 ${b >= 0 ? "+" : ""}${b}x ${c >= 0 ? "+" : ""}${c} = 0$. What is the positive root?`, r1,
+      `Factors: $(x - ${r1})(x + ${Math.abs(r2)}) = 0$. Positive root: $x = ${r1}$.`);
   },
 
   // 7. Function composition
   () => {
     const a = randInt(2, 4); const b = randInt(1, 5); const x = randInt(1, 5);
     const fx = a * x + b; const gfx = fx * fx;
-    return num(uid(), "advanced_math", 2, `If f(x) = ${a}x + ${b} and g(x) = x², what is g(f(${x}))?`, gfx,
-      `f(${x}) = ${a}(${x}) + ${b} = ${fx}. g(${fx}) = ${fx}² = ${gfx}.`);
+    return num(uid(), "advanced_math", 2, `If $f(x) = ${a}x + ${b}$ and $g(x) = x^2$, what is $g(f(${x}))$?`, gfx,
+      `$f(${x}) = ${a}(${x}) + ${b} = ${fx}$. $g(${fx}) = ${fx}^2 = ${gfx}$.`);
   },
 
   // 8. Exponential growth
@@ -260,8 +260,8 @@ const advancedMathGenerators: Gen[] = [
     const vertex_x = -b / (2 * a);
     const isMax = a < 0;
     return mc(uid(), "advanced_math", 2,
-      `For f(x) = ${a}x² ${b >= 0 ? "+" : ""}${b}x, the x-value of the ${isMax ? "maximum" : "minimum"} is:`,
-      vertex_x, `x = -b/(2a) = ${-b}/${2 * a} = ${fmt(vertex_x)}.`);
+      `For $f(x) = ${a}x^2 ${b >= 0 ? "+" : ""}${b}x$, the $x$-value of the ${isMax ? "maximum" : "minimum"} is:`,
+      vertex_x, `$x = \\frac{-b}{2a} = \\frac{${-b}}{${2 * a}} = ${fmt(vertex_x)}$`);
   },
 ];
 
@@ -305,9 +305,9 @@ const problemSolvingGenerators: Gen[] = [
     const target = pick(["red", "blue", "green"]);
     const count = target === "red" ? r : target === "blue" ? b : g;
     return mc(uid(), "problem_solving", 1,
-      `A bag has ${r} red, ${b} blue, and ${g} green marbles. P(${target})?`,
-      `${count}/${total}`, `P = ${count}/${total}.`,
-      [`${count + 1}/${total}`, `${count}/${total - 1}`, `${total - count}/${total}`]);
+      `A bag has ${r} red, ${b} blue, and ${g} green marbles. What is $P(\\text{${target}})$?`,
+      `$\\frac{${count}}{${total}}$`, `$P = \\frac{${count}}{${total}}$`,
+      [`$\\frac{${count + 1}}{${total}}$`, `$\\frac{${count}}{${total - 1}}$`, `$\\frac{${total - count}}{${total}}$`]);
   },
 
   // 5. Speed/distance
@@ -349,15 +349,15 @@ const geometryGenerators: Gen[] = [
   // 1. Triangle area
   () => {
     const base = randInt(4, 15); const height = randInt(3, 12);
-    return num(uid(), "geometry_trig", 1, `Triangle with base ${base} and height ${height}. Area?`, base * height / 2,
-      `A = ½ × ${base} × ${height} = ${base * height / 2}.`);
+    return num(uid(), "geometry_trig", 1, `A triangle has base $${base}$ and height $${height}$. What is the area?`, base * height / 2,
+      `$A = \\frac{1}{2} \\times ${base} \\times ${height} = ${base * height / 2}$`);
   },
 
   // 2. Circle area
   () => {
     const r = randInt(2, 10);
-    return mc(uid(), "geometry_trig", 1, `Circle with radius ${r}. Area?`, `${r * r}π`,
-      `A = πr² = π(${r}²) = ${r * r}π.`, [`${2 * r}π`, `${r}π`, `${r * r * 2}π`]);
+    return mc(uid(), "geometry_trig", 1, `A circle has radius $${r}$. What is its area?`, `$${r * r}\\pi$`,
+      `$A = \\pi r^2 = \\pi(${r}^2) = ${r * r}\\pi$`, [`$${2 * r}\\pi$`, `$${r}\\pi$`, `$${r * r * 2}\\pi$`]);
   },
 
   // 3. Pythagorean theorem
@@ -383,8 +383,8 @@ const geometryGenerators: Gen[] = [
   // 5. Supplementary angles
   () => {
     const a = randInt(20, 160);
-    return num(uid(), "geometry_trig", 1, `Two angles are supplementary. One is ${a}°. The other?`, 180 - a,
-      `Supplementary = 180°. ${180} - ${a} = ${180 - a}°.`);
+    return num(uid(), "geometry_trig", 1, `Two angles are supplementary. One is $${a}°$. What is the other?`, 180 - a,
+      `Supplementary angles sum to $180°$. $180 - ${a} = ${180 - a}°$.`);
   },
 
   // 6. Similar triangles
@@ -415,7 +415,7 @@ const geometryGenerators: Gen[] = [
     const r = randInt(3, 10); const angle = pick([60, 90, 120, 180]);
     const area = (angle / 360) * r * r;
     return mc(uid(), "geometry_trig", 3, `Sector: radius ${r}, angle ${angle}°. Area?`, `${fmt(area)}π`,
-      `A = (${angle}/360)πr² = (${angle / 360})π(${r * r}) = ${fmt(area)}π.`,
+      `$A = \\frac{${angle}}{360}\\pi r^2 = \\frac{${angle}}{360}\\pi(${r * r}) = ${fmt(area)}\\pi$`,
       [`${fmt(area * 2)}π`, `${r * r}π`, `${fmt(angle / 360 * r)}π`]);
   },
 
