@@ -111,10 +111,10 @@ export default function BlocklyWorkspace({
       blockStyles,
       categoryStyles,
       componentStyles: {
-        workspaceBackgroundColour: "#1a1a2e",
-        toolboxBackgroundColour: "#16162a",
+        workspaceBackgroundColour: "#1E1E1E",
+        toolboxBackgroundColour: "#171717",
         toolboxForegroundColour: "#e2e8f0",
-        flyoutBackgroundColour: "#1e1e36",
+        flyoutBackgroundColour: "#1E1E1E",
         flyoutForegroundColour: "#cbd5e1",
         flyoutOpacity: 0.97,
         scrollbarColour: "#334155",

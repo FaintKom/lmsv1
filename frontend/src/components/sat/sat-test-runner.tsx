@@ -45,10 +45,10 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
           return (
             <button key={i} onClick={() => onAnswer(choice.text)}
               onContextMenu={(e) => { e.preventDefault(); onEliminate(i); }}
-              className={`flex w-full items-center gap-4 rounded-xl border-2 px-5 py-4 text-left transition-all ${
+              className={`flex w-full items-center gap-4 rounded-xl border-2 px-5 py-4 text-left transition-all duration-200 ${
                 isSelected
-                  ? "border-indigo-500 bg-indigo-50 dark:border-indigo-400 dark:bg-indigo-500/10"
-                  : "border-slate-200 bg-white hover:border-slate-300 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20"
+                  ? "border-indigo-500 bg-indigo-50 shadow-md dark:border-indigo-400 dark:bg-indigo-500/10"
+                  : "border-slate-200 bg-white hover:border-indigo-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 dark:border-white/10 dark:bg-white/5 dark:hover:border-indigo-500/50"
               }`}>
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
                 isSelected ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"

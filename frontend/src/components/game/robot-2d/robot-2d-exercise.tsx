@@ -288,7 +288,7 @@ export default function Robot2DExercise({
           </div>
 
           {/* Grid visualization */}
-          <div className="flex flex-1 items-center justify-center bg-slate-100 dark:bg-[#12121e] overflow-hidden p-3">
+          <div className="flex flex-1 items-center justify-center bg-slate-100 dark:bg-[#171717] overflow-hidden p-3">
             <GridRenderer state={gridState} cellSize={gridCellSize} />
           </div>
 
@@ -308,19 +308,19 @@ export default function Robot2DExercise({
             <div className="flex items-center gap-1.5">
               <button
                 onClick={handleReset}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-95 dark:hover:bg-white/10 dark:hover:text-slate-300"
                 title="Сбросить"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-5 w-5" />
               </button>
 
               <button
                 onClick={handleStep}
                 disabled={isRunning || completed}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:opacity-30 dark:hover:bg-white/10 dark:hover:text-slate-300"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 active:scale-95 disabled:opacity-30 dark:hover:bg-white/10 dark:hover:text-slate-300"
                 title="Один шаг"
               >
-                <SkipForward className="h-4 w-4" />
+                <SkipForward className="h-5 w-5" />
               </button>
 
               {isRunning ? (
@@ -406,7 +406,7 @@ export default function Robot2DExercise({
         <div className="flex flex-1 flex-col min-w-0">
           {/* Mode toggle header */}
           {allowPython && (
-            <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-[#161622]">
+            <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-[#171717]">
               <button onClick={() => setMode("blocks")}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Блоки
