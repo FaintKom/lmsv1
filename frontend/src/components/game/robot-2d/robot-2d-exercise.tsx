@@ -267,7 +267,7 @@ export default function Robot2DExercise({
       : "✅ Выполни задание!";
 
   const gridCellSize = Math.floor(
-    Math.min(420, typeof window !== "undefined" ? window.innerHeight - 200 : 420)
+    Math.min(500, typeof window !== "undefined" ? window.innerHeight - 180 : 500)
     / Math.max(gridWidth, gridHeight)
   );
 
@@ -277,23 +277,23 @@ export default function Robot2DExercise({
       <div className="flex flex-1 min-h-0">
 
         {/* LEFT: Grid area — the hero */}
-        <div className="flex w-[420px] shrink-0 flex-col border-r border-slate-200 dark:border-white/10">
+        <div className="flex w-[480px] shrink-0 flex-col bg-gradient-to-b from-slate-50 to-slate-100 dark:from-[#18181b] dark:to-[#1a1a1a]">
           {/* Task instruction banner */}
-          <div className={`px-4 py-2.5 text-sm font-semibold ${
+          <div className={`px-5 py-3 text-sm font-semibold border-b ${
             winCondition === "reach_goal"
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
-              : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+              ? "bg-emerald-50/80 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20"
+              : "bg-amber-50/80 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20"
           }`}>
             {taskText}
           </div>
 
           {/* Grid visualization */}
-          <div className="flex flex-1 items-center justify-center bg-slate-100 dark:bg-[#171717] overflow-hidden p-3">
+          <div className="flex flex-1 items-center justify-center overflow-hidden p-6">
             <GridRenderer state={gridState} cellSize={gridCellSize} />
           </div>
 
           {/* Playback controls bar */}
-          <div className="flex items-center justify-between border-t border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
+          <div className="flex items-center justify-between border-t border-slate-200/60 bg-white/80 backdrop-blur-sm px-4 py-2.5 dark:border-white/5 dark:bg-[#1E1E1E]/80">
             {/* Left: stats */}
             <div className="flex items-center gap-3 text-xs text-slate-400">
               <span>Шагов: <b className="text-slate-600 dark:text-slate-300">{stepsUsed}</b></span>
@@ -403,10 +403,10 @@ export default function Robot2DExercise({
         </div>
 
         {/* RIGHT: Code editor */}
-        <div className="flex flex-1 flex-col min-w-0">
+        <div className="flex flex-1 flex-col min-w-0 border-l border-slate-200/60 dark:border-white/5">
           {/* Mode toggle header */}
           {allowPython && (
-            <div className="flex items-center gap-1 border-b border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-[#171717]">
+            <div className="flex items-center gap-1 border-b border-slate-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">
               <button onClick={() => setMode("blocks")}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Блоки
