@@ -38,8 +38,28 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
     return <MathRenderer content={text} />;
   }
 
-  // HTML mode — render as raw HTML
+  // HTML mode — use iframe if content has scripts (for interactive widgets)
   if (format === "html") {
+    const hasScript = text.includes("<script");
+    if (hasScript) {
+      const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:system-ui,sans-serif;color:#1e293b;line-height:1.7}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${text}</body></html>`;
+      return (
+        <iframe
+          srcDoc={srcdoc}
+          sandbox="allow-scripts"
+          className="w-full border-0 rounded-xl"
+          style={{ minHeight: 600, height: "auto" }}
+          onLoad={(e) => {
+            // Auto-resize iframe to content height
+            const iframe = e.target as HTMLIFrameElement;
+            try {
+              const height = iframe.contentDocument?.documentElement?.scrollHeight;
+              if (height) iframe.style.height = height + 40 + "px";
+            } catch { /* cross-origin, ignore */ }
+          }}
+        />
+      );
+    }
     return (
       <div
         dangerouslySetInnerHTML={{ __html: text }}
