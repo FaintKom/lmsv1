@@ -1,0 +1,2378 @@
+{
+  "course_title": "Visual Programming with Robot PRO",
+  "course_description": "Learn programming concepts by controlling a robot on a grid! Built with the 4C/ID instructional design framework. Start with simple moves and work your way up to writing real Python code.",
+  "target_age": "8-14",
+  "total_modules": 8,
+  "total_levels": 30,
+  "modules": [
+    {
+      "module_id": 1,
+      "title": "Sequences: First Steps",
+      "description": "Learn to give the robot step-by-step instructions. Each block moves the robot one square on the grid.",
+      "concept": "Sequencing - putting instructions in the right order",
+      "levels": [
+        {
+          "level_id": "1-1",
+          "title": "Hello, Robot!",
+          "theory": "## Hello, Robot! 🤖\n\n### 🌟 New Skill: Giving Your First Command\nImagine you have a new puppy. You tell it \"sit!\" and it sits. Your robot works the same way — it does exactly what you tell it, one step at a time! Right now, your robot knows one trick: **Move Right**. Each block you drag is like giving the robot one clear instruction.\n\nThink of it like laying down stepping stones. Each stone is one move. The robot hops from stone to stone until it reaches the finish!\n\n### 🎯 Your Mission\nGuide your robot across the grid to reach the **green flag** 🏁! The robot starts on the left and needs to walk right to the goal. Count the squares between them — that is how many Move Right blocks you need!\n\n### 📖 How to Do It\n1. 🔵 Drag a **Move Right** block into the workspace\n2. 🔵 Add more **Move Right** blocks (count the squares!)\n3. 🟢 Press **Play** ▶️ and watch your robot walk!\n\n### 💡 Pro Tip\nCount the squares between the robot and the flag BEFORE you start adding blocks. Finger-count on the screen — it really helps!\n\n### 🎮 Fun Fact\nReal programmers write instructions for robots every day! Mars rovers get commands just like your robot — step by step! 🚀",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 3,
+            "optimal_blocks": 3,
+            "hints": [
+              "Count the squares from the robot to the flag. How many steps to the right?",
+              "You need exactly 3 'Move Right' blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-2",
+          "title": "Up and Away",
+          "theory": "## Up and Away 🤖\n\n### 🌟 New Skill: Moving in Two Directions\nWhen you give someone directions to your house, you don't just say \"go right\" — sometimes you say \"turn and go up the hill!\" Now your robot has a new move: **Move Up**!\n\nIt's like playing chess — your pieces can go different directions. The robot follows blocks from **top to bottom**, like reading a book. The order matters!\n\n### 🎯 Your Mission\nThe goal is up AND to the right! You need to combine **Move Right** and **Move Up** blocks to get there. There's no single straight line — you'll need both directions! 🏁\n\n### 📖 How to Do It\n1. 🔵 Drag **Move Right** blocks to go sideways\n2. 🟢 Drag **Move Up** blocks to go upward\n3. 🟡 Press **Play** ▶️ — the robot follows blocks in order, top to bottom!\n\n### 💡 Pro Tip\nThe order doesn't have to be perfect! You can go right-right-up-up-right-up — as long as you end up at the flag, you win! Try different paths!\n\n### 🎮 Fun Fact\nGPS navigation works the same way — it breaks your trip into small turns: go forward, turn left, turn right. Just like your blocks! 🗺️",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 4,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_right",
+              "move_up"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 6,
+            "optimal_blocks": 6,
+            "hints": [
+              "The goal is to the right AND above the robot. You need both directions!",
+              "Move right 3 times, then move up 3 times. Or mix them up - both work!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-3",
+          "title": "Four Directions",
+          "theory": "## Four Directions 🤖\n\n### 🌟 New Skill: Moving Everywhere!\nA compass has four directions: North, South, East, West. Now your robot has all four too! With **Move Down** and **Move Left**, you can reach ANY square on the grid. It's like unlocking all the keys on a game controller! 🎮\n\nThink of it like a dance — step right, step left, step forward, step back. Your robot can now dance anywhere on the grid!\n\n### 🎯 Your Mission\nThe goal is to the left and below the robot. You'll need **Move Left** and **Move Down** to get there. Plan your path before you start!\n\n### 📖 How to Do It\n1. 🔵 Use **Move Left** to go sideways toward the goal\n2. 🟢 Use **Move Down** to go lower on the grid\n3. 🟡 Combine them in any order that reaches the flag!\n\n### 💡 Pro Tip\nBefore dragging any blocks, trace the path with your finger on the screen. Count: \"I need 2 lefts and 4 downs.\" Then build it!\n\n### 🎮 Fun Fact\nVideo game characters move using the same four directions! Game developers write code like yours to make Mario, Zelda, and Minecraft characters walk around. 🕹️",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 2,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 6,
+            "optimal_blocks": 6,
+            "hints": [
+              "The goal is to the left and below the robot.",
+              "Move left 2 times, then move down 4 times."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-4",
+          "title": "Around the Wall",
+          "theory": "## Around the Wall 🤖\n\n### 🌟 New Skill: Navigating Obstacles\nImagine you're walking to school, but there's a big puddle blocking the sidewalk. Do you walk through it? No! You walk AROUND it. That's exactly what your robot needs to do with walls! 🧱\n\nWalls are squares the robot can't walk through. You need to plan a **detour** — a longer path that goes around the wall to reach the goal.\n\n### 🎯 Your Mission\nThere's a wall blocking the straight path to the goal! Find a clear path that goes around it. You might need more steps than usual, and that's totally okay!\n\n### 📖 How to Do It\n1. 🔵 Look at where the wall is — it blocks the middle!\n2. 🟢 Plan a path that goes UP or DOWN to get around the wall\n3. 🟡 Then continue heading toward the flag 🏁\n4. 🔴 Press **Play** ▶️ and check if your robot makes it!\n\n### 💡 Pro Tip\nThere's often more than one correct path! Some paths are shorter than others. Can you find the shortest one? 🤔\n\n### 🎮 Fun Fact\nSelf-driving cars solve this exact problem millions of times per second! They detect obstacles (other cars, people, traffic cones) and plan paths around them. 🚗",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 2,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 9,
+            "optimal_blocks": 7,
+            "hints": [
+              "The wall blocks the direct path. Go around it!",
+              "Try: right 1, up 2, right 3, down 2, right 1."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 2,
+      "title": "Repetition: Loops Save the Day",
+      "description": "Discover loops - a way to repeat the same action multiple times without writing it over and over.",
+      "concept": "Loops - repeating actions a set number of times",
+      "levels": [
+        {
+          "level_id": "2-1",
+          "title": "Repeat After Me",
+          "theory": "## Repeat After Me 🤖\n\n### 🌟 New Skill: Loops — The Lazy Programmer's Secret!\nImagine your teacher asks you to write \"I love coding\" 100 times. Would you write it 100 times? No way! You'd say \"repeat this 100 times!\" That's exactly what a **loop** does! 🔄\n\nThe **Repeat** block is like a magical copy machine. You put instructions inside it, tell it how many times to repeat, and BOOM — it does all the work for you!\n\n### 🎯 Your Mission\nThe goal is 8 squares to the right. Instead of dragging 8 Move Right blocks (boring! 😴), use one **Repeat** block to do it all in just 2 blocks!\n\n### 📖 How to Do It\n1. 🔵 Drag a **Repeat** block into the workspace\n2. 🟢 Set the number to **8**\n3. 🟡 Put a **Move Right** block INSIDE the repeat\n4. 🔴 Press **Play** ▶️ — watch the robot zoom!\n\n### 💡 Pro Tip\nLoops are the #1 time-saver in programming. If you find yourself repeating the same blocks, think: \"Can I use a loop?\" The answer is almost always YES!\n\n### 🎮 Fun Fact\nThe \"repeat\" idea is so important that EVERY programming language has loops. Programmers are proudly lazy — they always find ways to do less work! 😎",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 8,
+            "optimal_blocks": 2,
+            "hints": [
+              "The goal is 8 squares to the right. That's a lot of blocks!",
+              "Use 'Repeat 8 times' with 'Move Right' inside. Just 2 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-2",
+          "title": "Staircase",
+          "theory": "## Staircase 🤖\n\n### 🌟 New Skill: Repeating a Pattern\nWhat if you need to climb stairs? Each step is: foot up, foot forward. Up, forward. Up, forward. It's a **pattern** that repeats! You can put MULTIPLE blocks inside a loop and they ALL repeat together. 🪜\n\nThink of it like a recipe: \"Repeat 3 times: spread peanut butter, add jelly, stack bread.\" Each time through the loop, you do ALL the steps!\n\n### 🎯 Your Mission\nThe goal is up and to the right — like climbing a staircase! Each \"stair\" is one **Move Right** + one **Move Up**. Find the pattern and loop it!\n\n### 📖 How to Do It\n1. 🔵 Drag a **Repeat** block and set the number\n2. 🟢 Put **Move Right** inside the repeat\n3. 🟡 Put **Move Up** inside the repeat too (BOTH blocks repeat!)\n4. 🔴 Press **Play** ▶️ and watch the robot climb!\n\n### 💡 Pro Tip\nThe number of stairs equals the number of times to repeat. Count the stair-steps on the grid!\n\n### 🎮 Fun Fact\nAnimated movies use loops too! When a character walks, the same leg-movement animation repeats over and over. Pixar uses loops in every movie! 🎬",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 6,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 10,
+            "optimal_blocks": 3,
+            "hints": [
+              "The path looks like stairs going up-right. What pattern repeats?",
+              "Repeat 5 times: Move Right, Move Up. That's only 3 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-3",
+          "title": "Two Loops",
+          "theory": "## Two Loops 🤖\n\n### 🌟 New Skill: Multiple Loops in a Row\nSometimes one loop isn't enough! Imagine giving directions: \"Walk 3 blocks east, then walk 4 blocks south.\" That's TWO separate loops — one for each direction! 🧭\n\nYou can stack loops one after another. The robot finishes the first loop completely, then starts the second one. It's like chapters in a book — first chapter 1, then chapter 2!\n\n### 🎯 Your Mission\nThe path changes direction! You need to go one way first, then another way. Use two separate loops — one for each section of the path. Watch out for walls! 🧱\n\n### 📖 How to Do It\n1. 🔵 Drag the first **Repeat** block for the first direction\n2. 🟢 Set the number and put the right move inside\n3. 🟡 Drag a SECOND **Repeat** block below the first\n4. 🔴 Set the new number and direction — press **Play** ▶️!\n\n### 💡 Pro Tip\nPlan each loop separately. Ask: \"How far do I go in this direction?\" Then: \"How far in the next direction?\" Break the big path into smaller pieces!\n\n### 🎮 Fun Fact\nMusic uses this same idea! A song might repeat the verse 2 times, then repeat the chorus 4 times. Musicians and programmers think alike! 🎵",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 12,
+            "optimal_blocks": 6,
+            "hints": [
+              "You need to go down first to get past the wall, then right, then down again.",
+              "Try: Repeat 4 times Move Down, then Repeat 5 times Move Right, then Repeat 2 times Move Down."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-4",
+          "title": "The Long Bridge",
+          "theory": "## The Long Bridge 🤖\n\n### 🌟 New Skill: Choosing the Right Numbers\nYou've learned loops — now the challenge is figuring out the RIGHT numbers! It's like being a detective: look at the clues (the grid), count carefully, and figure out exactly how many times each loop should repeat. 🔍\n\nThis is a bigger grid with more walls. You'll need to combine everything: counting squares, planning your route, and using loops efficiently!\n\n### 🎯 Your Mission\nCross the long bridge to reach the goal! The walls create a tricky path, so you'll need to think carefully about which direction to go and how far. Use loops to keep your code short!\n\n### 📖 How to Do It\n1. 🔵 Study the grid — where are the walls? Where are the gaps?\n2. 🟢 Count squares for each straight section of the path\n3. 🟡 Build a loop for each section with the exact right number\n4. 🔴 Press **Play** ▶️ and see if you counted correctly!\n\n### 💡 Pro Tip\nIf the robot bumps into a wall, don't panic! Check which loop has the wrong number and adjust. Testing and fixing is normal!\n\n### 🎮 Fun Fact\nCounting and measuring is a huge part of real coding. Game developers count pixels, web developers count screen sizes, and robot engineers count distances — just like you! 📐",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 16,
+            "optimal_blocks": 6,
+            "hints": [
+              "The wall forces you to go right first along the top, then find a way down.",
+              "Go right 9, down 1, then navigate around the wall corner to reach the bottom-right."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 3,
+      "title": "Patterns: Shapes and Paths",
+      "description": "Combine loops with direction changes to create cool patterns like L-shapes, zigzags, and spirals.",
+      "concept": "Pattern recognition - finding repeating patterns in complex paths",
+      "levels": [
+        {
+          "level_id": "3-1",
+          "title": "The L-Shape",
+          "theory": "## The L-Shape 🤖\n\n### 🌟 New Skill: Recognizing Patterns\nA detective looks for patterns at a crime scene. A scientist looks for patterns in data. A programmer looks for patterns in problems! **Pattern recognition** is your new superpower! 🦸\n\nAn L-shape is one of the simplest patterns: go straight in one direction, then turn and go straight in another. It's like walking down a hallway, turning a corner, and walking down another hallway!\n\n### 🎯 Your Mission\nNavigate around the L-shaped wall to reach the goal. The wall blocks the direct path, so you'll need to find the pattern in the clear spaces and plan your L-shaped route around it!\n\n### 📖 How to Do It\n1. 🔵 Look at the walls — they form an L-shape!\n2. 🟢 Your path needs to go AROUND the L\n3. 🟡 Use loops for the straight parts of your path\n4. 🔴 Connect the loops with direction changes!\n\n### 💡 Pro Tip\nDraw the path in your mind first. Break it into straight sections. Each straight section = one loop!\n\n### 🎮 Fun Fact\nTetris pieces are all made of patterns! The L-piece, T-piece, and Z-piece are just different arrangements of squares — and programmers use pattern recognition to make the game work! 🧩",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 6,
+            "hints": [
+              "The walls form an L-shape. You need to go around them in an L-shape too!",
+              "Go right 5, down 5 - but the walls are in the way. Try down 1 first, then right, then down."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "3-2",
+          "title": "Zigzag Road",
+          "theory": "## Zigzag Road 🤖\n\n### 🌟 New Skill: Zigzag Patterns\nHave you ever watched a skier slalom down a mountain? Left, right, left, right — that's a zigzag! In programming, zigzags are patterns where you go one way, then the opposite way, over and over. ⛷️\n\nThe secret is finding the smallest piece that repeats. Once you spot it, you put it in a loop and let the computer do the rest!\n\n### 🎯 Your Mission\nThe walls force you to follow a zigzag path! Go down, then right, then up, then right... Find the repeating zigzag pattern and use a loop to follow it to the goal!\n\n### 📖 How to Do It\n1. 🔵 Trace the path through the zigzag with your finger\n2. 🟢 Find the smallest piece that repeats (down-right-up-right? or something else?)\n3. 🟡 Put that piece inside a **Repeat** block\n4. 🔴 Set the right number of repetitions and **Play** ▶️!\n\n### 💡 Pro Tip\nThe smallest repeating piece might be 2 blocks, or 4 blocks, or more. Try different combinations until you find the one that works!\n\n### 🎮 Fun Fact\nZigzag patterns appear in nature too! Lightning bolts, mountain roads, and even the way your eyes move when reading — all zigzags! Scientists call this a \"serpentine pattern.\" 🐍",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 16,
+            "optimal_blocks": 9,
+            "hints": [
+              "The walls create a zigzag path. You go down, then right, then up, then right... see the pattern?",
+              "Repeat 4 times: Move Down 2, Move Right 1, Move Up 2, Move Right 1. But adjust for the exact layout!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "3-3",
+          "title": "The Spiral",
+          "theory": "## The Spiral 🤖\n\n### 🌟 New Skill: Spiral Patterns\nA spiral is like a zigzag's cool big sibling! You go around and around, getting closer to the center each time. Think of a snail's shell 🐌 or water going down a drain — that's a spiral!\n\nThe tricky part: each side of the spiral gets **shorter** as you get closer to the center. So you might need separate loops for each side, each with a different number!\n\n### 🎯 Your Mission\nFollow the spiral corridor from the outside to the center! The walls create a spiral path — follow it inward to reach the goal in the middle.\n\n### 📖 How to Do It\n1. 🔵 Go right along the top edge (use a loop!)\n2. 🟢 Go down along the right edge (another loop!)\n3. 🟡 Go left along the bottom (another loop!)\n4. 🔴 Go up and spiral inward — keep going until you reach the center!\n\n### 💡 Pro Tip\nCount each side of the spiral separately. Write each side as its own loop. It's okay to use many loops here!\n\n### 🎮 Fun Fact\nSpiral patterns are everywhere! Galaxies, hurricanes, sunflower seeds, and even DNA are all spirals. When you code a spiral, you're programming one of nature's favorite shapes! 🌀",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "goal"
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 22,
+            "optimal_blocks": 10,
+            "hints": [
+              "Follow the spiral corridor: right along the top, down the right side, left along bottom, up into the center.",
+              "Go right 6, down 6, left 6, up 4, right 2, down 2 to reach the goal."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 4,
+      "title": "Collecting Items: Pick It Up!",
+      "description": "Learn to use the pick_up command to collect stars and treasures scattered around the grid.",
+      "concept": "Sequential actions - combining movement with other actions",
+      "levels": [
+        {
+          "level_id": "4-1",
+          "title": "Star Collector",
+          "theory": "## Star Collector 🤖\n\n### 🌟 New Skill: Picking Up Items\nYour robot just got an upgrade — it can now **pick things up!** ⭐ Think of it like a character in a video game collecting coins or power-ups. You walk over the item, then grab it!\n\nThe new **Pick Up** block works like this: when the robot is standing ON a star, use Pick Up to collect it. It's like bending down to pick up a coin from the ground!\n\n### 🎯 Your Mission\nThere are stars scattered along the path! Walk to each star and pick it up. You need to collect ALL of them to win this level. No star left behind! ⭐⭐⭐\n\n### 📖 How to Do It\n1. 🔵 Use **Move Right** to walk to the first star\n2. 🟢 Use **Pick Up** when you're standing on the star\n3. 🟡 Keep moving and picking up until you get them all!\n4. 🔴 The order is: Move → Pick Up → Move → Pick Up...\n\n### 💡 Pro Tip\nThe robot must be ON the star to pick it up. If you Pick Up on an empty square, nothing happens. Always move FIRST, then pick up!\n\n### 🎮 Fun Fact\nIn Super Mario, coins appear in lines and Mario collects them by walking through them. The programmers who made Mario used the same \"move then collect\" logic you're learning! 🍄",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "beginner",
+            "target_steps": 8,
+            "optimal_blocks": 8,
+            "hints": [
+              "Walk to each star and pick it up! Move right, pick up, move right, move right, pick up...",
+              "Right, Pick Up, Right, Right, Pick Up, Right, Right, Pick Up."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-2",
+          "title": "Treasure Hunt",
+          "theory": "## Treasure Hunt 🤖\n\n### 🌟 New Skill: Planning a Collection Route\nYou're a treasure hunter now! 🗺️ When treasures are scattered all over the map, you need to plan the best route to collect them all. Do you go left first or right? Up or down?\n\nThis is actually a famous puzzle in computer science! It's about finding the smartest path that visits every treasure. There's no single right answer — but some paths are shorter than others!\n\n### 🎯 Your Mission\nFive stars are scattered across the grid, and there are walls in the way! Plan a route that collects ALL five stars while avoiding walls. Use loops to keep your code short!\n\n### 📖 How to Do It\n1. 🔵 Look at where ALL the stars are on the grid\n2. 🟢 Plan a route that visits each star (draw it with your finger!)\n3. 🟡 Write the moves and pick-ups in order\n4. 🔴 Use **loops** for long straight sections!\n\n### 💡 Pro Tip\nStart by collecting stars that are closest together. Don't zigzag back and forth — try to move in one general direction!\n\n### 🎮 Fun Fact\nDelivery companies like Amazon and UPS use algorithms (computer programs!) to plan the best routes for their drivers. They're solving the same puzzle you are — just with millions of packages! 📦",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 20,
+            "optimal_blocks": 14,
+            "hints": [
+              "Plan a route that picks up all 5 stars. Try going right along the top first.",
+              "Right 3 + Pick Up, Right 2 + Pick Up, Down 3 + Pick Up, Down 2 + Pick Up, Left 5 + Pick Up."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-3",
+          "title": "Row by Row",
+          "theory": "## Row by Row 🤖\n\n### 🌟 New Skill: Collecting in a Pattern\nWhat if the stars are arranged in a neat pattern? Then you can use LOOPS to collect them super efficiently! 🎯 It's like mowing a lawn — go across one row, move down, come back the other way, move down, repeat!\n\nWhen items are evenly spaced, you can write a small loop that moves and picks up in a repeating pattern. Way faster than coding each step by hand!\n\n### 🎯 Your Mission\nStars are arranged in three rows, evenly spaced! Go across each row, collecting stars as you go. Then move to the next row. It's like reading a book — left to right, then down to the next line!\n\n### 📖 How to Do It\n1. 🔵 Row 1: Use a loop to move right and pick up each star\n2. 🟢 Move down to Row 2\n3. 🟡 Row 2: Loop going LEFT this time (it's a zigzag!)\n4. 🔴 Move down to Row 3 and repeat the right-going pattern!\n\n### 💡 Pro Tip\nLook at the spacing between stars. If stars are every 2 squares, your loop might be: Move Right, Move Right, Pick Up. Find the rhythm!\n\n### 🎮 Fun Fact\nPrinters work exactly like this! The print head goes left-to-right on one line, then drops down and goes right-to-left on the next. It's called \"boustrophedon\" — a word from ancient Greek! 🖨️",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 27,
+            "optimal_blocks": 15,
+            "hints": [
+              "The stars form a zigzag pattern across three rows. Go right across row 1, then down, then left across row 2, then down, then right across row 3.",
+              "Row 1: Repeat 3 times (Right, Right, Pick Up). Then Down 2, Pick Up. Row 2: Repeat 3 times (Left, Left, Pick Up). Then Down 2, Pick Up. Row 3: same as Row 1."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-4",
+          "title": "Warehouse Run",
+          "theory": "## Warehouse Run 🤖\n\n### 🌟 New Skill: Combining Everything!\nWelcome to the warehouse! 🏭 This is like a real-world challenge: navigate a complex space, avoid obstacles, and collect all the packages. You'll use EVERY skill you've learned so far — sequences, loops, and careful planning!\n\nThink of yourself as a warehouse robot (like the ones Amazon uses!). You need to be smart about your route to save time and energy.\n\n### 🎯 Your Mission\nCollect all 5 items scattered across a warehouse full of walls! Plan your route carefully — the walls create separate areas, so you'll need to find paths between them.\n\n### 📖 How to Do It\n1. 🔵 **Scan** the grid: where are the items? Where are the walls?\n2. 🟢 **Plan** a route that visits all items and avoids walls\n3. 🟡 **Build** your solution using moves, pick-ups, and loops\n4. 🔴 **Test** it — press Play and watch!\n\n### 💡 Pro Tip\nUse the 5-step method: Scan, Plan, Simplify, Code, Test. If it doesn't work the first time, watch where the robot gets stuck and fix just that part!\n\n### 🎮 Fun Fact\nAmazon warehouses have real robots that zip around collecting items for orders. These robots use the SAME concepts you're learning: pathfinding, obstacle avoidance, and item collection! 🤖📦",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "advanced",
+            "target_steps": 30,
+            "optimal_blocks": 18,
+            "hints": [
+              "There are 5 items to collect. Plan a route that avoids the two wall sections.",
+              "One possible route: right to first item, continue right to top-right item, down to bottom-right, left along bottom to bottom-left, then navigate to the center item."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 5,
+      "title": "Conditionals: Smart Decisions",
+      "description": "Teach the robot to make decisions! Use 'if' blocks to check for walls and items before acting.",
+      "concept": "Conditional logic - making decisions based on what the robot sees",
+      "levels": [
+        {
+          "level_id": "5-1",
+          "title": "Wall Detector",
+          "theory": "## Wall Detector 🤖\n\n### 🌟 New Skill: Making Decisions with IF\nUntil now, your robot was like a wind-up toy — it just followed instructions blindly. Now it can **think**! 🧠 The **If** block lets the robot check something and make a decision.\n\nIt's like when you walk and see a puddle: \"IF there's a puddle, THEN step around it.\" You make decisions like this hundreds of times a day without even thinking about it!\n\n### 🎯 Your Mission\nThere's a wall blocking the path! Use the **If Wall Ahead** block to detect it and go around. The robot should check \"is there a wall in front of me?\" and change direction if yes!\n\n### 📖 How to Do It\n1. 🔵 Move right toward the goal\n2. 🟢 Before hitting the wall, use **If Wall Ahead**\n3. 🟡 Inside the If: tell the robot to go around (up or down)\n4. 🔴 Then continue moving right to the goal!\n\n### 💡 Pro Tip\nThe If block only runs its inside code when the condition is TRUE. If there's no wall, the robot just skips right over it!\n\n### 🎮 Fun Fact\nThis \"if-then\" logic is the foundation of ALL computer programs! Every game, app, and website uses conditions: \"IF the player presses jump, THEN make the character jump.\" You just learned the most important concept in programming! 🏆",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 2,
+                "type": "start"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "goal"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "controls_if",
+              "if_wall_ahead"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 8,
+            "optimal_blocks": 10,
+            "hints": [
+              "Use If Wall Ahead to detect the wall, then go around it.",
+              "Move Right 3 times. If Wall Ahead, Move Up, Move Right, Move Down. Then Move Right twice more."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-2",
+          "title": "Item Scanner",
+          "theory": "## Item Scanner 🤖\n\n### 🌟 New Skill: Checking for Items Automatically\nRemember manually placing Pick Up blocks at exact locations? That's fine for a few items, but what about 100 items? You'd need to memorize every location! 😵\n\nThe **If Item Here** block is like giving your robot eyes! It checks the current square: \"Is there an item here?\" If yes, pick it up! Now the robot can collect items WITHOUT you telling it exactly where they are!\n\n### 🎯 Your Mission\nItems are scattered along the path, but you don't need to remember their exact positions! Use a loop with **If Item Here** to automatically scan and collect as the robot walks. Super efficient! ⚡\n\n### 📖 How to Do It\n1. 🔵 Drag a **Repeat** block (set to the grid width)\n2. 🟢 Inside: put **Move Right** first\n3. 🟡 Then: **If Item Here** → **Pick Up**\n4. 🔴 The robot walks and auto-collects! Press **Play** ▶️\n\n### 💡 Pro Tip\nThe loop-with-check combo is incredibly powerful. You can use this pattern anytime you need to do something \"if the situation is right.\"\n\n### 🎮 Fun Fact\nRoomba vacuum cleaners work this way! They drive around your house, and IF they detect dirt, THEN they vacuum harder. Same logic, real-world robot! 🤖",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_item_here"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 4,
+            "hints": [
+              "Instead of remembering where each item is, use 'If Item Here' to automatically pick up!",
+              "Repeat 7 times: Move Right, If Item Here then Pick Up. Only 4 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-3",
+          "title": "Smart Navigator",
+          "theory": "## Smart Navigator 🤖\n\n### 🌟 New Skill: Using Multiple Conditions\nOne condition is good. TWO conditions are awesome! 💪 Now your robot can check for walls AND items at the same time. It's like a superhero with multiple powers!\n\nYou also get the **NOT** block, which flips a condition. \"NOT wall ahead\" means \"the path is clear!\" It's like opposite day — true becomes false and false becomes true!\n\n### 🎯 Your Mission\nNavigate through walls AND collect items along the way! Use **If Wall Ahead** to dodge walls and **If Item Here** to grab items. Your robot needs to be smart about both!\n\n### 📖 How to Do It\n1. 🔵 Start moving right toward the goal\n2. 🟢 Use **If Wall Ahead** to detect and dodge walls\n3. 🟡 Use **If Item Here** to grab items you pass over\n4. 🔴 Combine both checks in a loop for maximum smartness!\n\n### 💡 Pro Tip\nCheck for items BEFORE you move away from a square, and check for walls BEFORE you walk into them. Order matters!\n\n### 🎮 Fun Fact\nSelf-driving cars use HUNDREDS of conditions at once: \"Is there a car ahead? Is the light red? Is a pedestrian crossing?\" Your two conditions are the beginning of that same technology! 🚗",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 14,
+            "optimal_blocks": 10,
+            "hints": [
+              "Move right across the top row. When you hit a wall, go down, right, and back up. Check for items along the way!",
+              "Use a loop with 'If Wall Ahead' to dodge walls, and 'If Item Here' to collect items as you go."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-4",
+          "title": "Minefield",
+          "theory": "## Minefield 🤖\n\n### 🌟 New Skill: Thinking Like a Programmer\nThis level is a real brain teaser! 🧩 Walls everywhere, items scattered around, and you need to collect them all AND reach the goal. Time to think like a real programmer!\n\nAn **algorithm** is a step-by-step plan for solving a problem. Every time you plan a route, check conditions, and make decisions — you're creating an algorithm. This is what professional programmers do every single day!\n\n### 🎯 Your Mission\nNavigate through a field of walls, collect 4 items, and reach the goal at the bottom-right corner. Plan your route carefully — there's no simple straight path!\n\n### 📖 How to Do It\n1. 🔵 **Map it out**: look at all walls and items first\n2. 🟢 **Plan your route**: visit each item while avoiding walls\n3. 🟡 **Use conditions**: If Wall Ahead + If Item Here\n4. 🔴 **Build and test**: try your solution, then fix any mistakes!\n\n### 💡 Pro Tip\nDraw the route on paper (or trace it with your finger) before coding! Planning saves time — even professional programmers sketch ideas before writing code.\n\n### 🎮 Fun Fact\nNASA programmers planned the Mars rover's route exactly like this: mapping obstacles, finding safe paths, and collecting rock samples. You're basically training for a job at NASA! 🚀",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 6,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 20,
+            "optimal_blocks": 16,
+            "hints": [
+              "Plan your route on paper first! Visit all 4 items and reach the goal at bottom-right.",
+              "One route: Down 2 (pick up), Down 2, Right 2, Up 3 (pick up at 4,1), Down 3, Right 2 (pick up), Down 2, Right 2, Up 3 (pick up), Down 3."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 6,
+      "title": "While Loops: Until You Get There",
+      "description": "Learn while loops - loops that keep going until a condition is met. The robot keeps moving until it reaches the goal!",
+      "concept": "While loops - repeating until a condition changes",
+      "levels": [
+        {
+          "level_id": "6-1",
+          "title": "Walk Until You Arrive",
+          "theory": "## Walk Until You Arrive 🤖\n\n### 🌟 New Skill: While Loops — Keep Going!\nThe Repeat loop is great when you know the exact number: \"repeat 5 times.\" But what if you DON'T know? What if the goal could be 3 squares away or 30? 🤔\n\nThe **While** loop is like saying \"keep walking until you get there!\" It doesn't need a number — it keeps going until a condition changes. It's like walking to school: you don't count steps, you just walk UNTIL you arrive!\n\n### 🎯 Your Mission\nUse the **While Not At Goal** block to make the robot walk right until it reaches the flag. You don't need to count squares — the while loop handles it automatically! 🏁\n\n### 📖 How to Do It\n1. 🔵 Drag the **While Not At Goal** block into the workspace\n2. 🟢 Put **Move Right** INSIDE the while loop\n3. 🟡 That's it! Just 2 blocks! Press **Play** ▶️\n4. 🔴 Watch the robot walk right until it hits the goal!\n\n### 💡 Pro Tip\nWhile loops are like a tireless worker — they never stop until the job is done. But be careful: if the goal is never reachable, the loop runs forever! (That's called an \"infinite loop\")\n\n### 🎮 Fun Fact\nVideo games use while loops constantly: \"While the player is alive, keep the game running.\" \"While there are enemies left, keep spawning them.\" Almost every game loop is a while loop! 🎮",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "while_not_at_goal"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 7,
+            "optimal_blocks": 2,
+            "hints": [
+              "You don't need to count the squares! Just use 'While Not At Goal' with 'Move Right'.",
+              "Only 2 blocks needed: While Not At Goal > Move Right."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-2",
+          "title": "Wall Dodger",
+          "theory": "## Wall Dodger 🤖\n\n### 🌟 New Skill: While + If = Smart Robot!\nHere's where it gets AMAZING! 🌟 Combine a **While** loop with an **If** condition, and your robot becomes truly intelligent. It keeps moving AND makes decisions along the way!\n\nIt's like riding a bike: you keep pedaling (while loop) and when you see an obstacle, you steer around it (if condition). You don't stop — you just adjust!\n\n### 🎯 Your Mission\nThe goal is far away and there are walls in the path! Use **While Not At Goal** with **If Wall Ahead** inside. The robot will keep walking right, and whenever it hits a wall, it'll dodge down. Just 4 blocks! ⚡\n\n### 📖 How to Do It\n1. 🔵 Drag **While Not At Goal** as the outer block\n2. 🟢 Inside: add **If Wall Ahead** → **Move Down**\n3. 🟡 Also inside the while: add **Move Right** (after the If)\n4. 🔴 Press **Play** ▶️ — the robot dodges walls automatically!\n\n### 💡 Pro Tip\nThe If block goes INSIDE the While block. Every time through the loop, the robot checks for walls first, dodges if needed, then moves right.\n\n### 🎮 Fun Fact\nThis is a real algorithm called \"wall following!\" Maze-solving robots at science competitions use this exact technique. Some can solve any maze using just \"while\" and \"if\"! 🏆",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 4,
+            "hints": [
+              "Use 'While Not At Goal' with an 'If Wall Ahead' check inside.",
+              "While Not At Goal: If Wall Ahead then Move Down, Move Right. Just 4 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-3",
+          "title": "The Greedy Collector",
+          "theory": "## The Greedy Collector 🤖\n\n### 🌟 New Skill: Multi-Action While Loop\nYour while loop just got a power upgrade! 💪 Now the robot does THREE things every step: check for items, check for walls, and move. It's like a robot doing multiple jobs at once!\n\nThis is called a \"greedy algorithm\" — at every step, the robot grabs whatever it can. It's not fancy, but it's super effective! Like eating all the candy you find along the way 🍬\n\n### 🎯 Your Mission\nItems and walls are arranged in a staircase pattern. Use a single while loop with checks for BOTH items and walls. The robot should collect items AND dodge walls — all automatically!\n\n### 📖 How to Do It\n1. 🔵 **While Not At Goal** (the main loop)\n2. 🟢 Inside: **If Item Here** → **Pick Up** (grab stars!)\n3. 🟡 Inside: **If Wall Ahead** → **Move Down** (dodge walls!)\n4. 🔴 Inside: **Move Right** (keep moving forward!)\n\n### 💡 Pro Tip\nORDER MATTERS! Check for items first (before you walk away), then check for walls (before you crash), then move. Think: \"Look at feet, look ahead, step forward.\"\n\n### 🎮 Fun Fact\nSelf-driving vacuum robots (like Roomba!) use exactly this pattern: While battery isn't dead → Check for dirt (clean it!), Check for walls (turn!), Keep moving. Your code could run a real robot! 🤖",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 13,
+            "optimal_blocks": 6,
+            "hints": [
+              "The items and walls form a staircase pattern. Collect items and dodge walls as you descend.",
+              "While Not At Goal: If Item Here then Pick Up, If Wall Ahead then Move Down, Move Right. 6 blocks total!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-4",
+          "title": "Infinite Hallway",
+          "theory": "## Infinite Hallway 🤖\n\n### 🌟 New Skill: Algorithms That Adapt\nYou're about to write a program that works on a maze you've never seen! 🧙 The algorithm adapts to whatever it finds — walls, items, open spaces. This is real programming power!\n\nThink of it like giving someone directions WITHOUT looking at a map: \"Walk forward. If you hit a wall, turn. If you see something shiny, pick it up. Keep going until you arrive.\" These instructions work for ANY maze!\n\n### 🎯 Your Mission\nA complex staircase maze with walls and items. Write ONE algorithm that navigates the whole thing! Combine while loops, if conditions, and movement to create a truly smart robot program.\n\n### 📖 How to Do It\n1. 🔵 Start with **While Not At Goal** as the outer loop\n2. 🟢 Add **If Item Here → Pick Up** inside\n3. 🟡 Add **If Wall Ahead → Move Down** inside\n4. 🔴 Add **Move Right** at the bottom of the loop\n5. ⭐ You might need extra moves for the final stretch!\n\n### 💡 Pro Tip\nIf your robot gets stuck at the end, you might need to add a few extra moves AFTER the while loop, or use a more complex condition inside.\n\n### 🎮 Fun Fact\nThis \"general solution\" approach is what makes AI so powerful. Instead of coding every specific situation, programmers write algorithms that adapt to new situations. That's how self-driving cars and smart assistants work! 🤯",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 15,
+            "optimal_blocks": 8,
+            "hints": [
+              "The maze has a staircase pattern. Move right, and when blocked, go down and continue right.",
+              "While Not At Goal: If Item Here Pick Up, If Wall Ahead Move Down, Move Right. Then handle the final descent."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 7,
+      "title": "Complex Mazes: Master Challenge",
+      "description": "Put everything together to solve challenging mazes that require sequences, loops, conditionals, and collecting items.",
+      "concept": "Algorithm design - combining all concepts to solve complex problems",
+      "levels": [
+        {
+          "level_id": "7-1",
+          "title": "The Snake Path",
+          "theory": "## The Snake Path 🤖\n\n### 🌟 New Skill: Combining ALL Your Powers!\nTime to become a true coding hero! 🦸 This level uses EVERYTHING: sequences, loops, conditions, and item collection. The path winds like a snake through corridors separated by walls.\n\nThink of it like a video game boss level — you need every skill you've learned to win! But don't worry, you've been training for this since Level 1!\n\n### 🎯 Your Mission\nNavigate the snake-shaped maze! The path goes right, then drops down through a gap, then goes left, drops down, goes right again... like a snake slithering back and forth! Collect items in the middle of each corridor.\n\n### 📖 How to Do It\n1. 🔵 Go RIGHT across the top corridor (use a loop!)\n2. 🟢 Drop DOWN through the gap in the wall\n3. 🟡 Go LEFT across the next corridor (loop again!)\n4. 🔴 Drop DOWN again and go RIGHT\n5. ⭐ Collect items with **Pick Up** along the way!\n\n### 💡 Pro Tip\nThe snake pattern repeats! Right-drop-left-drop is one cycle. Look for how many cycles you need and whether you can loop the whole thing!\n\n### 🎮 Fun Fact\nThe game \"Snake\" (you might have seen it on old phones!) uses this exact pattern. The snake moves in corridors, collecting food. You're basically programming Snake! 🐍",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 6,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 30,
+            "optimal_blocks": 16,
+            "hints": [
+              "The path snakes: right across the top, down through the gap, left across, down through gap, right across, down, right to goal.",
+              "Pattern: go right to end of row, drop down through the gap, go left to end, drop down, repeat. Collect items in the middle!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "7-2",
+          "title": "The Treasure Vault",
+          "theory": "## The Treasure Vault 🤖\n\n### 🌟 New Skill: Multi-Room Strategy\nThis is like a dungeon in a fantasy game! 🏰 Multiple rooms, each with treasure inside, connected by doorways. You need to explore every room and collect every item!\n\nThe key skill here is **decomposition** — breaking a big problem into smaller pieces. Instead of solving the whole maze at once, solve each room separately, then connect them!\n\n### 🎯 Your Mission\nThe grid is divided into rooms by walls. Each room has items to collect! Find the doorways between rooms, plan a route through all of them, and grab every treasure. Then reach the final goal!\n\n### 📖 How to Do It\n1. 🔵 **Room 1**: Collect items in the first area\n2. 🟢 **Find the door**: Look for gaps in the walls\n3. 🟡 **Room 2**: Collect items in the next area\n4. 🔴 **Keep going** through doors until all items are collected\n5. ⭐ Navigate to the goal in the last room!\n\n### 💡 Pro Tip\nSolve each room as its own mini-puzzle. Then connect the solutions. This \"divide and conquer\" strategy is how professional programmers tackle huge projects!\n\n### 🎮 Fun Fact\nZelda and Minecraft dungeons are designed exactly like this — rooms with treasures connected by doors. Game designers call it \"room-based level design.\" You're solving levels like a game designer! 🎮",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 7,
+                "type": "goal"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 7,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 6,
+                "type": "item"
+              },
+              {
+                "x": 1,
+                "y": 6,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 35,
+            "optimal_blocks": 22,
+            "hints": [
+              "Collect items in the left rooms first, then pass through the gap at row 3 to the right side.",
+              "Use the gap at column 5 row 4 to enter the bottom area and reach the goal."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "7-3",
+          "title": "The Grand Maze",
+          "theory": "## The Grand Maze 🤖\n\n### 🌟 New Skill: Computational Thinking\nThis is the ULTIMATE block programming challenge! 🏆 You'll need every single skill — and something new: **computational thinking**. It's the 4-step superpower that all computer scientists use:\n\n1. **Decompose** — break the big maze into sections\n2. **Recognize patterns** — find repeating parts\n3. **Abstract** — write general solutions, not specific ones\n4. **Algorithm** — put it all together into a plan!\n\n### 🎯 Your Mission\nConquer the grand maze! Navigate through multiple wall sections, collect 7 items scattered throughout, and reach the goal at the bottom-right corner. This is the hardest Blockly level — after this, you're ready for Python! 🐍\n\n### 📖 How to Do It\n1. 🔵 **Decompose**: Divide the maze into vertical sections (between wall columns)\n2. 🟢 **Navigate**: Find the gap in each wall to pass through\n3. 🟡 **Collect**: Grab items as you go through each section\n4. 🔴 **Combine**: Use loops, conditions, and sequences together!\n\n### 💡 Pro Tip\nDon't try to collect EVERY item in one pass if it's too hard. Focus on reaching the goal first, then figure out how to add item collection to your route.\n\n### 🎮 Fun Fact\nAfter this level, you've mastered the SAME thinking skills that computer science students learn in college! You're thinking like a real software engineer. Next stop: writing real Python code! 🎓",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 10,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 9,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 7,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 8,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 8,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 8,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 8,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 40,
+            "optimal_blocks": 28,
+            "hints": [
+              "Break the maze into sections. Navigate through gaps in the vertical walls at columns 1, 3, 5, and 7.",
+              "Don't try to collect every item in one pass. Plan a route that gets most items while making progress toward the bottom-right goal."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 8,
+      "title": "Python Mode: Write Real Code",
+      "description": "Translate everything you learned into Python - a real programming language used by professionals!",
+      "concept": "Text-based programming - writing the same logic in Python code",
+      "levels": [
+        {
+          "level_id": "8-1",
+          "title": "Python: First Steps",
+          "theory": "## Python: First Steps 🤖\n\n### 🌟 New Skill: Writing Real Code!\nWelcome to the big leagues! 🎉 You've been building with blocks — now you're typing REAL Python code! It's the same logic, just written as text. Think of it like switching from picture books to chapter books — the stories are the same, but now you're reading words!\n\nPython is used by Google, NASA, Netflix, Instagram, and millions of programmers worldwide. And you're about to write your first line of it!\n\n### 🎯 Your Mission\nGuide the robot to the goal using Python code! Instead of dragging blocks, you'll type commands like `robot.move_right()`. Each line = one step for the robot.\n\n### 📖 How to Do It\n1. 🔵 Type `robot.move_right()` on the first line\n2. 🟢 Type it again on the next line (each line = one step!)\n3. 🟡 Keep adding lines until you have enough moves\n4. 🔴 Press **Run** ▶️ and watch your code come alive!\n\n### 💡 Pro Tip\nEvery command starts with `robot.` and ends with `()`. Don't forget the parentheses! If you see a red error message, check for typos — computers are picky about spelling!\n\n### 🎮 Fun Fact\nPython was created in 1991 by Guido van Rossum, who named it after Monty Python's Flying Circus (a comedy show!). It's the most popular programming language in the world for beginners AND experts! 🐍",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 5,
+            "optimal_blocks": 5,
+            "hints": [
+              "Type robot.move_right() five times, each on a new line.",
+              "Remember: each command needs robot. at the start and () at the end!"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-2",
+          "title": "Python: For Loops",
+          "theory": "## Python: For Loops 🤖\n\n### 🌟 New Skill: Python For Loops\nRemember the Repeat block? In Python, it becomes a **for loop**! Instead of dragging a block and setting a number, you type `for i in range(5):` to repeat something 5 times. Same idea, real code! 🔄\n\nThe magic word is **indentation** — the spaces at the start of a line. In Python, everything that's \"inside\" a loop must be indented (pushed in 4 spaces). That's how Python knows what to repeat!\n\n### 🎯 Your Mission\nThe goal is far away diagonally! Write a for loop that repeats \"move right, move up\" to climb the staircase. One loop, two moves inside, 3 blocks total — but now in Python!\n\n### 📖 How to Do It\n1. 🔵 Type `for i in range(7):` (the colon is important!)\n2. 🟢 Press Enter, then type 4 spaces + `robot.move_right()`\n3. 🟡 Press Enter, then type 4 spaces + `robot.move_up()`\n4. 🔴 Press **Run** ▶️ — watch the staircase climb!\n\n### 💡 Pro Tip\nThe number in `range()` is how many times to repeat. Both indented lines repeat together! If a line ISN'T indented, it's OUTSIDE the loop and only runs once.\n\n### 🎮 Fun Fact\nPython is famous for using indentation instead of curly braces like other languages. Guido van Rossum believed that clean, readable code is more important than fancy syntax. Python's motto: \"Beautiful is better than ugly!\" ✨",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 7,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 14,
+            "optimal_blocks": 3,
+            "hints": [
+              "You need to go right 7 and up 7. Use a for loop to make a staircase!",
+              "for i in range(7):\\n    robot.move_right()\\n    robot.move_up()"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-3",
+          "title": "Python: If Statements",
+          "theory": "## Python: If Statements 🤖\n\n### 🌟 New Skill: Python Conditions\nThe If block becomes `if robot.is_wall_ahead():` in Python. The While block becomes `while not robot.is_at_goal():`. Same logic you already know — now written as text! 📝\n\nThe coolest part: you can combine while loops with if statements to write programs that think for themselves! Your robot becomes truly autonomous!\n\n### 🎯 Your Mission\nWrite a Python program that navigates through walls AND collects items — automatically! Use `while`, `if`, and `else` to create a smart robot that handles any obstacle it encounters.\n\n### 📖 How to Do It\n1. 🔵 Type `while not robot.is_at_goal():` (the outer loop)\n2. 🟢 Indent: `if robot.is_item_here():` then indent more: `robot.pick_up()`\n3. 🟡 Indent: `if robot.is_wall_ahead():` then indent more: `robot.move_down()`\n4. 🔴 Indent: `else:` then indent more: `robot.move_right()`\n\n### 💡 Pro Tip\nThe `else` keyword runs when the `if` condition is FALSE. \"If wall ahead, go down. Else (no wall), go right.\" It's like a fork in the road — always pick one path!\n\n### 🎮 Fun Fact\nThe while+if combo you just wrote is the foundation of artificial intelligence! AI programs use millions of conditions inside loops to make decisions. You're writing the building blocks of AI right now! 🤖🧠",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 13,
+            "optimal_blocks": 6,
+            "hints": [
+              "Write a while loop that moves right, picks up items, and goes down when blocked.",
+              "while not robot.is_at_goal():\\n    if robot.is_item_here():\\n        robot.pick_up()\\n    if robot.is_wall_ahead():\\n        robot.move_down()\\n    else:\\n        robot.move_right()"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-4",
+          "title": "Python: The Final Challenge",
+          "theory": "## Python: The Final Challenge 🤖\n\n### 🌟 New Skill: Functions and Pro Python\nYou're now a Python programmer! 🎓 For the final challenge, you'll learn one more pro technique: **functions**. A function is like creating your own custom block!\n\nYou can write `def dodge_wall():` and then put moves inside. Now you can call `dodge_wall()` anywhere instead of repeating those lines. It's like giving a name to a dance move — once you name it, you just say \"do the moonwalk!\" 💃\n\n### 🎯 Your Mission\nThe ultimate maze! Navigate through 4 wall sections, collect 7 items, and reach the goal. Use everything: for loops, while loops, if/else, and try creating your own functions to keep your code organized!\n\n### 📖 How to Do It\n1. 🔵 Define helper functions for repeated patterns\n2. 🟢 Use `while not robot.is_at_goal():` as your main loop\n3. 🟡 Add `if` checks for walls and items inside\n4. 🔴 Use `for` loops for known straight sections\n5. ⭐ Add `# comments` to explain your thinking!\n\n### 💡 Pro Tip\nAdd comments with `#` to explain your code. Future you (or a friend) will thank you! Good comments explain WHY, not what.\n\n### 🎮 Fun Fact\nYou just completed a journey from zero to Python programmer! The skills you learned — sequences, loops, conditions, functions — are used in EVERY programming language. You can now learn Java, JavaScript, C++, or any language you want. The concepts are the same! 🌟🚀🎉",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 7,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 7,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 2,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 40,
+            "optimal_blocks": 30,
+            "hints": [
+              "Break the maze into vertical sections separated by walls at columns 2, 4, 6, and 8. Find the gaps to pass through.",
+              "Use a combination of for loops for straight sections and if statements for wall detection. Define helper functions for repeated patterns!"
+            ],
+            "allow_python": true
+          }
+        }
+      ]
+    }
+  ]
+}

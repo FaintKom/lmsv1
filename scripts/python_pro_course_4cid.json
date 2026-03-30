@@ -1,0 +1,1554 @@
+{
+  "course": {
+    "title": "Python Programming PRO",
+    "description": "A comprehensive Python programming course designed for teens aged 12-18. Starting from absolute zero, you'll learn to write real programs — from your first 'Hello World' to building your own classes and objects. Each lesson includes hands-on coding challenges that get progressively harder.",
+    "category": "programming",
+    "status": "published"
+  },
+  "modules": [
+    {
+      "title": "Module 1: Hello, Python!",
+      "sort_order": 0,
+      "lessons": [
+        {
+          "title": "Your First Program: print()",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Your First Program: print()\n\n### 🧠 How It Works\n\nImagine you walk into a room and want to get everyone's attention. You open your mouth and say something out loud — that is exactly what `print()` does for your program. It is the computer's voice. Whatever you put inside the parentheses (wrapped in quotes) is what the computer \"says\" — it displays that text on the screen.\n\nThe text you pass to `print()` is called a **string** — think of it as a string of beads where each bead is a character. You can use double quotes `\"hello\"` or single quotes `'hello'`, both work identically. Each call to `print()` outputs on its own line, like writing on a new line of a notepad.\n\nWhy does this matter? Every app you have ever used communicates by displaying text or images on screen. `print()` is the simplest form of that communication. It is also the number-one debugging tool — when your code does something unexpected, you sprinkle `print()` statements to peek at what is happening inside. Professional developers still use this technique daily.\n\n### 📝 Step by Step\n\n1. Write the keyword `print` (all lowercase).\n2. Open parentheses `(` right after the word — no space between `print` and `(`.\n3. Inside the parentheses, put your text wrapped in quotes: `\"Hello, World!\"`.\n4. Close the parentheses `)`.\n5. Each `print()` statement goes on its own line in your code.\n\n### 💻 Example\n\n```python\n# Printing different messages\nprint(\"Hello, World!\")\nprint(\"My name is Alex\")\nprint(\"I am 15 years old\")\nprint(\"Python is awesome!\")\n```\n\n**Output:**\n```\nHello, World!\nMy name is Alex\nI am 15 years old\nPython is awesome!\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting quotes** — `print(Hello)` looks for a variable called `Hello` instead of printing the word. → **Fix**: Always wrap text in quotes: `print(\"Hello\")`.\n- **Mistake: Mismatched quotes** — `print(\"Hello')` mixes double and single quotes. → **Fix**: Use the same type of quote on both sides: `print(\"Hello\")` or `print('Hello')`.\n- **Mistake: Capital P in Print** — Python is case-sensitive, so `Print(\"hi\")` does not work. → **Fix**: Always use lowercase `print`.\n\n### 🔗 Connection\n\nThis is your very first Python instruction! You have zero prerequisites — everyone starts here. In the next lesson, you will learn about *variables*, which let you store data and reuse it. Think of `print()` as the output door — soon you will learn how to put interesting things through that door.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `print(\"2 + 3\")` display? (Hint: it is inside quotes.)\n2. How many lines of output does this produce: `print(\"A\")` followed by `print(\"B\")` followed by `print(\"C\")`?\n3. What happens if you write `print()` with nothing inside the parentheses?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Introduce Yourself",
+            "config": {
+              "language": "python",
+              "description": "Use three print() statements to display your name, your age, and your favorite hobby — each on a separate line. For example, if your name is Sam, you are 14, and you like gaming, the output should be exactly:\nSam\n14\nGaming",
+              "starter_code": "# Print your name on the first line\n\n# Print your age on the second line\n\n# Print your favorite hobby on the third line\n",
+              "solution_code": "print(\"Sam\")\nprint(\"14\")\nprint(\"Gaming\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "",
+                "expected_output": "Sam\n14\nGaming",
+                "is_hidden": false
+              }
+            ]
+          }
+        },
+        {
+          "title": "Variables: Giving Names to Data",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Variables: Giving Names to Data\n\n### 🧠 How It Works\n\nImagine a row of labeled boxes on a shelf. You can put something inside a box and write a name on the label — later, you use that name to find what you stored. That is exactly what a **variable** is: a named container for a value. You create one by writing a name, an equals sign, and the value you want to store.\n\nVariables are powerful because they let your program *remember* things. A game remembers your score; a messaging app remembers your username. Without variables, every piece of information would vanish the moment it was created. The equals sign `=` is the **assignment operator** — it puts the value on the right into the variable on the left.\n\nPython is **dynamically typed**, meaning you do not declare a type in advance. A variable can hold a number now and a string later (though switching types on purpose is usually bad practice). Variable names are case-sensitive (`score` and `Score` are different), must start with a letter or underscore, and cannot be Python keywords like `if`, `for`, or `print`.\n\n### 📝 Step by Step\n\n1. Choose a descriptive name: `player_score`, `user_name`, `total_price`.\n2. Use `=` to assign a value: `player_score = 0`.\n3. Use the variable name wherever you need that value: `print(player_score)`.\n4. To update, assign again: `player_score = 100` (the old value is replaced).\n5. To swap two variables, use a temporary variable or Python's tuple swap: `a, b = b, a`.\n\n### 💻 Example\n\n```python\n# Creating variables\nname = \"Alex\"\nage = 15\nfavorite_game = \"Minecraft\"\n\n# Using variables\nprint(name)\nprint(age)\n\n# Updating a variable\nage = 16\nprint(age)  # Now prints 16\n\n# Swapping two variables\na = \"first\"\nb = \"second\"\na, b = b, a\nprint(a)  # second\nprint(b)  # first\n```\n\n**Output:**\n```\nAlex\n15\n16\nsecond\nfirst\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using a variable before creating it** — `print(score)` when `score` was never assigned causes a `NameError`. → **Fix**: Always assign a value before using the variable.\n- **Mistake: Spaces or hyphens in names** — `my-score` or `my score` are not valid. → **Fix**: Use underscores: `my_score`.\n- **Mistake: Confusing `=` (assignment) with `==` (comparison)** — `x = 5` stores 5, `x == 5` checks if x equals 5. → **Fix**: Remember that single `=` means \"put this value in,\" double `==` means \"is this equal?\"\n\n### 🔗 Connection\n\nYou just learned `print()` to display output. Now variables let you *store* data so you can display it later, combine it, or change it. In the next lesson, you will discover that not all data is the same — numbers and text behave differently, leading us to **data types**.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. After `x = 10` and then `x = 20`, what is the value of `x`?\n2. Is `myVar` the same variable as `myvar`?\n3. After `a = 5`, `b = 10`, `temp = a`, `a = b`, `b = temp` — what are `a` and `b`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Swap the Values",
+            "config": {
+              "language": "python",
+              "description": "You are given two variables `a` and `b`. Swap their values so that `a` holds what `b` had and vice versa, then print both. Hint: you'll need a third variable to temporarily hold one of the values.\n\nThe first line of input is the value of a, the second line is the value of b.",
+              "starter_code": "a = input()\nb = input()\n\n# Swap the values of a and b\n\n\nprint(a)\nprint(b)",
+              "solution_code": "a = input()\nb = input()\ntemp = a\na = b\nb = temp\nprint(a)\nprint(b)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "hello\nworld",
+                "expected_output": "world\nhello",
+                "is_hidden": false
+              },
+              {
+                "input": "10\n20",
+                "expected_output": "20\n10",
+                "is_hidden": false
+              },
+              {
+                "input": "Python\nJava",
+                "expected_output": "Java\nPython",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Data Types: Numbers and Strings",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Data Types: Numbers and Strings\n\n### 🧠 How It Works\n\nThink about your school backpack. You would not store a sandwich the same way you store a textbook — they are different types of items that need different handling. Python works the same way: the number `42` and the text `\"42\"` look similar but are completely different data types with different capabilities.\n\nPython has four basic data types you need to know now: **int** (whole numbers like 5, -3, 1000), **float** (decimal numbers like 3.14, -0.5), **str** (text strings like \"hello\"), and **bool** (True or False). The type determines what operations are possible — you can multiply numbers but not text (well, sort of — `\"ha\" * 3` gives `\"hahaha\"`, but that is string repetition, not math).\n\nWhen you read input from a user or a file, Python gives you a string. If you need to do math, you must **convert** it using `int()` or `float()`. Going the other direction, `str()` converts numbers to text. This conversion process is called **type casting**, and forgetting to do it is one of the most common beginner errors.\n\n### 📝 Step by Step\n\n1. Determine what kind of data you are working with (number vs text vs true/false).\n2. Use the right literal format: numbers have no quotes (`42`), strings have quotes (`\"42\"`), booleans are `True` or `False` (capitalized).\n3. Check a value's type with `type()`: `print(type(42))` shows `<class 'int'>`.\n4. Convert between types when needed: `int(\"42\")` gives the number 42, `str(42)` gives the string \"42\".\n5. Be careful mixing types — `\"Age: \" + str(15)` works, but `\"Age: \" + 15` crashes.\n\n### 💻 Example\n\n```python\n# Different types\nage = 15            # int\nprice = 9.99        # float\nname = \"Alex\"       # str\nis_student = True   # bool\n\n# Checking types\nprint(type(age))    # <class 'int'>\nprint(type(price))  # <class 'float'>\n\n# Type conversion\ntext_number = \"42\"\nreal_number = int(text_number)\nprint(real_number + 8)  # 50\n\n# Combining string and number\nprint(\"I am \" + str(age) + \" years old\")\n```\n\n**Output:**\n```\n<class 'int'>\n<class 'float'>\n50\nI am 15 years old\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Adding a string and a number** — `\"Score: \" + 100` causes a TypeError. → **Fix**: Convert the number first: `\"Score: \" + str(100)`.\n- **Mistake: Doing math on string input** — `input()` always returns a string, so `input() + input()` concatenates instead of adding. → **Fix**: Wrap with `int()` or `float()`: `int(input()) + int(input())`.\n- **Mistake: Converting non-numeric strings** — `int(\"hello\")` crashes with ValueError. → **Fix**: Only convert strings that actually contain numbers.\n\n### 🔗 Connection\n\nYou know how to create variables and print them. Now you understand *what kind of data* those variables hold. This matters because in the next lesson you will do **math operations** — and math only works correctly when you have the right types. Understanding types prevents the majority of beginner bugs.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is `type(\"3.14\")` — int, float, or str?\n2. What does `int(3.7)` return? (Hint: it truncates, it does not round.)\n3. What does `\"ha\" * 3` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Price Calculator",
+            "config": {
+              "language": "python",
+              "description": "Read the price of an item (a decimal number) and the quantity (a whole number) from input. Calculate the total cost and print it. Make sure to convert the input to the correct types!\n\nInput: two lines — first is price (float), second is quantity (int).\nOutput: the total as a float.",
+              "starter_code": "price = input()\nquantity = input()\n\n# Convert to the right types and calculate total\n\n\nprint(total)",
+              "solution_code": "price = input()\nquantity = input()\ntotal = float(price) * int(quantity)\nprint(total)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "9.99\n3",
+                "expected_output": "29.97",
+                "is_hidden": false
+              },
+              {
+                "input": "5.5\n2",
+                "expected_output": "11.0",
+                "is_hidden": false
+              },
+              {
+                "input": "100.0\n1",
+                "expected_output": "100.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Math Operations and Expressions",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Math Operations and Expressions\n\n### 🧠 How It Works\n\nPython is a supercharged calculator built right into a programming language. You can do all the math you know from school — addition, subtraction, multiplication, division — plus a few extra operations that are incredibly useful in programming.\n\nThink of math expressions like recipes: the operators (+, -, *, /) are the actions, and the numbers are the ingredients. Python follows the same **order of operations** you learned in math class (PEMDAS): Parentheses first, then Exponents, then Multiplication and Division (left to right), then Addition and Subtraction (left to right). When in doubt, add parentheses to make your intent clear.\n\nTwo operators deserve special attention. **Floor division** (`//`) divides and drops the decimal part — `7 // 2` gives `3`, not `3.5`. **Modulo** (`%`) gives the remainder after division — `7 % 2` gives `1` because 7 divided by 2 is 3 remainder 1. Modulo is surprisingly useful: checking if a number is even (`n % 2 == 0`), wrapping around values (like clock arithmetic), and extracting digits.\n\n### 📝 Step by Step\n\n1. Write your numbers and operators: `result = 10 + 3`.\n2. Use parentheses to control order: `result = (10 + 3) * 2`.\n3. For integer division (no decimals), use `//`.\n4. For remainders, use `%`.\n5. For powers, use `**`: `2 ** 10` is 1024.\n6. Use shorthand update operators: `x += 5` is the same as `x = x + 5`.\n\n### 💻 Example\n\n```python\n# Basic operations\nprint(10 + 3)    # 13\nprint(10 - 3)    # 7\nprint(10 * 3)    # 30\nprint(10 / 3)    # 3.3333333333333335\nprint(10 // 3)   # 3 (floor division)\nprint(10 % 3)    # 1 (remainder)\nprint(10 ** 3)   # 1000 (exponent)\n\n# Order of operations\nprint(2 + 3 * 4)       # 14 (not 20)\nprint((2 + 3) * 4)     # 20\n\n# Shorthand operators\nscore = 0\nscore += 10   # score is now 10\nscore *= 2    # score is now 20\nprint(score)\n```\n\n**Output:**\n```\n13\n7\n30\n3.3333333333333335\n3\n1\n1000\n14\n20\n20\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `/` when you want `//`** — `7 / 2` gives `3.5`, not `3`. → **Fix**: Use `//` for integer results: `7 // 2` gives `3`.\n- **Mistake: Forgetting order of operations** — `100 - 20 * 3` gives `40`, not `240`. → **Fix**: Use parentheses: `(100 - 20) * 3`.\n- **Mistake: Dividing by zero** — `10 / 0` crashes your program. → **Fix**: Always check the divisor is not zero before dividing.\n\n### 🔗 Connection\n\nYou have learned types (lesson 3) so you know the difference between `int` and `float`. Now you can *calculate* with them. These math operations are the backbone of every program — from computing game physics to calculating shopping cart totals. Next module, you will learn to get **user input** so you can build interactive calculators.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is `17 // 5` and `17 % 5`?\n2. What is `2 ** 8`?\n3. After `x = 10` then `x += 5` then `x *= 2`, what is `x`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Time Converter",
+            "config": {
+              "language": "python",
+              "description": "Read a total number of seconds from input and convert it into hours, minutes, and remaining seconds. Print the result in the format: H:M:S\n\nFor example, 3661 seconds = 1:1:1 (1 hour, 1 minute, 1 second).\n\nHint: Use floor division (//) and modulo (%).",
+              "starter_code": "total_seconds = int(input())\n\n# Calculate hours, minutes, and seconds\n\n\nprint(str(hours) + \":\" + str(minutes) + \":\" + str(seconds))",
+              "solution_code": "total_seconds = int(input())\nhours = total_seconds // 3600\nminutes = (total_seconds % 3600) // 60\nseconds = total_seconds % 60\nprint(str(hours) + \":\" + str(minutes) + \":\" + str(seconds))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3661",
+                "expected_output": "1:1:1",
+                "is_hidden": false
+              },
+              {
+                "input": "7200",
+                "expected_output": "2:0:0",
+                "is_hidden": false
+              },
+              {
+                "input": "90",
+                "expected_output": "0:1:30",
+                "is_hidden": true
+              },
+              {
+                "input": "0",
+                "expected_output": "0:0:0",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 2: Input and Strings",
+      "sort_order": 1,
+      "lessons": [
+        {
+          "title": "Getting User Input",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Getting User Input\n\n### 🧠 How It Works\n\nImagine having a conversation where only you can talk — pretty boring, right? So far, your programs are like that: they output things but never listen. The `input()` function changes everything by letting the user type something back. It pauses the program, waits for the user to type and press Enter, then returns what they typed as a string.\n\nThink of `input()` as a microphone for your program. When you write `name = input(\"What is your name? \")`, the program displays the prompt message, hands the microphone to the user, waits for their response, and stores it in the variable `name`. The prompt (the text inside the parentheses) is optional but helps the user know what to type.\n\nThere is one critical thing to remember: **`input()` always returns a string**, even if the user types a number. If the user types `15`, you get the string `\"15\"`, not the number `15`. To do math with it, you must convert using `int()` or `float()`. A very common shortcut is `age = int(input(\"Your age: \"))` — this reads input and converts to integer in one step.\n\n### 📝 Step by Step\n\n1. Call `input()` with an optional prompt string: `response = input(\"Enter something: \")`.\n2. The return value is always a **string**.\n3. To use it as a number, convert: `number = int(input())` or `decimal = float(input())`.\n4. You can chain conversion in one line: `age = int(input(\"Age: \"))`.\n5. Store the result in a variable to use it later.\n\n### 💻 Example\n\n```python\n# Simple text input\nname = input(\"What is your name? \")\nprint(\"Hello, \" + name + \"!\")\n\n# Numeric input (must convert!)\nbirth_year = int(input(\"Birth year: \"))\nage = 2025 - birth_year\nprint(\"You are \" + str(age) + \" years old\")\n\n# Multiple inputs\nfirst = input(\"First name: \")\nlast = input(\"Last name: \")\nprint(\"Full name: \" + first + \" \" + last)\n```\n\n**Output:**\n```\nWhat is your name? Alex\nHello, Alex!\nBirth year: 2010\nYou are 15 years old\nFirst name: Alex\nLast name: Smith\nFull name: Alex Smith\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Doing math without converting** — `age = input() + 1` tries to add 1 to a string. → **Fix**: Convert first: `age = int(input()) + 1`.\n- **Mistake: Converting non-numeric input** — If the user types \"abc\" and you do `int(input())`, it crashes. → **Fix**: For now, assume valid input; later you will learn error handling.\n- **Mistake: Forgetting that input includes what the user typed, not the prompt** — The prompt is just displayed; only the user's response is returned.\n\n### 🔗 Connection\n\nYou learned to display output with `print()` and store data in variables. Now `input()` completes the loop — your programs can both talk and listen. In the next lesson, you will learn powerful **string methods** to manipulate the text that users type in.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. If the user types \"25\", what does `type(input())` return?\n2. What does `int(input()) * 2` produce if the user types \"7\"?\n3. What is the difference between `input(\"Name: \")` and `input()`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Greeting Machine",
+            "config": {
+              "language": "python",
+              "description": "Read a person's name (first line) and their birth year (second line) from input. Calculate their age in 2025 and print a greeting in this exact format:\nHello, {name}! You are {age} years old.\n\nFor example, if name is \"Alex\" and birth year is 2010, print:\nHello, Alex! You are 15 years old.",
+              "starter_code": "name = input()\nbirth_year = input()\n\n# Calculate age and print greeting\n",
+              "solution_code": "name = input()\nbirth_year = input()\nage = 2025 - int(birth_year)\nprint(\"Hello, \" + name + \"! You are \" + str(age) + \" years old.\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "Alex\n2010",
+                "expected_output": "Hello, Alex! You are 15 years old.",
+                "is_hidden": false
+              },
+              {
+                "input": "Maria\n2005",
+                "expected_output": "Hello, Maria! You are 20 years old.",
+                "is_hidden": false
+              },
+              {
+                "input": "Bob\n2000",
+                "expected_output": "Hello, Bob! You are 25 years old.",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "String Operations and Methods",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## String Operations and Methods\n\n### 🧠 How It Works\n\nStrings are like Swiss Army knives — they come packed with built-in tools called **methods**. A method is a function that belongs to a specific object. When you write `\"hello\".upper()`, you are calling the `upper` method on the string `\"hello\"`, and it returns `\"HELLO\"`. The original string does not change (strings are immutable), so a new string is created.\n\nThink of a string as a row of lockers, each holding one character. Each locker has a number (index) starting from 0. The string `\"Python\"` has locker 0 = 'P', locker 1 = 'y', locker 2 = 't', and so on. You can access individual characters with square brackets (`word[0]`) and grab slices (substrings) using the colon notation (`word[0:3]` gives the first three characters).\n\nIndexing also works backwards: index `-1` is the last character, `-2` is second-to-last, and so on. Slicing with `[start:end]` includes `start` but excludes `end` — think of it like a half-open interval in math. This \"off by one\" convention feels weird at first but is consistent across Python.\n\n### 📝 Step by Step\n\n1. Call a method with dot notation: `text.upper()`, `text.lower()`, `text.strip()`.\n2. Access a character by index: `text[0]` (first), `text[-1]` (last).\n3. Slice with `[start:end]`: `text[0:3]` gets characters at positions 0, 1, 2.\n4. Omit start or end: `text[:3]` means \"from beginning to 3\", `text[2:]` means \"from 2 to end\".\n5. Chain methods: `text.strip().lower()` removes whitespace then lowercases.\n\n### 💻 Example\n\n```python\nmessage = \"  Hello, World!  \"\n\n# Common methods\nprint(message.strip())           # \"Hello, World!\" (remove whitespace)\nprint(message.strip().upper())   # \"HELLO, WORLD!\"\nprint(message.strip().lower())   # \"hello, world!\"\nprint(message.strip().replace(\"World\", \"Python\"))  # \"Hello, Python!\"\nprint(len(message.strip()))      # 13\n\n# Indexing and slicing\nword = \"Python\"\nprint(word[0])     # P\nprint(word[-1])    # n\nprint(word[0:3])   # Pyt\nprint(word[2:])    # thon\nprint(word[::-1])  # nohtyP (reversed!)\n```\n\n**Output:**\n```\nHello, World!\nHELLO, WORLD!\nhello, world!\nHello, Python!\n13\nP\nn\nPyt\nthon\nnohtyP\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Thinking methods change the original string** — `name.upper()` does NOT modify `name`. → **Fix**: Assign the result: `name = name.upper()`.\n- **Mistake: Index out of range** — `\"Hi\"[5]` crashes because \"Hi\" only has indices 0 and 1. → **Fix**: Check `len()` before indexing, or use negative indices.\n- **Mistake: Forgetting that slicing excludes the end index** — `\"Python\"[0:3]` gives \"Pyt\", not \"Pyth\". → **Fix**: Remember the end index is exclusive; use `[0:4]` to get four characters.\n\n### 🔗 Connection\n\nYou can now get user input (previous lesson) and manipulate it with string methods. These tools are essential for processing any text — usernames, messages, file paths. Next, you will learn **f-strings**, a cleaner way to combine variables and text.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `\"Hello World\".count(\"o\")` return?\n2. What does `\"Python\"[1:4]` give you?\n3. What does `\"  spaces  \".strip()` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Username Generator",
+            "config": {
+              "language": "python",
+              "description": "Read a first name and last name from input (two separate lines). Create a username by taking the first 3 letters of the first name and the first 3 letters of the last name, all in lowercase. Print the username.\n\nExample: \"Alexander\" and \"Smith\" produces \"alesmith\".",
+              "starter_code": "first_name = input()\nlast_name = input()\n\n# Create username: first 3 chars of first name + first 3 chars of last name, all lowercase\n\n\nprint(username)",
+              "solution_code": "first_name = input()\nlast_name = input()\nusername = (first_name[:3] + last_name[:3]).lower()\nprint(username)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "Alexander\nSmith",
+                "expected_output": "alesmith",
+                "is_hidden": false
+              },
+              {
+                "input": "MARIA\nJohnson",
+                "expected_output": "marjoh",
+                "is_hidden": false
+              },
+              {
+                "input": "Li\nWu",
+                "expected_output": "liwu",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "F-strings and String Formatting",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## F-strings and String Formatting\n\n### 🧠 How It Works\n\nImagine you are filling out a form with blanks: \"My name is ___ and I am ___ years old.\" Instead of cutting and pasting pieces together, you just write in the blanks. F-strings work exactly like that — you write your text template and drop variables right where the blanks are, using curly braces `{}`.\n\nBefore f-strings, combining strings and variables was painful: `\"Name: \" + name + \", Age: \" + str(age)`. You had to convert every number with `str()` and manually add spaces. F-strings (available since Python 3.6) fix all of this. Just put an `f` before the opening quote and place any variable or expression inside `{}`. Python handles the conversions automatically.\n\nF-strings can also do math and call methods right inside the curly braces: `f\"Area: {width * height}\"` or `f\"Name: {name.upper()}\"`. For formatting numbers, you add a colon and a format specifier: `f\"${price:.2f}\"` formats a number to exactly 2 decimal places — perfect for displaying money. This is the modern, Pythonic way to format strings, and you should use it everywhere.\n\n### 📝 Step by Step\n\n1. Start the string with `f` before the quote: `f\"...\"`.\n2. Inside the string, put variables in curly braces: `f\"Hello, {name}!\"`.\n3. You can put any expression inside braces: `f\"Sum: {a + b}\"`.\n4. Format numbers with `:` specifiers: `f\"{price:.2f}\"` for 2 decimal places.\n5. Call methods inside braces: `f\"{name.upper()}\"`.\n\n### 💻 Example\n\n```python\nname = \"Alex\"\nage = 15\nscore = 98.567\n\n# Basic f-string\nprint(f\"Hello, {name}! You are {age} years old.\")\n\n# Expressions inside braces\nprint(f\"Next year you will be {age + 1}\")\nprint(f\"Name in caps: {name.upper()}\")\n\n# Number formatting\nprint(f\"Score: {score:.1f}\")      # 1 decimal place\nprint(f\"Price: ${9.9:.2f}\")       # 2 decimal places\nprint(f\"Percentage: {0.856:.0%}\") # As percentage\n```\n\n**Output:**\n```\nHello, Alex! You are 15 years old.\nNext year you will be 16\nName in caps: ALEX\nScore: 98.6\nPrice: $9.90\nPercentage: 86%\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting the `f` prefix** — `\"Hello, {name}\"` prints literally `{name}` instead of the variable value. → **Fix**: Always start with `f`: `f\"Hello, {name}\"`.\n- **Mistake: Using wrong format specifier** — `:.2f` works for floats, not strings. → **Fix**: Only use numeric format specifiers on numbers.\n- **Mistake: Unmatched curly braces** — To print a literal `{`, you must double it: `f\"{{\"` prints `{`.\n\n### 🔗 Connection\n\nYou have been building strings with the `+` operator, which works but is clunky. F-strings are the clean, modern replacement. You will use them in virtually every Python program from now on. Next lesson covers `split()` and `join()`, which let you break strings apart and reassemble them.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `f\"{3 * 7}\"` display?\n2. What does `f\"{'hello'.upper()}\"` display?\n3. What does `f\"{19.5:.0f}\"` display?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Receipt Printer",
+            "config": {
+              "language": "python",
+              "description": "Read an item name (string), price (float), and quantity (int) from input (three lines). Print a receipt line using f-strings in this exact format:\nItem: {name} | Qty: {quantity} | Total: ${total:.2f}\n\nWhere total = price * quantity, formatted to 2 decimal places.\n\nExample: \"Notebook\", 4.99, 3 produces:\nItem: Notebook | Qty: 3 | Total: $14.97",
+              "starter_code": "name = input()\nprice = float(input())\nquantity = int(input())\n\n# Print the receipt line using an f-string\n",
+              "solution_code": "name = input()\nprice = float(input())\nquantity = int(input())\ntotal = price * quantity\nprint(f\"Item: {name} | Qty: {quantity} | Total: ${total:.2f}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "Notebook\n4.99\n3",
+                "expected_output": "Item: Notebook | Qty: 3 | Total: $14.97",
+                "is_hidden": false
+              },
+              {
+                "input": "Pen\n1.50\n10",
+                "expected_output": "Item: Pen | Qty: 10 | Total: $15.00",
+                "is_hidden": false
+              },
+              {
+                "input": "Laptop\n999.99\n1",
+                "expected_output": "Item: Laptop | Qty: 1 | Total: $999.99",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "String Challenges: split() and join()",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## String Challenges: split() and join()\n\n### 🧠 How It Works\n\nImagine you have a sentence written on a banner, and you need to cut it into individual word cards. That is what `split()` does — it chops a string into a list of smaller strings based on a separator. By default, it splits on spaces, but you can split on any character: commas, dashes, slashes, etc.\n\nNow imagine the reverse: you have a pile of word cards and need to glue them back into a banner with a separator between each card. That is `join()`. You call it on the separator string and pass the list: `\" \".join(words)` puts spaces between words, `\"-\".join(parts)` puts dashes between parts.\n\nThese two methods are a power duo used constantly in real programming. Parsing CSV data? Split on commas. Building a file path? Join with slashes. Processing user input? Split into words, modify some, join back. The pattern of split-process-join is one of the most common patterns in text processing.\n\n### 📝 Step by Step\n\n1. Split a string into a list: `words = sentence.split()` (splits on spaces).\n2. Split on a specific character: `parts = date.split(\"-\")`.\n3. Process the list (modify, filter, reorder).\n4. Join back together: `result = \" \".join(words)`.\n5. The separator goes before `.join()`: `\"/\".join(parts)`.\n\n### 💻 Example\n\n```python\n# Splitting\nsentence = \"Python is really fun\"\nwords = sentence.split()\nprint(words)  # ['Python', 'is', 'really', 'fun']\n\ndate = \"2025-03-15\"\nparts = date.split(\"-\")\nprint(parts)  # ['2025', '03', '15']\n\n# Joining\ncolors = [\"red\", \"green\", \"blue\"]\nprint(\", \".join(colors))  # red, green, blue\nprint(\" -> \".join(colors))  # red -> green -> blue\n\n# Split, modify, join\nsentence = \"hello world python\"\nwords = sentence.split()\ncapitalized = [w.capitalize() for w in words]\nprint(\" \".join(capitalized))  # Hello World Python\n```\n\n**Output:**\n```\n['Python', 'is', 'really', 'fun']\n['2025', '03', '15']\nred, green, blue\nred -> green -> blue\nHello World Python\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Calling join on the list instead of the separator** — `words.join(\" \")` is wrong. → **Fix**: Call it on the separator: `\" \".join(words)`.\n- **Mistake: Forgetting that split returns a list** — `sentence.split()[0]` gets the first word, not the first character. → **Fix**: Remember split gives you a list of strings.\n- **Mistake: Joining non-string items** — `\" \".join([1, 2, 3])` crashes because join needs strings. → **Fix**: Convert first: `\" \".join(str(x) for x in [1, 2, 3])`.\n\n### 🔗 Connection\n\nYou have mastered strings — creating, formatting, and now splitting and joining them. You are ready to move to **making decisions**. In the next module, you will learn `if` statements, which let your program choose different paths based on conditions. Strings will keep appearing everywhere.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `\"a,b,c\".split(\",\")` produce?\n2. What does `\"-\".join([\"2025\", \"01\", \"01\"])` produce?\n3. How many elements does `\"one two three\".split()` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Reverse the Words",
+            "config": {
+              "language": "python",
+              "description": "Read a sentence from input. Reverse the order of the words (not the letters!) and print the result. Words are separated by spaces.\n\nExample: \"I love Python\" becomes \"Python love I\".",
+              "starter_code": "sentence = input()\n\n# Reverse the order of words and print\n",
+              "solution_code": "sentence = input()\nwords = sentence.split()\nwords.reverse()\nprint(\" \".join(words))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "I love Python",
+                "expected_output": "Python love I",
+                "is_hidden": false
+              },
+              {
+                "input": "Hello World",
+                "expected_output": "World Hello",
+                "is_hidden": false
+              },
+              {
+                "input": "one two three four five",
+                "expected_output": "five four three two one",
+                "is_hidden": true
+              },
+              {
+                "input": "single",
+                "expected_output": "single",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 3: Making Decisions",
+      "sort_order": 2,
+      "lessons": [
+        {
+          "title": "If Statements: Your First Decision",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## If Statements: Your First Decision\n\n### 🧠 How It Works\n\nUp until now, your programs run like trains on rails — straight from top to bottom, executing every line. But real programs need to make choices. Should the game character take damage or heal? Should the website show a login page or a dashboard? The `if` statement is how your program makes decisions.\n\nThink of an `if` statement like a bouncer at a club: \"If you are 18 or older, you can enter.\" The bouncer checks a condition and acts accordingly. In Python, you write the condition after `if`, and if it is `True`, the indented code block underneath runs. If it is `False`, that block is skipped entirely.\n\nPython uses **indentation** (whitespace at the beginning of a line) to define which code belongs to the `if` block. This is different from most other languages that use curly braces. The standard is 4 spaces. Everything indented at the same level under the `if` is part of that block. The first line that is NOT indented is outside the block and always runs.\n\n### 📝 Step by Step\n\n1. Write `if` followed by a condition and a colon: `if age >= 18:`.\n2. Indent the next lines by 4 spaces — these run only when the condition is True.\n3. Add `else:` for code that runs when the condition is False.\n4. Use comparison operators: `==`, `!=`, `>`, `<`, `>=`, `<=`.\n5. The first non-indented line after the block always runs regardless.\n\n### 💻 Example\n\n```python\nage = int(input(\"Enter your age: \"))\n\nif age >= 18:\n    print(\"You are an adult!\")\n    print(\"You can vote.\")\nelse:\n    print(\"You are a minor.\")\n    print(\"You cannot vote yet.\")\n\nprint(\"Thanks for checking!\")  # Always runs\n```\n\n**Output (if user enters 20):**\n```\nEnter your age: 20\nYou are an adult!\nYou can vote.\nThanks for checking!\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `=` instead of `==`** — `if x = 5:` is assignment, not comparison. → **Fix**: Use `==` for comparison: `if x == 5:`.\n- **Mistake: Forgetting the colon** — `if age >= 18` without `:` is a syntax error. → **Fix**: Always end the `if` line with a colon.\n- **Mistake: Inconsistent indentation** — Mixing tabs and spaces causes errors. → **Fix**: Always use 4 spaces for indentation.\n\n### 🔗 Connection\n\nYou have been writing linear programs. Now you can make your programs *think* and choose different paths. This is the foundation of all interactive software. Next, you will learn `elif` chains to handle multiple options — not just yes/no decisions.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. If `x = 3`, does `if x > 5: print(\"big\")` print anything?\n2. What does `==` do compared to `=`?\n3. If the indented block under `if` has 3 lines, how many of them run when the condition is False?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Password Check",
+            "config": {
+              "language": "python",
+              "description": "Read a password from input. If the password is exactly \"python123\", print \"Access granted\". Otherwise, print \"Access denied\".\n\nUse an if/else statement.",
+              "starter_code": "password = input()\n\n# Check the password and print the result\n",
+              "solution_code": "password = input()\nif password == \"python123\":\n    print(\"Access granted\")\nelse:\n    print(\"Access denied\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "python123",
+                "expected_output": "Access granted",
+                "is_hidden": false
+              },
+              {
+                "input": "wrongpassword",
+                "expected_output": "Access denied",
+                "is_hidden": false
+              },
+              {
+                "input": "Python123",
+                "expected_output": "Access denied",
+                "is_hidden": true
+              },
+              {
+                "input": "",
+                "expected_output": "Access denied",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "If / Elif / Else Chains",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## If / Elif / Else Chains\n\n### 🧠 How It Works\n\nA simple `if/else` is like a fork in the road — two choices. But what if you need to choose between five options? That is where `elif` (short for \"else if\") comes in. It lets you chain multiple conditions together, like a series of doors: Python tries each one in order and enters the first door whose condition is True.\n\nImagine a grade calculator: A for 90+, B for 80+, C for 70+, D for 60+, F otherwise. You cannot do this with simple if/else — you need multiple checkpoints. With `elif`, Python checks each condition from top to bottom and runs the FIRST block that matches. Once a match is found, all remaining elif and else blocks are skipped. The `else` at the end is a catch-all safety net.\n\nA critical distinction: using `elif` means the conditions are mutually exclusive (only one block runs). Using separate `if` statements means each condition is checked independently (multiple blocks could run). For grading, you want `elif` so a score of 95 only gives \"A\", not \"A\" and \"B\" and \"C\".\n\n### 📝 Step by Step\n\n1. Start with `if condition:` for the first check.\n2. Add `elif condition:` for each additional check.\n3. End with `else:` as the catch-all (optional but recommended).\n4. Python checks from top to bottom and runs only the first matching block.\n5. Order matters: put the most specific conditions first.\n\n### 💻 Example\n\n```python\nscore = int(input(\"Enter your score: \"))\n\nif score >= 90:\n    grade = \"A\"\nelif score >= 80:\n    grade = \"B\"\nelif score >= 70:\n    grade = \"C\"\nelif score >= 60:\n    grade = \"D\"\nelse:\n    grade = \"F\"\n\nprint(f\"Your grade: {grade}\")\n```\n\n**Output (if user enters 85):**\n```\nEnter your score: 85\nYour grade: B\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `if` instead of `elif`** — Separate `if` statements check every condition independently. → **Fix**: Use `elif` when only one branch should execute.\n- **Mistake: Wrong order of conditions** — Checking `score >= 60` before `score >= 90` means 95 matches 60+ first. → **Fix**: Order from most restrictive to least restrictive.\n- **Mistake: Forgetting `else`** — Without `else`, no code runs if nothing matches. → **Fix**: Always include `else` as a safety net when appropriate.\n\n### 🔗 Connection\n\nYou learned simple if/else (two paths). Now you can handle multiple paths with elif chains. Next, you will learn **logical operators** (and, or, not) to combine multiple conditions into one — like checking if someone is old enough AND has a ticket.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. In an if/elif/elif/else chain, how many blocks can execute at most?\n2. If you use four separate `if` statements instead of elif, how many could execute?\n3. What grade does a score of 90 get in the example above?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Ticket Pricing",
+            "config": {
+              "language": "python",
+              "description": "A movie theater charges different prices based on age:\n- Under 5: Free (print \"Free\")\n- 5-12: $8 (print \"$8\")\n- 13-17: $12 (print \"$12\")\n- 18-64: $15 (print \"$15\")\n- 65 and over: $10 (print \"$10\")\n\nRead an age from input and print the ticket price.",
+              "starter_code": "age = int(input())\n\n# Determine and print the ticket price\n",
+              "solution_code": "age = int(input())\nif age < 5:\n    print(\"Free\")\nelif age <= 12:\n    print(\"$8\")\nelif age <= 17:\n    print(\"$12\")\nelif age <= 64:\n    print(\"$15\")\nelse:\n    print(\"$10\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3",
+                "expected_output": "Free",
+                "is_hidden": false
+              },
+              {
+                "input": "8",
+                "expected_output": "$8",
+                "is_hidden": false
+              },
+              {
+                "input": "15",
+                "expected_output": "$12",
+                "is_hidden": false
+              },
+              {
+                "input": "30",
+                "expected_output": "$15",
+                "is_hidden": true
+              },
+              {
+                "input": "70",
+                "expected_output": "$10",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Logical Operators: and, or, not",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Logical Operators: and, or, not\n\n### 🧠 How It Works\n\nSometimes one condition is not enough to make a decision. Can a teenager create a social media account? They need to be 13 or older AND have parental permission. Should you bring an umbrella? If it is raining OR the forecast says rain. Should you go outside? If it is NOT too cold. Python's logical operators — `and`, `or`, `not` — let you combine conditions.\n\nThink of `and` as a strict teacher who requires ALL conditions to be met: both must be True for the result to be True. Think of `or` as a lenient teacher who just needs at least one to be True. And `not` simply flips True to False and vice versa — like a light switch.\n\nYou can combine as many conditions as you want and use parentheses to group them clearly. Python evaluates `not` first, then `and`, then `or` — but using parentheses makes your code much more readable. A useful technique: `not (a and b)` is the same as `(not a) or (not b)` (De Morgan's law).\n\n### 📝 Step by Step\n\n1. Use `and` when ALL conditions must be True: `if age >= 13 and has_permission:`.\n2. Use `or` when ANY condition being True is enough: `if day == \"Sat\" or day == \"Sun\":`.\n3. Use `not` to flip a condition: `if not is_raining:`.\n4. Use parentheses for clarity: `if (a > 5 and b > 5) or c > 10:`.\n5. Combine with elif chains for complex decision trees.\n\n### 💻 Example\n\n```python\nage = 16\nhas_id = True\nis_student = True\n\n# and: both must be true\nif age >= 16 and has_id:\n    print(\"You can drive!\")\n\n# or: at least one must be true\nif is_student or age < 18:\n    print(\"You get a discount!\")\n\n# not: flips the condition\nis_weekend = False\nif not is_weekend:\n    print(\"Time for school\")\n\n# Complex combination\ntemp = 25\nis_sunny = True\nif (temp > 20 and temp < 35) and is_sunny:\n    print(\"Perfect beach weather!\")\n```\n\n**Output:**\n```\nYou can drive!\nYou get a discount!\nTime for school\nPerfect beach weather!\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `and` when you mean `or`** — `if color == \"red\" and color == \"blue\"` is always False (color cannot be both). → **Fix**: Use `or`: `if color == \"red\" or color == \"blue\"`.\n- **Mistake: Writing `if x == 1 or 2`** — This does not check if x is 1 or 2. → **Fix**: Write `if x == 1 or x == 2`.\n- **Mistake: Overly complex conditions** — Too many `and`/`or` in one line is confusing. → **Fix**: Break into multiple lines or use intermediate variables.\n\n### 🔗 Connection\n\nYou can now make multi-option decisions (elif) and combine conditions (and/or/not). Next, you will learn **nested conditions** — putting if statements inside other if statements — for when your decision tree has layers.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is `True and False`?\n2. What is `True or False`?\n3. What is `not True`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Login Validator",
+            "config": {
+              "language": "python",
+              "description": "Read a username and password from input (two lines). The login is valid if:\n- Username is at least 3 characters long AND\n- Password is at least 8 characters long AND\n- Password is NOT the same as the username\n\nPrint \"Login valid\" if all conditions are met, otherwise print \"Login invalid\".",
+              "starter_code": "username = input()\npassword = input()\n\n# Check all conditions and print result\n",
+              "solution_code": "username = input()\npassword = input()\nif len(username) >= 3 and len(password) >= 8 and password != username:\n    print(\"Login valid\")\nelse:\n    print(\"Login invalid\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "alex\nsecurepass123",
+                "expected_output": "Login valid",
+                "is_hidden": false
+              },
+              {
+                "input": "ab\npassword123",
+                "expected_output": "Login invalid",
+                "is_hidden": false
+              },
+              {
+                "input": "admin\nadmin",
+                "expected_output": "Login invalid",
+                "is_hidden": true
+              },
+              {
+                "input": "alex\nshort",
+                "expected_output": "Login invalid",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Nested Conditions and Complex Logic",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Nested Conditions and Complex Logic\n\n### 🧠 How It Works\n\nSometimes a decision depends on the result of a previous decision. Should you go to the movies? First, do you have money? If yes, is there a good movie playing? If yes, do you have time? Each question only matters if the previous answer was \"yes.\" This is called **nesting** — putting `if` statements inside other `if` statements.\n\nThink of it like a decision tree or a flowchart where each branch leads to more branches. The first `if` checks the broadest condition, and inner `if` statements narrow things down. Each level of nesting adds 4 more spaces of indentation. While nesting is powerful, going deeper than 2-3 levels makes code hard to read — a sign that you should refactor using functions or `and`/`or`.\n\nA very practical pattern with nesting is **input validation**: first check if the input is the right type (a number), then check if the number is in an acceptable range. The `.isdigit()` method checks if a string contains only digit characters, and `.replace()` can handle negative numbers or decimals.\n\n### 📝 Step by Step\n\n1. Write the outer `if` condition for the broadest check.\n2. Indent and write the inner `if` for a more specific check.\n3. Each nesting level adds 4 more spaces.\n4. Add `else` blocks at each level as needed.\n5. If nesting gets deeper than 2-3 levels, consider using `and`/`or` instead.\n\n### 💻 Example\n\n```python\nhas_ticket = True\nage = 15\n\nif has_ticket:\n    if age >= 18:\n        print(\"Welcome to the R-rated movie!\")\n    elif age >= 13:\n        print(\"Welcome to the PG-13 movie!\")\n    else:\n        print(\"Sorry, only G-rated movies for you.\")\nelse:\n    print(\"Please buy a ticket first.\")\n\n# Input validation pattern\nvalue = input(\"Enter a positive number: \")\nif value.isdigit():\n    number = int(value)\n    if number > 0:\n        print(f\"Square root: {number ** 0.5:.2f}\")\n    else:\n        print(\"Must be positive!\")\nelse:\n    print(\"Not a valid number!\")\n```\n\n**Output (with ticket, age 15):**\n```\nWelcome to the PG-13 movie!\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Nesting too deeply** — 4+ levels of nesting becomes unreadable. → **Fix**: Flatten with `and`/`or` or extract into functions.\n- **Mistake: Forgetting that inner else belongs to the inner if** — Indentation determines which `if` an `else` belongs to. → **Fix**: Carefully align your `else` with its matching `if`.\n- **Mistake: Not handling all cases** — Forgetting an `else` at the outer level means some inputs are silently ignored. → **Fix**: Always handle the \"else\" case, even if just to print an error.\n\n### 🔗 Connection\n\nYou now have all the decision-making tools: if/elif/else, logical operators, and nesting. This completes the \"Making Decisions\" module. Next, you will enter the world of **loops**, where your programs can repeat actions — the real power multiplier of programming.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. Is `\"-5\".isdigit()` True or False? (Hint: the minus sign is not a digit.)\n2. In nested ifs, which `else` does the innermost `else` belong to?\n3. Can you rewrite `if a: if b: do_something()` using `and`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Number Classifier",
+            "config": {
+              "language": "python",
+              "description": "Read a number from input. Classify it and print the result:\n- If the number is 0, print \"Zero\"\n- If positive AND even, print \"Positive even\"\n- If positive AND odd, print \"Positive odd\"\n- If negative AND even, print \"Negative even\"\n- If negative AND odd, print \"Negative odd\"\n\nHint: A number is even if number % 2 == 0.",
+              "starter_code": "number = int(input())\n\n# Classify and print\n",
+              "solution_code": "number = int(input())\nif number == 0:\n    print(\"Zero\")\nelif number > 0:\n    if number % 2 == 0:\n        print(\"Positive even\")\n    else:\n        print(\"Positive odd\")\nelse:\n    if number % 2 == 0:\n        print(\"Negative even\")\n    else:\n        print(\"Negative odd\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "0",
+                "expected_output": "Zero",
+                "is_hidden": false
+              },
+              {
+                "input": "4",
+                "expected_output": "Positive even",
+                "is_hidden": false
+              },
+              {
+                "input": "7",
+                "expected_output": "Positive odd",
+                "is_hidden": false
+              },
+              {
+                "input": "-6",
+                "expected_output": "Negative even",
+                "is_hidden": true
+              },
+              {
+                "input": "-3",
+                "expected_output": "Negative odd",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 4: Loops — Repeat Yourself",
+      "sort_order": 3,
+      "lessons": [
+        {
+          "title": "For Loops: Counting and Iterating",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## For Loops: Counting and Iterating\n\n### 🧠 How It Works\n\nImagine you are a teacher who needs to hand out papers to 30 students. You do not write 30 separate instructions — you just say \"for each student, give them a paper.\" That is exactly what a `for` loop does: it repeats a block of code for each item in a sequence.\n\nThe `for` loop is Python's most common loop. It walks through a sequence — numbers generated by `range()`, characters in a string, or items in a list — and executes the body once for each item. The loop variable (commonly `i`) takes the value of each item one by one.\n\nThe `range()` function is your best friend for generating sequences of numbers. `range(5)` generates 0, 1, 2, 3, 4 (five numbers starting from 0). `range(1, 6)` generates 1, 2, 3, 4, 5 (start is inclusive, end is exclusive). `range(0, 20, 5)` counts by 5: 0, 5, 10, 15. You can even count backwards: `range(10, 0, -1)` gives 10, 9, 8, ..., 1.\n\n### 📝 Step by Step\n\n1. Write `for variable in sequence:` followed by a colon.\n2. Indent the body — the code that repeats.\n3. Use `range(n)` for n iterations (0 to n-1).\n4. Use `range(start, stop)` for a specific range (stop is excluded).\n5. Use `range(start, stop, step)` to count by a step value.\n\n### 💻 Example\n\n```python\n# Count from 1 to 5\nfor i in range(1, 6):\n    print(i)\n\n# Count by 2\nfor i in range(0, 10, 2):\n    print(i, end=\" \")  # 0 2 4 6 8\nprint()  # new line\n\n# Loop over a string\nfor char in \"Python\":\n    print(char, end=\"-\")  # P-y-t-h-o-n-\nprint()\n\n# Accumulator pattern\ntotal = 0\nfor i in range(1, 11):\n    total += i\nprint(f\"Sum of 1-10: {total}\")  # 55\n```\n\n**Output:**\n```\n1\n2\n3\n4\n5\n0 2 4 6 8\nP-y-t-h-o-n-\nSum of 1-10: 55\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Off-by-one with range** — `range(1, 5)` gives 1,2,3,4 (not 5). → **Fix**: Use `range(1, 6)` to include 5. The end is always excluded.\n- **Mistake: Modifying the loop variable** — Changing `i` inside the loop does not affect the next iteration. → **Fix**: Understand that `for` assigns `i` fresh each iteration.\n- **Mistake: Forgetting the colon** — `for i in range(5)` without `:` is a syntax error.\n\n### 🔗 Connection\n\nYou have made decisions with `if`. Now loops let your programs **repeat** — the second fundamental control structure. Together, decisions and loops can solve almost any problem. Next, you will learn `while` loops for situations where you do not know in advance how many times to repeat.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. How many times does `for i in range(10):` execute its body?\n2. What does `range(3, 8)` generate?\n3. What does `range(10, 0, -2)` generate?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Multiplication Table",
+            "config": {
+              "language": "python",
+              "description": "Read a number N from input and print its multiplication table from 1 to 10. Each line should be in the format: N x i = result\n\nExample for N=3:\n3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n... and so on up to 3 x 10 = 30",
+              "starter_code": "n = int(input())\n\n# Print the multiplication table\n",
+              "solution_code": "n = int(input())\nfor i in range(1, 11):\n    print(f\"{n} x {i} = {n * i}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3",
+                "expected_output": "3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15\n3 x 6 = 18\n3 x 7 = 21\n3 x 8 = 24\n3 x 9 = 27\n3 x 10 = 30",
+                "is_hidden": false
+              },
+              {
+                "input": "5",
+                "expected_output": "5 x 1 = 5\n5 x 2 = 10\n5 x 3 = 15\n5 x 4 = 20\n5 x 5 = 25\n5 x 6 = 30\n5 x 7 = 35\n5 x 8 = 40\n5 x 9 = 45\n5 x 10 = 50",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "While Loops: Repeat Until Done",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## While Loops: Repeat Until Done\n\n### 🧠 How It Works\n\nA `for` loop runs a fixed number of times. But what if you do not know how many repetitions you need? Imagine a guessing game: you keep guessing until you get it right. You have no idea whether it will take 1 guess or 100. A `while` loop handles this perfectly — it keeps running as long as a condition is True.\n\nThink of a `while` loop like a revolving door: before each pass, you check \"should I keep going?\" If yes, you go through again. If no, you stop. The condition is checked BEFORE each iteration, so if it starts as False, the body never runs at all (unlike a do-while loop in other languages, which Python does not have).\n\nThe biggest danger with while loops is the **infinite loop** — when the condition never becomes False. This happens when you forget to update the variable being checked. Always ask yourself: \"What changes inside my loop to eventually make the condition False?\" Common patterns: incrementing a counter, reading new input, or using `break`.\n\n### 📝 Step by Step\n\n1. Write `while condition:` followed by a colon.\n2. Indent the body — the code that repeats.\n3. Make sure something in the body changes the condition eventually.\n4. Use `while True:` with `break` for loops that check the exit condition in the middle.\n5. Test your loop mentally: does it terminate?\n\n### 💻 Example\n\n```python\n# Basic counting\ncount = 1\nwhile count <= 5:\n    print(count)\n    count += 1  # CRITICAL: without this, infinite loop!\n\n# User input loop\nwhile True:\n    command = input(\"Type 'quit' to exit: \")\n    if command == \"quit\":\n        break\n    print(f\"You said: {command}\")\n\n# Finding the first power of 2 over 1000\npower = 1\nwhile power <= 1000:\n    power *= 2\nprint(f\"First power of 2 over 1000: {power}\")\n```\n\n**Output:**\n```\n1\n2\n3\n4\n5\nFirst power of 2 over 1000: 1024\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting to update the loop variable** — The loop runs forever. → **Fix**: Always modify the variable that the condition checks inside the loop body.\n- **Mistake: Off-by-one in the condition** — `while count < 5` vs `while count <= 5` gives different results. → **Fix**: Trace through mentally: does 5 get included or not?\n- **Mistake: Using `while` when `for` is simpler** — If you know the number of iterations, `for` is cleaner. → **Fix**: Use `while` only when the number of iterations is unknown.\n\n### 🔗 Connection\n\n`for` loops repeat a known number of times; `while` loops repeat until a condition changes. Together they cover all repetition needs. Next, you will learn `break`, `continue`, and loop `else` — tools for fine-tuning how your loops behave.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. How many times does `while False: print(\"hi\")` execute?\n2. After `x = 10; while x > 0: x -= 3`, what is `x`?\n3. What happens if you write `while True:` with no `break` inside?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Guessing Game Logic",
+            "config": {
+              "language": "python",
+              "description": "Read a secret number (first line) and then a series of guesses (one per line). For each guess, print \"Too high\" if the guess is above the secret, \"Too low\" if below, or \"Correct!\" if they match. Stop when the guess is correct.\n\nThe input provides the secret number on line 1, followed by guesses on subsequent lines. You can assume a correct guess is always eventually provided.",
+              "starter_code": "secret = int(input())\n\n# Keep reading guesses until correct\n",
+              "solution_code": "secret = int(input())\nwhile True:\n    guess = int(input())\n    if guess > secret:\n        print(\"Too high\")\n    elif guess < secret:\n        print(\"Too low\")\n    else:\n        print(\"Correct!\")\n        break",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "7\n3\n9\n7",
+                "expected_output": "Too low\nToo high\nCorrect!",
+                "is_hidden": false
+              },
+              {
+                "input": "50\n50",
+                "expected_output": "Correct!",
+                "is_hidden": false
+              },
+              {
+                "input": "10\n1\n5\n15\n10",
+                "expected_output": "Too low\nToo low\nToo high\nCorrect!",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Loop Control: break, continue, else",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Loop Control: break, continue, else\n\n### 🧠 How It Works\n\nSometimes you need more control over a loop than just \"keep going\" or \"stop.\" Maybe you want to exit early when you find what you are looking for, skip certain iterations, or know whether the loop finished naturally. Python gives you three tools: `break`, `continue`, and the loop `else`.\n\nThink of `break` as an emergency exit — you immediately leave the loop, no matter where you are. Think of `continue` as a skip button — you skip the rest of the current iteration and jump to the next one. And the loop `else` is like a \"mission accomplished\" flag — it runs only if the loop completed without hitting a `break`.\n\nThe `for/else` pattern is unique to Python and is especially useful for search problems. You loop through items looking for something. If you find it, you `break`. If the loop finishes without finding it (no break was hit), the `else` runs — that is your \"not found\" handler. This pattern eliminates the need for a `found` flag variable.\n\n### 📝 Step by Step\n\n1. Use `break` to exit a loop immediately when a condition is met.\n2. Use `continue` to skip the rest of the current iteration.\n3. Use `else` on a loop to run code when the loop finishes without `break`.\n4. `break` and `continue` work in both `for` and `while` loops.\n5. In nested loops, `break` only exits the innermost loop.\n\n### 💻 Example\n\n```python\n# break: stop when found\nfor num in range(1, 100):\n    if num % 7 == 0 and num % 5 == 0:\n        print(f\"First number divisible by 7 and 5: {num}\")\n        break\n\n# continue: skip odd numbers\nfor i in range(10):\n    if i % 2 != 0:\n        continue\n    print(i, end=\" \")  # 0 2 4 6 8\nprint()\n\n# for/else: search pattern\ntarget = 13\nfor i in range(2, target):\n    if target % i == 0:\n        print(f\"{target} is divisible by {i}\")\n        break\nelse:\n    print(f\"{target} is prime!\")\n```\n\n**Output:**\n```\nFirst number divisible by 7 and 5: 35\n0 2 4 6 8\n13 is prime!\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Putting `else` at wrong indentation** — The `else` must align with the `for` or `while`, not with the `if` inside the loop. → **Fix**: Align `else` with the loop keyword.\n- **Mistake: Using `break` when you mean `continue`** — `break` exits the entire loop; `continue` just skips one iteration. → **Fix**: Think about what you want: \"stop entirely\" vs \"skip this one.\"\n- **Mistake: Expecting `break` to exit all nested loops** — It only exits the innermost loop. → **Fix**: Use a flag variable or refactor into a function with `return`.\n\n### 🔗 Connection\n\nYou now have complete control over loops: `for` for counting, `while` for unknown iterations, and `break`/`continue`/`else` for fine-tuning. Next, you will learn **nested loops** — putting loops inside loops — for working with grids and patterns.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. Does the `else` block run if the loop completes without `break`?\n2. In `for i in range(5): if i == 3: continue; print(i)`, which numbers print?\n3. What is the output of `for i in range(3): if i == 1: break` followed by `else: print(\"done\")`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Prime Checker",
+            "config": {
+              "language": "python",
+              "description": "Read a positive integer N from input (N >= 2). Determine if N is a prime number. A prime number is only divisible by 1 and itself.\n\nPrint \"Prime\" if the number is prime, or \"Not prime\" otherwise.\n\nHint: Try dividing N by every number from 2 to N-1. If any divides evenly, it's not prime.",
+              "starter_code": "n = int(input())\n\n# Check if n is prime\n",
+              "solution_code": "n = int(input())\nis_prime = True\nfor i in range(2, n):\n    if n % i == 0:\n        is_prime = False\n        break\nif n < 2:\n    is_prime = False\nif is_prime:\n    print(\"Prime\")\nelse:\n    print(\"Not prime\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "7",
+                "expected_output": "Prime",
+                "is_hidden": false
+              },
+              {
+                "input": "12",
+                "expected_output": "Not prime",
+                "is_hidden": false
+              },
+              {
+                "input": "2",
+                "expected_output": "Prime",
+                "is_hidden": true
+              },
+              {
+                "input": "97",
+                "expected_output": "Prime",
+                "is_hidden": true
+              },
+              {
+                "input": "100",
+                "expected_output": "Not prime",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Nested Loops and Patterns",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Nested Loops and Patterns\n\n### 🧠 How It Works\n\nThink of nested loops like the gears in a clock. The hour hand (outer loop) moves slowly, and for each position of the hour hand, the minute hand (inner loop) goes through a full rotation. In code, the inner loop runs completely for EVERY single iteration of the outer loop.\n\nIf the outer loop runs 3 times and the inner loop runs 4 times, the code inside the inner loop executes 3 times 4 = 12 times total. This is incredibly powerful for working with two-dimensional structures: grids, tables, matrices, and text patterns.\n\nA key tool for patterns is the `end` parameter of `print()`. By default, `print()` adds a newline at the end. Writing `print(\"*\", end=\" \")` replaces the newline with a space, keeping output on the same line. Then `print()` with no arguments creates a new line. This combo lets you build 2D patterns line by line.\n\n### 📝 Step by Step\n\n1. Write the outer loop for rows: `for row in range(n):`.\n2. Inside it, write the inner loop for columns: `for col in range(m):`.\n3. Use `print(..., end=\" \")` to print on the same line.\n4. After the inner loop, call `print()` to move to the next line.\n5. The total iterations = outer iterations multiplied by inner iterations.\n\n### 💻 Example\n\n```python\n# Print a 3x4 grid of stars\nfor row in range(3):\n    for col in range(4):\n        print(\"*\", end=\" \")\n    print()  # new line after each row\n\nprint()  # blank line\n\n# Right triangle pattern\nn = 5\nfor i in range(1, n + 1):\n    print(\"*\" * i)\n\nprint()\n\n# Multiplication table (5x5)\nfor i in range(1, 6):\n    for j in range(1, 6):\n        print(f\"{i*j:4}\", end=\"\")\n    print()\n```\n\n**Output:**\n```\n* * * *\n* * * *\n* * * *\n\n*\n**\n***\n****\n*****\n\n   1   2   3   4   5\n   2   4   6   8  10\n   3   6   9  12  15\n   4   8  12  16  20\n   5  10  15  20  25\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting `print()` after the inner loop** — Everything prints on one long line. → **Fix**: Always add `print()` (no arguments) after the inner loop to start a new row.\n- **Mistake: Wrong loop variable in the inner loop** — Using `i` in both loops causes confusion. → **Fix**: Use different names: `row`/`col`, `i`/`j`, `outer`/`inner`.\n- **Mistake: Not understanding total iterations** — An outer loop of 100 and inner loop of 100 means 10,000 iterations. → **Fix**: Multiply the ranges to estimate total work.\n\n### 🔗 Connection\n\nNested loops complete your loop toolkit. You can now repeat with `for`, loop conditionally with `while`, control flow with `break`/`continue`, and work with 2D structures using nested loops. Next module: **lists and tuples** — data structures that store collections of items, which loops are perfect for processing.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. If the outer loop runs 5 times and inner runs 3 times, how many total iterations?\n2. What does `print(\"X\", end=\"\")` do differently from `print(\"X\")`?\n3. What does `\"*\" * 4` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Number Triangle",
+            "config": {
+              "language": "python",
+              "description": "Read a number N from input and print a triangle of numbers. Row i (starting from 1) should contain the numbers 1 through i, separated by spaces.\n\nExample for N=5:\n1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5",
+              "starter_code": "n = int(input())\n\n# Print the number triangle\n",
+              "solution_code": "n = int(input())\nfor i in range(1, n + 1):\n    row = []\n    for j in range(1, i + 1):\n        row.append(str(j))\n    print(\" \".join(row))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "5",
+                "expected_output": "1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5",
+                "is_hidden": false
+              },
+              {
+                "input": "3",
+                "expected_output": "1\n1 2\n1 2 3",
+                "is_hidden": false
+              },
+              {
+                "input": "1",
+                "expected_output": "1",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 5: Lists and Tuples",
+      "sort_order": 4,
+      "lessons": [
+        {
+          "title": "Lists: Ordered Collections",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Lists: Ordered Collections\n\n### 🧠 How It Works\n\nSo far, each variable holds one value — one name, one number, one string. But what if you need to store 30 student names, 100 test scores, or a shopping cart with varying items? Creating separate variables for each is madness. A **list** is a single variable that holds multiple values in order, like a numbered column in a spreadsheet.\n\nThink of a list as a train with numbered cars. Each car (element) has a position (index) starting from 0. You can add cars to the end, insert them in the middle, remove specific ones, or rearrange the entire train. Lists are **mutable** — unlike strings, you can change their contents after creation.\n\nLists are created with square brackets `[]` and elements separated by commas. They can hold any type of data — strings, numbers, booleans, even other lists. You access elements by index (just like string characters), and Python provides a rich set of methods for adding, removing, and modifying elements.\n\n### 📝 Step by Step\n\n1. Create a list with square brackets: `fruits = [\"apple\", \"banana\", \"cherry\"]`.\n2. Access elements by index (starting from 0): `fruits[0]` gives `\"apple\"`.\n3. Modify elements: `fruits[1] = \"blueberry\"`.\n4. Add to the end: `fruits.append(\"date\")`.\n5. Remove elements: `fruits.remove(\"cherry\")` or `fruits.pop()` (removes last).\n\n### 💻 Example\n\n```python\n# Creating and accessing\nscores = [95, 87, 92, 78, 100]\nprint(scores[0])    # 95 (first)\nprint(scores[-1])   # 100 (last)\nprint(len(scores))  # 5\n\n# Modifying\nscores.append(88)          # Add to end\nscores.insert(0, 99)       # Insert at position 0\nscores.remove(78)          # Remove first occurrence of 78\nlast = scores.pop()        # Remove and return last item\nprint(scores)\n\n# Useful built-ins\nprint(min(scores))\nprint(max(scores))\nprint(sum(scores))\n```\n\n**Output:**\n```\n95\n100\n5\n[99, 95, 87, 92, 100]\n87\n100\n474\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Index out of range** — Accessing `my_list[10]` when the list has 5 elements. → **Fix**: Valid indices are 0 to `len(list)-1`. Use negative indices for counting from the end.\n- **Mistake: Confusing `append` and `+`** — `list.append([1,2])` adds one element (a list); `list + [1,2]` concatenates. → **Fix**: Use `append` for single items, `extend` or `+` for adding multiple items.\n- **Mistake: Forgetting that lists are mutable** — Assigning `b = a` makes both variables point to the same list. → **Fix**: Use `b = a.copy()` or `b = a[:]` to create a separate copy.\n\n### 🔗 Connection\n\nVariables store single values; lists store collections. Combined with loops, you can process thousands of items with just a few lines. Next, you will learn powerful list operations: sorting, slicing, and comprehensions — which make lists truly elegant.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. After `x = [1, 2, 3]; x.append(4)`, what is `len(x)`?\n2. What does `[1, 2, 3][-1]` return?\n3. What does `[10, 20, 30].pop()` return, and what is left?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "List Statistics",
+            "config": {
+              "language": "python",
+              "description": "Read a line of space-separated numbers from input. Calculate and print:\n- The count of numbers\n- The sum\n- The average (rounded to 2 decimal places)\n\nPrint each on a separate line, in the format:\nCount: X\nSum: X\nAverage: X\n\nExample input: \"10 20 30\" produces:\nCount: 3\nSum: 60\nAverage: 20.0",
+              "starter_code": "numbers = list(map(int, input().split()))\n\n# Calculate and print count, sum, and average\n",
+              "solution_code": "numbers = list(map(int, input().split()))\ncount = len(numbers)\ntotal = sum(numbers)\naverage = round(total / count, 2)\nprint(f\"Count: {count}\")\nprint(f\"Sum: {total}\")\nprint(f\"Average: {average}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "10 20 30",
+                "expected_output": "Count: 3\nSum: 60\nAverage: 20.0",
+                "is_hidden": false
+              },
+              {
+                "input": "5 10 15 20 25",
+                "expected_output": "Count: 5\nSum: 75\nAverage: 15.0",
+                "is_hidden": false
+              },
+              {
+                "input": "1 2 3 4",
+                "expected_output": "Count: 4\nSum: 10\nAverage: 2.5",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "List Operations: sort, slice, comprehension",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## List Operations: sort, slice, comprehension\n\n### 🧠 How It Works\n\nLists become truly powerful with three features: **sorting** to organize data, **slicing** to extract portions, and **comprehensions** to create new lists in a single elegant line. These are the tools that separate beginner Python from real Python.\n\nSorting rearranges elements in order. `sort()` changes the list in-place (modifies the original), while `sorted()` returns a new sorted list (original unchanged). Both support `reverse=True` for descending order and a `key` parameter for custom sorting.\n\nSlicing works exactly like string slicing: `list[start:end]` extracts a sublist (start included, end excluded). The step parameter `list[::2]` takes every second element, and `list[::-1]` reverses the list. Comprehensions are a one-line shortcut for the loop-append pattern: `[expression for item in iterable if condition]`. They read almost like English and are one of Python's most beloved features.\n\n### 📝 Step by Step\n\n1. Sort in place: `my_list.sort()` (ascending) or `my_list.sort(reverse=True)`.\n2. Create a sorted copy: `new_list = sorted(my_list)`.\n3. Slice a portion: `my_list[1:4]` (elements at indices 1, 2, 3).\n4. Reverse with slicing: `my_list[::-1]`.\n5. Use list comprehensions: `[x**2 for x in range(10)]` creates `[0, 1, 4, 9, ...]`.\n\n### 💻 Example\n\n```python\n# Sorting\nnumbers = [3, 1, 4, 1, 5, 9, 2, 6]\nnumbers.sort()\nprint(numbers)  # [1, 1, 2, 3, 4, 5, 6, 9]\n\n# Slicing\nletters = ['a', 'b', 'c', 'd', 'e']\nprint(letters[1:4])   # ['b', 'c', 'd']\nprint(letters[::-1])  # ['e', 'd', 'c', 'b', 'a']\n\n# Comprehensions\nsquares = [x ** 2 for x in range(6)]\nprint(squares)  # [0, 1, 4, 9, 16, 25]\n\nevens = [x for x in range(20) if x % 2 == 0]\nprint(evens)  # [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]\n\nnames = [\"alice\", \"bob\", \"charlie\"]\nupper_names = [n.upper() for n in names]\nprint(upper_names)  # ['ALICE', 'BOB', 'CHARLIE']\n```\n\n**Output:**\n```\n[1, 1, 2, 3, 4, 5, 6, 9]\n['b', 'c', 'd']\n['e', 'd', 'c', 'b', 'a']\n[0, 1, 4, 9, 16, 25]\n[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]\n['ALICE', 'BOB', 'CHARLIE']\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Confusing `sort()` and `sorted()`** — `sort()` returns `None` and modifies the list. `sorted()` returns a new list. → **Fix**: Use `sorted()` when you need to keep the original.\n- **Mistake: Forgetting slice end is exclusive** — `[1:3]` gives indices 1 and 2, not 3. → **Fix**: Same rule as `range()` — end is always excluded.\n- **Mistake: Overly complex comprehensions** — Multi-line comprehensions with nested conditions are hard to read. → **Fix**: If it does not fit on one readable line, use a regular loop.\n\n### 🔗 Connection\n\nYou can now create, modify, sort, slice, and generate lists with comprehensions. These are skills you will use in every project. Next, you will learn **tuples** — the immutable cousin of lists — and when to use each.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `sorted([3, 1, 2], reverse=True)` produce?\n2. What does `[1, 2, 3, 4, 5][::2]` produce?\n3. What does `[x * 10 for x in range(4)]` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Top 3 Scores",
+            "config": {
+              "language": "python",
+              "description": "Read a line of space-separated test scores (integers). Find and print the top 3 scores in descending order, separated by spaces.\n\nIf there are fewer than 3 scores, print all of them in descending order.\n\nExample: \"85 92 78 95 88\" produces \"95 92 88\"",
+              "starter_code": "scores = list(map(int, input().split()))\n\n# Find and print top 3\n",
+              "solution_code": "scores = list(map(int, input().split()))\nscores.sort(reverse=True)\ntop = scores[:3]\nprint(\" \".join(map(str, top)))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "85 92 78 95 88",
+                "expected_output": "95 92 88",
+                "is_hidden": false
+              },
+              {
+                "input": "50 50 50 50",
+                "expected_output": "50 50 50",
+                "is_hidden": false
+              },
+              {
+                "input": "100 90",
+                "expected_output": "100 90",
+                "is_hidden": true
+              },
+              {
+                "input": "42",
+                "expected_output": "42",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Tuples: Immutable Sequences",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Tuples: Immutable Sequences\n\n### 🧠 How It Works\n\nA **tuple** is like a list's more serious sibling — it stores ordered elements, but once created, it cannot be changed. No adding, no removing, no modifying. Think of it like a photo versus a whiteboard: a whiteboard (list) can be erased and rewritten, but a photo (tuple) is fixed once taken.\n\nWhy would you ever want something you cannot change? Three reasons. First, **safety**: when data should not change (GPS coordinates, RGB colors, database records), a tuple prevents accidental modification. Second, **performance**: tuples use slightly less memory and are slightly faster. Third, **dictionary keys**: tuples can be used as dictionary keys because they are immutable; lists cannot.\n\nTuples use parentheses `()` instead of square brackets. A tricky edge case: a single-element tuple needs a trailing comma — `(42,)` not `(42)` (which is just the number 42 in parentheses). Tuple **unpacking** is one of the coolest features: `x, y = (3, 7)` assigns 3 to x and 7 to y in one line.\n\n### 📝 Step by Step\n\n1. Create a tuple with parentheses: `point = (3, 7)`.\n2. Access elements by index (same as lists): `point[0]` gives `3`.\n3. Unpack into variables: `x, y = point`.\n4. Single element tuples need a comma: `solo = (42,)`.\n5. Use tuples for data that should not change: coordinates, colors, config values.\n\n### 💻 Example\n\n```python\n# Creating tuples\ncoordinates = (10, 20)\nrgb_color = (255, 128, 0)\nsingle = (42,)  # Note the comma!\n\n# Accessing elements\nprint(coordinates[0])  # 10\nprint(rgb_color[-1])   # 0\n\n# Tuple unpacking\nx, y = coordinates\nprint(f\"x={x}, y={y}\")  # x=10, y=20\n\n# Swap trick using tuples\na, b = 5, 10\na, b = b, a\nprint(f\"a={a}, b={b}\")  # a=10, b=5\n\n# Tuples are immutable\n# coordinates[0] = 99  # ERROR! Cannot modify\n\n# Can be used in loops\nfor value in rgb_color:\n    print(value)\n```\n\n**Output:**\n```\n10\n0\nx=10, y=20\na=10, b=5\n255\n128\n0\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting the comma in single-element tuples** — `(42)` is just the number 42, not a tuple. → **Fix**: Always add a comma: `(42,)`.\n- **Mistake: Trying to modify a tuple** — `my_tuple[0] = 5` raises TypeError. → **Fix**: If you need to change data, use a list instead.\n- **Mistake: Confusing tuples with lists** — They look similar but have different purposes. → **Fix**: Use tuples for fixed data, lists for data that changes.\n\n### 🔗 Connection\n\nLists are mutable (changeable), tuples are immutable (fixed). Choosing the right one shows programming maturity. Next, you will learn about **searching and iterating** through lists — patterns you will use every day as a programmer.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is `type((1, 2, 3))`?\n2. After `a, b, c = (10, 20, 30)`, what is `b`?\n3. Why is `(5)` not a tuple but `(5,)` is?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Coordinate Distance",
+            "config": {
+              "language": "python",
+              "description": "Read two coordinate points from input. Each line has two space-separated integers (x and y). Calculate the distance between the two points using the distance formula: sqrt((x2-x1)^2 + (y2-y1)^2).\n\nPrint the distance rounded to 2 decimal places.\n\nHint: import math and use math.sqrt() or use ** 0.5",
+              "starter_code": "x1, y1 = map(int, input().split())\nx2, y2 = map(int, input().split())\n\n# Calculate and print the distance\n",
+              "solution_code": "x1, y1 = map(int, input().split())\nx2, y2 = map(int, input().split())\ndistance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5\nprint(round(distance, 2))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "0 0\n3 4",
+                "expected_output": "5.0",
+                "is_hidden": false
+              },
+              {
+                "input": "1 1\n4 5",
+                "expected_output": "5.0",
+                "is_hidden": false
+              },
+              {
+                "input": "0 0\n0 0",
+                "expected_output": "0.0",
+                "is_hidden": true
+              },
+              {
+                "input": "-3 -4\n3 4",
+                "expected_output": "10.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Iterating and Searching in Lists",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Iterating and Searching in Lists\n\n### 🧠 How It Works\n\nMost real programs revolve around processing collections of data: finding the highest score, checking if a user exists, counting how many items match a condition. These are all **iteration and search** patterns — and once you learn them, you will see them everywhere.\n\nThink of it like going through a stack of papers. Sometimes you flip through every page (full iteration). Sometimes you stop as soon as you find what you need (search with early exit). Sometimes you need to know not just the item but its position (enumeration). Python provides elegant tools for all of these.\n\nThe `in` keyword checks membership: `\"banana\" in fruits` returns True if the list contains \"banana\". `enumerate()` gives you both the index and value during iteration, saving you from manual counter management. And the built-in `min()`, `max()`, `sum()` functions work on any sequence of numbers.\n\n### 📝 Step by Step\n\n1. Check if an item exists: `if item in my_list:`.\n2. Find an item's position: `my_list.index(item)`.\n3. Count occurrences: `my_list.count(item)`.\n4. Use enumerate for index + value: `for i, val in enumerate(my_list):`.\n5. Use min/max/sum for quick calculations on number lists.\n\n### 💻 Example\n\n```python\nscores = [85, 92, 78, 95, 88, 92]\n\n# Membership check\nprint(95 in scores)      # True\nprint(100 in scores)     # False\n\n# Finding and counting\nprint(scores.index(92))  # 1 (first occurrence)\nprint(scores.count(92))  # 2\n\n# Enumerate: index + value\nfor i, score in enumerate(scores):\n    if score >= 90:\n        print(f\"Position {i}: {score} (excellent!)\")\n\n# Built-in functions\nprint(f\"Min: {min(scores)}\")\nprint(f\"Max: {max(scores)}\")\nprint(f\"Sum: {sum(scores)}\")\nprint(f\"Avg: {sum(scores) / len(scores):.1f}\")\n```\n\n**Output:**\n```\nTrue\nFalse\n1\n2\nPosition 1: 92 (excellent!)\nPosition 3: 95 (excellent!)\nPosition 5: 92 (excellent!)\nMin: 78\nMax: 95\nSum: 530\nAvg: 88.3\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `index()` on a missing item** — `[1,2,3].index(99)` raises ValueError. → **Fix**: Check with `in` first: `if 99 in my_list:`.\n- **Mistake: Modifying a list while iterating** — Removing items during a `for` loop skips elements. → **Fix**: Iterate over a copy: `for item in my_list.copy():`.\n- **Mistake: Forgetting enumerate starts at 0** — Use `enumerate(list, start=1)` if you want 1-based counting.\n\n### 🔗 Connection\n\nYou now have a complete toolkit for lists: creating, modifying, sorting, slicing, comprehensions, tuples, and searching. This completes the collections module. Next, you enter the world of **dictionaries** — key-value storage that is even more powerful than lists for real-world data.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `\"cat\" in [\"cat\", \"dog\", \"fish\"]` return?\n2. What does `enumerate([\"a\", \"b\", \"c\"])` produce?\n3. What is `sum([10, 20, 30]) / len([10, 20, 30])`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Find the Duplicates",
+            "config": {
+              "language": "python",
+              "description": "Read a line of space-separated words. Find and print all words that appear more than once, in the order they first appear. Each duplicate should only be printed once.\n\nIf there are no duplicates, print \"No duplicates\".\n\nExample: \"apple banana apple cherry banana date\" produces:\napple\nbanana",
+              "starter_code": "words = input().split()\n\n# Find and print duplicates\n",
+              "solution_code": "words = input().split()\nseen = []\nduplicates = []\nfor word in words:\n    if word in seen and word not in duplicates:\n        duplicates.append(word)\n    seen.append(word)\nif duplicates:\n    for d in duplicates:\n        print(d)\nelse:\n    print(\"No duplicates\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "apple banana apple cherry banana date",
+                "expected_output": "apple\nbanana",
+                "is_hidden": false
+              },
+              {
+                "input": "one two three",
+                "expected_output": "No duplicates",
+                "is_hidden": false
+              },
+              {
+                "input": "a a a b b c",
+                "expected_output": "a\nb",
+                "is_hidden": true
+              },
+              {
+                "input": "hello hello",
+                "expected_output": "hello",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 6: Dictionaries",
+      "sort_order": 5,
+      "lessons": [
+        {
+          "title": "Dictionaries: Key-Value Storage",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Dictionaries: Key-Value Storage\n\n### 🧠 How It Works\n\nA list stores items by position (index 0, 1, 2...), but what if you want to look things up by name? A **dictionary** stores data as **key-value pairs** — like a real dictionary where you look up a word (key) to find its definition (value), or like a phone book where you look up a name (key) to find a number (value).\n\nThink of a dictionary as a set of labeled boxes. Instead of numbered slots (like lists), each box has a unique label. You look up items by their label, not their position. This makes dictionaries perfect for representing real-world objects: a student with a name, age, and grade; a product with a title, price, and quantity; a game character with health, attack, and defense.\n\nDictionaries are created with curly braces `{}` and colons between keys and values. Keys must be unique and immutable (strings, numbers, tuples). Values can be anything. Looking up a key is extremely fast — Python uses a hash table internally, making dictionary lookups nearly instant regardless of size.\n\n### 📝 Step by Step\n\n1. Create with curly braces: `student = {\"name\": \"Alex\", \"age\": 15}`.\n2. Access by key: `student[\"name\"]` gives `\"Alex\"`.\n3. Add or update: `student[\"email\"] = \"alex@school.com\"`.\n4. Delete: `del student[\"email\"]`.\n5. Check key existence: `if \"name\" in student:`.\n\n### 💻 Example\n\n```python\n# Creating a dictionary\nstudent = {\n    \"name\": \"Alex\",\n    \"age\": 15,\n    \"grade\": \"10th\",\n    \"gpa\": 3.8\n}\n\n# Accessing values\nprint(student[\"name\"])   # Alex\nprint(student[\"gpa\"])    # 3.8\n\n# Adding and updating\nstudent[\"email\"] = \"alex@school.com\"\nstudent[\"gpa\"] = 3.9\n\n# Checking keys\nprint(\"name\" in student)   # True\nprint(\"phone\" in student)  # False\n\n# Length\nprint(len(student))  # 5\n```\n\n**Output:**\n```\nAlex\n3.8\nTrue\nFalse\n5\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Accessing a non-existent key** — `student[\"phone\"]` raises KeyError. → **Fix**: Check first with `in`, or use `.get(\"phone\", \"N/A\")`.\n- **Mistake: Using a mutable key** — `{[1,2]: \"value\"}` crashes because lists are not hashable. → **Fix**: Use tuples or strings as keys.\n- **Mistake: Confusing `in` for values vs keys** — `\"Alex\" in student` checks KEYS, not values. → **Fix**: Check values with `\"Alex\" in student.values()`.\n\n### 🔗 Connection\n\nLists store ordered collections; dictionaries store labeled data. You will use both together constantly — for example, a list of dictionaries to represent a table of students. Next, you will learn dictionary methods for safe access and iteration.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `{\"a\": 1, \"b\": 2}[\"b\"]` return?\n2. Can you use a list as a dictionary key?\n3. What does `len({\"x\": 10, \"y\": 20, \"z\": 30})` return?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Word Frequency Counter",
+            "config": {
+              "language": "python",
+              "description": "Read a sentence from input. Count how many times each word appears and print each word with its count in the format: word: count\n\nPrint words in the order they first appear. Convert all words to lowercase first.\n\nExample: \"the cat and the dog\" produces:\nthe: 2\ncat: 1\nand: 1\ndog: 1",
+              "starter_code": "sentence = input().lower()\nwords = sentence.split()\n\n# Count and print word frequencies\n",
+              "solution_code": "sentence = input().lower()\nwords = sentence.split()\ncounts = {}\norder = []\nfor word in words:\n    if word not in counts:\n        counts[word] = 0\n        order.append(word)\n    counts[word] += 1\nfor word in order:\n    print(f\"{word}: {counts[word]}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "the cat and the dog",
+                "expected_output": "the: 2\ncat: 1\nand: 1\ndog: 1",
+                "is_hidden": false
+              },
+              {
+                "input": "hello hello hello",
+                "expected_output": "hello: 3",
+                "is_hidden": false
+              },
+              {
+                "input": "I Love Python I Love Code",
+                "expected_output": "i: 2\nlove: 2\npython: 1\ncode: 1",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Dictionary Methods and Iteration",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Dictionary Methods and Iteration\n\n### 🧠 How It Works\n\nDictionaries come packed with methods that make working with key-value data smooth and safe. The most important one is `.get()` — it lets you access a key without crashing if the key does not exist. Instead, it returns a default value you specify.\n\nIterating over dictionaries is different from lists because each element has two parts: a key and a value. By default, looping over a dictionary gives you the keys. Use `.values()` for just the values, and `.items()` for both keys and values together. The `.items()` method is the most commonly used — it gives you tuples of (key, value) that you can unpack directly in the loop.\n\nOther useful methods include `.update()` for merging dictionaries, `.pop()` for removing a key and getting its value, and converting keys or values to lists with `list(d.keys())` or `list(d.values())`. Dictionary lookups are extremely fast (O(1) time complexity), making them ideal for counting, grouping, and caching.\n\n### 📝 Step by Step\n\n1. Safe access: `d.get(\"key\", default_value)` — never crashes.\n2. Loop over keys: `for key in my_dict:`.\n3. Loop over values: `for value in my_dict.values():`.\n4. Loop over both: `for key, value in my_dict.items():`.\n5. Remove and get: `value = my_dict.pop(\"key\")`.\n\n### 💻 Example\n\n```python\nscores = {\"Alice\": 95, \"Bob\": 87, \"Charlie\": 92}\n\n# Safe access with .get()\nprint(scores.get(\"Alice\", 0))     # 95\nprint(scores.get(\"Unknown\", 0))   # 0 (no crash!)\n\n# Iterating\nfor name in scores:\n    print(f\"Key: {name}\")\n\nfor name, score in scores.items():\n    print(f\"{name} scored {score}\")\n\n# Useful operations\nscores.update({\"Diana\": 88, \"Eve\": 91})\nremoved = scores.pop(\"Bob\")\nprint(f\"Removed Bob with score {removed}\")\n\nall_keys = list(scores.keys())\nall_vals = list(scores.values())\nprint(f\"Students: {all_keys}\")\n```\n\n**Output:**\n```\n95\n0\nKey: Alice\nKey: Bob\nKey: Charlie\nAlice scored 95\nBob scored 87\nCharlie scored 92\nRemoved Bob with score 87\nStudents: ['Alice', 'Charlie', 'Diana', 'Eve']\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using `[]` on a missing key** — `d[\"missing\"]` crashes. → **Fix**: Use `d.get(\"missing\", default)` for safe access.\n- **Mistake: Modifying dictionary size during iteration** — Adding or removing keys during a `for` loop raises RuntimeError. → **Fix**: Iterate over a copy: `for k in list(d.keys()):`.\n- **Mistake: Assuming dictionary order** — In Python 3.7+, dictionaries maintain insertion order. Older Python does not guarantee this.\n\n### 🔗 Connection\n\nYou can now safely access, iterate, and modify dictionaries. Combined with lists, you can model almost any real-world data. Next, you will learn about **nested dictionaries** — dictionaries inside dictionaries — for handling complex, structured data like API responses.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `{\"a\": 1}.get(\"b\", 0)` return?\n2. What does `for k, v in {\"x\": 10}.items(): print(k, v)` print?\n3. What does `list({\"a\": 1, \"b\": 2}.values())` produce?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Student Grade Book",
+            "config": {
+              "language": "python",
+              "description": "Read N (number of students) from the first line. Then read N lines, each containing a name and a score separated by a space. Build a dictionary and print:\n1. The student with the highest score in format: Best: {name} ({score})\n2. The class average in format: Average: {avg}\n\nRound the average to 1 decimal place.\n\nExample input:\n3\nAlice 95\nBob 87\nCharlie 92\n\nOutput:\nBest: Alice (95)\nAverage: 91.3",
+              "starter_code": "n = int(input())\n\n# Read students and their scores\n\n\n# Find best student and average\n",
+              "solution_code": "n = int(input())\nstudents = {}\nfor _ in range(n):\n    parts = input().split()\n    name = parts[0]\n    score = int(parts[1])\n    students[name] = score\nbest_name = max(students, key=students.get)\nbest_score = students[best_name]\navg = round(sum(students.values()) / len(students), 1)\nprint(f\"Best: {best_name} ({best_score})\")\nprint(f\"Average: {avg}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3\nAlice 95\nBob 87\nCharlie 92",
+                "expected_output": "Best: Alice (95)\nAverage: 91.3",
+                "is_hidden": false
+              },
+              {
+                "input": "2\nJohn 100\nJane 80",
+                "expected_output": "Best: John (100)\nAverage: 90.0",
+                "is_hidden": false
+              },
+              {
+                "input": "1\nSolo 50",
+                "expected_output": "Best: Solo (50)\nAverage: 50.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Nested Dictionaries and Real-World Data",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Nested Dictionaries and Real-World Data\n\n### 🧠 How It Works\n\nReal-world data is rarely flat. A student does not just have a name — they have a name, an age, a list of grades, an address (which itself has a street, city, and zip code). **Nested dictionaries** let you represent this layered structure by putting dictionaries inside dictionaries (or lists inside dictionaries).\n\nThink of nested dictionaries like Russian nesting dolls (matryoshka). Each doll contains a smaller doll inside. A school database is a dictionary of students; each student is a dictionary of their attributes; their grades are a list inside that dictionary. You navigate this structure by chaining keys: `school[\"Alice\"][\"grades\"][0]` gets Alice's first grade.\n\nThis is not just an academic concept. When you connect to a web API (weather, social media, games), the data comes as nested dictionaries (JSON format). Learning to navigate nested structures is essential for building real applications that interact with the internet.\n\n### 📝 Step by Step\n\n1. Create nested structure: `data = {\"Alice\": {\"age\": 15, \"grades\": [90, 85]}}`.\n2. Access nested data by chaining keys: `data[\"Alice\"][\"grades\"][0]`.\n3. Modify nested values: `data[\"Alice\"][\"age\"] = 16`.\n4. Iterate with nested loops: `for name, info in data.items():`.\n5. Use `.get()` at each level for safety.\n\n### 💻 Example\n\n```python\n# Nested dictionary\nschool = {\n    \"Alice\": {\n        \"age\": 15,\n        \"grades\": [95, 88, 92],\n        \"active\": True\n    },\n    \"Bob\": {\n        \"age\": 16,\n        \"grades\": [78, 85, 80],\n        \"active\": True\n    }\n}\n\n# Accessing nested data\nprint(school[\"Alice\"][\"age\"])        # 15\nprint(school[\"Bob\"][\"grades\"][0])    # 78\n\n# Processing nested data\nfor name, info in school.items():\n    avg = sum(info[\"grades\"]) / len(info[\"grades\"])\n    status = \"active\" if info[\"active\"] else \"inactive\"\n    print(f\"{name}: avg={avg:.1f}, {status}\")\n```\n\n**Output:**\n```\n15\n78\nAlice: avg=91.7, active\nBob: avg=81.0, active\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: KeyError in nested access** — `data[\"Alice\"][\"phone\"]` crashes if \"phone\" does not exist. → **Fix**: Use `.get()`: `data.get(\"Alice\", {}).get(\"phone\", \"N/A\")`.\n- **Mistake: Modifying shared nested objects** — If you copy a dict with `=`, nested objects are shared. → **Fix**: Use `import copy; copy.deepcopy(data)` for independent copies.\n- **Mistake: Overly deep nesting** — More than 3-4 levels deep becomes unmanageable. → **Fix**: Consider using classes instead for deeply structured data.\n\n### 🔗 Connection\n\nYou have mastered dictionaries — from simple key-value pairs to complex nested structures. This completes the data structures foundation. Next, you enter the world of **functions** — reusable blocks of code that are the key to writing clean, organized programs.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. How do you access Bob's second grade in the school dictionary above?\n2. What does `{\"a\": {\"b\": 1}}.get(\"c\", {}).get(\"d\", 0)` return?\n3. Can a dictionary value be a list? Can a list element be a dictionary?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Inventory Manager",
+            "config": {
+              "language": "python",
+              "description": "You are building a simple inventory system. Read N (number of items) from the first line. Then read N lines, each in the format: item_name quantity price\n\nPrint the total inventory value (sum of quantity * price for all items) in the format:\nTotal value: ${total:.2f}\n\nAlso print the most expensive item (highest price) in the format:\nMost expensive: {name} (${price:.2f})\n\nExample input:\n3\nlaptop 5 999.99\nmouse 50 29.99\nkeyboard 30 79.99\n\nOutput:\nTotal value: $8899.65\nMost expensive: laptop ($999.99)",
+              "starter_code": "n = int(input())\n\n# Read items and calculate\n",
+              "solution_code": "n = int(input())\ninventory = {}\nfor _ in range(n):\n    parts = input().split()\n    name = parts[0]\n    qty = int(parts[1])\n    price = float(parts[2])\n    inventory[name] = {\"quantity\": qty, \"price\": price}\ntotal_value = sum(item[\"quantity\"] * item[\"price\"] for item in inventory.values())\nmost_expensive = max(inventory, key=lambda k: inventory[k][\"price\"])\nexp_price = inventory[most_expensive][\"price\"]\nprint(f\"Total value: ${total_value:.2f}\")\nprint(f\"Most expensive: {most_expensive} (${exp_price:.2f})\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3\nlaptop 5 999.99\nmouse 50 29.99\nkeyboard 30 79.99",
+                "expected_output": "Total value: $8899.15\nMost expensive: laptop ($999.99)",
+                "is_hidden": false
+              },
+              {
+                "input": "2\napple 100 0.50\ngold 1 5000.00",
+                "expected_output": "Total value: $5050.00\nMost expensive: gold ($5000.00)",
+                "is_hidden": false
+              },
+              {
+                "input": "1\nwidget 10 25.00",
+                "expected_output": "Total value: $250.00\nMost expensive: widget ($25.00)",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 7: Functions",
+      "sort_order": 6,
+      "lessons": [
+        {
+          "title": "Defining and Calling Functions",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Defining and Calling Functions\n\n### 🧠 How It Works\n\nImagine you make a great sandwich recipe. Instead of describing the steps every time you want a sandwich, you write the recipe once and just say \"make me a sandwich\" whenever you need one. **Functions** are recipes for your code: you define a block of instructions once, give it a name, and then call that name whenever you need those instructions executed.\n\nFunctions are one of the most important concepts in programming because they solve three critical problems. First, **reuse** — write code once, use it anywhere. Second, **organization** — break a complex program into small, manageable pieces. Third, **abstraction** — once a function works, you can use it without thinking about how it works internally.\n\nA function definition starts with `def`, followed by the function name, parameters in parentheses, and a colon. The indented block is the function body. **Parameters** are like blank spaces in your recipe (how many eggs? what flavor?), and **arguments** are the specific values you fill in when calling the function.\n\n### 📝 Step by Step\n\n1. Define with `def function_name(parameters):`.\n2. Write the body (indented).\n3. Call by name with arguments: `function_name(argument1, argument2)`.\n4. Parameters receive the argument values in order.\n5. A function can have zero, one, or many parameters.\n\n### 💻 Example\n\n```python\n# Function with no parameters\ndef say_hello():\n    print(\"Hello, World!\")\n\nsay_hello()  # Hello, World!\n\n# Function with parameters\ndef greet(name, greeting):\n    print(f\"{greeting}, {name}!\")\n\ngreet(\"Alice\", \"Hi\")      # Hi, Alice!\ngreet(\"Bob\", \"Hey there\")  # Hey there, Bob!\n\n# Function doing calculation\ndef calculate_area(width, height):\n    area = width * height\n    print(f\"Area: {area}\")\n\ncalculate_area(5, 3)  # Area: 15\ncalculate_area(10, 7) # Area: 70\n```\n\n**Output:**\n```\nHello, World!\nHi, Alice!\nHey there, Bob!\nArea: 15\nArea: 70\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Calling a function before defining it** — Python reads top to bottom. → **Fix**: Always define functions above where you call them.\n- **Mistake: Forgetting parentheses when calling** — `greet` without `()` references the function object, not calling it. → **Fix**: Always use parentheses: `greet(\"Alice\")`.\n- **Mistake: Wrong number of arguments** — Passing 2 args to a function expecting 3 causes TypeError. → **Fix**: Match the number of arguments to parameters.\n\n### 🔗 Connection\n\nYou have been writing all code at the top level. Functions let you organize code into reusable blocks. Next, you will learn about **return values** — how functions can send results back to the caller, and about **scope** — where variables live and die.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is the difference between a parameter and an argument?\n2. Can you call a function multiple times with different arguments?\n3. What happens if you call `def greet(name):` with `greet()`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Temperature Converter",
+            "config": {
+              "language": "python",
+              "description": "Write two functions:\n1. celsius_to_fahrenheit(c) - returns the Fahrenheit value (formula: F = C * 9/5 + 32)\n2. fahrenheit_to_celsius(f) - returns the Celsius value (formula: C = (F - 32) * 5/9)\n\nRead a temperature value and a unit ('C' or 'F') from input (two lines). Convert to the other unit and print the result rounded to 1 decimal place.\n\nExample: 100 and C prints \"212.0\"\nExample: 32 and F prints \"0.0\"",
+              "starter_code": "def celsius_to_fahrenheit(c):\n    # Return Fahrenheit\n    pass\n\ndef fahrenheit_to_celsius(f):\n    # Return Celsius\n    pass\n\ntemp = float(input())\nunit = input()\n\n# Convert and print\n",
+              "solution_code": "def celsius_to_fahrenheit(c):\n    return c * 9/5 + 32\n\ndef fahrenheit_to_celsius(f):\n    return (f - 32) * 5/9\n\ntemp = float(input())\nunit = input()\nif unit == \"C\":\n    print(round(celsius_to_fahrenheit(temp), 1))\nelse:\n    print(round(fahrenheit_to_celsius(temp), 1))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "100\nC",
+                "expected_output": "212.0",
+                "is_hidden": false
+              },
+              {
+                "input": "32\nF",
+                "expected_output": "0.0",
+                "is_hidden": false
+              },
+              {
+                "input": "0\nC",
+                "expected_output": "32.0",
+                "is_hidden": true
+              },
+              {
+                "input": "98.6\nF",
+                "expected_output": "37.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Return Values and Scope",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Return Values and Scope\n\n### 🧠 How It Works\n\nSo far, your functions just DO things (like printing). But functions can also GIVE BACK a result — like a vending machine that takes your money (arguments) and gives you a snack (return value). The `return` keyword sends a value back to wherever the function was called.\n\nThink of `return` as the answer to a question. When you call `square(5)`, you are asking \"what is 5 squared?\" The function computes it and `return`s `25`. You can then use that answer in an expression, store it in a variable, or pass it to another function. A function without `return` (or with `return` alone) gives back `None`.\n\n**Scope** is about where variables live. Variables created inside a function are **local** — they exist only while the function runs and disappear afterward. Variables created outside functions are **global** — they exist for the entire program. Functions can READ global variables but should not modify them. This separation prevents functions from accidentally stepping on each other's data.\n\n### 📝 Step by Step\n\n1. Use `return value` to send a result back to the caller.\n2. Store the result: `result = my_function(args)`.\n3. You can return any type: numbers, strings, lists, even other functions.\n4. Local variables exist only inside their function.\n5. Global variables can be read (but not modified) inside functions.\n\n### 💻 Example\n\n```python\n# Function with return\ndef square(n):\n    return n * n\n\nresult = square(5)\nprint(result)           # 25\nprint(square(3) + 10)   # 19\n\n# Function returning None\ndef say_hi(name):\n    print(f\"Hi, {name}\")\n    # No return statement\n\nresult = say_hi(\"Alice\")\nprint(result)  # None\n\n# Scope demonstration\nx = \"global\"\n\ndef my_func():\n    y = \"local\"\n    print(x)  # Can READ global\n    print(y)  # Local variable\n\nmy_func()\n# print(y)  # ERROR: y doesn't exist here\n```\n\n**Output:**\n```\n25\n19\nHi, Alice\nNone\nglobal\nlocal\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Printing instead of returning** — `print(result)` inside a function does not return anything. → **Fix**: Use `return result` if the caller needs the value.\n- **Mistake: Using a local variable outside the function** — It does not exist after the function ends. → **Fix**: Return the value and store it: `result = my_func()`.\n- **Mistake: Forgetting to capture the return value** — `square(5)` without assignment discards the result. → **Fix**: `result = square(5)`.\n\n### 🔗 Connection\n\nYou can now create functions that return results, making them composable building blocks. Next, you will learn about **default parameters and keyword arguments** — ways to make your functions more flexible and user-friendly.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does a function return if it has no `return` statement?\n2. Can you use `return` to exit a function early?\n3. After `def f(): x = 5`, can you access `x` outside the function?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Math Toolkit",
+            "config": {
+              "language": "python",
+              "description": "Write three functions:\n1. is_even(n) - returns True if n is even, False otherwise\n2. factorial(n) - returns n! (e.g., factorial(5) = 120). factorial(0) = 1\n3. is_palindrome(s) - returns True if string s reads the same forwards and backwards\n\nRead a test type from input ('even', 'factorial', or 'palindrome') and a value on the second line. Call the appropriate function and print the result.\n\nExample: 'even' and '4' prints 'True'\nExample: 'factorial' and '5' prints '120'\nExample: 'palindrome' and 'racecar' prints 'True'",
+              "starter_code": "def is_even(n):\n    pass\n\ndef factorial(n):\n    pass\n\ndef is_palindrome(s):\n    pass\n\ntest_type = input()\nvalue = input()\n\n# Call appropriate function and print\n",
+              "solution_code": "def is_even(n):\n    return n % 2 == 0\n\ndef factorial(n):\n    result = 1\n    for i in range(1, n + 1):\n        result *= i\n    return result\n\ndef is_palindrome(s):\n    return s == s[::-1]\n\ntest_type = input()\nvalue = input()\nif test_type == \"even\":\n    print(is_even(int(value)))\nelif test_type == \"factorial\":\n    print(factorial(int(value)))\nelse:\n    print(is_palindrome(value))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "even\n4",
+                "expected_output": "True",
+                "is_hidden": false
+              },
+              {
+                "input": "factorial\n5",
+                "expected_output": "120",
+                "is_hidden": false
+              },
+              {
+                "input": "palindrome\nracecar",
+                "expected_output": "True",
+                "is_hidden": false
+              },
+              {
+                "input": "even\n7",
+                "expected_output": "False",
+                "is_hidden": true
+              },
+              {
+                "input": "factorial\n0",
+                "expected_output": "1",
+                "is_hidden": true
+              },
+              {
+                "input": "palindrome\nhello",
+                "expected_output": "False",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Default Parameters and Keyword Arguments",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Default Parameters and Keyword Arguments\n\n### 🧠 How It Works\n\nImagine ordering coffee. The barista has a default — medium size, regular milk. You can just say \"coffee\" and get the default, or specify \"large with oat milk\" to customize. **Default parameters** work the same way: they give function parameters a fallback value that is used when the caller does not provide one.\n\nDefault parameters make your functions more flexible without making them harder to use. The most common settings get default values, and callers only need to specify the unusual ones. For example, `def greet(name, greeting=\"Hello\")` can be called as `greet(\"Alice\")` (uses \"Hello\") or `greet(\"Alice\", \"Bonjour\")` (custom greeting).\n\n**Keyword arguments** let you specify arguments by name instead of position. This is invaluable when a function has many parameters — you can skip the ones with defaults and only specify what you need. Python also supports returning multiple values using tuples: `return min_val, max_val` returns a tuple that the caller can unpack.\n\n### 📝 Step by Step\n\n1. Define defaults: `def func(required, optional=\"default\"):`.\n2. Parameters with defaults must come after those without.\n3. Call with keywords: `func(name=\"Alex\", age=15)`.\n4. Keyword arguments can be in any order.\n5. Return multiple values: `return a, b` (returns a tuple).\n\n### 💻 Example\n\n```python\n# Default parameters\ndef greet(name, greeting=\"Hello\", punctuation=\"!\"):\n    print(f\"{greeting}, {name}{punctuation}\")\n\ngreet(\"Alice\")                        # Hello, Alice!\ngreet(\"Bob\", \"Hey\")                   # Hey, Bob!\ngreet(\"Charlie\", punctuation=\".\")     # Hello, Charlie.\n\n# Keyword arguments\ndef create_profile(name, age, city=\"Unknown\"):\n    return f\"{name}, {age}, from {city}\"\n\nprint(create_profile(name=\"Alex\", age=15))\nprint(create_profile(age=16, name=\"Bob\", city=\"NYC\"))\n\n# Multiple return values\ndef min_max(numbers):\n    return min(numbers), max(numbers)\n\nlowest, highest = min_max([3, 1, 4, 1, 5, 9])\nprint(f\"Range: {lowest} to {highest}\")\n```\n\n**Output:**\n```\nHello, Alice!\nHey, Bob!\nHello, Charlie.\nAlex, 15, from Unknown\nBob, 16, from NYC\nRange: 1 to 9\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Putting default parameters before non-default ones** — `def f(a=1, b)` is a syntax error. → **Fix**: Non-default parameters must come first.\n- **Mistake: Using mutable default values** — `def f(items=[])` shares the same list across calls. → **Fix**: Use `None` as default: `def f(items=None): items = items or []`.\n- **Mistake: Mixing positional and keyword arguments incorrectly** — Positional args must come before keyword args.\n\n### 🔗 Connection\n\nYour functions are now flexible with defaults and keyword arguments. Next, you will learn about **lambda functions** and higher-order functions (map, filter, sorted) — powerful tools for writing concise, functional-style code.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. In `def f(a, b=10):`, what is `f(5)` equivalent to?\n2. Can you call `f(b=20, a=5)` if defined as `def f(a, b)`?\n3. What does `def f(): return 1, 2` return?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Flexible Power Calculator",
+            "config": {
+              "language": "python",
+              "description": "Write a function called power(base, exponent=2) that returns base raised to the exponent. The default exponent is 2 (squaring).\n\nRead the base (first line) and optionally the exponent (second line). If the second line is 'default', use the default exponent. Otherwise, use the provided exponent.\n\nPrint the result as an integer.\n\nExample: base=3, exponent=default prints 9\nExample: base=2, exponent=10 prints 1024",
+              "starter_code": "def power(base, exponent=2):\n    pass\n\nbase = int(input())\nexp_input = input()\n\n# Call power() appropriately and print\n",
+              "solution_code": "def power(base, exponent=2):\n    return base ** exponent\n\nbase = int(input())\nexp_input = input()\nif exp_input == \"default\":\n    print(power(base))\nelse:\n    print(power(base, int(exp_input)))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3\ndefault",
+                "expected_output": "9",
+                "is_hidden": false
+              },
+              {
+                "input": "2\n10",
+                "expected_output": "1024",
+                "is_hidden": false
+              },
+              {
+                "input": "5\ndefault",
+                "expected_output": "25",
+                "is_hidden": true
+              },
+              {
+                "input": "10\n3",
+                "expected_output": "1000",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Lambda Functions and Higher-Order Functions",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Lambda Functions and Higher-Order Functions\n\n### 🧠 How It Works\n\nSometimes you need a tiny function that does one simple thing — like doubling a number or checking if something is even. Writing a full `def` block for that feels like overkill. **Lambda functions** are one-line anonymous functions: `lambda x: x * 2` creates a function that doubles its input, without needing a name.\n\nThink of lambdas as sticky notes versus full letters. A full letter (regular function) has a header, body, and signature. A sticky note (lambda) just has the message. Lambdas are limited to a single expression — no multi-line logic, no statements like `if`/`for`. They shine when passed to other functions.\n\n**Higher-order functions** are functions that take other functions as arguments. Python's built-in `map()`, `filter()`, and `sorted()` are the big three. `map()` applies a function to every element, `filter()` keeps elements where the function returns True, and `sorted()` can sort by a custom key function. These tools, combined with lambdas, let you write powerful data transformations in very few lines.\n\n### 📝 Step by Step\n\n1. Create a lambda: `double = lambda x: x * 2`.\n2. Use `map(function, iterable)` to transform every element.\n3. Use `filter(function, iterable)` to keep elements that pass a test.\n4. Use `sorted(iterable, key=function)` to sort by a custom criterion.\n5. Convert map/filter results to lists: `list(map(...))`.\n\n### 💻 Example\n\n```python\n# Lambda basics\ndouble = lambda x: x * 2\nprint(double(5))  # 10\n\n# map: transform every element\nnumbers = [1, 2, 3, 4, 5]\nsquared = list(map(lambda x: x ** 2, numbers))\nprint(squared)  # [1, 4, 9, 16, 25]\n\n# filter: keep elements passing a test\nevens = list(filter(lambda x: x % 2 == 0, numbers))\nprint(evens)  # [2, 4]\n\n# sorted with custom key\nwords = [\"banana\", \"pie\", \"cherry\", \"a\"]\nby_length = sorted(words, key=lambda w: len(w))\nprint(by_length)  # ['a', 'pie', 'banana', 'cherry']\n\n# Combining them\ndata = [3, -1, 4, -5, 2, -3]\nresult = sorted(filter(lambda x: x > 0, data))\nprint(result)  # [2, 3, 4]\n```\n\n**Output:**\n```\n10\n[1, 4, 9, 16, 25]\n[2, 4]\n['a', 'pie', 'banana', 'cherry']\n[2, 3, 4]\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Making lambdas too complex** — Multi-condition lambdas become unreadable. → **Fix**: If it needs more than one line of logic, use a regular `def` function.\n- **Mistake: Forgetting `list()` around map/filter** — `map()` returns a lazy iterator, not a list. → **Fix**: Wrap with `list()`: `list(map(...))`.\n- **Mistake: Using lambda when a list comprehension is clearer** — `list(map(lambda x: x**2, nums))` vs `[x**2 for x in nums]`. → **Fix**: Prefer comprehensions for simple transformations.\n\n### 🔗 Connection\n\nFunctions are complete: defining, returning, defaults, and now lambdas with higher-order functions. This functional style is used heavily in data science and web development. Next module: **working with files** — reading and writing data that persists beyond your program's lifetime.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `(lambda x, y: x + y)(3, 4)` return?\n2. What does `list(filter(lambda x: x > 3, [1, 5, 2, 8]))` produce?\n3. How would you sort `[\"cat\", \"a\", \"elephant\"]` by length using `sorted`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Data Processor",
+            "config": {
+              "language": "python",
+              "description": "Read a line of space-separated integers. Using map, filter, and/or lambda functions:\n\n1. Filter to keep only positive numbers\n2. Square each remaining number\n3. Sort the results in descending order\n\nPrint the final list as space-separated numbers.\n\nExample: \"3 -1 4 -5 2\" produces \"16 9 4\" (filter negatives, square: 9 16 4, sort desc: 16 9 4)",
+              "starter_code": "numbers = list(map(int, input().split()))\n\n# Filter positives, square them, sort descending\n\n\nprint(\" \".join(map(str, result)))",
+              "solution_code": "numbers = list(map(int, input().split()))\npositives = list(filter(lambda x: x > 0, numbers))\nsquared = list(map(lambda x: x ** 2, positives))\nresult = sorted(squared, reverse=True)\nprint(\" \".join(map(str, result)))",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "3 -1 4 -5 2",
+                "expected_output": "16 9 4",
+                "is_hidden": false
+              },
+              {
+                "input": "1 2 3",
+                "expected_output": "9 4 1",
+                "is_hidden": false
+              },
+              {
+                "input": "-1 -2 -3",
+                "expected_output": "",
+                "is_hidden": true
+              },
+              {
+                "input": "10 -3 5 -7 1",
+                "expected_output": "100 25 1",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 8: Working with Files",
+      "sort_order": 7,
+      "lessons": [
+        {
+          "title": "Reading Files",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Reading Files\n\n### 🧠 How It Works\n\nEvery program you have written so far has a short memory — when it ends, all data is gone. **File I/O** (Input/Output) lets your program read data from files on disk and write data back. Think of files as permanent notebooks that survive after your program closes, while variables are like a whiteboard that gets erased.\n\nReading a file in Python follows a simple pattern: open the file, read its contents, close the file. The `with` statement handles the opening and closing automatically — like a library checkout system that guarantees you return the book. Inside the `with` block, you can read the entire file at once (`read()`), read line by line (loop), or read all lines into a list (`readlines()`).\n\nThe file **mode** tells Python what you want to do: `\"r\"` for reading (default), `\"w\"` for writing (creates or overwrites), `\"a\"` for appending (adds to the end). If you try to read a file that does not exist, Python raises a `FileNotFoundError`. Always use the `with` statement — it is the safe, modern way to work with files.\n\n### 📝 Step by Step\n\n1. Open with `with open(\"filename\", \"r\") as file:`.\n2. Read all at once: `content = file.read()`.\n3. Read line by line: `for line in file: print(line.strip())`.\n4. Read into a list: `lines = file.readlines()`.\n5. The `with` block automatically closes the file when done.\n\n### 💻 Example\n\n```python\n# Reading entire file\nwith open(\"data.txt\", \"r\") as file:\n    content = file.read()\n    print(content)\n\n# Reading line by line (memory efficient)\nwith open(\"data.txt\", \"r\") as file:\n    for line in file:\n        clean = line.strip()  # Remove newline\n        print(f\"Line: {clean}\")\n\n# Reading into a list\nwith open(\"data.txt\", \"r\") as file:\n    lines = file.readlines()\n    print(f\"Total lines: {len(lines)}\")\n    print(f\"First line: {lines[0].strip()}\")\n```\n\n**Output:**\n```\nHello World\nPython is great\nBye\nLine: Hello World\nLine: Python is great\nLine: Bye\nTotal lines: 3\nFirst line: Hello World\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting `strip()` when reading lines** — Each line includes `\\n` at the end. → **Fix**: Use `.strip()` to remove whitespace and newlines.\n- **Mistake: Not using `with`** — Forgetting to close files can cause data corruption. → **Fix**: Always use `with open(...) as file:`.\n- **Mistake: Reading a file twice** — After reading to the end, the cursor is at the end. → **Fix**: Reopen the file or use `file.seek(0)` to go back to the start.\n\n### 🔗 Connection\n\nYou can now read persistent data from files. This opens up a world of possibilities: processing data files, reading configurations, and working with user-saved data. Next, you will learn to **write** files — saving your program's output permanently.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What mode do you use to read a file?\n2. Why is `with` better than manually calling `file.close()`?\n3. What does `line.strip()` do to the string `\"Hello\\n\"`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Line Counter",
+            "config": {
+              "language": "python",
+              "description": "This exercise simulates reading a file. Read all lines from standard input until there are no more. Count and print:\n- Total lines\n- Total words (across all lines)\n- Total characters (excluding newlines)\n\nFormat:\nLines: X\nWords: X\nChars: X\n\nExample input (3 lines):\nHello World\nPython is great\nBye\n\nOutput:\nLines: 3\nWords: 6\nChars: 30",
+              "starter_code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\n\n# Count lines, words, and characters\n",
+              "solution_code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nline_count = len(lines)\nword_count = sum(len(line.split()) for line in lines)\nchar_count = sum(len(line) for line in lines)\nprint(f\"Lines: {line_count}\")\nprint(f\"Words: {word_count}\")\nprint(f\"Chars: {char_count}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "Hello World\nPython is great\nBye",
+                "expected_output": "Lines: 3\nWords: 6\nChars: 29",
+                "is_hidden": false
+              },
+              {
+                "input": "one\ntwo\nthree\nfour",
+                "expected_output": "Lines: 4\nWords: 4\nChars: 15",
+                "is_hidden": false
+              },
+              {
+                "input": "a single line",
+                "expected_output": "Lines: 1\nWords: 3\nChars: 13",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Writing Files",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Writing Files\n\n### 🧠 How It Works\n\nReading files gets data into your program; writing files gets data out permanently. Whether you are saving a game state, generating a report, or logging events, writing to files lets your program create lasting output that survives after the program ends.\n\nThink of file modes like pens with different powers. **Write mode** (`\"w\"`) is like an eraser-pen: it wipes the entire file clean before writing new content. **Append mode** (`\"a\"`) is like a regular pen: it adds new content at the end without erasing anything. This distinction is critical — accidentally opening a file in write mode when you meant append will destroy all existing data.\n\nYou write to files using `file.write(string)` or `print(string, file=file)`. The `write()` method does NOT add a newline automatically — you must include `\\n` yourself. The `print()` function with the `file` parameter adds a newline, just like normal `print()`.\n\n### 📝 Step by Step\n\n1. Open in write mode: `with open(\"output.txt\", \"w\") as file:` (creates or overwrites).\n2. Open in append mode: `with open(\"log.txt\", \"a\") as file:` (adds to end).\n3. Write text: `file.write(\"Hello\\n\")` (must add `\\n` manually).\n4. Or use print: `print(\"Hello\", file=file)` (adds `\\n` automatically).\n5. Writing a list: loop through items and write each one.\n\n### 💻 Example\n\n```python\n# Write mode: creates or overwrites\nwith open(\"output.txt\", \"w\") as file:\n    file.write(\"Line 1\\n\")\n    file.write(\"Line 2\\n\")\n    print(\"Line 3\", file=file)  # print adds \\n\n\n# Append mode: adds to existing content\nwith open(\"output.txt\", \"a\") as file:\n    file.write(\"Line 4 (appended)\\n\")\n\n# Writing a list of items\nnames = [\"Alice\", \"Bob\", \"Charlie\"]\nwith open(\"names.txt\", \"w\") as file:\n    for name in names:\n        file.write(f\"{name}\\n\")\n\n# Reading back to verify\nwith open(\"names.txt\", \"r\") as file:\n    print(file.read())\n```\n\n**Output:**\n```\nAlice\nBob\nCharlie\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Using \"w\" when you mean \"a\"** — Write mode erases everything first! → **Fix**: Double-check your mode. Use `\"a\"` to add without erasing.\n- **Mistake: Forgetting `\\n` in `write()`** — `file.write(\"A\"); file.write(\"B\")` produces `\"AB\"` on one line. → **Fix**: Add `\\n`: `file.write(\"A\\n\")`.\n- **Mistake: Writing non-strings** — `file.write(42)` crashes; write only accepts strings. → **Fix**: Convert first: `file.write(str(42))` or use f-strings.\n\n### 🔗 Connection\n\nYou can now read AND write files, making your programs work with persistent data. Next, you will learn about **CSV files** — a standard format for tabular data that bridges Python with spreadsheets and databases.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is the difference between `\"w\"` and `\"a\"` mode?\n2. Does `file.write(\"Hello\")` add a newline at the end?\n3. What happens if you open a non-existent file in `\"w\"` mode?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Report Generator",
+            "config": {
+              "language": "python",
+              "description": "Read N (number of students) from the first line. Then read N lines, each containing: name score1 score2 score3\n\nFor each student, calculate their average and print a report line in the format:\n{name}: {avg:.1f} - {status}\n\nWhere status is \"Pass\" if average >= 60, otherwise \"Fail\".\n\nAt the end, print a summary line: Summary: {pass_count}/{total} passed\n\nExample:\n2\nAlice 80 90 85\nBob 40 50 55\n\nOutput:\nAlice: 85.0 - Pass\nBob: 48.3 - Fail\nSummary: 1/2 passed",
+              "starter_code": "n = int(input())\n\n# Process students and generate report\n",
+              "solution_code": "n = int(input())\npass_count = 0\nfor _ in range(n):\n    parts = input().split()\n    name = parts[0]\n    scores = [int(s) for s in parts[1:]]\n    avg = sum(scores) / len(scores)\n    status = \"Pass\" if avg >= 60 else \"Fail\"\n    if status == \"Pass\":\n        pass_count += 1\n    print(f\"{name}: {avg:.1f} - {status}\")\nprint(f\"Summary: {pass_count}/{n} passed\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "2\nAlice 80 90 85\nBob 40 50 55",
+                "expected_output": "Alice: 85.0 - Pass\nBob: 48.3 - Fail\nSummary: 1/2 passed",
+                "is_hidden": false
+              },
+              {
+                "input": "3\nAlex 100 100 100\nJane 60 60 60\nJohn 59 59 59",
+                "expected_output": "Alex: 100.0 - Pass\nJane: 60.0 - Pass\nJohn: 59.0 - Fail\nSummary: 2/3 passed",
+                "is_hidden": false
+              },
+              {
+                "input": "1\nSolo 70 80 90",
+                "expected_output": "Solo: 80.0 - Pass\nSummary: 1/1 passed",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Working with CSV Data",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Working with CSV Data\n\n### 🧠 How It Works\n\n**CSV** (Comma-Separated Values) is one of the simplest and most universal data formats. Think of it as a spreadsheet saved as plain text: each line is a row, and values within a row are separated by commas. You can open CSV files in Excel, Google Sheets, or any text editor — making CSV the lingua franca of data exchange.\n\nReading CSV is straightforward: read each line, split by commas, and process the values. The first line is usually the **header** containing column names. Python's built-in `csv` module handles edge cases like commas inside quoted values (`\"Smith, John\"` should be one field, not two), but for simple cases, `split(\",\")` works fine.\n\nCSV files are everywhere in the real world: exporting data from spreadsheets, downloading datasets for data science, exchanging data between systems, and storing simple databases. Being able to read, process, and write CSV is a fundamental skill that connects Python to the broader world of data.\n\n### 📝 Step by Step\n\n1. Read the header line first: `header = lines[0].split(\",\")`.\n2. Process data lines: `for line in lines[1:]: values = line.split(\",\")`.\n3. Convert numeric values: `score = int(values[2])`.\n4. For complex CSV, use `import csv` and `csv.DictReader`.\n5. Write CSV with `csv.writer` or manual formatting.\n\n### 💻 Example\n\n```python\nimport csv\n\n# Manual CSV parsing\ncsv_text = \"name,subject,score\\nAlice,Math,90\\nBob,Math,80\\nAlice,Science,85\"\n\nlines = csv_text.strip().split(\"\\n\")\nheader = lines[0].split(\",\")\nprint(f\"Columns: {header}\")\n\nfor line in lines[1:]:\n    name, subject, score = line.split(\",\")\n    print(f\"{name} got {score} in {subject}\")\n\n# Using csv module (with files)\n# with open(\"data.csv\", \"r\") as file:\n#     reader = csv.DictReader(file)\n#     for row in reader:\n#         print(row[\"name\"], row[\"score\"])\n\n# Building a summary\nsubjects = {}\nfor line in lines[1:]:\n    _, subject, score = line.split(\",\")\n    if subject not in subjects:\n        subjects[subject] = []\n    subjects[subject].append(int(score))\n\nfor subj, scores in subjects.items():\n    avg = sum(scores) / len(scores)\n    print(f\"{subj}: avg {avg:.1f}\")\n```\n\n**Output:**\n```\nColumns: ['name', 'subject', 'score']\nAlice got 90 in Math\nBob got 80 in Math\nAlice got 85 in Science\nMath: avg 85.0\nScience: avg 85.0\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting that CSV values are strings** — `\"90\"` needs `int()` before math. → **Fix**: Always convert: `int(values[2])` or `float(values[2])`.\n- **Mistake: Splitting when values contain commas** — `\"Smith, John,90\".split(\",\")` gives 3 parts, not 2. → **Fix**: Use the `csv` module for data with embedded commas.\n- **Mistake: Off-by-one with the header** — Processing `lines[0]` as data when it is the header. → **Fix**: Always skip the header: `for line in lines[1:]`.\n\n### 🔗 Connection\n\nYou can now work with files and structured CSV data. This bridges Python to spreadsheets, databases, and the data science world. Next module: **error handling** — learning to write robust code that does not crash when unexpected things happen.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `\"Alice,Math,90\".split(\",\")` produce?\n2. Why is the first line of a CSV file usually special?\n3. What Python module handles complex CSV files with quoted fields?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "CSV Analyzer",
+            "config": {
+              "language": "python",
+              "description": "Read CSV-formatted data from input. The first line is the header, subsequent lines are data rows. All rows have format: name,subject,score\n\nPrint the average score per subject, sorted alphabetically by subject name:\n{subject}: {average:.1f}\n\nExample input:\nname,subject,score\nAlice,Math,90\nBob,Math,80\nAlice,Science,85\nBob,Science,95\n\nOutput:\nMath: 85.0\nScience: 90.0",
+              "starter_code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nheader = lines[0]\ndata_lines = lines[1:]\n\n# Parse CSV and calculate averages per subject\n",
+              "solution_code": "import sys\nlines = sys.stdin.read().strip().split('\\n')\nheader = lines[0]\ndata_lines = lines[1:]\nsubjects = {}\nfor line in data_lines:\n    parts = line.split(',')\n    subject = parts[1]\n    score = int(parts[2])\n    if subject not in subjects:\n        subjects[subject] = []\n    subjects[subject].append(score)\nfor subject in sorted(subjects.keys()):\n    avg = sum(subjects[subject]) / len(subjects[subject])\n    print(f\"{subject}: {avg:.1f}\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "name,subject,score\nAlice,Math,90\nBob,Math,80\nAlice,Science,85\nBob,Science,95",
+                "expected_output": "Math: 85.0\nScience: 90.0",
+                "is_hidden": false
+              },
+              {
+                "input": "name,subject,score\nA,X,100\nB,Y,50\nC,X,80\nD,Y,70",
+                "expected_output": "X: 90.0\nY: 60.0",
+                "is_hidden": false
+              },
+              {
+                "input": "name,subject,score\nAlex,Art,75\nBob,Art,85\nCat,Art,95",
+                "expected_output": "Art: 85.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 9: Error Handling",
+      "sort_order": 8,
+      "lessons": [
+        {
+          "title": "Understanding Errors and Exceptions",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Understanding Errors and Exceptions\n\n### 🧠 How It Works\n\nErrors are not a sign of failure — they are a natural, expected part of programming. Even the best code encounters unexpected situations: a user types \"abc\" when a number is expected, a file is missing, a network connection drops. Python distinguishes between two types of problems: **syntax errors** (your code is not valid Python) and **exceptions** (something goes wrong while running valid code).\n\nThink of syntax errors as grammatical mistakes in a sentence — Python catches them before running your code, just like a spell-checker catches typos before you send a message. Exceptions are like unexpected events during a trip — your car gets a flat tire (the code was fine, but something happened at runtime).\n\nEach exception type has a descriptive name: `ValueError` (wrong value), `TypeError` (wrong type), `ZeroDivisionError` (dividing by zero), `IndexError` (list index out of range), `KeyError` (dictionary key not found), `FileNotFoundError` (file missing). Reading the error message and **traceback** (which shows exactly which line failed) is one of the most valuable skills you can develop as a programmer.\n\n### 📝 Step by Step\n\n1. Read the error type: the last line tells you what kind of error.\n2. Read the description: the message after the colon explains what went wrong.\n3. Read the traceback: work backwards from the bottom to find which line caused it.\n4. Common errors: TypeError (wrong type), ValueError (wrong value), KeyError (missing key).\n5. Fix the root cause, do not just silence the error.\n\n### 💻 Example\n\n```python\n# TypeError: wrong operation for the type\n# result = \"age: \" + 15  # Cannot add str and int\n\n# ValueError: right type, wrong content\n# number = int(\"hello\")  # \"hello\" is not a number\n\n# ZeroDivisionError\n# result = 10 / 0\n\n# IndexError: out of range\n# my_list = [1, 2, 3]\n# print(my_list[10])\n\n# KeyError: missing dictionary key\n# my_dict = {\"a\": 1}\n# print(my_dict[\"b\"])\n\n# The right way: handle potential errors\nuser_input = \"42\"  # Simulating input\ntry:\n    number = int(user_input)\n    print(f\"Success: {number}\")\nexcept ValueError:\n    print(\"That is not a valid number\")\n```\n\n**Output:**\n```\nSuccess: 42\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Ignoring error messages** — The traceback tells you exactly what went wrong and where. → **Fix**: Read the LAST line first (error type), then trace up to find the line number.\n- **Mistake: Catching all exceptions blindly** — `except:` without a type hides bugs. → **Fix**: Catch specific exceptions: `except ValueError:`.\n- **Mistake: Confusing syntax errors with exceptions** — Syntax errors cannot be caught with try/except. → **Fix**: Fix syntax errors in your code; use try/except for runtime exceptions.\n\n### 🔗 Connection\n\nYou now understand what errors are and why they happen. This is essential background for the next lesson, where you will learn to **catch and handle** exceptions gracefully using try/except blocks — turning crashes into controlled responses.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What error does `int(\"hello\")` raise?\n2. What error does `[1, 2, 3][10]` raise?\n3. What is the difference between a syntax error and an exception?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Error Identifier",
+            "config": {
+              "language": "python",
+              "description": "Read a line of input. Try to convert it to an integer. Based on what happens:\n- If it's a valid integer, print \"Valid integer: {value}\"\n- If it contains a decimal point (like '3.14'), print \"That's a float, not an integer\"\n- If it's not a number at all, print \"Not a number\"\n\nHint: Try converting to int first. If that fails, try float. If both fail, it's not a number.",
+              "starter_code": "value = input()\n\n# Try to identify the type\n",
+              "solution_code": "value = input()\ntry:\n    result = int(value)\n    print(f\"Valid integer: {result}\")\nexcept ValueError:\n    try:\n        float(value)\n        print(\"That's a float, not an integer\")\n    except ValueError:\n        print(\"Not a number\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "42",
+                "expected_output": "Valid integer: 42",
+                "is_hidden": false
+              },
+              {
+                "input": "3.14",
+                "expected_output": "That's a float, not an integer",
+                "is_hidden": false
+              },
+              {
+                "input": "hello",
+                "expected_output": "Not a number",
+                "is_hidden": false
+              },
+              {
+                "input": "-7",
+                "expected_output": "Valid integer: -7",
+                "is_hidden": true
+              },
+              {
+                "input": "0.001",
+                "expected_output": "That's a float, not an integer",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Try / Except / Finally",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Try / Except / Finally\n\n### 🧠 How It Works\n\nImagine you are a tightrope walker. Without a safety net, one mistake and you fall to the ground (program crashes). The `try/except` block IS that safety net — you \"try\" the risky code, and if something goes wrong, you \"catch\" the error and handle it gracefully instead of crashing.\n\nThe basic pattern is simple: wrap risky code in `try:`, and write error-handling code in `except:`. Python tries to run the code in the `try` block. If an exception occurs, it immediately jumps to the matching `except` block. If no exception occurs, the `except` block is skipped. You can have multiple `except` blocks for different error types.\n\nThe full pattern adds `else` and `finally`. The `else` block runs only if NO exception occurred — perfect for code that should only execute on success. The `finally` block ALWAYS runs, regardless of whether an exception occurred — perfect for cleanup code like closing connections or saving data.\n\n### 📝 Step by Step\n\n1. Wrap risky code in `try:`.\n2. Add `except ErrorType:` blocks for each error you expect.\n3. Use `except ErrorType as e:` to capture the error message.\n4. Add `else:` for code that runs only on success (optional).\n5. Add `finally:` for cleanup code that always runs (optional).\n\n### 💻 Example\n\n```python\n# Basic try/except\ntry:\n    number = int(input(\"Enter a number: \"))\n    result = 100 / number\n    print(f\"Result: {result}\")\nexcept ValueError:\n    print(\"That is not a valid number!\")\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero!\")\n\n# Full pattern with else and finally\ntry:\n    value = int(\"42\")\nexcept ValueError:\n    print(\"Invalid!\")\nelse:\n    print(f\"Success: {value}\")  # Runs only if no error\nfinally:\n    print(\"Done processing\")    # Always runs\n\n# Catching multiple errors\ntry:\n    data = [1, 2, 3]\n    print(data[10])\nexcept (IndexError, KeyError) as e:\n    print(f\"Error: {e}\")\n```\n\n**Output:**\n```\nEnter a number: 5\nResult: 20.0\nSuccess: 42\nDone processing\nError: list index out of range\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Catching too broadly** — `except:` catches ALL errors, hiding real bugs. → **Fix**: Always specify the error type: `except ValueError:`.\n- **Mistake: Putting too much code in `try`** — Only wrap the specific lines that might fail. → **Fix**: Keep the try block as small as possible.\n- **Mistake: Using try/except as flow control** — Exceptions are for exceptional situations, not normal logic. → **Fix**: Use `if` statements for expected conditions.\n\n### 🔗 Connection\n\nYou can now catch errors gracefully instead of crashing. Next, you will learn to **raise your own exceptions** — telling callers that something is wrong with their input, which is essential for writing robust, professional-quality functions.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. Which block runs if NO exception occurs: `except`, `else`, or `finally`?\n2. Which block ALWAYS runs, even if there is an exception?\n3. Can you have multiple `except` blocks for different error types?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Safe Calculator",
+            "config": {
+              "language": "python",
+              "description": "Read three lines: num1, operator (+, -, *, /), num2. Build a safe calculator that handles ALL possible errors:\n\n- If either number is invalid, print \"Error: Invalid number\"\n- If dividing by zero, print \"Error: Division by zero\"\n- If the operator is unknown, print \"Error: Unknown operator\"\n- Otherwise, print the result as a float\n\nExample: 10, /, 3 prints 3.3333333333333335\nExample: 10, /, 0 prints \"Error: Division by zero\"",
+              "starter_code": "num1 = input()\noperator = input()\nnum2 = input()\n\n# Build a safe calculator\n",
+              "solution_code": "num1 = input()\noperator = input()\nnum2 = input()\ntry:\n    a = float(num1)\n    b = float(num2)\nexcept ValueError:\n    print(\"Error: Invalid number\")\nelse:\n    if operator == \"+\":\n        print(a + b)\n    elif operator == \"-\":\n        print(a - b)\n    elif operator == \"*\":\n        print(a * b)\n    elif operator == \"/\":\n        if b == 0:\n            print(\"Error: Division by zero\")\n        else:\n            print(a / b)\n    else:\n        print(\"Error: Unknown operator\")",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "10\n/\n3",
+                "expected_output": "3.3333333333333335",
+                "is_hidden": false
+              },
+              {
+                "input": "10\n/\n0",
+                "expected_output": "Error: Division by zero",
+                "is_hidden": false
+              },
+              {
+                "input": "abc\n+\n5",
+                "expected_output": "Error: Invalid number",
+                "is_hidden": false
+              },
+              {
+                "input": "5\n^\n3",
+                "expected_output": "Error: Unknown operator",
+                "is_hidden": true
+              },
+              {
+                "input": "7\n+\n3",
+                "expected_output": "10.0",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Raising Exceptions and Custom Validation",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Raising Exceptions and Custom Validation\n\n### 🧠 How It Works\n\nSo far you have been catching errors from Python. But what about YOUR code? When someone passes invalid data to your function — like a negative age or an empty password — you should tell them something is wrong. The `raise` keyword lets you intentionally trigger an exception.\n\nThink of `raise` like a referee throwing a flag in a game. When you see a rule violation (invalid input), you stop the action and signal the problem. The caller then has the chance to catch the exception with `try/except` and handle it. This is much better than silently returning wrong results or a special value like `-1`.\n\nA very common pattern is the **validation loop**: keep asking for input until the user provides something valid. Inside the loop, try to convert and validate the input; if it fails, catch the error and ask again. This pattern appears in every real application — web forms validate emails, games validate moves, and APIs validate request data.\n\n### 📝 Step by Step\n\n1. Validate input: check if values meet your requirements.\n2. Raise an exception if validation fails: `raise ValueError(\"Age cannot be negative\")`.\n3. The caller catches it: `try: ... except ValueError as e:`.\n4. Use a while loop for repeated validation until valid input is given.\n5. Check conditions in order: most critical first.\n\n### 💻 Example\n\n```python\n# Raising exceptions in a function\ndef set_age(age):\n    if age < 0:\n        raise ValueError(\"Age cannot be negative\")\n    if age > 150:\n        raise ValueError(\"Age seems unrealistic\")\n    return age\n\n# Catching raised exceptions\ntry:\n    age = set_age(-5)\nexcept ValueError as e:\n    print(f\"Invalid: {e}\")\n\n# Validation function\ndef validate_email(email):\n    if \"@\" not in email:\n        raise ValueError(\"Missing @ symbol\")\n    if \".\" not in email.split(\"@\")[1]:\n        raise ValueError(\"Invalid domain\")\n    return email\n\n# Testing validation\nemails = [\"user@example.com\", \"invalid\", \"no@domain\"]\nfor email in emails:\n    try:\n        validate_email(email)\n        print(f\"{email}: Valid\")\n    except ValueError as e:\n        print(f\"{email}: {e}\")\n```\n\n**Output:**\n```\nInvalid: Age cannot be negative\nuser@example.com: Valid\ninvalid: Missing @ symbol\nno@domain: Invalid domain\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Returning error codes instead of raising** — `return -1` for errors is ambiguous. → **Fix**: Raise a descriptive exception: `raise ValueError(\"reason\")`.\n- **Mistake: Raising generic Exception** — `raise Exception(\"error\")` is too vague. → **Fix**: Use specific types: `ValueError`, `TypeError`, etc.\n- **Mistake: Not providing an error message** — `raise ValueError()` with no message gives no context. → **Fix**: Always include a descriptive message.\n\n### 🔗 Connection\n\nYou now have complete error handling: catching, raising, and validating. This completes the error handling module. Next, the final module: **Classes and OOP** — where you will create your own custom types and build real, structured programs.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `raise ValueError(\"bad input\")` do?\n2. How does the caller handle a raised exception?\n3. Why is raising an exception better than returning `-1` for errors?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Input Validator",
+            "config": {
+              "language": "python",
+              "description": "Write a function validate_password(password) that checks the following rules:\n- At least 8 characters long\n- Contains at least one digit\n- Contains at least one uppercase letter\n\nIf the password is valid, the function returns True.\nIf invalid, it raises a ValueError with ONE of these messages (check in this order):\n- \"Too short\" (if < 8 chars)\n- \"No digit\" (if no digits)\n- \"No uppercase\" (if no uppercase letters)\n\nRead a password from input. Print \"Valid\" if it passes, or the error message if it fails.",
+              "starter_code": "def validate_password(password):\n    # Validate and raise ValueError if invalid\n    pass\n\npassword = input()\n\n# Try to validate and print result\n",
+              "solution_code": "def validate_password(password):\n    if len(password) < 8:\n        raise ValueError(\"Too short\")\n    if not any(c.isdigit() for c in password):\n        raise ValueError(\"No digit\")\n    if not any(c.isupper() for c in password):\n        raise ValueError(\"No uppercase\")\n    return True\n\npassword = input()\ntry:\n    validate_password(password)\n    print(\"Valid\")\nexcept ValueError as e:\n    print(e)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "MyPass123",
+                "expected_output": "Valid",
+                "is_hidden": false
+              },
+              {
+                "input": "short",
+                "expected_output": "Too short",
+                "is_hidden": false
+              },
+              {
+                "input": "nouppercase1",
+                "expected_output": "No uppercase",
+                "is_hidden": false
+              },
+              {
+                "input": "NoDigitHere",
+                "expected_output": "No digit",
+                "is_hidden": true
+              },
+              {
+                "input": "A1bcdefg",
+                "expected_output": "Valid",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": "Module 10: Classes and OOP",
+      "sort_order": 9,
+      "lessons": [
+        {
+          "title": "Introduction to Classes and Objects",
+          "sort_order": 0,
+          "content_type": "text",
+          "content": {
+            "body": "## Introduction to Classes and Objects\n\n### 🧠 How It Works\n\nImagine you are designing a video game. Each player character has a name, health, level, and abilities. You could use separate variables for each (`player1_name`, `player1_health`...), but that gets chaotic with 50 players. **Classes** let you create a custom type that bundles related data (attributes) and behavior (methods) into one clean package.\n\nThink of a class as a **blueprint** and an object as a **building made from that blueprint**. The class `Dog` describes what all dogs have (name, breed) and can do (bark, sit). Each actual dog — Buddy, Rex, Luna — is an **object** (or **instance**) created from that blueprint. You can create as many objects as you want from one class.\n\nThe special method `__init__` is the **constructor** — it runs automatically when you create a new object and sets up its initial data. The `self` parameter refers to the specific object being created. When you write `self.name = name`, you are storing the name on that particular object. Every method in a class takes `self` as its first parameter.\n\n### 📝 Step by Step\n\n1. Define a class: `class ClassName:`.\n2. Write `__init__` to set up attributes: `def __init__(self, param):`.\n3. Store data with `self.attribute = value`.\n4. Define methods: `def method_name(self):`.\n5. Create objects: `obj = ClassName(arguments)`.\n\n### 💻 Example\n\n```python\nclass Dog:\n    def __init__(self, name, breed, age):\n        self.name = name\n        self.breed = breed\n        self.age = age\n\n    def bark(self):\n        print(f\"{self.name} says: Woof!\")\n\n    def info(self):\n        print(f\"{self.name} is a {self.age}-year-old {self.breed}\")\n\n# Creating objects\nbuddy = Dog(\"Buddy\", \"Golden Retriever\", 3)\nrex = Dog(\"Rex\", \"German Shepherd\", 5)\n\n# Using methods\nbuddy.bark()   # Buddy says: Woof!\nrex.info()     # Rex is a 5-year-old German Shepherd\n\n# Accessing attributes\nprint(buddy.name)  # Buddy\nbuddy.age = 4      # Modify attribute\nprint(buddy.age)   # 4\n```\n\n**Output:**\n```\nBuddy says: Woof!\nRex is a 5-year-old German Shepherd\nBuddy\n4\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting `self`** — Every method must have `self` as the first parameter. → **Fix**: Always write `def method(self, ...):`.\n- **Mistake: Forgetting `self.` when accessing attributes** — `name` is a local variable; `self.name` is the object's attribute. → **Fix**: Use `self.attribute` to access/set object data.\n- **Mistake: Forgetting to call `__init__` parameters** — `Dog()` with no arguments when `__init__` expects them. → **Fix**: Pass all required arguments: `Dog(\"Buddy\", \"Retriever\", 3)`.\n\n### 🔗 Connection\n\nYou have used built-in types (str, list, dict). Now you can create your own types with classes. Next, you will learn about **magic methods** — special methods that let your objects work with built-in Python operators like `+`, `==`, and `print()`.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What is the difference between a class and an object?\n2. What does `self` refer to inside a method?\n3. When does `__init__` run?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Student Class",
+            "config": {
+              "language": "python",
+              "description": "Create a Student class with:\n- __init__ that takes name and a list of grades\n- average() method that returns the average grade\n- status() method that returns \"Passing\" if average >= 60, else \"Failing\"\n- __str__() method that returns \"{name}: {average:.1f} ({status})\"\n\nRead name on line 1, space-separated grades on line 2. Create a Student and print it.\n\nExample: \"Alice\" and \"90 85 92\" prints \"Alice: 89.0 (Passing)\"",
+              "starter_code": "class Student:\n    def __init__(self, name, grades):\n        pass\n    \n    def average(self):\n        pass\n    \n    def status(self):\n        pass\n    \n    def __str__(self):\n        pass\n\nname = input()\ngrades = list(map(int, input().split()))\n\nstudent = Student(name, grades)\nprint(student)",
+              "solution_code": "class Student:\n    def __init__(self, name, grades):\n        self.name = name\n        self.grades = grades\n    \n    def average(self):\n        return sum(self.grades) / len(self.grades)\n    \n    def status(self):\n        return \"Passing\" if self.average() >= 60 else \"Failing\"\n    \n    def __str__(self):\n        return f\"{self.name}: {self.average():.1f} ({self.status()})\"\n\nname = input()\ngrades = list(map(int, input().split()))\nstudent = Student(name, grades)\nprint(student)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "Alice\n90 85 92",
+                "expected_output": "Alice: 89.0 (Passing)",
+                "is_hidden": false
+              },
+              {
+                "input": "Bob\n40 50 55",
+                "expected_output": "Bob: 48.3 (Failing)",
+                "is_hidden": false
+              },
+              {
+                "input": "Charlie\n60 60 60",
+                "expected_output": "Charlie: 60.0 (Passing)",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Methods, Properties, and Magic Methods",
+          "sort_order": 1,
+          "content_type": "text",
+          "content": {
+            "body": "## Methods, Properties, and Magic Methods\n\n### 🧠 How It Works\n\nWhen you write `print(my_object)` or `obj1 + obj2`, Python needs to know how YOUR custom objects behave with these operations. **Magic methods** (also called dunder methods because they have double underscores) are special methods that Python calls automatically when you use built-in operations on your objects.\n\nThink of magic methods as translators between Python's built-in operations and your custom class. When you write `print(vector)`, Python secretly calls `vector.__str__()`. When you write `v1 + v2`, Python calls `v1.__add__(v2)`. When you write `len(cart)`, Python calls `cart.__len__()`. By defining these methods, you make your objects behave like built-in types.\n\n**Encapsulation** is another key OOP concept: hiding internal details behind a clean interface. By convention, attributes starting with `_` are \"private\" — meant for internal use only. Instead of letting code directly modify `_balance`, you provide methods like `deposit()` and `withdraw()` that validate the data before changing it. This prevents invalid states like negative balances.\n\n### 📝 Step by Step\n\n1. Define `__str__` for human-readable string representation.\n2. Define `__repr__` for developer-friendly representation.\n3. Define `__add__` to support the `+` operator.\n4. Define `__eq__` to support the `==` operator.\n5. Define `__len__` to support the `len()` function.\n\n### 💻 Example\n\n```python\nclass Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __str__(self):\n        return f\"({self.x}, {self.y})\"\n\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n\n    def __eq__(self, other):\n        return self.x == other.x and self.y == other.y\n\n    def __len__(self):\n        return int((self.x ** 2 + self.y ** 2) ** 0.5)\n\nv1 = Vector(3, 4)\nv2 = Vector(1, 2)\n\nprint(v1)           # (3, 4)\nprint(v1 + v2)      # (4, 6)\nprint(v1 == v2)     # False\nprint(len(v1))      # 5\n\n# Encapsulation example\nclass BankAccount:\n    def __init__(self, balance):\n        self._balance = balance  # \"private\"\n\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n\n    def get_balance(self):\n        return self._balance\n\nacc = BankAccount(100)\nacc.deposit(50)\nprint(acc.get_balance())  # 150\n```\n\n**Output:**\n```\n(3, 4)\n(4, 6)\nFalse\n5\n150\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting to return a new object in `__add__`** — Returning `self` modifies the original. → **Fix**: Create and return a new instance: `return Vector(...)`.\n- **Mistake: Using `__str__` when you need `__repr__`** — `__str__` is for end users, `__repr__` is for developers. → **Fix**: Define both; `__repr__` should be unambiguous.\n- **Mistake: Accessing private attributes directly** — Bypassing validation methods. → **Fix**: Use the provided methods; respect the `_` convention.\n\n### 🔗 Connection\n\nYour classes now integrate with Python's built-in operations. Next, you will learn **inheritance** — creating new classes based on existing ones — which is the key to code reuse and building class hierarchies.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. Which magic method does `print(obj)` call?\n2. Which magic method does `obj1 + obj2` call?\n3. Why use `self._balance` instead of `self.balance`?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Shopping Cart Class",
+            "config": {
+              "language": "python",
+              "description": "Create a ShoppingCart class with:\n- __init__ that starts with an empty items list\n- add(name, price, quantity) method to add items\n- total() method that returns the total cost\n- __len__() that returns the total number of unique items\n- __str__() that returns \"Cart({count} items, ${total:.2f})\"\n\nRead N items from input. Each line has: name price quantity\nCreate a cart, add all items, and print the cart.\n\nExample:\n2\nApple 1.50 3\nBread 2.99 1\n\nOutput: Cart(2 items, $7.49)",
+              "starter_code": "class ShoppingCart:\n    def __init__(self):\n        pass\n    \n    def add(self, name, price, quantity):\n        pass\n    \n    def total(self):\n        pass\n    \n    def __len__(self):\n        pass\n    \n    def __str__(self):\n        pass\n\nn = int(input())\ncart = ShoppingCart()\nfor _ in range(n):\n    parts = input().split()\n    cart.add(parts[0], float(parts[1]), int(parts[2]))\nprint(cart)",
+              "solution_code": "class ShoppingCart:\n    def __init__(self):\n        self.items = []\n    \n    def add(self, name, price, quantity):\n        self.items.append({\"name\": name, \"price\": price, \"quantity\": quantity})\n    \n    def total(self):\n        return sum(item[\"price\"] * item[\"quantity\"] for item in self.items)\n    \n    def __len__(self):\n        return len(self.items)\n    \n    def __str__(self):\n        return f\"Cart({len(self)} items, ${self.total():.2f})\"\n\nn = int(input())\ncart = ShoppingCart()\nfor _ in range(n):\n    parts = input().split()\n    cart.add(parts[0], float(parts[1]), int(parts[2]))\nprint(cart)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "2\nApple 1.50 3\nBread 2.99 1",
+                "expected_output": "Cart(2 items, $7.49)",
+                "is_hidden": false
+              },
+              {
+                "input": "1\nLaptop 999.99 1",
+                "expected_output": "Cart(1 items, $999.99)",
+                "is_hidden": false
+              },
+              {
+                "input": "3\nA 10.00 2\nB 5.00 3\nC 1.00 10",
+                "expected_output": "Cart(3 items, $45.00)",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Inheritance: Building on Existing Classes",
+          "sort_order": 2,
+          "content_type": "text",
+          "content": {
+            "body": "## Inheritance: Building on Existing Classes\n\n### 🧠 How It Works\n\nImagine you have a class `Vehicle` with attributes like speed, fuel, and methods like `start()` and `stop()`. Now you want a `Car` class and a `Truck` class. They share everything a Vehicle has, plus their own unique features. Instead of rewriting all the Vehicle code twice, **inheritance** lets you create `Car` and `Truck` as children of `Vehicle`, automatically getting everything the parent has.\n\nThink of inheritance like a family tree. A child inherits traits from their parents but also has their own unique characteristics. In Python, you create a child class by putting the parent class name in parentheses: `class Dog(Animal)`. The child class gets all attributes and methods from the parent, and can add new ones or **override** existing ones with its own versions.\n\nThe `super()` function calls the parent class's methods. Most commonly, you use `super().__init__()` inside the child's `__init__` to run the parent's setup code before adding the child's own attributes. This ensures the parent's initialization happens properly.\n\n### 📝 Step by Step\n\n1. Define the parent class with common attributes and methods.\n2. Create child class: `class Child(Parent):`.\n3. Call parent's init: `super().__init__(args)`.\n4. Add child-specific attributes and methods.\n5. Override parent methods by defining them again in the child.\n\n### 💻 Example\n\n```python\nclass Animal:\n    def __init__(self, name, sound):\n        self.name = name\n        self.sound = sound\n\n    def speak(self):\n        return f\"{self.name} says {self.sound}!\"\n\nclass Dog(Animal):\n    def __init__(self, name):\n        super().__init__(name, \"Woof\")\n\n    def fetch(self):\n        return f\"{self.name} fetches the ball!\"\n\nclass Cat(Animal):\n    def __init__(self, name):\n        super().__init__(name, \"Meow\")\n\n    def purr(self):\n        return f\"{self.name} purrs...\"\n\n# Using inheritance\ndog = Dog(\"Buddy\")\ncat = Cat(\"Whiskers\")\n\nprint(dog.speak())   # Inherited from Animal\nprint(dog.fetch())   # Dog-specific\nprint(cat.speak())   # Inherited from Animal\nprint(cat.purr())    # Cat-specific\n```\n\n**Output:**\n```\nBuddy says Woof!\nBuddy fetches the ball!\nWhiskers says Meow!\nWhiskers purrs...\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Forgetting `super().__init__()`** — Parent attributes are not initialized. → **Fix**: Always call `super().__init__()` in the child's `__init__`.\n- **Mistake: Redefining parent methods unintentionally** — Naming a child method the same as a parent method overrides it. → **Fix**: Use unique names or intentionally override with `super()`.\n- **Mistake: Deep inheritance hierarchies** — More than 3 levels deep becomes confusing. → **Fix**: Prefer composition (has-a) over deep inheritance (is-a).\n\n### 🔗 Connection\n\nInheritance completes the core OOP toolkit: classes, objects, magic methods, encapsulation, and now inheritance. Next is the **capstone** lesson where you combine everything you have learned into a real mini-project.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. What does `super().__init__()` do?\n2. If Dog inherits from Animal and has its own `speak()`, which version runs?\n3. Can a child class add methods that the parent does not have?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Shape Hierarchy",
+            "config": {
+              "language": "python",
+              "description": "Create a class hierarchy:\n\n1. Shape (parent) with a name attribute and an area() method that returns 0\n2. Rectangle(Shape) with width and height, area() returns width * height\n3. Circle(Shape) with radius, area() returns 3.14159 * radius^2\n\nAll classes must have __str__() returning: \"{name}: area = {area():.2f}\"\n\nRead a shape type ('rectangle' or 'circle') on line 1.\nFor rectangle, read width and height on line 2 (space-separated).\nFor circle, read radius on line 2.\n\nPrint the shape.\n\nExample: 'rectangle' with '5 3' prints \"Rectangle: area = 15.00\"\nExample: 'circle' with '4' prints \"Circle: area = 50.27\"",
+              "starter_code": "class Shape:\n    pass\n\nclass Rectangle(Shape):\n    pass\n\nclass Circle(Shape):\n    pass\n\nshape_type = input()\nif shape_type == \"rectangle\":\n    w, h = map(float, input().split())\n    shape = Rectangle(w, h)\nelse:\n    r = float(input())\n    shape = Circle(r)\n\nprint(shape)",
+              "solution_code": "class Shape:\n    def __init__(self, name):\n        self.name = name\n    \n    def area(self):\n        return 0\n    \n    def __str__(self):\n        return f\"{self.name}: area = {self.area():.2f}\"\n\nclass Rectangle(Shape):\n    def __init__(self, width, height):\n        super().__init__(\"Rectangle\")\n        self.width = width\n        self.height = height\n    \n    def area(self):\n        return self.width * self.height\n\nclass Circle(Shape):\n    def __init__(self, radius):\n        super().__init__(\"Circle\")\n        self.radius = radius\n    \n    def area(self):\n        return 3.14159 * self.radius ** 2\n\nshape_type = input()\nif shape_type == \"rectangle\":\n    w, h = map(float, input().split())\n    shape = Rectangle(w, h)\nelse:\n    r = float(input())\n    shape = Circle(r)\nprint(shape)",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "rectangle\n5 3",
+                "expected_output": "Rectangle: area = 15.00",
+                "is_hidden": false
+              },
+              {
+                "input": "circle\n4",
+                "expected_output": "Circle: area = 50.27",
+                "is_hidden": false
+              },
+              {
+                "input": "rectangle\n10 10",
+                "expected_output": "Rectangle: area = 100.00",
+                "is_hidden": true
+              },
+              {
+                "input": "circle\n1",
+                "expected_output": "Circle: area = 3.14",
+                "is_hidden": true
+              }
+            ]
+          }
+        },
+        {
+          "title": "Capstone: Building a Mini Project",
+          "sort_order": 3,
+          "content_type": "text",
+          "content": {
+            "body": "## Capstone: Building a Mini Project\n\n### 🧠 How It Works\n\nYou have now learned every fundamental building block of Python: variables, types, strings, conditions, loops, lists, dictionaries, functions, file I/O, error handling, and classes. The capstone is about combining these pieces into a cohesive program — just like building with LEGO bricks, where individual pieces are simple but the combinations create something complex and useful.\n\nThink of program design like architecture. Before building a house, you plan: what rooms do you need? How do they connect? Similarly, before writing code, you identify the \"nouns\" (classes), the \"verbs\" (methods), and the \"connections\" (how classes interact). A Task Manager has Tasks (class) with titles, priorities, and completion status (attributes), plus the ability to complete and display themselves (methods). A TaskManager holds a collection of Tasks and provides operations like add, remove, and filter.\n\nGood software design follows principles: each class has one clear responsibility, functions are short and focused, and the code reads almost like English. When you look at your code and it makes sense without reading every line — that is clean code. This does not happen on the first draft; it comes from refactoring and iteration.\n\n### 📝 Step by Step\n\n1. **Identify the nouns** in your problem — these become classes (Contact, ContactBook).\n2. **Identify the data** each class needs — these become attributes (name, phone, email).\n3. **Identify the actions** — these become methods (add, search, list).\n4. **Write the code** starting with the simplest class, then build up.\n5. **Test each part** before connecting them together.\n\n### 💻 Example\n\n```python\nclass Task:\n    def __init__(self, title, priority=\"medium\"):\n        self.title = title\n        self.priority = priority\n        self.done = False\n\n    def complete(self):\n        self.done = True\n\n    def __str__(self):\n        status = \"DONE\" if self.done else \"TODO\"\n        return f\"[{status}] {self.title} ({self.priority})\"\n\nclass TaskManager:\n    def __init__(self):\n        self.tasks = []\n\n    def add(self, title, priority=\"medium\"):\n        self.tasks.append(Task(title, priority))\n\n    def complete(self, title):\n        for task in self.tasks:\n            if task.title == title:\n                task.complete()\n                return True\n        return False\n\n    def pending(self):\n        return [t for t in self.tasks if not t.done]\n\n# Using the mini project\nmanager = TaskManager()\nmanager.add(\"Learn Python\", \"high\")\nmanager.add(\"Build a game\", \"medium\")\nmanager.complete(\"Learn Python\")\n\nfor task in manager.tasks:\n    print(task)\nprint(f\"Pending: {len(manager.pending())}\")\n```\n\n**Output:**\n```\n[DONE] Learn Python (high)\n[TODO] Build a game (medium)\nPending: 1\n```\n\n### ⚠️ Common Mistakes\n\n- **Mistake: Putting everything in one class** — A class that does everything is called a \"God class.\" → **Fix**: Each class should have one responsibility.\n- **Mistake: Not planning before coding** — Jumping into code leads to spaghetti architecture. → **Fix**: Spend 5 minutes listing your classes, attributes, and methods.\n- **Mistake: Not testing incrementally** — Building the entire program then testing at the end makes bugs hard to find. → **Fix**: Test each class and method as you write it.\n\n### 🔗 Connection\n\nThis is the summit of your Python journey so far. You have gone from `print(\"Hello\")` to building multi-class programs. From here, the world opens up: web development with Flask or Django, data science with Pandas, game development with Pygame, or automation scripts for real-world tasks. The foundation is solid — now go build something amazing.\n\n### 🏋️ Quick Practice\n\nTry these in your head before coding:\n1. If you are building a library system, what classes might you create?\n2. Why should each class have a single responsibility?\n3. What is the benefit of testing each class before connecting them?"
+          },
+          "exercise": {
+            "exercise_type": "code_challenge",
+            "title": "Contact Book",
+            "config": {
+              "language": "python",
+              "description": "Build a simple contact book system. Read commands from input:\n- ADD name phone email - adds a contact\n- SEARCH name - prints contact info or \"Not found\"\n- LIST - prints all contacts sorted by name\n\nThe first line is the number of commands. Then one command per line.\n\nFor SEARCH, print: {name}: {phone}, {email}\nFor LIST, print each contact on a line: {name}: {phone}, {email} (sorted by name)\n\nExample:\n4\nADD Alice 555-1234 alice@mail.com\nADD Bob 555-5678 bob@mail.com\nSEARCH Alice\nLIST\n\nOutput:\nAlice: 555-1234, alice@mail.com\nAlice: 555-1234, alice@mail.com\nBob: 555-5678, bob@mail.com",
+              "starter_code": "class Contact:\n    pass\n\nclass ContactBook:\n    pass\n\nn = int(input())\nbook = ContactBook()\n\nfor _ in range(n):\n    parts = input().split()\n    command = parts[0]\n    # Handle commands\n",
+              "solution_code": "class Contact:\n    def __init__(self, name, phone, email):\n        self.name = name\n        self.phone = phone\n        self.email = email\n    \n    def __str__(self):\n        return f\"{self.name}: {self.phone}, {self.email}\"\n\nclass ContactBook:\n    def __init__(self):\n        self.contacts = {}\n    \n    def add(self, name, phone, email):\n        self.contacts[name] = Contact(name, phone, email)\n    \n    def search(self, name):\n        if name in self.contacts:\n            print(self.contacts[name])\n        else:\n            print(\"Not found\")\n    \n    def list_all(self):\n        for name in sorted(self.contacts.keys()):\n            print(self.contacts[name])\n\nn = int(input())\nbook = ContactBook()\nfor _ in range(n):\n    parts = input().split()\n    command = parts[0]\n    if command == \"ADD\":\n        book.add(parts[1], parts[2], parts[3])\n    elif command == \"SEARCH\":\n        book.search(parts[1])\n    elif command == \"LIST\":\n        book.list_all()",
+              "time_limit_seconds": 10,
+              "memory_limit_mb": 128
+            },
+            "test_cases": [
+              {
+                "input": "4\nADD Alice 555-1234 alice@mail.com\nADD Bob 555-5678 bob@mail.com\nSEARCH Alice\nLIST",
+                "expected_output": "Alice: 555-1234, alice@mail.com\nAlice: 555-1234, alice@mail.com\nBob: 555-5678, bob@mail.com",
+                "is_hidden": false
+              },
+              {
+                "input": "3\nADD Charlie 111-2222 c@test.com\nSEARCH Dave\nLIST",
+                "expected_output": "Not found\nCharlie: 111-2222, c@test.com",
+                "is_hidden": false
+              },
+              {
+                "input": "5\nADD Zara 999-0000 z@z.com\nADD Alice 111-1111 a@a.com\nADD Mike 555-5555 m@m.com\nSEARCH Mike\nLIST",
+                "expected_output": "Mike: 555-5555, m@m.com\nAlice: 111-1111, a@a.com\nMike: 555-5555, m@m.com\nZara: 999-0000, z@z.com",
+                "is_hidden": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

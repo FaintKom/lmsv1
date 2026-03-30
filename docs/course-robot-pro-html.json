@@ -1,0 +1,2378 @@
+{
+  "course_title": "Visual Programming with Robot PRO",
+  "course_description": "Learn programming concepts by controlling a robot on a grid! Built with the 4C/ID instructional design framework. Start with simple moves and work your way up to writing real Python code.",
+  "target_age": "8-14",
+  "total_modules": 8,
+  "total_levels": 30,
+  "modules": [
+    {
+      "module_id": 1,
+      "title": "Sequences: First Steps",
+      "description": "Learn to give the robot step-by-step instructions. Each block moves the robot one square on the grid.",
+      "concept": "Sequencing - putting instructions in the right order",
+      "levels": [
+        {
+          "level_id": "1-1",
+          "title": "Hello, Robot!",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Your First Command</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Imagine a puppy: you say \"sit!\" and it sits. Your robot is the same &mdash; it does <strong>exactly</strong> what you tell it! Right now it knows one trick: <strong>Move Right</strong>.</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Guide your robot to the <strong>green flag</strong> &#127937;! Count the squares &mdash; that's how many Move Right blocks you need!</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag a <strong>Move Right</strong> block</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Add more Move Right blocks (count the squares!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Press <strong>Play</strong> &#9654;&#65039; and watch!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Finger-count the squares on screen before you start. It really helps!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Mars rovers get commands just like your robot &mdash; step by step from Earth! &#128640;</p></div></div>",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 3,
+            "optimal_blocks": 3,
+            "hints": [
+              "Count the squares from the robot to the flag. How many steps to the right?",
+              "You need exactly 3 'Move Right' blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-2",
+          "title": "Up and Away",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Two Directions</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Giving directions isn't just \"go right\" &mdash; sometimes you say \"go up the hill!\" Now your robot has <strong>Move Up</strong> too! It's like chess pieces going different directions.</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The goal is up AND to the right! Combine <strong>Move Right</strong> and <strong>Move Up</strong>.</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11014;&#65039;</span><span style=\"background:#22c55e;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11014;&#65039;</span><span style=\"background:#22c55e;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11014;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag <strong>Move Right</strong> blocks to go sideways</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Drag <strong>Move Up</strong> blocks to go upward</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Press <strong>Play</strong> &#9654;&#65039; &mdash; blocks run top to bottom!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Order doesn't have to be perfect! As long as you reach the flag, you win!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">GPS navigation works the same way &mdash; small turns: forward, left, right. Just like your blocks! &#128506;</p></div></div>",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 4,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_right",
+              "move_up"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 6,
+            "optimal_blocks": 6,
+            "hints": [
+              "The goal is to the right AND above the robot. You need both directions!",
+              "Move right 3 times, then move up 3 times. Or mix them up - both work!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-3",
+          "title": "Four Directions",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Four Directions!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; A compass has 4 directions. Now your robot does too! With <strong>Move Down</strong> and <strong>Move Left</strong>, you can reach ANY square. It's like unlocking all keys on a game controller! &#127918;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The goal is to the left and below. Use <strong>Move Left</strong> and <strong>Move Down</strong> to get there!</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#ef4444;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11013;&#65039;</span><span style=\"background:#ef4444;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11013;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Use <strong>Move Left</strong> to go sideways</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Use <strong>Move Down</strong> to go lower</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Combine them in any order that reaches the flag!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Trace the path with your finger first. Count: \"2 lefts and 4 downs.\" Then build it!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Mario, Zelda, and Minecraft characters all move with the same 4 directions! &#128377;&#65039;</p></div></div>",
+          "config": {
+            "grid_width": 5,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 2,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 6,
+            "optimal_blocks": 6,
+            "hints": [
+              "The goal is to the left and below the robot.",
+              "Move left 2 times, then move down 4 times."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "1-4",
+          "title": "Around the Wall",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Navigating Obstacles</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; A big puddle blocks the sidewalk. You go AROUND it! Walls work the same &mdash; the robot can't walk through them, so plan a <strong>detour</strong>! &#129521;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">A wall blocks the straight path! Find a clear path around it.</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11014;&#65039;</span><span style=\"background:#22c55e;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11014;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Spot the wall &mdash; it blocks the middle!</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Go UP or DOWN to get around the wall</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Continue heading toward the flag &#127937;</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">There's often more than one correct path. Can you find the shortest one? &#129300;</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Self-driving cars solve this millions of times per second! &#128663;</p></div></div>",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 2,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 9,
+            "optimal_blocks": 7,
+            "hints": [
+              "The wall blocks the direct path. Go around it!",
+              "Try: right 1, up 2, right 3, down 2, right 1."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 2,
+      "title": "Repetition: Loops Save the Day",
+      "description": "Discover loops - a way to repeat the same action multiple times without writing it over and over.",
+      "concept": "Loops - repeating actions a set number of times",
+      "levels": [
+        {
+          "level_id": "2-1",
+          "title": "Repeat After Me",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Loops!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Your teacher says \"write this 100 times.\" Would you? No way! You'd say <strong>\"repeat 100 times!\"</strong> That's a <strong>loop</strong>! &#128260;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Goal is 8 squares right. Instead of 8 blocks (boring! &#128564;), use ONE <strong>Repeat</strong> block!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128270; Loop Unroller</h3><div style=\"display:flex;align-items:center;gap:6px;flex-wrap:wrap;\"><span style=\"background:#7c3aed;color:white;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:bold;\">Repeat 8x</span><span style=\"color:#7c3aed;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">One Repeat block = 8 moves! &#128526;</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag a <strong>Repeat</strong> block &amp; set to <strong>8</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Put <strong>Move Right</strong> INSIDE the repeat</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Press Play &#9654;&#65039; &mdash; watch the robot zoom!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">If you find yourself repeating the same blocks, think: \"Can I use a loop?\" The answer is almost always YES!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Programmers are proudly lazy &mdash; they always find ways to do less work! &#128526;</p></div></div>",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 8,
+            "optimal_blocks": 2,
+            "hints": [
+              "The goal is 8 squares to the right. That's a lot of blocks!",
+              "Use 'Repeat 8 times' with 'Move Right' inside. Just 2 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-2",
+          "title": "Staircase",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Repeating a Pattern</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Climbing stairs: foot up, foot forward. Up, forward. It's a <strong>pattern</strong> that repeats! You can put MULTIPLE blocks inside a loop! &#129692;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Climb the staircase! Each \"stair\" is <strong>Move Right + Move Up</strong>. Loop it!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128270; Loop Unroller</h3><div style=\"display:flex;align-items:center;gap:6px;flex-wrap:wrap;\"><span style=\"background:#7c3aed;color:white;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:bold;\">Repeat 5x</span><span style=\"color:#7c3aed;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#11014;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">1 loop with 2 blocks inside = 10 moves! Only 3 blocks total!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag a <strong>Repeat 5</strong> block</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Put Move Right + Move Up inside</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Press Play &#9654;&#65039; &mdash; watch the staircase!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The number of stairs = the number of times to repeat. Count the stair-steps on the grid!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Animated movies use loops too! Walking animations repeat the same leg movement over and over. &#127916;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 6,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 10,
+            "optimal_blocks": 3,
+            "hints": [
+              "The path looks like stairs going up-right. What pattern repeats?",
+              "Repeat 5 times: Move Right, Move Up. That's only 3 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-3",
+          "title": "Two Loops",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Multiple Loops</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; \"Walk 3 blocks east, then 4 blocks south.\" That's TWO loops! Stack them like chapters in a book. &#129517;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The path changes direction! Use two separate loops &mdash; one for each section. Watch out for walls!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128270; Two Loops in Action</h3><div style=\"display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;\"><span style=\"background:#7c3aed;color:white;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:bold;\">Loop 1: 4x</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#11015;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#11015;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#11015;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#11015;&#65039;</span></div><div style=\"display:flex;align-items:center;gap:6px;flex-wrap:wrap;\"><span style=\"background:#059669;color:white;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:bold;\">Loop 2: 5x</span><span style=\"background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span><span style=\"background:#22c55e;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#65039;</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>First <strong>Repeat</strong> for direction 1</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Second <strong>Repeat</strong> below for direction 2</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Add a third loop if needed!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Plan each loop separately. \"How far this direction?\" Then: \"How far next?\"</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Music uses this too! Repeat verse 2 times, then chorus 4 times. &#127925;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 12,
+            "optimal_blocks": 6,
+            "hints": [
+              "You need to go down first to get past the wall, then right, then down again.",
+              "Try: Repeat 4 times Move Down, then Repeat 5 times Move Right, then Repeat 2 times Move Down."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "2-4",
+          "title": "The Long Bridge",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Choosing the Right Numbers</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; You know loops &mdash; now the challenge is the RIGHT numbers! Be a detective: look at clues, count carefully, crack the code! &#128269;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Cross the long bridge! Count squares for each section and set the right loop numbers!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Study the grid &mdash; where are the walls?</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Count squares for each straight section</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Build a loop for each section!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">If the robot bumps into a wall, check which loop has the wrong number. Testing and fixing is normal!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Game devs count pixels, web devs count screen sizes &mdash; counting is a huge part of real coding! &#128208;</p></div></div>",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 16,
+            "optimal_blocks": 6,
+            "hints": [
+              "The wall forces you to go right first along the top, then find a way down.",
+              "Go right 9, down 1, then navigate around the wall corner to reach the bottom-right."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 3,
+      "title": "Patterns: Shapes and Paths",
+      "description": "Combine loops with direction changes to create cool patterns like L-shapes, zigzags, and spirals.",
+      "concept": "Pattern recognition - finding repeating patterns in complex paths",
+      "levels": [
+        {
+          "level_id": "3-1",
+          "title": "The L-Shape",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Recognizing Patterns</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; A detective looks for patterns. A scientist looks for patterns. A programmer looks for patterns! <strong>Pattern recognition</strong> is your new superpower! &#129464;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Navigate around the L-shaped wall to reach the goal!</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span><span style=\"background:#f59e0b;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#11015;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>See the walls &mdash; they form an L-shape!</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Your path goes AROUND the L</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Use loops for the straight parts</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Draw the path in your mind first. Each straight section = one loop!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Tetris pieces are all made of patterns! L-piece, T-piece, Z-piece &mdash; programmers use pattern recognition to make the game work! &#129513;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 6,
+            "hints": [
+              "The walls form an L-shape. You need to go around them in an L-shape too!",
+              "Go right 5, down 5 - but the walls are in the way. Try down 1 first, then right, then down."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "3-2",
+          "title": "Zigzag Road",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Zigzag Patterns</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; A skier slaloming down a mountain: left, right, left, right &mdash; that's a zigzag! Find the smallest piece that repeats and put it in a loop! &#9975;&#65039;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Walls force a zigzag path! Find the repeating pattern and loop it to reach the goal!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128260; Zigzag Pattern</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#f59e0b;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#11015;&#11015;</span><span style=\"background:#4C97FF;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10145;</span><span style=\"background:#22c55e;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#11014;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10145;</span><span style=\"color:#7c3aed;font-weight:bold;\">&#128260;</span><span style=\"background:#f59e0b;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#11015;&#11015;</span><span style=\"background:#4C97FF;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10145;</span><span style=\"background:#22c55e;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#11014;&#11014;</span><span style=\"background:#4C97FF;color:white;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10145;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">See the pattern? Down-Right-Up-Right repeats!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Trace the path through the zigzag with your finger</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Find the smallest piece that repeats</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Put that piece inside a <strong>Repeat</strong> block!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The smallest repeating piece might be 2 or 4 blocks. Try different combos!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Lightning bolts and mountain roads are all zigzags! Scientists call this a \"serpentine pattern.\" &#128013;</p></div></div>",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 16,
+            "optimal_blocks": 9,
+            "hints": [
+              "The walls create a zigzag path. You go down, then right, then up, then right... see the pattern?",
+              "Repeat 4 times: Move Down 2, Move Right 1, Move Up 2, Move Right 1. But adjust for the exact layout!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "3-3",
+          "title": "The Spiral",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Spiral Patterns</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; A spiral is like a zigzag's cool big sibling! Think of a snail's shell &#128012; or water going down a drain. Each side gets <strong>shorter</strong> as you spiral inward!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Follow the spiral corridor from the outside to the center!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#127744; Spiral Shape</h3><div style=\"display:flex;flex-direction:column;align-items:center;gap:2px;\"><div style=\"display:flex;gap:2px;\"><span style=\"background:#4C97FF;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#4C97FF;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#4C97FF;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#4C97FF;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#4C97FF;width:18px;height:18px;border-radius:3px;\"></span></div><div style=\"display:flex;gap:2px;\"><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"background:#22c55e;width:18px;height:18px;border-radius:3px;\"></span></div><div style=\"display:flex;gap:2px;\"><span style=\"width:18px;height:18px;\"></span><span style=\"background:#f59e0b;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#f59e0b;width:18px;height:18px;border-radius:3px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"background:#22c55e;width:18px;height:18px;border-radius:3px;\"></span></div><div style=\"display:flex;gap:2px;\"><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"width:18px;height:18px;\"></span><span style=\"background:#22c55e;width:18px;height:18px;border-radius:3px;\"></span></div><div style=\"display:flex;gap:2px;\"><span style=\"background:#ef4444;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#ef4444;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#ef4444;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#ef4444;width:18px;height:18px;border-radius:3px;\"></span><span style=\"background:#ef4444;width:18px;height:18px;border-radius:3px;\"></span></div></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">&#128309;Right &#128994;Down &#128308;Left &mdash; each side needs its own loop!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Go right along the top edge (loop!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Go down the right edge (loop!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Go left along the bottom (loop!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Keep spiraling inward to the center!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Count each side of the spiral separately. Write each side as its own loop!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Galaxies, hurricanes, and even DNA are all spirals! &#127744;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "goal"
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 22,
+            "optimal_blocks": 10,
+            "hints": [
+              "Follow the spiral corridor: right along the top, down the right side, left along bottom, up into the center.",
+              "Go right 6, down 6, left 6, up 4, right 2, down 2 to reach the goal."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 4,
+      "title": "Collecting Items: Pick It Up!",
+      "description": "Learn to use the pick_up command to collect stars and treasures scattered around the grid.",
+      "concept": "Sequential actions - combining movement with other actions",
+      "levels": [
+        {
+          "level_id": "4-1",
+          "title": "Star Collector",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Picking Up Items</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Your robot got an upgrade &mdash; it can <strong>pick things up!</strong> &#11088; Walk over an item, then grab it! Like collecting coins in a video game.</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Stars are along the path! Walk to each one and pick it up. Collect ALL of them! &#11088;&#11088;&#11088;</p></div><div style=\"background:#f0fdf4;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #22c55e;\"><h3 style=\"color:#16a34a;margin:0 0 8px;\">&#128736;&#65039; Sequence Builder</h3><div style=\"display:flex;align-items:center;gap:4px;flex-wrap:wrap;\"><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;\">&#10145;&#65039;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each arrow = one block. The robot follows them in order!</p></div><div style=\"background:#fffbeb;border-radius:12px;padding:12px 16px;margin:12px 0;border:2px solid #fbbf24;\"><div style=\"display:flex;align-items:center;gap:6px;font-size:14px;\"><span>&#10145;&#65039;</span><span style=\"color:#f59e0b;font-size:20px;\">&#11088;</span><span style=\"background:#22c55e;color:white;padding:2px 8px;border-radius:4px;font-size:12px;\">Pick Up!</span><span>&#10145;&#65039;&#10145;&#65039;</span><span style=\"color:#f59e0b;font-size:20px;\">&#11088;</span><span style=\"background:#22c55e;color:white;padding:2px 8px;border-radius:4px;font-size:12px;\">Pick Up!</span><span>&#10145;&#65039;&#10145;&#65039;</span><span style=\"color:#f59e0b;font-size:20px;\">&#11088;</span><span style=\"background:#22c55e;color:white;padding:2px 8px;border-radius:4px;font-size:12px;\">Pick Up!</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Use <strong>Move Right</strong> to walk to the first star</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Use <strong>Pick Up</strong> when standing on the star</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Keep moving and picking up!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The robot must be ON the star to pick it up. Move FIRST, then pick up!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">In Super Mario, coins appear in lines and Mario collects them the same way! &#127812;</p></div></div>",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "beginner",
+            "target_steps": 8,
+            "optimal_blocks": 8,
+            "hints": [
+              "Walk to each star and pick it up! Move right, pick up, move right, move right, pick up...",
+              "Right, Pick Up, Right, Right, Pick Up, Right, Right, Pick Up."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-2",
+          "title": "Treasure Hunt",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Planning a Collection Route</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; You're a treasure hunter now! &#128506;&#65039; When treasures are scattered, plan the best route to collect them all. Some paths are shorter than others!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Five stars scattered across the grid with walls! Plan a route to collect ALL of them!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Look at where ALL the stars are</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Plan a route that visits each star</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Use <strong>loops</strong> for long straight sections!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Start by collecting stars that are closest together. Don't zigzag back and forth!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Amazon and UPS use algorithms to plan delivery routes &mdash; the same puzzle you're solving! &#128230;</p></div></div>",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 20,
+            "optimal_blocks": 14,
+            "hints": [
+              "Plan a route that picks up all 5 stars. Try going right along the top first.",
+              "Right 3 + Pick Up, Right 2 + Pick Up, Down 3 + Pick Up, Down 2 + Pick Up, Left 5 + Pick Up."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-3",
+          "title": "Row by Row",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Collecting in a Pattern</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Stars in a neat pattern? Use LOOPS to collect them super efficiently! It's like mowing a lawn &mdash; go across one row, move down, come back. &#127919;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Stars are in three rows! Go across each row collecting, then move to the next. Like reading a book &mdash; left to right, then down!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128270; Loop Unroller</h3><div style=\"display:flex;align-items:center;gap:6px;flex-wrap:wrap;\"><span style=\"background:#7c3aed;color:white;padding:4px 10px;border-radius:6px;font-size:13px;font-weight:bold;\">Repeat 3x</span><span style=\"color:#7c3aed;\">&#10145;&#65039;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#10145;&#11088;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#10145;&#11088;</span><span style=\"background:#4C97FF;color:white;padding:3px 8px;border-radius:4px;font-size:12px;\">&#10145;&#10145;&#11088;</span></div><p style=\"margin:8px 0 0;font-size:13px;color:#78716c;\">Each loop cycle: Move Right, Move Right, Pick Up!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Row 1: Loop to move right and pick up each star</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Move down to Row 2</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Row 2: Loop going LEFT this time (zigzag!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Move down to Row 3 and repeat!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Look at star spacing. If stars are every 2 squares, your loop is: Right, Right, Pick Up!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Printers work like this! The print head goes left-to-right, drops down, then right-to-left. &#128424;&#65039;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 27,
+            "optimal_blocks": 15,
+            "hints": [
+              "The stars form a zigzag pattern across three rows. Go right across row 1, then down, then left across row 2, then down, then right across row 3.",
+              "Row 1: Repeat 3 times (Right, Right, Pick Up). Then Down 2, Pick Up. Row 2: Repeat 3 times (Left, Left, Pick Up). Then Down 2, Pick Up. Row 3: same as Row 1."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "4-4",
+          "title": "Warehouse Run",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Combining Everything!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Welcome to the warehouse! &#127965; Navigate a complex space, avoid obstacles, and collect all packages. Every skill you've learned comes together!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Collect all 5 items scattered across a warehouse full of walls! Plan your route carefully.</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>Scan</strong> the grid: where are items? Where are walls?</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span><strong>Plan</strong> a route visiting all items</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span><strong>Build</strong> with moves, pick-ups, and loops</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span><strong>Test</strong> it &mdash; press Play and watch!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Use the 5-step method: Scan, Plan, Simplify, Code, Test!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Amazon warehouses have real robots zipping around collecting items &mdash; using the SAME concepts! &#129302;&#128230;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 3,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "advanced",
+            "target_steps": 30,
+            "optimal_blocks": 18,
+            "hints": [
+              "There are 5 items to collect. Plan a route that avoids the two wall sections.",
+              "One possible route: right to first item, continue right to top-right item, down to bottom-right, left along bottom to bottom-left, then navigate to the center item."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 5,
+      "title": "Conditionals: Smart Decisions",
+      "description": "Teach the robot to make decisions! Use 'if' blocks to check for walls and items before acting.",
+      "concept": "Conditional logic - making decisions based on what the robot sees",
+      "levels": [
+        {
+          "level_id": "5-1",
+          "title": "Wall Detector",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: IF Decisions!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Until now, your robot followed instructions blindly. Now it can <strong>think</strong>! &#129504; The <strong>If</strong> block checks something and makes a decision. Like: \"IF there's a puddle, THEN step around it.\"</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">A wall blocks the path! Use <strong>If Wall Ahead</strong> to detect it and go around!</p></div><div style=\"background:#fef2f2;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #ef4444;\"><h3 style=\"color:#dc2626;margin:0 0 8px;\">&#129782; Decision Tree</h3><div style=\"text-align:center;\"><div style=\"background:#fbbf24;color:#1e293b;padding:8px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:14px;\">Wall ahead?</div><div style=\"display:flex;justify-content:center;gap:24px;margin-top:10px;\"><div style=\"text-align:center;\"><div style=\"color:#16a34a;font-weight:bold;font-size:13px;\">&#9989; YES</div><div style=\"background:#dcfce7;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Go around it!</div></div><div style=\"text-align:center;\"><div style=\"color:#dc2626;font-weight:bold;font-size:13px;\">&#10060; NO</div><div style=\"background:#fee2e2;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Keep going right</div></div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Move right toward the goal</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Use <strong>If Wall Ahead</strong> before hitting the wall</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Inside the If: tell the robot to go around</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Continue moving right to the goal!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The If block only runs its inside code when the condition is TRUE. No wall? It just skips!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">\"If-then\" logic is the foundation of ALL programs! Every game: \"IF player presses jump, THEN jump.\" &#127942;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 5,
+            "cells": [
+              {
+                "x": 0,
+                "y": 2,
+                "type": "start"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "goal"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "controls_if",
+              "if_wall_ahead"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 8,
+            "optimal_blocks": 10,
+            "hints": [
+              "Use If Wall Ahead to detect the wall, then go around it.",
+              "Move Right 3 times. If Wall Ahead, Move Up, Move Right, Move Down. Then Move Right twice more."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-2",
+          "title": "Item Scanner",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Auto Item Scanner</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; The <strong>If Item Here</strong> block gives your robot eyes! It checks: \"Is there an item here?\" If yes, pick it up! No need to memorize locations! &#9889;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Items are scattered along the path. Use a loop with <strong>If Item Here</strong> to automatically scan and collect!</p></div><div style=\"background:#fef2f2;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #ef4444;\"><h3 style=\"color:#dc2626;margin:0 0 8px;\">&#129782; Decision Tree</h3><div style=\"text-align:center;\"><div style=\"background:#fbbf24;color:#1e293b;padding:8px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:14px;\">Item here?</div><div style=\"display:flex;justify-content:center;gap:24px;margin-top:10px;\"><div style=\"text-align:center;\"><div style=\"color:#16a34a;font-weight:bold;font-size:13px;\">&#9989; YES</div><div style=\"background:#dcfce7;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Pick it up! &#11088;</div></div><div style=\"text-align:center;\"><div style=\"color:#dc2626;font-weight:bold;font-size:13px;\">&#10060; NO</div><div style=\"background:#fee2e2;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Keep moving</div></div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag a <strong>Repeat</strong> block (set to grid width)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Inside: put <strong>Move Right</strong> first</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Then: <strong>If Item Here</strong> &#10145; <strong>Pick Up</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>The robot walks and auto-collects!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The loop-with-check combo is incredibly powerful. Use it whenever you need to do something \"if the situation is right.\"</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Roomba vacuums work this way! Drive around, IF dirt detected, THEN vacuum harder. Same logic! &#129302;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_item_here"
+            ],
+            "win_condition": "collect_all",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 4,
+            "hints": [
+              "Instead of remembering where each item is, use 'If Item Here' to automatically pick up!",
+              "Repeat 7 times: Move Right, If Item Here then Pick Up. Only 4 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-3",
+          "title": "Smart Navigator",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Multiple Conditions</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; One condition is good. TWO conditions are awesome! &#128170; Check for walls AND items at the same time. Plus the <strong>NOT</strong> block flips true/false!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Navigate through walls AND collect items! Use both <strong>If Wall Ahead</strong> and <strong>If Item Here</strong>.</p></div><div style=\"background:#fef2f2;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #ef4444;\"><h3 style=\"color:#dc2626;margin:0 0 8px;\">&#129782; Double Decision</h3><div style=\"display:flex;gap:16px;flex-wrap:wrap;\"><div style=\"flex:1;min-width:120px;text-align:center;\"><div style=\"background:#fbbf24;color:#1e293b;padding:6px 12px;border-radius:16px;font-weight:bold;font-size:13px;\">Wall ahead?</div><div style=\"display:flex;justify-content:center;gap:12px;margin-top:6px;\"><div style=\"background:#dcfce7;padding:4px 8px;border-radius:6px;font-size:12px;\">&#9989; Dodge!</div><div style=\"background:#fee2e2;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10060; Go right</div></div></div><div style=\"flex:1;min-width:120px;text-align:center;\"><div style=\"background:#a78bfa;color:white;padding:6px 12px;border-radius:16px;font-weight:bold;font-size:13px;\">Item here?</div><div style=\"display:flex;justify-content:center;gap:12px;margin-top:6px;\"><div style=\"background:#dcfce7;padding:4px 8px;border-radius:6px;font-size:12px;\">&#9989; Pick up!</div><div style=\"background:#fee2e2;padding:4px 8px;border-radius:6px;font-size:12px;\">&#10060; Ignore</div></div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Start moving right toward the goal</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Use <strong>If Wall Ahead</strong> to dodge walls</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Use <strong>If Item Here</strong> to grab items</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Combine both checks in a loop!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Check for items BEFORE you move away, and check for walls BEFORE you walk into them. Order matters!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Self-driving cars use HUNDREDS of conditions at once! Your two conditions are the beginning of that technology! &#128663;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 14,
+            "optimal_blocks": 10,
+            "hints": [
+              "Move right across the top row. When you hit a wall, go down, right, and back up. Check for items along the way!",
+              "Use a loop with 'If Wall Ahead' to dodge walls, and 'If Item Here' to collect items as you go."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "5-4",
+          "title": "Minefield",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Think Like a Programmer</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; This is a real brain teaser! &#129513; Walls everywhere, items scattered around. An <strong>algorithm</strong> is a step-by-step plan &mdash; and that's what professional programmers create every day!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Navigate walls, collect 4 items, and reach the goal at the bottom-right corner!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>Map it out</strong>: look at all walls and items first</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span><strong>Plan your route</strong>: visit each item while avoiding walls</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span><strong>Use conditions</strong>: If Wall Ahead + If Item Here</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span><strong>Build and test</strong>: try it, then fix mistakes!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Draw the route on paper before coding! Even professional programmers sketch ideas first.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">NASA programmers planned the Mars rover's route exactly like this! You're basically training for NASA! &#128640;</p></div></div>",
+          "config": {
+            "grid_width": 7,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 6,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 20,
+            "optimal_blocks": 16,
+            "hints": [
+              "Plan your route on paper first! Visit all 4 items and reach the goal at bottom-right.",
+              "One route: Down 2 (pick up), Down 2, Right 2, Up 3 (pick up at 4,1), Down 3, Right 2 (pick up), Down 2, Right 2, Up 3 (pick up), Down 3."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 6,
+      "title": "While Loops: Until You Get There",
+      "description": "Learn while loops - loops that keep going until a condition is met. The robot keeps moving until it reaches the goal!",
+      "concept": "While loops - repeating until a condition changes",
+      "levels": [
+        {
+          "level_id": "6-1",
+          "title": "Walk Until You Arrive",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: While Loops!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Repeat is great when you know the exact number. But what if you DON'T? <strong>While</strong> loop = \"keep going until you get there!\" Like walking to school without counting steps. &#129300;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Use <strong>While Not At Goal</strong> to make the robot walk until it reaches the flag. No counting needed! &#127937;</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128260; Repeat vs While</h3><div style=\"display:flex;gap:12px;flex-wrap:wrap;\"><div style=\"flex:1;min-width:120px;background:#fee2e2;border-radius:8px;padding:10px;text-align:center;\"><div style=\"font-weight:bold;font-size:13px;color:#dc2626;\">Repeat 7x</div><div style=\"font-size:12px;color:#78716c;margin-top:4px;\">You MUST count &#128556;</div></div><div style=\"flex:1;min-width:120px;background:#dcfce7;border-radius:8px;padding:10px;text-align:center;\"><div style=\"font-weight:bold;font-size:13px;color:#16a34a;\">While Not At Goal</div><div style=\"font-size:12px;color:#78716c;margin-top:4px;\">Auto-stops! &#128526;</div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag <strong>While Not At Goal</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Put <strong>Move Right</strong> INSIDE</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>That's it! Just 2 blocks! Press Play &#9654;&#65039;</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">While loops never stop until the job is done. But careful: if the goal is unreachable, it runs forever! (That's an \"infinite loop\")</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Video games use while loops constantly: \"While player is alive, keep game running.\" &#127918;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "while_not_at_goal"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 7,
+            "optimal_blocks": 2,
+            "hints": [
+              "You don't need to count the squares! Just use 'While Not At Goal' with 'Move Right'.",
+              "Only 2 blocks needed: While Not At Goal > Move Right."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-2",
+          "title": "Wall Dodger",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: While + If = Smart Robot!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Combine <strong>While</strong> with <strong>If</strong> and your robot becomes truly intelligent! Like riding a bike: keep pedaling (while) and when you see an obstacle, steer around it (if). &#127775;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Walls in the path! Use <strong>While Not At Goal</strong> with <strong>If Wall Ahead</strong> inside. The robot dodges walls automatically!</p></div><div style=\"background:#fef2f2;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #ef4444;\"><h3 style=\"color:#dc2626;margin:0 0 8px;\">&#129782; Decision Tree</h3><div style=\"text-align:center;\"><div style=\"background:#fbbf24;color:#1e293b;padding:8px 16px;border-radius:20px;display:inline-block;font-weight:bold;font-size:14px;\">Wall ahead?</div><div style=\"display:flex;justify-content:center;gap:24px;margin-top:10px;\"><div style=\"text-align:center;\"><div style=\"color:#16a34a;font-weight:bold;font-size:13px;\">&#9989; YES</div><div style=\"background:#dcfce7;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Move Down &#11015;&#65039;</div></div><div style=\"text-align:center;\"><div style=\"color:#dc2626;font-weight:bold;font-size:13px;\">&#10060; NO</div><div style=\"background:#fee2e2;padding:6px 12px;border-radius:8px;font-size:13px;margin-top:4px;\">Move Right &#10145;&#65039;</div></div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Drag <strong>While Not At Goal</strong> as the outer block</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Inside: <strong>If Wall Ahead</strong> &#10145; <strong>Move Down</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Also inside: <strong>Move Right</strong> (after the If)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Press Play &#9654;&#65039; &mdash; auto-dodging!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The If goes INSIDE the While. Every loop cycle: check for walls, dodge if needed, then move right.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">This is a real algorithm called \"wall following!\" Maze-solving robots use this exact technique. &#127942;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 10,
+            "optimal_blocks": 4,
+            "hints": [
+              "Use 'While Not At Goal' with an 'If Wall Ahead' check inside.",
+              "While Not At Goal: If Wall Ahead then Move Down, Move Right. Just 4 blocks!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-3",
+          "title": "The Greedy Collector",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Multi-Action While Loop</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Your while loop does THREE things every step: check for items, check for walls, and move. It's called a <strong>\"greedy algorithm\"</strong> &mdash; grab whatever you can at every step! &#127852;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Items and walls in a staircase pattern. One while loop handles BOTH collecting AND dodging!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#9881;&#65039; Loop Body Order</h3><div style=\"display:flex;flex-direction:column;gap:6px;\"><div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"background:#a855f7;color:white;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;\">1</span><span style=\"font-size:14px;\">&#128064; Check feet: <strong>If Item</strong> &#10145; Pick Up</span></div><div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"background:#f59e0b;color:white;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;\">2</span><span style=\"font-size:14px;\">&#128064; Look ahead: <strong>If Wall</strong> &#10145; Move Down</span></div><div style=\"display:flex;align-items:center;gap:8px;\"><span style=\"background:#4C97FF;color:white;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;\">3</span><span style=\"font-size:14px;\">&#128694; Step forward: <strong>Move Right</strong></span></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>While Not At Goal</strong> (main loop)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Inside: <strong>If Item Here</strong> &#10145; <strong>Pick Up</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Inside: <strong>If Wall Ahead</strong> &#10145; <strong>Move Down</strong></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Inside: <strong>Move Right</strong> (keep moving!)</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">ORDER MATTERS! Check items first (before you walk away), then walls (before you crash), then move.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Roomba vacuums use exactly this pattern: while battery alive &#10145; check dirt, check walls, keep moving. &#129302;</p></div></div>",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 13,
+            "optimal_blocks": 6,
+            "hints": [
+              "The items and walls form a staircase pattern. Collect items and dodge walls as you descend.",
+              "While Not At Goal: If Item Here then Pick Up, If Wall Ahead then Move Down, Move Right. 6 blocks total!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "6-4",
+          "title": "Infinite Hallway",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; New Skill: Algorithms That Adapt</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; You're writing a program that works on a maze you've never seen! &#129497; The algorithm adapts to whatever it finds &mdash; this is real programming power!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">A complex staircase maze with walls and items. Write ONE algorithm that navigates the whole thing!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>While Not At Goal</strong> as the outer loop</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span><strong>If Item Here &#10145; Pick Up</strong> inside</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span><strong>If Wall Ahead &#10145; Move Down</strong> inside</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span><strong>Move Right</strong> at the bottom of the loop</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">5</span><span>Add extra moves for the final stretch!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">If your robot gets stuck at the end, add a few extra moves AFTER the while loop.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">This \"general solution\" approach is what makes AI powerful. Instead of coding every situation, write algorithms that adapt! &#129327;</p></div></div>",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "repeat_times",
+              "math_number",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 15,
+            "optimal_blocks": 8,
+            "hints": [
+              "The maze has a staircase pattern. Move right, and when blocked, go down and continue right.",
+              "While Not At Goal: If Item Here Pick Up, If Wall Ahead Move Down, Move Right. Then handle the final descent."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 7,
+      "title": "Complex Mazes: Master Challenge",
+      "description": "Put everything together to solve challenging mazes that require sequences, loops, conditionals, and collecting items.",
+      "concept": "Algorithm design - combining all concepts to solve complex problems",
+      "levels": [
+        {
+          "level_id": "7-1",
+          "title": "The Snake Path",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Master Challenge: The Snake Path</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Time to become a true coding hero! &#129464; This uses EVERYTHING: sequences, loops, conditions, and item collection. The path winds like a snake through corridors!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Navigate the snake-shaped maze! Right across a corridor, drop down through a gap, left across, drop down, right again... collect items in the middle!</p></div><div style=\"background:#fff7ed;border-radius:12px;padding:16px;margin:12px 0;border:2px dashed #f97316;\"><h3 style=\"color:#ea580c;margin:0 0 8px;\">&#128013; Snake Pattern</h3><div style=\"display:flex;flex-direction:column;gap:4px;align-items:flex-start;\"><div style=\"display:flex;gap:3px;\"><span style=\"background:#4C97FF;height:14px;width:80px;border-radius:3px;\"></span><span style=\"font-size:11px;\">&#10145;&#65039; right</span></div><div style=\"display:flex;gap:3px;margin-left:70px;\"><span style=\"background:#22c55e;height:20px;width:14px;border-radius:3px;\"></span><span style=\"font-size:11px;\">&#11015;&#65039; drop</span></div><div style=\"display:flex;gap:3px;\"><span style=\"background:#ef4444;height:14px;width:80px;border-radius:3px;\"></span><span style=\"font-size:11px;\">&#11013;&#65039; left</span></div><div style=\"display:flex;gap:3px;margin-left:0;\"><span style=\"background:#22c55e;height:20px;width:14px;border-radius:3px;\"></span><span style=\"font-size:11px;\">&#11015;&#65039; drop</span></div><div style=\"display:flex;gap:3px;\"><span style=\"background:#4C97FF;height:14px;width:80px;border-radius:3px;\"></span><span style=\"font-size:11px;\">&#10145;&#65039; right</span></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Go RIGHT across the top corridor (loop!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Drop DOWN through the gap</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Go LEFT across the next corridor</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Drop DOWN again and go RIGHT</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">5</span><span>Collect items with <strong>Pick Up</strong> along the way!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The snake pattern repeats! Right-drop-left-drop. Look for how many cycles you need.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">The game \"Snake\" uses this exact pattern. You're basically programming Snake! &#128013;</p></div></div>",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 7,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 6,
+                "type": "goal"
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 6,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 30,
+            "optimal_blocks": 16,
+            "hints": [
+              "The path snakes: right across the top, down through the gap, left across, down through gap, right across, down, right to goal.",
+              "Pattern: go right to end of row, drop down through the gap, go left to end, drop down, repeat. Collect items in the middle!"
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "7-2",
+          "title": "The Treasure Vault",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Master Challenge: The Treasure Vault</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Like a dungeon in a fantasy game! &#127984; Multiple rooms with treasure inside, connected by doorways. The key skill: <strong>decomposition</strong> &mdash; breaking a big problem into smaller pieces.</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The grid is divided into rooms by walls. Each room has items! Find doorways, explore every room, grab every treasure!</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>Room 1</strong>: Collect items in the first area</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span><strong>Find the door</strong>: Look for gaps in walls</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span><strong>Room 2</strong>: Collect items in the next area</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Keep going through doors until all items collected!</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">5</span><span>Navigate to the goal in the last room!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Solve each room as its own mini-puzzle. Then connect solutions. This \"divide and conquer\" is how pros tackle huge projects!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Zelda and Minecraft dungeons work exactly like this &mdash; rooms with treasures connected by doors! &#127918;</p></div></div>",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 7,
+                "type": "goal"
+              },
+              {
+                "x": 4,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 7,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 2,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 6,
+                "type": "item"
+              },
+              {
+                "x": 1,
+                "y": 6,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 35,
+            "optimal_blocks": 22,
+            "hints": [
+              "Collect items in the left rooms first, then pass through the gap at row 3 to the right side.",
+              "Use the gap at column 5 row 4 to enter the bottom area and reach the goal."
+            ],
+            "allow_python": false
+          }
+        },
+        {
+          "level_id": "7-3",
+          "title": "The Grand Maze",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Master Challenge: The Grand Maze</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; The ULTIMATE block programming challenge! &#127942; You need every skill plus <strong>computational thinking</strong> &mdash; the 4-step superpower of all computer scientists!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Conquer the grand maze! Navigate multiple wall sections, collect 7 items, and reach the goal. After this, you're ready for Python! &#128013;</p></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;border:2px solid #6366f1;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#129504; 4 Steps of Computational Thinking</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;\"><div style=\"background:#dbeafe;padding:8px;border-radius:8px;text-align:center;\"><div style=\"font-size:18px;\">&#128269;</div><div style=\"font-weight:bold;font-size:12px;color:#1e40af;\">Decompose</div><div style=\"font-size:11px;color:#64748b;\">Break into sections</div></div><div style=\"background:#dcfce7;padding:8px;border-radius:8px;text-align:center;\"><div style=\"font-size:18px;\">&#128270;</div><div style=\"font-weight:bold;font-size:12px;color:#166534;\">Patterns</div><div style=\"font-size:11px;color:#64748b;\">Find repeating parts</div></div><div style=\"background:#fef3c7;padding:8px;border-radius:8px;text-align:center;\"><div style=\"font-size:18px;\">&#128161;</div><div style=\"font-weight:bold;font-size:12px;color:#92400e;\">Abstract</div><div style=\"font-size:11px;color:#64748b;\">General solutions</div></div><div style=\"background:#fce7f3;padding:8px;border-radius:8px;text-align:center;\"><div style=\"font-size:18px;\">&#9881;&#65039;</div><div style=\"font-weight:bold;font-size:12px;color:#9d174d;\">Algorithm</div><div style=\"font-size:11px;color:#64748b;\">Put it all together</div></div></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span><strong>Decompose</strong>: Divide maze into sections between wall columns</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span><strong>Navigate</strong>: Find the gap in each wall</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span><strong>Collect</strong>: Grab items as you pass through</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span><strong>Combine</strong>: Use loops, conditions, and sequences together!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Don't try to collect EVERY item in one pass. Focus on reaching the goal first!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">After this level, you've mastered the same thinking skills that CS students learn in college! &#127891;</p></div></div>",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 10,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 9,
+                "type": "goal"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 3,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 5,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 7,
+                "type": "wall"
+              },
+              {
+                "x": 7,
+                "y": 8,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 8,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 9,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "item"
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 8,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 8,
+                "type": "item"
+              },
+              {
+                "x": 6,
+                "y": 8,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 40,
+            "optimal_blocks": 28,
+            "hints": [
+              "Break the maze into sections. Navigate through gaps in the vertical walls at columns 1, 3, 5, and 7.",
+              "Don't try to collect every item in one pass. Plan a route that gets most items while making progress toward the bottom-right goal."
+            ],
+            "allow_python": false
+          }
+        }
+      ]
+    },
+    {
+      "module_id": 8,
+      "title": "Python Mode: Write Real Code",
+      "description": "Translate everything you learned into Python - a real programming language used by professionals!",
+      "concept": "Text-based programming - writing the same logic in Python code",
+      "levels": [
+        {
+          "level_id": "8-1",
+          "title": "Python: First Steps",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Python: Your First Real Code!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; Welcome to the big leagues! &#127881; Same logic as blocks, but now you TYPE commands. Like switching from picture books to chapter books &mdash; the stories are the same!</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Guide the robot to the goal using Python! Type <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;font-family:monospace;\">robot.move_right()</code> for each step.</p></div><div style=\"background:#1e293b;border-radius:12px;padding:16px;margin:12px 0;font-family:monospace;\"><div style=\"color:#94a3b8;font-size:12px;margin-bottom:8px;\"># Your first Python code!</div><div style=\"color:#a5f3fc;font-size:14px;\">robot<span style=\"color:#fbbf24;\">.</span><span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;font-size:14px;\">robot<span style=\"color:#fbbf24;\">.</span><span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;font-size:14px;\">robot<span style=\"color:#fbbf24;\">.</span><span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Type <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">robot.move_right()</code> on each line</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Each line = one step for the robot</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Press <strong>Run</strong> &#9654;&#65039; and watch your code come alive!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Every command starts with <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">robot.</code> and ends with <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">()</code>. Don't forget the parentheses!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Python is used by Google, NASA, Netflix, and Instagram! And it was named after Monty Python comedy show! &#128013;</p></div></div>",
+          "config": {
+            "grid_width": 6,
+            "grid_height": 3,
+            "cells": [
+              {
+                "x": 0,
+                "y": 1,
+                "type": "start"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 5,
+            "optimal_blocks": 5,
+            "hints": [
+              "Type robot.move_right() five times, each on a new line.",
+              "Remember: each command needs robot. at the start and () at the end!"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-2",
+          "title": "Python: For Loops",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Python: For Loops</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; The Repeat block becomes a <strong>for loop</strong>! Type <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">for i in range(5):</code> to repeat 5 times. Same idea, real code! &#128260;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The goal is far away diagonally! Write a for loop to climb the staircase. One loop, two moves inside!</p></div><div style=\"background:#1e293b;border-radius:12px;padding:16px;margin:12px 0;font-family:monospace;\"><div style=\"color:#94a3b8;font-size:12px;margin-bottom:8px;\"># Staircase loop</div><div style=\"color:#c4b5fd;font-size:14px;\"><span style=\"color:#f472b6;\">for</span> i <span style=\"color:#f472b6;\">in</span> <span style=\"color:#86efac;\">range</span><span style=\"color:#fbbf24;\">(</span><span style=\"color:#fde68a;\">7</span><span style=\"color:#fbbf24;\">)</span>:</div><div style=\"color:#a5f3fc;font-size:14px;padding-left:20px;\">robot<span style=\"color:#fbbf24;\">.</span><span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;font-size:14px;padding-left:20px;\">robot<span style=\"color:#fbbf24;\">.</span><span style=\"color:#86efac;\">move_up</span><span style=\"color:#fbbf24;\">()</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Type <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">for i in range(7):</code> (colon is important!)</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Indent 4 spaces + <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">robot.move_right()</code></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Indent 4 spaces + <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">robot.move_up()</code></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Press <strong>Run</strong> &#9654;&#65039; &mdash; staircase!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The number in <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">range()</code> is how many times to repeat. Both indented lines repeat together!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">Python is famous for indentation. Its motto: \"Beautiful is better than ugly!\" &#10024;</p></div></div>",
+          "config": {
+            "grid_width": 8,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 7,
+                "type": "start"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "goal"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "repeat_times",
+              "math_number"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "beginner",
+            "target_steps": 14,
+            "optimal_blocks": 3,
+            "hints": [
+              "You need to go right 7 and up 7. Use a for loop to make a staircase!",
+              "for i in range(7):\\n    robot.move_right()\\n    robot.move_up()"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-3",
+          "title": "Python: If Statements",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Python: If Statements</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; The If block becomes <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">if robot.is_wall_ahead():</code> in Python. While becomes <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">while not robot.is_at_goal():</code>. Same logic, text form! &#128221;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">Write Python that navigates through walls AND collects items &mdash; automatically!</p></div><div style=\"background:#1e293b;border-radius:12px;padding:16px;margin:12px 0;font-family:monospace;font-size:13px;\"><div style=\"color:#c4b5fd;\"><span style=\"color:#f472b6;\">while not</span> robot.<span style=\"color:#86efac;\">is_at_goal</span><span style=\"color:#fbbf24;\">()</span>:</div><div style=\"color:#a5f3fc;padding-left:20px;\"><span style=\"color:#f472b6;\">if</span> robot.<span style=\"color:#86efac;\">is_item_here</span><span style=\"color:#fbbf24;\">()</span>:</div><div style=\"color:#a5f3fc;padding-left:40px;\">robot.<span style=\"color:#86efac;\">pick_up</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;padding-left:20px;\"><span style=\"color:#f472b6;\">if</span> robot.<span style=\"color:#86efac;\">is_wall_ahead</span><span style=\"color:#fbbf24;\">()</span>:</div><div style=\"color:#a5f3fc;padding-left:40px;\">robot.<span style=\"color:#86efac;\">move_down</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;padding-left:20px;\"><span style=\"color:#f472b6;\">else</span>:</div><div style=\"color:#a5f3fc;padding-left:40px;\">robot.<span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Type <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">while not robot.is_at_goal():</code></span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Indent: item check + pick up</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Indent: wall check + move down</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Indent: else + move right</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">The <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">else</code> keyword runs when <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">if</code> is FALSE. Like a fork in the road!</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">The while+if combo is the foundation of artificial intelligence! &#129302;&#129504;</p></div></div>",
+          "config": {
+            "grid_width": 9,
+            "grid_height": 6,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 2,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 3,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "intermediate",
+            "target_steps": 13,
+            "optimal_blocks": 6,
+            "hints": [
+              "Write a while loop that moves right, picks up items, and goes down when blocked.",
+              "while not robot.is_at_goal():\\n    if robot.is_item_here():\\n        robot.pick_up()\\n    if robot.is_wall_ahead():\\n        robot.move_down()\\n    else:\\n        robot.move_right()"
+            ],
+            "allow_python": true
+          }
+        },
+        {
+          "level_id": "8-4",
+          "title": "Python: The Final Challenge",
+          "theory": "<div style=\"font-family:system-ui;color:#1e293b;line-height:1.7;\"><h2 style=\"color:#6366f1;font-size:22px;margin:0 0 12px;\">&#127775; Python: The Final Challenge!</h2><p style=\"font-size:15px;background:#fef3c7;padding:12px 16px;border-radius:10px;border-left:4px solid #f59e0b;\">&#129302; You're now a Python programmer! &#127891; For the finale: <strong>functions</strong>! A function is your own custom block. Write <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">def dodge_wall():</code> and call it anywhere! &#128131;</p><div style=\"background:#ecfdf5;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#059669;margin:0 0 8px;\">&#127919; Your Mission</h3><p style=\"margin:0;\">The ultimate maze! Navigate 4 wall sections, collect 7 items, and reach the goal. Use for loops, while loops, if/else, and custom functions!</p></div><div style=\"background:#1e293b;border-radius:12px;padding:16px;margin:12px 0;font-family:monospace;font-size:13px;\"><div style=\"color:#94a3b8;\"># Define your own function!</div><div style=\"color:#c4b5fd;\"><span style=\"color:#f472b6;\">def</span> <span style=\"color:#86efac;\">dodge_wall</span><span style=\"color:#fbbf24;\">()</span>:</div><div style=\"color:#a5f3fc;padding-left:20px;\">robot.<span style=\"color:#86efac;\">move_down</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;padding-left:20px;\">robot.<span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;padding-left:20px;\">robot.<span style=\"color:#86efac;\">move_right</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#a5f3fc;padding-left:20px;\">robot.<span style=\"color:#86efac;\">move_up</span><span style=\"color:#fbbf24;\">()</span></div><div style=\"color:#94a3b8;margin-top:8px;\"># Now use it!</div><div style=\"color:#a5f3fc;\"><span style=\"color:#86efac;\">dodge_wall</span><span style=\"color:#fbbf24;\">()</span> <span style=\"color:#94a3b8;\"># so clean!</span></div></div><div style=\"background:linear-gradient(135deg,#fef3c7,#fce7f3,#dbeafe);border-radius:12px;padding:16px;margin:12px 0;text-align:center;\"><h3 style=\"color:#6366f1;margin:0 0 8px;\">&#127942; Skills Unlocked!</h3><div style=\"display:flex;flex-wrap:wrap;justify-content:center;gap:6px;\"><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#10145;&#65039; Sequences</span><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#128260; Loops</span><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#129782; Conditions</span><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#11088; Items</span><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#128013; Python</span><span style=\"background:white;padding:4px 10px;border-radius:20px;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);\">&#128736;&#65039; Functions</span></div></div><div style=\"background:#eef2ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#4f46e5;margin:0 0 8px;\">&#128214; How to Do It</h3><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">1</span><span>Define helper functions for repeated patterns</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">2</span><span>Use <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">while not robot.is_at_goal():</code> as main loop</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">3</span><span>Add if checks for walls and items</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">4</span><span>Use for loops for straight sections</span></div><div style=\"display:flex;align-items:center;gap:8px;margin:8px 0;\"><span style=\"background:#4C97FF;color:white;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;\">5</span><span>Add <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\"># comments</code> to explain your thinking!</span></div></div><div style=\"background:#fdf4ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#a855f7;margin:0 0 8px;\">&#128161; Pro Tip</h3><p style=\"margin:0;\">Add comments with <code style=\"background:#e2e8f0;padding:2px 6px;border-radius:4px;\">#</code> to explain your code. Good comments explain WHY, not what.</p></div><div style=\"background:#f0f9ff;border-radius:12px;padding:16px;margin:12px 0;\"><h3 style=\"color:#0284c7;margin:0 0 8px;\">&#127918; Fun Fact</h3><p style=\"margin:0;\">You just went from zero to Python programmer! These skills work in EVERY language: Java, JavaScript, C++. &#127775;&#128640;&#127881;</p></div></div>",
+          "config": {
+            "grid_width": 10,
+            "grid_height": 8,
+            "cells": [
+              {
+                "x": 0,
+                "y": 0,
+                "type": "start"
+              },
+              {
+                "x": 9,
+                "y": 7,
+                "type": "goal"
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 4,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 0,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 1,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 2,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 6,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 3,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 4,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 5,
+                "type": "wall"
+              },
+              {
+                "x": 8,
+                "y": 6,
+                "type": "wall"
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 3,
+                "y": 3,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 1,
+                "type": "item"
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 0,
+                "type": "item"
+              },
+              {
+                "x": 7,
+                "y": 7,
+                "type": "item"
+              },
+              {
+                "x": 9,
+                "y": 2,
+                "type": "item"
+              }
+            ],
+            "available_blocks": [
+              "move_up",
+              "move_down",
+              "move_left",
+              "move_right",
+              "pick_up",
+              "repeat_times",
+              "math_number",
+              "while_not_at_goal",
+              "controls_if",
+              "if_wall_ahead",
+              "if_item_here",
+              "logic_negate"
+            ],
+            "win_condition": "reach_goal",
+            "difficulty": "advanced",
+            "target_steps": 40,
+            "optimal_blocks": 30,
+            "hints": [
+              "Break the maze into vertical sections separated by walls at columns 2, 4, 6, and 8. Find the gaps to pass through.",
+              "Use a combination of for loops for straight sections and if statements for wall detection. Define helper functions for repeated patterns!"
+            ],
+            "allow_python": true
+          }
+        }
+      ]
+    }
+  ]
+}

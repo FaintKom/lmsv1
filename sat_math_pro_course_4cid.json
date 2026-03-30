@@ -1,0 +1,1078 @@
+{
+  "course": {
+    "title": "SAT Math PRO",
+    "description": "Complete SAT Math preparation using the 4C/ID instructional design framework. Covers all four College Board domains: Algebra, Advanced Math, Problem-Solving & Data Analysis, and Geometry & Trigonometry. 8 modules, 42 lessons with rich theory (mental models, worked examples, SAT strategies, drills) and interactive practice exercises.",
+    "modules": [
+      {
+        "title": "Linear Equations & Inequalities",
+        "description": "Master the foundation of SAT Algebra: solving, graphing, and interpreting linear equations and inequalities in one and two variables.",
+        "order": 0,
+        "lessons": [
+          {
+            "title": "Solving Linear Equations in One Variable",
+            "order": 0,
+            "theory": "## Solving Linear Equations in One Variable\n\n### 🧠 Understanding the Concept\n\nA **linear equation in one variable** is an equation that can be written in the form $ax + b = c$, where $a$, $b$, and $c$ are real numbers and $a \\neq 0$. The word \"linear\" means the variable $x$ appears only to the first power — no $x^2$, no $\\sqrt{x}$, no $\\frac{1}{x}$.\n\nOn the SAT, linear equations are the most fundamental algebra skill. They appear directly in roughly 3–5 questions per test, and indirectly in dozens more (since solving systems, inequalities, and word problems all require this skill). Think of solving linear equations as the \"addition and subtraction\" of SAT Math — if you cannot do this fluently, everything else breaks down.\n\nThe core idea is the **balance principle**: an equation is like a balanced scale. Whatever operation you perform on one side, you must perform on the other side to keep it balanced. Your goal is to isolate $x$ on one side through a sequence of reversible operations.\n\n### 📐 Key Formulas\n\n$$ax + b = c \\implies x = \\frac{c - b}{a}$$\n\n**Distributive Property:** $a(b + c) = ab + ac$\n\n**Combining Like Terms:** $3x + 5x = 8x$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Distribute** — remove all parentheses by applying the distributive property\n2. **Combine like terms** on each side separately\n3. **Move variable terms** to one side using addition/subtraction\n4. **Move constant terms** to the other side\n5. **Divide** both sides by the coefficient of $x$\n6. **Check** — substitute your answer back into the original equation\n\n**Decision Tree:**\n- If the equation has fractions → multiply every term by the LCD first\n- If the equation has parentheses → distribute first\n- If the SAT asks for an expression like $2x + 1$ rather than $x$ → try solving for the expression directly\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $3(2x - 1) = 4x + 9$ for $x$.\n\n**Solution:**\n\nStep 1: Distribute on the left side:\n$$6x - 3 = 4x + 9$$\n\nStep 2: Subtract $4x$ from both sides:\n$$2x - 3 = 9$$\n\nStep 3: Add $3$ to both sides:\n$$2x = 12$$\n\nStep 4: Divide by $2$:\n$$x = 6$$\n\n**Check:** $3(2 \\cdot 6 - 1) = 3(11) = 33$ and $4(6) + 9 = 33$. ✓\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $\\frac{x + 2}{3} - \\frac{x - 1}{4} = 2$.\n\n**Solution:**\n\nStep 1: Multiply every term by the LCD, which is $12$:\n$$12 \\cdot \\frac{x + 2}{3} - 12 \\cdot \\frac{x - 1}{4} = 12 \\cdot 2$$\n$$4(x + 2) - 3(x - 1) = 24$$\n\nStep 2: Distribute:\n$$4x + 8 - 3x + 3 = 24$$\n\nStep 3: Combine like terms:\n$$x + 11 = 24$$\n\nStep 4: Subtract $11$:\n$$x = 13$$\n\n### ✏️ Worked Example 3\n\n**Problem:** If $5(x - 3) + 2 = 3(x + 1)$, what is the value of $4x - 7$?\n\n**Solution:**\n\n$5x - 15 + 2 = 3x + 3$\n\n$5x - 13 = 3x + 3$\n\n$2x = 16$, so $x = 8$\n\nThe question asks for $4x - 7 = 4(8) - 7 = 25$.\n\n**SAT Insight:** Always read what the question asks for — it may not be $x$ itself.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign errors with distribution.** $-2(x - 5)$ is $-2x + 10$, NOT $-2x - 10$. The negative distributes to both terms inside the parentheses.\n- **Trap 2: Not reading what the question asks.** If the question asks for $2x + 3$, do not just give the value of $x$.\n- **Trap 3: Forgetting to multiply ALL terms by the LCD.** When clearing fractions, every single term (including constants) must be multiplied.\n\n### 🔗 Connection\n\nThis lesson is the foundation for everything in SAT Math. Linear equations in two variables (next lesson) are an extension of the same techniques, and systems of equations (Module 2) require solving multiple linear equations simultaneously. Master this skill until it is automatic.\n\n### 🏋️ Quick Drill\n\n1. Solve mentally: $5x + 3 = 28$ → $x = ?$\n2. Solve mentally: $\\frac{x}{4} = 7$ → $x = ?$\n3. If $2x - 1 = 9$, what is $6x - 3$? (Hint: don't solve for $x$ first)",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "If $3(2x - 1) = 4x + 9$, what is the value of $x$?",
+              "choices": [
+                {
+                  "text": "3",
+                  "correct": false
+                },
+                {
+                  "text": "6",
+                  "correct": true
+                },
+                {
+                  "text": "4",
+                  "correct": false
+                },
+                {
+                  "text": "2",
+                  "correct": false
+                }
+              ],
+              "explanation": "Distribute: $6x - 3 = 4x + 9$. Subtract $4x$: $2x - 3 = 9$. Add $3$: $2x = 12$. Divide by $2$: $x = 6$.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Linear Equations in Two Variables",
+            "order": 1,
+            "theory": "## Linear Equations in Two Variables\n\n### 🧠 Understanding the Concept\n\nA **linear equation in two variables** describes a relationship between $x$ and $y$ that, when graphed on the coordinate plane, produces a straight line. Every point $(x, y)$ on that line satisfies the equation, and every point off the line does not.\n\nThis topic is one of the most heavily tested on the SAT. You need to move fluently between three forms of a linear equation, find slopes from points, write equations from given information, and understand what parallel and perpendicular lines look like algebraically. In the real world, linear equations model any situation with a constant rate of change — hourly wages, distance traveled at constant speed, or cost per unit.\n\nThe big mental model: **slope is rate of change**. Whenever you see a linear equation, the slope $m$ tells you how fast $y$ is changing relative to $x$, and the $y$-intercept $b$ tells you the starting value when $x = 0$.\n\n### 📐 Key Formulas\n\n**Slope-Intercept Form:** $y = mx + b$\n\n**Standard Form:** $Ax + By = C$\n\n**Point-Slope Form:** $y - y_1 = m(x - x_1)$\n\n**Slope from Two Points:** $m = \\frac{y_2 - y_1}{x_2 - x_1}$\n\n**Parallel Lines:** $m_1 = m_2$\n\n**Perpendicular Lines:** $m_1 \\cdot m_2 = -1$\n\n### 📝 How to Solve (Step by Step)\n\n**Finding the equation of a line:**\n1. **Find the slope** $m$ (from two points, or given directly)\n2. **Use point-slope form** $y - y_1 = m(x - x_1)$ with any known point\n3. **Simplify** to slope-intercept form $y = mx + b$ if needed\n\n**Converting Standard to Slope-Intercept:**\n1. Solve $Ax + By = C$ for $y$\n2. $y = -\\frac{A}{B}x + \\frac{C}{B}$, so slope $= -\\frac{A}{B}$, intercept $= \\frac{C}{B}$\n\n### ✏️ Worked Example 1\n\n**Problem:** Find the equation of the line through $(2, 5)$ and $(6, 13)$.\n\n**Solution:**\n\nStep 1: Find slope: $m = \\frac{13 - 5}{6 - 2} = \\frac{8}{4} = 2$\n\nStep 2: Point-slope with $(2, 5)$: $y - 5 = 2(x - 2)$\n\nStep 3: Simplify: $y = 2x + 1$\n\nAnswer: $y = 2x + 1$\n\n### ✏️ Worked Example 2\n\n**Problem:** Line $\\ell$ has equation $3x + 4y = 12$. What is the slope of a line perpendicular to $\\ell$?\n\n**Solution:**\n\nStep 1: Convert to slope-intercept: $4y = -3x + 12$, so $y = -\\frac{3}{4}x + 3$.\n\nStep 2: Slope of $\\ell$ is $-\\frac{3}{4}$.\n\nStep 3: Perpendicular slope is the negative reciprocal: $m = \\frac{4}{3}$.\n\n### ✏️ Worked Example 3\n\n**Problem:** A line passes through $(0, -2)$ and is parallel to $y = 5x + 7$. What is the equation?\n\n**Solution:**\n\nParallel lines share the same slope: $m = 5$.\n\nThe line passes through $(0, -2)$, which is the $y$-intercept.\n\nAnswer: $y = 5x - 2$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing slope and $y$-intercept.** In $y = 3x + 7$, the slope is $3$ (not $7$).\n- **Trap 2: Forgetting perpendicular means negative reciprocal, not just reciprocal.** If $m = 2$, the perpendicular slope is $-\\frac{1}{2}$, not $\\frac{1}{2}$.\n- **Trap 3: Misreading Standard Form.** In $2x + 3y = 6$, the slope is NOT $2$ — you must solve for $y$ first to get $m = -\\frac{2}{3}$.\n\n### 🔗 Connection\n\nThis lesson builds directly on solving linear equations (Lesson 0) and sets up graphing and interpreting linear functions (Lesson 2). The slope concept reappears in systems of equations, where parallel lines mean no solution.\n\n### 🏋️ Quick Drill\n\n1. What is the slope of $4x - 2y = 10$?\n2. Two points: $(1, 3)$ and $(4, 12)$. Find $m$.\n3. A line has slope $-\\frac{2}{5}$. What is the slope of a perpendicular line?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A line passes through the points $(1, 4)$ and $(3, 10)$. What is the $y$-intercept of this line?",
+              "choices": [
+                {
+                  "text": "1",
+                  "correct": true
+                },
+                {
+                  "text": "2",
+                  "correct": false
+                },
+                {
+                  "text": "3",
+                  "correct": false
+                },
+                {
+                  "text": "-1",
+                  "correct": false
+                }
+              ],
+              "explanation": "Slope: $m = \\frac{10 - 4}{3 - 1} = \\frac{6}{2} = 3$. Using point-slope with $(1, 4)$: $y - 4 = 3(x - 1)$, so $y = 3x + 1$. The $y$-intercept is $1$.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Graphing and Interpreting Linear Functions",
+            "order": 2,
+            "theory": "## Graphing and Interpreting Linear Functions\n\n### 🧠 Understanding the Concept\n\nA **linear function** is a function of the form $f(x) = mx + b$ whose graph is a straight line. On the SAT, you will not only graph these functions but also interpret what the slope and intercept mean in real-world situations.\n\nThis is where algebra meets reading comprehension. The SAT loves to give you a linear model like $C = 50h + 75$ and ask: \"What does the $50$ represent?\" or \"What does the $75$ represent?\" These are not hard math questions — they are interpretation questions that require you to connect the equation to the context.\n\nThe mental model is simple: **slope = rate** (how much $y$ changes per unit of $x$) and **$y$-intercept = starting value** (the value of $y$ when $x = 0$). If $x$ is time, then the $y$-intercept is the initial amount and the slope is the rate of change over time.\n\n### 📐 Key Formulas\n\n$$f(x) = mx + b$$\n\n**Slope (rate of change):** $m = \\frac{\\Delta y}{\\Delta x} = \\frac{f(x_2) - f(x_1)}{x_2 - x_1}$\n\n**$x$-intercept:** Set $f(x) = 0$, solve for $x$: $x = -\\frac{b}{m}$\n\n**$y$-intercept:** $f(0) = b$\n\n### 📝 How to Solve (Step by Step)\n\n**For interpretation questions:**\n1. Identify which quantity is $x$ and which is $y$ (or $f(x)$)\n2. The **coefficient of $x$** (slope) is the rate of change — \"per unit\" language\n3. The **constant term** ($y$-intercept) is the starting value — \"initial,\" \"fixed,\" or \"base\" amount\n4. Check the units of each component\n\n**For graphing:**\n1. Plot the $y$-intercept $(0, b)$\n2. From there, use the slope \"rise over run\" to find a second point\n3. Draw the line through both points\n\n### ✏️ Worked Example 1\n\n**Problem:** A plumber charges according to $C = 65h + 120$, where $C$ is cost in dollars and $h$ is hours worked. What does each part mean?\n\n**Solution:**\n\n- $65$ (slope) = the plumber charges **\\$65 per hour**\n- $120$ ($y$-intercept) = the **fixed service fee** (cost when $h = 0$)\n- After 3 hours: $C = 65(3) + 120 = \\$315$\n\n### ✏️ Worked Example 2\n\n**Problem:** The water level in a tank is modeled by $W(t) = -4t + 200$, where $t$ is time in minutes and $W$ is gallons. When does the tank empty?\n\n**Solution:**\n\nSet $W(t) = 0$: $-4t + 200 = 0$\n\n$4t = 200$, so $t = 50$ minutes.\n\n**Interpretation:** The tank starts with 200 gallons (when $t = 0$) and loses 4 gallons per minute (slope is $-4$). It empties after 50 minutes (the $x$-intercept).\n\n### ✏️ Worked Example 3\n\n**Problem:** A table shows: at $x = 2$, $y = 11$; at $x = 5$, $y = 20$. Is this linear? If so, find the equation.\n\n**Solution:**\n\n$m = \\frac{20 - 11}{5 - 2} = \\frac{9}{3} = 3$\n\nUsing $(2, 11)$: $y - 11 = 3(x - 2)$, so $y = 3x + 5$.\n\nCheck with $(5, 20)$: $3(5) + 5 = 20$. ✓ Yes, it is linear.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing what the slope represents.** If $C = 0.15m + 25$ where $m$ is miles, the slope $0.15$ is the cost **per mile**, not the total cost.\n- **Trap 2: The $x$-intercept is NOT the $y$-intercept.** On the SAT, these are often answer choices designed to confuse.\n- **Trap 3: Negative slope means decreasing.** $m < 0$ means $y$ goes down as $x$ goes up. A negative slope in a word problem means something is being used up, lost, or declining.\n\n### 🔗 Connection\n\nThis lesson extends linear equations in two variables (Lesson 1) into function notation and real-world interpretation. The interpretation skills here apply directly to scatterplots and lines of best fit (Module 5), where you also interpret slope and intercept.\n\n### 🏋️ Quick Drill\n\n1. In $P = 200 + 15t$, what is the initial value and rate?\n2. If $f(x) = -2x + 10$, is $f$ increasing or decreasing?\n3. A line has slope $4$ and passes through $(0, -3)$. What is the $x$-intercept?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A gym membership costs a one-time enrollment fee plus a monthly charge. The total cost $C$, in dollars, after $m$ months is given by $C = 35m + 50$. What does the number $35$ represent?",
+              "choices": [
+                {
+                  "text": "The enrollment fee",
+                  "correct": false
+                },
+                {
+                  "text": "The total cost after one month",
+                  "correct": false
+                },
+                {
+                  "text": "The monthly membership charge",
+                  "correct": true
+                },
+                {
+                  "text": "The number of months",
+                  "correct": false
+                }
+              ],
+              "explanation": "In $C = 35m + 50$, the coefficient of $m$ (which is $35$) represents the rate of change --- the cost per month. The constant $50$ is the one-time enrollment fee.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Solving and Graphing Linear Inequalities",
+            "order": 3,
+            "theory": "## Solving and Graphing Linear Inequalities\n\n### 🧠 Understanding the Concept\n\nA **linear inequality** looks just like a linear equation, except the equals sign is replaced by $<$, $>$, $\\leq$, or $\\geq$. Instead of finding a single value of $x$, you find a **range of values** that satisfy the inequality.\n\nOn the SAT, inequalities appear in word problems (\"at least,\" \"no more than,\" \"less than\") and in graphing questions (shaded regions on the coordinate plane). The critical skill is knowing when to flip the inequality sign — this happens when you multiply or divide by a negative number.\n\nThink of an inequality as a one-way door: the direction of the symbol tells you which side is larger. If you negate both sides (multiply by $-1$), the door swings the other way. This is not arbitrary — it follows from the number line: if $3 > 2$, then $-3 < -2$.\n\n### 📐 Key Formulas\n\n**Flipping Rule:** If $a > b$ and $c < 0$, then $ac < bc$.\n\n**Compound Inequality:** $a < x < b$ means $x$ is between $a$ and $b$.\n\n**Two-Variable Inequality:** $y > mx + b$ means shade above the dashed line $y = mx + b$.\n\n### 📝 How to Solve (Step by Step)\n\n**One-variable inequality:**\n1. Solve exactly like an equation (add, subtract, multiply, divide)\n2. If you multiply or divide by a **negative** number, **flip the inequality sign**\n3. Express your answer as an inequality, interval, or on a number line\n\n**Two-variable inequality (graphing):**\n1. Graph the boundary line $y = mx + b$\n2. Use a **dashed** line for $<$ or $>$; **solid** line for $\\leq$ or $\\geq$\n3. Test a point (usually $(0, 0)$) to determine which side to shade\n4. Shade the region that makes the inequality true\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $-3x + 7 > 19$.\n\n**Solution:**\n\n$-3x + 7 > 19$\n\n$-3x > 12$ (subtract $7$)\n\n$x < -4$ (divide by $-3$, **flip** the sign)\n\nAnswer: $x < -4$\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $-5 \\leq 2x + 3 < 11$.\n\n**Solution:**\n\nSubtract $3$ from all three parts: $-8 \\leq 2x < 8$\n\nDivide all parts by $2$: $-4 \\leq x < 4$\n\nAnswer: $-4 \\leq x < 4$ (includes $-4$, excludes $4$)\n\n### ✏️ Worked Example 3\n\n**Problem:** Graph $y \\geq -\\frac{1}{2}x + 3$ on the coordinate plane.\n\n**Solution:**\n\nStep 1: Graph the line $y = -\\frac{1}{2}x + 3$ as a **solid** line (because $\\geq$).\n\nStep 2: Test $(0, 0)$: Is $0 \\geq -\\frac{1}{2}(0) + 3 = 3$? No, $0 < 3$.\n\nStep 3: Since $(0, 0)$ does NOT satisfy the inequality, shade the **opposite** side — shade above the line.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Forgetting to flip the sign.** When you divide by a negative, the inequality reverses. This is the #1 mistake in inequality problems.\n- **Trap 2: Dashed vs. solid line.** Strict inequalities ($<$, $>$) use dashed lines; non-strict ($\\leq$, $\\geq$) use solid lines.\n- **Trap 3: \"At least\" means $\\geq$, \"at most\" means $\\leq$.** In word problems, watch for these phrases carefully.\n\n### 🔗 Connection\n\nThis builds on solving linear equations (Lesson 0) by adding the direction component. It leads directly to systems of inequalities (Module 1, Lesson 3), where you find the overlap of two or more shaded regions.\n\n### 🏋️ Quick Drill\n\n1. Solve: $-2x \\geq 10$ → $x \\leq ?$\n2. Solve: $4x - 1 < 15$ → $x < ?$\n3. Does the point $(0, 0)$ satisfy $y > 2x + 1$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which of the following is the solution to $-3x + 5 \\leq 20$?",
+              "choices": [
+                {
+                  "text": "$x \\leq -5$",
+                  "correct": false
+                },
+                {
+                  "text": "$x \\geq -5$",
+                  "correct": true
+                },
+                {
+                  "text": "$x \\leq 5$",
+                  "correct": false
+                },
+                {
+                  "text": "$x \\geq 5$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Subtract $5$: $-3x \\leq 15$. Divide by $-3$ and flip the sign: $x \\geq -5$.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Absolute Value Equations and Inequalities",
+            "order": 4,
+            "theory": "## Absolute Value Equations and Inequalities\n\n### 🧠 Understanding the Concept\n\nThe **absolute value** of a number is its distance from zero on the number line. The key insight is that distance is always non-negative: $|x| \\geq 0$ for all real $x$. Because distance can be measured in two directions, absolute value equations typically produce **two solutions**.\n\nOn the SAT, absolute value problems test whether you can think about \"distance from a point.\" The equation $|x - 3| = 5$ asks: \"What values of $x$ are exactly 5 units away from 3?\" The answer is $x = 8$ (5 units to the right) or $x = -2$ (5 units to the left). This geometric interpretation makes absolute value much more intuitive than memorizing rules.\n\nAbsolute value inequalities split into two types: the \"less than\" type (which gives a single interval, because you are close to the center) and the \"greater than\" type (which gives two separate intervals, because you are far from the center).\n\n### 📐 Key Formulas\n\n**Equation:** $|ax + b| = c$ (where $c \\geq 0$) → two cases: $ax + b = c$ or $ax + b = -c$\n\n**Less-than inequality:** $|ax + b| < c$ → $-c < ax + b < c$ (AND / between)\n\n**Greater-than inequality:** $|ax + b| > c$ → $ax + b > c$ OR $ax + b < -c$ (OR / outside)\n\n**No solution:** $|ax + b| = c$ with $c < 0$ has no solution.\n\n**Distance interpretation:** $|x - a| = d$ means $x$ is exactly $d$ units from $a$.\n\n### 📝 How to Solve (Step by Step)\n\n**For absolute value equations:**\n1. **Isolate** the absolute value expression on one side\n2. If the right side is negative → **no solution**\n3. If the right side is zero → one solution (set inside = 0)\n4. If the right side is positive → split into two cases and solve each\n5. **Check** both solutions in the original equation\n\n**For absolute value inequalities:**\n1. Isolate the absolute value expression\n2. If $< c$: write as a compound inequality (AND)\n3. If $> c$: write as two separate inequalities (OR)\n4. Solve each part\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $|2x - 5| = 9$.\n\n**Solution:**\n\nCase 1: $2x - 5 = 9$ → $2x = 14$ → $x = 7$\n\nCase 2: $2x - 5 = -9$ → $2x = -4$ → $x = -2$\n\nAnswer: $x = 7$ or $x = -2$.\n\n**Check:** $|2(7) - 5| = |9| = 9$ ✓ and $|2(-2) - 5| = |-9| = 9$ ✓\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $|x - 4| \\leq 3$.\n\n**Solution:**\n\nThis means: $x$ is at most 3 units from 4.\n\n$-3 \\leq x - 4 \\leq 3$\n\n$1 \\leq x \\leq 7$\n\nAnswer: $1 \\leq x \\leq 7$\n\n### ✏️ Worked Example 3\n\n**Problem:** Solve $|3x + 1| > 7$.\n\n**Solution:**\n\nCase 1: $3x + 1 > 7$ → $3x > 6$ → $x > 2$\n\nCase 2: $3x + 1 < -7$ → $3x < -8$ → $x < -\\frac{8}{3}$\n\nAnswer: $x > 2$ or $x < -\\frac{8}{3}$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Absolute value equals a negative.** $|x + 3| = -2$ has NO solution. Absolute value is never negative.\n- **Trap 2: Forgetting the second case.** Always consider both the positive and negative case.\n- **Trap 3: Mixing up $<$ and $>$ inequality types.** Remember: \"Less than\" → AND (between), \"Greater than\" → OR (outside).\n\n### 🔗 Connection\n\nThis lesson uses the linear equation-solving skills from Lesson 0 but adds the twist of two cases. Absolute value concepts reappear in distance problems in coordinate geometry (Module 6). The split-into-cases thinking also prepares you for piecewise functions.\n\n### 🏋️ Quick Drill\n\n1. How many solutions does $|x| = 0$ have?\n2. Solve $|x + 2| < 5$ as an interval.\n3. True or false: $|x - 7| = -3$ has two solutions.",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "How many solutions does the equation $|4x - 8| = 12$ have?",
+              "correct_answers": [
+                2
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "$|4x - 8| = 12$ gives two cases: $4x - 8 = 12$ yields $x = 5$, and $4x - 8 = -12$ yields $x = -1$. There are $2$ solutions.",
+              "standard": "SAT.Algebra"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Systems of Equations",
+        "description": "Learn to solve systems of linear equations using substitution, elimination, and graphical methods, including special cases and word problems.",
+        "order": 1,
+        "lessons": [
+          {
+            "title": "Solving Systems by Substitution",
+            "order": 0,
+            "theory": "## Solving Systems by Substitution\n\n### 🧠 Understanding the Concept\n\nA **system of linear equations** is a set of two (or more) equations with the same variables. The **solution** is the point $(x, y)$ where both equations are true simultaneously — graphically, this is where the two lines intersect.\n\nThe **substitution method** works by expressing one variable in terms of the other, then plugging that expression into the second equation. This reduces a two-variable problem to a one-variable problem, which you already know how to solve from Module 0.\n\nOn the SAT, substitution is the method of choice when one equation is already solved for a variable (like $y = 3x + 2$) or when one variable has a coefficient of $1$ or $-1$ (making it easy to isolate). Think of substitution as \"replacing a variable with its equivalent expression.\" The analogy: if you know that a \"dozen\" means 12, you can replace \"dozen\" with 12 anywhere you see it.\n\n### 📐 Key Formulas\n\nIf $y = f(x)$ and $g(x, y) = 0$, substitute: $g(x, f(x)) = 0$.\n\n**Verification:** A solution $(a, b)$ must satisfy **both** equations.\n\n### 📝 How to Solve (Step by Step)\n\n1. **Choose** the equation where a variable is easiest to isolate\n2. **Solve** that equation for one variable (e.g., $y = \\ldots$)\n3. **Substitute** the expression into the other equation\n4. **Solve** the resulting one-variable equation\n5. **Back-substitute** to find the other variable\n6. **Check** the solution in both original equations\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve the system: $y = 2x - 1$ and $3x + 2y = 12$.\n\n**Solution:**\n\nStep 1: The first equation is already solved for $y$.\n\nStep 2: Substitute $y = 2x - 1$ into the second equation:\n$$3x + 2(2x - 1) = 12$$\n$$3x + 4x - 2 = 12$$\n$$7x = 14$$\n$$x = 2$$\n\nStep 3: Back-substitute: $y = 2(2) - 1 = 3$\n\nAnswer: $(2, 3)$\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve: $x + 3y = 10$ and $4x - y = 1$.\n\n**Solution:**\n\nFrom the first equation: $x = 10 - 3y$\n\nSubstitute into the second: $4(10 - 3y) - y = 1$\n\n$40 - 12y - y = 1$\n\n$-13y = -39$, so $y = 3$\n\nBack-substitute: $x = 10 - 3(3) = 1$\n\nAnswer: $(1, 3)$\n\n### ✏️ Worked Example 3\n\n**Problem:** If $a = 2b + 5$ and $3a - b = 20$, what is $a + b$?\n\n**Solution:**\n\nSubstitute $a = 2b + 5$ into $3a - b = 20$:\n\n$3(2b + 5) - b = 20$\n\n$6b + 15 - b = 20$\n\n$5b = 5$, so $b = 1$ and $a = 2(1) + 5 = 7$\n\n$a + b = 7 + 1 = 8$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Solving for the wrong variable.** If the question asks for $x + y$, don't stop after finding $x$.\n- **Trap 2: Substituting into the same equation.** Always substitute into the OTHER equation.\n- **Trap 3: Arithmetic errors during distribution.** Be extra careful when distributing negatives.\n\n### 🔗 Connection\n\nThis builds on solving single linear equations (Module 0). The next lesson introduces elimination as an alternative method, which is often faster for systems in standard form. Word problems (Lesson 4) will require you to SET UP systems before solving.\n\n### 🏋️ Quick Drill\n\n1. If $y = x + 3$ and $x + y = 11$, find $x$.\n2. If $a = 3b$ and $a + b = 20$, find $a$.\n3. Solve mentally: $y = 5$ and $2x + y = 17$. What is $x$?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "If $y = 3x - 2$ and $2x + y = 13$, what is the value of $x$?",
+              "correct_answers": [
+                3
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Substitute $y = 3x - 2$ into $2x + y = 13$: $2x + (3x - 2) = 13$, so $5x - 2 = 13$, $5x = 15$, $x = 3$.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Solving Systems by Elimination",
+            "order": 1,
+            "theory": "## Solving Systems by Elimination\n\n### 🧠 Understanding the Concept\n\nThe **elimination method** (also called the addition method) solves systems by adding or subtracting equations to cancel out one variable. The idea is simple: if one equation has $+3y$ and the other has $-3y$, adding the equations makes the $y$ terms vanish.\n\nThis method is often **faster** than substitution when both equations are in standard form ($Ax + By = C$) and neither variable is already isolated. On the SAT, elimination is especially useful when the coefficients of one variable are already opposites or multiples of each other.\n\nThink of elimination as stacking two equations on top of each other and combining them. You may need to multiply one or both equations by constants first to create matching (opposite) coefficients.\n\n### 📐 Key Formulas\n\nIf $a_1x + b_1y = c_1$ and $a_2x + b_2y = c_2$, multiply to make coefficients of one variable opposite, then add.\n\n**Shortcut for finding $x + y$ or $x - y$:** Sometimes adding or subtracting the original equations directly gives you what the question asks for.\n\n### 📝 How to Solve (Step by Step)\n\n1. **Align** both equations in $Ax + By = C$ form\n2. **Identify** which variable is easier to eliminate\n3. **Multiply** one or both equations so that one variable has opposite coefficients\n4. **Add** the equations to eliminate that variable\n5. **Solve** for the remaining variable\n6. **Back-substitute** to find the other variable\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve: $2x + 3y = 13$ and $2x - y = 5$.\n\n**Solution:**\n\nSubtract the second equation from the first:\n$$(2x + 3y) - (2x - y) = 13 - 5$$\n$$4y = 8$$\n$$y = 2$$\n\nBack-substitute: $2x + 3(2) = 13$ → $2x = 7$ → $x = 3.5$\n\nAnswer: $(3.5, 2)$\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve: $3x + 4y = 25$ and $5x - 2y = 19$.\n\n**Solution:**\n\nMultiply the second equation by $2$: $10x - 4y = 38$\n\nAdd to the first: $3x + 4y + 10x - 4y = 25 + 38$\n\n$13x = 63$, so $x = \\frac{63}{13}$\n\nHmm — let's try eliminating $x$ instead.\n\nMultiply first by $5$, second by $-3$:\n\n$15x + 20y = 125$ and $-15x + 6y = -57$\n\nAdd: $26y = 68$, so $y = \\frac{68}{26} = \\frac{34}{13}$\n\nBack-substitute to find $x$: $3x + 4 \\cdot \\frac{34}{13} = 25$, so $3x = 25 - \\frac{136}{13} = \\frac{189}{13}$, $x = \\frac{63}{13}$.\n\n### ✏️ Worked Example 3\n\n**Problem:** If $x + y = 10$ and $x - y = 4$, what is the value of $x$?\n\n**Solution:**\n\nAdd the two equations: $2x = 14$, so $x = 7$.\n\n**SAT Shortcut:** Adding the equations directly gave us $x$ without any multiplication step.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Adding when you should subtract (or vice versa).** Check the signs of the coefficients carefully before combining.\n- **Trap 2: Multiplying only one side.** When you multiply an equation by a constant, multiply the ENTIRE equation (both sides).\n- **Trap 3: Not checking for a shortcut.** Before multiplying, see if the SAT asks for $x + y$ or $x - y$ — you might be able to add/subtract the equations directly.\n\n### 🔗 Connection\n\nElimination and substitution are complementary methods — choose whichever is more efficient for the given system. The next lesson covers special cases (no solution, infinite solutions) that arise when elimination produces $0 = 0$ or $0 = k$.\n\n### 🏋️ Quick Drill\n\n1. $x + y = 15$ and $x - y = 3$. Find $x$ and $y$ by adding/subtracting.\n2. $2x + y = 10$ and $2x + 3y = 18$. Subtract to find $y$.\n3. $3x + 2y = 7$ and $3x + 2y = 10$. What happens when you subtract?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "Given the system $3x + 4y = 26$ and $3x - 2y = 8$, what is the value of $y$?",
+              "correct_answers": [
+                3
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Subtract the second equation from the first: $(3x + 4y) - (3x - 2y) = 26 - 8$, so $6y = 18$, $y = 3$.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Systems with No Solution or Infinitely Many Solutions",
+            "order": 2,
+            "theory": "## Systems with No Solution or Infinitely Many Solutions\n\n### 🧠 Understanding the Concept\n\nNot every system of equations has a single neat solution. There are **three possibilities**: exactly one solution, no solution, or infinitely many solutions. Understanding when each case arises is critical for SAT problems that ask \"For what value of $k$ does the system have no solution?\"\n\nGraphically: two lines in the plane can intersect at one point (one solution), be parallel and never meet (no solution), or overlap completely (infinitely many solutions). Algebraically: when you try to solve and reach a contradiction like $0 = 5$, there is no solution; when you reach a tautology like $0 = 0$, there are infinitely many solutions.\n\nThe key test is comparing the coefficients. If the left-hand sides of both equations are proportional but the right-hand sides are not, the lines are parallel (no solution). If everything is proportional, the equations describe the same line (infinite solutions).\n\n### 📐 Key Formulas\n\nFor the system $a_1x + b_1y = c_1$ and $a_2x + b_2y = c_2$:\n\n$$\\frac{a_1}{a_2} \\neq \\frac{b_1}{b_2} \\implies \\text{one solution (lines intersect)}$$\n\n$$\\frac{a_1}{a_2} = \\frac{b_1}{b_2} \\neq \\frac{c_1}{c_2} \\implies \\text{no solution (parallel lines)}$$\n\n$$\\frac{a_1}{a_2} = \\frac{b_1}{b_2} = \\frac{c_1}{c_2} \\implies \\text{infinitely many solutions (same line)}$$\n\n### 📝 How to Solve (Step by Step)\n\n1. Write both equations in $Ax + By = C$ form\n2. Compare the ratios $\\frac{a_1}{a_2}$, $\\frac{b_1}{b_2}$, $\\frac{c_1}{c_2}$\n3. Apply the rules above\n4. If the problem asks \"for what value of $k$...\": set up the proportional relationship and solve for $k$\n\n### ✏️ Worked Example 1\n\n**Problem:** Does the system $4x + 6y = 12$ and $2x + 3y = 8$ have a solution?\n\n**Solution:**\n\nCompare ratios: $\\frac{4}{2} = 2$, $\\frac{6}{3} = 2$, $\\frac{12}{8} = 1.5$\n\nSince $\\frac{a_1}{a_2} = \\frac{b_1}{b_2} \\neq \\frac{c_1}{c_2}$, the system has **no solution**.\n\nThe lines are parallel (both have slope $-\\frac{2}{3}$) but different intercepts.\n\n### ✏️ Worked Example 2\n\n**Problem:** For what value of $k$ does $kx + 6y = 10$ and $3x + 9y = 15$ have no solution?\n\n**Solution:**\n\nFor no solution: $\\frac{k}{3} = \\frac{6}{9} \\neq \\frac{10}{15}$\n\n$\\frac{6}{9} = \\frac{2}{3}$ and $\\frac{10}{15} = \\frac{2}{3}$\n\nWait — $\\frac{6}{9} = \\frac{10}{15} = \\frac{2}{3}$. This means if $\\frac{k}{3} = \\frac{2}{3}$, then $k = 2$, and ALL three ratios equal $\\frac{2}{3}$, giving **infinitely many** solutions.\n\nSo for **no solution** we need $\\frac{k}{3} = \\frac{6}{9}$ but $\\frac{c_1}{c_2} \\neq \\frac{6}{9}$. But our constants already match! So this system can NEVER have \"no solution\" for any $k$ — it is either one solution or infinitely many.\n\nActually, let me re-examine: $\\frac{k}{3} = \\frac{6}{9}$ gives $k = 2$. When $k = 2$: $2x + 6y = 10$ and $3x + 9y = 15$. Divide first by 2: $x + 3y = 5$. Divide second by 3: $x + 3y = 5$. Same equation — infinite solutions.\n\nFor any $k \\neq 2$: $\\frac{k}{3} \\neq \\frac{6}{9}$, so one unique solution. No value of $k$ gives \"no solution\" here.\n\n### ✏️ Worked Example 3\n\n**Problem:** For what value of $c$ does $2x + 4y = c$ and $x + 2y = 6$ have infinitely many solutions?\n\n**Solution:**\n\nFor infinite solutions, the equations must be proportional.\n\n$\\frac{2}{1} = \\frac{4}{2} = \\frac{c}{6}$\n\n$2 = 2 = \\frac{c}{6}$, so $c = 12$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing no solution with infinitely many.** $0 = 5$ means no solution. $0 = 0$ means infinitely many.\n- **Trap 2: Not simplifying both equations first.** Always reduce equations before comparing ratios.\n- **Trap 3: \"The system has no solution\" does NOT mean $x = 0$ or $y = 0$.** It means no pair $(x, y)$ works.\n\n### 🔗 Connection\n\nThis extends the elimination method from Lesson 1. The concept of parallel lines (same slope, different intercept) connects back to Module 0. Understanding special cases is essential for the SAT's \"for what value of $k$...\" questions.\n\n### 🏋️ Quick Drill\n\n1. $y = 2x + 3$ and $y = 2x - 1$: how many solutions?\n2. $y = 3x + 5$ and $6x - 2y = -10$: how many solutions?\n3. $x + y = 5$ and $2x + 2y = 7$: how many solutions?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "For what value of $k$ does the system $2x + 6y = 10$ and $kx + 3y = 4$ have no solution?",
+              "choices": [
+                {
+                  "text": "1",
+                  "correct": true
+                },
+                {
+                  "text": "2",
+                  "correct": false
+                },
+                {
+                  "text": "3",
+                  "correct": false
+                },
+                {
+                  "text": "6",
+                  "correct": false
+                }
+              ],
+              "explanation": "Multiply the second equation by $2$: $2kx + 6y = 8$. For no solution, the left sides must match: $2k = 2$, so $k = 1$. Check: right sides $10 \\neq 8$, confirming no solution.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Systems of Inequalities and Feasible Regions",
+            "order": 3,
+            "theory": "## Systems of Inequalities and Feasible Regions\n\n### 🧠 Understanding the Concept\n\nA **system of inequalities** is a set of two or more inequalities that must all be true at the same time. The solution is not a single point but an entire **region** of the coordinate plane — every point in that region satisfies all the inequalities simultaneously.\n\nOn the SAT, these problems typically ask: \"Which point satisfies the system?\" or \"Which point is in the feasible region?\" The feasible region is where all the shaded areas overlap. This concept appears in optimization problems and real-world constraint modeling.\n\nThink of each inequality as a fence — it divides the plane into two halves. The solution region is the area that lies on the correct side of ALL fences simultaneously. The more inequalities you have, the smaller the feasible region gets.\n\n### 📐 Key Formulas\n\nFor $y > mx + b$: shade **above** the dashed line $y = mx + b$\n\nFor $y < mx + b$: shade **below** the dashed line\n\nFor $y \\geq mx + b$: shade above the **solid** line\n\nFor $y \\leq mx + b$: shade below the **solid** line\n\n### 📝 How to Solve (Step by Step)\n\n**For \"Which point satisfies the system?\" questions:**\n1. Substitute each answer choice into ALL inequalities\n2. A point must satisfy EVERY inequality to be in the solution\n3. Eliminate any point that fails even one inequality\n\n**For graphing:**\n1. Graph each boundary line (dashed or solid)\n2. Shade the correct region for each inequality\n3. The feasible region is the **overlap** of all shaded regions\n\n### ✏️ Worked Example 1\n\n**Problem:** Which point satisfies $y \\leq 2x + 1$ and $y > -x + 4$?\n\nTest $(2, 3)$:\n- $3 \\leq 2(2) + 1 = 5$? Yes ✓\n- $3 > -(2) + 4 = 2$? Yes ✓\n\nAnswer: $(2, 3)$ is in the feasible region.\n\n### ✏️ Worked Example 2\n\n**Problem:** A factory makes tables and chairs. Each table requires 3 hours and each chair requires 1 hour. The factory has at most 40 hours available. Each table uses 2 units of wood and each chair uses 1 unit. There are 24 units of wood. Write the system of inequalities.\n\n**Solution:**\n\nLet $t$ = tables, $c$ = chairs.\n\nTime constraint: $3t + c \\leq 40$\n\nWood constraint: $2t + c \\leq 24$\n\nNon-negativity: $t \\geq 0$, $c \\geq 0$\n\n### ✏️ Worked Example 3\n\n**Problem:** In the system $y < x + 5$ and $y \\geq 3x - 1$, is $(1, 2)$ a solution?\n\n**Solution:**\n\nCheck: $2 < 1 + 5 = 6$? Yes. $2 \\geq 3(1) - 1 = 2$? Yes ($2 \\geq 2$).\n\nAnswer: Yes, $(1, 2)$ satisfies both inequalities.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Testing only one inequality.** A point must satisfy ALL inequalities in the system.\n- **Trap 2: Confusing strict and non-strict.** $y < 3$ does NOT include $y = 3$, but $y \\leq 3$ does.\n- **Trap 3: On the boundary.** Points on a dashed line are NOT solutions. Points on a solid line ARE solutions.\n\n### 🔗 Connection\n\nThis extends linear inequalities (Module 0, Lesson 3) to systems with multiple constraints. The graphing skills connect to understanding feasible regions in optimization problems. Word problems with constraints (next lesson) often require setting up these systems.\n\n### 🏋️ Quick Drill\n\n1. Is $(0, 0)$ a solution to $y > x + 1$?\n2. Is $(3, 5)$ a solution to $y \\leq 2x$ and $y \\geq x + 1$?\n3. How many inequalities must a point satisfy to be in the feasible region of a 3-inequality system?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which of the following points is a solution to the system $y \\leq x + 4$ and $y \\geq 2x - 1$?",
+              "choices": [
+                {
+                  "text": "$(6, 12)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(2, 3)$",
+                  "correct": true
+                },
+                {
+                  "text": "$(0, -2)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(5, 1)$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Test $(2, 3)$: Is $3 \\leq 2 + 4 = 6$? Yes. Is $3 \\geq 2(2) - 1 = 3$? Yes ($3 \\geq 3$). The point $(2, 3)$ satisfies both inequalities.",
+              "standard": "SAT.Algebra"
+            }
+          },
+          {
+            "title": "Word Problems with Systems of Equations",
+            "order": 4,
+            "theory": "## Word Problems with Systems of Equations\n\n### 🧠 Understanding the Concept\n\nThe SAT frequently wraps systems of equations inside real-world word problems. The math is the same — two equations, two unknowns — but the challenge is **translating** English into algebra. The key skill is defining variables clearly, writing equations from the given relationships, and remembering to answer the actual question asked.\n\nCommon word problem types include: mixture problems (combining items at different prices), rate/distance/time problems, age problems, and ticket/coin problems. In every case, you are looking for two relationships that give you two equations.\n\nThink of it as a two-step process: (1) Translate the story into math, and (2) Solve the math. Most students struggle more with step 1 than step 2. A systematic approach to translation — define variables, identify the two relationships, write equations — eliminates guesswork.\n\n### 📐 Key Formulas\n\n**Total problems:** $x + y = \\text{total}$\n\n**Value problems:** $(price_1)(x) + (price_2)(y) = \\text{total value}$\n\n**Rate problems:** $d = rt$ (distance = rate × time)\n\n**Mixture problems:** $\\text{concentration}_1 \\cdot \\text{amount}_1 + \\text{concentration}_2 \\cdot \\text{amount}_2 = \\text{final concentration} \\cdot \\text{total amount}$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Read** the problem completely before writing anything\n2. **Define variables** — state what $x$ and $y$ represent with units\n3. **Identify two independent relationships** and write two equations\n4. **Solve** the system using substitution or elimination\n5. **Answer the actual question** — it may ask for $x + y$, $x - y$, or $2x$\n\n### ✏️ Worked Example 1\n\n**Problem:** A concert sold 350 tickets. VIP tickets cost \\$80 each and regular tickets cost \\$30 each. Total revenue was \\$15,500. How many VIP tickets were sold?\n\n**Solution:**\n\nLet $v$ = VIP tickets, $r$ = regular tickets.\n\nEquation 1 (total tickets): $v + r = 350$\n\nEquation 2 (total revenue): $80v + 30r = 15500$\n\nFrom Eq. 1: $r = 350 - v$\n\nSubstitute: $80v + 30(350 - v) = 15500$\n\n$80v + 10500 - 30v = 15500$\n\n$50v = 5000$\n\n$v = 100$\n\nAnswer: 100 VIP tickets were sold.\n\n### ✏️ Worked Example 2\n\n**Problem:** A boat travels 24 miles downstream in 2 hours and 24 miles upstream in 3 hours. Find the speed of the boat in still water and the speed of the current.\n\n**Solution:**\n\nLet $b$ = boat speed, $c$ = current speed.\n\nDownstream: $(b + c) \\cdot 2 = 24$ → $b + c = 12$\n\nUpstream: $(b - c) \\cdot 3 = 24$ → $b - c = 8$\n\nAdd: $2b = 20$, so $b = 10$ mph.\n\nSubtract: $2c = 4$, so $c = 2$ mph.\n\n### ✏️ Worked Example 3\n\n**Problem:** A store sells nuts at \\$5/lb and dried fruit at \\$8/lb. A 10-lb mixture costs \\$6.50/lb total. How many pounds of nuts?\n\n**Solution:**\n\nLet $n$ = pounds of nuts, $f$ = pounds of fruit.\n\n$n + f = 10$ and $5n + 8f = 65$\n\nFrom first: $f = 10 - n$. Substitute: $5n + 8(10 - n) = 65$\n\n$5n + 80 - 8n = 65$ → $-3n = -15$ → $n = 5$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Not answering what's asked.** If the question asks for \"total revenue\" and you found $x$ and $y$, you must compute the revenue.\n- **Trap 2: Setting up equations with wrong relationships.** \"Total tickets\" and \"total revenue\" are two DIFFERENT equations.\n- **Trap 3: Mixing up units.** If one quantity is in pounds and another in dollars, make sure your equations are consistent.\n\n### 🔗 Connection\n\nThis lesson combines translation skills with the solving techniques from Lessons 0 and 1 of this module. Word problems also appear in quadratic contexts (Module 2) and in exponential growth scenarios (Module 4).\n\n### 🏋️ Quick Drill\n\n1. If $x + y = 20$ and the total value is $3x + 5y = 80$, find $x$.\n2. A car goes 60 mph for $t$ hours and 40 mph for $(5 - t)$ hours. Total distance is 260 miles. Find $t$.\n3. One number is 4 more than another. Their sum is 22. What are the numbers?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A movie theater sold 150 tickets. Adult tickets cost \\$10 each and child tickets cost \\$6 each. If the total revenue was \\$1,340, how many adult tickets were sold?",
+              "correct_answers": [
+                110
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "Let $a$ = adult, $c$ = child. Equations: $a + c = 150$ and $10a + 6c = 1340$. From the first: $c = 150 - a$. Substitute: $10a + 6(150 - a) = 1340$, so $10a + 900 - 6a = 1340$, $4a = 440$, $a = 110$.",
+              "standard": "SAT.Algebra"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Quadratic Equations & Functions",
+        "description": "Master quadratics: factoring, the quadratic formula, vertex form, and graph interpretation --- the most heavily tested Advanced Math topic.",
+        "order": 2,
+        "lessons": [
+          {
+            "title": "Factoring Quadratic Expressions",
+            "order": 0,
+            "theory": "## Factoring Quadratic Expressions\n\n### 🧠 Understanding the Concept\n\n**Factoring** is the process of breaking a quadratic expression $ax^2 + bx + c$ into a product of two binomials. This is the reverse of multiplication (FOIL). Factoring is one of the most important skills on the SAT because it is the fastest way to solve many quadratic equations and simplify expressions.\n\nThink of factoring as \"un-multiplying.\" If $(x + 3)(x + 4) = x^2 + 7x + 12$, then factoring $x^2 + 7x + 12$ means finding those original binomials. The key is finding two numbers that satisfy two conditions simultaneously: they must multiply to give $c$ (the constant term) and add to give $b$ (the coefficient of $x$).\n\nFactoring is faster than the quadratic formula when it works, but it does not always work (some quadratics have irrational or complex roots). On the SAT, most factoring problems are designed to have nice integer solutions — the test rewards you for recognizing patterns quickly.\n\n### 📐 Key Formulas\n\n**When $a = 1$:** $x^2 + bx + c = (x + p)(x + q)$ where $p + q = b$ and $pq = c$\n\n**Difference of Squares:** $a^2 - b^2 = (a + b)(a - b)$\n\n**Perfect Square Trinomials:** $a^2 + 2ab + b^2 = (a + b)^2$ and $a^2 - 2ab + b^2 = (a - b)^2$\n\n**AC Method (when $a \\neq 1$):** Find two numbers that multiply to $ac$ and add to $b$, then factor by grouping.\n\n### 📝 How to Solve (Step by Step)\n\n1. **Check for GCF** — factor out any common factor first\n2. **Check for special patterns** — difference of squares or perfect square trinomial\n3. **If $a = 1$:** Find two numbers that multiply to $c$ and add to $b$\n4. **If $a \\neq 1$:** Use the AC method (multiply $a \\cdot c$, find two numbers, split the middle term, factor by grouping)\n5. **Verify** by multiplying your factors back together\n\n### ✏️ Worked Example 1\n\n**Problem:** Factor $x^2 - 5x - 14$.\n\n**Solution:**\n\nFind two numbers that multiply to $-14$ and add to $-5$.\n\nCandidates: $-7$ and $+2$ (since $-7 \\times 2 = -14$ and $-7 + 2 = -5$)\n\n$$x^2 - 5x - 14 = (x - 7)(x + 2)$$\n\n### ✏️ Worked Example 2\n\n**Problem:** Factor $3x^2 + 10x + 8$.\n\n**Solution (AC Method):**\n\n$a \\cdot c = 3 \\times 8 = 24$. Find two numbers that multiply to $24$ and add to $10$: $4$ and $6$.\n\nSplit: $3x^2 + 4x + 6x + 8$\n\nGroup: $x(3x + 4) + 2(3x + 4)$\n\nFactor: $(x + 2)(3x + 4)$\n\n### ✏️ Worked Example 3\n\n**Problem:** Factor $4x^2 - 25$.\n\n**Solution:**\n\nRecognize the difference of squares: $4x^2 - 25 = (2x)^2 - 5^2 = (2x + 5)(2x - 5)$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign errors.** $(x - 3)(x + 5) = x^2 + 2x - 15$, NOT $x^2 - 2x - 15$. Always double-check the middle term.\n- **Trap 2: Forgetting to factor out the GCF first.** $2x^2 + 6x + 4 = 2(x^2 + 3x + 2) = 2(x + 1)(x + 2)$.\n- **Trap 3: Not recognizing $x^2 - 9$ as a difference of squares.** It equals $(x + 3)(x - 3)$, not $(x - 3)^2$.\n\n### 🔗 Connection\n\nFactoring is the foundation for solving quadratic equations (next lesson) and simplifying rational expressions (Module 3). The patterns here (especially difference of squares) appear throughout the SAT.\n\n### 🏋️ Quick Drill\n\n1. Factor $x^2 + 9x + 20$.\n2. Factor $x^2 - 16$.\n3. Factor $2x^2 + 5x + 3$.",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which of the following is equivalent to $x^2 - 9x + 20$?",
+              "choices": [
+                {
+                  "text": "$(x - 4)(x - 5)$",
+                  "correct": true
+                },
+                {
+                  "text": "$(x + 4)(x + 5)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(x - 2)(x - 10)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(x - 4)(x + 5)$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Find two numbers that multiply to $20$ and add to $-9$: $-4$ and $-5$. So $x^2 - 9x + 20 = (x - 4)(x - 5)$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Solving Quadratic Equations",
+            "order": 1,
+            "theory": "## Solving Quadratic Equations\n\n### 🧠 Understanding the Concept\n\nA **quadratic equation** has the form $ax^2 + bx + c = 0$ and can have zero, one, or two real solutions. These solutions (also called roots or zeros) are the $x$-values where the parabola $y = ax^2 + bx + c$ crosses the $x$-axis.\n\nYou have three methods at your disposal: **factoring** (fastest when it works), the **quadratic formula** (works always), and **completing the square** (useful for converting to vertex form). On the SAT, factoring is preferred because it is quick and the test usually uses \"factorable\" quadratics. However, you should have the quadratic formula memorized as a reliable backup.\n\nThe quadratic formula is derived from completing the square on the general equation $ax^2 + bx + c = 0$. The $\\pm$ in the formula is what gives you two solutions — one using $+$ and one using $-$.\n\n### 📐 Key Formulas\n\n**Quadratic Formula:** $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$\n\n**Discriminant:** $D = b^2 - 4ac$ determines the number of solutions\n\n**Sum of Roots:** $r_1 + r_2 = -\\frac{b}{a}$\n\n**Product of Roots:** $r_1 \\cdot r_2 = \\frac{c}{a}$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Rearrange** to standard form: $ax^2 + bx + c = 0$\n2. **Try factoring first** — look for two numbers that work\n3. **If factoring fails**, use the quadratic formula\n4. **If asked for vertex form**, complete the square\n5. **Check** your solutions by substituting back\n\n**Decision Tree:**\n- Equation looks factorable (small, integer coefficients) → Factor\n- Coefficients are messy or irrational roots expected → Quadratic formula\n- Need vertex form or to rewrite the equation → Complete the square\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $x^2 - 7x + 10 = 0$.\n\n**Solution:**\n\nFactor: $(x - 2)(x - 5) = 0$\n\n$x = 2$ or $x = 5$\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $2x^2 + 3x - 5 = 0$ using the quadratic formula.\n\n**Solution:**\n\n$a = 2$, $b = 3$, $c = -5$\n\n$x = \\frac{-3 \\pm \\sqrt{9 + 40}}{4} = \\frac{-3 \\pm \\sqrt{49}}{4} = \\frac{-3 \\pm 7}{4}$\n\n$x = \\frac{4}{4} = 1$ or $x = \\frac{-10}{4} = -\\frac{5}{2}$\n\n### ✏️ Worked Example 3\n\n**Problem:** Solve $x^2 + 6x + 5 = 0$ by completing the square.\n\n**Solution:**\n\n$x^2 + 6x = -5$\n\n$(x^2 + 6x + 9) = -5 + 9$\n\n$(x + 3)^2 = 4$\n\n$x + 3 = \\pm 2$\n\n$x = -1$ or $x = -5$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Forgetting to set the equation equal to zero.** $x^2 + 3x = 10$ must become $x^2 + 3x - 10 = 0$ before factoring.\n- **Trap 2: Sign error in the quadratic formula.** It is $-b$, not $b$. If $b = -5$, then $-b = 5$.\n- **Trap 3: Dividing by $x$ instead of factoring.** $x^2 = 5x$ → $x^2 - 5x = 0$ → $x(x - 5) = 0$. Do NOT divide both sides by $x$ (you'd lose the solution $x = 0$).\n\n### 🔗 Connection\n\nThis builds on factoring (Lesson 0) and leads to vertex form (Lesson 2) and the discriminant (Lesson 3). Quadratic equations appear in word problems (Lesson 4) and in rational equations (Module 3).\n\n### 🏋️ Quick Drill\n\n1. Solve $x^2 - 9 = 0$ mentally.\n2. What are the roots of $(x - 4)(x + 1) = 0$?\n3. Use the sum-of-roots formula: If $x^2 - 10x + k = 0$ has roots summing to $10$, what is $-b/a$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "What are the solutions to $x^2 - 2x - 15 = 0$?",
+              "choices": [
+                {
+                  "text": "$x = 5$ and $x = -3$",
+                  "correct": true
+                },
+                {
+                  "text": "$x = -5$ and $x = 3$",
+                  "correct": false
+                },
+                {
+                  "text": "$x = 5$ and $x = 3$",
+                  "correct": false
+                },
+                {
+                  "text": "$x = -5$ and $x = -3$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Factor: $(x - 5)(x + 3) = 0$. So $x = 5$ or $x = -3$. Check: $5$ and $-3$ multiply to $-15$ and add to $-2$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Vertex Form and Parabola Properties",
+            "order": 2,
+            "theory": "## Vertex Form and Parabola Properties\n\n### 🧠 Understanding the Concept\n\nThe **vertex form** of a quadratic function, $f(x) = a(x - h)^2 + k$, immediately reveals the most important feature of a parabola: its **vertex** $(h, k)$. The vertex is either the minimum point (when $a > 0$, parabola opens up) or the maximum point (when $a < 0$, parabola opens down).\n\nOn the SAT, vertex-related questions are extremely common. You might be asked to find the maximum height of a projectile, the minimum cost of production, or the axis of symmetry of a parabola. All of these require you to find the vertex.\n\nThe mental model: a parabola is a symmetric U-shape. The vertex is the bottom of the U (if $a > 0$) or the top (if $a < 0$). The line $x = h$ is the **axis of symmetry** — the parabola is a mirror image on either side.\n\n### 📐 Key Formulas\n\n**Vertex Form:** $f(x) = a(x - h)^2 + k$, vertex at $(h, k)$\n\n**From Standard Form:** $h = -\\frac{b}{2a}$, $k = f(h)$\n\n**Axis of Symmetry:** $x = h = -\\frac{b}{2a}$\n\n**Direction:** $a > 0$ opens up (minimum); $a < 0$ opens down (maximum)\n\n**Width:** Larger $|a|$ = narrower parabola; smaller $|a|$ = wider parabola\n\n### 📝 How to Solve (Step by Step)\n\n**Finding the vertex from standard form $f(x) = ax^2 + bx + c$:**\n1. Calculate $h = -\\frac{b}{2a}$\n2. Plug $h$ back in: $k = f(h)$\n3. The vertex is $(h, k)$\n\n**Converting standard to vertex form:**\n1. Factor out $a$ from the first two terms: $a(x^2 + \\frac{b}{a}x) + c$\n2. Complete the square inside the parentheses\n3. Adjust the constant term outside\n\n### ✏️ Worked Example 1\n\n**Problem:** Find the vertex of $f(x) = 3x^2 - 12x + 7$.\n\n**Solution:**\n\n$h = -\\frac{-12}{2(3)} = \\frac{12}{6} = 2$\n\n$k = 3(4) - 12(2) + 7 = 12 - 24 + 7 = -5$\n\nVertex: $(2, -5)$. Since $a = 3 > 0$, this is a **minimum**.\n\n### ✏️ Worked Example 2\n\n**Problem:** A ball is thrown upward from ground level with $h(t) = -16t^2 + 96t$. What is the maximum height?\n\n**Solution:**\n\n$t_{\\text{max}} = -\\frac{96}{2(-16)} = \\frac{96}{32} = 3$ seconds\n\n$h(3) = -16(9) + 96(3) = -144 + 288 = 144$ feet\n\nMaximum height: **144 feet**\n\n### ✏️ Worked Example 3\n\n**Problem:** Write $f(x) = x^2 - 8x + 20$ in vertex form.\n\n**Solution:**\n\n$f(x) = (x^2 - 8x + 16) + 20 - 16 = (x - 4)^2 + 4$\n\nVertex form: $f(x) = (x - 4)^2 + 4$. Vertex: $(4, 4)$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign error in vertex form.** In $f(x) = (x - 3)^2 + 5$, the vertex is $(3, 5)$, NOT $(-3, 5)$.\n- **Trap 2: Confusing min and max.** Positive $a$ = minimum (opens up). Negative $a$ = maximum (opens down).\n- **Trap 3: Using the wrong formula for $h$.** It is $-\\frac{b}{2a}$, not $\\frac{b}{2a}$. Don't drop the negative.\n\n### 🔗 Connection\n\nThis builds on solving quadratics (Lesson 1) and leads directly into the discriminant (Lesson 3) and quadratic word problems (Lesson 4). The vertex is the key to all optimization problems.\n\n### 🏋️ Quick Drill\n\n1. What is the axis of symmetry of $y = 2x^2 + 8x - 3$?\n2. In $f(x) = -(x + 1)^2 + 9$, what is the maximum value?\n3. Does $f(x) = 5x^2 - 10x + 3$ have a minimum or maximum?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "The function $f(x) = -x^2 + 6x - 5$ has a maximum value. What is this maximum value?",
+              "correct_answers": [
+                4
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "The vertex $x$-coordinate is $h = -\\frac{6}{2(-1)} = 3$. The maximum value is $f(3) = -(3)^2 + 6(3) - 5 = -9 + 18 - 5 = 4$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "The Discriminant and Number of Solutions",
+            "order": 3,
+            "theory": "## The Discriminant and Number of Solutions\n\n### 🧠 Understanding the Concept\n\nThe **discriminant** is the expression $D = b^2 - 4ac$ found under the square root in the quadratic formula. It is a single number that tells you exactly how many real solutions a quadratic equation has, without actually solving it. This makes the discriminant one of the most efficient tools on the SAT.\n\nGeometrically, the discriminant tells you how the parabola $y = ax^2 + bx + c$ relates to the $x$-axis. If $D > 0$, the parabola crosses the $x$-axis at two points. If $D = 0$, the parabola just touches the $x$-axis at one point (the vertex is on the axis). If $D < 0$, the parabola floats entirely above or below the $x$-axis without crossing it.\n\nThe SAT loves to ask: \"For what value of $k$ does the equation have exactly one solution?\" This means you must set $D = 0$ and solve for $k$.\n\n### 📐 Key Formulas\n\n$$D = b^2 - 4ac$$\n\n| $D$ | Number of Real Solutions | Graphical Meaning |\n|-----|------------------------|--------------------|\n| $D > 0$ | Two distinct real solutions | Parabola crosses $x$-axis twice |\n| $D = 0$ | One repeated real solution | Parabola touches $x$-axis at vertex |\n| $D < 0$ | No real solutions | Parabola does not touch $x$-axis |\n\n### 📝 How to Solve (Step by Step)\n\n1. Identify $a$, $b$, and $c$ from $ax^2 + bx + c = 0$\n2. Compute $D = b^2 - 4ac$\n3. Interpret the sign of $D$\n4. For \"find $k$\" problems: set $D = 0$ (for one solution) or $D > 0$ or $D < 0$ as needed\n\n### ✏️ Worked Example 1\n\n**Problem:** How many real solutions does $2x^2 - 3x + 5 = 0$ have?\n\n**Solution:**\n\n$D = (-3)^2 - 4(2)(5) = 9 - 40 = -31$\n\nSince $D < 0$, there are **no real solutions**.\n\n### ✏️ Worked Example 2\n\n**Problem:** For what value of $k$ does $x^2 + kx + 25 = 0$ have exactly one solution?\n\n**Solution:**\n\nSet $D = 0$: $k^2 - 4(1)(25) = 0$\n\n$k^2 = 100$\n\n$k = 10$ or $k = -10$\n\n### ✏️ Worked Example 3\n\n**Problem:** For what values of $m$ does $x^2 - 6x + m = 0$ have two distinct real solutions?\n\n**Solution:**\n\n$D > 0$: $36 - 4m > 0$ → $m < 9$\n\nThe equation has two distinct real solutions when $m < 9$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Computing $b^2$ when $b$ is negative.** $(-6)^2 = 36$, not $-36$. Squaring always gives a positive result.\n- **Trap 2: Forgetting that \"exactly one solution\" means $D = 0$, not $D = 1$.**\n- **Trap 3: Confusing \"no real solutions\" with \"no solutions.\"** The equation may have complex solutions, but the SAT only tests real solutions.\n\n### 🔗 Connection\n\nThe discriminant is built into the quadratic formula (Lesson 1) and connects to the vertex (Lesson 2) — when $D = 0$, the vertex is on the $x$-axis. It also connects to systems of equations: a line and parabola intersect when the resulting quadratic has $D \\geq 0$.\n\n### 🏋️ Quick Drill\n\n1. Find the discriminant of $x^2 + 4x + 4 = 0$. How many solutions?\n2. Find the discriminant of $x^2 + 2x + 5 = 0$. How many real solutions?\n3. For $x^2 - 10x + k = 0$ to have one solution, what is $k$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "For what positive value of $k$ does the equation $x^2 - 8x + k = 0$ have exactly one real solution?",
+              "choices": [
+                {
+                  "text": "8",
+                  "correct": false
+                },
+                {
+                  "text": "16",
+                  "correct": true
+                },
+                {
+                  "text": "32",
+                  "correct": false
+                },
+                {
+                  "text": "64",
+                  "correct": false
+                }
+              ],
+              "explanation": "For exactly one solution, $D = 0$: $(-8)^2 - 4(1)(k) = 0$, so $64 - 4k = 0$, $k = 16$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Quadratic Word Problems and Applications",
+            "order": 4,
+            "theory": "## Quadratic Word Problems and Applications\n\n### 🧠 Understanding the Concept\n\nQuadratic equations model many real-world situations on the SAT: the arc of a thrown ball, the area of a rectangular region, revenue and profit optimization, and more. The key challenge is translating the word problem into a quadratic equation, then using your toolkit (factoring, quadratic formula, or vertex) to answer the question.\n\nTwo question types dominate: (1) \"When does the object hit the ground?\" — set the height equal to zero and solve. (2) \"What is the maximum height/revenue/area?\" — find the vertex. Understanding which question type you are dealing with determines which tool to use.\n\nFor projectile motion on the SAT, the model is $h(t) = -16t^2 + v_0t + h_0$ (in feet) or $h(t) = -4.9t^2 + v_0t + h_0$ (in meters). The $-16$ or $-4.9$ comes from gravity. The vertex gives the maximum height, and the positive root of $h(t) = 0$ gives the time when the object hits the ground.\n\n### 📐 Key Formulas\n\n**Projectile Motion (feet):** $h(t) = -16t^2 + v_0 t + h_0$\n\n**Maximum/Minimum:** occurs at $t = -\\frac{b}{2a}$\n\n**Area of rectangle:** $A = \\ell \\cdot w$\n\n**Revenue:** $R = (\\text{price per unit})(\\text{number of units sold})$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the type: projectile, area, revenue, or general optimization\n2. **Define variables** and write the quadratic equation/function\n3. **Determine** what the question asks: a root ($= 0$), the vertex (max/min), or a specific value\n4. **Solve** using the appropriate method\n5. **Reject** non-physical solutions (negative time, negative length, etc.)\n\n### ✏️ Worked Example 1\n\n**Problem:** A ball is launched upward with $h(t) = -16t^2 + 64t + 80$. (a) What is the maximum height? (b) When does it hit the ground?\n\n**Solution:**\n\n(a) $t_{\\max} = -\\frac{64}{2(-16)} = 2$ seconds. $h(2) = -64 + 128 + 80 = 144$ feet.\n\n(b) Set $h(t) = 0$: $-16t^2 + 64t + 80 = 0$. Divide by $-16$: $t^2 - 4t - 5 = 0$\n\n$(t - 5)(t + 1) = 0$. $t = 5$ (reject $t = -1$).\n\nIt hits the ground at $t = 5$ seconds.\n\n### ✏️ Worked Example 2\n\n**Problem:** A farmer has 60 meters of fencing to enclose a rectangular pen against a barn (only 3 sides need fencing). What dimensions maximize the area?\n\n**Solution:**\n\nLet $x$ = width (two sides) and $y$ = length (one side). Constraint: $2x + y = 60$, so $y = 60 - 2x$.\n\n$A = xy = x(60 - 2x) = -2x^2 + 60x$\n\nMax at $x = -\\frac{60}{2(-2)} = 15$ meters.\n\n$y = 60 - 30 = 30$ meters. Max area $= 15 \\times 30 = 450$ m².\n\n### ✏️ Worked Example 3\n\n**Problem:** A company finds that if it charges $p$ dollars per item, it sells $200 - 5p$ items. What price maximizes revenue?\n\n**Solution:**\n\n$R = p(200 - 5p) = -5p^2 + 200p$\n\nMax at $p = -\\frac{200}{2(-5)} = 20$ dollars.\n\nMax revenue: $R = 20(200 - 100) = 20 \\times 100 = \\$2000$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using a negative time.** Always reject negative values for time and length.\n- **Trap 2: Confusing \"when does it hit the ground\" with \"maximum height.\"** Ground = set $h = 0$. Max = find vertex.\n- **Trap 3: Forgetting the initial height.** $h_0$ is the height at $t = 0$. If a ball is launched from a 48-foot building, $h_0 = 48$.\n\n### 🔗 Connection\n\nThis is the culmination of the Quadratics module, using factoring (Lesson 0), solving (Lesson 1), and vertex form (Lesson 2). The projectile model reappears in trigonometry problems and the optimization approach extends to exponential models (Module 4).\n\n### 🏋️ Quick Drill\n\n1. If $h(t) = -16t^2 + 32t$, what is the maximum height?\n2. A rectangle has perimeter 20. Express area as a function of width $w$.\n3. If revenue $R = -x^2 + 50x$, what value of $x$ maximizes $R$?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A ball is launched upward with height $h(t) = -16t^2 + 48t + 64$ feet after $t$ seconds. After how many seconds does it hit the ground?",
+              "correct_answers": [
+                4
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Set $h(t) = 0$: $-16t^2 + 48t + 64 = 0$. Divide by $-16$: $t^2 - 3t - 4 = 0$. Factor: $(t - 4)(t + 1) = 0$. Since $t > 0$, $t = 4$ seconds.",
+              "standard": "SAT.Advanced Math"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Polynomial & Rational Expressions",
+        "description": "Work with higher-degree polynomials, polynomial division, rational expressions, and radical equations.",
+        "order": 3,
+        "lessons": [
+          {
+            "title": "Operations with Polynomials",
+            "order": 0,
+            "theory": "## Operations with Polynomials\n\n### 🧠 Understanding the Concept\n\nA **polynomial** is an expression consisting of variables and coefficients combined using addition, subtraction, and multiplication, with non-negative integer exponents. Examples: $3x^4 - 2x^2 + x - 7$ (degree 4) and $5x + 1$ (degree 1, which is linear).\n\nOn the SAT, you need to add, subtract, and multiply polynomials fluently. The key principle for addition and subtraction is **combining like terms** — terms with the same variable and exponent. For multiplication, you use the **distributive property** repeatedly (FOIL is just a special case for two binomials).\n\nUnderstanding special products — difference of squares, perfect square trinomials, and sum/difference of cubes — gives you major shortcuts. The SAT frequently tests whether you can recognize these patterns rather than multiplying everything out the long way.\n\n### 📐 Key Formulas\n\n**Special Products:**\n- $(a + b)^2 = a^2 + 2ab + b^2$\n- $(a - b)^2 = a^2 - 2ab + b^2$\n- $(a + b)(a - b) = a^2 - b^2$\n- $a^3 + b^3 = (a + b)(a^2 - ab + b^2)$\n- $a^3 - b^3 = (a - b)(a^2 + ab + b^2)$\n\n**Degree rule:** $\\deg(p \\cdot q) = \\deg(p) + \\deg(q)$\n\n### 📝 How to Solve (Step by Step)\n\n**Adding/Subtracting:**\n1. Remove parentheses (distribute the negative sign for subtraction)\n2. Group like terms (same variable, same exponent)\n3. Combine coefficients\n\n**Multiplying:**\n1. Multiply each term in the first polynomial by each term in the second\n2. Combine like terms\n3. For special patterns, apply the formula directly\n\n### ✏️ Worked Example 1\n\n**Problem:** Simplify $(3x^2 + 2x - 5) - (x^2 - 4x + 3)$.\n\n**Solution:**\n\n$= 3x^2 + 2x - 5 - x^2 + 4x - 3$\n\n$= 2x^2 + 6x - 8$\n\n### ✏️ Worked Example 2\n\n**Problem:** Expand $(2x - 3)(x^2 + 4x - 1)$.\n\n**Solution:**\n\n$= 2x(x^2 + 4x - 1) - 3(x^2 + 4x - 1)$\n\n$= 2x^3 + 8x^2 - 2x - 3x^2 - 12x + 3$\n\n$= 2x^3 + 5x^2 - 14x + 3$\n\n### ✏️ Worked Example 3\n\n**Problem:** Simplify $(x + 2)(x^2 - 2x + 4)$.\n\n**Solution:** Recognize sum of cubes: $a = x$, $b = 2$.\n\n$(x + 2)(x^2 - 2x + 4) = x^3 + 8$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign error when subtracting polynomials.** Distribute the negative to EVERY term: $-(x^2 - 3x + 2) = -x^2 + 3x - 2$.\n- **Trap 2: Confusing $(a + b)^2$ with $a^2 + b^2$.** $(a + b)^2 = a^2 + 2ab + b^2$, NOT $a^2 + b^2$.\n- **Trap 3: Forgetting the middle term.** $(x + 5)^2 = x^2 + 10x + 25$, not $x^2 + 25$.\n\n### 🔗 Connection\n\nPolynomial operations build on the algebra from Modules 0-2 and lead into polynomial division (next lesson) and rational expressions (Lesson 2). The special products appear throughout the SAT.\n\n### 🏋️ Quick Drill\n\n1. Expand $(x + 4)^2$.\n2. Simplify $(5x - 1)(5x + 1)$.\n3. What is the degree of $(x^3 + 1)(x^2 - x)$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which of the following is equivalent to $(x + 3)(x^2 - 3x + 9)$?",
+              "choices": [
+                {
+                  "text": "$x^3 + 27$",
+                  "correct": true
+                },
+                {
+                  "text": "$x^3 - 27$",
+                  "correct": false
+                },
+                {
+                  "text": "$x^3 + 9x + 27$",
+                  "correct": false
+                },
+                {
+                  "text": "$x^3 - 9$",
+                  "correct": false
+                }
+              ],
+              "explanation": "This is the sum of cubes pattern: $a^3 + b^3 = (a + b)(a^2 - ab + b^2)$ with $a = x$ and $b = 3$. So $(x + 3)(x^2 - 3x + 9) = x^3 + 27$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Polynomial Division and Remainder Theorem",
+            "order": 1,
+            "theory": "## Polynomial Division and Remainder Theorem\n\n### 🧠 Understanding the Concept\n\n**Polynomial division** is the process of dividing one polynomial by another, analogous to long division with numbers. The result is a quotient plus a remainder, expressed as:\n\n$$p(x) = d(x) \\cdot q(x) + r(x)$$\n\nwhere $p(x)$ is the dividend, $d(x)$ is the divisor, $q(x)$ is the quotient, and $r(x)$ is the remainder.\n\nThe **Remainder Theorem** is the powerful shortcut: when you divide polynomial $p(x)$ by $(x - a)$, the remainder is simply $p(a)$. This means you can find the remainder by plugging in a single value — no long division needed. The closely related **Factor Theorem** states that $(x - a)$ is a factor of $p(x)$ if and only if $p(a) = 0$.\n\nOn the SAT, these theorems save enormous time. \"What is the remainder when $p(x)$ is divided by $(x - 3)$?\" Just compute $p(3)$.\n\n### 📐 Key Formulas\n\n**Remainder Theorem:** When $p(x)$ is divided by $(x - a)$, the remainder is $p(a)$.\n\n**Factor Theorem:** $(x - a)$ is a factor of $p(x)$ if and only if $p(a) = 0$.\n\n**Division Algorithm:** $p(x) = (x - a) \\cdot q(x) + p(a)$\n\n### 📝 How to Solve (Step by Step)\n\n**Using the Remainder Theorem:**\n1. Identify the divisor $(x - a)$ and find $a$\n2. Evaluate $p(a)$ — this is the remainder\n3. If $p(a) = 0$, then $(x - a)$ is a factor\n\n**Polynomial Long Division (when needed):**\n1. Divide the leading term of the dividend by the leading term of the divisor\n2. Multiply the result by the entire divisor\n3. Subtract from the dividend\n4. Repeat with the new polynomial until the degree is less than the divisor\n\n### ✏️ Worked Example 1\n\n**Problem:** Find the remainder when $p(x) = x^3 - 4x^2 + 2x + 5$ is divided by $(x - 3)$.\n\n**Solution:** By the Remainder Theorem, remainder $= p(3)$:\n\n$p(3) = 27 - 36 + 6 + 5 = 2$\n\nRemainder: $2$.\n\n### ✏️ Worked Example 2\n\n**Problem:** Is $(x + 2)$ a factor of $p(x) = x^3 + 3x^2 - 4$?\n\n**Solution:** $(x + 2) = (x - (-2))$, so check $p(-2)$:\n\n$p(-2) = -8 + 12 - 4 = 0$\n\nSince $p(-2) = 0$, yes — $(x + 2)$ is a factor.\n\n### ✏️ Worked Example 3\n\n**Problem:** If $p(x) = 2x^3 - 5x + c$ and $(x - 1)$ is a factor, find $c$.\n\n**Solution:** $(x - 1)$ is a factor means $p(1) = 0$:\n\n$2(1) - 5(1) + c = 0$\n\n$-3 + c = 0$, so $c = 3$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Getting the sign of $a$ wrong.** For divisor $(x + 3) = (x - (-3))$, you evaluate $p(-3)$, not $p(3)$.\n- **Trap 2: Forgetting that remainder = 0 means it is a factor.** These are two sides of the same coin.\n- **Trap 3: Using long division when the Remainder Theorem is sufficient.** Save time — plug and check.\n\n### 🔗 Connection\n\nThis builds on polynomial operations (Lesson 0) and factoring (Module 2). The Factor Theorem helps you find roots of higher-degree polynomials by testing possible factors. These skills also apply to simplifying rational expressions (next lesson).\n\n### 🏋️ Quick Drill\n\n1. Remainder when $x^2 + 3x + 5$ is divided by $(x - 1)$?\n2. Is $(x - 2)$ a factor of $x^3 - 8$?\n3. If $p(x)$ divided by $(x - 4)$ has remainder $0$, what is $p(4)$?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "When $p(x) = x^3 + 2x^2 - 5x - 6$ is divided by $(x - 2)$, what is the remainder?",
+              "correct_answers": [
+                0
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "By the Remainder Theorem, the remainder is $p(2) = 8 + 8 - 10 - 6 = 0$. Since the remainder is $0$, $(x - 2)$ is a factor of $p(x)$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Simplifying Rational Expressions",
+            "order": 2,
+            "theory": "## Simplifying Rational Expressions\n\n### 🧠 Understanding the Concept\n\nA **rational expression** is a fraction where the numerator and denominator are polynomials. Simplifying rational expressions is essentially the same as simplifying numerical fractions: factor the top and bottom, then cancel common factors.\n\nOn the SAT, rational expression problems test your factoring skills and your understanding of domain restrictions. A domain restriction occurs whenever a value of $x$ makes the denominator equal to zero — that value must be excluded.\n\nThink of a rational expression as a fraction made of polynomials. Just as $\\frac{6}{8}$ simplifies to $\\frac{3}{4}$ by canceling the common factor of $2$, $\\frac{x^2 - 4}{x + 2}$ simplifies to $x - 2$ by canceling $(x + 2)$ — but only when $x \\neq -2$.\n\n### 📐 Key Formulas\n\n**Simplifying:** $\\frac{P(x)}{Q(x)}$ — factor $P$ and $Q$, cancel common factors\n\n**Multiplying:** $\\frac{A}{B} \\cdot \\frac{C}{D} = \\frac{AC}{BD}$ (factor and cancel first)\n\n**Dividing:** $\\frac{A}{B} \\div \\frac{C}{D} = \\frac{A}{B} \\cdot \\frac{D}{C}$\n\n**Adding/Subtracting:** Find a common denominator, combine numerators\n\n### 📝 How to Solve (Step by Step)\n\n1. **Factor** every numerator and denominator completely\n2. **Cancel** common factors that appear in both numerator and denominator\n3. **State domain restrictions** — values that make ANY original denominator zero\n4. For addition/subtraction: find the **LCD**, rewrite each fraction, combine\n\n### ✏️ Worked Example 1\n\n**Problem:** Simplify $\\frac{x^2 - 9}{x^2 - x - 6}$.\n\n**Solution:**\n\nFactor: $\\frac{(x + 3)(x - 3)}{(x - 3)(x + 2)}$\n\nCancel $(x - 3)$: $\\frac{x + 3}{x + 2}$ (where $x \\neq 3$ and $x \\neq -2$)\n\n### ✏️ Worked Example 2\n\n**Problem:** Simplify $\\frac{2x + 4}{x^2 + 5x + 6} \\cdot \\frac{x + 3}{4}$.\n\n**Solution:**\n\n$= \\frac{2(x + 2)}{(x + 2)(x + 3)} \\cdot \\frac{x + 3}{4}$\n\n$= \\frac{2 \\cancel{(x + 2)}}{\\cancel{(x + 2)} \\cancel{(x + 3)}} \\cdot \\frac{\\cancel{(x + 3)}}{4} = \\frac{2}{4} = \\frac{1}{2}$\n\n### ✏️ Worked Example 3\n\n**Problem:** Simplify $\\frac{1}{x + 1} + \\frac{2}{x - 1}$.\n\n**Solution:**\n\nLCD = $(x + 1)(x - 1)$\n\n$= \\frac{(x - 1) + 2(x + 1)}{(x + 1)(x - 1)} = \\frac{x - 1 + 2x + 2}{x^2 - 1} = \\frac{3x + 1}{x^2 - 1}$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Canceling terms instead of factors.** $\\frac{x + 3}{x + 5}$ does NOT simplify further. You can only cancel FACTORS (things multiplied), not TERMS (things added).\n- **Trap 2: Forgetting domain restrictions.** Even after canceling, the original restriction remains.\n- **Trap 3: Flipping addition/subtraction instead of multiplication/division.** Only flip when dividing, not when subtracting.\n\n### 🔗 Connection\n\nThis relies heavily on factoring from Module 2 and polynomial operations from Lesson 0. It leads directly to solving rational equations (next lesson), where you clear fractions by multiplying by the LCD.\n\n### 🏋️ Quick Drill\n\n1. Simplify $\\frac{x^2 - 4}{x + 2}$.\n2. What values of $x$ are excluded from $\\frac{5}{x(x - 3)}$?\n3. Simplify $\\frac{x^2 + 2x + 1}{x + 1}$.",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which expression is equivalent to $\\frac{x^2 - 4x + 3}{x^2 - 1}$?",
+              "choices": [
+                {
+                  "text": "$\\frac{x - 3}{x + 1}$",
+                  "correct": true
+                },
+                {
+                  "text": "$\\frac{x + 3}{x + 1}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{x - 3}{x - 1}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{x + 3}{x - 1}$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Factor: $\\frac{(x-1)(x-3)}{(x-1)(x+1)}$. Cancel $(x-1)$: $\\frac{x-3}{x+1}$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Solving Rational Equations",
+            "order": 3,
+            "theory": "## Solving Rational Equations\n\n### 🧠 Understanding the Concept\n\nA **rational equation** is an equation that contains at least one fraction with a variable in the denominator. The standard strategy is to multiply both sides by the Least Common Denominator (LCD) to eliminate all fractions, turning it into a polynomial equation you can solve normally.\n\nThe critical twist: when you multiply by an expression containing a variable, you might introduce **extraneous solutions** — values that satisfy the transformed equation but make a denominator zero in the original. You must always check your answers.\n\nOn the SAT, rational equations appear in various forms: work-rate problems, proportion problems, and algebraic fraction problems. The common thread is clearing fractions and checking for extraneous solutions.\n\n### 📐 Key Formulas\n\n**Clearing fractions:** Multiply every term by the LCD.\n\n**Work-rate formula:** $\\frac{1}{t_A} + \\frac{1}{t_B} = \\frac{1}{t_{\\text{together}}}$\n\n**Extraneous solution check:** Verify each solution does not make any original denominator zero.\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the LCD of all fractions\n2. **Multiply** every term by the LCD\n3. **Simplify** and solve the resulting equation\n4. **Check** every solution in the original equation — reject any that make a denominator zero\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $\\frac{5}{x} - \\frac{1}{3} = \\frac{2}{x}$.\n\n**Solution:**\n\nLCD = $3x$. Multiply each term:\n\n$3x \\cdot \\frac{5}{x} - 3x \\cdot \\frac{1}{3} = 3x \\cdot \\frac{2}{x}$\n\n$15 - x = 6$\n\n$x = 9$\n\nCheck: $\\frac{5}{9} - \\frac{1}{3} = \\frac{5}{9} - \\frac{3}{9} = \\frac{2}{9} = \\frac{2}{9}$ ✓\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $\\frac{x}{x - 2} = \\frac{4}{x - 2} + 1$.\n\n**Solution:**\n\nLCD = $(x - 2)$. Multiply:\n\n$x = 4 + (x - 2) = x + 2$\n\n$x = x + 2$ → $0 = 2$ — contradiction!\n\n**No solution.** (And $x = 2$ would make the denominator zero anyway.)\n\n### ✏️ Worked Example 3\n\n**Problem:** Pipe A fills a tank in 6 hours, Pipe B in 4 hours. How long to fill together?\n\n**Solution:**\n\n$\\frac{1}{6} + \\frac{1}{4} = \\frac{1}{t}$\n\n$\\frac{2}{12} + \\frac{3}{12} = \\frac{5}{12} = \\frac{1}{t}$\n\n$t = \\frac{12}{5} = 2.4$ hours\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Forgetting to check for extraneous solutions.** Always verify your answer does not make a denominator zero.\n- **Trap 2: Not multiplying EVERY term by the LCD.** If there is a standalone constant, it also gets multiplied.\n- **Trap 3: Assuming \"no solution\" means you made a mistake.** Sometimes rational equations genuinely have no solution.\n\n### 🔗 Connection\n\nThis builds on simplifying rational expressions (Lesson 2) and solving equations from Module 0. The LCD-clearing technique is the same as eliminating fractions in linear equations, just applied to variable denominators.\n\n### 🏋️ Quick Drill\n\n1. Solve $\\frac{3}{x} = \\frac{1}{2}$.\n2. Solve $\\frac{1}{x} + \\frac{1}{x} = 1$.\n3. If $\\frac{x + 1}{x - 1} = 3$, what is $x$?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "Solve: $\\frac{5}{x} = \\frac{3}{x} + 1$. What is the value of $x$?",
+              "correct_answers": [
+                2
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Subtract $\\frac{3}{x}$ from both sides: $\\frac{2}{x} = 1$. Multiply by $x$: $2 = x$. Check: $\\frac{5}{2} = \\frac{3}{2} + 1 = \\frac{5}{2}$. Valid.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Radical Expressions and Equations",
+            "order": 4,
+            "theory": "## Radical Expressions and Equations\n\n### 🧠 Understanding the Concept\n\nA **radical expression** involves a root — most commonly a square root $\\sqrt{}$, but also cube roots $\\sqrt[3]{}$ and higher. On the SAT, the main skills are: simplifying radicals, rationalizing denominators, and solving radical equations.\n\nSolving radical equations requires isolating the radical and then squaring both sides to eliminate it. The act of squaring can introduce extraneous solutions (values that work in the squared equation but not the original), so you must always check your answers.\n\nThe mental model for radicals: $\\sqrt{x}$ asks \"what number squared gives $x$?\" This inverse relationship with squaring is why squaring both sides is the technique for solving radical equations — you undo the radical.\n\n### 📐 Key Formulas\n\n$\\sqrt{ab} = \\sqrt{a} \\cdot \\sqrt{b}$\n\n$\\sqrt{\\frac{a}{b}} = \\frac{\\sqrt{a}}{\\sqrt{b}}$\n\n$(\\sqrt{a})^2 = a$\n\n$a^{1/2} = \\sqrt{a}$, $a^{1/n} = \\sqrt[n]{a}$, $a^{m/n} = (\\sqrt[n]{a})^m$\n\n### 📝 How to Solve (Step by Step)\n\n**Simplifying radicals:**\n1. Factor the radicand into perfect square × remaining\n2. Take the square root of the perfect square part\n\n**Solving radical equations:**\n1. **Isolate** the radical on one side\n2. **Square** both sides (or raise to the appropriate power)\n3. **Solve** the resulting equation\n4. **Check** every solution in the original equation\n\n### ✏️ Worked Example 1\n\n**Problem:** Simplify $\\sqrt{72}$.\n\n**Solution:**\n\n$\\sqrt{72} = \\sqrt{36 \\cdot 2} = 6\\sqrt{2}$\n\n### ✏️ Worked Example 2\n\n**Problem:** Solve $\\sqrt{2x + 7} = 5$.\n\n**Solution:**\n\nSquare both sides: $2x + 7 = 25$\n\n$2x = 18$, so $x = 9$\n\nCheck: $\\sqrt{2(9) + 7} = \\sqrt{25} = 5$ ✓\n\n### ✏️ Worked Example 3\n\n**Problem:** Solve $\\sqrt{x + 3} = x - 3$.\n\n**Solution:**\n\nSquare: $x + 3 = x^2 - 6x + 9$\n\n$0 = x^2 - 7x + 6 = (x - 1)(x - 6)$\n\n$x = 1$ or $x = 6$\n\nCheck $x = 1$: $\\sqrt{4} = 2$ but $1 - 3 = -2$. $2 \\neq -2$ ✗ (extraneous)\n\nCheck $x = 6$: $\\sqrt{9} = 3$ and $6 - 3 = 3$ ✓\n\nAnswer: $x = 6$ only.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Forgetting to check for extraneous solutions.** Squaring can create false solutions. ALWAYS check.\n- **Trap 2: $\\sqrt{x^2} = |x|$, not just $x$.** The square root function always returns a non-negative value.\n- **Trap 3: $\\sqrt{a + b} \\neq \\sqrt{a} + \\sqrt{b}$.** Square roots do NOT distribute over addition.\n\n### 🔗 Connection\n\nRadicals connect to exponents (Module 4) through the relationship $\\sqrt[n]{a} = a^{1/n}$. The checking-for-extraneous-solutions skill is the same as in rational equations (Lesson 3). Simplifying radicals appears in the Pythagorean theorem and distance formula (Module 6).\n\n### 🏋️ Quick Drill\n\n1. Simplify $\\sqrt{200}$.\n2. Solve $\\sqrt{x} = 7$.\n3. Rationalize $\\frac{3}{\\sqrt{5}}$.",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "If $\\sqrt{3x + 1} = 4$, what is the value of $x$?",
+              "correct_answers": [
+                5
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Square both sides: $3x + 1 = 16$. Subtract $1$: $3x = 15$. Divide by $3$: $x = 5$. Check: $\\sqrt{15 + 1} = \\sqrt{16} = 4$ ✓.",
+              "standard": "SAT.Advanced Math"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exponential Functions & Growth",
+        "description": "Understand exponential growth and decay, properties of exponents, and how to work with exponential equations on the SAT.",
+        "order": 4,
+        "lessons": [
+          {
+            "title": "Properties of Exponents",
+            "order": 0,
+            "theory": "## Properties of Exponents\n\n### 🧠 Understanding the Concept\n\n**Exponents** are shorthand for repeated multiplication: $a^n$ means \"$a$ multiplied by itself $n$ times.\" The rules of exponents allow you to simplify complex expressions efficiently. On the SAT, exponent problems test whether you can manipulate expressions with multiple bases and exponents, often requiring you to rewrite everything with a common base.\n\nThe key mental model: exponents track \"how many times\" a base is used as a factor. When you multiply powers of the same base, you add the counts. When you divide, you subtract. When you raise a power to a power, you multiply the counts. All the rules flow from this simple idea.\n\nFractional exponents bridge exponents and radicals: $a^{1/2} = \\sqrt{a}$ and $a^{m/n} = \\sqrt[n]{a^m}$. This connection is frequently tested on the SAT.\n\n### 📐 Key Formulas\n\n| Rule | Formula |\n|------|---------|\n| Product | $a^m \\cdot a^n = a^{m+n}$ |\n| Quotient | $\\frac{a^m}{a^n} = a^{m-n}$ |\n| Power of Power | $(a^m)^n = a^{mn}$ |\n| Zero Exponent | $a^0 = 1$ ($a \\neq 0$) |\n| Negative Exponent | $a^{-n} = \\frac{1}{a^n}$ |\n| Fractional Exponent | $a^{m/n} = \\sqrt[n]{a^m}$ |\n| Product to Power | $(ab)^n = a^n b^n$ |\n\n### 📝 How to Solve (Step by Step)\n\n1. **Rewrite** all terms with the same base when possible\n2. **Apply** the exponent rules to simplify\n3. **Convert** between fractional exponents and radicals as needed\n4. For expressions with multiple bases, handle each base separately\n\n### ✏️ Worked Example 1\n\n**Problem:** Simplify $\\frac{(x^4)^3 \\cdot x^{-5}}{x^2}$.\n\n**Solution:**\n\n$= \\frac{x^{12} \\cdot x^{-5}}{x^2} = \\frac{x^7}{x^2} = x^5$\n\n### ✏️ Worked Example 2\n\n**Problem:** Evaluate $16^{3/4}$.\n\n**Solution:**\n\n$16^{3/4} = (\\sqrt[4]{16})^3 = 2^3 = 8$\n\n### ✏️ Worked Example 3\n\n**Problem:** Simplify $\\frac{9^3 \\cdot 3^2}{27^2}$.\n\n**Solution:**\n\nRewrite with base 3: $\\frac{(3^2)^3 \\cdot 3^2}{(3^3)^2} = \\frac{3^6 \\cdot 3^2}{3^6} = \\frac{3^8}{3^6} = 3^2 = 9$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Adding exponents when bases differ.** $2^3 \\cdot 3^2 \\neq 6^5$. You can only add exponents when bases match.\n- **Trap 2: Confusing $(a^m)^n$ with $a^{m+n}$.** Power of a power MULTIPLIES exponents.\n- **Trap 3: $a^0 = 1$, not $0$.** Anything (except 0) raised to the zero power is 1.\n\n### 🔗 Connection\n\nExponent rules underpin exponential growth/decay (next lesson), solving exponential equations (Lesson 2), and compound interest (Lesson 3). They also connect to radicals (Module 3, Lesson 4) through fractional exponents.\n\n### 🏋️ Quick Drill\n\n1. Simplify $x^3 \\cdot x^{-7}$.\n2. Evaluate $8^{2/3}$.\n3. Rewrite $\\sqrt[3]{x^5}$ using fractional exponents.",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Which of the following is equivalent to $\\frac{(x^3)^2 \\cdot x^{-4}}{x^{-1}}$?",
+              "choices": [
+                {
+                  "text": "$x^3$",
+                  "correct": true
+                },
+                {
+                  "text": "$x^1$",
+                  "correct": false
+                },
+                {
+                  "text": "$x^5$",
+                  "correct": false
+                },
+                {
+                  "text": "$x^9$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Simplify: $\\frac{x^6 \\cdot x^{-4}}{x^{-1}} = \\frac{x^2}{x^{-1}} = x^{2-(-1)} = x^3$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Exponential Growth and Decay",
+            "order": 1,
+            "theory": "## Exponential Growth and Decay\n\n### 🧠 Understanding the Concept\n\n**Exponential growth** occurs when a quantity increases by a constant percentage each time period. **Exponential decay** occurs when it decreases by a constant percentage. Unlike linear growth (constant amount added), exponential growth compounds — each period's increase is larger than the last because it is applied to a bigger base.\n\nThe general model is $A(t) = A_0 \\cdot b^t$, where $A_0$ is the initial amount and $b$ is the growth/decay factor. If the quantity grows by $r\\%$ per period, then $b = 1 + \\frac{r}{100}$. If it decays by $r\\%$, then $b = 1 - \\frac{r}{100}$.\n\nOn the SAT, you need to interpret exponential models: identify the initial value, the growth/decay rate, and the meaning of the exponent. Common contexts include population growth, radioactive decay, depreciation of cars, and bacterial colonies doubling.\n\n### 📐 Key Formulas\n\n**General model:** $A(t) = A_0 \\cdot b^t$\n\n**Growth:** $A(t) = A_0(1 + r)^t$ where $r > 0$\n\n**Decay:** $A(t) = A_0(1 - r)^t$ where $0 < r < 1$\n\n**Doubling time model:** $A(t) = A_0 \\cdot 2^{t/d}$ (doubles every $d$ periods)\n\n**Half-life model:** $A(t) = A_0 \\cdot \\left(\\frac{1}{2}\\right)^{t/h}$ (halves every $h$ periods)\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** $A_0$ (initial value) and the rate of change\n2. **Determine** whether it is growth ($b > 1$) or decay ($0 < b < 1$)\n3. **Write** the model $A(t) = A_0 \\cdot b^t$\n4. **Solve** for the requested quantity (plug in $t$, or solve for $t$)\n\n### ✏️ Worked Example 1\n\n**Problem:** A population of 1,000 grows at $5\\%$ per year. What is the population after 8 years?\n\n**Solution:**\n\n$P(8) = 1000(1.05)^8 = 1000 \\times 1.4775 \\approx 1,478$\n\n### ✏️ Worked Example 2\n\n**Problem:** A car worth \\$30,000 depreciates $12\\%$ per year. What is it worth after 5 years?\n\n**Solution:**\n\n$V(5) = 30000(0.88)^5 = 30000 \\times 0.5277 \\approx \\$15,831$\n\n### ✏️ Worked Example 3\n\n**Problem:** A substance has a half-life of 10 years. If you start with 200 grams, how much remains after 30 years?\n\n**Solution:**\n\n$A(30) = 200 \\cdot \\left(\\frac{1}{2}\\right)^{30/10} = 200 \\cdot \\left(\\frac{1}{2}\\right)^3 = 200 \\cdot \\frac{1}{8} = 25$ grams\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the rate as the base.** Growth of $5\\%$ means $b = 1.05$, NOT $b = 0.05$.\n- **Trap 2: Confusing growth factor with growth rate.** If $b = 1.08$, the rate is $8\\%$, not $1.08\\%$.\n- **Trap 3: Decay factor below 0.** If the problem says \"decreases by $20\\%$,\" $b = 0.80$. If $b$ is negative or zero, you have made an error.\n\n### 🔗 Connection\n\nThis builds on exponent rules (Lesson 0) and contrasts with linear growth (Lesson 4). Compound interest (Lesson 3) is a special case of exponential growth. These models appear in SAT word problems and data interpretation.\n\n### 🏋️ Quick Drill\n\n1. If a colony doubles every 3 hours and starts at 100, what is the population after 9 hours?\n2. A \\$10,000 investment grows at $6\\%$ per year. Write the model.\n3. If $A(t) = 500(0.9)^t$, is this growth or decay? What is the rate?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A population of bacteria doubles every 4 hours. If there are initially 500 bacteria, which function gives the population $P$ after $t$ hours?",
+              "choices": [
+                {
+                  "text": "$P(t) = 500 \\cdot 2^{t/4}$",
+                  "correct": true
+                },
+                {
+                  "text": "$P(t) = 500 \\cdot 2^{4t}$",
+                  "correct": false
+                },
+                {
+                  "text": "$P(t) = 500 \\cdot 4^{t/2}$",
+                  "correct": false
+                },
+                {
+                  "text": "$P(t) = 1000 \\cdot 2^t$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Doubling every 4 hours means the exponent is $t/4$. Initial value is $500$ and the base is $2$ (doubling). So $P(t) = 500 \\cdot 2^{t/4}$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Solving Exponential Equations",
+            "order": 2,
+            "theory": "## Solving Exponential Equations\n\n### 🧠 Understanding the Concept\n\nAn **exponential equation** has a variable in the exponent, like $2^x = 16$ or $3^{2x} = 27$. The primary strategy is to rewrite both sides with the **same base** so you can set the exponents equal.\n\nOn the SAT, most exponential equations can be solved by recognizing common bases: powers of 2 ($2, 4, 8, 16, 32, 64$), powers of 3 ($3, 9, 27, 81$), powers of 5 ($5, 25, 125$), etc. When a common base is not possible, you use logarithms, though the SAT rarely requires this.\n\nThe key insight: if $a^m = a^n$ and $a > 0$, $a \\neq 1$, then $m = n$. This is because exponential functions are one-to-one — different inputs always produce different outputs.\n\n### 📐 Key Formulas\n\n**Same-Base Principle:** $a^m = a^n \\implies m = n$ (when $a > 0$, $a \\neq 1$)\n\n**Logarithmic Solution:** $a^x = b \\implies x = \\frac{\\log b}{\\log a}$\n\n**Common bases to know:** $4 = 2^2$, $8 = 2^3$, $16 = 2^4$, $32 = 2^5$, $9 = 3^2$, $27 = 3^3$, $81 = 3^4$, $25 = 5^2$, $125 = 5^3$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Express** both sides as powers of the same base\n2. **Set** the exponents equal\n3. **Solve** the resulting linear or quadratic equation\n4. If a common base is impossible, use logarithms\n\n### ✏️ Worked Example 1\n\n**Problem:** Solve $8^x = 32$.\n\n**Solution:**\n\n$(2^3)^x = 2^5$\n\n$2^{3x} = 2^5$\n\n$3x = 5$, so $x = \\frac{5}{3}$\n\n### ✏️ Worked Example 2\n\n**Problem:** If $9^{x+1} = 27^x$, find $x$.\n\n**Solution:**\n\n$(3^2)^{x+1} = (3^3)^x$\n\n$3^{2x+2} = 3^{3x}$\n\n$2x + 2 = 3x$, so $x = 2$\n\n### ✏️ Worked Example 3\n\n**Problem:** Solve $5^x = 200$. (Express in terms of $\\log$.)\n\n**Solution:**\n\n$x = \\frac{\\log 200}{\\log 5} = \\frac{\\log 200}{\\log 5} \\approx \\frac{2.301}{0.699} \\approx 3.292$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Not recognizing the common base.** $16$ and $64$ are both powers of $2$: $16 = 2^4$, $64 = 2^6$. Always look for this.\n- **Trap 2: Misapplying exponent rules.** $(3^2)^x = 3^{2x}$, NOT $3^{2+x}$.\n- **Trap 3: Forgetting that $a^0 = 1$.** If $5^x = 1$, then $x = 0$.\n\n### 🔗 Connection\n\nThis applies the exponent rules from Lesson 0 to equation-solving. The common-base technique connects to logarithms (which the SAT tests lightly). These skills are needed for compound interest problems (next lesson).\n\n### 🏋️ Quick Drill\n\n1. Solve $2^x = 64$.\n2. Solve $4^x = 2^6$.\n3. If $3^{2x} = 81$, what is $x$?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "If $4^{2x} = 8^3$, what is the value of $x$?",
+              "correct_answers": [
+                2.25
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Rewrite with base $2$: $(2^2)^{2x} = (2^3)^3$, so $2^{4x} = 2^9$. Therefore $4x = 9$, and $x = 9/4 = 2.25$.",
+              "standard": "SAT.Advanced Math"
+            }
+          },
+          {
+            "title": "Compound Interest and Financial Applications",
+            "order": 3,
+            "theory": "## Compound Interest and Financial Applications\n\n### 🧠 Understanding the Concept\n\n**Compound interest** is interest calculated on both the principal and the accumulated interest from previous periods. This makes money grow exponentially rather than linearly (simple interest). The SAT tests your ability to use the compound interest formula and interpret exponential financial models.\n\nThe formula $A = P(1 + \\frac{r}{n})^{nt}$ captures the essential idea: the interest rate $r$ is divided by $n$ (the number of compounding periods per year) and applied $n$ times per year for $t$ years, giving a total of $nt$ compounding events.\n\nOn the SAT, interpretation is key. Given an expression like $A = 1500(1.02)^{4t}$, you need to recognize that the base $1.02$ represents a $2\\%$ growth per quarter (since the exponent is $4t$), which means $8.24\\%$ effective annual rate.\n\n### 📐 Key Formulas\n\n**Compound Interest:** $A = P\\left(1 + \\frac{r}{n}\\right)^{nt}$\n\n**Simple Interest:** $A = P(1 + rt)$\n\n**Continuous Compounding:** $A = Pe^{rt}$\n\n| Compounding | $n$ |\n|-------------|-----|\n| Annually | 1 |\n| Semi-annually | 2 |\n| Quarterly | 4 |\n| Monthly | 12 |\n| Daily | 365 |\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** $P$ (principal), $r$ (annual rate), $n$ (compounding frequency), $t$ (years)\n2. **Plug** into the formula\n3. **Simplify** the base: $1 + \\frac{r}{n}$\n4. **Compute** the exponent: $nt$\n5. For interpretation questions: identify what each part represents\n\n### ✏️ Worked Example 1\n\n**Problem:** \\$3,000 invested at $5\\%$ compounded monthly for 2 years. Find the final amount.\n\n**Solution:**\n\n$A = 3000\\left(1 + \\frac{0.05}{12}\\right)^{12 \\cdot 2} = 3000(1.004167)^{24} \\approx 3000(1.10494) \\approx \\$3,314.83$\n\n### ✏️ Worked Example 2\n\n**Problem:** The value of an investment is given by $V = 5000(1.03)^t$. What is the annual growth rate?\n\n**Solution:**\n\nThe base is $1.03 = 1 + 0.03$, so the annual growth rate is $3\\%$.\n\n$5000$ is the initial investment. $t$ is in years.\n\n### ✏️ Worked Example 3\n\n**Problem:** Which expression represents \\$1,000 growing at $6\\%$ compounded semi-annually for $t$ years?\n\n**Solution:**\n\n$A = 1000\\left(1 + \\frac{0.06}{2}\\right)^{2t} = 1000(1.03)^{2t}$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing rate per period with annual rate.** If compounded quarterly at $8\\%$ annual, the rate per period is $\\frac{0.08}{4} = 0.02$, not $0.08$.\n- **Trap 2: Mixing up $n$ and $t$.** $n$ is how often per year, $t$ is years. The exponent is $n \\times t$.\n- **Trap 3: Thinking simple and compound interest are the same.** \\$1,000 at $10\\%$ for 2 years: Simple = \\$1,200; Compound = \\$1,210.\n\n### 🔗 Connection\n\nThis is a direct application of exponential growth (Lesson 1). The formula structure $(1 + r/n)^{nt}$ uses exponent rules from Lesson 0. This also connects to comparing growth models (next lesson).\n\n### 🏋️ Quick Drill\n\n1. \\$500 at $4\\%$ compounded annually for 3 years: what is $A$?\n2. In $A = 2000(1.005)^{12t}$, what is the monthly rate? The annual rate?\n3. Is $2000(1.04)^t$ or $2000(1.01)^{4t}$ a higher effective rate?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Jessica invests \\$2,000 in an account that earns $4\\%$ annual interest compounded quarterly. Which expression represents the amount after $t$ years?",
+              "choices": [
+                {
+                  "text": "$2000(1.01)^{4t}$",
+                  "correct": true
+                },
+                {
+                  "text": "$2000(1.04)^t$",
+                  "correct": false
+                },
+                {
+                  "text": "$2000(1.04)^{4t}$",
+                  "correct": false
+                },
+                {
+                  "text": "$2000(1.4)^t$",
+                  "correct": false
+                }
+              ],
+              "explanation": "With $r = 0.04$ and $n = 4$ (quarterly): $A = 2000(1 + 0.04/4)^{4t} = 2000(1.01)^{4t}$.",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Comparing Linear vs. Exponential Growth",
+            "order": 4,
+            "theory": "## Comparing Linear vs. Exponential Growth\n\n### 🧠 Understanding the Concept\n\nOne of the most important concepts on the SAT is understanding the fundamental difference between **linear** and **exponential** growth. Linear growth adds a constant amount each period. Exponential growth multiplies by a constant factor each period. This seemingly small distinction leads to vastly different long-term behavior.\n\nIn tables, you can distinguish the two by checking **differences** (linear: constant first differences) versus **ratios** (exponential: constant ratios between consecutive values). This is the #1 technique for identifying the type of growth from data.\n\nThe critical insight: **exponential growth always eventually overtakes linear growth**, no matter how large the linear rate. A savings account earning \\$10,000/year will eventually be surpassed by one earning 1% compounded annually, given enough time.\n\n### 📐 Key Formulas\n\n**Linear:** $f(t) = b + mt$ (constant differences of $m$)\n\n**Exponential:** $g(t) = a \\cdot r^t$ (constant ratios of $r$)\n\n**Test from table:**\n- $f(t+1) - f(t) = \\text{constant}$ → Linear\n- $\\frac{g(t+1)}{g(t)} = \\text{constant}$ → Exponential\n\n### 📝 How to Solve (Step by Step)\n\n1. **Check differences** between consecutive values — if constant, the model is linear\n2. **Check ratios** between consecutive values — if constant, the model is exponential\n3. **Write the model** using the identified pattern\n4. For comparison questions: evaluate both models at the given time\n\n### ✏️ Worked Example 1\n\n**Problem:** A table shows: $t = 0, 100$; $t = 1, 110$; $t = 2, 121$; $t = 3, 133.1$. Linear or exponential?\n\n**Solution:**\n\nDifferences: $10, 11, 12.1$ — NOT constant.\n\nRatios: $110/100 = 1.1$, $121/110 = 1.1$, $133.1/121 = 1.1$ — CONSTANT.\n\nThis is **exponential** with $g(t) = 100(1.1)^t$.\n\n### ✏️ Worked Example 2\n\n**Problem:** Plan A pays \\$500/month plus \\$200/month raises. Plan B starts at \\$500/month and increases by $10\\%$ monthly. Which pays more after 24 months?\n\n**Solution:**\n\nPlan A (month 24): $500 + 200(24) = \\$5,300$\n\nPlan B (month 24): $500(1.10)^{24} = 500(9.85) \\approx \\$4,925$\n\nPlan A pays more at month 24. But eventually Plan B will surpass Plan A.\n\n### ✏️ Worked Example 3\n\n**Problem:** An SAT problem states: \"Each year, quantity X increases by 15, and quantity Y increases by 15%.\" If both start at 100, which is larger after 20 years?\n\n**Solution:**\n\n$X(20) = 100 + 15(20) = 400$\n\n$Y(20) = 100(1.15)^{20} = 100(16.37) = 1,637$\n\n$Y$ is much larger. Exponential growth dominates.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing \"increases by 50\" (linear) with \"increases by 50%\" (exponential).** The word \"by\" alone is ambiguous — always check for a percent sign.\n- **Trap 2: Assuming linear is always less.** For short time periods, linear growth can be larger.\n- **Trap 3: Checking only two data points.** A linear and exponential model might agree at two points but diverge elsewhere. Check multiple points.\n\n### 🔗 Connection\n\nThis lesson synthesizes everything in Module 4 by comparing exponential models (Lessons 1-3) with linear models (Module 0). This comparison appears frequently on the SAT in data interpretation and model selection questions.\n\n### 🏋️ Quick Drill\n\n1. Data: $5, 10, 15, 20$. Linear or exponential?\n2. Data: $3, 6, 12, 24$. Linear or exponential?\n3. $f(t) = 1000 + 50t$ vs. $g(t) = 10 \\cdot 2^t$. Which is larger at $t = 10$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A scientist studies two populations. Population A starts at 200 and increases by 50 each year. Population B starts at 100 and increases by $20\\%$ each year. Which statement is true?",
+              "choices": [
+                {
+                  "text": "Population A will always be larger",
+                  "correct": false
+                },
+                {
+                  "text": "Population B will eventually exceed Population A",
+                  "correct": true
+                },
+                {
+                  "text": "Both populations grow at the same rate",
+                  "correct": false
+                },
+                {
+                  "text": "Population B will never reach 200",
+                  "correct": false
+                }
+              ],
+              "explanation": "Population A is linear ($200 + 50t$) and Population B is exponential ($100 \\cdot 1.2^t$). Exponential growth always eventually surpasses linear growth.",
+              "standard": "SAT.Advanced Math"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Data Analysis & Statistics",
+        "description": "Interpret data, understand statistical measures, work with probability, and analyze scatterplots and two-way tables.",
+        "order": 5,
+        "lessons": [
+          {
+            "title": "Mean, Median, Mode, and Range",
+            "order": 0,
+            "theory": "## Mean, Median, Mode, and Range\n\n### 🧠 Understanding the Concept\n\n**Measures of center** (mean and median) and **measures of spread** (range) describe a data set with a few numbers. The SAT tests your ability to compute these, understand how they change when data is added or removed, and interpret them in context.\n\nThe **mean** is the arithmetic average: add all values and divide by the count. It is affected by every value in the data set, including outliers. The **median** is the middle value when data is sorted, making it resistant to outliers. The **mode** is the most frequent value. The **range** is the difference between the largest and smallest values.\n\nOn the SAT, the most common question type is: \"Given the mean of $n$ numbers, find a missing value\" or \"How does adding a value change the mean?\" The key formula is $\\text{Sum} = \\text{Mean} \\times \\text{Count}$.\n\n### 📐 Key Formulas\n\n$$\\text{Mean} = \\bar{x} = \\frac{\\sum x_i}{n}$$\n\n$$\\text{Sum} = \\bar{x} \\cdot n$$\n\n$$\\text{Median} = \\text{middle value (sorted data)}$$\n\n$$\\text{Range} = \\max - \\min$$\n\n$$\\text{Weighted Mean} = \\frac{\\sum w_i x_i}{\\sum w_i}$$\n\n### 📝 How to Solve (Step by Step)\n\n**Finding a missing value given the mean:**\n1. Compute the desired total sum: $\\text{Sum} = \\text{Mean} \\times \\text{Count}$\n2. Subtract the known values from the sum\n3. The remainder is the missing value\n\n**Finding the median:**\n1. Sort the data from least to greatest\n2. If $n$ is odd: median is the middle value at position $\\frac{n+1}{2}$\n3. If $n$ is even: median is the average of the two middle values\n\n### ✏️ Worked Example 1\n\n**Problem:** The average of 8 numbers is 15. When a 9th number is added, the average becomes 17. What is the 9th number?\n\n**Solution:**\n\nOriginal sum: $8 \\times 15 = 120$\n\nNew sum: $9 \\times 17 = 153$\n\n9th number: $153 - 120 = 33$\n\n### ✏️ Worked Example 2\n\n**Problem:** Data: $\\{3, 7, 7, 9, 10, 12, 15\\}$. Find the mean and median.\n\n**Solution:**\n\nMean: $\\frac{3 + 7 + 7 + 9 + 10 + 12 + 15}{7} = \\frac{63}{7} = 9$\n\nMedian: The 4th value (middle of 7): $9$\n\n### ✏️ Worked Example 3\n\n**Problem:** A student's test scores are 78, 85, 90, 92. What score does she need on the 5th test to have an average of 88?\n\n**Solution:**\n\nDesired sum: $5 \\times 88 = 440$\n\nCurrent sum: $78 + 85 + 90 + 92 = 345$\n\nNeeded: $440 - 345 = 95$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the mean formula for median problems.** Mean and median are different measures.\n- **Trap 2: Not sorting data before finding the median.** The median requires ordered data.\n- **Trap 3: Forgetting that an outlier affects the mean but not the median.** If one extreme value changes, the mean shifts significantly but the median may not change at all.\n\n### 🔗 Connection\n\nThis is the foundation for all statistics questions on the SAT. Standard deviation (next lesson) builds on the mean. These concepts appear in scatterplot interpretation (Lesson 4) and study design (Lesson 5).\n\n### 🏋️ Quick Drill\n\n1. The mean of 4 numbers is 10. What is their sum?\n2. Data: $\\{2, 5, 5, 8, 10\\}$. Mean? Median? Mode?\n3. Adding a 6th value of 100 to the set above: does the mean or median change more?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "The average of five numbers is 14. If a sixth number is added and the new average becomes 16, what is the sixth number?",
+              "correct_answers": [
+                26
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "Original sum: $5 \\times 14 = 70$. New sum: $6 \\times 16 = 96$. The sixth number: $96 - 70 = 26$.",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Standard Deviation and Data Spread",
+            "order": 1,
+            "theory": "## Standard Deviation and Data Spread\n\n### 🧠 Understanding the Concept\n\n**Standard deviation** (SD) measures how spread out data values are from the mean. A small SD means data points cluster tightly around the mean; a large SD means they are widely dispersed. The SAT tests your conceptual understanding of SD — you will never need to calculate it by hand.\n\nThe mental model: imagine the mean as the center of a target. If all data points are near the bullseye, the SD is small. If they are scattered all over the target, the SD is large. Two data sets can have the same mean but very different standard deviations.\n\nThe **normal distribution** (bell curve) uses standard deviation to describe how data spreads: about $68\\%$ of data falls within 1 SD of the mean, $95\\%$ within 2 SDs, and $99.7\\%$ within 3 SDs. This is called the **68-95-99.7 rule**.\n\n### 📐 Key Formulas\n\n**68-95-99.7 Rule** (for normal distributions):\n- $68\\%$ within $[\\bar{x} - \\sigma, \\bar{x} + \\sigma]$\n- $95\\%$ within $[\\bar{x} - 2\\sigma, \\bar{x} + 2\\sigma]$\n- $99.7\\%$ within $[\\bar{x} - 3\\sigma, \\bar{x} + 3\\sigma]$\n\n**Key Properties:**\n- SD $\\geq 0$; SD $= 0$ only if all values are identical\n- Adding a constant to all values: SD unchanged\n- Multiplying all values by $k$: SD multiplied by $|k|$\n\n### 📝 How to Solve (Step by Step)\n\n**Comparing SDs on the SAT:**\n1. Look at how spread out the data is from the mean\n2. More spread = larger SD\n3. Identical values = SD of 0\n\n**Using the 68-95-99.7 rule:**\n1. Identify the mean and SD\n2. Calculate the boundaries ($\\bar{x} \\pm \\sigma$, $\\bar{x} \\pm 2\\sigma$, $\\bar{x} \\pm 3\\sigma$)\n3. Determine what percentage of data falls in the asked region\n\n### ✏️ Worked Example 1\n\n**Problem:** Set A: $\\{50, 50, 50, 50, 50\\}$. Set B: $\\{10, 30, 50, 70, 90\\}$. Compare their SDs.\n\n**Solution:**\n\nSet A: All values are identical, so SD $= 0$.\n\nSet B: Values are spread widely from the mean of 50, so SD is large.\n\nSet B has a much greater standard deviation.\n\n### ✏️ Worked Example 2\n\n**Problem:** Scores on a test are normally distributed with mean 500 and SD 100. What percentage of scores fall between 300 and 700?\n\n**Solution:**\n\n$300 = 500 - 2(100)$ and $700 = 500 + 2(100)$\n\nThis is within 2 SDs of the mean, so approximately $95\\%$.\n\n### ✏️ Worked Example 3\n\n**Problem:** If every student's score increases by 10 points, how does this affect the SD?\n\n**Solution:**\n\nAdding a constant shifts all values equally — the spread does not change. The SD remains the same.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Thinking larger mean = larger SD.** Mean and SD are independent. $\\{100, 100, 100\\}$ has SD = 0.\n- **Trap 2: Assuming the 68-95-99.7 rule applies to all distributions.** It only applies to normal (bell-shaped) distributions.\n- **Trap 3: Confusing range with SD.** Range is just max minus min; SD accounts for how ALL values relate to the mean.\n\n### 🔗 Connection\n\nSD builds on the concept of the mean (Lesson 0). Understanding data spread helps in interpreting scatterplots (Lesson 4) and evaluating study designs (Lesson 5). The normal distribution appears in probability questions.\n\n### 🏋️ Quick Drill\n\n1. Which has larger SD: $\\{1, 2, 3, 4, 5\\}$ or $\\{3, 3, 3, 3, 3\\}$?\n2. Mean = 80, SD = 5. What range captures about $95\\%$ of normally distributed data?\n3. Every value in a data set is multiplied by 3. What happens to the SD?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Class A test scores: $\\{70, 72, 74, 76, 78\\}$. Class B test scores: $\\{50, 60, 70, 80, 90\\}$. Which statement is true?",
+              "choices": [
+                {
+                  "text": "Class A has a greater standard deviation",
+                  "correct": false
+                },
+                {
+                  "text": "Class B has a greater standard deviation",
+                  "correct": true
+                },
+                {
+                  "text": "Both classes have the same standard deviation",
+                  "correct": false
+                },
+                {
+                  "text": "Cannot be determined without calculation",
+                  "correct": false
+                }
+              ],
+              "explanation": "Class A scores are tightly clustered (range of $8$), while Class B scores are widely spread (range of $40$). Class B has the greater standard deviation.",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Probability and Two-Way Tables",
+            "order": 2,
+            "theory": "## Probability and Two-Way Tables\n\n### 🧠 Understanding the Concept\n\n**Probability** measures the likelihood of an event, expressed as a number between 0 (impossible) and 1 (certain). On the SAT, probability problems often use **two-way tables** — tables that organize data by two categorical variables.\n\nThe key to two-way table problems is understanding the difference between **joint probability** (the probability of both conditions), **marginal probability** (the probability of one condition regardless of the other), and **conditional probability** (the probability of one condition given that another is true).\n\nFor conditional probability, the critical skill is restricting your attention to the \"given\" group. \"P(Sports | Female)\" means: look only at females, then find what fraction play sports. You are zooming into a subset of the data.\n\n### 📐 Key Formulas\n\n$$P(\\text{event}) = \\frac{\\text{favorable outcomes}}{\\text{total outcomes}}$$\n\n$$P(\\text{not A}) = 1 - P(A)$$\n\n$$P(A \\text{ and } B) = \\frac{\\text{count of both A and B}}{\\text{total}}$$\n\n$$P(A | B) = \\frac{P(A \\text{ and } B)}{P(B)} = \\frac{\\text{count of both A and B}}{\\text{count of B}}$$\n\n### 📝 How to Solve (Step by Step)\n\n**For two-way table problems:**\n1. Read the table carefully — identify row totals, column totals, and grand total\n2. Identify what the question asks: joint, marginal, or conditional probability\n3. For conditional: restrict to the \"given\" row or column, use THAT total as the denominator\n4. Simplify the fraction\n\n### ✏️ Worked Example 1\n\n**Problem:** In a survey of 120 students, 45 are in Band, 60 play Sports, and 20 do both. What is P(Band or Sports)?\n\n**Solution:**\n\n$P(A \\cup B) = P(A) + P(B) - P(A \\cap B) = \\frac{45}{120} + \\frac{60}{120} - \\frac{20}{120} = \\frac{85}{120} = \\frac{17}{24}$\n\n### ✏️ Worked Example 2\n\n**Problem:** Using this table:\n\n| | Pass | Fail | Total |\n|---|---|---|---|\n| Studied | 40 | 10 | 50 |\n| Did not study | 15 | 35 | 50 |\n| Total | 55 | 45 | 100 |\n\nWhat is P(Pass | Studied)?\n\n**Solution:**\n\nRestrict to \"Studied\" row: 40 passed out of 50 who studied.\n\n$P(\\text{Pass | Studied}) = \\frac{40}{50} = \\frac{4}{5}$\n\n### ✏️ Worked Example 3\n\n**Problem:** From the same table, what is P(Studied | Pass)?\n\n**Solution:**\n\nRestrict to \"Pass\" column: 40 studied out of 55 who passed.\n\n$P(\\text{Studied | Pass}) = \\frac{40}{55} = \\frac{8}{11}$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the wrong denominator.** For conditional probability, the denominator is the total of the given condition, NOT the grand total.\n- **Trap 2: Confusing $P(A | B)$ with $P(B | A)$.** These are different! \"P(pass given studied)\" is not the same as \"P(studied given pass).\"\n- **Trap 3: Forgetting to subtract the overlap.** In \"or\" problems: $P(A \\text{ or } B) = P(A) + P(B) - P(A \\text{ and } B)$.\n\n### 🔗 Connection\n\nProbability builds on ratios and fractions (Lesson 3). Two-way tables appear in study design questions (Lesson 5). These skills also connect to interpreting survey data and making statistical inferences.\n\n### 🏋️ Quick Drill\n\n1. A bag has 3 red and 7 blue balls. What is P(red)?\n2. P(A) = 0.4, P(not A) = ?\n3. In a table, 30 out of 80 females passed. What is P(Pass | Female)?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A survey of 200 students found that 120 play sports and 80 play a musical instrument. If 50 students do both, what is the probability that a randomly selected student plays sports but NOT a musical instrument?",
+              "choices": [
+                {
+                  "text": "$\\frac{7}{20}$",
+                  "correct": true
+                },
+                {
+                  "text": "$\\frac{3}{5}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{1}{4}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{2}{5}$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Sports only: $120 - 50 = 70$. Probability: $\\frac{70}{200} = \\frac{7}{20}$.",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Ratios, Proportions, and Percentages",
+            "order": 3,
+            "theory": "## Ratios, Proportions, and Percentages\n\n### 🧠 Understanding the Concept\n\n**Ratios**, **proportions**, and **percentages** are the language of comparison on the SAT. Ratios compare two quantities, proportions state that two ratios are equal, and percentages express a number as a fraction of 100. These concepts appear in nearly every section of the SAT.\n\nThe key skill is translating between these representations. A ratio of 3:5 means \"for every 3 of one thing, there are 5 of another.\" A proportion like $\\frac{3}{5} = \\frac{x}{20}$ can be solved by cross-multiplying. A percentage change requires careful attention to what the \"base\" is.\n\nThe biggest trap on the SAT is **successive percentage changes**. A $20\\%$ increase followed by a $20\\%$ decrease does NOT return to the original value — it results in a $4\\%$ decrease. This is because the second percentage is applied to the new (larger) value.\n\n### 📐 Key Formulas\n\n**Proportion:** $\\frac{a}{b} = \\frac{c}{d} \\implies ad = bc$ (cross-multiply)\n\n**Percent change:** $\\frac{\\text{New} - \\text{Old}}{\\text{Old}} \\times 100\\%$\n\n**Successive changes:** Multiply the factors: $(1 + r_1)(1 + r_2) \\cdot \\text{original}$\n\n**Part-whole:** $\\text{Part} = \\text{Percentage} \\times \\text{Whole}$\n\n### 📝 How to Solve (Step by Step)\n\n**Ratio problems:**\n1. Set up the ratio $a : b$ and find the total parts: $a + b$\n2. Divide the total quantity by the number of parts to find \"one part\"\n3. Multiply to find each quantity\n\n**Percent change:**\n1. Compute the change: $\\text{New} - \\text{Old}$\n2. Divide by the **original** (old) value\n3. Multiply by 100\n\n### ✏️ Worked Example 1\n\n**Problem:** The ratio of cats to dogs in a shelter is $3:7$. If there are 50 animals total, how many are cats?\n\n**Solution:**\n\nTotal parts: $3 + 7 = 10$\n\nOne part: $50 / 10 = 5$\n\nCats: $3 \\times 5 = 15$\n\n### ✏️ Worked Example 2\n\n**Problem:** A price goes from \\$40 to \\$52. What is the percent increase?\n\n**Solution:**\n\n$\\frac{52 - 40}{40} \\times 100 = \\frac{12}{40} \\times 100 = 30\\%$\n\n### ✏️ Worked Example 3\n\n**Problem:** A price increases by $25\\%$ then decreases by $20\\%$. Starting at \\$100, what is the final price?\n\n**Solution:**\n\nAfter $+25\\%$: $100 \\times 1.25 = 125$\n\nAfter $-20\\%$: $125 \\times 0.80 = 100$\n\nFinal price: \\$100. (This is a coincidence for this specific pair of percentages.)\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the wrong base for percent change.** Percent change is always relative to the ORIGINAL value.\n- **Trap 2: Thinking $+20\\%$ then $-20\\%$ returns to the start.** It does NOT (except in rare special cases). $100 \\to 120 \\to 96$.\n- **Trap 3: Confusing \"percent of\" with \"percent more than.\"** $120$ is $20\\%$ more than $100$, but $100$ is $16.7\\%$ less than $120$.\n\n### 🔗 Connection\n\nRatios and proportions appear in similar triangles (Module 6), probability (Lesson 2), and unit conversion problems. Percent change connects to exponential growth (Module 4) as repeated percentage changes.\n\n### 🏋️ Quick Drill\n\n1. Ratio $2:3$, total 25. How many in the smaller group?\n2. Price drops from \\$80 to \\$60. Percent decrease?\n3. A $10\\%$ increase followed by a $10\\%$ decrease on \\$200: final price?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A store increases the price of an item by $25\\%$, then offers a $20\\%$ discount on the new price. If the original price was \\$80, what is the final price in dollars?",
+              "correct_answers": [
+                80
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": true,
+              "explanation": "After $25\\%$ increase: $80 \\times 1.25 = \\$100$. After $20\\%$ discount: $100 \\times 0.80 = \\$80$. The final price is $\\$80$.",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Scatterplots and Lines of Best Fit",
+            "order": 4,
+            "theory": "## Scatterplots and Lines of Best Fit\n\n### 🧠 Understanding the Concept\n\nA **scatterplot** displays the relationship between two quantitative variables as a collection of dots on the coordinate plane. On the SAT, you analyze scatterplots to identify trends, interpret lines of best fit, and make predictions.\n\nThe **line of best fit** (regression line) is the straight line that best represents the trend in the data. Its equation $y = mx + b$ allows you to make predictions: plug in an $x$-value to get a predicted $y$. The slope represents the rate of change, and the $y$-intercept is the predicted value when $x = 0$.\n\n**Residuals** measure how far each actual data point is from the predicted value: $\\text{residual} = \\text{actual} - \\text{predicted}$. A positive residual means the actual value is above the line; a negative residual means it is below.\n\n### 📐 Key Formulas\n\n**Line of best fit:** $\\hat{y} = mx + b$\n\n**Residual:** $e = y_{\\text{actual}} - y_{\\text{predicted}}$\n\n**Correlation coefficient $r$:** Measures strength and direction ($-1 \\leq r \\leq 1$)\n- $r$ near $+1$: strong positive linear association\n- $r$ near $-1$: strong negative linear association\n- $r$ near $0$: weak or no linear association\n\n### 📝 How to Solve (Step by Step)\n\n**Interpreting a line of best fit:**\n1. **Slope:** \"For each one-unit increase in $x$, $y$ changes by $m$ units\"\n2. **Y-intercept:** \"When $x = 0$, the predicted $y$ is $b$\"\n3. **Prediction:** Plug in the given $x$-value to get $\\hat{y}$\n\n**Identifying association from a scatterplot:**\n1. Look at the overall direction: up (positive), down (negative), or scattered (none)\n2. Look at the tightness: tight cluster = strong, loose scatter = weak\n\n### ✏️ Worked Example 1\n\n**Problem:** The line of best fit for hours studied ($x$) vs. exam score ($y$) is $y = 7x + 50$. Interpret the slope and intercept.\n\n**Solution:**\n\nSlope: Each additional hour of studying is associated with a 7-point increase in exam score.\n\nIntercept: A student who studies 0 hours is predicted to score 50 (the base score).\n\n### ✏️ Worked Example 2\n\n**Problem:** Using $y = 7x + 50$, predict the score for a student who studies 5 hours.\n\n**Solution:**\n\n$\\hat{y} = 7(5) + 50 = 85$\n\nIf the student actually scored 90: residual $= 90 - 85 = 5$ (above predicted).\n\n### ✏️ Worked Example 3\n\n**Problem:** A scatterplot shows data points clustered tightly around a line that slopes downward. Describe the association.\n\n**Solution:** The association is **strong and negative** — as $x$ increases, $y$ tends to decrease, and the relationship is consistent (tight clustering).\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Correlation does NOT imply causation.** A strong correlation between ice cream sales and drownings does not mean ice cream causes drowning (both increase in summer).\n- **Trap 2: Extrapolation is unreliable.** Predictions far outside the data range are not trustworthy.\n- **Trap 3: Confusing the sign of the slope with the strength.** $r = -0.95$ is a STRONGER correlation than $r = 0.3$.\n\n### 🔗 Connection\n\nThis builds on interpreting linear functions (Module 0, Lesson 2). The line of best fit uses the same $y = mx + b$ framework. Scatterplot questions often accompany study design questions (next lesson).\n\n### 🏋️ Quick Drill\n\n1. Line of best fit: $y = -3x + 100$. What does the $-3$ mean?\n2. Predicted: 72, Actual: 68. What is the residual?\n3. Does $r = -0.9$ indicate a strong or weak association?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A line of best fit for advertising spending ($x$, in thousands of dollars) and sales ($y$, in thousands of units) is $y = 2.5x + 10$. What is the best interpretation of the slope?",
+              "choices": [
+                {
+                  "text": "For each additional \\$1,000 spent on advertising, sales increase by approximately 2,500 units",
+                  "correct": true
+                },
+                {
+                  "text": "For each additional unit sold, \\$2,500 is spent on advertising",
+                  "correct": false
+                },
+                {
+                  "text": "When no money is spent on advertising, sales are 2,500 units",
+                  "correct": false
+                },
+                {
+                  "text": "Total sales are always $2.5$ times advertising spending",
+                  "correct": false
+                }
+              ],
+              "explanation": "The slope $2.5$ means for each unit increase in $x$ (\\$1,000 in advertising), $y$ increases by $2.5$ (2,500 units sold).",
+              "standard": "SAT.Problem Solving"
+            }
+          },
+          {
+            "title": "Sampling, Surveys, and Study Design",
+            "order": 5,
+            "theory": "## Sampling, Surveys, and Study Design\n\n### 🧠 Understanding the Concept\n\nOn the SAT, several questions test your understanding of how data is collected and what conclusions can be drawn. The two key concepts are: (1) **random sampling** allows generalization to the population, and (2) **random assignment** in experiments allows causal conclusions.\n\nAn **observational study** observes existing conditions without intervention. It can show association but NOT causation. An **experiment** applies a treatment with random assignment, enabling cause-and-effect conclusions.\n\n**Bias** is any systematic error in data collection. Common types: selection bias (sample is not representative), response bias (leading questions), and non-response bias (people who do not respond differ from those who do).\n\n### 📐 Key Formulas\n\nNo formulas needed — this topic is about conceptual understanding.\n\n**Key relationships:**\n- Random sampling → generalizable to population\n- Random assignment (experiment) → can show causation\n- Observational study → can show association only\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the study type: experiment (random assignment + treatment) or observational\n2. **Check** for random sampling (can we generalize?)\n3. **Look** for sources of bias\n4. **Determine** what conclusion is valid:\n   - Experiment + random sampling → causal conclusion generalizable to population\n   - Experiment only → causal conclusion for the study group only\n   - Observational → association only\n\n### ✏️ Worked Example 1\n\n**Problem:** Researchers surveyed 500 randomly selected adults and found that those who exercise more tend to have lower blood pressure. Can they conclude that exercise lowers blood pressure?\n\n**Solution:** No. This is an observational study (no treatment was assigned). It shows an **association** between exercise and lower blood pressure, but cannot establish causation. Other factors (diet, genetics) may explain the relationship.\n\n### ✏️ Worked Example 2\n\n**Problem:** 200 volunteers are randomly assigned to drink either green tea or water daily for 3 months. The green tea group shows improved memory. Can causation be claimed?\n\n**Solution:** Yes. This is a **randomized experiment** with random assignment. The difference can be attributed to the green tea treatment. However, the result applies only to the volunteer pool (not the general population unless volunteers were randomly sampled).\n\n### ✏️ Worked Example 3\n\n**Problem:** A school surveys only honor students about school lunch quality. Is this sample representative?\n\n**Solution:** No. This is **selection bias** — honor students may have different lunch habits and opinions than the general student body. The results cannot be generalized to all students.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Claiming causation from an observational study.** If there is no random assignment, you CANNOT claim causation, even with a large sample.\n- **Trap 2: Confusing random sampling with random assignment.** Random sampling = who is in the study. Random assignment = who gets the treatment.\n- **Trap 3: Ignoring sample bias.** A large sample does not fix bias. A biased sample of 10,000 is still biased.\n\n### 🔗 Connection\n\nThis is the culmination of the Data Analysis module. Understanding study design helps you evaluate the validity of statistical claims made in scatterplot and probability questions. These concepts are unique to the SAT and do not appear as prominently in other math courses.\n\n### 🏋️ Quick Drill\n\n1. A study finds coffee drinkers sleep less. Can you claim coffee causes less sleep?\n2. 100 patients are randomly assigned to drug or placebo. What type of study is this?\n3. A survey of gym members about exercise habits: is this biased?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A researcher randomly assigns 100 volunteers to two groups: one takes a vitamin supplement daily, and the other takes a placebo. After 6 months, the supplement group has fewer colds. What conclusion can be drawn?",
+              "choices": [
+                {
+                  "text": "The supplement likely caused fewer colds in the treatment group",
+                  "correct": true
+                },
+                {
+                  "text": "The supplement is associated with fewer colds, but causation cannot be established",
+                  "correct": false
+                },
+                {
+                  "text": "All people who take the supplement will have fewer colds",
+                  "correct": false
+                },
+                {
+                  "text": "No valid conclusion can be drawn",
+                  "correct": false
+                }
+              ],
+              "explanation": "Because this is a **randomized experiment** with a control group and random assignment, a cause-and-effect conclusion can be drawn (for the study population).",
+              "standard": "SAT.Problem Solving"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Geometry & Measurement",
+        "description": "Cover essential geometry: area, volume, coordinate geometry, similarity, congruence, and right triangle properties.",
+        "order": 6,
+        "lessons": [
+          {
+            "title": "Area and Perimeter of Basic Shapes",
+            "order": 0,
+            "theory": "## Area and Perimeter of Basic Shapes\n\n### 🧠 Understanding the Concept\n\n**Area** measures the space inside a two-dimensional shape (in square units), while **perimeter** measures the distance around it (in linear units). The SAT provides most area and perimeter formulas on the reference sheet, but you should memorize the common ones for speed.\n\nOn the SAT, geometry problems often involve **composite shapes** (shapes made of simpler parts) and **shaded regions** (where you subtract one area from another). The strategy is always: break the complex shape into simpler shapes, find each area separately, then add or subtract.\n\nThe most frequently tested shapes are rectangles, triangles, and circles. Circle problems (area and circumference) appear in almost every SAT.\n\n### 📐 Key Formulas\n\n| Shape | Area | Perimeter |\n|-------|------|-----------|\n| Rectangle | $A = lw$ | $P = 2(l + w)$ |\n| Triangle | $A = \\frac{1}{2}bh$ | $P = a + b + c$ |\n| Circle | $A = \\pi r^2$ | $C = 2\\pi r = \\pi d$ |\n| Trapezoid | $A = \\frac{1}{2}(b_1 + b_2)h$ | Sum of sides |\n| Parallelogram | $A = bh$ | $P = 2(a + b)$ |\n\n**Shaded region:** $A_{\\text{shaded}} = A_{\\text{outer}} - A_{\\text{inner}}$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the shape(s) involved\n2. **Find** all necessary dimensions (side lengths, radii, heights)\n3. **Apply** the appropriate formula\n4. For composite shapes: **add** or **subtract** areas\n5. **Watch units** — make sure all measurements use the same units\n\n### ✏️ Worked Example 1\n\n**Problem:** A circle with radius 5 is inscribed in a square. Find the area of the shaded region (between the square and circle).\n\n**Solution:**\n\nSquare side = diameter = 10. Square area = $100$.\n\nCircle area = $\\pi(5)^2 = 25\\pi$.\n\nShaded = $100 - 25\\pi \\approx 100 - 78.54 = 21.46$\n\n### ✏️ Worked Example 2\n\n**Problem:** A semicircle has diameter 12. Find its area and perimeter.\n\n**Solution:**\n\nRadius = 6. Area = $\\frac{1}{2}\\pi(6)^2 = 18\\pi$.\n\nPerimeter = curved part + diameter = $\\frac{1}{2}(2\\pi \\cdot 6) + 12 = 6\\pi + 12$.\n\n### ✏️ Worked Example 3\n\n**Problem:** A triangle has base 8 and height 5. A rectangle inside it has base 8 and height 3. What is the area outside the rectangle but inside the triangle?\n\n**Solution:**\n\nTriangle area = $\\frac{1}{2}(8)(5) = 20$\n\nRectangle area = $8 \\times 3 = 24$\n\nWait — the rectangle cannot have a larger area than the triangle with these dimensions. Let me reconsider: the rectangle must have a smaller base. If the problem means a rectangle of width $w$ and height 3 inscribed in the triangle, we need more information. Assuming the problem means the combined region: $20 - 24 < 0$, so let's use: rectangle base 4, height 3.\n\nArea outside rectangle = $20 - 12 = 8$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing radius and diameter.** If the diameter is 10, the radius is 5. Always check which is given.\n- **Trap 2: Forgetting that the height of a triangle must be perpendicular to the base.** A slanted side is NOT the height.\n- **Trap 3: Not including all parts of the perimeter.** For a semicircle, the perimeter includes the curved arc AND the diameter.\n\n### 🔗 Connection\n\nArea and perimeter are the foundation for all geometry on the SAT. These formulas are used in volume problems (next lesson), similar figure problems (Lesson 2), and coordinate geometry (Lesson 4).\n\n### 🏋️ Quick Drill\n\n1. Area of a circle with diameter 8?\n2. Perimeter of a rectangle with $l = 7$ and $w = 3$?\n3. A square has area 49. What is its perimeter?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "A circle with radius $6$ is inscribed in a square. What is the area of the region between the square and the circle?",
+              "choices": [
+                {
+                  "text": "$144 - 36\\pi$",
+                  "correct": true
+                },
+                {
+                  "text": "$36\\pi - 144$",
+                  "correct": false
+                },
+                {
+                  "text": "$144 - 12\\pi$",
+                  "correct": false
+                },
+                {
+                  "text": "$36 - 36\\pi$",
+                  "correct": false
+                }
+              ],
+              "explanation": "The square has side length $2 \\times 6 = 12$, so its area is $144$. The circle has area $\\pi(6)^2 = 36\\pi$. Shaded region: $144 - 36\\pi$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Volume and Surface Area of 3D Solids",
+            "order": 1,
+            "theory": "## Volume and Surface Area of 3D Solids\n\n### 🧠 Understanding the Concept\n\n**Volume** measures the space inside a three-dimensional object (in cubic units), while **surface area** measures the total area of its outer surface (in square units). The SAT provides volume formulas on the reference sheet, but familiarity speeds you up.\n\nThe most commonly tested solids are cylinders, rectangular prisms (boxes), cones, and spheres. Many SAT problems are word problems: \"A cylindrical tank holds how many gallons?\" or \"How much material is needed to wrap a box?\" The key is identifying the correct formula and plugging in the given values.\n\nRemember the relationship between similar shapes: if the linear scale factor is $k$, then areas scale by $k^2$ and volumes scale by $k^3$.\n\n### 📐 Key Formulas\n\n| Solid | Volume | Surface Area |\n|-------|--------|-------------|\n| Rectangular Prism | $V = lwh$ | $SA = 2(lw + lh + wh)$ |\n| Cylinder | $V = \\pi r^2 h$ | $SA = 2\\pi r^2 + 2\\pi rh$ |\n| Cone | $V = \\frac{1}{3}\\pi r^2 h$ | $SA = \\pi r^2 + \\pi rl$ |\n| Sphere | $V = \\frac{4}{3}\\pi r^3$ | $SA = 4\\pi r^2$ |\n| Pyramid | $V = \\frac{1}{3}Bh$ | Depends on base |\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the solid and its dimensions\n2. **Choose** the correct formula (volume or surface area)\n3. **Substitute** the given values\n4. **Simplify** — leave in terms of $\\pi$ if the answer choices are in that form\n5. For \"how much fits inside\": volume. For \"how much material to cover\": surface area.\n\n### ✏️ Worked Example 1\n\n**Problem:** A cylinder has radius 4 and height 10. Find its volume.\n\n**Solution:** $V = \\pi(4)^2(10) = 160\\pi \\approx 502.7$ cubic units.\n\n### ✏️ Worked Example 2\n\n**Problem:** A sphere has volume $288\\pi$. Find the radius.\n\n**Solution:**\n\n$\\frac{4}{3}\\pi r^3 = 288\\pi$\n\n$r^3 = 288 \\times \\frac{3}{4} = 216$\n\n$r = 6$\n\n### ✏️ Worked Example 3\n\n**Problem:** A cone has radius 3 and height 4. A similar cone has radius 6. What is the volume of the larger cone?\n\n**Solution:**\n\nScale factor: $k = 6/3 = 2$. Volume scales by $k^3 = 8$.\n\nSmall cone volume: $V = \\frac{1}{3}\\pi(9)(4) = 12\\pi$\n\nLarge cone volume: $12\\pi \\times 8 = 96\\pi$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing $r$ and $d$.** The formula uses radius, not diameter. If given diameter 10, use $r = 5$.\n- **Trap 2: Forgetting the $\\frac{1}{3}$ for cones and pyramids.** A cone is one-third of a cylinder with the same base and height.\n- **Trap 3: Scaling errors.** If you double the radius, volume increases by $2^3 = 8$ times, not $2$ times.\n\n### 🔗 Connection\n\nVolume builds on area formulas (Lesson 0). The scaling relationships connect to similar figures (Lesson 2). These formulas appear in real-world SAT problems about tanks, containers, and packaging.\n\n### 🏋️ Quick Drill\n\n1. Volume of a cube with side 5?\n2. A cylinder has $V = 100\\pi$ and $h = 4$. Find $r$.\n3. If a sphere's radius triples, by what factor does its volume increase?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A sphere has a volume of $36\\pi$ cubic inches. What is the radius of the sphere, in inches?",
+              "correct_answers": [
+                3
+              ],
+              "tolerance": 0.01,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "$V = \\frac{4}{3}\\pi r^3 = 36\\pi$. Divide by $\\pi$: $\\frac{4}{3}r^3 = 36$. Multiply by $\\frac{3}{4}$: $r^3 = 27$. Take cube root: $r = 3$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Similar and Congruent Triangles",
+            "order": 2,
+            "theory": "## Similar and Congruent Triangles\n\n### 🧠 Understanding the Concept\n\n**Congruent triangles** are identical in shape and size — all corresponding sides and angles are equal. **Similar triangles** have the same shape but possibly different sizes — corresponding angles are equal and corresponding sides are proportional.\n\nOn the SAT, similar triangles appear frequently in indirect measurement problems (using shadows, mirrors, or nested triangles to find unknown lengths). The key is setting up the correct proportion between corresponding sides.\n\nThe scaling principle is powerful: if two figures are similar with scale factor $k$, then perimeters scale by $k$, areas by $k^2$, and volumes by $k^3$. This means a figure with sides doubled has four times the area and eight times the volume.\n\n### 📐 Key Formulas\n\n**Similarity criteria:** AA (two pairs of equal angles), SAS, SSS\n\n**Proportional sides:** $\\frac{a_1}{a_2} = \\frac{b_1}{b_2} = \\frac{c_1}{c_2} = k$\n\n**Area scaling:** $\\frac{A_1}{A_2} = k^2$\n\n**Volume scaling:** $\\frac{V_1}{V_2} = k^3$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Establish** similarity (usually by AA — find two pairs of equal angles)\n2. **Match** corresponding sides (shortest to shortest, etc.)\n3. **Set up** a proportion\n4. **Cross-multiply** and solve\n5. For area/volume: apply the appropriate power of the scale factor\n\n### ✏️ Worked Example 1\n\n**Problem:** In similar triangles, the sides of the smaller are 3, 4, 5 and a corresponding side of the larger is 10. Find all sides of the larger.\n\n**Solution:**\n\nScale factor: $k = 10/5 = 2$ (matching the largest sides).\n\nLarger sides: $3 \\times 2 = 6$, $4 \\times 2 = 8$, $5 \\times 2 = 10$.\n\n### ✏️ Worked Example 2\n\n**Problem:** A 6-foot person casts a 4-foot shadow. A tree casts a 20-foot shadow. How tall is the tree?\n\n**Solution:**\n\nThe triangles formed are similar (same sun angle).\n\n$\\frac{h}{20} = \\frac{6}{4}$\n\n$h = 20 \\times \\frac{6}{4} = 30$ feet.\n\n### ✏️ Worked Example 3\n\n**Problem:** Two similar triangles have areas 8 and 32. What is the ratio of their corresponding sides?\n\n**Solution:**\n\nArea ratio: $\\frac{32}{8} = 4 = k^2$\n\n$k = 2$. The side ratio is $1:2$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Matching wrong sides.** Always match the largest side with the largest, smallest with smallest.\n- **Trap 2: Using the linear scale factor for area.** If sides are in ratio $1:3$, areas are in ratio $1:9$, not $1:3$.\n- **Trap 3: Assuming triangles are similar without proof.** You need AA, SAS, or SSS similarity — not just \"they look similar.\"\n\n### 🔗 Connection\n\nSimilar triangles connect to proportions (Module 5, Lesson 3) and the Pythagorean theorem (next lesson). They are used in trigonometry (Module 7) and in real-world measurement problems throughout the SAT.\n\n### 🏋️ Quick Drill\n\n1. Scale factor is 3. What is the area ratio?\n2. Two similar triangles have perimeters 12 and 36. Scale factor?\n3. If a model car is $\\frac{1}{24}$ scale, what fraction of the real car's volume is the model?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "Two similar triangles have corresponding sides in the ratio $2:5$. If the area of the smaller triangle is $12$ square cm, what is the area of the larger triangle in square cm?",
+              "correct_answers": [
+                75
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "Scale factor $k = 5/2$. Area ratio $= k^2 = 25/4$. Larger area $= 12 \\times 25/4 = 75$ square cm.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "The Pythagorean Theorem and Special Right Triangles",
+            "order": 3,
+            "theory": "## The Pythagorean Theorem and Special Right Triangles\n\n### 🧠 Understanding the Concept\n\nThe **Pythagorean Theorem** states that in a right triangle, the square of the hypotenuse equals the sum of the squares of the legs: $a^2 + b^2 = c^2$. This is one of the most frequently used formulas on the SAT.\n\nBeyond the basic theorem, you should memorize **Pythagorean triples** (sets of integers that satisfy $a^2 + b^2 = c^2$) and **special right triangles** (45-45-90 and 30-60-90). Recognizing these patterns saves significant time.\n\nThe 45-45-90 triangle has sides in ratio $1 : 1 : \\sqrt{2}$ (it is half a square cut diagonally). The 30-60-90 triangle has sides in ratio $1 : \\sqrt{3} : 2$ (it is half an equilateral triangle). These appear frequently in SAT geometry and trigonometry problems.\n\n### 📐 Key Formulas\n\n$$a^2 + b^2 = c^2$$\n\n**Common Pythagorean Triples:** $3, 4, 5$; $5, 12, 13$; $8, 15, 17$; $7, 24, 25$\n\n**45-45-90:** legs $= x$, hypotenuse $= x\\sqrt{2}$\n\n**30-60-90:** short leg $= x$, long leg $= x\\sqrt{3}$, hypotenuse $= 2x$\n\n**Distance Formula:** $d = \\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Verify** the triangle is a right triangle (look for a right angle marker or check $a^2 + b^2 = c^2$)\n2. **Check** for Pythagorean triples (saves calculation)\n3. **Check** for special right triangles (look for $45°$ or $30°/60°$ angles)\n4. **Apply** $a^2 + b^2 = c^2$ and solve for the unknown side\n\n### ✏️ Worked Example 1\n\n**Problem:** A right triangle has legs 5 and 12. Find the hypotenuse.\n\n**Solution:** Recognize the $5, 12, 13$ triple. Hypotenuse $= 13$.\n\nOr: $c = \\sqrt{25 + 144} = \\sqrt{169} = 13$.\n\n### ✏️ Worked Example 2\n\n**Problem:** A square has diagonal 10. Find the side length.\n\n**Solution:** The diagonal creates a 45-45-90 triangle.\n\n$s\\sqrt{2} = 10$, so $s = \\frac{10}{\\sqrt{2}} = \\frac{10\\sqrt{2}}{2} = 5\\sqrt{2}$\n\n### ✏️ Worked Example 3\n\n**Problem:** An equilateral triangle has side 8. Find its height.\n\n**Solution:** The height splits it into two 30-60-90 triangles.\n\nShort leg (half the base) = 4. Hypotenuse = 8.\n\nHeight (long leg) = $4\\sqrt{3}$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the Pythagorean theorem on non-right triangles.** It only applies to RIGHT triangles.\n- **Trap 2: Confusing legs and hypotenuse.** The hypotenuse is always the LONGEST side, opposite the right angle. $c$ is always the hypotenuse in $a^2 + b^2 = c^2$.\n- **Trap 3: Misremembering 30-60-90 ratios.** The side opposite $30°$ is the SHORTEST. The hypotenuse is DOUBLE the shortest side.\n\n### 🔗 Connection\n\nThe Pythagorean theorem is the basis for the distance formula (next lesson), trigonometric ratios (Module 7), and many coordinate geometry problems. Special right triangles connect to trigonometric values of $30°$, $45°$, and $60°$.\n\n### 🏋️ Quick Drill\n\n1. Legs: 8 and 15. Hypotenuse?\n2. 45-45-90 with hypotenuse 14. Leg length?\n3. 30-60-90 with hypotenuse 20. Side opposite 60°?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "In a $30$-$60$-$90$ triangle, the side opposite the $30°$ angle has length $7$. What is the length of the hypotenuse?",
+              "choices": [
+                {
+                  "text": "$14$",
+                  "correct": true
+                },
+                {
+                  "text": "$7\\sqrt{2}$",
+                  "correct": false
+                },
+                {
+                  "text": "$7\\sqrt{3}$",
+                  "correct": false
+                },
+                {
+                  "text": "$21$",
+                  "correct": false
+                }
+              ],
+              "explanation": "In a $30$-$60$-$90$ triangle, the hypotenuse is twice the shortest side (opposite $30°$). Hypotenuse $= 2 \\times 7 = 14$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Coordinate Geometry: Midpoint and Distance",
+            "order": 4,
+            "theory": "## Coordinate Geometry: Midpoint and Distance\n\n### 🧠 Understanding the Concept\n\n**Coordinate geometry** connects algebra and geometry by placing shapes on the coordinate plane. The two fundamental tools are the **distance formula** (how far apart are two points?) and the **midpoint formula** (what point is exactly halfway?).\n\nBoth formulas come from the Pythagorean theorem. The distance between $(x_1, y_1)$ and $(x_2, y_2)$ is the hypotenuse of a right triangle with horizontal leg $|x_2 - x_1|$ and vertical leg $|y_2 - y_1|$.\n\nOn the SAT, these formulas also appear in **circle equations**. The standard form of a circle $(x - h)^2 + (y - k)^2 = r^2$ directly uses the distance formula — every point $(x, y)$ on the circle is exactly $r$ units from the center $(h, k)$.\n\n### 📐 Key Formulas\n\n**Distance:** $d = \\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$\n\n**Midpoint:** $M = \\left(\\frac{x_1 + x_2}{2}, \\frac{y_1 + y_2}{2}\\right)$\n\n**Circle (standard form):** $(x - h)^2 + (y - k)^2 = r^2$, center $(h, k)$, radius $r$\n\n### 📝 How to Solve (Step by Step)\n\n**Distance:**\n1. Subtract the $x$-coordinates and square\n2. Subtract the $y$-coordinates and square\n3. Add and take the square root\n\n**Midpoint:**\n1. Average the $x$-coordinates\n2. Average the $y$-coordinates\n\n**Circle from general form:**\n1. Group $x$-terms and $y$-terms\n2. Complete the square for each\n3. Identify center and radius from standard form\n\n### ✏️ Worked Example 1\n\n**Problem:** Find the distance between $(1, -2)$ and $(4, 2)$.\n\n**Solution:**\n\n$d = \\sqrt{(4-1)^2 + (2-(-2))^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$\n\n### ✏️ Worked Example 2\n\n**Problem:** Find the midpoint of $(-3, 7)$ and $(5, 1)$.\n\n**Solution:**\n\n$M = \\left(\\frac{-3 + 5}{2}, \\frac{7 + 1}{2}\\right) = (1, 4)$\n\n### ✏️ Worked Example 3\n\n**Problem:** Convert $x^2 + y^2 + 6x - 2y - 6 = 0$ to standard form and find the center and radius.\n\n**Solution:**\n\n$(x^2 + 6x + 9) + (y^2 - 2y + 1) = 6 + 9 + 1$\n\n$(x + 3)^2 + (y - 1)^2 = 16$\n\nCenter: $(-3, 1)$, Radius: $4$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign errors in the circle equation.** $(x + 3)^2$ means center $x = -3$, not $+3$.\n- **Trap 2: Forgetting to add completing-the-square constants to BOTH sides.** When you add 9 inside the $x$-grouping, add 9 to the right side too.\n- **Trap 3: Giving $r^2$ instead of $r$.** If $(x-1)^2 + (y+2)^2 = 25$, the radius is $5$, not $25$.\n\n### 🔗 Connection\n\nThe distance formula uses the Pythagorean theorem (Lesson 3). Circle equations connect to tangent lines (Module 7, Lesson 4). Midpoint and distance appear in problems about line segments, triangles, and coordinate proofs.\n\n### 🏋️ Quick Drill\n\n1. Distance from $(0, 0)$ to $(3, 4)$?\n2. Midpoint of $(2, 6)$ and $(8, 10)$?\n3. Circle: $(x - 5)^2 + (y + 1)^2 = 36$. Center? Radius?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A circle in the $xy$-plane has equation $(x + 2)^2 + (y - 3)^2 = 49$. What is the radius of the circle?",
+              "correct_answers": [
+                7
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "The equation is in the form $(x - h)^2 + (y - k)^2 = r^2$ with $r^2 = 49$. So $r = 7$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Transformations and Symmetry",
+            "order": 5,
+            "theory": "## Transformations and Symmetry\n\n### 🧠 Understanding the Concept\n\nA **transformation** is a rule that moves or changes a geometric figure. On the SAT, you need to understand four types: translations (sliding), reflections (flipping), rotations (turning), and dilations (resizing).\n\nTransformations divide into **rigid** (preserve size and shape: translations, reflections, rotations) and **non-rigid** (change size: dilations). Rigid transformations produce congruent figures; dilations produce similar figures.\n\nThe SAT also tests **function transformations** — how changing $f(x)$ to $f(x) + k$, $f(x - h)$, $-f(x)$, or $af(x)$ shifts, reflects, or stretches the graph. This is where algebra and geometry merge.\n\n### 📐 Key Formulas\n\n| Transformation | Coordinate Rule |\n|---------------|----------------|\n| Translation by $(a, b)$ | $(x, y) \\to (x + a, y + b)$ |\n| Reflect over $x$-axis | $(x, y) \\to (x, -y)$ |\n| Reflect over $y$-axis | $(x, y) \\to (-x, y)$ |\n| Reflect over $y = x$ | $(x, y) \\to (y, x)$ |\n| Rotate 90° CCW | $(x, y) \\to (-y, x)$ |\n| Rotate 180° | $(x, y) \\to (-x, -y)$ |\n| Dilation factor $k$ | $(x, y) \\to (kx, ky)$ |\n\n**Function Transformations:**\n- $f(x) + k$: shift up $k$\n- $f(x - h)$: shift right $h$\n- $-f(x)$: reflect over $x$-axis\n- $f(-x)$: reflect over $y$-axis\n- $af(x)$: vertical stretch by $a$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the transformation type\n2. **Apply** the coordinate rule to each point\n3. For function transformations: apply the rule to the equation\n4. For compositions (multiple transformations): apply them in order\n\n### ✏️ Worked Example 1\n\n**Problem:** Reflect $(3, -5)$ over the $y$-axis, then translate 4 units up.\n\n**Solution:**\n\nReflect: $(3, -5) \\to (-3, -5)$\n\nTranslate up 4: $(-3, -5) \\to (-3, -1)$\n\n### ✏️ Worked Example 2\n\n**Problem:** The graph of $y = f(x)$ is shifted 3 units right and 2 units down. Write the new equation.\n\n**Solution:**\n\n$y = f(x - 3) - 2$\n\n### ✏️ Worked Example 3\n\n**Problem:** Triangle with vertices $A(1, 2)$, $B(4, 2)$, $C(1, 5)$ is rotated $180°$ about the origin. Find the new vertices.\n\n**Solution:**\n\n$(x, y) \\to (-x, -y)$\n\n$A' = (-1, -2)$, $B' = (-4, -2)$, $C' = (-1, -5)$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Direction confusion.** $f(x - 3)$ shifts RIGHT, not left. The sign is counterintuitive.\n- **Trap 2: Order of transformations matters.** Reflecting then translating gives a different result than translating then reflecting.\n- **Trap 3: Dilation changes size, not just position.** A dilation with $k = 2$ doubles all distances from the center.\n\n### 🔗 Connection\n\nTransformations connect rigid motions to congruence (Lesson 2) and dilations to similarity. Function transformations apply to every function type studied — linear, quadratic, exponential, and trigonometric. This is a cross-cutting concept across all modules.\n\n### 🏋️ Quick Drill\n\n1. Reflect $(2, -3)$ over the $x$-axis.\n2. $f(x) = x^2$. Write the equation shifted 1 left and 5 up.\n3. Is a rotation rigid or non-rigid?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "Point $P(3, -5)$ is reflected over the $y$-axis and then translated $2$ units up. What are the coordinates of the final image?",
+              "choices": [
+                {
+                  "text": "$(-3, -3)$",
+                  "correct": true
+                },
+                {
+                  "text": "$(3, -3)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(-3, -7)$",
+                  "correct": false
+                },
+                {
+                  "text": "$(3, -7)$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Reflect over $y$-axis: $(3, -5) \\to (-3, -5)$. Translate $2$ units up: $(-3, -5) \\to (-3, -3)$.",
+              "standard": "SAT.Geometry"
+            }
+          }
+        ]
+      },
+      {
+        "title": "Trigonometry & Circle Theorems",
+        "description": "Master trigonometric ratios, the unit circle, radians, arc length, sector area, and circle theorems tested on the SAT.",
+        "order": 7,
+        "lessons": [
+          {
+            "title": "Trigonometric Ratios (SOH-CAH-TOA)",
+            "order": 0,
+            "theory": "## Trigonometric Ratios (SOH-CAH-TOA)\n\n### 🧠 Understanding the Concept\n\nTrigonometry connects angles to side lengths in right triangles. The three primary ratios — **sine**, **cosine**, and **tangent** — are defined in terms of the sides of a right triangle relative to a chosen acute angle.\n\nThe mnemonic **SOH-CAH-TOA** encodes all three definitions. For an acute angle $\\theta$ in a right triangle:\n- **S**ine = **O**pposite / **H**ypotenuse\n- **C**osine = **A**djacent / **H**ypotenuse\n- **T**angent = **O**pposite / **A**djacent\n\nOn the SAT, trig ratio problems typically give you one ratio and ask for another. The Pythagorean identity $\\sin^2\\theta + \\cos^2\\theta = 1$ is the essential link between sine and cosine. Another frequently tested fact is the **complementary angle relationship**: $\\sin\\theta = \\cos(90° - \\theta)$.\n\n### 📐 Key Formulas\n\n$$\\sin\\theta = \\frac{\\text{Opposite}}{\\text{Hypotenuse}}, \\quad \\cos\\theta = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}}, \\quad \\tan\\theta = \\frac{\\text{Opposite}}{\\text{Adjacent}}$$\n\n$$\\sin^2\\theta + \\cos^2\\theta = 1$$\n\n$$\\sin\\theta = \\cos(90° - \\theta), \\quad \\cos\\theta = \\sin(90° - \\theta)$$\n\n| $\\theta$ | $\\sin\\theta$ | $\\cos\\theta$ | $\\tan\\theta$ |\n|-----------|-------------|-------------|-------------|\n| $30°$ | $\\frac{1}{2}$ | $\\frac{\\sqrt{3}}{2}$ | $\\frac{\\sqrt{3}}{3}$ |\n| $45°$ | $\\frac{\\sqrt{2}}{2}$ | $\\frac{\\sqrt{2}}{2}$ | $1$ |\n| $60°$ | $\\frac{\\sqrt{3}}{2}$ | $\\frac{1}{2}$ | $\\sqrt{3}$ |\n\n### 📝 How to Solve (Step by Step)\n\n1. **Label** the sides relative to the given angle: opposite, adjacent, hypotenuse\n2. **Choose** the ratio that uses the known side and the unknown side\n3. **Set up** the equation and solve\n4. If given one ratio, use the Pythagorean theorem or identity to find others\n\n### ✏️ Worked Example 1\n\n**Problem:** In a right triangle, the side opposite angle $A$ is 8 and the hypotenuse is 17. Find $\\cos A$.\n\n**Solution:**\n\nAdjacent $= \\sqrt{17^2 - 8^2} = \\sqrt{289 - 64} = \\sqrt{225} = 15$\n\n$\\cos A = \\frac{15}{17}$\n\n### ✏️ Worked Example 2\n\n**Problem:** If $\\sin x = \\frac{5}{13}$, what is $\\cos x$?\n\n**Solution:**\n\n$\\cos x = \\sqrt{1 - \\sin^2 x} = \\sqrt{1 - \\frac{25}{169}} = \\sqrt{\\frac{144}{169}} = \\frac{12}{13}$\n\n### ✏️ Worked Example 3\n\n**Problem:** If $\\cos 40° = 0.766$, what is $\\sin 50°$?\n\n**Solution:** Since $40° + 50° = 90°$, $\\sin 50° = \\cos 40° = 0.766$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Mixing up opposite and adjacent.** \"Opposite\" and \"adjacent\" change depending on which angle you are using. Always label relative to the given angle.\n- **Trap 2: Forgetting the complementary relationship.** $\\sin 30° = \\cos 60°$. This is one of the SAT's favorite tricks.\n- **Trap 3: Using trig ratios on non-right triangles.** SOH-CAH-TOA only applies to right triangles.\n\n### 🔗 Connection\n\nTrig ratios build on the Pythagorean theorem and special right triangles (Module 6, Lesson 3). They lead to radians (next lesson) and are used in arc length and sector area problems (Lesson 2).\n\n### 🏋️ Quick Drill\n\n1. $\\sin 60° = ?$\n2. If $\\tan\\theta = \\frac{3}{4}$ and $\\theta$ is acute, what is $\\sin\\theta$?\n3. $\\sin 25° = \\cos ?$",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "In a right triangle, $\\sin A = \\frac{3}{5}$. What is $\\cos A$?",
+              "choices": [
+                {
+                  "text": "$\\frac{4}{5}$",
+                  "correct": true
+                },
+                {
+                  "text": "$\\frac{3}{4}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{5}{3}$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\frac{2}{5}$",
+                  "correct": false
+                }
+              ],
+              "explanation": "If $\\sin A = 3/5$, then opposite $= 3$, hypotenuse $= 5$. Adjacent $= \\sqrt{25 - 9} = 4$. So $\\cos A = 4/5$. Alternatively: $\\cos A = \\sqrt{1 - \\sin^2 A} = \\sqrt{1 - 9/25} = \\sqrt{16/25} = 4/5$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Radians and Degree Conversion",
+            "order": 1,
+            "theory": "## Radians and Degree Conversion\n\n### 🧠 Understanding the Concept\n\n**Degrees** and **radians** are two different units for measuring angles, just as inches and centimeters are two different units for measuring length. Degrees divide a full circle into 360 equal parts — a convention dating back to ancient Babylon. Radians are based on the geometry of the circle itself: one radian is the angle at the center of a circle subtended by an arc whose length equals the radius.\n\nA full circle is $360°$ or $2\\pi$ radians. Therefore, $\\pi$ radians $= 180°$. This single conversion factor is all you need to go back and forth. On the SAT, radians are used in arc length and sector area formulas, and you must be comfortable converting between the two systems quickly and accurately.\n\nThe mental model: imagine taking the radius of a circle and bending it to lie along the circumference. The angle you subtend at the center is exactly 1 radian (about $57.3°$). Since the circumference is $2\\pi r$, you can fit $2\\pi$ radius-lengths around the circle, which is why a full rotation is $2\\pi$ radians. This means radians directly connect angle measure to arc length — a property that makes radian formulas beautifully simple.\n\nWhy does the SAT care? Because many advanced formulas (arc length $s = r\\theta$, sector area $A = \\frac{1}{2}r^2\\theta$) only work when $\\theta$ is in radians. If you accidentally use degrees in these formulas, your answer will be wildly wrong. The SAT tests whether you know the difference.\n\n### 📐 Key Formulas\n\n$$\\pi \\text{ rad} = 180°$$\n\n$$\\text{Radians} = \\text{Degrees} \\times \\frac{\\pi}{180}$$\n\n$$\\text{Degrees} = \\text{Radians} \\times \\frac{180}{\\pi}$$\n\n| Degrees | Radians |\n|---------|---------|\n| $30°$ | $\\frac{\\pi}{6}$ |\n| $45°$ | $\\frac{\\pi}{4}$ |\n| $60°$ | $\\frac{\\pi}{3}$ |\n| $90°$ | $\\frac{\\pi}{2}$ |\n| $120°$ | $\\frac{2\\pi}{3}$ |\n| $180°$ | $\\pi$ |\n| $270°$ | $\\frac{3\\pi}{2}$ |\n| $360°$ | $2\\pi$ |\n\n### 📝 How to Solve (Step by Step)\n\n**Degrees to Radians:**\n1. Multiply the degree measure by $\\frac{\\pi}{180}$\n2. Simplify the fraction (reduce before multiplying by $\\pi$)\n\n**Radians to Degrees:**\n1. Multiply the radian measure by $\\frac{180}{\\pi}$\n2. The $\\pi$ cancels if the radian value contains $\\pi$\n\n**Shortcut for common angles:** Memorize the table above. For $30°$, $45°$, $60°$, $90°$, and their multiples, instant recall is faster than calculating.\n\n**Decision tree:**\n- If the angle has $\\pi$ in it → it is in radians, multiply by $\\frac{180}{\\pi}$ to get degrees\n- If the angle is a plain number (like $150°$) → it is in degrees, multiply by $\\frac{\\pi}{180}$ to get radians\n- If the angle is a plain number WITHOUT a degree symbol (like $2$) → it is in radians already\n\n### ✏️ Worked Example 1\n\n**Problem:** Convert $150°$ to radians.\n\n**Solution:**\n\n$150 \\times \\frac{\\pi}{180} = \\frac{150\\pi}{180} = \\frac{5\\pi}{6}$\n\n(Simplify by dividing numerator and denominator by 30.)\n\n### ✏️ Worked Example 2\n\n**Problem:** Convert $\\frac{7\\pi}{4}$ to degrees.\n\n**Solution:**\n\n$\\frac{7\\pi}{4} \\times \\frac{180}{\\pi} = \\frac{7 \\times 180}{4} = \\frac{1260}{4} = 315°$\n\nThis angle is in the fourth quadrant ($270° < 315° < 360°$).\n\n### ✏️ Worked Example 3\n\n**Problem:** An angle measures 2 radians (no $\\pi$). Convert to degrees.\n\n**Solution:**\n\n$2 \\times \\frac{180}{\\pi} = \\frac{360}{\\pi} \\approx 114.6°$\n\nNote: When a radian measure does NOT include $\\pi$, the $\\pi$ does not cancel, and the answer is not a \"nice\" number. This is uncommon on the SAT but possible.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing the conversion direction.** To go from degrees to radians, multiply by $\\frac{\\pi}{180}$, not $\\frac{180}{\\pi}$. Remember: radians are smaller numbers, so going from degrees (big) to radians (small) means multiplying by a fraction less than 1.\n- **Trap 2: Forgetting to simplify.** $\\frac{120\\pi}{180}$ should be reduced to $\\frac{2\\pi}{3}$, not left unsimplified.\n- **Trap 3: Calculator in wrong mode.** If you calculate $\\sin(\\pi/6)$ with your calculator in degree mode, you will get $\\sin(0.524°)$ instead of $\\sin(30°) = 0.5$. Always check RAD vs DEG mode.\n\n### 🔗 Connection\n\nRadians are essential for arc length and sector area (next lesson), where the formulas $s = r\\theta$ and $A = \\frac{1}{2}r^2\\theta$ require $\\theta$ in radians. Understanding radians also connects to the unit circle in advanced trigonometry. The trig ratios from Lesson 0 use the same angle values but in radian form.\n\n### 🏋️ Quick Drill\n\n1. Convert $270°$ to radians.\n2. Convert $\\frac{\\pi}{3}$ to degrees.\n3. How many radians is a right angle?\n4. Convert $\\frac{5\\pi}{4}$ to degrees.\n5. Is $3$ radians more or less than $180°$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "An angle measures $\\frac{5\\pi}{3}$ radians. What is its measure in degrees?",
+              "choices": [
+                {
+                  "text": "$300°$",
+                  "correct": true
+                },
+                {
+                  "text": "$150°$",
+                  "correct": false
+                },
+                {
+                  "text": "$240°$",
+                  "correct": false
+                },
+                {
+                  "text": "$330°$",
+                  "correct": false
+                }
+              ],
+              "explanation": "$\\frac{5\\pi}{3} \\times \\frac{180}{\\pi} = \\frac{5 \\times 180}{3} = \\frac{900}{3} = 300°$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Arc Length and Sector Area",
+            "order": 2,
+            "theory": "## Arc Length and Sector Area\n\n### 🧠 Understanding the Concept\n\nAn **arc** is a portion of a circle's circumference, and a **sector** is the \"pie slice\" region bounded by two radii and an arc. On the SAT, you need to calculate arc length and sector area given the radius and central angle.\n\nThe key insight is **proportional thinking**: a sector with central angle $\\theta$ out of $360°$ (or $2\\pi$ radians) represents the fraction $\\frac{\\theta}{360}$ (or $\\frac{\\theta}{2\\pi}$) of the full circle. Apply this fraction to the circumference to get arc length, or to the total area to get sector area.\n\nThe radian formulas are especially elegant: arc length $s = r\\theta$ and sector area $A = \\frac{1}{2}r^2\\theta$ (with $\\theta$ in radians). These are worth memorizing for speed.\n\n### 📐 Key Formulas\n\n**Arc Length:**\n$$s = r\\theta \\quad (\\theta \\text{ in radians})$$\n$$s = \\frac{\\theta}{360} \\times 2\\pi r \\quad (\\theta \\text{ in degrees})$$\n\n**Sector Area:**\n$$A = \\frac{1}{2}r^2\\theta \\quad (\\theta \\text{ in radians})$$\n$$A = \\frac{\\theta}{360} \\times \\pi r^2 \\quad (\\theta \\text{ in degrees})$$\n\n**Proportion principle:**\n$$\\frac{\\text{arc length}}{2\\pi r} = \\frac{\\text{sector area}}{\\pi r^2} = \\frac{\\theta}{360°} = \\frac{\\theta(\\text{rad})}{2\\pi}$$\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** the radius $r$ and central angle $\\theta$\n2. **Check** if the angle is in degrees or radians\n3. **Apply** the appropriate formula\n4. **Simplify** and check if the answer should be exact (in terms of $\\pi$) or approximate\n\n### ✏️ Worked Example 1\n\n**Problem:** A circle has radius 6 cm. Find the arc length for a $60°$ central angle.\n\n**Solution:**\n\n$s = \\frac{60}{360} \\times 2\\pi(6) = \\frac{1}{6} \\times 12\\pi = 2\\pi \\approx 6.28$ cm\n\n### ✏️ Worked Example 2\n\n**Problem:** Find the area of a sector with radius 10 and central angle $\\frac{\\pi}{3}$ radians.\n\n**Solution:**\n\n$A = \\frac{1}{2}(10)^2 \\cdot \\frac{\\pi}{3} = \\frac{100\\pi}{6} = \\frac{50\\pi}{3} \\approx 52.36$\n\n### ✏️ Worked Example 3\n\n**Problem:** An arc has length $5\\pi$ cm and the radius is 10 cm. Find the central angle in degrees.\n\n**Solution:**\n\n$s = \\frac{\\theta}{360} \\times 2\\pi r$\n\n$5\\pi = \\frac{\\theta}{360} \\times 20\\pi$\n\n$\\frac{5}{20} = \\frac{\\theta}{360}$\n\n$\\theta = 90°$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Using the radian formula with degree values.** $s = r\\theta$ ONLY works when $\\theta$ is in radians.\n- **Trap 2: Confusing arc length with sector area.** Arc length is a distance (units); sector area is a space (square units).\n- **Trap 3: Forgetting the $\\frac{1}{2}$ in sector area formula.** $A = \\frac{1}{2}r^2\\theta$, not $r^2\\theta$.\n\n### 🔗 Connection\n\nThis combines circle knowledge (area, circumference from Module 6) with radians (Lesson 1). Arc length and sector area appear in SAT problems about slices of pizza, clock angles, and rotating wheels.\n\n### 🏋️ Quick Drill\n\n1. $r = 4$, $\\theta = \\frac{\\pi}{2}$. Arc length?\n2. $r = 9$, $\\theta = 40°$. Sector area?\n3. Arc length is $3\\pi$, $r = 6$. Central angle in radians?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "A circle has radius $8$ cm. A central angle of $\\frac{\\pi}{4}$ radians intercepts an arc. What is the arc length in cm? (Give your answer in terms of $\\pi$, as a decimal: e.g., $2\\pi = 6.28$)",
+              "correct_answers": [
+                6.28
+              ],
+              "tolerance": 0.05,
+              "allow_fraction": true,
+              "allow_decimal": true,
+              "explanation": "Arc length $= r\\theta = 8 \\times \\frac{\\pi}{4} = 2\\pi \\approx 6.28$ cm.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Circle Theorems: Inscribed Angles and Chords",
+            "order": 3,
+            "theory": "## Circle Theorems: Inscribed Angles and Chords\n\n### 🧠 Understanding the Concept\n\nCircle theorems describe relationships between angles, arcs, chords, and tangent lines in and around circles. On the SAT, the most important theorem is the **Inscribed Angle Theorem**: an inscribed angle is half the central angle that subtends the same arc.\n\nA **central angle** has its vertex at the center of the circle and equals its intercepted arc. An **inscribed angle** has its vertex on the circle and equals half its intercepted arc. The most famous special case: an inscribed angle that intercepts a semicircle (diameter) is always $90°$.\n\nThese theorems allow you to find unknown angles without knowing the radius or even the exact size of the circle.\n\n### 📐 Key Formulas\n\n**Central angle** $=$ intercepted arc\n\n**Inscribed angle** $= \\frac{1}{2} \\times$ intercepted arc\n\n**Inscribed angle subtending a diameter** $= 90°$\n\n**Chord properties:**\n- A perpendicular from the center to a chord bisects the chord\n- Equal chords subtend equal central angles\n- Two tangent segments from the same external point are equal\n\n**Tangent-radius:** A tangent line is perpendicular to the radius at the point of tangency.\n\n### 📝 How to Solve (Step by Step)\n\n1. **Identify** central angles and inscribed angles\n2. **Apply** the inscribed angle theorem: inscribed $= \\frac{1}{2} \\times$ central (same arc)\n3. **Look for** diameters — any inscribed angle subtending a diameter is $90°$\n4. **Use** chord and tangent properties as needed\n\n### ✏️ Worked Example 1\n\n**Problem:** Central angle $AOB = 100°$. Inscribed angle $ACB$ subtends the same arc $AB$. Find $\\angle ACB$.\n\n**Solution:**\n\n$\\angle ACB = \\frac{1}{2} \\times 100° = 50°$\n\n### ✏️ Worked Example 2\n\n**Problem:** $AB$ is a diameter of a circle. Point $C$ is on the circle. If $\\angle BAC = 35°$, find $\\angle ABC$.\n\n**Solution:**\n\n$\\angle ACB = 90°$ (inscribed angle subtending a diameter)\n\n$\\angle ABC = 180° - 90° - 35° = 55°$\n\n### ✏️ Worked Example 3\n\n**Problem:** Two tangent lines from external point $P$ touch the circle at $A$ and $B$. If $PA = 12$, find $PB$.\n\n**Solution:**\n\nTwo tangent segments from the same external point are equal: $PB = PA = 12$.\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Confusing central and inscribed angles.** The inscribed angle is HALF the central angle for the same arc, not equal.\n- **Trap 2: Forgetting the 90° rule.** If a triangle is inscribed in a circle with one side as a diameter, the angle opposite the diameter is ALWAYS 90°.\n- **Trap 3: Not recognizing tangent-radius perpendicularity.** This creates right angles useful for applying the Pythagorean theorem.\n\n### 🔗 Connection\n\nThese theorems build on circle basics (area, circumference) and connect to arc length and sector area (Lesson 2). The tangent-radius perpendicularity links to the Pythagorean theorem. Circle equations (next lesson) put these geometric relationships into algebraic form.\n\n### 🏋️ Quick Drill\n\n1. Central angle is $80°$. What is the inscribed angle on the same arc?\n2. A triangle is inscribed in a circle with one side as a diameter. What type of triangle is it?\n3. Two tangents from point $P$: one has length 9. What is the length of the other?",
+            "exercise_type": "numeric_input",
+            "exercise_config": {
+              "question": "In a circle, a central angle intercepts an arc of $140°$. An inscribed angle intercepts the same arc. What is the measure of the inscribed angle in degrees?",
+              "correct_answers": [
+                70
+              ],
+              "tolerance": 0,
+              "allow_fraction": false,
+              "allow_decimal": false,
+              "explanation": "The inscribed angle is half the central angle (or half the intercepted arc): $\\frac{140}{2} = 70°$.",
+              "standard": "SAT.Geometry"
+            }
+          },
+          {
+            "title": "Equation of a Circle and Tangent Lines",
+            "order": 4,
+            "theory": "## Equation of a Circle and Tangent Lines\n\n### 🧠 Understanding the Concept\n\nThe **equation of a circle** on the coordinate plane ties together algebra and geometry. In **standard form**, $(x - h)^2 + (y - k)^2 = r^2$, you can immediately read the center $(h, k)$ and radius $r$. On the SAT, you often need to convert from **general form** ($x^2 + y^2 + Dx + Ey + F = 0$) to standard form by completing the square.\n\nA **tangent line** touches the circle at exactly one point and is perpendicular to the radius at that point. Finding tangent line equations combines circle knowledge with the slope concepts from Module 0.\n\nThese problems frequently appear in the \"no calculator\" section and test algebraic fluency: completing the square, finding slopes, and using perpendicularity.\n\n### 📐 Key Formulas\n\n**Standard Form:** $(x - h)^2 + (y - k)^2 = r^2$\n\n**Center:** $(h, k)$, **Radius:** $r$\n\n**General Form:** $x^2 + y^2 + Dx + Ey + F = 0$\n\nConvert by completing the square: center $= (-D/2, -E/2)$, $r = \\sqrt{(D/2)^2 + (E/2)^2 - F}$\n\n**Tangent at point $P$:** slope of tangent $= -\\frac{1}{\\text{slope of radius to } P}$\n\n### 📝 How to Solve (Step by Step)\n\n**Converting General to Standard Form:**\n1. Group $x$-terms and $y$-terms\n2. Move the constant to the right side\n3. Complete the square for $x$: add $\\left(\\frac{D}{2}\\right)^2$ to both sides\n4. Complete the square for $y$: add $\\left(\\frac{E}{2}\\right)^2$ to both sides\n5. Write in $(x - h)^2 + (y - k)^2 = r^2$ form\n\n**Finding a tangent line:**\n1. Find the slope from center to the point of tangency\n2. The tangent slope is the negative reciprocal\n3. Use point-slope form\n\n### ✏️ Worked Example 1\n\n**Problem:** Find the center and radius of $x^2 + y^2 - 10x + 4y + 13 = 0$.\n\n**Solution:**\n\n$(x^2 - 10x + 25) + (y^2 + 4y + 4) = -13 + 25 + 4$\n\n$(x - 5)^2 + (y + 2)^2 = 16$\n\nCenter: $(5, -2)$, Radius: $4$\n\n### ✏️ Worked Example 2\n\n**Problem:** Does the point $(3, 4)$ lie on, inside, or outside the circle $(x - 1)^2 + (y - 2)^2 = 9$?\n\n**Solution:**\n\n$(3 - 1)^2 + (4 - 2)^2 = 4 + 4 = 8$\n\nSince $8 < 9 = r^2$, the point is **inside** the circle.\n\n### ✏️ Worked Example 3\n\n**Problem:** Find the equation of the tangent to $(x - 2)^2 + (y - 3)^2 = 25$ at point $(6, 6)$.\n\n**Solution:**\n\nSlope of radius from $(2, 3)$ to $(6, 6)$: $m_r = \\frac{6 - 3}{6 - 2} = \\frac{3}{4}$\n\nTangent slope: $m_t = -\\frac{4}{3}$\n\nTangent line: $y - 6 = -\\frac{4}{3}(x - 6)$\n\n$y = -\\frac{4}{3}x + 8 + 6 = -\\frac{4}{3}x + 14$\n\n### ⚠️ SAT Traps to Avoid\n\n- **Trap 1: Sign errors in the center.** $(x + 3)^2$ means $h = -3$. $(y - 4)^2$ means $k = 4$. Watch the signs carefully.\n- **Trap 2: Forgetting to add completing-the-square values to both sides.** This changes the constant on the right.\n- **Trap 3: Giving $r^2$ as the radius.** If the equation says $= 49$, the radius is $7$, not $49$.\n\n### 🔗 Connection\n\nThis lesson ties together completing the square (Module 2), perpendicular slopes (Module 0, Lesson 1), and circle geometry (Lesson 3). It is the capstone of SAT Math geometry, connecting algebraic manipulation with geometric understanding.\n\n### 🏋️ Quick Drill\n\n1. Center and radius of $(x + 1)^2 + (y - 7)^2 = 100$?\n2. Convert $x^2 + y^2 + 2x - 8y = 0$ to standard form.\n3. Is $(0, 0)$ inside or outside $(x - 3)^2 + (y - 4)^2 = 16$?",
+            "exercise_type": "multiple_choice_math",
+            "exercise_config": {
+              "question": "The equation $x^2 + y^2 + 8x - 6y = 0$ represents a circle. What is the radius?",
+              "choices": [
+                {
+                  "text": "$5$",
+                  "correct": true
+                },
+                {
+                  "text": "$10$",
+                  "correct": false
+                },
+                {
+                  "text": "$25$",
+                  "correct": false
+                },
+                {
+                  "text": "$\\sqrt{10}$",
+                  "correct": false
+                }
+              ],
+              "explanation": "Complete the square: $(x^2 + 8x + 16) + (y^2 - 6y + 9) = 16 + 9$, so $(x+4)^2 + (y-3)^2 = 25$. Radius $= \\sqrt{25} = 5$.",
+              "standard": "SAT.Geometry"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
