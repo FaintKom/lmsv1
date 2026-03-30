@@ -317,15 +317,22 @@ export default function LessonViewerPage() {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{lesson.title}</h1>
           </div>
 
-          {/* Content */}
-          <div className="mb-8">
-            {lesson.content_type === "text" && (
+          {/* Theory content — shown for ALL lesson types when content.body exists */}
+          {typeof lesson.content?.body === "string" && lesson.content.body.trim().length > 0 && (
+            <div className="mb-8">
               <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-prose dark:prose-invert"}>
                 <ContentRenderer
-                  body={lesson.content.format === "tiptap" ? (lesson.content.body as Record<string, unknown>) : ((lesson.content.body as string) || "")}
+                  body={lesson.content.body as string}
                   format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Type-specific content */}
+          <div className="mb-8">
+            {lesson.content_type === "text" && !lesson.content?.body && (
+              <div className="text-sm text-slate-500 dark:text-slate-400">No content yet.</div>
             )}
 
             {lesson.content_type === "video" && (

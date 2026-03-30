@@ -88,7 +88,7 @@ interface ExerciseRendererProps {
   nextLesson?: LessonNavItem | null;
 }
 
-const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d", "code_challenge"]);
+const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d"]);
 
 export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson }: ExerciseRendererProps) {
   const router = useRouter();
