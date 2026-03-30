@@ -96,7 +96,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
-  const [fullscreen, setFullscreen] = useState(isGameType); // auto-open for game types
+  const [fullscreen, setFullscreen] = useState(false); // never auto-open — let student read theory first
 
   const openFullscreen = useCallback(() => setFullscreen(true), []);
   const closeFullscreen = useCallback(() => setFullscreen(false), []);

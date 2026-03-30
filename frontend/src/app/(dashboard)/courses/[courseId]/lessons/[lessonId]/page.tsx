@@ -428,8 +428,8 @@ export default function LessonViewerPage() {
         )}
 
         <div className="mx-auto max-w-3xl px-6">
-          {/* Complete button */}
-          {!isCompleted && (
+          {/* Complete button — only show when there are NO exercises */}
+          {!isCompleted && exercises.length === 0 && (
             <div className="mb-8">
               <Button onClick={handleComplete} disabled={completing} className="w-full">
                 <CheckCircle className="mr-2 h-4 w-4" />

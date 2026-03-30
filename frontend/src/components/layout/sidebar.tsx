@@ -37,9 +37,10 @@ import { ThemeSwitcher } from "../ui/theme-switcher";
 interface SidebarProps {
   open?: boolean;
   onClose?: () => void;
+  onCollapse?: () => void;
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -141,7 +142,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           </div>
           <span className="text-lg font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
         </div>
-        <NotificationBell />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <button
+            onClick={() => { onCollapse?.(); onClose?.(); }}
+            className="hidden md:flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+            title="Collapse sidebar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
+          </button>
+        </div>
       </div>
 
       {/* Search — admin only */}
