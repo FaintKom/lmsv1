@@ -367,6 +367,18 @@ const en: TranslationMap = {
   "sat.tipDesmos": "Use Desmos: The graphing calculator can solve ~30% of questions.",
   "sat.tipFlag": "Flag and move on: If stuck for 45+ seconds, flag it and return later.",
   "sat.tipGuess": "Never leave blanks: No penalty for guessing. Always pick an answer.",
+
+  // AI Tutor
+  "ai.title": "AI Tutor",
+  "ai.placeholder": "Ask me anything...",
+  "ai.send": "Send",
+  "ai.thinking": "Thinking...",
+  "ai.welcome": "Hi! I'm your AI tutor. Ask me any question about this lesson or exercise.",
+  "ai.rateLimit": "You've reached the message limit. Try again in an hour.",
+  "ai.unavailable": "AI Tutor is temporarily unavailable.",
+  "ai.remaining": "{count} messages left this hour",
+  "ai.clear": "Clear chat",
+  "ai.close": "Close",
 };
 
 const es: TranslationMap = {
@@ -676,6 +688,17 @@ const es: TranslationMap = {
   "sat.tipDesmos": "Usa Desmos: La calculadora puede resolver ~30% de preguntas.",
   "sat.tipFlag": "Marca y avanza: Si te atascas 45+ segundos, marcala y vuelve despues.",
   "sat.tipGuess": "No dejes espacios en blanco: No hay penalizacion por adivinar.",
+
+  "ai.title": "Tutor IA",
+  "ai.placeholder": "Preguntame lo que quieras...",
+  "ai.send": "Enviar",
+  "ai.thinking": "Pensando...",
+  "ai.welcome": "Hola! Soy tu tutor IA. Preguntame sobre esta leccion o ejercicio.",
+  "ai.rateLimit": "Limite de mensajes alcanzado. Intenta en una hora.",
+  "ai.unavailable": "El tutor IA no esta disponible temporalmente.",
+  "ai.remaining": "{count} mensajes restantes esta hora",
+  "ai.clear": "Borrar chat",
+  "ai.close": "Cerrar",
 };
 
 const ru: TranslationMap = {
@@ -985,6 +1008,17 @@ const ru: TranslationMap = {
   "sat.tipDesmos": "Используй Desmos: калькулятор поможет решить ~30% вопросов.",
   "sat.tipFlag": "Отмечай и двигайся: застрял на 45+ сек — отметь и вернись позже.",
   "sat.tipGuess": "Не оставляй пустых: штрафа за угадывание нет.",
+
+  "ai.title": "ИИ-репетитор",
+  "ai.placeholder": "Задай вопрос...",
+  "ai.send": "Отправить",
+  "ai.thinking": "Думаю...",
+  "ai.welcome": "Привет! Я твой ИИ-репетитор. Спроси меня о чём угодно по уроку или заданию.",
+  "ai.rateLimit": "Лимит сообщений исчерпан. Попробуй через час.",
+  "ai.unavailable": "ИИ-репетитор временно недоступен.",
+  "ai.remaining": "Осталось {count} сообщений в этом часе",
+  "ai.clear": "Очистить чат",
+  "ai.close": "Закрыть",
 };
 
 const tr: TranslationMap = {
@@ -1294,6 +1328,17 @@ const tr: TranslationMap = {
   "sat.tipDesmos": "Desmos kullan: Hesap makinesi sorularin ~%30'unu cozebilir.",
   "sat.tipFlag": "Isaretle ve gec: 45+ sn takilirsan isaretle ve sonra don.",
   "sat.tipGuess": "Bos birakma: Tahmin icin ceza yok. Her zaman bir cevap sec.",
+
+  "ai.title": "Yapay Zeka Ogretmen",
+  "ai.placeholder": "Bana bir sey sor...",
+  "ai.send": "Gonder",
+  "ai.thinking": "Dusunuyor...",
+  "ai.welcome": "Merhaba! Ben yapay zeka ogretmeninizim. Bu ders veya alistirma hakkinda soru sorun.",
+  "ai.rateLimit": "Mesaj limitine ulastin. Bir saat sonra tekrar dene.",
+  "ai.unavailable": "Yapay zeka ogretmen gecici olarak kullanilamiyor.",
+  "ai.remaining": "Bu saat {count} mesaj kaldi",
+  "ai.clear": "Sohbeti temizle",
+  "ai.close": "Kapat",
 };
 
 export const translations: Record<Locale, TranslationMap> = { en, es, ru, tr };

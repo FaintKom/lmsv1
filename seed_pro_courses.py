@@ -62,7 +62,7 @@ print("=" * 60)
 print("PYTHON PROGRAMMING PRO")
 print("=" * 60)
 
-with open("scripts/python_pro_course_html.json", encoding="utf-8") as f:
+with open("scripts/python_pro_course_html_fixed.json", encoding="utf-8") as f:
     py_data = json.load(f)
 
 cid = create_course(
@@ -123,7 +123,7 @@ print("\n" + "=" * 60)
 print("SAT MATH PRO")
 print("=" * 60)
 
-with open("sat_math_pro_course_html.json", encoding="utf-8") as f:
+with open("sat_math_pro_course_html_fixed.json", encoding="utf-8") as f:
     sat_data = json.load(f)
 
 course_info = sat_data.get("course", sat_data)
@@ -166,7 +166,7 @@ print("\n" + "=" * 60)
 print("VISUAL PROGRAMMING WITH ROBOT PRO")
 print("=" * 60)
 
-with open("docs/course-robot-pro-html.json", encoding="utf-8") as f:
+with open("docs/course-robot-pro-html_fixed.json", encoding="utf-8") as f:
     robot_data = json.load(f)
 
 robot_modules = robot_data if isinstance(robot_data, list) else robot_data.get("modules", [])

@@ -15,6 +15,7 @@ import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
 import TrueFalseExercise from "@/components/submissions/exercises/true-false";
 import CategorizeExercise from "@/components/submissions/exercises/categorize";
+import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
   ssr: false,
@@ -233,6 +234,15 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
             <div className="flex-1 overflow-auto">
               {exerciseContent}
             </div>
+
+            {/* AI Tutor in fullscreen */}
+            <AiTutorPanel
+              context={{
+                type: "exercise",
+                exerciseId: exercise.id,
+                exerciseTitle: exercise.title,
+              }}
+            />
           </div>,
           document.body
         )}

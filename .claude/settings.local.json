@@ -2,7 +2,31 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(grep -n \"focus-visible\\\\|focus:\\\\|focus-within\" /f/lms/frontend/src/components/ui/*.tsx)",
+      "Bash(grep -n \"role=\\\\|aria-\" /f/lms/frontend/src/components/layout/*.tsx /f/lms/frontend/src/app/*.tsx)",
+      "Bash(xargs grep:*)",
+      "Bash(ls -la /f/lms/frontend/src/app/\\\\\\(dashboard\\\\\\)/assignments/)",
+      "Bash(xargs ls:*)",
+      "Bash(ls -la /f/lms/frontend/src/app/\\\\\\(dashboard\\\\\\)/assignments/[assignmentId]/)",
+      "Bash(grep -n \"handleSave\\\\|PUT\\\\|POST.*courses\" /f/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(head -1500 F:/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(find /f/lms/frontend/src -name *content-library* -o -name *exercise*builder* -o -name *interactive*builder*)",
+      "Bash(grep -n \"content_type\\\\|handleSaveLesson\\\\|editLessonForm\" F:/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(ls -la /f/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/content-library/)",
+      "Bash(wc -l F:/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(grep -n \"getContentText\\\\|setContentFromText\\\\|content.format\\\\|content.body\" F:/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(ls -la /f/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/content-library/[exerciseId\\\\\\)/)",
+      "Bash(grep -n \"const.*Content\\\\|function.*Content\" F:/lms/frontend/src/app/\\\\\\(admin\\\\\\)/admin/courses/[courseId]/edit/page.tsx)",
+      "Bash(ls -la \"/f/lms/frontend/src/app/\\(admin\\)/admin/content-library/\")",
+      "Bash(grep -r \"contentEditable\\\\|Draft\\\\|Slate\\\\|TipTap\\\\|ProseMirror\" F:/lms/frontend/src --include=*.tsx --include=*.ts)",
+      "Bash(ls -la \"/f/lms/frontend/src/app/\\(admin\\)/admin/content-library/[exerciseId]/\")",
+      "Bash(ls -la \"/f/lms/frontend/src/app/\\(admin\\)/admin/content-library/[exerciseId]/submissions/\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''app/main.py''\\).read\\(\\)\\); print\\(''Syntax OK''\\)\")",
+      "Bash(npx tsc:*)"
     ]
   }
 }

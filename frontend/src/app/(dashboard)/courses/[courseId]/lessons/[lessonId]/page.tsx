@@ -33,6 +33,7 @@ import InteractiveTaker from "@/components/submissions/interactive-taker";
 import CommentSection from "@/components/discussions/comment-section";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
+import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 interface LessonProgressItem {
   lesson_id: string;
@@ -483,6 +484,16 @@ export default function LessonViewerPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Tutor */}
+      <AiTutorPanel
+        context={{
+          type: exercises.length > 0 ? "exercise" : "lesson",
+          lessonId,
+          lessonTitle: lesson?.title,
+          exerciseTitle: exercises[0]?.title,
+        }}
+      />
     </div>
   );
 }

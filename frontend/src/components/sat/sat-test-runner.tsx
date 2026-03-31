@@ -13,6 +13,7 @@ function MathText({ text, className }: { text: string; className?: string }) {
 }
 import SATResults from "./sat-results";
 import type { SATQuestion, SATTestConfig } from "./sat-question-bank";
+import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 // Inline renderers for MC and numeric input (simplified from templates)
 function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }: {
@@ -385,6 +386,14 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
 
       {/* Desmos calculator */}
       <DesmosCalculator open={showDesmos} onToggle={() => setShowDesmos(!showDesmos)} />
+
+      {/* AI Tutor */}
+      <AiTutorPanel
+        context={{
+          type: "sat",
+          exerciseTitle: `SAT Math Q${currentQ + 1}: ${(questions[currentQ]?.config as Record<string, unknown>)?.question || ""}`.slice(0, 100),
+        }}
+      />
     </div>
   );
 }

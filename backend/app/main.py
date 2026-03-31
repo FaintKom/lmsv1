@@ -29,6 +29,7 @@ from app.parent.router import router as parent_router
 from app.skills.router import router as skills_router
 from app.recommendations.router import router as recommendations_router
 from app.exercises.router import router as exercises_router
+from app.ai.router import router as ai_router
 
 logger = logging.getLogger(__name__)
 
@@ -314,6 +315,7 @@ def create_app() -> FastAPI:
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
     app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
     app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
+    app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI Tutor"])
 
     @app.get("/health")
     async def health():
