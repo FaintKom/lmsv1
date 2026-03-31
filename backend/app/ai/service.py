@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 import time
 from collections import defaultdict
 from typing import AsyncGenerator
@@ -11,7 +12,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 # ── Config ──────────────────────────────────────────────────────────
-OLLAMA_URL = "http://127.0.0.1:11434"
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
 MODEL = "qwen2.5:3b-instruct-q4_K_M"
 MAX_TOKENS = 400
 RATE_LIMIT_PER_HOUR = 30

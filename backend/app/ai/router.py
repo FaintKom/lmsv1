@@ -94,7 +94,8 @@ async def ai_status(user: User = Depends(get_current_user)):
     import httpx
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
-            resp = await client.get("http://127.0.0.1:11434/api/tags")
+            from app.ai.service import OLLAMA_URL
+            resp = await client.get(f"{OLLAMA_URL}/api/tags")
             available = resp.status_code == 200
     except Exception:
         available = False

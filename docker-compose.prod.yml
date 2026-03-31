@@ -23,6 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lms}
       SANDBOX_URL: http://sandbox:8001
+      OLLAMA_URL: http://172.18.0.1:11434
     depends_on:
       db:
         condition: service_healthy
