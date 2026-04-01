@@ -44,6 +44,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
   const [checked, setChecked] = useState(false);
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [dragCard, setDragCard] = useState<Card | null>(null);
+  const [tappedCard, setTappedCard] = useState<Card | null>(null); // mobile: tap to select
 
   const moveToCategory = useCallback((card: Card, categoryId: string) => {
     setUnsorted((prev) => prev.filter((c) => c.id !== card.id));
@@ -113,10 +114,13 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
               key={card.id}
               draggable
               onDragStart={() => setDragCard(card)}
+              onClick={() => setTappedCard(tappedCard?.id === card.id ? null : card)}
               className={`rounded-xl border-2 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition-all hover:shadow-md active:scale-95 dark:bg-[#1E1E1E] ${
-                checked && results[card.id] === false
-                  ? "border-red-300 text-red-700 dark:border-red-500 dark:text-red-300"
-                  : "border-slate-200 text-slate-700 hover:border-indigo-300 dark:border-white/10 dark:text-slate-300"
+                tappedCard?.id === card.id
+                  ? "border-indigo-400 ring-2 ring-indigo-300 text-indigo-700 dark:border-indigo-500 dark:text-indigo-300"
+                  : checked && results[card.id] === false
+                    ? "border-red-300 text-red-700 dark:border-red-500 dark:text-red-300"
+                    : "border-slate-200 text-slate-700 hover:border-indigo-300 dark:border-white/10 dark:text-slate-300"
               }`}
             >
               {card.text}
@@ -126,7 +130,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
       )}
 
       {/* Category bins */}
-      <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${categories.length}, 1fr)` }}>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" style={categories.length <= 3 ? { gridTemplateColumns: undefined } : undefined}>
         {categories.map((cat) => (
           <div
             key={cat.id}
@@ -134,7 +138,13 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
             onDrop={() => {
               if (dragCard) { moveToCategory(dragCard, cat.id); setDragCard(null); }
             }}
-            className="flex flex-col rounded-xl border-2 p-3 transition-colors min-h-[120px]"
+            onClick={() => {
+              // Tap-to-place: if a card is tapped, place it in this category
+              if (tappedCard) { moveToCategory(tappedCard, cat.id); setTappedCard(null); }
+            }}
+            className={`flex flex-col rounded-xl border-2 p-3 transition-colors min-h-[100px] ${
+              tappedCard ? "cursor-pointer hover:opacity-80" : ""
+            }`}
             style={{ borderColor: cat.color + "60", backgroundColor: cat.color + "08" }}
           >
             {/* Category header */}

@@ -23,6 +23,11 @@ class ExerciseType(str, enum.Enum):
     robot_2d = "robot_2d"
     math_interactive = "math_interactive"
     world_3d = "world_3d"
+    translation = "translation"
+    sentence_builder = "sentence_builder"
+    dialogue = "dialogue"
+    conjugation = "conjugation"
+    reading = "reading"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -37,6 +42,11 @@ EXERCISE_TYPE_PREFIX = {
     "robot_2d": "R2",
     "math_interactive": "MI",
     "world_3d": "W3",
+    "translation": "TR",
+    "sentence_builder": "SB",
+    "dialogue": "DG",
+    "conjugation": "CJ",
+    "reading": "RD",
 }
 
 
@@ -54,6 +64,7 @@ class Exercise(Base, IDMixin, TimestampMixin):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     config: Mapped[dict] = mapped_column(JSONB, default=dict)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
+    max_attempts: Mapped[int | None] = mapped_column(Integer, nullable=True, default=None)
 
     # Relationships
     lesson: Mapped["Lesson"] = relationship(back_populates="exercises")  # noqa: F821

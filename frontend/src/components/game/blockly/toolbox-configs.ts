@@ -1,3 +1,5 @@
+import { getCategoryName } from "./block-translations";
+
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 
 export interface ToolboxCategory {
@@ -12,33 +14,36 @@ export interface ToolboxDef {
   contents: ToolboxCategory[];
 }
 
-const MOVEMENT_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "🚶 Движение",
-  colour: "#4C97FF",
-  contents: [
+// Scratch color palette
+const MOTION = "#4C97FF";
+const ITEM = "#FF8C1A";
+const LOOP = "#FFAB19";
+const SENSE = "#5CB1D6";
+const MATH = "#59C059";
+const ACTION = "#9966FF";
+
+function makeCategory(id: string, colour: string, contents: { kind: "block"; type: string; [key: string]: unknown }[]): ToolboxCategory {
+  return { kind: "category", name: getCategoryName(id), colour, contents };
+}
+
+function movementCategory(): ToolboxCategory {
+  return makeCategory("movement", MOTION, [
     { kind: "block", type: "move_up" },
     { kind: "block", type: "move_down" },
     { kind: "block", type: "move_left" },
     { kind: "block", type: "move_right" },
-  ],
-};
+  ]);
+}
 
-const ITEMS_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "⭐ Предметы",
-  colour: "#FF8C1A",
-  contents: [
+function itemsCategory(): ToolboxCategory {
+  return makeCategory("items", ITEM, [
     { kind: "block", type: "pick_up" },
     { kind: "block", type: "place_item" },
-  ],
-};
+  ]);
+}
 
-const LOOPS_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "🔄 Циклы",
-  colour: "#40BF4A",
-  contents: [
+function loopsCategory(): ToolboxCategory {
+  return makeCategory("loops", LOOP, [
     {
       kind: "block",
       type: "repeat_times",
@@ -49,60 +54,51 @@ const LOOPS_CATEGORY: ToolboxCategory = {
       },
     },
     { kind: "block", type: "while_not_at_goal" },
-  ],
-};
+  ]);
+}
 
-const CONDITIONS_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "❓ Условия",
-  colour: "#FF6680",
-  contents: [
+function conditionsCategory(): ToolboxCategory {
+  return makeCategory("conditions", SENSE, [
     { kind: "block", type: "controls_if" },
     { kind: "block", type: "if_wall_ahead" },
     { kind: "block", type: "if_item_here" },
     { kind: "block", type: "logic_negate" },
-  ],
-};
+  ]);
+}
 
-const MATH_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "🔢 Числа",
-  colour: "#5C68A6",
-  contents: [
+function mathCategory(): ToolboxCategory {
+  return makeCategory("numbers", MATH, [
     { kind: "block", type: "math_number" },
-  ],
-};
+  ]);
+}
 
-const WORLD_3D_CATEGORY: ToolboxCategory = {
-  kind: "category",
-  name: "🎮 Действия",
-  colour: "#9966FF",
-  contents: [
+function world3dCategory(): ToolboxCategory {
+  return makeCategory("actions3d", ACTION, [
     { kind: "block", type: "jump" },
     { kind: "block", type: "interact" },
     { kind: "block", type: "if_near_object" },
-  ],
-};
+  ]);
+}
 
 // ─── Preset toolboxes ───────────────────────────────────────────────
 
 export const DIFFICULTY_TOOLBOXES: Record<Difficulty, ToolboxDef> = {
   beginner: {
     kind: "categoryToolbox",
-    contents: [MOVEMENT_CATEGORY],
+    contents: [movementCategory()],
   },
   intermediate: {
     kind: "categoryToolbox",
-    contents: [MOVEMENT_CATEGORY, ITEMS_CATEGORY, LOOPS_CATEGORY, MATH_CATEGORY],
+    contents: [movementCategory(), itemsCategory(), loopsCategory(), mathCategory()],
   },
   advanced: {
     kind: "categoryToolbox",
     contents: [
-      MOVEMENT_CATEGORY,
-      ITEMS_CATEGORY,
-      LOOPS_CATEGORY,
-      CONDITIONS_CATEGORY,
-      MATH_CATEGORY,
+      movementCategory(),
+      itemsCategory(),
+      loopsCategory(),
+      conditionsCategory(),
+      mathCategory(),
     ],
   },
 };
@@ -110,21 +106,21 @@ export const DIFFICULTY_TOOLBOXES: Record<Difficulty, ToolboxDef> = {
 export const DIFFICULTY_3D_TOOLBOXES: Record<Difficulty, ToolboxDef> = {
   beginner: {
     kind: "categoryToolbox",
-    contents: [MOVEMENT_CATEGORY],
+    contents: [movementCategory()],
   },
   intermediate: {
     kind: "categoryToolbox",
-    contents: [MOVEMENT_CATEGORY, WORLD_3D_CATEGORY, LOOPS_CATEGORY, MATH_CATEGORY],
+    contents: [movementCategory(), world3dCategory(), loopsCategory(), mathCategory()],
   },
   advanced: {
     kind: "categoryToolbox",
     contents: [
-      MOVEMENT_CATEGORY,
-      WORLD_3D_CATEGORY,
-      ITEMS_CATEGORY,
-      LOOPS_CATEGORY,
-      CONDITIONS_CATEGORY,
-      MATH_CATEGORY,
+      movementCategory(),
+      world3dCategory(),
+      itemsCategory(),
+      loopsCategory(),
+      conditionsCategory(),
+      mathCategory(),
     ],
   },
 };
@@ -132,12 +128,12 @@ export const DIFFICULTY_3D_TOOLBOXES: Record<Difficulty, ToolboxDef> = {
 /** Build a toolbox from an explicit list of available block types. */
 export function buildToolboxFromBlocks(blocks: string[]): ToolboxDef {
   const allCategories = [
-    MOVEMENT_CATEGORY,
-    ITEMS_CATEGORY,
-    LOOPS_CATEGORY,
-    CONDITIONS_CATEGORY,
-    MATH_CATEGORY,
-    WORLD_3D_CATEGORY,
+    movementCategory(),
+    itemsCategory(),
+    loopsCategory(),
+    conditionsCategory(),
+    mathCategory(),
+    world3dCategory(),
   ];
 
   const filtered = allCategories

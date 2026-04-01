@@ -898,85 +898,32 @@ async def gradebook_endpoint(
     columns = []
     rows: dict[str, dict[str, float | None]] = {sid: {} for sid in student_ids}
 
-    # --- Quizzes ---
+    # --- Unified Exercises (new system) ---
     if lesson_ids:
+        from app.exercises.models import Exercise as Ex, ExerciseSubmission as ExSub
         result = await db.execute(
-            select(Quiz).where(Quiz.lesson_id.in_(lesson_ids))
+            select(Ex).where(Ex.lesson_id.in_(lesson_ids)).order_by(Ex.sort_order)
         )
-        quizzes = result.scalars().all()
-        for q in quizzes:
-            col_id = f"quiz_{q.id}"
-            columns.append({"id": col_id, "type": "quiz", "title": q.title, "max_score": 100})
-            # Best score per student
+        exercises = result.scalars().all()
+        for ex in exercises:
+            col_id = f"exercise_{ex.id}"
+            columns.append({
+                "id": col_id,
+                "type": ex.exercise_type.value if hasattr(ex.exercise_type, 'value') else str(ex.exercise_type),
+                "title": ex.title,
+                "max_score": 100,
+            })
+            # Best score per student (score is already 0-100 in exercise_submissions)
             result2 = await db.execute(
-                select(QuizSubmission.student_id, func.max(QuizSubmission.score))
+                select(ExSub.student_id, func.max(ExSub.score))
                 .where(
-                    QuizSubmission.quiz_id == q.id,
-                    QuizSubmission.student_id.in_([uuid.UUID(s) for s in student_ids]),
+                    ExSub.exercise_id == ex.id,
+                    ExSub.student_id.in_([uuid.UUID(s) for s in student_ids]),
                 )
-                .group_by(QuizSubmission.student_id)
-            )
-            for sid, score in result2.all():
-                rows[str(sid)][col_id] = float(score) if score is not None else None
-
-    # --- Code Challenges ---
-    if lesson_ids:
-        result = await db.execute(
-            select(CodeChallenge).where(CodeChallenge.lesson_id.in_(lesson_ids))
-        )
-        challenges = result.scalars().all()
-        for ch in challenges:
-            col_id = f"code_{ch.id}"
-            columns.append({"id": col_id, "type": "code", "title": ch.title, "max_score": 100})
-            # Best percentage per student
-            result2 = await db.execute(
-                select(
-                    CodeSubmission.student_id,
-                    func.max(
-                        case(
-                            (CodeSubmission.total_tests > 0,
-                             CodeSubmission.total_passed * 100.0 / CodeSubmission.total_tests),
-                            else_=0,
-                        )
-                    ),
-                )
-                .where(
-                    CodeSubmission.challenge_id == ch.id,
-                    CodeSubmission.student_id.in_([uuid.UUID(s) for s in student_ids]),
-                )
-                .group_by(CodeSubmission.student_id)
+                .group_by(ExSub.student_id)
             )
             for sid, score in result2.all():
                 rows[str(sid)][col_id] = round(float(score), 1) if score is not None else None
-
-    # --- Interactive Exercises (grouped by lesson) ---
-    if lesson_ids:
-        result = await db.execute(
-            select(InteractiveSubmission.lesson_id)
-            .where(InteractiveSubmission.lesson_id.in_(lesson_ids))
-            .distinct()
-        )
-        interactive_lesson_ids = [r[0] for r in result.all()]
-        for lid in interactive_lesson_ids:
-            # Get lesson title
-            from app.courses.models import Lesson as L
-            lres = await db.execute(select(L.title).where(L.id == lid))
-            lesson_title = lres.scalar() or "Interactive"
-            col_id = f"interactive_{lid}"
-            columns.append({"id": col_id, "type": "interactive", "title": lesson_title, "max_score": 100})
-            result2 = await db.execute(
-                select(
-                    InteractiveSubmission.student_id,
-                    func.max(InteractiveSubmission.score),
-                )
-                .where(
-                    InteractiveSubmission.lesson_id == lid,
-                    InteractiveSubmission.student_id.in_([uuid.UUID(s) for s in student_ids]),
-                )
-                .group_by(InteractiveSubmission.student_id)
-            )
-            for sid, score in result2.all():
-                rows[str(sid)][col_id] = round(float(score) * 100, 1) if score is not None else None
 
     # --- Homework Assignments ---
     result = await db.execute(

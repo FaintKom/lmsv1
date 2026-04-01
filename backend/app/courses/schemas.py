@@ -59,6 +59,20 @@ class ReorderRequest(BaseModel):
     ordered_ids: list[uuid.UUID]
 
 
+class LessonBlock(BaseModel):
+    id: str
+    type: str  # "text", "video", "exercise"
+    sort_order: int = 0
+    page: int = 1
+    # Text block fields
+    body: str | None = None
+    format: str | None = None
+    # Video block fields
+    url: str | None = None
+    # Exercise block fields
+    exercise_id: str | None = None
+
+
 class LessonCreate(BaseModel):
     title: str
     content_type: str = "text"

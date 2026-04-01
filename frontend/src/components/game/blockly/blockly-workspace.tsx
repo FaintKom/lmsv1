@@ -79,52 +79,73 @@ export default function BlocklyWorkspace({
       workspaceRef.current.dispose();
     }
 
-    const blockStyles: Record<string, Blockly.Theme.BlockStyle> = {};
-    const categoryStyles: Record<string, Blockly.Theme.CategoryStyle> = {};
+    // Scratch-style block colors
+    const h = "";
+    const blockStyles: Record<string, Blockly.Theme.BlockStyle> = {
+      motion_blocks: { colourPrimary: "#4C97FF", colourSecondary: "#3373CC", colourTertiary: "#2E5EB8", hat: h },
+      looks_blocks: { colourPrimary: "#9966FF", colourSecondary: "#774DCB", colourTertiary: "#6B44B8", hat: h },
+      event_blocks: { colourPrimary: "#FFBF00", colourSecondary: "#E6AC00", colourTertiary: "#CC9900", hat: h },
+      control_blocks: { colourPrimary: "#FFAB19", colourSecondary: "#EC9C13", colourTertiary: "#CF8B17", hat: h },
+      sensing_blocks: { colourPrimary: "#5CB1D6", colourSecondary: "#47A8D1", colourTertiary: "#2E8EB8", hat: h },
+      operator_blocks: { colourPrimary: "#59C059", colourSecondary: "#46B946", colourTertiary: "#389438", hat: h },
+      variable_blocks: { colourPrimary: "#FF8C1A", colourSecondary: "#E07513", colourTertiary: "#CC6A12", hat: h },
+      list_blocks: { colourPrimary: "#FF6680", colourSecondary: "#E0506B", colourTertiary: "#CC4460", hat: h },
+    };
 
-    const lightTheme = Blockly.Theme.defineTheme("kidLight", {
-      name: "kidLight",
+    const categoryStyles: Record<string, Blockly.Theme.CategoryStyle> = {
+      motion_category: { colour: "#4C97FF" },
+      looks_category: { colour: "#9966FF" },
+      event_category: { colour: "#FFBF00" },
+      control_category: { colour: "#FFAB19" },
+      sensing_category: { colour: "#5CB1D6" },
+      operator_category: { colour: "#59C059" },
+      variable_category: { colour: "#FF8C1A" },
+      list_category: { colour: "#FF6680" },
+    };
+
+    const lightTheme = Blockly.Theme.defineTheme("scratchLight", {
+      name: "scratchLight",
       base: Blockly.Themes.Classic,
       blockStyles,
       categoryStyles,
       componentStyles: {
-        workspaceBackgroundColour: "#faf9f6",
-        toolboxBackgroundColour: "#ffffff",
-        toolboxForegroundColour: "#1e293b",
-        flyoutBackgroundColour: "#faf9f6",
-        flyoutForegroundColour: "#334155",
-        flyoutOpacity: 0.97,
-        scrollbarColour: "#d4c9b8",
+        workspaceBackgroundColour: "#F9F9F9",
+        toolboxBackgroundColour: "#FFFFFF",
+        toolboxForegroundColour: "#575E75",
+        flyoutBackgroundColour: "#F9F9F9",
+        flyoutForegroundColour: "#575E75",
+        flyoutOpacity: 0.98,
+        scrollbarColour: "#CECDCE",
         insertionMarkerColour: "#4C97FF",
-        scrollbarOpacity: 0.3,
+        scrollbarOpacity: 0.4,
       },
       fontStyle: {
-        family: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        family: "'Helvetica Neue', Helvetica, Arial, sans-serif",
         weight: "bold",
-        size: 13,
+        size: 12,
       },
     });
 
-    const darkTheme = Blockly.Theme.defineTheme("kidDark", {
-      name: "kidDark",
+    const darkTheme = Blockly.Theme.defineTheme("scratchDark", {
+      name: "scratchDark",
       base: Blockly.Themes.Classic,
       blockStyles,
       categoryStyles,
       componentStyles: {
-        workspaceBackgroundColour: "#1E1E1E",
-        toolboxBackgroundColour: "#171717",
-        toolboxForegroundColour: "#e2e8f0",
-        flyoutBackgroundColour: "#1E1E1E",
-        flyoutForegroundColour: "#cbd5e1",
-        flyoutOpacity: 0.97,
-        scrollbarColour: "#334155",
-        insertionMarkerColour: "#818cf8",
+        workspaceBackgroundColour: "#1E1E2E",
+        toolboxBackgroundColour: "#181825",
+        toolboxForegroundColour: "#CDD6F4",
+        flyoutBackgroundColour: "#1E1E2E",
+        flyoutForegroundColour: "#BAC2DE",
+        flyoutOpacity: 0.98,
+        scrollbarColour: "#45475A",
+        insertionMarkerColour: "#89B4FA",
         scrollbarOpacity: 0.5,
       },
       fontStyle: {
-        family: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        family: "'Helvetica Neue', Helvetica, Arial, sans-serif",
         weight: "bold",
-        size: 13,
+        size: 12,
       },
     });
 
@@ -206,12 +227,38 @@ export default function BlocklyWorkspace({
       <style>{`
         .blocklySvg { border: none !important; }
         .blocklyScrollbarVertical, .blocklyScrollbarHorizontal { display: none !important; }
-        .blocklyToolboxDiv { border-right: 1px solid ${isDark ? "#333" : "#e5e0d5"} !important; padding-top: 4px !important; }
-        .blocklyTreeRow { margin-bottom: 2px !important; border-radius: 6px !important; padding: 6px 12px !important; }
-        .blocklyTreeLabel { font-size: 13px !important; font-weight: 600 !important; }
-        .blocklyFlyoutBackground { fill: ${isDark ? "#222" : "#faf9f6"} !important; }
-        .blocklyTrash { opacity: 0.4; }
-        .blocklyTrash:hover { opacity: 0.8; }
+        /* Scratch-style toolbox */
+        .blocklyToolboxDiv {
+          border-right: 1px solid ${isDark ? "#313244" : "#E9EDF2"} !important;
+          padding-top: 8px !important;
+          background: ${isDark ? "#181825" : "#FFFFFF"} !important;
+        }
+        .blocklyTreeRow {
+          margin: 0 4px 2px !important;
+          border-radius: 8px !important;
+          padding: 8px 12px !important;
+          height: auto !important;
+          line-height: 1.3 !important;
+        }
+        .blocklyTreeRow:hover { background: ${isDark ? "#313244" : "#F0F0F0"} !important; }
+        .blocklyTreeLabel {
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.3px !important;
+        }
+        .blocklyFlyoutBackground { fill: ${isDark ? "#1E1E2E" : "#F9F9F9"} !important; }
+        /* Scratch-style block text */
+        .blocklyText { font-size: 12px !important; font-weight: 700 !important; fill: #FFFFFF !important; }
+        .blocklyEditableText text { fill: #FFFFFF !important; }
+        /* Rounded block connections (zelos already handles most) */
+        .blocklyPath { stroke-width: 1px !important; }
+        /* Trashcan */
+        .blocklyTrash { opacity: 0.3; transition: opacity 0.2s; }
+        .blocklyTrash:hover { opacity: 0.9; }
+        /* Drop shadow on blocks */
+        .blocklyDraggable:not(.blocklyDisabled) > .blocklyPath { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+        /* Category icons */
+        .blocklyTreeIcon { display: none !important; }
       `}</style>
       <div ref={containerRef} className={`relative ${className}`} style={{ minHeight: 300 }} />
     </>

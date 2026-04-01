@@ -1,6 +1,9 @@
+import os
+import re
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +27,7 @@ from app.courses.schemas import (
     SearchLessonResponse,
 )
 from app.courses.service import (
+    _lesson_to_dict,
     copy_course,
     copy_lesson,
     copy_module,
@@ -37,6 +41,7 @@ from app.courses.service import (
     get_lesson,
     list_courses,
     list_template_courses,
+    normalize_lesson_content,
     publish_course,
     reorder_lessons,
     reorder_modules,
@@ -48,6 +53,51 @@ from app.courses.service import (
 from app.db.session import get_db
 
 router = APIRouter()
+
+
+@router.post("/upload-image")
+async def upload_image(
+    file: UploadFile = File(...),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Upload an image for use in lesson content."""
+    # Validate file type
+    allowed = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in allowed:
+        raise HTTPException(400, f"File type {ext} not allowed. Use: {', '.join(allowed)}")
+
+    # Validate size (5MB max)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(400, "File too large. Max 5MB.")
+
+    # Save to /data/uploads/images/
+    import uuid as _uuid
+    filename = f"{_uuid.uuid4().hex}{ext}"
+    upload_dir = "/data/uploads/images"
+    os.makedirs(upload_dir, exist_ok=True)
+    filepath = os.path.join(upload_dir, filename)
+
+    with open(filepath, "wb") as f:
+        f.write(contents)
+
+    url = f"/api/v1/courses/images/{filename}"
+    return {"url": url}
+
+
+@router.get("/images/{filename}")
+async def serve_image(filename: str):
+    """Serve an uploaded image."""
+    # Sanitize filename to prevent directory traversal
+    if not re.match(r'^[a-f0-9]+\.(jpg|jpeg|png|gif|webp|svg)$', filename):
+        raise HTTPException(404, "Not found")
+
+    filepath = f"/data/uploads/images/{filename}"
+    if not os.path.exists(filepath):
+        raise HTTPException(404, "Image not found")
+
+    return FileResponse(filepath)
 
 
 @router.get("/search", response_model=dict)
@@ -298,8 +348,13 @@ async def get_lesson_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.exercises.service import get_exercises_by_lesson
+
     lesson = await get_lesson(db, lesson_id, user)
-    return LessonResponse.model_validate(lesson)
+    exercises = await get_exercises_by_lesson(db, lesson_id)
+    lesson_dict = _lesson_to_dict(lesson)
+    normalized = normalize_lesson_content(lesson_dict, exercises)
+    return LessonResponse(**normalized)
 
 
 @router.put("/{course_id}/modules/{module_id}/lessons/{lesson_id}", response_model=LessonResponse)

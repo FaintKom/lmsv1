@@ -29,6 +29,7 @@ from app.exercises.service import (
     delete_exercise,
     delete_question_from_exercise,
     delete_test_case_from_exercise,
+    get_attempt_status,
     get_exercise,
     get_exercises_by_lesson,
     list_exercises,
@@ -37,6 +38,7 @@ from app.exercises.service import (
     update_exercise,
     update_question_in_exercise,
     upload_file_submission,
+    _count_attempts,
 )
 
 router = APIRouter()
@@ -220,6 +222,15 @@ async def delete_test_case_endpoint(
 
 # ─── Submissions ─────────────────────────────────────────────────────
 
+@router.get("/{exercise_id}/attempts")
+async def get_attempts_endpoint(
+    exercise_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_attempt_status(db, exercise_id, user)
+
+
 @router.post("/{exercise_id}/submit", response_model=ExerciseSubmissionResponse)
 async def submit_exercise_endpoint(
     exercise_id: uuid.UUID,
@@ -228,7 +239,25 @@ async def submit_exercise_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     submission = await submit_exercise(db, exercise_id, user, data.model_dump())
-    return ExerciseSubmissionResponse.model_validate(submission)
+    resp = ExerciseSubmissionResponse.model_validate(submission)
+
+    # Attach attempt tracking info
+    if hasattr(submission, "_attempt_number"):
+        resp.attempt_number = submission._attempt_number  # type: ignore[attr-defined]
+        resp.attempts_remaining = submission._attempts_remaining  # type: ignore[attr-defined]
+        resp.max_attempts_reached = submission._max_attempts_reached  # type: ignore[attr-defined]
+        resp.correct_answer = submission._correct_answer  # type: ignore[attr-defined]
+    else:
+        # Normal submission — compute attempt info
+        from app.exercises.service import _count_attempts, _get_exercise_with_relations
+        exercise = await _get_exercise_with_relations(db, exercise_id)
+        max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
+        count = await _count_attempts(db, exercise_id, user.id)
+        resp.attempt_number = count
+        resp.attempts_remaining = max(0, max_att - count)
+        resp.max_attempts_reached = count >= max_att
+
+    return resp
 
 
 @router.post("/{exercise_id}/upload", response_model=ExerciseSubmissionResponse)

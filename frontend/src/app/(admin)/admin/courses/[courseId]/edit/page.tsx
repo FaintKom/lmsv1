@@ -44,8 +44,12 @@ import {
   UserPlus,
   Eye,
   Settings2,
+  ClipboardList,
+  ExternalLink,
+  Clock,
+  Video,
 } from "lucide-react";
-import type { Course, Module, Lesson } from "@/types/api";
+import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
 import QuizBuilder from "@/components/assessments/quiz-builder";
 import ChallengeBuilder from "@/components/code-editor/challenge-builder";
 import FileUploadConfig from "@/components/submissions/file-upload-config";
@@ -94,6 +98,127 @@ function SortableLessonItem({
       </div>
     </li>
   );
+}
+
+function SortableBlockItem({
+  id,
+  children,
+}: {
+  id: string;
+  children: React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <div className="flex items-start gap-1">
+        <button
+          type="button"
+          className="mt-2.5 cursor-grab touch-none p-1 text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div className="flex-1 min-w-0">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Block helpers ──────────────────────────────────────────────────
+function generateBlockId(): string {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+const BLOCK_TYPE_ICONS: Record<string, typeof FileText> = {
+  text: FileText,
+  html: Code,
+  video: Video,
+  exercise: Puzzle,
+};
+
+const BLOCK_TYPE_COLORS: Record<string, string> = {
+  text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400",
+  html: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400",
+  video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400",
+  exercise: "bg-violet-50 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400",
+};
+
+function getBlockPreview(block: LessonBlock): string {
+  if (block.type === "text") {
+    if (block.format === "tiptap" && typeof block.body === "object") {
+      const doc = block.body as { content?: Array<{ content?: Array<{ text?: string }> }> };
+      const firstText = doc?.content?.[0]?.content?.[0]?.text || "";
+      return firstText.length > 80 ? firstText.slice(0, 80) + "..." : firstText || "Empty text block";
+    }
+    const body = typeof block.body === "string" ? block.body : "";
+    return body.length > 80 ? body.slice(0, 80) + "..." : body || "Empty text block";
+  }
+  if (block.type === "html") {
+    const body = typeof block.body === "string" ? block.body : "";
+    const stripped = body.replace(/<[^>]*>/g, "").trim();
+    return stripped.length > 80 ? stripped.slice(0, 80) + "..." : stripped || "Empty HTML block";
+  }
+  if (block.type === "video") return block.url || "No video URL";
+  if (block.type === "exercise") return block.exercise_id ? `Exercise: ${block.exercise_id.slice(0, 8)}...` : "No exercise linked";
+  return "Unknown block";
+}
+
+/** Parse lesson content to v2 blocks. Normalizes v1 content to a single block. */
+function parseContentToBlocks(lesson: Lesson): LessonBlock[] {
+  const content = lesson.content || {};
+  // Already v2
+  if (content.version === 2 && Array.isArray(content.blocks)) {
+    return (content.blocks as LessonBlock[]).map((b, i) => ({
+      ...b,
+      id: b.id || generateBlockId(),
+      sort_order: b.sort_order ?? i,
+      page: b.page ?? 1,
+    }));
+  }
+  // v1 fallback: convert old content to a single block
+  if (lesson.content_type === "text") {
+    return [{
+      id: generateBlockId(),
+      type: "text",
+      sort_order: 0,
+      page: 1,
+      body: (content.body as string | Record<string, unknown>) || "",
+      format: (content.format as string) || "markdown",
+    }];
+  }
+  if (lesson.content_type === "video") {
+    return [{
+      id: generateBlockId(),
+      type: "video",
+      sort_order: 0,
+      page: 1,
+      url: (content.url as string) || "",
+    }];
+  }
+  // For quiz, code_challenge, etc. — return empty blocks (legacy types handled by old editors)
+  return [];
+}
+
+/** Build v2 content JSONB from blocks array */
+function buildV2Content(blocks: LessonBlock[]): Record<string, unknown> {
+  return {
+    version: 2,
+    blocks: blocks.map((b, i) => ({ ...b, sort_order: i })),
+  };
 }
 
 const CONTENT_TYPE_OPTIONS = [
@@ -165,6 +290,12 @@ export default function CourseEditorPage() {
     duration_minutes: "",
   });
 
+  // Block editor state (per-lesson blocks)
+  const [lessonBlocks, setLessonBlocks] = useState<Record<string, LessonBlock[]>>({});
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [showExercisePicker, setShowExercisePicker] = useState(false);
+  const [savingBlocks, setSavingBlocks] = useState(false);
+
   // Quiz management
   const [existingQuiz, setExistingQuiz] = useState<Record<string, unknown> | null>(null);
 
@@ -173,6 +304,30 @@ export default function CourseEditorPage() {
   const [allUsers, setAllUsers] = useState<{ id: string; full_name: string; email: string; role: string }[]>([]);
   const [showStudents, setShowStudents] = useState(false);
   const [enrollingUser, setEnrollingUser] = useState("");
+
+  // Assignments management
+  interface Assignment {
+    id: string;
+    course_id: string;
+    title: string;
+    description?: string;
+    due_date: string;
+    max_score: number;
+    allow_late: boolean;
+    submission_count?: number;
+    created_at?: string;
+  }
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [showAssignments, setShowAssignments] = useState(false);
+  const [showAddAssignment, setShowAddAssignment] = useState(false);
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: "",
+    description: "",
+    due_date: "",
+    max_score: "100",
+    allow_late: false,
+  });
+  const [addingAssignment, setAddingAssignment] = useState(false);
 
   // Active tab for expanded lesson
   const [lessonTab, setLessonTab] = useState<"content" | "settings">("content");
@@ -200,6 +355,16 @@ export default function CourseEditorPage() {
     apiClient.get("/admin/users/").then(({ data }) => setAllUsers(data)).catch(() => {});
   }, []);
 
+  const fetchAssignments = useCallback(() => {
+    apiClient
+      .get("/assignments", { params: { course_id: courseId } })
+      .then(({ data }) => {
+        const list = Array.isArray(data) ? data : data.results || [];
+        setAssignments(list.filter((a: Assignment) => a.course_id === courseId));
+      })
+      .catch(() => setAssignments([]));
+  }, [courseId]);
+
   useEffect(() => {
     fetchCourse();
   }, [fetchCourse]);
@@ -210,6 +375,12 @@ export default function CourseEditorPage() {
       fetchAllUsers();
     }
   }, [showStudents, fetchStudents, fetchAllUsers]);
+
+  useEffect(() => {
+    if (showAssignments) {
+      fetchAssignments();
+    }
+  }, [showAssignments, fetchAssignments]);
 
   // When expanding a quiz lesson, load quiz data
   const loadQuizForLesson = useCallback((lessonId: string) => {
@@ -222,14 +393,19 @@ export default function CourseEditorPage() {
   const handleExpandLesson = (lesson: Lesson) => {
     if (expandedLessonId === lesson.id) {
       setExpandedLessonId(null);
+      setEditingBlockId(null);
       return;
     }
     setExpandedLessonId(lesson.id);
+    setEditingBlockId(null);
     setEditLessonForm({
       title: lesson.title,
       content: lesson.content || {},
       duration_minutes: lesson.duration_minutes?.toString() || "",
     });
+    // Parse blocks for block editor
+    const blocks = parseContentToBlocks(lesson);
+    setLessonBlocks((prev) => ({ ...prev, [lesson.id]: blocks }));
     setLessonTab("content");
     if (lesson.content_type === "quiz") {
       loadQuizForLesson(lesson.id);
@@ -345,6 +521,83 @@ export default function CourseEditorPage() {
     }
   };
 
+  // ─── Block operations ──────────────────────────────────────────
+  const getBlocks = (lessonId: string): LessonBlock[] => lessonBlocks[lessonId] || [];
+
+  const updateBlocks = (lessonId: string, updater: (blocks: LessonBlock[]) => LessonBlock[]) => {
+    setLessonBlocks((prev) => ({
+      ...prev,
+      [lessonId]: updater(prev[lessonId] || []),
+    }));
+  };
+
+  const handleAddBlock = (lessonId: string, type: "text" | "html" | "video" | "exercise") => {
+    const blocks = getBlocks(lessonId);
+    const newBlock: LessonBlock = {
+      id: generateBlockId(),
+      type,
+      sort_order: blocks.length,
+      page: 1,
+    };
+    if (type === "text") {
+      newBlock.body = "";
+      newBlock.format = "tiptap";
+    }
+    if (type === "html") {
+      newBlock.body = "";
+      newBlock.format = "html";
+    }
+    if (type === "video") {
+      newBlock.url = "";
+    }
+    if (type === "exercise") {
+      newBlock.exercise_id = "";
+    }
+    updateBlocks(lessonId, (b) => [...b, newBlock]);
+    setEditingBlockId(newBlock.id);
+  };
+
+  const handleDeleteBlock = (lessonId: string, blockId: string) => {
+    updateBlocks(lessonId, (blocks) => blocks.filter((b) => b.id !== blockId));
+    if (editingBlockId === blockId) setEditingBlockId(null);
+  };
+
+  const handleBlockDragEnd = (lessonId: string, event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    updateBlocks(lessonId, (blocks) => {
+      const oldIndex = blocks.findIndex((b) => b.id === active.id);
+      const newIndex = blocks.findIndex((b) => b.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return blocks;
+      return arrayMove(blocks, oldIndex, newIndex);
+    });
+  };
+
+  const handleUpdateBlock = (lessonId: string, blockId: string, updates: Partial<LessonBlock>) => {
+    updateBlocks(lessonId, (blocks) =>
+      blocks.map((b) => (b.id === blockId ? { ...b, ...updates } : b))
+    );
+  };
+
+  const handleSaveBlocks = async (moduleId: string, lessonId: string) => {
+    setSavingBlocks(true);
+    try {
+      const blocks = getBlocks(lessonId);
+      const v2Content = buildV2Content(blocks);
+      await apiClient.put(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`, {
+        title: editLessonForm.title.trim(),
+        content: v2Content,
+        duration_minutes: editLessonForm.duration_minutes ? parseInt(editLessonForm.duration_minutes) : null,
+      });
+      toast.success("Lesson saved");
+      fetchCourse();
+    } catch {
+      toast.error("Failed to save lesson");
+    } finally {
+      setSavingBlocks(false);
+    }
+  };
+
   const handleDeleteLesson = async (moduleId: string, lessonId: string) => {
     if (!(await confirm({ message: "Delete this lesson?", variant: "danger", confirmLabel: "Delete" }))) return;
     try {
@@ -377,6 +630,40 @@ export default function CourseEditorPage() {
       fetchStudents();
     } catch {
       toast.error("Failed to unenroll student");
+    }
+  };
+
+  const handleAddAssignment = async () => {
+    if (!assignmentForm.title.trim() || !assignmentForm.due_date) return;
+    setAddingAssignment(true);
+    try {
+      await apiClient.post("/assignments", {
+        course_id: courseId,
+        title: assignmentForm.title.trim(),
+        description: assignmentForm.description.trim() || null,
+        due_date: new Date(assignmentForm.due_date).toISOString(),
+        max_score: parseInt(assignmentForm.max_score) || 100,
+        allow_late: assignmentForm.allow_late,
+      });
+      setAssignmentForm({ title: "", description: "", due_date: "", max_score: "100", allow_late: false });
+      setShowAddAssignment(false);
+      toast.success("Assignment created");
+      fetchAssignments();
+    } catch {
+      toast.error("Failed to create assignment");
+    } finally {
+      setAddingAssignment(false);
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId: string, title: string) => {
+    if (!(await confirm({ title: "Delete assignment?", message: `Delete "${title}" and all its submissions?`, variant: "danger", confirmLabel: "Delete" }))) return;
+    try {
+      await apiClient.delete(`/assignments/${assignmentId}`);
+      toast.success("Assignment deleted");
+      fetchAssignments();
+    } catch {
+      toast.error("Failed to delete assignment");
     }
   };
 
@@ -441,10 +728,18 @@ export default function CourseEditorPage() {
   // Content summary for collapsed lesson
   const getContentSummary = (lesson: Lesson): string => {
     const content = lesson.content || {};
+    // v2 block content
+    if (content.version === 2 && Array.isArray(content.blocks)) {
+      const blocks = content.blocks as LessonBlock[];
+      if (blocks.length === 0) return "No blocks";
+      const count = blocks.length;
+      const types = [...new Set(blocks.map((b) => b.type))];
+      return `${count} block${count !== 1 ? "s" : ""}: ${types.join(", ")}`;
+    }
+    // v1 fallback
     switch (lesson.content_type) {
       case "text": {
         if (content.format === "tiptap") {
-          // Extract text from TipTap JSON
           const doc = content.body as { content?: Array<{ content?: Array<{ text?: string }> }> };
           const firstText = doc?.content?.[0]?.content?.[0]?.text || "";
           return firstText.length > 80 ? firstText.slice(0, 80) + "..." : firstText || "Block editor content";
@@ -497,7 +792,7 @@ export default function CourseEditorPage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => window.open(`/courses/${courseId}`, "_blank")}
+            onClick={() => window.open(`/courses/${courseId}?preview=true`, "_blank")}
           >
             <Eye className="mr-1 h-4 w-4" />
             Preview
@@ -746,129 +1041,288 @@ export default function CourseEditorPage() {
 
                               {lessonTab === "content" && (
                                 <div className="space-y-3">
-                                  {/* TEXT lesson */}
-                                  {lesson.content_type === "text" && (
-                                    <>
-                                      {/* Legacy content banner */}
-                                      {editLessonForm.content.format && editLessonForm.content.format !== "tiptap" && editLessonForm.content.body && (
-                                        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 dark:border-amber-500/30 dark:bg-amber-500/10">
-                                          <span className="text-xs text-amber-700 dark:text-amber-300">
-                                            This lesson uses legacy {String(editLessonForm.content.format)} format.
-                                          </span>
-                                          <button
-                                            onClick={() => {
-                                              const converted = markdownToTiptap(
-                                                editLessonForm.content.body as string || "",
-                                                (editLessonForm.content.format as string) || "markdown"
-                                              );
-                                              setEditLessonForm({
-                                                ...editLessonForm,
-                                                content: { format: "tiptap", body: converted },
-                                              });
-                                            }}
-                                            className="rounded-md bg-amber-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-700"
-                                          >
-                                            Convert to Block Editor
-                                          </button>
-                                        </div>
-                                      )}
-                                      <BlockEditor
-                                        content={
-                                          editLessonForm.content.format === "tiptap"
-                                            ? (editLessonForm.content.body as Record<string, unknown>) ?? null
-                                            : null
-                                        }
-                                        onChange={(json) =>
-                                          setEditLessonForm({
-                                            ...editLessonForm,
-                                            content: { format: "tiptap", body: json },
-                                          })
-                                        }
-                                      />
-                                      <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
-                                        <Save className="mr-1 h-3 w-3" /> Save Content
-                                      </Button>
-                                    </>
-                                  )}
+                                  {/* ─── Block-based editor ───────────────── */}
+                                  <div>
+                                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                      Blocks ({getBlocks(lesson.id).length})
+                                    </p>
 
-                                  {/* VIDEO lesson */}
-                                  {lesson.content_type === "video" && (
+                                    <DndContext
+                                      sensors={sensors}
+                                      collisionDetection={closestCenter}
+                                      onDragEnd={(event) => handleBlockDragEnd(lesson.id, event)}
+                                    >
+                                      <SortableContext
+                                        items={getBlocks(lesson.id).map((b) => b.id)}
+                                        strategy={verticalListSortingStrategy}
+                                      >
+                                        <div className="space-y-2">
+                                          {getBlocks(lesson.id).map((block) => {
+                                            const BlockIcon = BLOCK_TYPE_ICONS[block.type] || FileText;
+                                            const isEditing = editingBlockId === block.id;
+                                            return (
+                                              <SortableBlockItem key={block.id} id={block.id}>
+                                                <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E]">
+                                                  {/* Block header */}
+                                                  <div className="flex items-center gap-2 px-3 py-2">
+                                                    <span className={`flex h-6 w-6 items-center justify-center rounded ${BLOCK_TYPE_COLORS[block.type] || ""}`}>
+                                                      <BlockIcon className="h-3.5 w-3.5" />
+                                                    </span>
+                                                    <span className="text-xs font-medium capitalize text-slate-700 dark:text-slate-300">
+                                                      {block.type} Block
+                                                    </span>
+                                                    {!isEditing && (
+                                                      <span className="flex-1 truncate text-xs text-slate-400 ml-1">
+                                                        {getBlockPreview(block)}
+                                                      </span>
+                                                    )}
+                                                    {isEditing && <span className="flex-1" />}
+                                                    {/* Page number */}
+                                                    <label className="flex items-center gap-1 text-[10px] text-slate-400">
+                                                      p.
+                                                      <input
+                                                        type="number"
+                                                        min={1}
+                                                        value={block.page}
+                                                        onChange={(e) =>
+                                                          handleUpdateBlock(lesson.id, block.id, {
+                                                            page: parseInt(e.target.value) || 1,
+                                                          })
+                                                        }
+                                                        className="w-10 rounded border border-slate-200 dark:border-white/10 bg-transparent px-1 py-0.5 text-center text-[10px] dark:text-slate-300 focus:outline-none focus:border-indigo-400"
+                                                      />
+                                                    </label>
+                                                    <button
+                                                      onClick={() => setEditingBlockId(isEditing ? null : block.id)}
+                                                      className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-indigo-600"
+                                                      title={isEditing ? "Collapse" : "Edit"}
+                                                    >
+                                                      {isEditing ? <ChevronDown className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+                                                    </button>
+                                                    <button
+                                                      onClick={() => handleDeleteBlock(lesson.id, block.id)}
+                                                      className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                                                      title="Remove block"
+                                                    >
+                                                      <Trash2 className="h-3.5 w-3.5" />
+                                                    </button>
+                                                  </div>
+
+                                                  {/* Block inline editor */}
+                                                  {isEditing && (
+                                                    <div className="border-t border-slate-100 dark:border-white/5 px-3 py-3">
+                                                      {/* TEXT block editor */}
+                                                      {block.type === "text" && (
+                                                        <>
+                                                          <BlockEditor
+                                                            content={
+                                                              block.format === "tiptap" && typeof block.body === "object"
+                                                                ? (block.body as Record<string, unknown>)
+                                                                : typeof block.body === "string" && block.body.trim()
+                                                                  ? (block.body as unknown as Record<string, unknown>)
+                                                                  : null
+                                                            }
+                                                            onChange={(json) =>
+                                                              handleUpdateBlock(lesson.id, block.id, {
+                                                                body: json as unknown as string,
+                                                                format: "tiptap",
+                                                              })
+                                                            }
+                                                          />
+                                                        </>
+                                                      )}
+
+                                                      {/* HTML block editor */}
+                                                      {block.type === "html" && (
+                                                        <div className="space-y-2">
+                                                          <div className="flex items-center justify-between">
+                                                            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Raw HTML</label>
+                                                            <span className="text-[10px] text-amber-500">Supports scripts, iframes, SVG, inline styles</span>
+                                                          </div>
+                                                          <textarea
+                                                            value={typeof block.body === "string" ? block.body : ""}
+                                                            onChange={(e) =>
+                                                              handleUpdateBlock(lesson.id, block.id, {
+                                                                body: e.target.value,
+                                                                format: "html",
+                                                              })
+                                                            }
+                                                            rows={12}
+                                                            spellCheck={false}
+                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 bg-slate-900 text-slate-100 px-4 py-3 font-mono text-xs leading-relaxed focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                                            placeholder="<div>\n  <h2>Your HTML here</h2>\n  <p>Supports scripts, iframes, SVGs...</p>\n</div>"
+                                                          />
+                                                          {typeof block.body === "string" && block.body.trim() && (
+                                                            <div>
+                                                              <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
+                                                              <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e1e1e] p-4 overflow-auto max-h-[300px]">
+                                                                <div dangerouslySetInnerHTML={{ __html: block.body }} />
+                                                              </div>
+                                                            </div>
+                                                          )}
+                                                        </div>
+                                                      )}
+
+                                                      {/* VIDEO block editor */}
+                                                      {block.type === "video" && (
+                                                        <>
+                                                          <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                                                            Video URL (YouTube, Vimeo, etc.)
+                                                          </label>
+                                                          <input
+                                                            type="text"
+                                                            value={block.url || ""}
+                                                            onChange={(e) =>
+                                                              handleUpdateBlock(lesson.id, block.id, { url: e.target.value })
+                                                            }
+                                                            placeholder="https://www.youtube.com/watch?v=..."
+                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                                          />
+                                                          {block.url && (
+                                                            <div className="mt-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
+                                                              <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
+                                                              <a
+                                                                href={block.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-xs text-indigo-600 hover:underline"
+                                                              >
+                                                                {block.url}
+                                                              </a>
+                                                            </div>
+                                                          )}
+                                                        </>
+                                                      )}
+
+                                                      {/* EXERCISE block editor */}
+                                                      {block.type === "exercise" && (
+                                                        <div className="space-y-2">
+                                                          {block.exercise_id ? (
+                                                            <div className="flex items-center gap-2">
+                                                              <span className="rounded-full bg-violet-50 dark:bg-violet-500/20 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400">
+                                                                {block.exercise_id.slice(0, 8)}...
+                                                              </span>
+                                                              <a
+                                                                href={`/admin/content-library/${block.exercise_id}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                                              >
+                                                                <ExternalLink className="h-3 w-3" />
+                                                                Open Exercise Editor
+                                                              </a>
+                                                              <button
+                                                                onClick={() =>
+                                                                  handleUpdateBlock(lesson.id, block.id, { exercise_id: "" })
+                                                                }
+                                                                className="ml-auto text-xs text-slate-400 hover:text-red-500"
+                                                              >
+                                                                Unlink
+                                                              </button>
+                                                            </div>
+                                                          ) : (
+                                                            <ExerciseBlockCreator
+                                                              lessonId={lesson.id}
+                                                              blockId={block.id}
+                                                              onCreated={(exerciseId) =>
+                                                                handleUpdateBlock(lesson.id, block.id, { exercise_id: exerciseId })
+                                                              }
+                                                            />
+                                                          )}
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </SortableBlockItem>
+                                            );
+                                          })}
+                                        </div>
+                                      </SortableContext>
+                                    </DndContext>
+
+                                    {getBlocks(lesson.id).length === 0 && (
+                                      <p className="py-4 text-center text-xs text-slate-400">
+                                        No blocks yet. Add a text, video, or exercise block below.
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  {/* Add block buttons + Save */}
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <button
+                                      onClick={() => handleAddBlock(lesson.id, "text")}
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-300 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> Text
+                                    </button>
+                                    <button
+                                      onClick={() => handleAddBlock(lesson.id, "html")}
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-amber-300 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> HTML
+                                    </button>
+                                    <button
+                                      onClick={() => handleAddBlock(lesson.id, "video")}
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-rose-300 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> Video
+                                    </button>
+                                    <button
+                                      onClick={() => handleAddBlock(lesson.id, "exercise")}
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-violet-300 hover:text-violet-600 dark:text-slate-400 dark:hover:text-violet-400 transition-colors"
+                                    >
+                                      <Plus className="h-3 w-3" /> Exercise
+                                    </button>
+                                    <div className="ml-auto">
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleSaveBlocks(module.id, lesson.id)}
+                                        disabled={savingBlocks}
+                                      >
+                                        <Save className="mr-1 h-3 w-3" />
+                                        {savingBlocks ? "Saving..." : "Save"}
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  {/* Legacy editors — only for v1 lessons without blocks */}
+                                  {!(lesson.content?.version === 2) && (
                                     <>
-                                      <div>
-                                        <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Video URL (YouTube, Vimeo, etc.)</label>
-                                        <input
-                                          type="text"
-                                          value={getContentText(editLessonForm.content, "video")}
-                                          onChange={(e) =>
-                                            setEditLessonForm({
-                                              ...editLessonForm,
-                                              content: setContentFromText(e.target.value, "video"),
-                                            })
-                                          }
-                                          placeholder="https://www.youtube.com/watch?v=..."
-                                          className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                      {lesson.content_type === "quiz" && (
+                                        <QuizBuilder
+                                          lessonId={lesson.id}
+                                          existingQuiz={existingQuiz as never}
+                                          onSaved={() => loadQuizForLesson(lesson.id)}
                                         />
-                                      </div>
-                                      {getContentText(editLessonForm.content, "video") && (
-                                        <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
-                                          <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
-                                          <a
-                                            href={getContentText(editLessonForm.content, "video")}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-xs text-indigo-600 hover:underline"
-                                          >
-                                            {getContentText(editLessonForm.content, "video")}
-                                          </a>
-                                        </div>
                                       )}
-                                      <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
-                                        <Save className="mr-1 h-3 w-3" /> Save Video
-                                      </Button>
+                                      {lesson.content_type === "code_challenge" && (
+                                        <ChallengeBuilder
+                                          lessonId={lesson.id}
+                                          onSaved={() => {}}
+                                        />
+                                      )}
+                                      {lesson.content_type === "file_upload" && (
+                                        <FileUploadConfig
+                                          courseId={courseId}
+                                          moduleId={module.id}
+                                          lessonId={lesson.id}
+                                          initialContent={lesson.content || {}}
+                                          onSaved={() => fetchCourse()}
+                                        />
+                                      )}
+                                      {lesson.content_type === "interactive" && (
+                                        <InteractiveBuilder
+                                          courseId={courseId}
+                                          moduleId={module.id}
+                                          lessonId={lesson.id}
+                                          initialContent={lesson.content || {}}
+                                          onSaved={() => fetchCourse()}
+                                        />
+                                      )}
+                                      <LessonExercises lessonId={lesson.id} />
                                     </>
                                   )}
-
-                                  {/* QUIZ lesson */}
-                                  {lesson.content_type === "quiz" && (
-                                    <QuizBuilder
-                                      lessonId={lesson.id}
-                                      existingQuiz={existingQuiz as never}
-                                      onSaved={() => loadQuizForLesson(lesson.id)}
-                                    />
-                                  )}
-
-                                  {/* CODE CHALLENGE lesson */}
-                                  {lesson.content_type === "code_challenge" && (
-                                    <ChallengeBuilder
-                                      lessonId={lesson.id}
-                                      onSaved={() => {}}
-                                    />
-                                  )}
-
-                                  {/* FILE UPLOAD lesson */}
-                                  {lesson.content_type === "file_upload" && (
-                                    <FileUploadConfig
-                                      courseId={courseId}
-                                      moduleId={module.id}
-                                      lessonId={lesson.id}
-                                      initialContent={lesson.content || {}}
-                                      onSaved={() => fetchCourse()}
-                                    />
-                                  )}
-
-                                  {/* INTERACTIVE lesson */}
-                                  {lesson.content_type === "interactive" && (
-                                    <InteractiveBuilder
-                                      courseId={courseId}
-                                      moduleId={module.id}
-                                      lessonId={lesson.id}
-                                      initialContent={lesson.content || {}}
-                                      onSaved={() => fetchCourse()}
-                                    />
-                                  )}
-
-                                  {/* Unified Exercises (shown for all lesson types) */}
-                                  <LessonExercises lessonId={lesson.id} />
                                 </div>
                               )}
                             </div>
@@ -1109,6 +1563,194 @@ export default function CourseEditorPage() {
           </CardContent>
         )}
       </Card>}
+
+      {/* Assignments Section */}
+      <Card className="mt-8">
+        <CardHeader
+          className="cursor-pointer"
+          onClick={() => setShowAssignments(!showAssignments)}
+        >
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <ClipboardList className="h-5 w-5 text-indigo-500" />
+            Assignments
+            {showAssignments ? (
+              <ChevronDown className="ml-auto h-4 w-4 text-slate-400" />
+            ) : (
+              <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
+            )}
+            <span className="ml-1 rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-xs font-medium text-indigo-600">
+              {assignments.length}
+            </span>
+          </CardTitle>
+        </CardHeader>
+        {showAssignments && (
+          <CardContent className="border-t pt-4">
+            {/* Assignment cards */}
+            {assignments.length === 0 && !showAddAssignment && (
+              <p className="py-4 text-center text-sm text-slate-400">
+                No assignments yet. Click below to add the first one.
+              </p>
+            )}
+
+            {assignments.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {assignments.map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="group rounded-lg border border-slate-200 dark:border-white/10 p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                          {assignment.title}
+                        </h4>
+                        {assignment.description && (
+                          <p className="mt-0.5 text-xs text-slate-400 line-clamp-2">
+                            {assignment.description}
+                          </p>
+                        )}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-400">
+                            <Clock className="h-3 w-3" />
+                            {new Date(assignment.due_date).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          <span className="rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
+                            Max: {assignment.max_score} pts
+                          </span>
+                          {assignment.allow_late && (
+                            <span className="rounded-full bg-amber-50 dark:bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                              Late OK
+                            </span>
+                          )}
+                          {assignment.submission_count !== undefined && (
+                            <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                              {assignment.submission_count} submissions
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <button
+                          onClick={() => window.open(`/admin/assignments/${assignment.id}/edit`, "_blank")}
+                          className="rounded p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
+                          title="Edit assignment"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => window.open(`/admin/assignments/${assignment.id}/review`, "_blank")}
+                          className="rounded p-1.5 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-400"
+                          title="Review submissions"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
+                          className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                          title="Delete assignment"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add Assignment toggle */}
+            {showAddAssignment ? (
+              <div className="rounded-lg border border-dashed border-slate-300 dark:border-white/20 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">New Assignment</p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Title *</label>
+                    <input
+                      type="text"
+                      value={assignmentForm.title}
+                      onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
+                      placeholder="Assignment title"
+                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+                    <textarea
+                      value={assignmentForm.description}
+                      onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
+                      placeholder="Optional description..."
+                      rows={3}
+                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Due Date *</label>
+                      <input
+                        type="datetime-local"
+                        value={assignmentForm.due_date}
+                        onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })}
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Max Score</label>
+                      <input
+                        type="number"
+                        value={assignmentForm.max_score}
+                        onChange={(e) => setAssignmentForm({ ...assignmentForm, max_score: e.target.value })}
+                        placeholder="100"
+                        min={0}
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={assignmentForm.allow_late}
+                      onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
+                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    Allow late submissions
+                  </label>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleAddAssignment} disabled={addingAssignment || !assignmentForm.title.trim() || !assignmentForm.due_date}>
+                      <Plus className="mr-1 h-3 w-3" />
+                      {addingAssignment ? "Creating..." : "Create Assignment"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setShowAddAssignment(false);
+                        setAssignmentForm({ title: "", description: "", due_date: "", max_score: "100", allow_late: false });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAddAssignment(true)}
+                className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Assignment
+              </button>
+            )}
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }
@@ -1125,6 +1767,96 @@ const EXERCISE_TYPE_LABELS: Record<string, string> = {
   categorize: "Categorize",
   file_upload: "File Upload",
 };
+
+const EXERCISE_TYPES_LIST = [
+  { value: "quiz", label: "Quiz", icon: "📝" },
+  { value: "code_challenge", label: "Code Challenge", icon: "💻" },
+  { value: "matching", label: "Matching", icon: "🧩" },
+  { value: "ordering", label: "Ordering", icon: "↕️" },
+  { value: "fill_blanks", label: "Fill Blanks", icon: "✏️" },
+  { value: "true_false", label: "True/False", icon: "✅" },
+  { value: "categorize", label: "Categorize", icon: "📂" },
+  { value: "file_upload", label: "File Upload", icon: "📎" },
+  { value: "robot_2d", label: "2D Robot", icon: "🤖" },
+  { value: "math_interactive", label: "Math Interactive", icon: "📐" },
+  { value: "world_3d", label: "3D World", icon: "🌍" },
+  { value: "translation", label: "Translation", icon: "🌐" },
+  { value: "sentence_builder", label: "Sentence Builder", icon: "🔤" },
+  { value: "dialogue", label: "Dialogue", icon: "💬" },
+  { value: "conjugation", label: "Conjugation", icon: "📝" },
+  { value: "reading", label: "Reading", icon: "📖" },
+];
+
+function ExerciseBlockCreator({
+  lessonId,
+  blockId,
+  onCreated,
+}: {
+  lessonId: string;
+  blockId: string;
+  onCreated: (exerciseId: string) => void;
+}) {
+  const [selectedType, setSelectedType] = useState("quiz");
+  const [title, setTitle] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const handleCreate = async () => {
+    if (!title.trim()) {
+      toast.error("Enter a title for the exercise");
+      return;
+    }
+    setCreating(true);
+    try {
+      const { data } = await apiClient.post("/exercises", {
+        lesson_id: lessonId,
+        exercise_type: selectedType,
+        title: title.trim(),
+        config: {},
+      });
+      toast.success("Exercise created");
+      onCreated(data.id);
+      setTitle("");
+    } catch {
+      toast.error("Failed to create exercise");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-slate-400">Create a new exercise for this block:</p>
+      <div className="flex flex-wrap gap-1.5">
+        {EXERCISE_TYPES_LIST.map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setSelectedType(t.value)}
+            className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              selectedType === t.value
+                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+            }`}
+          >
+            {t.icon} {t.label}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Exercise title..."
+          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+        />
+        <Button size="sm" onClick={handleCreate} disabled={creating || !title.trim()}>
+          {creating ? "Creating..." : "Create"}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function LessonExercises({ lessonId }: { lessonId: string }) {
   const [exercises, setExercises] = useState<
@@ -1250,12 +1982,21 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
               <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
                 {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
               </span>
+              <a
+                href={`/admin/content-library/${ex.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded p-1 text-indigo-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10"
+                title="Edit exercise"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </a>
               <button
                 onClick={() => handleDelete(ex.id, ex.title)}
-                className="invisible rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 group-hover:visible dark:hover:bg-red-500/10"
+                className="rounded p-1 text-slate-300 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-500/10"
                 title="Delete exercise"
               >
-                <Trash2 className="h-3 w-3" />
+                <Trash2 className="h-3.5 w-3.5" />
               </button>
             </li>
           ))}

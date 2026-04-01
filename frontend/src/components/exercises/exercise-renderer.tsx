@@ -15,6 +15,11 @@ import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
 import TrueFalseExercise from "@/components/submissions/exercises/true-false";
 import CategorizeExercise from "@/components/submissions/exercises/categorize";
+import TranslationExercise from "@/components/exercises/translation-exercise";
+import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exercise";
+import DialogueExercise from "@/components/exercises/dialogue-exercise";
+import ConjugationExercise from "@/components/exercises/conjugation-exercise";
+import ReadingExercise from "@/components/exercises/reading-exercise";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
@@ -63,11 +68,17 @@ interface Exercise {
     | "file_upload"
     | "robot_2d"
     | "math_interactive"
-    | "world_3d";
+    | "world_3d"
+    | "translation"
+    | "sentence_builder"
+    | "dialogue"
+    | "conjugation"
+    | "reading";
   title: string;
   config: Record<string, unknown>;
   questions?: Question[];
   test_cases?: TestCase[];
+  max_attempts?: number | null;
 }
 
 interface SubmissionResult {
@@ -75,6 +86,10 @@ interface SubmissionResult {
   passed: boolean | null;
   total_passed?: number | null;
   total_tests?: number | null;
+  attempt_number?: number | null;
+  attempts_remaining?: number | null;
+  max_attempts_reached?: boolean;
+  correct_answer?: Record<string, unknown> | null;
 }
 
 interface LessonNavItem {
@@ -98,6 +113,23 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
   const [fullscreen, setFullscreen] = useState(false); // never auto-open — let student read theory first
+
+  // Attempt tracking
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [maxAttempts, setMaxAttempts] = useState(exercise.max_attempts ?? 100);
+  const [maxReached, setMaxReached] = useState(false);
+  const [revealedAnswer, setRevealedAnswer] = useState<Record<string, unknown> | null>(null);
+
+  // Fetch attempt status on mount
+  useEffect(() => {
+    apiClient.get(`/exercises/${exercise.id}/attempts`).then(({ data }) => {
+      setAttemptCount(data.attempt_count ?? 0);
+      setMaxAttempts(data.max_attempts ?? 100);
+      if (data.max_reached) {
+        setMaxReached(true);
+      }
+    }).catch(() => {});
+  }, [exercise.id]);
 
   const openFullscreen = useCallback(() => setFullscreen(true), []);
   const closeFullscreen = useCallback(() => setFullscreen(false), []);
@@ -125,10 +157,20 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
     try {
       const res = await apiClient.post(`/exercises/${exercise.id}/submit`, body);
       setResult(res.data);
+      setAttemptCount(res.data.attempt_number ?? attemptCount + 1);
+      if (res.data.attempts_remaining != null) {
+        setMaxAttempts(maxAttempts);
+      }
+      if (res.data.max_attempts_reached) {
+        setMaxReached(true);
+        setRevealedAnswer(res.data.correct_answer ?? null);
+      }
       if (res.data.passed) {
         toast.success("Correct! Well done.");
+      } else if (res.data.max_attempts_reached) {
+        toast.info("Max attempts reached. Answer revealed.");
       } else {
-        toast.info(`Score: ${Math.round((res.data.score ?? 0) * 100)}%`);
+        toast.info(`Score: ${Math.round(res.data.score ?? 0)}%`);
       }
       // Close fullscreen on submission
       if (res.data.passed) closeFullscreen();
@@ -158,8 +200,25 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
   const exerciseContent = (
     <>
-      {result ? (
-        <ResultDisplay result={result} onRetry={() => setResult(null)} />
+      {/* Attempt counter */}
+      {maxAttempts < 1000 && attemptCount > 0 && !maxReached && (
+        <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:bg-white/5">
+          <span>Attempt {attemptCount} / {maxAttempts}</span>
+          <span>{Math.max(0, maxAttempts - attemptCount)} remaining</span>
+        </div>
+      )}
+
+      {/* Max attempts reached — show answer */}
+      {maxReached && revealedAnswer ? (
+        <AnswerReveal answer={revealedAnswer} />
+      ) : result ? (
+        <ResultDisplay
+          result={result}
+          onRetry={() => setResult(null)}
+          attemptsRemaining={maxAttempts - attemptCount}
+          maxReached={maxReached}
+          revealedAnswer={revealedAnswer}
+        />
       ) : submitting ? (
         <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -279,15 +338,53 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
   );
 }
 
+function AnswerReveal({ answer }: { answer: Record<string, unknown> }) {
+  const explanation = answer.explanation as string | undefined;
+  const answerValue = answer.answer;
+
+  return (
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
+      <CheckCircle className="mx-auto mb-2 h-10 w-10 text-emerald-500" />
+      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+        Answer Revealed
+      </p>
+      <p className="mt-1 text-xs text-slate-500">Max attempts reached — exercise marked as complete</p>
+      {answerValue != null && (
+        <div className="mt-3 rounded-lg bg-white p-3 text-left text-sm text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">
+          <p className="font-semibold text-emerald-700 dark:text-emerald-400">Correct answer:</p>
+          <p className="mt-1">{typeof answerValue === "object" ? JSON.stringify(answerValue, null, 2) : String(answerValue)}</p>
+        </div>
+      )}
+      {explanation && (
+        <div className="mt-2 rounded-lg bg-white p-3 text-left text-sm text-slate-600 dark:bg-[#1E1E1E] dark:text-slate-400">
+          <p className="font-semibold">Explanation:</p>
+          <p className="mt-1">{explanation}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ResultDisplay({
   result,
   onRetry,
+  attemptsRemaining,
+  maxReached,
+  revealedAnswer,
 }: {
   result: SubmissionResult;
   onRetry: () => void;
+  attemptsRemaining?: number;
+  maxReached?: boolean;
+  revealedAnswer?: Record<string, unknown> | null;
 }) {
   const passed = result.passed;
-  const scorePercent = Math.round((result.score ?? 0) * 100);
+  const scorePercent = Math.round(result.score ?? 0);
+
+  // If max reached after this submission, show answer reveal
+  if (maxReached && revealedAnswer) {
+    return <AnswerReveal answer={revealedAnswer} />;
+  }
 
   return (
     <div className="text-center py-6">
@@ -305,9 +402,19 @@ function ResultDisplay({
           Tests: {result.total_passed}/{result.total_tests} passed
         </p>
       )}
-      <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
-        Try Again
-      </Button>
+      {!passed && attemptsRemaining != null && attemptsRemaining > 0 && (
+        <p className="mt-1 text-xs text-slate-400">
+          {attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining
+        </p>
+      )}
+      {!passed && (
+        <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
+          Try Again
+        </Button>
+      )}
+      {passed && (
+        <p className="mt-2 text-xs text-emerald-500">Exercise complete!</p>
+      )}
     </div>
   );
 }
@@ -427,6 +534,31 @@ function ExerciseBody({
           onSubmit={(result) => onSubmit({ game_result: result })}
         />
       );
+
+    case "translation": {
+      const cfg = exercise.config as { source_text?: string; source_language?: string; target_language?: string; hints?: string[]; accepted_answers?: string[]; case_sensitive?: boolean };
+      return <TranslationExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+    }
+
+    case "sentence_builder": {
+      const cfg = exercise.config as { words?: string[]; correct_order?: string[]; distractors?: string[]; instructions?: string };
+      return <SentenceBuilderExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+    }
+
+    case "dialogue": {
+      const cfg = exercise.config as { context?: string; messages?: { speaker: string; text: string; options?: { id: string; text: string; is_correct?: boolean }[] }[] };
+      return <DialogueExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+    }
+
+    case "conjugation": {
+      const cfg = exercise.config as { verb?: string; tense?: string; language?: string; table?: { pronoun: string; correct: string }[] };
+      return <ConjugationExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+    }
+
+    case "reading": {
+      const cfg = exercise.config as { passage?: string; questions?: { question: string; type: "multiple_choice" | "text"; options?: { id: string; text: string; is_correct?: boolean }[]; correct_answer?: string }[] };
+      return <ReadingExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+    }
 
     default:
       return (

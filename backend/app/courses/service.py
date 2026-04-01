@@ -12,6 +12,77 @@ from app.courses.schemas import CourseCreate, CourseUpdate, LessonCreate, Lesson
 from app.progress.models import Enrollment
 
 
+def normalize_lesson_content(lesson_dict: dict, exercises: list = None) -> dict:
+    """Convert v1 lesson content to v2 blocks format.
+
+    Called before returning lesson data from API. If the content already
+    has ``version: 2``, the dict is returned unchanged.
+    """
+    content = lesson_dict.get("content", {}) or {}
+
+    # Already v2 — return as-is
+    if content.get("version") == 2:
+        return lesson_dict
+
+    blocks = []
+    block_id = 0
+
+    # Extract theory text block (content.body exists in many lesson types)
+    body = content.get("body")
+    if body and isinstance(body, str) and body.strip():
+        blocks.append({
+            "id": f"b{block_id}",
+            "type": "text",
+            "sort_order": block_id,
+            "page": 1,
+            "body": body,
+            "format": content.get("format", "html"),
+        })
+        block_id += 1
+
+    # Extract video block
+    content_type = lesson_dict.get("content_type", "text")
+    url = content.get("url")
+    if content_type == "video" and url:
+        blocks.append({
+            "id": f"b{block_id}",
+            "type": "video",
+            "sort_order": block_id,
+            "page": 1,
+            "url": url,
+        })
+        block_id += 1
+
+    # Append exercise blocks from exercises list
+    if exercises:
+        for ex in exercises:
+            blocks.append({
+                "id": f"b{block_id}",
+                "type": "exercise",
+                "sort_order": block_id,
+                "page": 1,
+                "exercise_id": str(ex["id"]) if isinstance(ex, dict) else str(ex.id),
+            })
+            block_id += 1
+
+    # If no blocks were created, add empty text block
+    if not blocks:
+        blocks.append({
+            "id": "b0",
+            "type": "text",
+            "sort_order": 0,
+            "page": 1,
+            "body": "",
+            "format": "tiptap",
+        })
+
+    lesson_dict["content"] = {
+        "version": 2,
+        "blocks": blocks,
+    }
+    return lesson_dict
+
+
 async def list_courses(
     db: AsyncSession, user: User, page: int = 1, per_page: int = 20
 ) -> tuple[list[Course], int]:
@@ -281,6 +352,18 @@ async def get_lesson(db: AsyncSession, lesson_id: uuid.UUID, user: User | None =
                 raise NotFoundError("Lesson not found")
 
     return lesson
+
+
+def _lesson_to_dict(lesson: Lesson) -> dict:
+    """Convert a Lesson ORM object to a plain dict for normalization."""
+    return {
+        "id": lesson.id,
+        "title": lesson.title,
+        "content_type": lesson.content_type.value if hasattr(lesson.content_type, "value") else lesson.content_type,
+        "content": lesson.content.copy() if lesson.content else {},
+        "sort_order": lesson.sort_order,
+        "duration_minutes": lesson.duration_minutes,
+    }
 
 
 async def update_lesson(

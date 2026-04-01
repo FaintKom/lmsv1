@@ -25,7 +25,7 @@ import {
   Box,
   type LucideIcon,
 } from "lucide-react";
-import type { Course, Module, Lesson } from "@/types/api";
+import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
 import QuizTaker from "@/components/assessments/quiz-taker";
 import { EditorLayout } from "@/components/code-editor/editor-layout";
 import FileUploader from "@/components/submissions/file-uploader";
@@ -63,7 +63,7 @@ export default function LessonViewerPage() {
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== "undefined" ? window.innerWidth >= 768 : true);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [exercises, setExercises] = useState<
     {
@@ -75,6 +75,7 @@ export default function LessonViewerPage() {
       test_cases?: unknown[];
     }[]
   >([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [challenge, setChallenge] = useState<{
     id: string;
     title: string;
@@ -146,6 +147,7 @@ export default function LessonViewerPage() {
 
   useEffect(() => {
     setLoading(true);
+    setCurrentPage(1);
     fetchData();
   }, [fetchData]);
 
@@ -173,7 +175,7 @@ export default function LessonViewerPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)]">
+      <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
         <div className="w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
           <Skeleton className="mb-4 h-4 w-24" />
           <Skeleton className="mb-6 h-5 w-48" />
@@ -214,11 +216,18 @@ export default function LessonViewerPage() {
   const isCompleted = completedLessons.has(lessonId);
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)]">
-      {/* Sidebar */}
+    <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
+      {/* Sidebar overlay on mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      {/* Sidebar — overlay on mobile, static on desktop */}
       <div
-        className={`border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-all ${
-          sidebarOpen ? "w-80" : "w-0 overflow-hidden"
+        className={`fixed top-0 left-0 z-50 h-full w-72 md:w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden"
         }`}
       >
         <div className="sticky top-0 h-full overflow-y-auto p-4">
@@ -287,15 +296,17 @@ export default function LessonViewerPage() {
 
       {/* Main content */}
       <div className="flex-1">
-        {/* Toggle sidebar button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="fixed left-0 top-20 z-10 rounded-r-lg border border-l-0 border-slate-200 bg-white px-1 py-3 text-slate-400 hover:text-slate-600 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-500 dark:hover:text-slate-300 md:hidden"
-        >
-          {sidebarOpen ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
-        </button>
+        {/* Toggle sidebar button — mobile: always show hamburger, desktop: toggle arrow */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-slate-200 text-slate-500 hover:text-slate-700 md:hidden dark:bg-[#2C2C2C] dark:border-white/10 dark:text-slate-400"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
 
-        <div className="mx-auto max-w-3xl px-6 py-8">
+        <div className="mx-auto max-w-3xl px-3 py-4 sm:px-6 sm:py-8">
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">
@@ -318,101 +329,30 @@ export default function LessonViewerPage() {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{lesson.title}</h1>
           </div>
 
-          {/* Theory content — shown for ALL lesson types when content.body exists */}
-          {typeof lesson.content?.body === "string" && lesson.content.body.trim().length > 0 && (
-            <div className="mb-8">
-              <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-prose dark:prose-invert"}>
-                <ContentRenderer
-                  body={lesson.content.body as string}
-                  format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
-                />
-              </div>
-            </div>
+          {/* Content rendering — v2 block-based or legacy fallback */}
+          {lesson.content?.version === 2 ? (
+            <BlockContent
+              blocks={lesson.content.blocks || []}
+              exercises={exercises}
+              courseId={courseId}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              prevLesson={prevLesson}
+              nextLesson={nextLesson}
+            />
+          ) : (
+            <LegacyContent
+              lesson={lesson}
+              challenge={challenge}
+              lessonId={lessonId}
+              onComplete={handleComplete}
+            />
           )}
-
-          {/* Type-specific content */}
-          <div className="mb-8">
-            {lesson.content_type === "text" && !lesson.content?.body && (
-              <div className="text-sm text-slate-500 dark:text-slate-400">No content yet.</div>
-            )}
-
-            {lesson.content_type === "video" && (
-              <div className="aspect-video overflow-hidden rounded-xl bg-black">
-                {lesson.content.url ? (
-                  <iframe
-                    src={getEmbedUrl(lesson.content.url as string)}
-                    className="h-full w-full"
-                    allowFullScreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-white">
-                    No video URL provided
-                  </div>
-                )}
-              </div>
-            )}
-
-            {lesson.content_type === "code_challenge" && challenge && (
-              <div>
-                {challenge.description && (
-                  <div className="mb-4 rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
-                    <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      {challenge.title}
-                    </h3>
-                    <div className="prose prose-sm prose-slate max-w-none text-slate-600 dark:text-slate-400">
-                      <p>{challenge.description}</p>
-                    </div>
-                  </div>
-                )}
-                <div className="h-[500px] overflow-hidden rounded-xl border border-slate-200">
-                  <EditorLayout
-                    challengeId={challenge.id}
-                    language={challenge.language}
-                    starterCode={challenge.starter_code || ""}
-                    testCases={challenge.test_cases}
-                  />
-                </div>
-              </div>
-            )}
-
-            {lesson.content_type === "code_challenge" && !challenge && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 text-center">
-                <Code className="mx-auto mb-2 h-10 w-10 text-slate-400" />
-                <p className="text-sm text-slate-500">
-                  No challenge has been configured for this lesson yet.
-                </p>
-              </div>
-            )}
-
-            {lesson.content_type === "quiz" && (
-              <QuizTaker lessonId={lessonId} onComplete={handleComplete} />
-            )}
-
-            {lesson.content_type === "file_upload" && (
-              <FileUploader
-                lessonId={lessonId}
-                content={lesson.content}
-                onComplete={handleComplete}
-              />
-            )}
-
-            {lesson.content_type === "interactive" && (
-              <InteractiveTaker
-                lessonId={lessonId}
-                content={lesson.content}
-                onComplete={handleComplete}
-              />
-            )}
-          </div>
-
-          {/* Exercises (rendered below, full-width for game types) */}
-          {exercises.length === 0 && null}
         </div>
 
-        {/* Exercises — full-width section for interactive/game types */}
-        {exercises.length > 0 && (
-          <div className="mb-8 space-y-6 px-4 sm:px-6">
+        {/* Exercises — full-width section (legacy v1 only; v2 renders exercises inline via blocks) */}
+        {lesson.content?.version !== 2 && exercises.length > 0 && (
+          <div className="mb-8 space-y-6 px-2 sm:px-6">
             <h2 className="mx-auto max-w-3xl text-lg font-semibold text-slate-800 dark:text-slate-200">
               Exercises
             </h2>
@@ -478,10 +418,6 @@ export default function LessonViewerPage() {
             )}
           </div>
 
-          {/* Discussion */}
-          <div className="mt-8">
-            <CommentSection lessonId={lessonId} />
-          </div>
         </div>
       </div>
 
@@ -495,6 +431,292 @@ export default function LessonViewerPage() {
         }}
       />
     </div>
+  );
+}
+
+/* ─── Block-based content (v2) ────────────────────────────────────────── */
+
+function BlockContent({
+  blocks,
+  exercises,
+  courseId,
+  currentPage,
+  setCurrentPage,
+  prevLesson,
+  nextLesson,
+}: {
+  blocks: LessonBlock[];
+  exercises: { id: string; exercise_type: string; title: string; config: Record<string, unknown>; questions?: unknown[]; test_cases?: unknown[] }[];
+  courseId: string;
+  currentPage: number;
+  setCurrentPage: (p: number) => void;
+  prevLesson: { lesson: Lesson; moduleId: string } | null;
+  nextLesson: { lesson: Lesson; moduleId: string } | null;
+}) {
+  const pages = [...new Set(blocks.map((b) => b.page || 1))].sort((a, b) => a - b);
+  const currentBlocks = blocks
+    .filter((b) => (b.page || 1) === currentPage)
+    .sort((a, b) => a.sort_order - b.sort_order);
+
+  const hasMultiplePages = pages.length > 1;
+
+  return (
+    <>
+      {hasMultiplePages && (
+        <PageNav
+          pages={pages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
+
+      {currentBlocks.map((block) => (
+        <div key={block.id} className="mb-8">
+          <BlockRenderer
+            block={block}
+            exercises={exercises}
+            courseId={courseId}
+            prevLesson={prevLesson}
+            nextLesson={nextLesson}
+          />
+        </div>
+      ))}
+
+      {currentBlocks.length === 0 && (
+        <div className="text-sm text-slate-500 dark:text-slate-400">No content on this page.</div>
+      )}
+
+      {hasMultiplePages && (
+        <PageNav
+          pages={pages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
+    </>
+  );
+}
+
+function BlockRenderer({
+  block,
+  exercises,
+  courseId,
+  prevLesson,
+  nextLesson,
+}: {
+  block: LessonBlock;
+  exercises: { id: string; exercise_type: string; title: string; config: Record<string, unknown>; questions?: unknown[]; test_cases?: unknown[] }[];
+  courseId: string;
+  prevLesson: { lesson: Lesson; moduleId: string } | null;
+  nextLesson: { lesson: Lesson; moduleId: string } | null;
+}) {
+  switch (block.type) {
+    case "text":
+      return block.body ? (
+        <div className={block.format === "tiptap" ? "" : "prose prose-slate max-w-prose dark:prose-invert"}>
+          <ContentRenderer
+            body={block.body}
+            format={(block.format as "markdown" | "html" | "tiptap") || "html"}
+          />
+        </div>
+      ) : null;
+
+    case "html":
+      return block.body ? (
+        <div className="prose prose-slate max-w-prose dark:prose-invert">
+          <ContentRenderer
+            body={typeof block.body === "string" ? block.body : ""}
+            format="html"
+          />
+        </div>
+      ) : null;
+
+    case "video":
+      return block.url ? (
+        <div className="aspect-video overflow-hidden rounded-xl bg-black">
+          <iframe
+            src={getEmbedUrl(block.url)}
+            className="h-full w-full"
+            allowFullScreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
+        </div>
+      ) : null;
+
+    case "exercise": {
+      const exercise = exercises.find((ex) => ex.id === block.exercise_id);
+      return exercise ? (
+        <ExerciseRenderer
+          exercise={exercise as any}
+          courseId={courseId}
+          prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
+          nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
+        />
+      ) : null;
+    }
+
+    default:
+      return null;
+  }
+}
+
+function PageNav({
+  pages,
+  currentPage,
+  setCurrentPage,
+}: {
+  pages: number[];
+  currentPage: number;
+  setCurrentPage: (p: number) => void;
+}) {
+  const currentIndex = pages.indexOf(currentPage);
+  const prevPage = currentIndex > 0 ? pages[currentIndex - 1] : null;
+  const nextPage = currentIndex < pages.length - 1 ? pages[currentIndex + 1] : null;
+
+  return (
+    <div className="mb-6 flex items-center justify-between">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={prevPage === null}
+        onClick={() => prevPage !== null && setCurrentPage(prevPage)}
+      >
+        <ArrowLeft className="mr-1 h-3.5 w-3.5" />
+        Previous
+      </Button>
+
+      <div className="flex items-center gap-1">
+        {pages.map((p) => (
+          <button
+            key={p}
+            onClick={() => setCurrentPage(p)}
+            className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+              p === currentPage
+                ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={nextPage === null}
+        onClick={() => nextPage !== null && setCurrentPage(nextPage)}
+      >
+        Next
+        <ArrowRight className="ml-1 h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+}
+
+/* ─── Legacy content rendering (v1 / pre-blocks) ────────────────────── */
+
+function LegacyContent({
+  lesson,
+  challenge,
+  lessonId,
+  onComplete,
+}: {
+  lesson: Lesson;
+  challenge: { id: string; title: string; description: string; language: string; starter_code: string | null; test_cases: { id: string; input: string; expected_output: string }[] } | null;
+  lessonId: string;
+  onComplete: () => void;
+}) {
+  return (
+    <>
+      {/* Theory content — shown for ALL lesson types when content.body exists */}
+      {typeof lesson.content?.body === "string" && lesson.content.body.trim().length > 0 && (
+        <div className="mb-8">
+          <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-prose dark:prose-invert"}>
+            <ContentRenderer
+              body={lesson.content.body as string}
+              format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Type-specific content */}
+      <div className="mb-8">
+        {lesson.content_type === "text" && !lesson.content?.body && (
+          <div className="text-sm text-slate-500 dark:text-slate-400">No content yet.</div>
+        )}
+
+        {lesson.content_type === "video" && (
+          <div className="aspect-video overflow-hidden rounded-xl bg-black">
+            {lesson.content.url ? (
+              <iframe
+                src={getEmbedUrl(lesson.content.url as string)}
+                className="h-full w-full"
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-white">
+                No video URL provided
+              </div>
+            )}
+          </div>
+        )}
+
+        {lesson.content_type === "code_challenge" && challenge && (
+          <div>
+            {challenge.description && (
+              <div className="mb-4 rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
+                <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  {challenge.title}
+                </h3>
+                <div className="prose prose-sm prose-slate max-w-none text-slate-600 dark:text-slate-400">
+                  <p>{challenge.description}</p>
+                </div>
+              </div>
+            )}
+            <div className="h-[500px] overflow-hidden rounded-xl border border-slate-200">
+              <EditorLayout
+                challengeId={challenge.id}
+                language={challenge.language}
+                starterCode={challenge.starter_code || ""}
+                testCases={challenge.test_cases}
+              />
+            </div>
+          </div>
+        )}
+
+        {lesson.content_type === "code_challenge" && !challenge && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 text-center">
+            <Code className="mx-auto mb-2 h-10 w-10 text-slate-400" />
+            <p className="text-sm text-slate-500">
+              No challenge has been configured for this lesson yet.
+            </p>
+          </div>
+        )}
+
+        {lesson.content_type === "quiz" && (
+          <QuizTaker lessonId={lessonId} onComplete={onComplete} />
+        )}
+
+        {lesson.content_type === "file_upload" && (
+          <FileUploader
+            lessonId={lessonId}
+            content={lesson.content}
+            onComplete={onComplete}
+          />
+        )}
+
+        {lesson.content_type === "interactive" && (
+          <InteractiveTaker
+            lessonId={lessonId}
+            content={lesson.content}
+            onComplete={onComplete}
+          />
+        )}
+      </div>
+    </>
   );
 }
 

@@ -11,7 +11,12 @@ export type ExerciseType =
   | "file_upload"
   | "robot_2d"
   | "math_interactive"
-  | "world_3d";
+  | "world_3d"
+  | "translation"
+  | "sentence_builder"
+  | "dialogue"
+  | "conjugation"
+  | "reading";
 
 export interface Exercise {
   id: string;
@@ -95,6 +100,11 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
   robot_2d: "2D Robot",
   math_interactive: "Math Interactive",
   world_3d: "3D World",
+  translation: "Translation",
+  sentence_builder: "Sentence Builder",
+  dialogue: "Dialogue",
+  conjugation: "Conjugation",
+  reading: "Reading",
 };
 
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
@@ -109,6 +119,11 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
   robot_2d: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
   math_interactive: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
   world_3d: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
+  translation: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
+  sentence_builder: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
+  dialogue: "bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300",
+  conjugation: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-300",
+  reading: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
 };
 
 export const exercisesApi = {

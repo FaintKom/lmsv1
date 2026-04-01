@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -35,6 +35,11 @@ import {
   Bot,
   Calculator,
   Box,
+  Languages,
+  Type,
+  MessageCircle,
+  Table,
+  BookOpenText,
 } from "lucide-react";
 import {
   exercisesApi,
@@ -58,12 +63,18 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
   robot_2d: Bot,
   math_interactive: Calculator,
   world_3d: Box,
+  translation: Languages,
+  sentence_builder: Type,
+  dialogue: MessageCircle,
+  conjugation: Table,
+  reading: BookOpenText,
 };
 
 const ALL_TYPES: ExerciseType[] = [
   "quiz", "code_challenge", "matching", "ordering",
   "fill_blanks", "true_false", "categorize", "file_upload",
   "robot_2d", "math_interactive", "world_3d",
+  "translation", "sentence_builder", "dialogue", "conjugation", "reading",
 ];
 
 // ─── Types ───
@@ -75,10 +86,24 @@ interface Group {
   member_count?: number;
 }
 
+interface Assignment {
+  id: string;
+  title: string;
+  description?: string;
+  course_id: string;
+  course_title?: string;
+  due_date: string;
+  max_score: number;
+  allow_late: boolean;
+  submissions_count?: number;
+  status?: "active" | "overdue" | "graded";
+  created_at: string;
+}
+
 // ─── Main Page ───
 
 export default function ContentLibraryPage() {
-  const [activeTab, setActiveTab] = useState<"templates" | "exercises">("templates");
+  const [activeTab, setActiveTab] = useState<"templates" | "exercises" | "assignments">("templates");
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -113,9 +138,26 @@ export default function ContentLibraryPage() {
           <ClipboardList className="h-4 w-4" />
           Exercises
         </button>
+        <button
+          onClick={() => setActiveTab("assignments")}
+          className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "assignments"
+              ? "bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-slate-100"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+          }`}
+        >
+          <ClipboardList className="h-4 w-4" />
+          Assignments
+        </button>
       </div>
 
-      {activeTab === "templates" ? <TemplatesTab /> : <ExercisesTab />}
+      {activeTab === "templates" ? (
+        <TemplatesTab />
+      ) : activeTab === "exercises" ? (
+        <ExercisesTab />
+      ) : (
+        <AssignmentsTab />
+      )}
     </div>
   );
 }
@@ -592,6 +634,14 @@ function ExercisesTab() {
                             <Button
                               variant="ghost"
                               size="sm"
+                              onClick={() => router.push(`/admin/content-library/${ex.id}`)}
+                              title="Edit exercise"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => router.push(`/admin/content-library/${ex.id}/submissions`)}
                               title="View submissions"
                             >
@@ -629,6 +679,374 @@ function ExercisesTab() {
                   Next
                 </Button>
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
+// ─── Assignments Tab ───
+
+const STATUS_BADGE: Record<string, string> = {
+  overdue: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  graded: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+};
+
+function AssignmentsTab() {
+  const router = useRouter();
+  const confirm = useConfirm();
+
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Create form state
+  const [formCourseId, setFormCourseId] = useState("");
+  const [formTitle, setFormTitle] = useState("");
+  const [formDescription, setFormDescription] = useState("");
+  const [formDueDate, setFormDueDate] = useState("");
+  const [formMaxScore, setFormMaxScore] = useState(100);
+  const [formAllowLate, setFormAllowLate] = useState(false);
+
+  const fetchAssignments = useCallback(() => {
+    setLoading(true);
+    apiClient
+      .get("/assignments")
+      .then(({ data }) => {
+        setAssignments(Array.isArray(data) ? data : data.items ?? []);
+      })
+      .catch(() => toast.error("Failed to load assignments"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchAssignments();
+    apiClient
+      .get("/courses")
+      .then(({ data }) => {
+        const list = Array.isArray(data) ? data : data.items ?? [];
+        setCourses(list.map((c: Course) => ({ id: c.id, title: c.title })));
+      })
+      .catch(() => {});
+  }, [fetchAssignments]);
+
+  const handleDelete = async (assignment: Assignment) => {
+    const ok = await confirm({
+      title: "Delete Assignment",
+      message: `Delete "${assignment.title}"? This cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/assignments/${assignment.id}`);
+      toast.success("Assignment deleted");
+      setAssignments((prev) => prev.filter((a) => a.id !== assignment.id));
+    } catch {
+      toast.error("Failed to delete assignment");
+    }
+  };
+
+  const resetForm = () => {
+    setFormCourseId("");
+    setFormTitle("");
+    setFormDescription("");
+    setFormDueDate("");
+    setFormMaxScore(100);
+    setFormAllowLate(false);
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formTitle.trim() || !formDueDate || !formCourseId) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await apiClient.post("/assignments", {
+        course_id: formCourseId,
+        title: formTitle.trim(),
+        description: formDescription.trim() || undefined,
+        due_date: formDueDate,
+        max_score: formMaxScore,
+        allow_late: formAllowLate,
+      });
+      toast.success("Assignment created");
+      resetForm();
+      setShowForm(false);
+      fetchAssignments();
+    } catch {
+      toast.error("Failed to create assignment");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deriveStatus = (a: Assignment): string => {
+    if (a.status) return a.status;
+    const due = new Date(a.due_date);
+    if (due < new Date()) return "overdue";
+    return "active";
+  };
+
+  const filtered = assignments.filter((a) =>
+    a.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const inputClass =
+    "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20";
+
+  return (
+    <>
+      {/* Search & Create */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search assignments by title..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20"
+              />
+            </div>
+            <Button onClick={() => setShowForm((v) => !v)}>
+              {showForm ? (
+                <>
+                  <X className="h-4 w-4" />
+                  Cancel
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Create Assignment
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Inline Create Form */}
+      {showForm && (
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              New Assignment
+            </h3>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Course */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Course <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formCourseId}
+                    onChange={(e) => setFormCourseId(e.target.value)}
+                    required
+                    className={inputClass}
+                  >
+                    <option value="">Select a course...</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    required
+                    placeholder="Assignment title"
+                    className={inputClass}
+                  />
+                </div>
+
+                {/* Due Date */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Due Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formDueDate}
+                    onChange={(e) => setFormDueDate(e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                </div>
+
+                {/* Max Score */}
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                    Max Score
+                  </label>
+                  <input
+                    type="number"
+                    value={formMaxScore}
+                    onChange={(e) => setFormMaxScore(Number(e.target.value))}
+                    min={0}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                  Description
+                </label>
+                <textarea
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  rows={3}
+                  placeholder="Optional description..."
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Allow Late */}
+              <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={formAllowLate}
+                  onChange={(e) => setFormAllowLate(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-white/20"
+                />
+                Allow late submissions
+              </label>
+
+              <div className="flex justify-end">
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Creating..." : "Create Assignment"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Table */}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="space-y-3 p-6">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+              <ClipboardList className="mb-3 h-10 w-10" />
+              <p className="text-sm font-medium">No assignments found</p>
+              <p className="text-xs">Create your first assignment to get started</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-white/10">
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Title</th>
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Course</th>
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Due Date</th>
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Max Score</th>
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Submissions</th>
+                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Status</th>
+                    <th className="px-6 py-3 text-right font-semibold text-slate-500 dark:text-slate-400">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                  {filtered.map((a) => {
+                    const status = deriveStatus(a);
+                    const courseName =
+                      a.course_title ||
+                      courses.find((c) => c.id === a.course_id)?.title ||
+                      "—";
+                    return (
+                      <tr
+                        key={a.id}
+                        className="transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                      >
+                        <td className="px-6 py-3 font-medium text-slate-800 dark:text-slate-200">
+                          {a.title}
+                        </td>
+                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                          {courseName}
+                        </td>
+                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                          {new Date(a.due_date).toLocaleString()}
+                        </td>
+                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                          {a.max_score}
+                        </td>
+                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                          {a.submissions_count ?? 0}
+                        </td>
+                        <td className="px-6 py-3">
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              STATUS_BADGE[status] ?? STATUS_BADGE.active
+                            }`}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                window.open(`/admin/assignments/${a.id}/edit`, "_blank")
+                              }
+                              title="Edit"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                window.open(`/admin/assignments/${a.id}/review`, "_blank")
+                              }
+                              title="Review submissions"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(a)}
+                              title="Delete"
+                              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>

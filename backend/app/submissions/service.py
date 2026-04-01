@@ -130,6 +130,16 @@ def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple
         return _grade_true_false(content, answers)
     elif exercise_type == "categorize":
         return _grade_categorize(content, answers)
+    elif exercise_type == "translation":
+        return _grade_translation(content, answers)
+    elif exercise_type == "sentence_builder":
+        return _grade_sentence_builder(content, answers)
+    elif exercise_type == "dialogue":
+        return _grade_dialogue(content, answers)
+    elif exercise_type == "conjugation":
+        return _grade_conjugation(content, answers)
+    elif exercise_type == "reading":
+        return _grade_reading(content, answers)
     return 0.0, False
 
 
@@ -196,6 +206,113 @@ def _grade_categorize(content: dict, answers: dict) -> tuple[float, bool]:
         total += len(correct_items)
         correct += len(correct_items & student_items)
     score = correct / total if total > 0 else 1.0
+    return score, score >= 0.7
+
+
+def _grade_translation(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade translation exercise. Fuzzy match against accepted answers."""
+    student = (answers.get("translation") or "").strip()
+    accepted = content.get("accepted_answers", [])
+    case_sensitive = content.get("case_sensitive", False)
+
+    if not student or not accepted:
+        return 0.0, False
+
+    if not case_sensitive:
+        student = student.lower()
+        accepted = [a.lower() for a in accepted]
+
+    # Exact match
+    if student in accepted:
+        return 1.0, True
+
+    # Fuzzy match — simple character-level similarity
+    best_score = 0.0
+    for answer in accepted:
+        # Levenshtein-like similarity
+        longer = max(len(student), len(answer))
+        if longer == 0:
+            continue
+        common = sum(1 for a, b in zip(student, answer) if a == b)
+        similarity = common / longer
+        best_score = max(best_score, similarity)
+
+    return best_score, best_score >= 0.8
+
+
+def _grade_sentence_builder(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade sentence builder — compare word order."""
+    correct = content.get("correct_order", [])
+    student = answers.get("word_order", [])
+    if not correct:
+        return 1.0, True
+    if len(student) != len(correct):
+        return 0.0, False
+    matches = sum(1 for a, b in zip(student, correct) if a == b)
+    score = matches / len(correct)
+    return score, score >= 0.7
+
+
+def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade dialogue — check selected options."""
+    messages = content.get("messages", [])
+    selections = answers.get("selections", {})  # {message_index: selected_option_id}
+    total = 0
+    correct = 0
+    for i, msg in enumerate(messages):
+        options = msg.get("options")
+        if not options:
+            continue
+        total += 1
+        selected = selections.get(str(i))
+        for opt in options:
+            if opt.get("id") == selected and opt.get("is_correct"):
+                correct += 1
+                break
+    if total == 0:
+        return 1.0, True
+    score = correct / total
+    return score, score >= 0.7
+
+
+def _grade_conjugation(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade conjugation table — compare each row."""
+    table = content.get("table", [])
+    student_answers = answers.get("conjugations", {})  # {pronoun: answer}
+    if not table:
+        return 1.0, True
+    correct = 0
+    for row in table:
+        pronoun = row.get("pronoun", "")
+        expected = (row.get("correct") or "").strip().lower()
+        given = (student_answers.get(pronoun) or "").strip().lower()
+        if given == expected:
+            correct += 1
+    score = correct / len(table)
+    return score, score >= 0.7
+
+
+def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade reading comprehension — grade each question."""
+    questions = content.get("questions", [])
+    student_answers = answers.get("answers", {})  # {question_index: answer}
+    if not questions:
+        return 1.0, True
+    correct = 0
+    for i, q in enumerate(questions):
+        student = student_answers.get(str(i), "")
+        if q.get("type") == "multiple_choice":
+            options = q.get("options", [])
+            for opt in options:
+                if opt.get("id") == student and opt.get("is_correct"):
+                    correct += 1
+                    break
+        elif q.get("type") == "text":
+            expected = (q.get("correct_answer") or "").strip().lower()
+            given = (student or "").strip().lower()
+            if given == expected:
+                correct += 1
+    score = correct / len(questions)
     return score, score >= 0.7
 
 

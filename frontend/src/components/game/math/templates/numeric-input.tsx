@@ -83,19 +83,20 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
       </div>
 
       {/* Answer input */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
         <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
           Answer:
         </label>
         <input
           ref={inputRef}
           type="text"
+          inputMode="decimal"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={submitted}
           placeholder={cfg.allow_fraction ? "e.g., 7 or 3/4" : "Enter a number"}
-          className={`w-40 rounded-xl border-2 px-4 py-3 text-center text-xl font-bold outline-none transition-colors ${
+          className={`w-full max-w-[200px] rounded-xl border-2 px-4 py-3 text-center text-xl font-bold outline-none transition-colors ${
             submitted
               ? isCorrect
                 ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"

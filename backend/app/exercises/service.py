@@ -31,6 +31,8 @@ async def generate_display_id(
     db: AsyncSession, org_id: uuid.UUID, exercise_type: ExerciseType
 ) -> str:
     """Generate a human-readable display ID like 'myschool-Q001'."""
+    import re
+
     # Get org slug
     result = await db.execute(select(Organization.slug).where(Organization.id == org_id))
     slug = result.scalar_one_or_none()
@@ -38,18 +40,23 @@ async def generate_display_id(
         slug = "org"
 
     prefix = EXERCISE_TYPE_PREFIX.get(exercise_type.value, "X")
+    pattern = f"{slug}-{prefix}"
 
-    # Count existing exercises of this type in this org
-    count = (
-        await db.execute(
-            select(func.count(Exercise.id)).where(
-                Exercise.org_id == org_id,
-                Exercise.exercise_type == exercise_type,
-            )
+    # Find the max existing number for this type+org to avoid collisions
+    result = await db.execute(
+        select(Exercise.display_id).where(
+            Exercise.org_id == org_id,
+            Exercise.exercise_type == exercise_type,
         )
-    ).scalar() or 0
+    )
+    existing_ids = [r[0] for r in result.all() if r[0]]
+    max_num = 0
+    for did in existing_ids:
+        match = re.search(r"(\d+)$", did)
+        if match:
+            max_num = max(max_num, int(match.group(1)))
 
-    return f"{slug}-{prefix}{count + 1:03d}"
+    return f"{pattern}{max_num + 1:03d}"
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────
@@ -106,6 +113,7 @@ async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
         title=data.get("title", "Untitled"),
         config=data.get("config", {}),
         sort_order=data.get("sort_order", 0),
+        max_attempts=data.get("max_attempts"),
     )
     db.add(exercise)
     await db.flush()
@@ -291,6 +299,86 @@ async def delete_test_case_from_exercise(
     await db.flush()
 
 
+# ─── Attempt tracking helpers ──────────────────────────────────────
+
+async def _count_attempts(db: AsyncSession, exercise_id: uuid.UUID, student_id: uuid.UUID) -> int:
+    result = await db.execute(
+        select(func.count()).where(
+            ExerciseSubmission.exercise_id == exercise_id,
+            ExerciseSubmission.student_id == student_id,
+        )
+    )
+    return result.scalar() or 0
+
+
+def _get_correct_answer(exercise: Exercise) -> dict | None:
+    """Extract correct answer from exercise config for answer reveal."""
+    config = exercise.config or {}
+    ex_type = exercise.exercise_type
+
+    if ex_type == ExerciseType.math_interactive:
+        tc = config.get("template_config", config)
+        tt = config.get("template_type", "")
+        if tt == "multiple_choice_math":
+            choices = tc.get("choices", [])
+            for c in choices:
+                if c.get("correct"):
+                    return {"answer": c.get("text", ""), "explanation": tc.get("explanation", "")}
+        elif tt == "numeric_input":
+            answers = tc.get("correct_answers", [])
+            return {"answer": answers[0] if answers else None, "explanation": tc.get("explanation", "")}
+        elif tt == "equation_solver":
+            return {"answer": tc.get("final_answer", ""), "explanation": tc.get("explanation", "")}
+        elif tt == "card_sort":
+            cards = tc.get("cards", [])
+            cats = tc.get("categories", [])
+            cat_map = {c["id"]: c["label"] for c in cats}
+            return {"answer": {c["text"]: cat_map.get(c["category"], c["category"]) for c in cards}}
+        elif tt == "two_way_table":
+            return {"answer": tc.get("answers", {}), "explanation": tc.get("explanation", "")}
+        elif tt == "table_pattern":
+            return {"answer": tc.get("answers", {}), "rule": tc.get("rule_answer", ""), "explanation": tc.get("explanation", "")}
+        elif tt == "scatter_plot":
+            return {"answer": {"slope": tc.get("target_slope"), "intercept": tc.get("target_intercept")}}
+        elif tt == "coordinate_plane":
+            return {"answer": tc.get("target_points", [])}
+        return {"explanation": tc.get("explanation", "")}
+
+    elif ex_type == ExerciseType.quiz:
+        questions = exercise.questions or []
+        return {"answers": [{
+            "question": q.question_text,
+            "correct_answer": q.correct_answer,
+        } for q in questions]}
+
+    elif ex_type in (ExerciseType.matching,):
+        return {"answer": config.get("pairs", [])}
+    elif ex_type == ExerciseType.ordering:
+        return {"answer": config.get("correct_order", [])}
+    elif ex_type == ExerciseType.fill_blanks:
+        return {"answer": config.get("blanks", [])}
+    elif ex_type == ExerciseType.true_false:
+        return {"answer": config.get("correct_answer")}
+
+    return None
+
+
+async def get_attempt_status(
+    db: AsyncSession, exercise_id: uuid.UUID, user: User,
+) -> dict:
+    """Get current attempt count and remaining attempts for a student."""
+    exercise = await _get_exercise_with_relations(db, exercise_id)
+    max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
+    count = await _count_attempts(db, exercise_id, user.id)
+    remaining = max(0, max_att - count)
+    return {
+        "attempt_count": count,
+        "max_attempts": max_att,
+        "attempts_remaining": remaining,
+        "max_reached": count >= max_att,
+    }
+
+
 # ─── Unified submission handler ─────────────────────────────────────
 
 async def submit_exercise(
@@ -298,6 +386,33 @@ async def submit_exercise(
 ) -> ExerciseSubmission:
     exercise = await _get_exercise_with_relations(db, exercise_id)
     now = datetime.now(timezone.utc)
+
+    # Check max attempts
+    max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
+    attempt_count = await _count_attempts(db, exercise_id, user.id)
+
+    if attempt_count >= max_att:
+        # Max attempts reached — create a "completed" submission with correct answer
+        correct = _get_correct_answer(exercise)
+        submission = ExerciseSubmission(
+            exercise_id=exercise.id,
+            student_id=user.id,
+            answers={"max_attempts_exhausted": True},
+            score=0,
+            passed=True,  # Mark as passed so student can proceed
+            status="graded",
+            submitted_at=now,
+            graded_at=now,
+        )
+        db.add(submission)
+        await db.flush()
+        sub = await _reload_submission(db, submission.id)
+        # Attach attempt info as extra attributes for the response serializer
+        sub._attempt_number = attempt_count + 1  # type: ignore[attr-defined]
+        sub._attempts_remaining = 0  # type: ignore[attr-defined]
+        sub._max_attempts_reached = True  # type: ignore[attr-defined]
+        sub._correct_answer = correct  # type: ignore[attr-defined]
+        return sub
 
     if exercise.exercise_type == ExerciseType.quiz:
         return await _submit_quiz(db, exercise, user, data, now)
@@ -309,6 +424,14 @@ async def submit_exercise(
         ExerciseType.robot_2d, ExerciseType.math_interactive, ExerciseType.world_3d
     ):
         return await _submit_game_level(db, exercise, user, data, now)
+    elif exercise.exercise_type in (
+        ExerciseType.translation,
+        ExerciseType.sentence_builder,
+        ExerciseType.dialogue,
+        ExerciseType.conjugation,
+        ExerciseType.reading,
+    ):
+        return await _submit_interactive(db, exercise, user, data, now)
     else:
         # Interactive types: matching, ordering, fill_blanks, true_false, categorize
         return await _submit_interactive(db, exercise, user, data, now)

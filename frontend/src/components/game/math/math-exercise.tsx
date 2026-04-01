@@ -27,12 +27,12 @@ export default function MathExercise({
   const templateConfig = (config.template_config as Record<string, unknown>) || config;
 
   const startTimeRef = useRef(Date.now());
-  const [submitted, setSubmitted] = useState(false);
+  const submittedRef = useRef(false);
 
   const handleComplete = useCallback(
     (success: boolean, score: number) => {
-      if (submitted) return;
-      setSubmitted(true);
+      if (submittedRef.current) return;
+      submittedRef.current = true;
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
       onSubmit({
         completed: success,
@@ -41,14 +41,19 @@ export default function MathExercise({
         time_seconds: elapsed,
         code_snapshot: null,
       });
+      // Reset after short delay so the exercise can be retried
+      setTimeout(() => {
+        submittedRef.current = false;
+        startTimeRef.current = Date.now();
+      }, 500);
     },
-    [onSubmit, submitted]
+    [onSubmit]
   );
 
   // Custom HTML mode
   if (templateType === "custom_html" || customHtml) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 py-4">
+      <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-0">
         {instructions && (
           <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
             {instructions}
@@ -72,7 +77,7 @@ export default function MathExercise({
   const TemplateComponent = template.component;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 py-4">
+    <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-0">
       {instructions && (
         <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
           📝 {instructions}

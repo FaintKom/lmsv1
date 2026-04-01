@@ -42,22 +42,17 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
   if (format === "html") {
     const hasScript = text.includes("<script");
     if (hasScript) {
-      const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:system-ui,sans-serif;color:#1e293b;line-height:1.7}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${text}</body></html>`;
+      const parts = splitInteractive(text);
       return (
-        <iframe
-          srcDoc={srcdoc}
-          sandbox="allow-scripts"
-          className="w-full border-0 rounded-xl"
-          style={{ minHeight: 600, height: "auto" }}
-          onLoad={(e) => {
-            // Auto-resize iframe to content height
-            const iframe = e.target as HTMLIFrameElement;
-            try {
-              const height = iframe.contentDocument?.documentElement?.scrollHeight;
-              if (height) iframe.style.height = height + 40 + "px";
-            } catch { /* cross-origin, ignore */ }
-          }}
-        />
+        <>
+          {parts.before && (
+            <div dangerouslySetInnerHTML={{ __html: parts.before }} />
+          )}
+          <SandboxedIframe html={parts.interactive} />
+          {parts.after && (
+            <div dangerouslySetInnerHTML={{ __html: parts.after }} />
+          )}
+        </>
       );
     }
     return (
@@ -75,5 +70,102 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
     >
       {text}
     </ReactMarkdown>
+  );
+}
+
+/** Split HTML into { before, interactive, after } around script-containing blocks */
+function splitInteractive(html: string): { before: string; interactive: string; after: string } {
+  // Strategy 1: explicit markers <!-- interactive --> ... <!-- /interactive -->
+  const markerStart = "<!-- interactive -->";
+  const markerEnd = "<!-- /interactive -->";
+  const ms = html.indexOf(markerStart);
+  const me = html.indexOf(markerEnd);
+  if (ms !== -1 && me !== -1 && me > ms) {
+    return {
+      before: html.slice(0, ms).trim(),
+      interactive: html.slice(ms + markerStart.length, me).trim(),
+      after: html.slice(me + markerEnd.length).trim(),
+    };
+  }
+
+  // Strategy 2: find the parent block element that contains the first <script>
+  // Look for <!-- Interactive Widget --> comment or similar markers
+  const widgetComment = /<!--\s*Interactive\s*Widget\s*-->/i;
+  const wcMatch = html.match(widgetComment);
+
+  // Find the first <script and last </script>
+  const firstScript = html.indexOf("<script");
+  const lastScriptEnd = html.lastIndexOf("</script>");
+  if (firstScript === -1) return { before: "", interactive: html, after: "" };
+
+  const afterScriptTag = lastScriptEnd + "</script>".length;
+
+  // Find the opening tag of the block containing the script.
+  // Walk backwards from the script (or widget comment) to find the start of its container div.
+  let interactiveStart = wcMatch ? wcMatch.index! : firstScript;
+
+  // Walk backwards to find the nearest block-level opening tag before the interactive zone
+  const beforeChunk = html.slice(0, interactiveStart);
+  // Find the last closing block tag (</p>, </h2>, </div>, </ol>, </ul>, etc.) before interactive
+  const closingBlockRe = /<\/(p|div|h[1-6]|ul|ol|blockquote|section|pre)>\s*$/i;
+  const closingMatch = beforeChunk.match(closingBlockRe);
+  if (closingMatch) {
+    interactiveStart = beforeChunk.lastIndexOf(closingMatch[0]) + closingMatch[0].length;
+  }
+
+  // Find the end of the interactive zone: the closing </div> that wraps the script's container
+  // After the last </script>, find the next closing block tag
+  let interactiveEnd = afterScriptTag;
+  const afterChunk = html.slice(afterScriptTag);
+  const nextCloseDiv = afterChunk.match(/^\s*<\/div>/i);
+  if (nextCloseDiv) {
+    interactiveEnd = afterScriptTag + nextCloseDiv.index! + nextCloseDiv[0].length;
+  }
+
+  return {
+    before: html.slice(0, interactiveStart).trim(),
+    interactive: html.slice(interactiveStart, interactiveEnd).trim(),
+    after: html.slice(interactiveEnd).trim(),
+  };
+}
+
+function SandboxedIframe({ html }: { html: string }) {
+  // Inject a script that sends its height to parent via postMessage
+  const resizeScript = `<script>
+    function sendHeight(){
+      var h = document.documentElement.scrollHeight;
+      parent.postMessage({type:'iframe-resize', height: h}, '*');
+    }
+    window.addEventListener('load', function(){ sendHeight(); setTimeout(sendHeight, 100); setTimeout(sendHeight, 500); });
+    new MutationObserver(sendHeight).observe(document.body, {childList:true, subtree:true, attributes:true});
+  </script>`;
+  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:system-ui,sans-serif;color:#1e293b;line-height:1.7;overflow:hidden}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${html}${resizeScript}</body></html>`;
+
+  const handleRef = (iframe: HTMLIFrameElement | null) => {
+    if (!iframe) return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source === iframe.contentWindow && e.data?.type === 'iframe-resize' && e.data.height) {
+        iframe.style.height = e.data.height + 'px';
+      }
+    };
+    window.addEventListener('message', onMessage);
+    // Also try direct access as fallback
+    iframe.onload = () => {
+      try {
+        const h = iframe.contentDocument?.documentElement?.scrollHeight;
+        if (h) iframe.style.height = h + 'px';
+      } catch { /* sandbox restriction */ }
+    };
+  };
+
+  return (
+    <iframe
+      ref={handleRef}
+      srcDoc={srcdoc}
+      sandbox="allow-scripts"
+      className="w-full border-0 rounded-xl overflow-hidden"
+      style={{ minHeight: 100 }}
+      scrolling="no"
+    />
   );
 }

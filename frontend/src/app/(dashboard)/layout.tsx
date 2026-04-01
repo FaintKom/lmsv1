@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
@@ -27,7 +27,9 @@ export default function DashboardLayout({
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
     }
-    if (!isLoading && user && (user.role === "super_admin" || user.role === "admin" || user.role === "teacher")) {
+    const params = new URLSearchParams(window.location.search);
+    const isPreview = params.get("preview") === "true";
+    if (!isLoading && user && !isPreview && (user.role === "super_admin" || user.role === "admin" || user.role === "teacher")) {
       router.push("/admin");
     }
   }, [isLoading, isAuthenticated, user, router]);

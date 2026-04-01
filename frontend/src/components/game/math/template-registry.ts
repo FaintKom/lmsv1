@@ -150,6 +150,35 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
     icon: "🖥️",
     component: null as unknown as ComponentType<MathTemplateProps>,
   },
+  // Aliases for backward compatibility with seed data
+  function_graphing: {
+    type: "function_graphing",
+    label: "Function Graph",
+    description: "Match a function by adjusting parameters",
+    icon: "📈",
+    component: FunctionGraph,
+  },
+  graph_transformation: {
+    type: "graph_transformation",
+    label: "Graph Transformations",
+    description: "Apply shifts and stretches to match a target function",
+    icon: "🔄",
+    component: GraphTransform,
+  },
+  inequality_graphing: {
+    type: "inequality_graphing",
+    label: "Inequality Graph",
+    description: "Graph a linear inequality and shade the solution region",
+    icon: "📐",
+    component: InequalityGraph,
+  },
+  card_sorting: {
+    type: "card_sorting",
+    label: "Card Sort",
+    description: "Drag cards into the correct categories",
+    icon: "🃏",
+    component: CardSort,
+  },
 };
 
 export const TEMPLATE_LIST = Object.values(MATH_TEMPLATES).filter(

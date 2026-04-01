@@ -85,6 +85,39 @@ class World3DConfig(BaseModel):
     allow_python: bool = False
 
 
+class TranslationConfig(BaseModel):
+    source_text: str = ""
+    source_language: str = "en"
+    target_language: str = ""
+    accepted_answers: list[str] = []
+    case_sensitive: bool = False
+    hints: list[str] = []
+
+
+class SentenceBuilderConfig(BaseModel):
+    words: list[str] = []
+    correct_order: list[str] = []
+    distractors: list[str] = []
+    instructions: str = ""
+
+
+class DialogueConfig(BaseModel):
+    context: str = ""
+    messages: list[dict] = []  # [{speaker, text, options?}]
+
+
+class ConjugationConfig(BaseModel):
+    verb: str = ""
+    tense: str = ""
+    language: str = ""
+    table: list[dict] = []  # [{pronoun, correct}]
+
+
+class ReadingConfig(BaseModel):
+    passage: str = ""
+    questions: list[dict] = []  # [{question, type, options?, correct_answer?}]
+
+
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
 class ExerciseCreate(BaseModel):
@@ -93,12 +126,14 @@ class ExerciseCreate(BaseModel):
     title: str
     config: dict = {}
     sort_order: int = 0
+    max_attempts: int | None = 100
 
 
 class ExerciseUpdate(BaseModel):
     title: str | None = None
     config: dict | None = None
     sort_order: int | None = None
+    max_attempts: int | None = None
 
 
 class QuestionInExercise(BaseModel):
@@ -132,6 +167,7 @@ class ExerciseResponse(BaseModel):
     title: str
     config: dict
     sort_order: int
+    max_attempts: int | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
     questions: list[QuestionInExercise] | None = None
@@ -182,6 +218,11 @@ class ExerciseSubmissionResponse(BaseModel):
     submitted_at: datetime
     graded_at: datetime | None = None
     created_at: datetime | None = None
+    # Attempt tracking (populated at response time, not stored in DB)
+    attempt_number: int | None = None
+    attempts_remaining: int | None = None
+    max_attempts_reached: bool = False
+    correct_answer: dict | None = None
 
     model_config = {"from_attributes": True}
 

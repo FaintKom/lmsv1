@@ -34,11 +34,22 @@ export interface Module {
   lessons?: Lesson[];
 }
 
+export interface LessonBlock {
+  id: string;
+  type: "text" | "html" | "video" | "exercise";
+  sort_order: number;
+  page: number;
+  body?: string | Record<string, unknown>;
+  format?: string;
+  url?: string;
+  exercise_id?: string;
+}
+
 export interface Lesson {
   id: string;
   title: string;
   content_type: "text" | "video" | "quiz" | "code_challenge" | "file_upload" | "interactive";
-  content: Record<string, unknown>;
+  content: Record<string, unknown> & { version?: number; blocks?: LessonBlock[] };
   sort_order: number;
   duration_minutes: number | null;
 }

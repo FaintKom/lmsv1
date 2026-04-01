@@ -8,6 +8,11 @@ import {
   Shield,
   Zap,
   ArrowRight,
+  Brain,
+  Gamepad2,
+  Calculator,
+  Trophy,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -56,26 +61,23 @@ export default function Home() {
               </span>
             </h1>
             <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-slate-500">
-              Built-in code editor, interactive quizzes, and real-time progress
-              tracking. Everything you need to run a modern school or online
-              course.
+              37 programming languages, interactive math, AI tutor, gamification,
+              and game-based learning. Everything a modern school needs in one
+              platform.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link href="/register">
                 <Button size="lg">
-                  Start Free Trial
+                  Get Started Free
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
               <Link href="/login">
                 <Button variant="outline" size="lg">
-                  Sign In as Demo User
+                  Sign In
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-slate-400">
-              Demo: admin@demo.com / password
-            </p>
           </div>
         </section>
 
@@ -90,43 +92,82 @@ export default function Home() {
                 Powerful tools for teachers and engaging experience for students
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-50">
                 <div className="mb-5 inline-flex rounded-2xl bg-indigo-50 p-3.5">
                   <Code className="h-6 w-6 text-indigo-600" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
-                  Code Editor & Sandbox
+                  Code in 37 Languages
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-500">
-                  Browser-based IDE with auto-grading. Students write, run, and
-                  submit code. Supports Python and JavaScript.
+                  Browser-based editor with auto-grading. Python, JavaScript, Java,
+                  C++, Go, Rust, and 31 more. Sandboxed execution with test cases.
                 </p>
               </div>
 
               <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-50">
                 <div className="mb-5 inline-flex rounded-2xl bg-emerald-50 p-3.5">
-                  <BookOpen className="h-6 w-6 text-emerald-600" />
+                  <Calculator className="h-6 w-6 text-emerald-600" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
-                  Course Builder
+                  Interactive Math
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-500">
-                  Create courses with modules, text lessons, video, quizzes, and
-                  coding challenges. Publish when ready.
+                  15+ exercise types: coordinate planes, graphing, equation scales,
+                  fractions, number lines. Plus full SAT Math prep with Desmos.
                 </p>
               </div>
 
               <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-violet-200 hover:shadow-lg hover:shadow-violet-50">
                 <div className="mb-5 inline-flex rounded-2xl bg-violet-50 p-3.5">
-                  <BarChart3 className="h-6 w-6 text-violet-600" />
+                  <Brain className="h-6 w-6 text-violet-600" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
-                  Analytics & Progress
+                  AI Tutor
                 </h3>
                 <p className="text-sm leading-relaxed text-slate-500">
-                  Track enrollments, completion rates, and student performance.
-                  Identify who needs help at a glance.
+                  Built-in AI assistant that guides students through problems using
+                  the Socratic method. Self-hosted, private, no data leaves your server.
+                </p>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-amber-200 hover:shadow-lg hover:shadow-amber-50">
+                <div className="mb-5 inline-flex rounded-2xl bg-amber-50 p-3.5">
+                  <Gamepad2 className="h-6 w-6 text-amber-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                  Game-Based Learning
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-500">
+                  2D robot programming puzzles and 3D exploration worlds. Students
+                  learn by playing, solving, and building.
+                </p>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-rose-200 hover:shadow-lg hover:shadow-rose-50">
+                <div className="mb-5 inline-flex rounded-2xl bg-rose-50 p-3.5">
+                  <Trophy className="h-6 w-6 text-rose-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                  Gamification
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-500">
+                  XP, daily streaks, 10+ badges, 5-tier league system, and class
+                  leaderboards. Students stay motivated and engaged.
+                </p>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-sky-200 hover:shadow-lg hover:shadow-sky-50">
+                <div className="mb-5 inline-flex rounded-2xl bg-sky-50 p-3.5">
+                  <BookOpen className="h-6 w-6 text-sky-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                  9 Lesson Types, 11 Exercises
+                </h3>
+                <p className="text-sm leading-relaxed text-slate-500">
+                  Text, video, quizzes, code challenges, interactive widgets, file
+                  uploads. Matching, ordering, fill-blanks, categorize, and more.
                 </p>
               </div>
             </div>
@@ -139,13 +180,14 @@ export default function Home() {
             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
-                  <Zap className="h-6 w-6 text-amber-500" />
+                  <Globe className="h-6 w-6 text-amber-500" />
                 </div>
                 <h3 className="mb-1 font-semibold text-slate-900">
-                  Fast Setup
+                  4 Languages
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Get started in minutes. No complex configuration needed.
+                  Interface in English, Spanish, Russian, and Turkish.
+                  Serve students worldwide.
                 </p>
               </div>
               <div className="text-center">
@@ -153,23 +195,23 @@ export default function Home() {
                   <Shield className="h-6 w-6 text-emerald-500" />
                 </div>
                 <h3 className="mb-1 font-semibold text-slate-900">
-                  Secure Sandbox
+                  Privacy First
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Code runs in isolated environments with time and memory
-                  limits.
+                  GDPR and COPPA compliant. AI runs on your server. No
+                  third-party tracking. Student data stays private.
                 </p>
               </div>
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
-                  <Sparkles className="h-6 w-6 text-indigo-500" />
+                  <BarChart3 className="h-6 w-6 text-indigo-500" />
                 </div>
                 <h3 className="mb-1 font-semibold text-slate-900">
-                  Multi-tenant
+                  Teacher Dashboard
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Each school gets their own isolated workspace with full
-                  control.
+                  Gradebook, assignments, analytics, review queue, and
+                  content library. Everything in one place.
                 </p>
               </div>
             </div>
@@ -197,8 +239,17 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-slate-100 py-8">
-        <div className="mx-auto max-w-6xl px-6 text-center text-sm text-slate-400">
-          LearnHub LMS &mdash; Built for modern education
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <span className="text-sm text-slate-400">
+              &copy; 2026 LearnHub &mdash; Modern Learning Platform
+            </span>
+            <div className="flex gap-6 text-sm text-slate-400">
+              <Link href="/terms" className="hover:text-slate-600">Terms</Link>
+              <Link href="/privacy" className="hover:text-slate-600">Privacy</Link>
+              <Link href="/cookies" className="hover:text-slate-600">Cookies</Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
