@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import dynamic from "next/dynamic";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import { MathRenderer, containsMath } from "./math-renderer";
 
 const BlockEditor = dynamic(
@@ -41,21 +44,13 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
       const parts = splitInteractive(text);
       return (
         <>
-          {parts.before && (
-            <div dangerouslySetInnerHTML={{ __html: parts.before }} />
-          )}
+          {parts.before && <HtmlWithMath html={parts.before} />}
           <SandboxedIframe html={parts.interactive} />
-          {parts.after && (
-            <div dangerouslySetInnerHTML={{ __html: parts.after }} />
-          )}
+          {parts.after && <HtmlWithMath html={parts.after} />}
         </>
       );
     }
-    return (
-      <div
-        dangerouslySetInnerHTML={{ __html: text }}
-      />
-    );
+    return <HtmlWithMath html={text} />;
   }
 
   // If content has math, use MathRenderer
@@ -72,6 +67,74 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
       {text}
     </ReactMarkdown>
   );
+}
+
+/** Render HTML with KaTeX math support. First inserts HTML, then processes $...$ and $$...$$ */
+function HtmlWithMath({ html }: { html: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    // Find all text nodes and process $...$ and $$...$$ patterns
+    const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_TEXT);
+    const textNodes: Text[] = [];
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      if (node.textContent && /\$/.test(node.textContent)) {
+        textNodes.push(node as Text);
+      }
+    }
+
+    for (const textNode of textNodes) {
+      const text = textNode.textContent || "";
+      // Skip if inside <code>, <pre>, or <script> tags
+      const parent = textNode.parentElement;
+      if (parent && /^(code|pre|script|style)$/i.test(parent.tagName)) continue;
+
+      // Process block math $$...$$ and inline math $...$
+      const parts: (string | { tex: string; display: boolean })[] = [];
+      let remaining = text;
+      let hasMatch = false;
+
+      // Block math first
+      remaining = remaining.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => {
+        hasMatch = true;
+        return `\x00BLOCK:${tex}\x00`;
+      });
+      // Inline math
+      remaining = remaining.replace(/\$([^$\n]+?)\$/g, (_, tex) => {
+        hasMatch = true;
+        return `\x00INLINE:${tex}\x00`;
+      });
+
+      if (!hasMatch) continue;
+
+      const fragments = remaining.split('\x00');
+      const span = document.createElement('span');
+
+      for (const frag of fragments) {
+        if (frag.startsWith('BLOCK:')) {
+          const el = document.createElement('span');
+          try {
+            katex.render(frag.slice(6), el, { displayMode: true, throwOnError: false });
+          } catch { el.textContent = frag.slice(6); }
+          span.appendChild(el);
+        } else if (frag.startsWith('INLINE:')) {
+          const el = document.createElement('span');
+          try {
+            katex.render(frag.slice(7), el, { displayMode: false, throwOnError: false });
+          } catch { el.textContent = frag.slice(7); }
+          span.appendChild(el);
+        } else if (frag) {
+          span.appendChild(document.createTextNode(frag));
+        }
+      }
+
+      textNode.parentNode?.replaceChild(span, textNode);
+    }
+  }, [html]);
+
+  return <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 /** Split HTML into { before, interactive, after } around script-containing blocks */
