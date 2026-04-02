@@ -33,12 +33,8 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
     return <p className="text-slate-400">No content yet.</p>;
   }
 
-  // If content has math, use MathRenderer
-  if (containsMath(text)) {
-    return <MathRenderer content={text} />;
-  }
-
   // HTML mode — use iframe if content has scripts (for interactive widgets)
+  // Must be checked BEFORE math detection since HTML may contain $ signs (e.g., "$50")
   if (format === "html") {
     const hasScript = text.includes("<script");
     if (hasScript) {
@@ -60,6 +56,11 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
         dangerouslySetInnerHTML={{ __html: text }}
       />
     );
+  }
+
+  // If content has math, use MathRenderer
+  if (containsMath(text)) {
+    return <MathRenderer content={text} />;
   }
 
   // Markdown mode (default)

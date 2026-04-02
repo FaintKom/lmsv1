@@ -210,7 +210,7 @@ if mid:
         "Linear Inequalities",
         """<div style="font-family: system-ui; line-height: 1.8; color: #334155;">
         <h2 style="color: #4F46E5;">Linear Inequalities</h2>
-        <p>Inequalities use symbols: <code>&lt;</code>, <code>&gt;</code>, <code>&le;</code>, <code>&ge;</code>.</p>
+        <p>Inequalities use symbols: <b>&lt;</b>, <b>&gt;</b>, <b>≤</b>, <b>≥</b>.</p>
         <h3>Key Rule:</h3>
         <p><strong>When you multiply or divide by a negative number, flip the inequality sign!</strong></p>
         <h3>Example:</h3>
@@ -274,8 +274,8 @@ if mid:
         </ul>
         <h3>Example (Elimination):</h3>
         <p><code>2x + y = 7</code> and <code>x - y = 2</code></p>
-        <p>Add both: <code>3x = 9</code> &rarr; <code>x = 3</code></p>
-        <p>Substitute: <code>3 - y = 2</code> &rarr; <code>y = 1</code></p>
+        <p>Add both: <code>3x = 9</code> → <code>x = 3</code></p>
+        <p>Substitute: <code>3 - y = 2</code> → <code>y = 1</code></p>
         </div>""",
         [
             {
@@ -384,7 +384,7 @@ if mid:
         <h2 style="color: #4F46E5;">Interpreting Linear Models</h2>
         <p>In word problems, the <strong>slope</strong> represents the rate of change and the <strong>y-intercept</strong> represents the initial value.</p>
         <h3>Example:</h3>
-        <p>A plumber charges $50 for a house call plus $30 per hour. Cost function: <code>C(h) = 30h + 50</code></p>
+        <p>A plumber charges 50 dollars for a house call plus 30 dollars per hour. Cost function: <code>C(h) = 30h + 50</code></p>
         <ul>
             <li>Slope (30): cost per hour</li>
             <li>Y-intercept (50): house call fee</li>
@@ -430,7 +430,7 @@ if mid:
                     "x_header": "Hours",
                     "y_header": "Cost ($)"
                 },
-                "instructions": "A plumber charges $50 + $30/hour. Fill in the costs."
+                "instructions": "A plumber charges 50 + 30/hour. Fill in the costs."
             },
         ]
     )
@@ -450,8 +450,8 @@ if mid:
         <h3>Cross-Multiplication:</h3>
         <p>If <code>a/b = c/d</code>, then <code>ad = bc</code></p>
         <h3>Example:</h3>
-        <p>If 3 apples cost $2, how much do 12 apples cost?</p>
-        <p><code>3/2 = 12/x</code> &rarr; <code>3x = 24</code> &rarr; <code>x = $8</code></p>
+        <p>If 3 apples cost 2 dollars, how much do 12 apples cost?</p>
+        <p><code>3/2 = 12/x</code> → <code>3x = 24</code> → <code>x = 8</code></p>
         </div>""",
         [
             {
@@ -502,8 +502,8 @@ if mid:
         <h2 style="color: #4F46E5;">Percentages</h2>
         <p><strong>Percent</strong> means "per hundred." Key formulas:</p>
         <ul>
-            <li>Part = Whole &times; Percent/100</li>
-            <li>Percent change = (New - Old) / Old &times; 100</li>
+            <li>Part = Whole × Percent/100</li>
+            <li>Percent change = (New - Old) / Old × 100</li>
         </ul>
         </div>""",
         [
@@ -729,7 +729,7 @@ if mid:
         "Quadratic Equations",
         """<div style="font-family: system-ui; line-height: 1.8; color: #334155;">
         <h2 style="color: #4F46E5;">Quadratic Equations</h2>
-        <p>Standard form: <code>ax&sup2; + bx + c = 0</code></p>
+        <p>Standard form: <code>ax² + bx + c = 0</code></p>
         <h3>Solution Methods:</h3>
         <ul>
             <li><strong>Factoring:</strong> Find two numbers that multiply to $ac$ and add to $b$</li>
@@ -845,7 +845,7 @@ if mid:
         "Exponential Functions",
         """<div style="font-family: system-ui; line-height: 1.8; color: #334155;">
         <h2 style="color: #4F46E5;">Exponential Functions</h2>
-        <p>Form: <code>f(x) = a &middot; b<sup>x</sup></code> where $a$ = initial value, $b$ = growth/decay factor.</p>
+        <p>Form: <code>f(x) = a · b<sup>x</sup></code> where $a$ = initial value, $b$ = growth/decay factor.</p>
         <ul>
             <li>$b > 1$: exponential growth</li>
             <li>$0 < b < 1$: exponential decay</li>
@@ -904,7 +904,7 @@ if mid:
         <p>A rational expression is a fraction with polynomials. Key skills:</p>
         <ul>
             <li>Simplify by factoring and canceling</li>
-            <li>Find restrictions (denominator &ne; 0)</li>
+            <li>Find restrictions (denominator ≠ 0)</li>
             <li>Solve rational equations by clearing denominators</li>
         </ul>
         </div>""",
