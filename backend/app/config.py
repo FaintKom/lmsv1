@@ -61,6 +61,18 @@ class Settings(BaseSettings):
     # Redis (optional). Rate limiter falls back to in-memory when empty.
     redis_url: str = ""
 
+    # File storage backend: "local" (default) or "s3" (S3-compatible).
+    # When "s3", the S3_* settings below must be filled in. Switching
+    # backends affects only NEW uploads — existing files stay where
+    # they were written.
+    storage_backend: str = "local"
+    s3_bucket: str = ""
+    s3_endpoint_url: str = ""  # R2: https://<account>.r2.cloudflarestorage.com
+    s3_access_key_id: str = ""
+    s3_secret_access_key: str = ""
+    s3_region: str = "auto"    # R2 expects "auto"; AWS expects e.g. "us-east-1"
+    s3_public_url_base: str = ""  # optional CDN / custom domain in front of bucket
+
     # App
     app_name: str = "LMS"
     debug: bool = False
