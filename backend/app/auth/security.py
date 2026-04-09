@@ -1,3 +1,4 @@
+import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -21,11 +22,20 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def create_refresh_token(data: dict) -> str:
+def create_refresh_token(data: dict) -> tuple[str, str, datetime]:
+    """Create a refresh token with a unique jti claim.
+
+    Returns (encoded_token, jti, expires_at) so the caller can persist the jti
+    in the `refresh_tokens` table for revocation tracking. The jti is a 32-byte
+    URL-safe random string — independent of the JWT signature so revocation
+    does not require re-signing.
+    """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.jwt_refresh_token_expire_days)
-    to_encode.update({"exp": expire, "type": "refresh"})
-    return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.jwt_refresh_token_expire_days)
+    jti = secrets.token_urlsafe(32)
+    to_encode.update({"exp": expires_at, "type": "refresh", "jti": jti})
+    token = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    return token, jti, expires_at
 
 
 def decode_token(token: str) -> dict | None:

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.auth.models import Organization, PasswordResetToken, User
+from app.auth.models import Organization, PasswordResetToken, RefreshToken, User
 from app.auth.schemas import (
     ChangePasswordRequest,
     LoginRequest,
@@ -30,6 +30,29 @@ from app.common.rate_limit import limiter
 from app.db.session import get_db
 
 router = APIRouter()
+
+
+async def _issue_refresh_token(
+    db: AsyncSession,
+    user: User,
+    request: Request,
+) -> str:
+    """Create a refresh token, persist its jti, return the encoded JWT."""
+    token, jti, expires_at = create_refresh_token({"sub": str(user.id)})
+    client = request.client
+    ip = client.host if client else None
+    user_agent = request.headers.get("user-agent")
+    db.add(
+        RefreshToken(
+            user_id=user.id,
+            jti=jti,
+            expires_at=expires_at,
+            user_agent=(user_agent or "")[:500] or None,
+            ip_address=(ip or "")[:64] or None,
+        )
+    )
+    await db.flush()
+    return token
 
 
 @router.get("/organizations")
@@ -58,7 +81,7 @@ async def register_endpoint(
     user, org = await register(db, data)
 
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    refresh_token = await _issue_refresh_token(db, user, request)
 
     # Send welcome email
     try:
@@ -85,7 +108,7 @@ async def login_endpoint(
     user = await authenticate(db, data.email, data.password)
 
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    refresh_token = await _issue_refresh_token(db, user, request)
 
     return TokenResponse(
         access_token=access_token,
@@ -95,20 +118,74 @@ async def login_endpoint(
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_endpoint(data: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_endpoint(
+    request: Request,
+    data: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+):
     payload = decode_token(data.refresh_token)
     if not payload or payload.get("type") != "refresh":
         raise BadRequestError("Invalid refresh token")
 
+    # The jti must exist in our tracking table and not be revoked.
+    jti = payload.get("jti")
+    if not jti:
+        # Old-format token (pre-revocation-tracking). Reject — require re-login.
+        raise BadRequestError("Refresh token missing jti; please log in again")
+
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
+    stored = (await db.execute(stmt)).scalar_one_or_none()
+    if not stored:
+        raise BadRequestError("Refresh token not recognised")
+    if stored.revoked_at is not None:
+        raise BadRequestError("Refresh token has been revoked")
+    if stored.expires_at < datetime.now(timezone.utc):
+        raise BadRequestError("Refresh token has expired")
+
     user = await get_user_by_id(db, payload["sub"])
+    if not user or not user.is_active:
+        raise BadRequestError("User is not active")
+
+    # Rotate: revoke the old token and issue a new one. A replay of the old
+    # token after this point is rejected (revoked_at is set).
+    stored.revoked_at = datetime.now(timezone.utc)
+    db.add(stored)
+
     access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
+    refresh_token = await _issue_refresh_token(db, user, request)
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
         user=UserResponse.model_validate(user),
     )
+
+
+@router.post("/logout")
+async def logout_endpoint(
+    data: RefreshRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Revoke the refresh token provided in the body.
+
+    The access token will still work until it expires (max 30 min), but the
+    client can no longer refresh it into a new session. For full sign-out the
+    client should also discard the access token locally.
+    """
+    payload = decode_token(data.refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        return {"message": "Logged out"}
+    jti = payload.get("jti")
+    if not jti:
+        return {"message": "Logged out"}
+    stmt = select(RefreshToken).where(RefreshToken.jti == jti)
+    stored = (await db.execute(stmt)).scalar_one_or_none()
+    if stored and stored.user_id == user.id and stored.revoked_at is None:
+        stored.revoked_at = datetime.now(timezone.utc)
+        db.add(stored)
+        await db.flush()
+    return {"message": "Logged out"}
 
 
 @router.get("/me", response_model=UserResponse)
