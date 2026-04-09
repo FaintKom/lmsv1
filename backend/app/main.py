@@ -66,8 +66,12 @@ class StartupState:
 startup_state = StartupState()
 
 
-async def _run_migrations():
-    """Heavy DB setup that runs in the background after the app starts serving."""
+async def _run_setup():
+    """Blocking DB setup that runs during lifespan startup BEFORE the app
+    accepts any requests. Creates tables, adds missing columns, seeds default
+    plans, and bootstraps the super admin if configured. Raises on failure in
+    production so the container exits and the orchestrator restarts it.
+    """
     try:
         from app.db.base import Base
         from app.db.session import engine
@@ -147,16 +151,13 @@ async def _run_migrations():
             except Exception:
                 pass
 
-        # Try Alembic migrations if available
-        try:
-            from alembic.config import Config
-            from alembic import command
-
-            alembic_cfg = Config("alembic.ini")
-            command.upgrade(alembic_cfg, "head")
-            logger.info("Database migrations applied successfully")
-        except Exception as e:
-            logger.debug(f"Alembic migrations skipped: {e}")
+        # Alembic migrations are NOT run here — the sync `command.upgrade`
+        # path cannot be called from inside an already-running event loop
+        # (asyncio.run() inside asyncio loop is disallowed and logs the
+        # 'coroutine was never awaited' warning we were seeing). Schema
+        # additions go through Base.metadata.create_all above plus the
+        # ALTER TABLE IF NOT EXISTS statements below. Real alembic migration
+        # via async engine is a P1 follow-up.
 
         # Ensure super_admin user exists (only if credentials are configured via env)
         sa_email = (settings.super_admin_email or "").strip().lower()
@@ -224,11 +225,13 @@ async def _run_migrations():
             logger.debug(f"Plan seeding: {e}")
 
         startup_state.ready = True
-        logger.info(f"Background startup completed in {time.monotonic() - t0:.1f}s")
+        logger.info(f"DB setup completed in {time.monotonic() - t0:.1f}s")
 
     except Exception as e:
         startup_state.error = str(e)
-        logger.error(f"Background startup failed: {e}")
+        logger.error(f"DB setup failed: {e}")
+        # Re-raise so the lifespan caller can decide whether to abort startup.
+        raise
 
 
 @asynccontextmanager
@@ -273,11 +276,13 @@ async def lifespan(app: FastAPI):
     from app.db.session import engine
     from sqlalchemy import text as sa_text
 
+    db_ready = False
     for attempt in range(3):
         try:
             async with engine.connect() as conn:
                 await conn.execute(sa_text("SELECT 1"))
             logger.info(f"DB connected in {time.monotonic() - startup_start:.1f}s")
+            db_ready = True
             break
         except Exception as e:
             if attempt < 2:
@@ -287,14 +292,30 @@ async def lifespan(app: FastAPI):
                 logger.error(f"DB unreachable after 3 attempts: {e}")
                 startup_state.error = "Database unavailable"
 
-    # Phase 2: Kick off heavy setup in background — app starts serving NOW
-    task = asyncio.create_task(_run_migrations())
-    logger.info(f"App accepting requests in {time.monotonic() - startup_start:.1f}s (migrations running in background)")
+    if not db_ready:
+        # In production we bail out so the orchestrator restarts us with
+        # fresh backoff. In dev we keep running so the developer can see
+        # the error in the logs and fix it without a restart loop.
+        if settings.is_production():
+            raise RuntimeError("Database unavailable after 3 attempts, aborting startup")
+
+    # Phase 2: Run DB setup synchronously BEFORE the app accepts requests.
+    # This avoids race conditions on multi-instance deploys and makes setup
+    # failures visible as container exit codes instead of silent 503s.
+    if db_ready:
+        try:
+            await _run_setup()
+        except Exception as e:
+            if settings.is_production():
+                # Re-raise so the lifespan aborts and the container exits
+                raise
+            logger.warning(f"DB setup had errors (continuing in non-production): {e}")
+
+    logger.info(f"App accepting requests after {time.monotonic() - startup_start:.1f}s")
 
     yield
 
     # Shutdown
-    task.cancel()
     await engine.dispose()
 
 
@@ -323,21 +344,11 @@ def create_app() -> FastAPI:
         logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"detail": str(exc)})
 
-    @app.middleware("http")
-    async def startup_gate(request: Request, call_next):
-        """Return 503 for API requests while background migrations are running."""
-        path = request.scope["path"]
-        # Always let health check, docs, and openapi through
-        if path in ("/health", "/docs", "/redoc", "/openapi.json"):
-            return await call_next(request)
-        # Gate API requests until migrations complete
-        if path.startswith("/api/") and not startup_state.ready:
-            return JSONResponse(
-                status_code=503,
-                content={"detail": "Server is starting up, please retry in a few seconds"},
-                headers={"Retry-After": "5"},
-            )
-        return await call_next(request)
+    # Startup gate middleware has been removed in P0-10 — the lifespan
+    # now runs _run_setup() synchronously before yielding, so by the time
+    # this process accepts any request, the DB is fully set up. If setup
+    # fails in production the lifespan raises and the container exits
+    # with a visible error, which is strictly better than silent 503s.
 
     @app.middleware("http")
     async def strip_trailing_slash(request, call_next):
