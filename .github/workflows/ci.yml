@@ -108,6 +108,10 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
+      # Vitest unit tests (translations parity, utils, components).
+      - name: Vitest
+        run: npm test
+
       # Next.js build is the ultimate "does it compile" check.
       - name: Next.js build
         run: npm run build
