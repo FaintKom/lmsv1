@@ -379,6 +379,50 @@ const en: TranslationMap = {
   "ai.remaining": "{count} messages left this hour",
   "ai.clear": "Clear chat",
   "ai.close": "Close",
+
+  // Profile — Change password
+  "profile.changePassword": "Change Password",
+  "profile.currentPassword": "Current password",
+  "profile.newPassword": "New password",
+  "profile.confirmNewPassword": "Confirm new password",
+  "profile.passwordMinLength": "Minimum 8 characters. Use a password manager.",
+  "profile.changing": "Changing...",
+  "profile.passwordChanged": "Password changed successfully",
+  "profile.passwordMismatch": "New password and confirmation do not match",
+  "profile.passwordSameAsOld": "New password must differ from the current one",
+
+  // Email verification
+  "profile.emailNotVerified": "Email not verified",
+  "profile.emailNotVerifiedHint": "We sent a verification link to {email}. Click it to confirm your address.",
+  "profile.resendEmail": "Resend email",
+  "profile.sending": "Sending...",
+  "profile.verificationSent": "Verification email sent. Check your inbox.",
+  "verifyEmail.verifying": "Verifying your email...",
+  "verifyEmail.success": "Email verified",
+  "verifyEmail.error": "Verification failed",
+  "verifyEmail.signIn": "Sign in",
+  "verifyEmail.backToSignIn": "Back to sign in",
+
+  // Billing
+  "billing.notEnabled": "Billing is not enabled yet",
+  "billing.notEnabledHint": "Stripe has not been connected on this deployment. Plan listings are informational only — subscriptions cannot be purchased until an administrator configures STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.",
+
+  // Pricing page
+  "pricing.title": "Simple, transparent pricing",
+  "pricing.subtitle": "Pick a plan that matches your school. Upgrade any time. Every plan includes the interactive code sandbox, 4C/ID course builder, and AI tutor on the student side.",
+  "pricing.mostPopular": "MOST POPULAR",
+  "pricing.startFree": "Start Free",
+  "pricing.startTrial": "Start trial",
+  "pricing.perMonth": "/ month",
+  "pricing.unlimitedStudents": "Unlimited students",
+  "pricing.upToStudents": "Up to {n} students",
+  "pricing.unlimitedCourses": "Unlimited courses",
+  "pricing.upToCourses": "Up to {n} courses",
+  "pricing.fullComparison": "Full feature comparison",
+  "pricing.faqTitle": "Frequently asked questions",
+  "pricing.ctaTitle": "Not sure which plan fits?",
+  "pricing.ctaSubtitle": "Start on Free and upgrade later once you know your class size. You can export your data at any time.",
+  "pricing.ctaButton": "Create your school — it's free",
 };
 
 const es: TranslationMap = {
@@ -1019,6 +1063,54 @@ const ru: TranslationMap = {
   "ai.remaining": "Осталось {count} сообщений в этом часе",
   "ai.clear": "Очистить чат",
   "ai.close": "Закрыть",
+
+  // Comments (missing keys filled in P0-13)
+  "comments.showReplies": "Показать ответы",
+  "comments.hideReplies": "Скрыть ответы",
+
+  // Profile — Change password (added in P0-1 / P0-6)
+  "profile.changePassword": "Сменить пароль",
+  "profile.currentPassword": "Текущий пароль",
+  "profile.newPassword": "Новый пароль",
+  "profile.confirmNewPassword": "Повторите новый пароль",
+  "profile.passwordMinLength": "Минимум 8 символов. Используйте менеджер паролей.",
+  "profile.changing": "Меняю...",
+  "profile.passwordChanged": "Пароль изменён",
+  "profile.passwordMismatch": "Новый пароль и подтверждение не совпадают",
+  "profile.passwordSameAsOld": "Новый пароль должен отличаться от текущего",
+
+  // Email verification (added in P0-6)
+  "profile.emailNotVerified": "Email не подтверждён",
+  "profile.emailNotVerifiedHint": "Мы отправили ссылку для подтверждения на {email}. Перейдите по ней, чтобы подтвердить адрес.",
+  "profile.resendEmail": "Отправить письмо заново",
+  "profile.sending": "Отправляю...",
+  "profile.verificationSent": "Письмо отправлено. Проверьте почту.",
+  "verifyEmail.verifying": "Проверяем email...",
+  "verifyEmail.success": "Email подтверждён",
+  "verifyEmail.error": "Не удалось подтвердить",
+  "verifyEmail.signIn": "Войти",
+  "verifyEmail.backToSignIn": "Вернуться ко входу",
+
+  // Billing (added in P0-11 / P0-12)
+  "billing.notEnabled": "Биллинг ещё не настроен",
+  "billing.notEnabledHint": "Stripe не подключён на этом сервере. Тарифы ниже показаны для информации — купить подписку нельзя, пока администратор не задаст STRIPE_SECRET_KEY и STRIPE_WEBHOOK_SECRET.",
+
+  // Pricing page (added in P0-12)
+  "pricing.title": "Простая прозрачная цена",
+  "pricing.subtitle": "Выберите тариф под вашу школу. Меняйте в любой момент. В каждый тариф входит интерактивная песочница кода, конструктор курсов 4C/ID и ИИ-репетитор для учеников.",
+  "pricing.mostPopular": "САМЫЙ ПОПУЛЯРНЫЙ",
+  "pricing.startFree": "Начать бесплатно",
+  "pricing.startTrial": "Начать пробный период",
+  "pricing.perMonth": "/ мес",
+  "pricing.unlimitedStudents": "Учеников без ограничений",
+  "pricing.upToStudents": "До {n} учеников",
+  "pricing.unlimitedCourses": "Курсов без ограничений",
+  "pricing.upToCourses": "До {n} курсов",
+  "pricing.fullComparison": "Полное сравнение возможностей",
+  "pricing.faqTitle": "Частые вопросы",
+  "pricing.ctaTitle": "Не знаете, какой тариф выбрать?",
+  "pricing.ctaSubtitle": "Начните с Free и перейдите на платный тариф, когда станет ясно, сколько у вас учеников. Вы можете выгрузить свои данные в любой момент.",
+  "pricing.ctaButton": "Создать школу — это бесплатно",
 };
 
 const tr: TranslationMap = {
