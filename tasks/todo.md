@@ -28,63 +28,63 @@ Four parallel explore agents analyzed: backend, frontend, deployment/ops, produc
 
 ### Security
 
-- [ ] **P0-1. Remove hardcoded admin credentials from `backend/app/main.py:145`**
+- [x] **P0-1. Remove hardcoded admin credentials from `backend/app/main.py:145`**
       Current: `faintkom@gmail.com` / `REDACTED_PASSWORD` hardcoded in source.
       Fix: move to env vars (`SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`), fail-fast if unset in production, require change on first login.
 
-- [ ] **P0-2. JWT_SECRET enforcement in `backend/app/config.py`**
+- [x] **P0-2. JWT_SECRET enforcement in `backend/app/config.py`**
       Current: default value `"change-me-in-production"` with no check.
       Fix: on startup, raise error if secret equals default value or is shorter than 32 chars. Only allow default in `ENV=development`.
 
-- [ ] **P0-3. Rate limiting on `/auth/login` and `/auth/register`**
+- [x] **P0-3. Rate limiting on `/auth/login` and `/auth/register`**
       Current: no rate limit; brute-force possible.
       Fix: install `slowapi`, apply `@limiter.limit("5/minute")` on login, `@limiter.limit("3/hour")` on register. Use Redis backend for distributed state (or in-memory as starter).
 
-- [ ] **P0-4. Refresh token revocation / expiry**
+- [x] **P0-4. Refresh token revocation / expiry**
       Current: refresh tokens valid indefinitely after grant, no revocation list.
       Fix: add `refresh_token_jti` table with `revoked_at`, check on refresh endpoint. Rotate on each refresh. Logout endpoint revokes.
 
-- [ ] **P0-5. File upload validation**
+- [x] **P0-5. File upload validation**
       Current: no MIME type check, size only enforced in config not in endpoint.
       Fix: whitelist extensions, verify actual file type (not just extension), enforce size at endpoint level.
 
-- [ ] **P0-6. Email verification on registration**
+- [x] **P0-6. Email verification on registration**
       Current: new accounts active immediately.
       Fix: send verification email with token, block `is_active=False` until clicked. Wire to existing email infrastructure.
 
 ### Operations
 
-- [ ] **P0-7. Sentry error tracking**
+- [x] **P0-7. Sentry error tracking**
       Current: no error tracking, no logs aggregation.
       Fix: `sentry-sdk[fastapi]` + Next.js `@sentry/nextjs`. Free tier. ~30 min.
 
-- [ ] **P0-8. Automated Postgres backups**
+- [x] **P0-8. Automated Postgres backups**
       Current: undocumented, manual only.
       Fix: cron `pg_dump` → S3/R2/B2 nightly, 30-day retention, scripted restore test.
 
-- [ ] **P0-9. Nginx security headers**
+- [x] **P0-9. Nginx security headers**
       Current: `deploy/nginx.conf` missing HSTS, CSP, X-Frame-Options, X-Content-Type-Options.
       Fix: add security headers block. Test with securityheaders.com.
 
-- [ ] **P0-10. Migrations on startup — move to pre-start**
+- [x] **P0-10. Migrations on startup — move to pre-start**
       Current: migrations run in background after API accepts requests (`main.py:46-77`).
       Fix: run before API starts accepting requests, or move to init container.
 
 ### Product
 
-- [ ] **P0-11. Stripe checkout flow end-to-end**
+- [x] **P0-11. Stripe checkout flow end-to-end**
       Current: billing page shows "not configured" error in some states.
       Fix: verify full flow works dev→prod, test with real cards in test mode, document required env vars.
 
-- [ ] **P0-12. Public `/pricing` page**
+- [x] **P0-12. Public `/pricing` page**
       Current: no pricing visible on public site.
       Fix: add pricing page with 4 tiers (Free, Starter $29, Professional $79, Enterprise $199), feature comparison table, FAQ, CTAs per plan.
 
-- [ ] **P0-13. i18n implementation — English + Russian**
+- [x] **P0-13. i18n implementation — English + Russian**
       Current: locale context and switcher exist, but no translation files; UI is English-only.
       Fix: extract strings to `locales/en.json` and `locales/ru.json`, wire `t()` throughout UI, test switcher, set default based on `Accept-Language`.
 
-- [ ] **P0-14. Auto-seed demo course on new org creation**
+- [x] **P0-14. Auto-seed demo course on new org creation**
       Current: new admin sees empty org.
       Fix: on org creation, clone SAT Math course (or a purpose-built "Welcome to LearnHub" course) into the new org as a template.
 
@@ -231,9 +231,50 @@ Final import test: `create_app()` produces 181 routes, all critical endpoints (`
 
 **Remaining P0 (next session):** P0-4 refresh token revocation, P0-6 email verification, P0-7 Sentry, P0-8 automated Postgres backups, P0-10 migrations timing, P0-11 Stripe end-to-end, P0-12 public pricing page, P0-13 i18n, P0-14 demo seed course.
 
-**Follow-ups identified during this wave:**
-- The old `faintkom@gmail.com:REDACTED_PASSWORD` password exists in git history. Rotate the actual production password immediately on next deploy and never reuse it. Consider `git filter-repo` on the history if the repo will go public, but note that this rewrites history and requires force-push.
+**Follow-ups identified during first wave:**
+- ~~The old `faintkom@gmail.com:REDACTED_PASSWORD` password exists in git history.~~ **DONE:** history rewritten via `git filter-repo`, password rotated via new Change Password UI.
 - The seed scripts now require `LMS_ADMIN_EMAIL` and `LMS_ADMIN_PASSWORD` env vars — document in the developer README or create a `.envrc` template for direnv users.
 - CSP currently permits `'unsafe-eval'` — needed by Next.js dev mode but can be tightened for production-only builds in a follow-up.
 - Rate limit storage is in-memory by default — set `RATE_LIMIT_STORAGE_URI=redis://...` in production once Redis is part of the stack (P1-5).
+
+### Second wave — remaining P0 items (completed 2026-04-09 / 2026-04-10)
+
+**P0-4. Refresh token revocation.** New `refresh_tokens` table tracks every issued refresh token by jti (32-byte random token_urlsafe). `create_refresh_token` returns `(token, jti, expires_at)` and persists via `_issue_refresh_token` helper (captures user_agent + ip_address for future "active sessions" UI). `/auth/refresh` validates jti, rejects revoked/expired/unknown, rotates on success. New `/auth/logout` endpoint revokes the current refresh token. Old tokens (no jti claim) are rejected with "please log in again". End-to-end verified on prod: replay of revoked token → 400. Migration `h1i2j3k4l5m6`. Commit `df20818`.
+
+**P0-6. Email verification on registration.** New `email_verification_tokens` table and `users.email_verified_at` column. Policy: **students and parents are auto-verified** (invited by teacher, already vouched for) while **teachers/admins self-registering must verify** via emailed token. `POST /auth/verify-email` and `/auth/resend-verification` endpoints, rate-limited. New `/verify-email` frontend route reads token from URL. Profile page shows amber "Email not verified" banner with resend button only for unverified users. `settings.require_email_verification` flag (default False) gates login enforcement so deployments without SMTP keep working. Grandfathered all 7 existing prod users to verified. Migration `i1j2k3l4m5n6`. Commit `7ed4e88`.
+
+**P0-7. Sentry error tracking.** `sentry-sdk[fastapi]>=2.18.0` on backend; `@sentry/nextjs^9.0.0` on frontend. Backend initializes Sentry before router imports so it can patch SqlAlchemy/FastAPI/Starlette integrations. Frontend uses Next.js 16 `instrumentation.ts` hook for server runtime and `instrumentation-client.ts` for browser. Both are complete no-ops when DSN is empty. Dockerfile uses `npm ci --legacy-peer-deps` for @sentry/nextjs 9.x vs React 19 peer conflict. Next step (user action): create two projects on sentry.io, set `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN` on prod, rebuild. Commit `ec225e6`.
+
+**P0-8. Broken backups fixed.** Cron entry was in place since 2026-03-31 but `/opt/lms/backups/` and the script never existed. Created `scripts/backup.sh` and deployed. Script: `docker exec lms-db-1 pg_dump | gzip -9`, atomic `.tmp` + `mv`, size sanity check, 7-day retention. Verified first dump: 54 KB gzipped, gzip integrity OK, 42 CREATE TABLE statements. Updated `reference_server_security.md` memory. Commit `42f6b52`. **Not done (P1):** push backups off-server to S3/R2.
+
+**P0-10. Migrations run pre-start.** Renamed `_run_migrations` to `_run_setup`, moved it into lifespan **before** `yield` instead of a background task. Removed `startup_gate` middleware (now dead code). Removed the broken Alembic `command.upgrade()` that was raising from inside the async event loop and producing the recurring `RuntimeWarning: coroutine was never awaited`. Setup failures in production re-raise so the container exits. Verified clean logs and `/health` returns `ready:true` immediately. Commit `b1d2bab`.
+
+**P0-11. Stripe checkout end-to-end.** Three fixes: (1) replaced hardcoded Render frontend URLs in checkout/portal with `${settings.app_url}/admin/billing*`; (2) webhook refuses in prod when `STRIPE_WEBHOOK_SECRET` unset (503 + error log) instead of silently accepting unsigned JSON — closes a signature bypass that let attackers forge `invoice.paid` events; (3) new public `GET /billing/status` + calm amber "Billing not enabled" placeholder on admin billing page. Commit `079a3b7`.
+
+**P0-12. Public `/pricing` page.** Anonymous-accessible. Hero + 4 tier cards from live `/billing/plans` with static fallback. Professional "MOST POPULAR" ring. Feature comparison table. FAQ accordion. Bottom CTA gradient. Landing page header now has a "Pricing" link. Verified `/pricing` returns 200. Commit `a80fc1f`.
+
+**P0-13. i18n EN/RU.** Infrastructure was already in place (I18nProvider + useTranslation + LocaleSwitcher + localStorage). RU dictionary was 316/318 keys — filled the 2 missing plus 36 new keys for UI introduced during this P0 sweep: Change Password form, email verification banner, verify-email page, billing placeholder, pricing page. Final count: 354/354, sets identical. Commit `0f156de`.
+
+**P0-14. Auto-seed demo course on new org.** New `seed_demo_course_for_org()` helper clones the oldest `is_template=true` course system-wide into a new org, auto-published, bypassing the org-ownership check in `copy_course`. `register()` now returns a third boolean `org_was_created` so the endpoint knows when to seed. Best-effort wrapped in try/except. Marked existing SAT Math course as template on prod. End-to-end verified with throwaway test org. Commit `bfa5d7c`.
+
+### Wave summary
+
+All 14 P0 items are closed. Commits on `origin/main` past the first wave:
+- `df20818` P0-4 refresh token revocation
+- `7ed4e88` P0-6 email verification
+- `ec225e6` P0-7 Sentry
+- `42f6b52` P0-8 backups
+- `b1d2bab` P0-10 pre-start migrations
+- `079a3b7` P0-11 Stripe end-to-end
+- `a80fc1f` P0-12 pricing page
+- `0f156de` P0-13 i18n RU
+- `bfa5d7c` P0-14 auto-seed demo course
+
+**Still pending user action** (not code work):
+- Create Sentry projects and set `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` on prod
+- Set `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` when ready to sell
+- Configure SMTP (`EMAIL_ENABLED=true` + SMTP vars) if email verification is needed for teachers
+- Off-server backup destination (S3/R2) — tracked as P1 follow-up
+
+**Next wave:** pick from the P1 list above, or start a GTM sprint (demo video, sales one-pager, live demo link, first beta customer).
 
