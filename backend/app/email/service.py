@@ -1,11 +1,40 @@
+import asyncio
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Any, Callable
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def queue_email(func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+    """Schedule an email send in the background without blocking the caller.
+
+    Safe to call from any async code path. Uses the running asyncio loop's
+    default executor to run the blocking `smtplib` call off the event loop,
+    so a slow/flaky SMTP server cannot stall HTTP request handling. If no
+    loop is running (e.g. called from a sync seed script), falls back to a
+    direct sync call.
+
+    Exceptions from the underlying send function are swallowed and logged,
+    because email failures must never break the request path that queued
+    them — see P0-6 and earlier comments about best-effort welcome emails.
+    """
+    def _run() -> None:
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            logger.warning(f"Background email {func.__name__} failed: {e}")
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        _run()
+        return
+    loop.run_in_executor(None, _run)
 
 
 def _send_email(to_email: str, subject: str, html_body: str) -> bool:

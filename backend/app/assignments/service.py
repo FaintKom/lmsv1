@@ -48,9 +48,9 @@ async def create_assignment(
     db.add(assignment)
     await db.flush()
 
-    # Email enrolled students about the new assignment
+    # Email enrolled students about the new assignment (off-thread)
     try:
-        from app.email.service import send_assignment_notification
+        from app.email.service import queue_email, send_assignment_notification
         enrolled = await db.execute(
             select(User)
             .join(Enrollment, Enrollment.student_id == User.id)
@@ -59,7 +59,8 @@ async def create_assignment(
         for student in enrolled.scalars().all():
             prefs = student.email_preferences or {}
             if prefs.get("assignments", True):
-                send_assignment_notification(
+                queue_email(
+                    send_assignment_notification,
                     student.email, student.full_name,
                     data["title"], str(data["due_date"]),
                 )
@@ -381,9 +382,9 @@ async def grade_submission(
         link=f"/assignments/{assignment_id}",
     )
 
-    # Send email notification
+    # Send email notification (off-thread)
     try:
-        from app.email.service import send_grade_notification
+        from app.email.service import queue_email, send_grade_notification
         student_result = await db.execute(
             select(User).where(User.id == submission.student_id)
         )
@@ -391,7 +392,8 @@ async def grade_submission(
         if student:
             prefs = student.email_preferences or {}
             if prefs.get("grades", True):
-                send_grade_notification(
+                queue_email(
+                    send_grade_notification,
                     student.email, student.full_name, assignment.title,
                     score, assignment.max_score, feedback or None,
                 )

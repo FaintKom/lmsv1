@@ -126,8 +126,11 @@ async def register_endpoint(
         )
         await db.flush()
         try:
-            from app.email.service import send_email_verification
-            send_email_verification(user.email, user.full_name, verification_token)
+            from app.email.service import queue_email, send_email_verification
+            queue_email(
+                send_email_verification,
+                user.email, user.full_name, verification_token,
+            )
         except Exception:
             pass
     else:
@@ -141,8 +144,8 @@ async def register_endpoint(
 
     # Welcome email for everyone (best-effort; ignored if SMTP disabled)
     try:
-        from app.email.service import send_welcome
-        send_welcome(user.email, user.full_name)
+        from app.email.service import queue_email, send_welcome
+        queue_email(send_welcome, user.email, user.full_name)
     except Exception:
         pass
 
@@ -322,8 +325,8 @@ async def resend_verification_endpoint(
         await db.flush()
 
         try:
-            from app.email.service import send_email_verification
-            send_email_verification(user.email, user.full_name, token)
+            from app.email.service import queue_email, send_email_verification
+            queue_email(send_email_verification, user.email, user.full_name, token)
         except Exception:
             pass
 
@@ -486,9 +489,9 @@ async def forgot_password_endpoint(
         db.add(reset_token)
         await db.flush()
 
-        # Send reset email
-        from app.email.service import send_password_reset
-        send_password_reset(data.email, token)
+        # Send reset email off the request thread
+        from app.email.service import queue_email, send_password_reset
+        queue_email(send_password_reset, data.email, token)
 
     # Always return success to prevent email enumeration
     return {"message": "If the email exists, a reset link has been sent."}

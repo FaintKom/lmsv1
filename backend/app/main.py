@@ -313,11 +313,21 @@ async def lifespan(app: FastAPI):
                 raise
             logger.warning(f"DB setup had errors (continuing in non-production): {e}")
 
+    # Phase 3: Start the in-process cron scheduler (APScheduler).
+    # Only after DB setup is done, so jobs that need DB can run safely.
+    from app.scheduler import start_scheduler, stop_scheduler
+    if db_ready:
+        try:
+            start_scheduler()
+        except Exception as e:
+            logger.warning(f"Scheduler failed to start: {e}")
+
     logger.info(f"App accepting requests after {time.monotonic() - startup_start:.1f}s")
 
     yield
 
     # Shutdown
+    stop_scheduler()
     await engine.dispose()
 
 
@@ -394,10 +404,27 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health():
+        # Cheap liveness + readiness probe. Does NOT touch the DB — the
+        # orchestrator can hit this many times a second without load.
+        # Scheduler state is included so we can tell whether cron is alive
+        # without adding a dedicated probe. A detailed dependency-checking
+        # health endpoint is planned as P1-4.
+        try:
+            from app.scheduler import _scheduler
+            scheduler_running = bool(_scheduler and _scheduler.running)
+            scheduler_jobs = len(_scheduler.get_jobs()) if scheduler_running else 0
+        except Exception:
+            scheduler_running = False
+            scheduler_jobs = 0
+
         return {
             "status": "ok",
             "ready": startup_state.ready,
             "error": startup_state.error,
+            "scheduler": {
+                "running": scheduler_running,
+                "jobs": scheduler_jobs,
+            },
         }
 
     return app
