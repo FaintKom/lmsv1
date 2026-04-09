@@ -27,7 +27,6 @@ from app.common.file_validation import (
 )
 from tests.conftest import auth_header
 
-
 # ---------------------------------------------------------------------------
 # P0-5 file upload validation (pure function, no HTTP)
 # ---------------------------------------------------------------------------

@@ -13,6 +13,7 @@ from app.config import settings
 # Configure structured logging BEFORE anything else so even import-time
 # messages go through the same pipeline.
 from app.logging_config import configure_logging, request_id_var
+
 configure_logging()
 
 # Initialize Sentry BEFORE importing routers so the SDK can patch modules.
@@ -59,6 +60,7 @@ from app.recommendations.router import router as recommendations_router
 from app.sandbox.router import router as sandbox_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
+from app.waitlist.router import router as waitlist_router
 
 logger = logging.getLogger(__name__)
 
@@ -279,6 +281,7 @@ async def lifespan(app: FastAPI):
     import app.meetings.models  # noqa
     import app.skills.models  # noqa
     import app.exercises.models  # noqa
+    import app.waitlist.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
@@ -427,6 +430,7 @@ def create_app() -> FastAPI:
     app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
     app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
     app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI Tutor"])
+    app.include_router(waitlist_router, prefix="/api/v1", tags=["Waitlist"])
 
     @app.get("/health")
     async def health():

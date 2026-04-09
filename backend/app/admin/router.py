@@ -2,7 +2,7 @@ import csv
 import io
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -503,8 +503,8 @@ async def admin_bulk_enroll_endpoint(
     backend doesn't need to know about CSV dialect quirks and large
     files don't have to be streamed.
     """
-    from datetime import datetime, timezone
     import re as _re
+    from datetime import datetime, timezone
 
     from app.auth.models import UserRole as _UserRole
     from app.auth.security import hash_password
@@ -536,7 +536,7 @@ async def admin_bulk_enroll_endpoint(
             "Cannot bulk-enroll students into a template course. Copy the template first.",
         )
 
-    EMAIL_RE = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
+    EMAIL_RE = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")  # noqa: N806
 
     total = len(rows)
     created = 0
@@ -1194,7 +1194,7 @@ async def gradebook_export_xlsx(
     gives them Excel directly.
     """
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
     data = await gradebook_endpoint(course_id=course_id, user=user, db=db)

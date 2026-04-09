@@ -32,6 +32,7 @@ import app.progress.models  # noqa
 import app.sandbox.models  # noqa
 import app.skills.models  # noqa
 import app.submissions.models  # noqa
+import app.waitlist.models  # noqa
 from app.auth.models import Organization, User, UserRole
 from app.auth.security import create_access_token, hash_password
 from app.config import settings

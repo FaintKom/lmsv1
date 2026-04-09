@@ -23,7 +23,7 @@ from typing import Optional
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from sqlalchemy import delete, select
+from sqlalchemy import delete
 
 from app.auth.models import RefreshToken
 from app.db.session import async_session_factory
