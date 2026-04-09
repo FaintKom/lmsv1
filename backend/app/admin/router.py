@@ -463,6 +463,185 @@ async def admin_enroll_endpoint(
     return {"status": "ok", "enrollment_id": str(enrollment.id)}
 
 
+@router.post("/bulk-enroll")
+async def admin_bulk_enroll_endpoint(
+    data: dict,
+    admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bulk-import students from a CSV payload and enroll them in a course.
+
+    Body shape (JSON):
+        {
+          "course_id": "<uuid>",
+          "rows": [
+            {"email": "...", "full_name": "...", "password": "..."},
+            ...
+          ],
+          "default_password": "Welcome2026!"   # optional fallback
+        }
+
+    Per-row behaviour:
+    - Validate email format.
+    - If a user with that email already exists in the admin's org, reuse them.
+    - If not, create a new student with role=student, auto-verified (since
+      admin is vouching for them via bulk import), consent recorded.
+    - Enroll in the course unless already enrolled.
+    - Capture per-row errors without aborting the whole batch.
+
+    Returns a summary:
+        {
+          "total": N,
+          "created": X,
+          "reused": Y,
+          "enrolled": Z,
+          "already_enrolled": W,
+          "errors": [ {"row": i, "email": "...", "message": "..."}, ... ]
+        }
+
+    The front-end parses a CSV locally and POSTs JSON — that way the
+    backend doesn't need to know about CSV dialect quirks and large
+    files don't have to be streamed.
+    """
+    from datetime import datetime, timezone
+    import re as _re
+
+    from app.auth.models import UserRole as _UserRole
+    from app.auth.security import hash_password
+    from app.courses.models import Course
+    from app.progress.models import Enrollment
+
+    course_id_str = data.get("course_id")
+    rows = data.get("rows")
+    default_password = (data.get("default_password") or "").strip()
+
+    if not course_id_str or not isinstance(rows, list):
+        raise HTTPException(400, "course_id and rows[] are required")
+
+    try:
+        course_id = uuid.UUID(course_id_str)
+    except ValueError:
+        raise HTTPException(400, "Invalid course_id") from None
+
+    # Verify course exists and belongs to admin's org
+    course_q = select(Course).where(Course.id == course_id)
+    if admin.role != _UserRole.super_admin:
+        course_q = course_q.where(Course.org_id == admin.org_id)
+    course = (await db.execute(course_q)).scalar_one_or_none()
+    if not course:
+        raise NotFoundError("Course not found")
+    if getattr(course, "is_template", False):
+        raise HTTPException(
+            400,
+            "Cannot bulk-enroll students into a template course. Copy the template first.",
+        )
+
+    EMAIL_RE = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
+
+    total = len(rows)
+    created = 0
+    reused = 0
+    enrolled = 0
+    already_enrolled = 0
+    errors: list[dict] = []
+
+    for i, raw_row in enumerate(rows):
+        row_num = i + 1  # 1-based for user-facing messages
+        if not isinstance(raw_row, dict):
+            errors.append({"row": row_num, "email": "", "message": "Row must be an object"})
+            continue
+
+        email = (raw_row.get("email") or "").strip().lower()
+        full_name = (raw_row.get("full_name") or raw_row.get("name") or "").strip()
+        password = (raw_row.get("password") or default_password).strip()
+
+        if not email or not EMAIL_RE.match(email):
+            errors.append({"row": row_num, "email": email, "message": "Invalid email"})
+            continue
+        if not full_name:
+            errors.append({"row": row_num, "email": email, "message": "Missing full_name"})
+            continue
+        if not password or len(password) < 8:
+            errors.append(
+                {"row": row_num, "email": email, "message": "Password must be 8+ chars"}
+            )
+            continue
+
+        try:
+            # Look up existing user
+            existing = (
+                await db.execute(select(User).where(User.email == email))
+            ).scalar_one_or_none()
+
+            if existing:
+                # Only reuse if they're in the admin's org (or admin is super)
+                if (
+                    admin.role != _UserRole.super_admin
+                    and existing.org_id != admin.org_id
+                ):
+                    errors.append(
+                        {
+                            "row": row_num,
+                            "email": email,
+                            "message": "User exists in a different organization",
+                        }
+                    )
+                    continue
+                user_row = existing
+                reused += 1
+            else:
+                user_row = User(
+                    org_id=admin.org_id,
+                    email=email,
+                    hashed_password=hash_password(password),
+                    full_name=full_name,
+                    role=_UserRole.student,
+                    is_active=True,
+                    consent_accepted_at=datetime.now(timezone.utc),
+                    privacy_policy_version="1.0",
+                    # Bulk-imported students are vouched for by the admin —
+                    # auto-verified, same policy as invite-link registration.
+                    email_verified_at=datetime.now(timezone.utc),
+                )
+                db.add(user_row)
+                await db.flush()
+                created += 1
+
+            # Enroll if not already
+            existing_enroll = (
+                await db.execute(
+                    select(Enrollment).where(
+                        Enrollment.course_id == course_id,
+                        Enrollment.student_id == user_row.id,
+                    )
+                )
+            ).scalar_one_or_none()
+            if existing_enroll:
+                already_enrolled += 1
+            else:
+                db.add(
+                    Enrollment(
+                        course_id=course_id,
+                        student_id=user_row.id,
+                        enrolled_at=datetime.now(timezone.utc),
+                    )
+                )
+                await db.flush()
+                enrolled += 1
+
+        except Exception as e:
+            errors.append({"row": row_num, "email": email, "message": str(e)[:200]})
+
+    return {
+        "total": total,
+        "created": created,
+        "reused": reused,
+        "enrolled": enrolled,
+        "already_enrolled": already_enrolled,
+        "errors": errors,
+    }
+
+
 @router.get("/courses/{course_id}/students")
 async def list_course_students(
     course_id: uuid.UUID,
