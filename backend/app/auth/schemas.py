@@ -56,3 +56,8 @@ class InviteRequest(BaseModel):
     email: EmailStr
     role: str = "student"
     full_name: str = ""
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

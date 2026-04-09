@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user
 from app.auth.models import Organization, PasswordResetToken, User
 from app.auth.schemas import (
+    ChangePasswordRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
@@ -16,7 +17,13 @@ from app.auth.schemas import (
     UserResponse,
     UserUpdate,
 )
-from app.auth.security import create_access_token, create_refresh_token, decode_token, hash_password
+from app.auth.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    hash_password,
+    verify_password,
+)
 from app.auth.service import authenticate, get_user_by_id, register
 from app.common.exceptions import BadRequestError
 from app.common.rate_limit import limiter
@@ -141,6 +148,32 @@ async def update_profile_endpoint(
     db.add(user)
     await db.flush()
     return UserResponse.model_validate(user)
+
+
+@router.post("/me/password")
+@limiter.limit("5/hour")
+async def change_password_endpoint(
+    request: Request,
+    data: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Change the currently-authenticated user's password.
+
+    Requires the current password to prevent session-hijack abuse. Rate-limited
+    to 5/hour to slow down credential-stuffing against stolen tokens.
+    """
+    if not verify_password(data.current_password, user.hashed_password):
+        raise BadRequestError("Current password is incorrect")
+    if len(data.new_password) < 8:
+        raise BadRequestError("New password must be at least 8 characters")
+    if data.new_password == data.current_password:
+        raise BadRequestError("New password must differ from the current one")
+
+    user.hashed_password = hash_password(data.new_password)
+    db.add(user)
+    await db.flush()
+    return {"message": "Password changed successfully"}
 
 
 # ─── Email Preferences ─────────────────────────────────────────────────

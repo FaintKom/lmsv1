@@ -19,6 +19,7 @@ import {
   FileText,
   Bell,
   Download,
+  Key,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -40,6 +41,12 @@ export default function ProfilePage() {
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
   const [exportingData, setExportingData] = useState(false);
+
+  // Password change form
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     apiClient.get("/auth/me/email-preferences").then(({ data }) => {
@@ -91,6 +98,38 @@ export default function ProfilePage() {
   const handleCancel = () => {
     setEditing(false);
     setSaved(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirmation do not match");
+      return;
+    }
+    if (newPassword === currentPassword) {
+      toast.error("New password must differ from the current one");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await apiClient.post("/auth/me/password", {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      toast.success("Password changed successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string } } };
+      toast.error(e?.response?.data?.detail || "Failed to change password");
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -338,6 +377,68 @@ export default function ProfilePage() {
             <Save className="mr-1 h-4 w-4" />
             {savingPrefs ? "Saving..." : "Save Preferences"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Change Password */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Key className="h-4 w-4" />
+            Change Password
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                Current password
+              </label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                New password
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+              />
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                Minimum 8 characters. Use a password manager.
+              </p>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                Confirm new password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+              />
+            </div>
+            <Button type="submit" disabled={changingPassword}>
+              <Key className="mr-1.5 h-4 w-4" />
+              {changingPassword ? "Changing..." : "Change Password"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
