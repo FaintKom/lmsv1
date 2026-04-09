@@ -36,6 +36,15 @@ dev = [
     "mypy>=1.13.0",
 ]
 
+# `backend/` has two top-level dirs — `app/` (the package) and
+# `alembic/` (migration scripts, not a package). Without explicit
+# discovery config, setuptools' flat-layout autodiscovery refuses
+# to build an editable install with "Multiple top-level packages
+# discovered", which breaks CI's `pip install -e .[dev]` step.
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["alembic*", "tests*"]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 100
