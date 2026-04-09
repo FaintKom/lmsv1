@@ -7,7 +7,7 @@ import requests, uuid
 
 API = "https://204-168-165-41.nip.io/api/v1"
 
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"}, verify=False)
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")}, verify=False)
 if r.status_code != 200:
     print(f"Login failed: {r.status_code} {r.text[:200]}")
     sys.exit(1)
@@ -118,7 +118,7 @@ print("=" * 60)
 print("CREATING SAT MATH V4 COURSE")
 print("=" * 60)
 
-cid = create_course("SAT Math", "Complete SAT Math preparation with interactive exercises, visual theory, Desmos integration, and step-by-step problem solving across all 4 SAT domains.", "SAT Prep")
+cid = create_course("SAT Math", "Complete SAT Math preparation with interactive exercises, KaTeX-rendered formulas, JSXGraph visualizations, and step-by-step problem solving across all 4 SAT domains.", "SAT Prep")
 if not cid:
     print("FATAL: Could not create course")
     sys.exit(1)
@@ -132,8 +132,8 @@ publish(cid)
 enroll_students(cid)
 
 print("\n" + "=" * 60)
-print("SAT MATH V4 COURSE CREATED!")
-print("  4 modules, 21 lessons, ~79 exercises")
+print("SAT MATH V5 COURSE CREATED!")
+print("  4 modules, 22 lessons, ~83 exercises")
 print("  All 16 interactive template types")
-print("  Rich HTML theory with Desmos, styled boxes")
+print("  KaTeX formulas + 20 JSXGraph/JS interactive widgets")
 print("=" * 60)

@@ -1,5 +1,4 @@
 import logging
-import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +11,11 @@ from sqlalchemy.orm import selectinload
 from app.assessments.models import Question
 from app.auth.models import Organization, User, UserRole
 from app.common.exceptions import BadRequestError, ForbiddenError, NotFoundError
+from app.common.file_validation import (
+    SUBMISSION_EXTENSIONS,
+    UploadValidationError,
+    validate_upload,
+)
 from app.config import settings
 from app.courses.models import Course, Lesson, Module
 from app.exercises.models import (
@@ -589,29 +593,28 @@ async def upload_file_submission(
     config = exercise.config or {}
     now = datetime.now(timezone.utc)
 
-    # Validate
-    original = file.filename or "unknown"
-    ext = os.path.splitext(original)[1].lower()
-    allowed_types = config.get("allowed_types", [".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx"])
-    if ext not in allowed_types:
-        raise BadRequestError(f"File type {ext} not allowed. Allowed: {', '.join(allowed_types)}")
-
+    # Validate with shared helper (extension, size, magic bytes, safe name)
+    raw = await file.read()
+    allowed_types = config.get("allowed_types", list(SUBMISSION_EXTENSIONS))
     max_mb = config.get("max_file_mb", settings.max_upload_mb)
-    file_data = await file.read()
-    size = len(file_data)
-    if size > max_mb * 1024 * 1024:
-        raise BadRequestError(f"File too large. Maximum {max_mb} MB.")
+    try:
+        validated = validate_upload(
+            filename=file.filename,
+            data=raw,
+            allowed_extensions=allowed_types,
+            max_size_mb=max_mb,
+        )
+    except UploadValidationError as e:
+        raise BadRequestError(str(e)) from e
 
-    mime = file.content_type or "application/octet-stream"
-
-    # Save
-    stored_name = f"{uuid.uuid4().hex}_{original}"
+    original = file.filename or validated.safe_name
+    stored_name = validated.safe_name
     upload_dir = Path(settings.upload_dir) / str(exercise.org_id) / str(exercise_id)
     upload_dir.mkdir(parents=True, exist_ok=True)
     file_path = upload_dir / stored_name
 
     with open(file_path, "wb") as f:
-        f.write(file_data)
+        f.write(validated.data)
 
     submission = ExerciseSubmission(
         exercise_id=exercise_id,
@@ -620,8 +623,8 @@ async def upload_file_submission(
         original_filename=original,
         stored_filename=stored_name,
         file_path=str(file_path),
-        file_size=size,
-        mime_type=mime,
+        file_size=validated.size,
+        mime_type=validated.verified_mime,
         submitted_at=now,
     )
     db.add(submission)

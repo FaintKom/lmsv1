@@ -10,7 +10,7 @@ API = "https://lms-backend-0b8v.onrender.com/api/v1"
 COURSE_ID = "04dd0fce-ae1b-4b20-846a-aec927fa7a01"
 
 # Login
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 token = r.json()["access_token"]
 H = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 

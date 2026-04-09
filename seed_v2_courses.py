@@ -10,7 +10,7 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 API = "https://204-168-165-41.nip.io/api/v1"
 
 # Login as super admin
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 if r.status_code != 200:
     print(f"Login failed: {r.status_code} {r.text}")
     sys.exit(1)

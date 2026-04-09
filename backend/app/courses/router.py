@@ -10,6 +10,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.common.exceptions import NotFoundError
+from app.common.file_validation import (
+    IMAGE_EXTENSIONS,
+    FileCategory,
+    UploadValidationError,
+    validate_upload,
+)
+from app.config import settings
 from app.courses.schemas import (
     CopyLessonRequest,
     CopyModuleRequest,
@@ -61,39 +68,37 @@ async def upload_image(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
 ):
     """Upload an image for use in lesson content."""
-    # Validate file type
-    allowed = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
-    ext = os.path.splitext(file.filename or "")[1].lower()
-    if ext not in allowed:
-        raise HTTPException(400, f"File type {ext} not allowed. Use: {', '.join(allowed)}")
+    raw = await file.read()
+    try:
+        validated = validate_upload(
+            filename=file.filename,
+            data=raw,
+            allowed_extensions=IMAGE_EXTENSIONS,
+            max_size_mb=5,
+            category=FileCategory.IMAGE,
+        )
+    except UploadValidationError as e:
+        raise HTTPException(400, str(e)) from e
 
-    # Validate size (5MB max)
-    contents = await file.read()
-    if len(contents) > 5 * 1024 * 1024:
-        raise HTTPException(400, "File too large. Max 5MB.")
-
-    # Save to /data/uploads/images/
-    import uuid as _uuid
-    filename = f"{_uuid.uuid4().hex}{ext}"
-    upload_dir = "/data/uploads/images"
+    upload_dir = os.path.join(settings.upload_dir, "images")
     os.makedirs(upload_dir, exist_ok=True)
-    filepath = os.path.join(upload_dir, filename)
+    filepath = os.path.join(upload_dir, validated.safe_name)
 
     with open(filepath, "wb") as f:
-        f.write(contents)
+        f.write(validated.data)
 
-    url = f"/api/v1/courses/images/{filename}"
+    url = f"/api/v1/courses/images/{validated.safe_name}"
     return {"url": url}
 
 
 @router.get("/images/{filename}")
 async def serve_image(filename: str):
     """Serve an uploaded image."""
-    # Sanitize filename to prevent directory traversal
-    if not re.match(r'^[a-f0-9]+\.(jpg|jpeg|png|gif|webp|svg)$', filename):
+    # Sanitize filename to prevent directory traversal — must match UUID hex + allowed ext
+    if not re.match(r'^[a-f0-9]{32}\.(jpg|jpeg|png|gif|webp|svg)$', filename):
         raise HTTPException(404, "Not found")
 
-    filepath = f"/data/uploads/images/{filename}"
+    filepath = os.path.join(settings.upload_dir, "images", filename)
     if not os.path.exists(filepath):
         raise HTTPException(404, "Image not found")
 

@@ -1,9 +1,10 @@
 """Create Robot & 3D World course on Hetzner."""
 import requests, os
+import os
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
 API = "https://204-168-165-41.nip.io/api/v1"
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 H = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}
 print("Logged in")
 

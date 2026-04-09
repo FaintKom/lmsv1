@@ -8,6 +8,7 @@ Defaults to Render production backend.
 """
 
 import argparse
+import os
 import sys
 import requests
 
@@ -386,8 +387,8 @@ WORLD_3D_LEVELS = [
 def main():
     parser = argparse.ArgumentParser(description="Seed game levels into LMS")
     parser.add_argument("--api", default=DEFAULT_API, help="API base URL")
-    parser.add_argument("--email", default="faintkom@gmail.com", help="Login email")
-    parser.add_argument("--password", default="REDACTED_PASSWORD", help="Login password")
+    parser.add_argument("--email", default=os.environ.get("LMS_ADMIN_EMAIL",""), help="Login email")
+    parser.add_argument("--password", default=os.environ.get("LMS_ADMIN_PASSWORD",""), help="Login password")
     parser.add_argument("--lesson-id", help="Lesson ID to attach exercises to (auto-detected if not set)")
     args = parser.parse_args()
 

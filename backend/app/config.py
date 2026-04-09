@@ -1,16 +1,26 @@
 from pydantic_settings import BaseSettings
 
+# Sentinel value used to detect an unset JWT secret. Must not appear in production.
+JWT_SECRET_DEFAULT = "change-me-in-production"
+
 
 class Settings(BaseSettings):
+    # Environment
+    environment: str = "development"  # development | staging | production
+
     # Database
     database_url: str = "postgresql+asyncpg://lms:lms_dev_password@localhost:5432/lms"
     async_database_url: str = ""
 
     # JWT
-    jwt_secret: str = "change-me-in-production"
+    jwt_secret: str = JWT_SECRET_DEFAULT
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 30
     jwt_refresh_token_expire_days: int = 7
+
+    # Super admin bootstrap (optional; super admin is only created if both are set)
+    super_admin_email: str = ""
+    super_admin_password: str = ""
 
     # Sandbox
     sandbox_url: str = "http://localhost:8001"
@@ -52,6 +62,28 @@ class Settings(BaseSettings):
         if url.startswith("postgresql://"):
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
         return url
+
+    def is_production(self) -> bool:
+        return self.environment.lower() == "production"
+
+    def validate_production(self) -> list[str]:
+        """Return a list of configuration errors that must be fixed in production.
+
+        Called on startup. In production, any non-empty return value means the
+        app refuses to start. In development, errors are logged as warnings.
+        """
+        errors: list[str] = []
+        if self.jwt_secret == JWT_SECRET_DEFAULT:
+            errors.append(
+                "JWT_SECRET is set to the default value. Generate a new 64+ char secret."
+            )
+        if len(self.jwt_secret) < 32:
+            errors.append(
+                f"JWT_SECRET is too short ({len(self.jwt_secret)} chars). Use at least 32."
+            )
+        if self.debug:
+            errors.append("DEBUG must be false in production.")
+        return errors
 
 
 settings = Settings()

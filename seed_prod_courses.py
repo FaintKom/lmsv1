@@ -9,7 +9,7 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 
 API = "https://lms-backend-0b8v.onrender.com/api/v1"
 
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 if r.status_code != 200:
     print(f"Login failed: {r.status_code}")
     sys.exit(1)

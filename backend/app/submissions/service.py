@@ -1,4 +1,3 @@
-import os
 import uuid
 from pathlib import Path
 
@@ -7,25 +6,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User, UserRole
-from app.common.exceptions import NotFoundError
+from app.common.exceptions import BadRequestError, NotFoundError
+from app.common.file_validation import (
+    SUBMISSION_EXTENSIONS,
+    UploadValidationError,
+    validate_upload,
+)
 from app.config import settings
 from app.courses.models import Lesson
 from app.submissions.models import FileSubmission, InteractiveSubmission
-
-
-ALLOWED_EXTENSIONS = {
-    ".pdf", ".png", ".jpg", ".jpeg", ".gif",
-    ".doc", ".docx", ".pptx", ".ppt",
-}
-
-ALLOWED_MIMETYPES = {
-    "application/pdf",
-    "image/png", "image/jpeg", "image/gif",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-}
 
 
 async def _get_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> Lesson:
@@ -42,33 +31,28 @@ async def upload_file(
     lesson = await _get_lesson(db, lesson_id)
     content = lesson.content or {}
 
-    # Validate file extension
-    original = file.filename or "unknown"
-    ext = os.path.splitext(original)[1].lower()
-    allowed_types = content.get("allowed_types", list(ALLOWED_EXTENSIONS))
-    if ext not in allowed_types:
-        raise ValueError(f"File type {ext} is not allowed. Allowed: {', '.join(allowed_types)}")
-
-    # Validate file size
+    # Read once and delegate to shared validator (extension, size, magic bytes, safe name)
+    raw = await file.read()
+    allowed = content.get("allowed_types", list(SUBMISSION_EXTENSIONS))
     max_mb = content.get("max_file_mb", settings.max_upload_mb)
-    data = await file.read()
-    size = len(data)
-    if size > max_mb * 1024 * 1024:
-        raise ValueError(f"File too large. Maximum {max_mb} MB allowed.")
+    try:
+        validated = validate_upload(
+            filename=file.filename,
+            data=raw,
+            allowed_extensions=allowed,
+            max_size_mb=max_mb,
+        )
+    except UploadValidationError as e:
+        raise BadRequestError(str(e)) from e
 
-    # Validate MIME type
-    mime = file.content_type or "application/octet-stream"
-    if mime not in ALLOWED_MIMETYPES:
-        raise ValueError(f"MIME type {mime} is not allowed.")
-
-    # Save file
-    stored_name = f"{uuid.uuid4().hex}_{original}"
+    original = file.filename or validated.safe_name
+    stored_name = validated.safe_name
     upload_dir = Path(settings.upload_dir) / str(user.org_id) / str(lesson_id)
     upload_dir.mkdir(parents=True, exist_ok=True)
     file_path = upload_dir / stored_name
 
     with open(file_path, "wb") as f:
-        f.write(data)
+        f.write(validated.data)
 
     submission = FileSubmission(
         student_id=user.id,
@@ -76,8 +60,8 @@ async def upload_file(
         original_filename=original,
         stored_filename=stored_name,
         file_path=str(file_path),
-        file_size=size,
-        mime_type=mime,
+        file_size=validated.size,
+        mime_type=validated.verified_mime,
     )
     db.add(submission)
     await db.flush()

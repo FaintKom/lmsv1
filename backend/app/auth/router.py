@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +19,7 @@ from app.auth.schemas import (
 from app.auth.security import create_access_token, create_refresh_token, decode_token, hash_password
 from app.auth.service import authenticate, get_user_by_id, register
 from app.common.exceptions import BadRequestError
+from app.common.rate_limit import limiter
 from app.db.session import get_db
 
 router = APIRouter()
@@ -40,7 +41,12 @@ async def search_organizations(
 
 
 @router.post("/register", response_model=TokenResponse)
-async def register_endpoint(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/hour")
+async def register_endpoint(
+    request: Request,
+    data: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+):
     user, org = await register(db, data)
 
     access_token = create_access_token({"sub": str(user.id)})
@@ -61,7 +67,12 @@ async def register_endpoint(data: RegisterRequest, db: AsyncSession = Depends(ge
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login_endpoint(data: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login_endpoint(
+    request: Request,
+    data: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
     user = await authenticate(db, data.email, data.password)
 
     access_token = create_access_token({"sub": str(user.id)})
@@ -188,7 +199,9 @@ class ResetPasswordRequest(BaseModel):
 
 
 @router.post("/forgot-password")
+@limiter.limit("3/hour")
 async def forgot_password_endpoint(
+    request: Request,
     data: ForgotPasswordRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -226,7 +239,9 @@ async def forgot_password_endpoint(
 
 
 @router.post("/reset-password")
+@limiter.limit("10/hour")
 async def reset_password_endpoint(
+    request: Request,
     data: ResetPasswordRequest,
     db: AsyncSession = Depends(get_db),
 ):

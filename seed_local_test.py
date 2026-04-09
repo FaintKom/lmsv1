@@ -7,7 +7,7 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 API = "http://localhost:8000/api/v1"
 
 # Login
-r = requests.post(f"{API}/auth/login", json={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 token = r.json()["access_token"]
 H = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 print("Logged in as admin")
@@ -237,5 +237,5 @@ print(f"Enrolled student: {r.status_code}")
 print(f"\n{'='*50}")
 print(f"Course ready at http://localhost:3000")
 print(f"Student login: student@test.com / Student123!")
-print(f"Admin login:   faintkom@gmail.com / REDACTED_PASSWORD")
+print("Admin login: (set via LMS_ADMIN_EMAIL / LMS_ADMIN_PASSWORD)")
 print(f"{'='*50}")

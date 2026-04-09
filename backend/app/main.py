@@ -133,45 +133,59 @@ async def _run_migrations():
         except Exception as e:
             logger.debug(f"Alembic migrations skipped: {e}")
 
-        # Ensure super_admin user exists
-        try:
-            from app.db.session import async_session_factory
-            from app.auth.models import User, UserRole, Organization
-            from app.auth.security import hash_password
-            from sqlalchemy import select
-
-            async with async_session_factory() as session:
-                result = await session.execute(
-                    select(User).where(User.email == "faintkom@gmail.com")
+        # Ensure super_admin user exists (only if credentials are configured via env)
+        sa_email = (settings.super_admin_email or "").strip().lower()
+        sa_password = settings.super_admin_password or ""
+        if not sa_email or not sa_password:
+            if settings.is_production():
+                logger.warning(
+                    "SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASSWORD not set; skipping "
+                    "super admin bootstrap. Set both in the environment to create one."
                 )
-                sa_user = result.scalar_one_or_none()
-                if not sa_user:
-                    # Create system org
-                    result = await session.execute(
-                        select(Organization).where(Organization.slug == "system")
-                    )
-                    sys_org = result.scalar_one_or_none()
-                    if not sys_org:
-                        sys_org = Organization(name="System", slug="system")
-                        session.add(sys_org)
-                        await session.flush()
+            else:
+                logger.info(
+                    "Super admin bootstrap skipped (SUPER_ADMIN_EMAIL / "
+                    "SUPER_ADMIN_PASSWORD not set)."
+                )
+        else:
+            try:
+                from app.db.session import async_session_factory
+                from app.auth.models import User, UserRole, Organization
+                from app.auth.security import hash_password
+                from sqlalchemy import select
 
-                    sa_user = User(
-                        org_id=sys_org.id,
-                        email="faintkom@gmail.com",
-                        hashed_password=hash_password("REDACTED_PASSWORD"),
-                        full_name="Super Admin",
-                        role=UserRole.super_admin,
+                async with async_session_factory() as session:
+                    result = await session.execute(
+                        select(User).where(User.email == sa_email)
                     )
-                    session.add(sa_user)
-                    await session.commit()
-                    logger.info("Super admin user created")
-                elif sa_user.role != UserRole.super_admin:
-                    sa_user.role = UserRole.super_admin
-                    await session.commit()
-                    logger.info("Super admin role updated")
-        except Exception as e:
-            logger.warning(f"Super admin setup: {e}")
+                    sa_user = result.scalar_one_or_none()
+                    if not sa_user:
+                        # Create system org
+                        result = await session.execute(
+                            select(Organization).where(Organization.slug == "system")
+                        )
+                        sys_org = result.scalar_one_or_none()
+                        if not sys_org:
+                            sys_org = Organization(name="System", slug="system")
+                            session.add(sys_org)
+                            await session.flush()
+
+                        sa_user = User(
+                            org_id=sys_org.id,
+                            email=sa_email,
+                            hashed_password=hash_password(sa_password),
+                            full_name="Super Admin",
+                            role=UserRole.super_admin,
+                        )
+                        session.add(sa_user)
+                        await session.commit()
+                        logger.info("Super admin user created from env configuration")
+                    elif sa_user.role != UserRole.super_admin:
+                        sa_user.role = UserRole.super_admin
+                        await session.commit()
+                        logger.info("Super admin role updated")
+            except Exception as e:
+                logger.warning(f"Super admin setup: {e}")
 
         # Seed default billing plans
         try:
@@ -195,6 +209,20 @@ async def _run_migrations():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     startup_start = time.monotonic()
+
+    # Production configuration validation — refuse to start with unsafe defaults.
+    config_errors = settings.validate_production()
+    if config_errors:
+        if settings.is_production():
+            for err in config_errors:
+                logger.error(f"Production config error: {err}")
+            raise RuntimeError(
+                "Refusing to start in production with invalid configuration. "
+                "Fix the errors above and restart. See .env.example for guidance."
+            )
+        else:
+            for err in config_errors:
+                logger.warning(f"Config warning (non-production): {err}")
 
     # Import all models so they register with Base metadata
     import app.auth.models  # noqa
@@ -254,6 +282,14 @@ def create_app() -> FastAPI:
         redirect_slashes=True,
         lifespan=lifespan,
     )
+
+    # Rate limiter — attached to app state so slowapi can find it in decorators.
+    from slowapi.errors import RateLimitExceeded
+    from slowapi import _rate_limit_exceeded_handler
+    from app.common.rate_limit import limiter
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     import traceback
 

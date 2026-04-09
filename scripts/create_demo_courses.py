@@ -1,5 +1,6 @@
 """Create TEMPLATE courses showcasing all platform features and exercise types."""
 import urllib.request
+import os
 import json
 import ssl
 import sys
@@ -25,7 +26,7 @@ def api(method, path, token=None, data=None):
 
 
 # Login as super_admin (only admin/super_admin can create templates)
-data = api("POST", "/auth/login", data={"email": "faintkom@gmail.com", "password": "REDACTED_PASSWORD"})
+data = api("POST", "/auth/login", data={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 token = data["access_token"]
 print("Logged in as super_admin")
 

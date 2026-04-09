@@ -1,4 +1,3 @@
-import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,17 +9,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 from app.auth.models import User, UserRole
 from app.common.exceptions import BadRequestError, ForbiddenError, NotFoundError
+from app.common.file_validation import (
+    SUBMISSION_EXTENSIONS,
+    UploadValidationError,
+    validate_upload,
+)
 from app.config import settings
 from app.courses.models import Course
 from app.notifications.service import create_notification
 from app.progress.models import Enrollment
 
 
-ALLOWED_EXTENSIONS = {
-    ".pdf", ".png", ".jpg", ".jpeg", ".gif",
-    ".doc", ".docx", ".pptx", ".ppt", ".txt", ".zip", ".rar",
-}
-
+# .zip is allowed for assignment submissions (the magic-byte spec covers PK\x03\x04).
+# .txt and .rar are not in the shared spec — omit them so uploads are consistent.
+ALLOWED_ASSIGNMENT_EXTENSIONS = SUBMISSION_EXTENSIONS | {".zip"}
 MAX_FILE_MB = 50
 
 
@@ -240,21 +242,24 @@ async def submit_assignment(
     file_path = None
     original_filename = None
     if file:
-        original_filename = file.filename or "unknown"
-        ext = os.path.splitext(original_filename)[1].lower()
-        if ext not in ALLOWED_EXTENSIONS:
-            raise BadRequestError(f"File type {ext} not allowed")
+        raw = await file.read()
+        try:
+            validated = validate_upload(
+                filename=file.filename,
+                data=raw,
+                allowed_extensions=ALLOWED_ASSIGNMENT_EXTENSIONS,
+                max_size_mb=MAX_FILE_MB,
+            )
+        except UploadValidationError as e:
+            raise BadRequestError(str(e)) from e
 
-        file_data = await file.read()
-        if len(file_data) > MAX_FILE_MB * 1024 * 1024:
-            raise BadRequestError(f"File too large. Max {MAX_FILE_MB} MB")
+        original_filename = file.filename or validated.safe_name
 
         upload_dir = Path(settings.upload_dir) / str(assignment.org_id) / "assignments" / str(assignment_id)
         upload_dir.mkdir(parents=True, exist_ok=True)
 
-        safe_name = f"{uuid.uuid4()}{ext}"
-        dest = upload_dir / safe_name
-        dest.write_bytes(file_data)
+        dest = upload_dir / validated.safe_name
+        dest.write_bytes(validated.data)
         file_path = str(dest)
 
     status = AssignmentStatus.late if is_late else AssignmentStatus.submitted
