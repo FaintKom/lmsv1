@@ -173,12 +173,24 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
               (item.href !== "/admin" &&
                 item.href !== "/dashboard" &&
                 pathname.startsWith(item.href));
+            // Map href -> onboarding-tour anchor so driver.js can find each link
+            const tourAnchor = ({
+              "/admin": "sidebar-dashboard",
+              "/dashboard": "sidebar-dashboard",
+              "/admin/courses": "sidebar-courses",
+              "/admin/content-library": "sidebar-content-library",
+              "/admin/gradebook": "sidebar-gradebook",
+              "/admin/users": "sidebar-users",
+              "/admin/groups": "sidebar-groups",
+              "/admin/billing": "sidebar-billing",
+            } as Record<string, string>)[item.href];
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   onClick={onClose}
                   aria-current={isActive ? "page" : undefined}
+                  data-tour={tourAnchor}
                   className={cn(
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
                     isActive

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,6 +105,24 @@ export default function GradebookPage() {
     }
   };
 
+  const handleExportXlsx = async () => {
+    if (!courseId) return;
+    try {
+      const resp = await apiClient.get(
+        `/admin/gradebook/export-xlsx?course_id=${courseId}`,
+        { responseType: "blob" }
+      );
+      const url = URL.createObjectURL(resp.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `gradebook_${courseId}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to export Excel file");
+    }
+  };
+
   if (loadingCourses) {
     return (
       <div className="mx-auto max-w-7xl">
@@ -136,10 +155,16 @@ export default function GradebookPage() {
           </p>
         </div>
         {data && data.columns.length > 0 && (
-          <Button variant="outline" onClick={handleExportWithAuth}>
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleExportWithAuth}>
+              <Download className="mr-2 h-4 w-4" />
+              CSV
+            </Button>
+            <Button variant="outline" onClick={handleExportXlsx}>
+              <Download className="mr-2 h-4 w-4" />
+              Excel
+            </Button>
+          </div>
         )}
       </div>
 

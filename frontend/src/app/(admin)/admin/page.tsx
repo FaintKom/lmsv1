@@ -25,9 +25,11 @@ import {
   TrendingUp,
   Clock,
   Library,
+  HelpCircle,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { toast } from "sonner";
+import { OnboardingTour, startOnboardingTour } from "@/components/onboarding-tour";
 
 interface Stats {
   total_users: number;
@@ -252,6 +254,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
+      <OnboardingTour />
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Admin Dashboard</h1>
@@ -260,6 +263,15 @@ export default function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={startOnboardingTour}
+            title="Replay the onboarding tour"
+          >
+            <HelpCircle className="h-4 w-4" />
+            Tour
+          </Button>
           <Link href="/admin/users">
             <Button variant="outline" size="sm">
               <UserPlus className="h-4 w-4" />

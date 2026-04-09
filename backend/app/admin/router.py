@@ -1179,6 +1179,145 @@ async def gradebook_export_csv(
     )
 
 
+@router.get("/gradebook/export-xlsx")
+async def gradebook_export_xlsx(
+    course_id: uuid.UUID = Query(...),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Export gradebook as XLSX (Excel) with colour-coded score cells,
+    frozen header row, bold averages row, and percent formatting.
+
+    Schools requesting gradebook exports consistently want Excel, not
+    CSV — CSV loses formulas, column widths, colours, and everything
+    that makes the printed export actually readable. This endpoint
+    gives them Excel directly.
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    data = await gradebook_endpoint(course_id=course_id, user=user, db=db)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Gradebook"
+
+    # Styles
+    header_fill = PatternFill("solid", fgColor="4F46E5")  # indigo-600
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    avg_row_font = Font(bold=True, italic=True)
+    thin = Side(border_style="thin", color="D1D5DB")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    center = Alignment(horizontal="center", vertical="center")
+    left = Alignment(horizontal="left", vertical="center")
+
+    # Colour thresholds — match the frontend gradebook UI
+    green_fill = PatternFill("solid", fgColor="D1FAE5")   # emerald-100
+    yellow_fill = PatternFill("solid", fgColor="FEF3C7")  # amber-100
+    red_fill = PatternFill("solid", fgColor="FEE2E2")     # rose-100
+
+    def fill_for(score: float | None) -> PatternFill | None:
+        if score is None:
+            return None
+        if score >= 80:
+            return green_fill
+        if score >= 60:
+            return yellow_fill
+        return red_fill
+
+    # Header row
+    columns = data["columns"]
+    header = ["Student", "Email"] + [c["title"] for c in columns] + ["Average"]
+    for col_idx, value in enumerate(header, start=1):
+        cell = ws.cell(row=1, column=col_idx, value=value)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = center if col_idx > 2 else left
+        cell.border = border
+
+    # Student rows
+    row_idx = 2
+    for student in data["students"]:
+        sid = student["id"]
+        ws.cell(row=row_idx, column=1, value=student["full_name"]).border = border
+        ws.cell(row=row_idx, column=1).alignment = left
+        ws.cell(row=row_idx, column=2, value=student["email"]).border = border
+        ws.cell(row=row_idx, column=2).alignment = left
+
+        scores_numeric: list[float] = []
+        for i, col in enumerate(columns):
+            val = data["rows"].get(sid, {}).get(col["id"])
+            cell = ws.cell(row=row_idx, column=3 + i)
+            cell.border = border
+            cell.alignment = center
+            if val is not None:
+                cell.value = val
+                f = fill_for(val)
+                if f is not None:
+                    cell.fill = f
+                scores_numeric.append(val)
+            else:
+                cell.value = None
+
+        # Student average
+        avg_cell = ws.cell(row=row_idx, column=3 + len(columns))
+        avg_cell.border = border
+        avg_cell.alignment = center
+        if scores_numeric:
+            avg = round(sum(scores_numeric) / len(scores_numeric), 1)
+            avg_cell.value = avg
+            avg_cell.font = Font(bold=True)
+            f = fill_for(avg)
+            if f is not None:
+                avg_cell.fill = f
+
+        row_idx += 1
+
+    # Averages row at the bottom
+    avg_row = row_idx
+    ws.cell(row=avg_row, column=1, value="Class average").font = avg_row_font
+    ws.cell(row=avg_row, column=1).border = border
+    ws.cell(row=avg_row, column=1).alignment = left
+    ws.cell(row=avg_row, column=2).border = border
+    for i, col in enumerate(columns):
+        cell = ws.cell(row=avg_row, column=3 + i)
+        cell.border = border
+        cell.alignment = center
+        cell.font = avg_row_font
+        v = data["averages"].get(col["id"])
+        if v is not None:
+            cell.value = v
+    ws.cell(row=avg_row, column=3 + len(columns)).border = border
+
+    # Freeze header row
+    ws.freeze_panes = "A2"
+
+    # Auto-size columns (approximate)
+    ws.column_dimensions["A"].width = 24
+    ws.column_dimensions["B"].width = 28
+    for i in range(len(columns)):
+        letter = get_column_letter(3 + i)
+        title = columns[i]["title"]
+        ws.column_dimensions[letter].width = max(12, min(28, len(title) + 2))
+    ws.column_dimensions[get_column_letter(3 + len(columns))].width = 12
+
+    # Stream to memory
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    return StreamingResponse(
+        buf,
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+        headers={
+            "Content-Disposition": f"attachment; filename=gradebook_{course_id}.xlsx"
+        },
+    )
+
+
 # ─── Review Queue ──────────────────────────────────────────────────────
 
 
