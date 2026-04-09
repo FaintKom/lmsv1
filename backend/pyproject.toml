@@ -19,6 +19,7 @@ dependencies = [
     "python-slugify>=8.0.4",
     "email-validator>=2.1.0",
     "slowapi>=0.1.9",
+    "sentry-sdk[fastapi]>=2.18.0",
 ]
 
 [project.optional-dependencies]

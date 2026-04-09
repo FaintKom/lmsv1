@@ -8,6 +8,29 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
+
+# Initialize Sentry BEFORE importing routers so the SDK can patch modules.
+# Empty DSN disables Sentry entirely — no network calls, no overhead.
+if settings.sentry_dsn:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.starlette import StarletteIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            environment=settings.environment,
+            traces_sample_rate=settings.sentry_traces_sample_rate,
+            send_default_pii=False,  # do not send user identifiers in events
+            integrations=[
+                FastApiIntegration(transaction_style="endpoint"),
+                StarletteIntegration(transaction_style="endpoint"),
+                SqlalchemyIntegration(),
+            ],
+        )
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Sentry init failed: {e}")
 from app.auth.router import router as auth_router
 from app.courses.router import router as courses_router
 from app.assessments.router import router as assessments_router

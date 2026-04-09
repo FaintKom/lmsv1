@@ -50,6 +50,10 @@ class Settings(BaseSettings):
     # is configured and tested, otherwise unverified users cannot log in.
     require_email_verification: bool = False
 
+    # Sentry error tracking. Empty DSN disables Sentry entirely.
+    sentry_dsn: str = ""
+    sentry_traces_sample_rate: float = 0.1  # 10% — tune for free tier quota
+
     # App
     app_name: str = "LMS"
     debug: bool = False
