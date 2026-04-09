@@ -15,7 +15,9 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // WCAG 2.1 SC 1.4.4 "Resize text" — users must be able to zoom. Do NOT
+  // set maximumScale/userScalable: false. Zoom up to 5x is the spec
+  // requirement and the browser default is fine.
   themeColor: "#4f46e5",
 };
 

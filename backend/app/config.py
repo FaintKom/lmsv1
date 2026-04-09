@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     # Redis (optional). Rate limiter falls back to in-memory when empty.
     redis_url: str = ""
 
+    # Demo mode — exposes POST /auth/demo-login that returns a session
+    # for a pre-configured demo account without any credentials. Off by
+    # default. When on, also set the demo account emails below; the
+    # endpoint will authenticate into whichever one the caller asks for.
+    demo_mode_enabled: bool = False
+    demo_student_email: str = "student@learnhub.app"
+    demo_teacher_email: str = "teacher@learnhub.app"
+
     # File storage backend: "local" (default) or "s3" (S3-compatible).
     # When "s3", the S3_* settings below must be filled in. Switching
     # backends affects only NEW uploads — existing files stay where

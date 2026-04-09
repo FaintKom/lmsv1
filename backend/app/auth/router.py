@@ -156,6 +156,55 @@ async def register_endpoint(
     )
 
 
+class DemoLoginRequest(BaseModel):
+    role: str = "student"  # "student" or "teacher"
+
+
+@router.post("/demo-login", response_model=TokenResponse)
+@limiter.limit("10/hour")
+async def demo_login_endpoint(
+    request: Request,
+    response: Response,
+    data: DemoLoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Issue a session for the pre-configured demo account.
+
+    Only enabled when `settings.demo_mode_enabled` is true. Lets prospects
+    try the product without creating an account. The demo accounts are
+    real DB users (seeded separately) — we just authenticate into one of
+    them without asking for the password. Rate-limited to 10/hour per IP
+    so demo logins cannot be used to overload the server.
+
+    When demo mode is off, returns 404 (not 403) so an attacker probing
+    for the endpoint cannot tell whether it exists.
+    """
+    if not settings.demo_mode_enabled:
+        from fastapi import HTTPException
+        raise HTTPException(404, "Not found")
+
+    target_email = (
+        settings.demo_teacher_email
+        if data.role == "teacher"
+        else settings.demo_student_email
+    )
+    result = await db.execute(select(User).where(User.email == target_email))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        raise BadRequestError(
+            f"Demo account {target_email} is not available. Contact support."
+        )
+
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = await _issue_refresh_token(db, user, request)
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user=UserResponse.model_validate(user),
+    )
+
+
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit("5/minute")
 async def login_endpoint(

@@ -34,6 +34,11 @@ export default function Home() {
                 Pricing
               </Button>
             </Link>
+            <Link href="/demo">
+              <Button variant="ghost" size="sm">
+                Try Demo
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign In
