@@ -30,6 +30,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
+import { OrgSwitcher } from "./org-switcher";
 import { SearchBar } from "./search-bar";
 import LocaleSwitcher from "./locale-switcher";
 import { ThemeSwitcher } from "../ui/theme-switcher";
@@ -220,6 +221,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 
       {/* User */}
       <div className="border-t border-slate-100 p-3 dark:border-white/10">
+        <OrgSwitcher />
         <div className="mb-1 flex items-center justify-between px-1">
           <LocaleSwitcher />
           <ThemeSwitcher />
