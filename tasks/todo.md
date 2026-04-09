@@ -158,7 +158,7 @@ Four parallel explore agents analyzed: backend, frontend, deployment/ops, produc
 - [ ] P2-10. Postgres read replicas
 - [ ] P2-11. Multi-org for single user
 - [ ] P2-12. Webhook API for customers
-- [ ] P2-13. Waitlist / pre-launch community mechanism
+- [x] P2-13. Waitlist / pre-launch community mechanism ✅
 
 ---
 
@@ -435,4 +435,41 @@ Plus auxiliary commits for doc updates and the filter-repo follow-up.
 3. Reach out to first beta customers (P1-19)
 4. Optional: enable Sentry by setting DSNs, enable Stripe by setting
    secret keys, enable SMTP by setting EMAIL_ENABLED + SMTP_* vars
+
+---
+
+### P2-13 — Waitlist / pre-launch community (completed 2026-04-10)
+
+**What landed**
+- `app/waitlist/models.py` — `WaitlistEntry` table with email (unique),
+  role, source, IP/UA metadata, contacted flag + timestamp.
+- `app/waitlist/router.py`:
+  - `POST /api/v1/waitlist` — public, rate-limited 5/hour,
+    idempotent. Same response regardless of whether email is new,
+    so the endpoint doesn't leak membership.
+  - `GET /api/v1/waitlist` — super_admin only. Lists all entries
+    ordered newest first for outreach.
+  - `POST /api/v1/waitlist/{id}/mark-contacted` — super_admin only.
+- Wired into `main.py`: router include + model import so
+  `Base.metadata.create_all` auto-creates the table on startup.
+- Frontend `WaitlistForm` client component under `components/`,
+  embedded in landing page `/` CTA section below the primary
+  "Create Free Account" button. Captures email + role (teacher /
+  admin / student / other) + source, renders success/error inline.
+- Deploy to Hetzner: scp'd files, `docker compose build backend
+  frontend` + `up -d`. Smoke-tested POST /api/v1/waitlist → 200,
+  verified row in `waitlist_entries`, landing page shows form.
+
+**Why this shape**
+- Idempotent response prevents email-enumeration.
+- No confirmation email required — the whole point is a
+  zero-friction "drop your email" box.
+- No admin UI screen yet (backend GET is enough for CLI/SQL
+  access); can add a Notion-style admin table later if demand grows.
+
+**Also in this commit range**
+- Fixed 27 ruff errors breaking CI backend job
+  (3 F821 HTTPException imports, 1 N806 EMAIL_RE, 23 E402
+  main.py imports-after-Sentry via per-file-ignore).
+- Removed unused imports surfaced by `ruff --fix`.
 
