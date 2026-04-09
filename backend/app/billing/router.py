@@ -54,6 +54,16 @@ class CheckoutBody(BaseModel):
     cancel_url: str = ""
 
 
+@router.get("/status")
+async def billing_status_endpoint():
+    """Public — tells the frontend whether Stripe is configured.
+
+    The frontend uses this to decide whether to render billing UI or
+    show a "billing not enabled" placeholder. Does NOT leak the secret.
+    """
+    return {"enabled": bool(settings.stripe_secret_key)}
+
+
 @router.post("/checkout", response_model=CheckoutResponse)
 async def checkout_endpoint(
     data: CheckoutBody,
@@ -63,12 +73,13 @@ async def checkout_endpoint(
     """Create Stripe Checkout session."""
     if not settings.stripe_secret_key:
         raise HTTPException(400, "Stripe is not configured. Set STRIPE_SECRET_KEY env var.")
+    base = settings.app_url.rstrip("/")
     try:
         import uuid as _uuid
         url = await create_checkout_session(
             db, _uuid.UUID(data.plan_id), user,
-            success_url=data.success_url or "https://lms-frontend-uy53.onrender.com/admin/billing?success=true",
-            cancel_url=data.cancel_url or "https://lms-frontend-uy53.onrender.com/admin/billing?canceled=true",
+            success_url=data.success_url or f"{base}/admin/billing?success=true",
+            cancel_url=data.cancel_url or f"{base}/admin/billing?canceled=true",
         )
         return CheckoutResponse(checkout_url=url)
     except Exception as e:
@@ -83,10 +94,11 @@ async def portal_endpoint(
     """Create Stripe Customer Portal session."""
     if not settings.stripe_secret_key:
         raise HTTPException(400, "Stripe is not configured")
+    base = settings.app_url.rstrip("/")
     try:
         url = await create_portal_session(
             db, user,
-            return_url="https://lms-frontend-uy53.onrender.com/admin/billing",
+            return_url=f"{base}/admin/billing",
         )
         return {"portal_url": url}
     except Exception as e:
@@ -104,11 +116,20 @@ async def invoices_endpoint(
 
 @router.post("/webhook")
 async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
-    """Handle Stripe webhook events."""
+    """Handle Stripe webhook events.
+
+    In production the webhook signature MUST be verified — an unauthenticated
+    endpoint that writes to billing state is a high-value target. We refuse
+    webhook calls entirely when stripe_webhook_secret is unset in production.
+    In non-production (local dev), we accept raw JSON so you can curl events
+    manually during testing.
+    """
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
-    if settings.stripe_webhook_secret and sig_header:
+    if settings.stripe_webhook_secret:
+        if not sig_header:
+            raise HTTPException(400, "Missing stripe-signature header")
         try:
             event = stripe.Webhook.construct_event(
                 payload, sig_header, settings.stripe_webhook_secret
@@ -116,7 +137,13 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         except Exception as e:
             logger.warning(f"Webhook signature failed: {e}")
             raise HTTPException(400, "Invalid signature")
+    elif settings.is_production():
+        logger.error(
+            "Webhook received but STRIPE_WEBHOOK_SECRET is unset in production"
+        )
+        raise HTTPException(503, "Webhook endpoint not configured")
     else:
+        # Dev mode only — signature verification disabled.
         event = json.loads(payload)
 
     try:

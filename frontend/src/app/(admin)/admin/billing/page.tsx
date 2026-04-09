@@ -75,14 +75,17 @@ export default function AdminBillingPage() {
   const [invoices, setInvoices] = useState<InvoiceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
+  const [billingEnabled, setBillingEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
     Promise.all([
+      apiClient.get("/billing/status").then(({ data }) => data).catch(() => ({ enabled: false })),
       apiClient.get("/billing/plans").then(({ data }) => data).catch(() => []),
       apiClient.get("/billing/subscription").then(({ data }) => data).catch(() => null),
       apiClient.get("/billing/invoices").then(({ data }) => data).catch(() => []),
     ])
-      .then(([plansData, subData, invoicesData]) => {
+      .then(([statusData, plansData, subData, invoicesData]) => {
+        setBillingEnabled(Boolean(statusData?.enabled));
         // Deduplicate plans by name (keep first occurrence)
         const seen = new Set<string>();
         const unique = (plansData as Plan[]).filter((p) => {
@@ -167,6 +170,25 @@ export default function AdminBillingPage() {
           Manage your subscription and billing
         </p>
       </div>
+
+      {/* Billing-disabled placeholder — no Stripe keys configured */}
+      {billingEnabled === false && (
+        <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-400/30 dark:bg-amber-500/10">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+              <CreditCard className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                Billing is not enabled yet
+              </p>
+              <p className="mt-1 text-xs text-amber-800 dark:text-amber-300/80">
+                Stripe has not been connected on this deployment. Plan listings below are informational only — subscriptions cannot be purchased until an administrator configures <code className="font-mono">STRIPE_SECRET_KEY</code> and <code className="font-mono">STRIPE_WEBHOOK_SECRET</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Current subscription info */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
