@@ -11,6 +11,7 @@ interface User {
   bio: string | null;
   is_active: boolean;
   is_methodist: boolean;
+  email_verified_at: string | null;
 }
 
 interface AuthState {

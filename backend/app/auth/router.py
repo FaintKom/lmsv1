@@ -7,16 +7,25 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.auth.models import Organization, PasswordResetToken, RefreshToken, User
+from app.auth.models import (
+    EmailVerificationToken,
+    Organization,
+    PasswordResetToken,
+    RefreshToken,
+    User,
+)
 from app.auth.schemas import (
     ChangePasswordRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
+    ResendVerificationRequest,
     TokenResponse,
     UserResponse,
     UserUpdate,
+    VerifyEmailRequest,
 )
+from app.config import settings
 from app.auth.security import (
     create_access_token,
     create_refresh_token,
@@ -80,15 +89,44 @@ async def register_endpoint(
 ):
     user, org = await register(db, data)
 
+    # Email verification policy:
+    # - Students and parents are assumed to be vouched for by the teacher who
+    #   sent the invite link, so we auto-verify them (no token, no email).
+    # - Staff roles (teacher, admin, super_admin) self-register, so we require
+    #   email verification to prove ownership of the address.
+    # The login enforcement (require_email_verification) only blocks unverified
+    # users, so auto-verified students always pass regardless of the flag.
+    staff_roles = {"teacher", "admin", "super_admin"}
+    if user.role.value in staff_roles:
+        verification_token = str(uuid.uuid4())
+        db.add(
+            EmailVerificationToken(
+                user_id=user.id,
+                token=verification_token,
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+            )
+        )
+        await db.flush()
+        try:
+            from app.email.service import send_email_verification
+            send_email_verification(user.email, user.full_name, verification_token)
+        except Exception:
+            pass
+    else:
+        # Student / parent: joined via invite, consider email already verified.
+        user.email_verified_at = datetime.now(timezone.utc)
+        db.add(user)
+        await db.flush()
+
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
 
-    # Send welcome email
+    # Welcome email for everyone (best-effort; ignored if SMTP disabled)
     try:
         from app.email.service import send_welcome
         send_welcome(user.email, user.full_name)
     except Exception:
-        pass  # Don't fail registration if email fails
+        pass
 
     return TokenResponse(
         access_token=access_token,
@@ -106,6 +144,15 @@ async def login_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     user = await authenticate(db, data.email, data.password)
+
+    # Optional email verification enforcement. Off by default so deployments
+    # without SMTP keep working. Flip settings.require_email_verification to
+    # true in the env once you've confirmed email delivery works.
+    if settings.require_email_verification and user.email_verified_at is None:
+        raise BadRequestError(
+            "Email not verified. Check your inbox for the verification link "
+            "or request a new one."
+        )
 
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
@@ -186,6 +233,83 @@ async def logout_endpoint(
         db.add(stored)
         await db.flush()
     return {"message": "Logged out"}
+
+
+@router.post("/verify-email")
+@limiter.limit("10/hour")
+async def verify_email_endpoint(
+    request: Request,
+    response: Response,
+    data: VerifyEmailRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Mark the user's email verified using a one-time token from the email."""
+    stmt = select(EmailVerificationToken).where(
+        EmailVerificationToken.token == data.token,
+        EmailVerificationToken.used == False,  # noqa: E712
+    )
+    token_row = (await db.execute(stmt)).scalar_one_or_none()
+    if not token_row:
+        raise BadRequestError("Invalid or already used verification token")
+    if token_row.expires_at < datetime.now(timezone.utc):
+        token_row.used = True
+        await db.flush()
+        raise BadRequestError("Verification token has expired; request a new one")
+
+    user = await get_user_by_id(db, token_row.user_id)
+    if not user:
+        raise BadRequestError("User not found")
+
+    user.email_verified_at = datetime.now(timezone.utc)
+    token_row.used = True
+    db.add(user)
+    db.add(token_row)
+    await db.flush()
+    return {"message": "Email verified successfully"}
+
+
+@router.post("/resend-verification")
+@limiter.limit("3/hour")
+async def resend_verification_endpoint(
+    request: Request,
+    response: Response,
+    data: ResendVerificationRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Issue a new verification token and email it. Always returns success to
+    prevent email enumeration — the caller cannot tell whether the email
+    actually exists in our system."""
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+
+    if user and user.email_verified_at is None:
+        # Invalidate any outstanding tokens
+        existing = await db.execute(
+            select(EmailVerificationToken).where(
+                EmailVerificationToken.user_id == user.id,
+                EmailVerificationToken.used == False,  # noqa: E712
+            )
+        )
+        for t in existing.scalars().all():
+            t.used = True
+
+        token = str(uuid.uuid4())
+        db.add(
+            EmailVerificationToken(
+                user_id=user.id,
+                token=token,
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+            )
+        )
+        await db.flush()
+
+        try:
+            from app.email.service import send_email_verification
+            send_email_verification(user.email, user.full_name, token)
+        except Exception:
+            pass
+
+    return {"message": "If the email exists and is unverified, a new link has been sent."}
 
 
 @router.get("/me", response_model=UserResponse)

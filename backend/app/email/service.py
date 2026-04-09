@@ -76,6 +76,25 @@ def send_welcome(to_email: str, full_name: str) -> bool:
     return _send_email(to_email, "Welcome to LearnHub!", _base_template(content))
 
 
+def send_email_verification(to_email: str, full_name: str, token: str) -> bool:
+    """Send email verification link after registration."""
+    verify_url = f"{settings.app_url}/verify-email?token={token}"
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Verify your email, {full_name}</h2>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      Please confirm this is your email address by clicking the button below.
+      This link expires in 24 hours.
+    </p>
+    <a href="{verify_url}" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      Verify Email
+    </a>
+    <p style="margin:16px 0 0;color:#94a3b8;font-size:12px;">
+      If you didn't create this account, you can safely ignore this email.
+    </p>
+    """
+    return _send_email(to_email, "Verify your LearnHub email", _base_template(content))
+
+
 def send_password_reset(to_email: str, token: str) -> bool:
     """Send password reset email."""
     reset_url = f"{settings.app_url}/reset-password?token={token}"

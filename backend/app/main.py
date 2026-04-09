@@ -96,6 +96,8 @@ async def _run_migrations():
             "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE",
             "ALTER TABLE courses ADD COLUMN IF NOT EXISTS source_course_id UUID REFERENCES courses(id) ON DELETE SET NULL",
             "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
+            # P0-6: email verification
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP WITH TIME ZONE",
         ]
         for stmt in alter_statements:
             try:

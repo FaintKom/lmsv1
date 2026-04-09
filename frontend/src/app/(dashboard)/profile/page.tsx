@@ -48,6 +48,23 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
+  // Email verification
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const emailVerified = Boolean(user?.email_verified_at);
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendingVerification(true);
+    try {
+      await apiClient.post("/auth/resend-verification", { email: user.email });
+      toast.success("Verification email sent. Check your inbox.");
+    } catch {
+      toast.error("Failed to send verification email");
+    } finally {
+      setResendingVerification(false);
+    }
+  };
+
   useEffect(() => {
     apiClient.get("/auth/me/email-preferences").then(({ data }) => {
       setEmailPrefs(data);
@@ -179,6 +196,33 @@ export default function ProfilePage() {
           </Button>
         )}
       </div>
+
+      {/* Email verification banner */}
+      {!emailVerified && (
+        <div className="mb-6 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-400/30 dark:bg-amber-500/10 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+              <Mail className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                Email not verified
+              </p>
+              <p className="text-xs text-amber-800 dark:text-amber-300/80">
+                We sent a verification link to <span className="font-medium">{user?.email}</span>. Click it to confirm your address.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleResendVerification}
+            disabled={resendingVerification}
+            className="shrink-0"
+          >
+            {resendingVerification ? "Sending..." : "Resend email"}
+          </Button>
+        </div>
+      )}
 
       {/* Avatar & info */}
       <Card className="mb-6">

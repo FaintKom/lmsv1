@@ -50,6 +50,12 @@ class User(Base, IDMixin, TimestampMixin):
         DateTime(timezone=True), nullable=True
     )
     privacy_policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # Null until the user clicks the verification link from their welcome email.
+    # Enforcement is off by default (see settings.require_email_verification) so
+    # deployments without SMTP configured keep working.
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     organization: Mapped["Organization"] = relationship(back_populates="users")
 
@@ -67,6 +73,19 @@ class ParentChild(Base, IDMixin, TimestampMixin):
 
 class PasswordResetToken(Base, IDMixin, TimestampMixin):
     __tablename__ = "password_reset_tokens"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class EmailVerificationToken(Base, IDMixin, TimestampMixin):
+    """One-time token used to verify a user's email address."""
+
+    __tablename__ = "email_verification_tokens"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False

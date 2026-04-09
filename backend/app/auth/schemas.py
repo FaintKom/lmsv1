@@ -42,6 +42,7 @@ class UserResponse(BaseModel):
     is_methodist: bool = False
     created_at: datetime | None = None
     consent_accepted_at: datetime | None = None
+    email_verified_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -61,3 +62,11 @@ class InviteRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr

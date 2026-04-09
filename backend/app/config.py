@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     email_from_name: str = "LearnHub"
     app_url: str = "http://localhost:3000"
 
+    # Email verification enforcement. Off by default — only enable once SMTP
+    # is configured and tested, otherwise unverified users cannot log in.
+    require_email_verification: bool = False
+
     # App
     app_name: str = "LMS"
     debug: bool = False
