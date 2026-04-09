@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,6 +51,7 @@ async def search_organizations(
 @limiter.limit("3/hour")
 async def register_endpoint(
     request: Request,
+    response: Response,
     data: RegisterRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -77,6 +78,7 @@ async def register_endpoint(
 @limiter.limit("5/minute")
 async def login_endpoint(
     request: Request,
+    response: Response,
     data: LoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -154,6 +156,7 @@ async def update_profile_endpoint(
 @limiter.limit("5/hour")
 async def change_password_endpoint(
     request: Request,
+    response: Response,
     data: ChangePasswordRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -235,6 +238,7 @@ class ResetPasswordRequest(BaseModel):
 @limiter.limit("3/hour")
 async def forgot_password_endpoint(
     request: Request,
+    response: Response,
     data: ForgotPasswordRequest,
     db: AsyncSession = Depends(get_db),
 ):
@@ -275,6 +279,7 @@ async def forgot_password_endpoint(
 @limiter.limit("10/hour")
 async def reset_password_endpoint(
     request: Request,
+    response: Response,
     data: ResetPasswordRequest,
     db: AsyncSession = Depends(get_db),
 ):
