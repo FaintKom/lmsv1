@@ -52,6 +52,16 @@ export default function ProfilePage() {
   const [resendingVerification, setResendingVerification] = useState(false);
   const emailVerified = Boolean(user?.email_verified_at);
 
+  // System feature flags — drives the "email disabled" disclaimer banner
+  const [emailEnabled, setEmailEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    apiClient
+      .get("/system/features")
+      .then(({ data }) => setEmailEnabled(Boolean(data?.email_enabled)))
+      .catch(() => setEmailEnabled(null));
+  }, []);
+
   const handleResendVerification = async () => {
     if (!user?.email) return;
     setResendingVerification(true);
@@ -398,6 +408,13 @@ export default function ProfilePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {emailEnabled === false && (
+            <div className="mb-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-300">
+              Email delivery is not configured on this server yet. Your
+              preferences are saved, but no messages will be sent until an
+              administrator enables SMTP.
+            </div>
+          )}
           {[
             { key: "assignments" as const, label: "New assignments", desc: "When a new assignment is posted" },
             { key: "grades" as const, label: "Grades & feedback", desc: "When your work is graded" },

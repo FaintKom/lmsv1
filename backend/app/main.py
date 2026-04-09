@@ -568,6 +568,19 @@ def create_app() -> FastAPI:
             return JSONResponse(status_code=503, content=body)
         return body
 
+    @app.get("/api/v1/system/features")
+    async def system_features():
+        """Public endpoint — returns booleans the frontend uses to decide
+        whether to render feature-specific UI. Intentionally narrow: no
+        error messages, no latency, no version info. Adding new flags
+        here is fine; adding anything non-boolean is not.
+        """
+        return {
+            "email_enabled": settings.email_enabled,
+            "stripe_enabled": bool(settings.stripe_secret_key),
+            "sentry_enabled": bool(settings.sentry_dsn),
+        }
+
     return app
 
 
