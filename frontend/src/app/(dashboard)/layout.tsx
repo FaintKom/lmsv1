@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
 import { GraduationCap, Menu } from "lucide-react";
+
+// Routes under the (dashboard) route group that should render for all roles,
+// including admin/teacher/super_admin. Without this whitelist, admins hitting
+// /profile get bounced to /admin before they can see their profile settings.
+const ROUTES_AVAILABLE_TO_ALL_ROLES = new Set(["/profile"]);
 
 export default function DashboardLayout({
   children,
@@ -13,6 +18,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -29,10 +35,13 @@ export default function DashboardLayout({
     }
     const params = new URLSearchParams(window.location.search);
     const isPreview = params.get("preview") === "true";
-    if (!isLoading && user && !isPreview && (user.role === "super_admin" || user.role === "admin" || user.role === "teacher")) {
+    const isStaffRole =
+      user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
+    const isSharedRoute = ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname);
+    if (!isLoading && user && !isPreview && isStaffRole && !isSharedRoute) {
       router.push("/admin");
     }
-  }, [isLoading, isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router, pathname]);
 
   if (isLoading) {
     return (
@@ -48,7 +57,9 @@ export default function DashboardLayout({
   }
 
   if (!isAuthenticated) return null;
-  if (user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher") return null;
+  const isStaffRole =
+    user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
+  if (isStaffRole && !ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname)) return null;
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#1E1E1E]">
