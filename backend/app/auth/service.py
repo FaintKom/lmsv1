@@ -11,7 +11,16 @@ from app.auth.security import hash_password, verify_password
 from app.common.exceptions import BadRequestError, NotFoundError
 
 
-async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organization]:
+async def register(
+    db: AsyncSession, data: RegisterRequest
+) -> tuple[User, Organization, bool]:
+    """Register a new user.
+
+    Returns (user, organization, org_was_created). The third element is True
+    when this call also created a brand-new Organization row (i.e. a teacher
+    self-registering a new school), and False when the user is joining an
+    existing org via an invite link.
+    """
     # Check if email already exists
     existing = await db.execute(select(User).where(User.email == data.email))
     if existing.scalar_one_or_none():
@@ -28,6 +37,7 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
         raise BadRequestError("Student accounts can only be created via invitation link")
 
     # Students join existing org, teachers create a new one
+    org_was_created = False
     if data.org_id and data.role == "student":
         # Join existing organization
         result = await db.execute(
@@ -55,6 +65,7 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
         org = Organization(name=data.org_name, slug=slug)
         db.add(org)
         await db.flush()
+        org_was_created = True
 
     if not data.consent_accepted:
         raise BadRequestError("You must accept the Privacy Policy and Terms of Service")
@@ -71,7 +82,7 @@ async def register(db: AsyncSession, data: RegisterRequest) -> tuple[User, Organ
     db.add(user)
     await db.flush()
 
-    return user, org
+    return user, org, org_was_created
 
 
 async def authenticate(db: AsyncSession, email: str, password: str) -> User:

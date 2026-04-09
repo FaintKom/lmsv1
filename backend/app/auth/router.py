@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -87,7 +88,24 @@ async def register_endpoint(
     data: RegisterRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    user, org = await register(db, data)
+    user, org, org_was_created = await register(db, data)
+
+    # Seed a demo course into the brand-new org so the admin lands on a
+    # populated dashboard instead of an empty one. Best effort: failures
+    # do not break registration — if no template exists or the clone
+    # fails, we just log a warning and continue.
+    if org_was_created:
+        try:
+            from app.courses.service import seed_demo_course_for_org
+            seeded = await seed_demo_course_for_org(db, org.id, user.id)
+            if seeded:
+                logger = logging.getLogger(__name__)
+                logger.info(
+                    f"Seeded demo course '{seeded.title}' into new org {org.id}"
+                )
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Demo course seeding failed for org {org.id}: {e}")
 
     # Email verification policy:
     # - Students and parents are assumed to be vouched for by the teacher who

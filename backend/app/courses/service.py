@@ -532,6 +532,75 @@ async def list_template_courses(
     return list(result.scalars().unique().all())
 
 
+async def seed_demo_course_for_org(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    teacher_id: uuid.UUID,
+) -> Course | None:
+    """Clone the first available template course into a freshly created org.
+
+    Unlike `copy_course`, this bypasses the org-ownership check because the
+    caller is the auth/register flow — the new teacher has not yet been
+    granted super_admin, but we still want them to land on a populated
+    dashboard instead of an empty one.
+
+    Looks for any published course with `is_template=True` across all orgs,
+    picks the oldest one (stable choice) and deep-copies it. Returns None
+    silently if no template exists — registration must not fail because of
+    a missing seed course.
+    """
+    # Find a template course anywhere in the system
+    result = await db.execute(
+        select(Course)
+        .where(Course.is_template == True)  # noqa: E712
+        .options(selectinload(Course.modules).selectinload(Module.lessons))
+        .order_by(Course.created_at.asc())
+        .limit(1)
+    )
+    source = result.scalar_one_or_none()
+    if source is None:
+        return None
+
+    slug = await _generate_unique_slug(db, org_id, source.title)
+
+    from app.courses.models import CourseStatus
+
+    new_course = Course(
+        org_id=org_id,
+        teacher_id=teacher_id,
+        title=source.title,
+        slug=slug,
+        description=source.description,
+        thumbnail_url=source.thumbnail_url,
+        category=source.category,
+        is_template=False,
+        source_course_id=source.id,
+        template_version=source.template_version,
+        # Auto-publish so the new teacher can enroll and see the seed
+        # content immediately, instead of seeing an empty "draft" course.
+        status=CourseStatus.published,
+    )
+    db.add(new_course)
+    await db.flush()
+
+    # Deep copy modules and lessons using the existing helpers
+    for src_module in source.modules:
+        new_module = Module(
+            course_id=new_course.id,
+            title=src_module.title,
+            sort_order=src_module.sort_order,
+        )
+        db.add(new_module)
+        await db.flush()
+        for src_lesson in src_module.lessons:
+            await _copy_lesson_entity(
+                db, src_lesson, new_module.id, src_lesson.sort_order
+            )
+
+    await db.flush()
+    return new_course
+
+
 async def _generate_unique_slug(db: AsyncSession, org_id: uuid.UUID, title: str) -> str:
     """Generate a unique slug within the org."""
     slug = slugify(title)
