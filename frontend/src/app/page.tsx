@@ -15,6 +15,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { WaitlistForm } from "@/components/waitlist-form";
 
 export default function Home() {
   return (
@@ -237,12 +238,28 @@ export default function Home() {
             <p className="mb-8 text-slate-500">
               Create your school account and start building courses today.
             </p>
-            <Link href="/register">
-              <Button size="lg">
-                Create Free Account
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/register">
+                <Button size="lg">
+                  Create Free Account
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/demo">
+                <Button variant="outline" size="lg">
+                  Try the demo
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-12 border-t border-slate-200 pt-10">
+              <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                Or join the waitlist for early access
+              </h3>
+              <p className="mb-6 text-sm text-slate-500">
+                Get notified when new features launch and early-bird pricing opens.
+              </p>
+              <WaitlistForm source="landing-cta" />
+            </div>
           </div>
         </section>
       </main>
