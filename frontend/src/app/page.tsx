@@ -29,6 +29,11 @@ export default function Home() {
             <span className="text-xl font-bold text-slate-900">LearnHub</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/pricing">
+              <Button variant="ghost" size="sm">
+                Pricing
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign In
