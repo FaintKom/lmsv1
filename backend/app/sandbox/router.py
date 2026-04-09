@@ -76,8 +76,9 @@ async def list_challenges_endpoint(
 ):
     from sqlalchemy import select
     from sqlalchemy.orm import selectinload
-    from app.sandbox.models import CodeChallenge
+
     from app.courses.models import Course, Lesson, Module
+    from app.sandbox.models import CodeChallenge
 
     result = await db.execute(
         select(CodeChallenge)

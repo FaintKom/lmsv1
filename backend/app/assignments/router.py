@@ -3,8 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_role
-from app.auth.models import User, UserRole
+from app.assignments import service
 from app.assignments.schemas import (
     AssignmentCreate,
     AssignmentListItem,
@@ -13,7 +12,8 @@ from app.assignments.schemas import (
     GradeRequest,
     SubmissionResponse,
 )
-from app.assignments import service
+from app.auth.dependencies import get_current_user, require_role
+from app.auth.models import User, UserRole
 from app.db.session import get_db
 
 router = APIRouter()

@@ -6,8 +6,6 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 
-from app.auth.dependencies import get_current_user
-from app.auth.models import User
 from app.ai.schemas import AiChatRequest, AiChatResponse
 from app.ai.service import (
     build_messages,
@@ -17,6 +15,8 @@ from app.ai.service import (
     check_rate_limit,
     get_remaining_messages,
 )
+from app.auth.dependencies import get_current_user
+from app.auth.models import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

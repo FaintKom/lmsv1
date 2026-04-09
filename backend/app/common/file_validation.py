@@ -19,7 +19,6 @@ import re
 import uuid
 from dataclasses import dataclass
 
-
 # Hard ceiling — overrides any per-exercise / per-lesson config.
 # An admin-set "allow 500 MB uploads" is not a safe configuration.
 HARD_MAX_SIZE_MB = 50

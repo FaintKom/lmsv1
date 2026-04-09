@@ -4,13 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.dependencies import get_current_user, require_role
+from app.auth.dependencies import require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
 from app.parent.service import (
-    get_children,
-    get_child_progress,
     get_child_grades,
+    get_child_progress,
+    get_children,
     link_child,
 )
 

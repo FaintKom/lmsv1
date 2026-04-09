@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from sqlalchemy import select, func, cast, Date
+from sqlalchemy import Date, cast, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.schemas import DashboardStats, DetailedAnalytics

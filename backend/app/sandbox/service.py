@@ -152,7 +152,7 @@ async def submit_code(
     # Award XP for passing code challenge
     if submission.status == SubmissionStatus.passed:
         try:
-            from app.gamification.service import award_xp, XP_CODE_CHALLENGE_PASSED
+            from app.gamification.service import XP_CODE_CHALLENGE_PASSED, award_xp
             await award_xp(db, user.id, XP_CODE_CHALLENGE_PASSED, "code_challenge_passed")
         except Exception:
             pass

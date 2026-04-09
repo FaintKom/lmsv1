@@ -1,5 +1,4 @@
 """Tests for assignments: CRUD, submission, grading, late submissions."""
-import uuid
 from datetime import datetime, timezone
 
 import pytest
@@ -11,7 +10,6 @@ from tests.conftest import (
     make_course,
     make_enrollment,
 )
-
 
 # ─── Assignment CRUD ─────────────────────────────────────────────────────
 
@@ -113,7 +111,7 @@ async def test_list_assignment_submissions(client: AsyncClient, teacher, org, db
 
 @pytest.mark.asyncio
 async def test_grade_submission(client: AsyncClient, teacher, student, org, db):
-    from app.assignments.models import AssignmentSubmission, AssignmentStatus
+    from app.assignments.models import AssignmentStatus, AssignmentSubmission
     course = await make_course(db, org, teacher)
     assignment = await make_assignment(db, org.id, course.id, teacher.id)
     sub = AssignmentSubmission(
@@ -135,7 +133,7 @@ async def test_grade_submission(client: AsyncClient, teacher, student, org, db):
 
 @pytest.mark.asyncio
 async def test_student_cannot_grade(client: AsyncClient, student, teacher, org, db):
-    from app.assignments.models import AssignmentSubmission, AssignmentStatus
+    from app.assignments.models import AssignmentStatus, AssignmentSubmission
     course = await make_course(db, org, teacher)
     assignment = await make_assignment(db, org.id, course.id, teacher.id)
     sub = AssignmentSubmission(

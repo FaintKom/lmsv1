@@ -38,7 +38,6 @@ from app.exercises.service import (
     update_exercise,
     update_question_in_exercise,
     upload_file_submission,
-    _count_attempts,
 )
 
 router = APIRouter()
@@ -85,8 +84,9 @@ async def download_file_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import select
-    from app.exercises.models import ExerciseSubmission
+
     from app.common.exceptions import NotFoundError
+    from app.exercises.models import ExerciseSubmission
 
     result = await db.execute(
         select(ExerciseSubmission).where(ExerciseSubmission.id == submission_id)

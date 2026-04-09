@@ -5,17 +5,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.assessments.schemas import (
     QuestionCreate,
-    QuestionUpdate,
     QuestionResponse,
+    QuestionUpdate,
     QuizCreate,
-    QuizUpdate,
     QuizResponse,
     QuizSubmitRequest,
+    QuizUpdate,
     SubmissionResponse,
 )
 from app.assessments.service import (
-    add_question, create_quiz, update_quiz, get_quiz,
-    get_quiz_by_lesson, submit_quiz, update_question, delete_question,
+    add_question,
+    create_quiz,
+    delete_question,
+    get_quiz,
+    get_quiz_by_lesson,
+    submit_quiz,
+    update_question,
+    update_quiz,
 )
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
@@ -119,6 +125,7 @@ async def delete_quiz_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import select
+
     from app.assessments.models import Quiz
     result = await db.execute(select(Quiz).where(Quiz.id == quiz_id))
     quiz = result.scalar_one_or_none()

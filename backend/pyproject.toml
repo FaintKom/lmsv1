@@ -37,6 +37,15 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
+# Baseline ignores as of CI introduction (2026-04-10). These are existing-code
+# style issues, not bugs, and fixing them is a separate cleanup pass. New rules
+# (other E/F/I/N/W) still apply to new code and gate CI.
+#   E501  102 instances of long lines — cosmetic, not worth churning
+#   E712  7 instances of `== True`/`== False` — required for SQLAlchemy filter
+#         expressions where `is True` generates different SQL
+#   F841  4 instances of unused locals — mostly in test fixtures, minor
+#   E741  3 instances of `l` loop var — cosmetic, not bugs
+extend-ignore = ["E501", "E712", "F841", "E741"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

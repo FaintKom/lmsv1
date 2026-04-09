@@ -155,9 +155,10 @@ async def teacher_stats_endpoint(
 ):
     """Teacher-specific dashboard stats."""
     from sqlalchemy import func
+
+    from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
     from app.courses.models import Course
     from app.progress.models import Enrollment
-    from app.assignments.models import Assignment, AssignmentSubmission, AssignmentStatus
 
     # My courses count
     course_q = select(func.count(Course.id)).where(Course.org_id == user.org_id)
@@ -412,6 +413,7 @@ async def admin_enroll_endpoint(
 ):
     """Admin enrolls a student into a course."""
     from datetime import datetime, timezone
+
     from app.courses.models import Course
     from app.progress.models import Enrollment
 
@@ -500,8 +502,8 @@ async def admin_unenroll_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     """Admin removes a student enrollment."""
-    from app.progress.models import Enrollment
     from app.courses.models import Course
+    from app.progress.models import Enrollment
 
     query = (
         select(Enrollment)
@@ -562,6 +564,7 @@ async def list_groups_endpoint(
 ):
     """List all student groups in the org."""
     from sqlalchemy.orm import selectinload
+
     from app.admin.models import StudentGroup
 
     query = select(StudentGroup).options(selectinload(StudentGroup.members))
@@ -747,6 +750,7 @@ async def enroll_group_endpoint(
 ):
     """Enroll all members of a group into a course. data: {course_id: uuid}"""
     from datetime import datetime, timezone
+
     from app.admin.models import StudentGroup, StudentGroupMember
     from app.courses.models import Course
     from app.progress.models import Enrollment
@@ -856,14 +860,11 @@ async def gradebook_endpoint(
     Gradebook matrix: rows = enrolled students, columns = assessments.
     Returns { students: [...], columns: [...], rows: { student_id: { col_id: score } } }
     """
-    from sqlalchemy import func, case
-    from app.courses.models import Course
-    from app.progress.models import Enrollment
-    from app.assessments.models import Quiz, QuizSubmission
-    from app.sandbox.models import CodeChallenge, CodeSubmission
-    from app.submissions.models import InteractiveSubmission
+    from sqlalchemy import func
+
     from app.assignments.models import Assignment, AssignmentSubmission
-    from app.courses.models import Lesson, Module
+    from app.courses.models import Course, Lesson, Module
+    from app.progress.models import Enrollment
 
     # Verify course access
     course_q = select(Course).where(Course.id == course_id)
@@ -900,7 +901,8 @@ async def gradebook_endpoint(
 
     # --- Unified Exercises (new system) ---
     if lesson_ids:
-        from app.exercises.models import Exercise as Ex, ExerciseSubmission as ExSub
+        from app.exercises.models import Exercise as Ex
+        from app.exercises.models import ExerciseSubmission as ExSub
         result = await db.execute(
             select(Ex).where(Ex.lesson_id.in_(lesson_ids)).order_by(Ex.sort_order)
         )
@@ -1008,7 +1010,8 @@ async def review_queue_count(
 ):
     """Count of ungraded assignment submissions for sidebar badge."""
     from sqlalchemy import func
-    from app.assignments.models import Assignment, AssignmentSubmission, AssignmentStatus
+
+    from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 
     query = (
         select(func.count())
@@ -1033,7 +1036,7 @@ async def review_queue_list(
     db: AsyncSession = Depends(get_db),
 ):
     """List all ungraded assignment submissions for the teacher/admin."""
-    from app.assignments.models import Assignment, AssignmentSubmission, AssignmentStatus
+    from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 
     query = (
         select(AssignmentSubmission, Assignment.title.label("assignment_title"), Assignment.max_score, User.full_name.label("student_name"), User.email.label("student_email"))

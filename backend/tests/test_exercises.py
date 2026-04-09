@@ -1,5 +1,4 @@
 """Tests for the unified exercise system — CRUD, questions, test cases, submissions."""
-import uuid
 
 import pytest
 from httpx import AsyncClient
@@ -11,7 +10,6 @@ from tests.conftest import (
     make_lesson,
     make_module,
 )
-
 
 # ─── Exercise CRUD ───────────────────────────────────────────────────────
 

@@ -2,8 +2,7 @@
 import pytest
 from httpx import AsyncClient
 
-from tests.conftest import auth_header, make_course, make_enrollment
-
+from tests.conftest import auth_header
 
 # ─── Badges ──────────────────────────────────────────────────────────────
 

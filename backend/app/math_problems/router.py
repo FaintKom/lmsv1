@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.math_problems.service import (
-    generate_arithmetic,
-    generate_algebra,
-    generate_geometry,
     check_answer,
+    generate_algebra,
+    generate_arithmetic,
+    generate_geometry,
 )
 
 router = APIRouter()

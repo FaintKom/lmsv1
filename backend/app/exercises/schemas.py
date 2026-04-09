@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from app.exercises.models import ExerciseType
 
-
 # ─── Config schemas per exercise type ───────────────────────────────
 
 class QuizConfig(BaseModel):

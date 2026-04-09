@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -115,7 +115,7 @@ async def complete_lesson(
 
     # Award XP for lesson completion
     try:
-        from app.gamification.service import award_xp, XP_LESSON_COMPLETE
+        from app.gamification.service import XP_LESSON_COMPLETE, award_xp
         await award_xp(db, user.id, XP_LESSON_COMPLETE, "lesson_complete")
     except Exception:
         pass

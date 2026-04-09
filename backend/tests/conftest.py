@@ -7,37 +7,36 @@ that is rolled back after the test, so tests don't pollute each other.
 import uuid
 from datetime import datetime, timezone
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
+import app.admin.models  # noqa
+import app.assessments.models  # noqa
+import app.assignments.models  # noqa
+
+# Import all models so metadata knows about them
+import app.auth.models  # noqa
+import app.billing.models  # noqa
+import app.calendar.models  # noqa
+import app.certificates.models  # noqa
+import app.courses.models  # noqa
+import app.discussions.models  # noqa
+import app.exercises.models  # noqa
+import app.gamification.models  # noqa
+import app.learning_paths.models  # noqa
+import app.meetings.models  # noqa
+import app.notifications.models  # noqa
+import app.progress.models  # noqa
+import app.sandbox.models  # noqa
+import app.skills.models  # noqa
+import app.submissions.models  # noqa
 from app.auth.models import Organization, User, UserRole
 from app.auth.security import create_access_token, hash_password
 from app.config import settings
 from app.db.base import Base
 from app.main import app as fastapi_app
-
-# Import all models so metadata knows about them
-import app.auth.models  # noqa
-import app.courses.models  # noqa
-import app.assessments.models  # noqa
-import app.progress.models  # noqa
-import app.billing.models  # noqa
-import app.sandbox.models  # noqa
-import app.submissions.models  # noqa
-import app.discussions.models  # noqa
-import app.notifications.models  # noqa
-import app.gamification.models  # noqa
-import app.certificates.models  # noqa
-import app.admin.models  # noqa
-import app.assignments.models  # noqa
-import app.learning_paths.models  # noqa
-import app.calendar.models  # noqa
-import app.meetings.models  # noqa
-import app.skills.models  # noqa
-import app.exercises.models  # noqa
 
 TEST_DB_URL = settings.get_database_url()
 
@@ -233,7 +232,7 @@ async def make_module(db: AsyncSession, course_id: uuid.UUID, **kwargs):
 
 
 async def make_lesson(db: AsyncSession, module_id: uuid.UUID, **kwargs):
-    from app.courses.models import Lesson, ContentType
+    from app.courses.models import ContentType, Lesson
     l = Lesson(
         module_id=module_id,
         title=kwargs.get("title", f"Lesson {uuid.uuid4().hex[:6]}"),

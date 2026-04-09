@@ -4,8 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.db.session import get_db
-from app.gamification.schemas import BadgeResponse, LeaderboardEntry, StreakResponse, LeagueInfo
-from app.gamification.service import get_leaderboard, get_leagues_info, get_user_badges, get_user_streak
+from app.gamification.schemas import BadgeResponse, LeaderboardEntry, StreakResponse
+from app.gamification.service import (
+    get_leaderboard,
+    get_leagues_info,
+    get_user_badges,
+    get_user_streak,
+)
 
 router = APIRouter()
 

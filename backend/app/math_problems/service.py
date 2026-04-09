@@ -1,5 +1,5 @@
-import random
 import math
+import random
 
 
 def generate_arithmetic(difficulty: str) -> dict:
@@ -87,7 +87,7 @@ def generate_algebra(difficulty: str) -> dict:
         a_coeff = 1
         b_coeff = -(r1 + r2)
         c_coeff = r1 * r2
-        terms = [f"x^2"]
+        terms = ["x^2"]
         if b_coeff != 0:
             terms.append(f"{'+' if b_coeff > 0 else ''}{b_coeff}x")
         if c_coeff != 0:

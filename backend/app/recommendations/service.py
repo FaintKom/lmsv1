@@ -8,16 +8,14 @@ Types:
 - "almost_done": Courses near completion → finish up
 """
 
-import uuid
-from datetime import datetime
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.assessments.models import QuizSubmission
 from app.auth.models import User
 from app.courses.models import Course
 from app.progress.models import Enrollment
-from app.assessments.models import QuizSubmission
 
 
 async def get_recommendations(db: AsyncSession, user: User) -> list[dict]:

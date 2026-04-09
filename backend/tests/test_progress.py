@@ -10,7 +10,6 @@ from tests.conftest import (
     make_module,
 )
 
-
 # ─── Enrollment ──────────────────────────────────────────────────────────
 
 

@@ -6,7 +6,6 @@ from httpx import AsyncClient
 
 from tests.conftest import auth_header
 
-
 # ─── Registration ────────────────────────────────────────────────────────
 
 

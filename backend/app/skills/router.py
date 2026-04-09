@@ -6,17 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
-from app.skills.schemas import SkillCreate, SkillUpdate, SkillResponse, LessonSkillLink
+from app.skills.schemas import LessonSkillLink, SkillCreate, SkillResponse, SkillUpdate
 from app.skills.service import (
     create_skill,
-    update_skill,
-    list_skills,
     delete_skill,
-    link_skill_to_lesson,
-    unlink_skill_from_lesson,
     get_lesson_skills,
-    get_user_skills,
     get_radar_data,
+    get_user_skills,
+    link_skill_to_lesson,
+    list_skills,
+    unlink_skill_from_lesson,
+    update_skill,
 )
 
 router = APIRouter()

@@ -1,18 +1,18 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.dependencies import require_role, get_current_user
+from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.common.exceptions import NotFoundError
 from app.courses.models import Course
 from app.db.session import get_db
-from app.learning_paths.models import LearningPath, LearningPathStep, LearningPathEnrollment
+from app.learning_paths.models import LearningPath, LearningPathEnrollment, LearningPathStep
 from app.progress.models import Enrollment
 
 router = APIRouter()

@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.assignments.models import Assignment
 from app.auth.models import User, UserRole
 from app.calendar.models import CalendarEvent, EventType
-from app.assignments.models import Assignment
 
 
 async def create_event(
@@ -114,7 +114,7 @@ async def list_events(
         events.append({
             "id": f"assignment-{a.id}",
             "title": f"📝 {a.title}",
-            "description": f"Assignment deadline",
+            "description": "Assignment deadline",
             "event_type": "deadline",
             "start_time": a.due_date.isoformat(),
             "end_time": None,

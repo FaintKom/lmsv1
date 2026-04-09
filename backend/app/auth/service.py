@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime, timezone
 
+from slugify import slugify
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from slugify import slugify
 
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import RegisterRequest

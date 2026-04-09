@@ -1,11 +1,9 @@
 """Tests for courses, modules, lessons — CRUD and permissions."""
-import uuid
 
 import pytest
 from httpx import AsyncClient
 
 from tests.conftest import auth_header, make_course, make_lesson, make_module
-
 
 # ─── Course CRUD ─────────────────────────────────────────────────────────
 

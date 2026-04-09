@@ -6,15 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
-from app.db.session import get_db
-from app.calendar.schemas import EventCreate, EventUpdate, EventResponse
+from app.calendar.schemas import EventCreate, EventResponse, EventUpdate
 from app.calendar.service import (
     create_event,
-    update_event,
     delete_event,
-    list_events,
     get_upcoming_events,
+    list_events,
+    update_event,
 )
+from app.db.session import get_db
 
 router = APIRouter()
 

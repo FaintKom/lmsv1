@@ -6,13 +6,9 @@ from httpx import AsyncClient
 
 from tests.conftest import (
     auth_header,
-    make_assignment,
     make_course,
     make_enrollment,
-    make_lesson,
-    make_module,
 )
-
 
 # ─── Dashboard ───────────────────────────────────────────────────────────
 
@@ -224,8 +220,8 @@ async def test_update_user(client: AsyncClient, admin, student):
 
 @pytest.mark.asyncio
 async def test_delete_user(client: AsyncClient, admin, db, org):
-    from tests.conftest import _make_user
     from app.auth.models import UserRole
+    from tests.conftest import _make_user
     u = _make_user(db, org, UserRole.student, suffix="-del")
     await db.flush()
     resp = await client.delete(

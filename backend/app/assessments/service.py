@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -133,7 +133,7 @@ async def submit_quiz(
     # Award XP for passing quiz
     if passed:
         try:
-            from app.gamification.service import award_xp, XP_QUIZ_PASSED
+            from app.gamification.service import XP_QUIZ_PASSED, award_xp
             await award_xp(db, user.id, XP_QUIZ_PASSED, "quiz_passed")
         except Exception:
             pass

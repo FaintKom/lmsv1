@@ -1,13 +1,13 @@
 import uuid
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.models import User, UserRole, ParentChild
-from app.progress.models import Enrollment
-from app.courses.models import Course
 from app.assignments.models import Assignment, AssignmentSubmission
+from app.auth.models import ParentChild, User, UserRole
+from app.courses.models import Course
 from app.gamification.models import UserStreak
+from app.progress.models import Enrollment
 
 
 async def get_children(db: AsyncSession, parent_id: uuid.UUID, org_id: uuid.UUID) -> list[dict]:

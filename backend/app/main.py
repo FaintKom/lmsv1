@@ -15,8 +15,8 @@ if settings.sentry_dsn:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.fastapi import FastApiIntegration
-        from sentry_sdk.integrations.starlette import StarletteIntegration
         from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+        from sentry_sdk.integrations.starlette import StarletteIntegration
 
         sentry_sdk.init(
             dsn=settings.sentry_dsn,
@@ -31,28 +31,28 @@ if settings.sentry_dsn:
         )
     except Exception as e:
         logging.getLogger(__name__).warning(f"Sentry init failed: {e}")
-from app.auth.router import router as auth_router
-from app.courses.router import router as courses_router
-from app.assessments.router import router as assessments_router
-from app.progress.router import router as progress_router
-from app.sandbox.router import router as sandbox_router
-from app.billing.router import router as billing_router
 from app.admin.router import router as admin_router
-from app.submissions.router import router as submissions_router
-from app.discussions.router import router as discussions_router
-from app.notifications.router import router as notifications_router
-from app.gamification.router import router as gamification_router
-from app.certificates.router import router as certificates_router
-from app.math_problems.router import router as math_problems_router
-from app.assignments.router import router as assignments_router
-from app.learning_paths.router import router as learning_paths_router
-from app.calendar.router import router as calendar_router
-from app.meetings.router import router as meetings_router
-from app.parent.router import router as parent_router
-from app.skills.router import router as skills_router
-from app.recommendations.router import router as recommendations_router
-from app.exercises.router import router as exercises_router
 from app.ai.router import router as ai_router
+from app.assessments.router import router as assessments_router
+from app.assignments.router import router as assignments_router
+from app.auth.router import router as auth_router
+from app.billing.router import router as billing_router
+from app.calendar.router import router as calendar_router
+from app.certificates.router import router as certificates_router
+from app.courses.router import router as courses_router
+from app.discussions.router import router as discussions_router
+from app.exercises.router import router as exercises_router
+from app.gamification.router import router as gamification_router
+from app.learning_paths.router import router as learning_paths_router
+from app.math_problems.router import router as math_problems_router
+from app.meetings.router import router as meetings_router
+from app.notifications.router import router as notifications_router
+from app.parent.router import router as parent_router
+from app.progress.router import router as progress_router
+from app.recommendations.router import router as recommendations_router
+from app.sandbox.router import router as sandbox_router
+from app.skills.router import router as skills_router
+from app.submissions.router import router as submissions_router
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +73,10 @@ async def _run_setup():
     production so the container exits and the orchestrator restarts it.
     """
     try:
+        from sqlalchemy import text as sa_text
+
         from app.db.base import Base
         from app.db.session import engine
-        from sqlalchemy import text as sa_text
 
         t0 = time.monotonic()
 
@@ -175,10 +176,11 @@ async def _run_setup():
                 )
         else:
             try:
-                from app.db.session import async_session_factory
-                from app.auth.models import User, UserRole, Organization
-                from app.auth.security import hash_password
                 from sqlalchemy import select
+
+                from app.auth.models import Organization, User, UserRole
+                from app.auth.security import hash_password
+                from app.db.session import async_session_factory
 
                 async with async_session_factory() as session:
                     result = await session.execute(
@@ -215,8 +217,8 @@ async def _run_setup():
 
         # Seed default billing plans
         try:
-            from app.db.session import async_session_factory
             from app.billing.service import seed_default_plans
+            from app.db.session import async_session_factory
             async with async_session_factory() as session:
                 await seed_default_plans(session)
                 await session.commit()
@@ -330,8 +332,9 @@ def create_app() -> FastAPI:
     )
 
     # Rate limiter — attached to app state so slowapi can find it in decorators.
-    from slowapi.errors import RateLimitExceeded
     from slowapi import _rate_limit_exceeded_handler
+    from slowapi.errors import RateLimitExceeded
+
     from app.common.rate_limit import limiter
 
     app.state.limiter = limiter

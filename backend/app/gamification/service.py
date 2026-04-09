@@ -8,7 +8,6 @@ from app.auth.models import User
 from app.gamification.models import Badge, UserBadge, UserStreak
 from app.progress.models import LessonProgress, LessonStatus
 
-
 # XP rewards
 XP_LESSON_COMPLETE = 10
 XP_QUIZ_PASSED = 25

@@ -1,5 +1,4 @@
 """Tests for learning paths, parent portal, billing, sandbox, recommendations, math problems."""
-import uuid
 
 import pytest
 from httpx import AsyncClient
@@ -7,11 +6,9 @@ from httpx import AsyncClient
 from tests.conftest import (
     auth_header,
     make_course,
-    make_enrollment,
     make_lesson,
     make_module,
 )
-
 
 # ─── Learning Paths ─────────────────────────────────────────────────────
 

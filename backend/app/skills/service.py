@@ -1,12 +1,12 @@
-import uuid
 import math
+import uuid
 
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
-from app.courses.models import Lesson, Module, Course
-from app.skills.models import Skill, LessonSkill, UserSkill
+from app.courses.models import Course, Lesson, Module
+from app.skills.models import LessonSkill, Skill, UserSkill
 
 
 def xp_to_level(xp: int) -> int:

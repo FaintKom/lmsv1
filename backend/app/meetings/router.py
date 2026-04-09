@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
-from app.meetings.schemas import MeetingCreate, MeetingUpdate, MeetingResponse
+from app.meetings.schemas import MeetingCreate, MeetingResponse, MeetingUpdate
 from app.meetings.service import (
     create_meeting,
-    update_meeting,
     end_meeting,
-    list_meetings,
     get_meeting,
+    list_meetings,
+    update_meeting,
 )
 
 router = APIRouter()

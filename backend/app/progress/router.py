@@ -7,7 +7,12 @@ from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.db.session import get_db
 from app.progress.schemas import EnrollmentResponse, EnrollRequest, LessonProgressResponse
-from app.progress.service import complete_lesson, enroll, get_course_lesson_progress, get_my_enrollments
+from app.progress.service import (
+    complete_lesson,
+    enroll,
+    get_course_lesson_progress,
+    get_my_enrollments,
+)
 
 router = APIRouter()
 

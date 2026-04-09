@@ -5,20 +5,19 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.models import User, ParentChild
-from app.progress.models import Enrollment
-from app.courses.models import Course
 from app.assessments.models import QuizSubmission
 from app.assignments.models import AssignmentSubmission
-from app.sandbox.models import CodeSubmission
-from app.submissions.models import FileSubmission, InteractiveSubmission
-from app.discussions.models import Comment
+from app.auth.models import User
 from app.certificates.models import Certificate
+from app.courses.models import Course
+from app.discussions.models import Comment
 from app.gamification.models import UserBadge, UserStreak
-from app.skills.models import UserSkill, Skill
-from app.notifications.models import Notification
 from app.learning_paths.models import LearningPathEnrollment
-from app.calendar.models import CalendarEvent
+from app.notifications.models import Notification
+from app.progress.models import Enrollment
+from app.sandbox.models import CodeSubmission
+from app.skills.models import Skill, UserSkill
+from app.submissions.models import FileSubmission, InteractiveSubmission
 
 
 async def export_user_data(db: AsyncSession, user_id: uuid.UUID) -> dict:

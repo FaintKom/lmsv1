@@ -220,7 +220,7 @@ async def get_invoices(db: AsyncSession, org_id: uuid.UUID) -> list[Invoice]:
 
 async def seed_default_plans(db: AsyncSession) -> None:
     """Create default plans if none exist. Deduplicates on name (keeps earliest)."""
-    from sqlalchemy import func, delete as sa_delete, text
+    from sqlalchemy import text
 
     # ── Step 1: remove duplicates — keep only the earliest plan per name ──
     try:

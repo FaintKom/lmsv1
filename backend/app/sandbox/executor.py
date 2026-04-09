@@ -3,8 +3,6 @@ import logging
 
 import httpx
 
-from app.config import settings
-
 logger = logging.getLogger(__name__)
 
 # Judge0 CE (free, no auth required)

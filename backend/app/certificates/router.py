@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
-from app.db.session import get_db
 from app.certificates.service import (
     generate_certificate_html,
     get_certificate_for_download,
     get_my_certificates,
     verify_certificate,
 )
+from app.db.session import get_db
 
 router = APIRouter()
 

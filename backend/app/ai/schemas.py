@@ -1,8 +1,9 @@
 """AI Tutor request/response schemas."""
 
-from pydantic import BaseModel, Field
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class TutorContext(str, Enum):

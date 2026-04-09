@@ -4,22 +4,16 @@ RBAC Permission Matrix Tests.
 Tests all major endpoints against all 5 roles to ensure proper access control.
 Each test verifies that the correct roles are allowed/denied.
 """
-import uuid
 
 import pytest
 from httpx import AsyncClient
 
-from app.auth.models import User
 from tests.conftest import (
     auth_header,
-    make_assignment,
     make_course,
-    make_enrollment,
-    make_exercise,
     make_lesson,
     make_module,
 )
-
 
 # ─── Helper ──────────────────────────────────────────────────────────────
 

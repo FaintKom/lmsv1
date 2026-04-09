@@ -19,7 +19,6 @@ from app.courses.models import Course
 from app.notifications.service import create_notification
 from app.progress.models import Enrollment
 
-
 # .zip is allowed for assignment submissions (the magic-byte spec covers PK\x03\x04).
 # .txt and .rar are not in the shared spec — omit them so uploads are consistent.
 ALLOWED_ASSIGNMENT_EXTENSIONS = SUBMISSION_EXTENSIONS | {".zip"}

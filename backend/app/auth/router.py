@@ -26,7 +26,6 @@ from app.auth.schemas import (
     UserUpdate,
     VerifyEmailRequest,
 )
-from app.config import settings
 from app.auth.security import (
     create_access_token,
     create_refresh_token,
@@ -37,6 +36,7 @@ from app.auth.security import (
 from app.auth.service import authenticate, get_user_by_id, register
 from app.common.exceptions import BadRequestError
 from app.common.rate_limit import limiter
+from app.config import settings
 from app.db.session import get_db
 
 router = APIRouter()

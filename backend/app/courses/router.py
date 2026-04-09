@@ -175,9 +175,10 @@ async def copy_course_with_group_endpoint(
 ):
     """Copy a template course and enroll group members."""
     from datetime import datetime, timezone
+
     from app.admin.models import StudentGroup, StudentGroupMember
-    from app.progress.models import Enrollment
     from app.courses.models import Course as CourseModel
+    from app.progress.models import Enrollment
 
     # Verify source is a published template
     source = (await db.execute(
@@ -262,6 +263,7 @@ async def get_course_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import func
+
     from app.progress.models import Enrollment
 
     course = await get_course(db, course_id, user)

@@ -8,7 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import require_role
 from app.auth.models import User, UserRole
-from app.billing.schemas import CheckoutResponse, InvoiceResponse, PlanResponse, SubscriptionResponse
+from app.billing.schemas import (
+    CheckoutResponse,
+    InvoiceResponse,
+    PlanResponse,
+    SubscriptionResponse,
+)
 from app.billing.service import (
     create_checkout_session,
     create_portal_session,

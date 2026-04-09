@@ -1,14 +1,21 @@
 import uuid
 
-from sqlalchemy import select, func
+from slugify import slugify
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from slugify import slugify
 
 from app.auth.models import User, UserRole
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.courses.models import Course, CourseStatus, Lesson, Module
-from app.courses.schemas import CourseCreate, CourseUpdate, LessonCreate, LessonUpdate, ModuleCreate, ModuleUpdate
+from app.courses.schemas import (
+    CourseCreate,
+    CourseUpdate,
+    LessonCreate,
+    LessonUpdate,
+    ModuleCreate,
+    ModuleUpdate,
+)
 from app.progress.models import Enrollment
 
 
@@ -633,7 +640,7 @@ async def _copy_lesson_entity(
     await db.flush()
 
     # Copy quiz if exists
-    from app.assessments.models import Quiz, Question
+    from app.assessments.models import Question, Quiz
     quiz_result = await db.execute(
         select(Quiz).where(Quiz.lesson_id == source_lesson.id)
         .options(selectinload(Quiz.questions))
@@ -691,7 +698,7 @@ async def _copy_lesson_entity(
             db.add(new_tc)
 
     # Copy unified exercises if any
-    from app.exercises.models import Exercise, ExerciseType
+    from app.exercises.models import Exercise
     from app.exercises.service import generate_display_id
     exercise_result = await db.execute(
         select(Exercise).where(Exercise.lesson_id == source_lesson.id)
