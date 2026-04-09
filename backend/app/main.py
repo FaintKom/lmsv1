@@ -430,11 +430,12 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health():
-        # Cheap liveness + readiness probe. Does NOT touch the DB — the
-        # orchestrator can hit this many times a second without load.
-        # Scheduler state is included so we can tell whether cron is alive
-        # without adding a dedicated probe. A detailed dependency-checking
-        # health endpoint is planned as P1-4.
+        """Simple liveness probe — 200 if the process is alive.
+
+        Intentionally cheap: does NOT touch the DB or any external service,
+        so the orchestrator can hit this many times a second without load.
+        For a detailed dependency-checking probe, use /health/ready.
+        """
         try:
             from app.scheduler import _scheduler
             scheduler_running = bool(_scheduler and _scheduler.running)
@@ -452,6 +453,98 @@ def create_app() -> FastAPI:
                 "jobs": scheduler_jobs,
             },
         }
+
+    @app.get("/health/live")
+    async def health_live():
+        """Kubernetes-style liveness probe — always returns 200 if the
+        process can handle requests at all. Use this to decide whether
+        to restart the container."""
+        return {"status": "alive"}
+
+    @app.get("/health/ready")
+    async def health_ready():
+        """Readiness probe with dependency checks.
+
+        Returns 503 with `status: "not_ready"` if any required dependency
+        (database, scheduler) is unhealthy. Returns 200 with full detail
+        otherwise. Optional dependencies (Stripe, Sentry, email) are
+        reported but their absence does not make the app not-ready.
+        """
+        checks: dict = {}
+        overall_ok = True
+
+        # --- Required: database ---
+        db_check = {"name": "database", "required": True, "ok": False}
+        try:
+            from sqlalchemy import text as sa_text
+
+            from app.db.session import engine
+            t0 = time.monotonic()
+            async with engine.connect() as conn:
+                await conn.execute(sa_text("SELECT 1"))
+            db_check["ok"] = True
+            db_check["latency_ms"] = round((time.monotonic() - t0) * 1000, 1)
+        except Exception as e:
+            db_check["error"] = str(e)[:200]
+            overall_ok = False
+        checks["database"] = db_check
+
+        # --- Required: scheduler ---
+        sched_check = {"name": "scheduler", "required": True, "ok": False}
+        try:
+            from app.scheduler import _scheduler
+            if _scheduler and _scheduler.running:
+                sched_check["ok"] = True
+                sched_check["jobs"] = len(_scheduler.get_jobs())
+            else:
+                sched_check["error"] = "scheduler not running"
+                overall_ok = False
+        except Exception as e:
+            sched_check["error"] = str(e)[:200]
+            overall_ok = False
+        checks["scheduler"] = sched_check
+
+        # --- Required: startup state ---
+        checks["startup"] = {
+            "name": "startup",
+            "required": True,
+            "ok": startup_state.ready and startup_state.error is None,
+            "error": startup_state.error,
+        }
+        if not checks["startup"]["ok"]:
+            overall_ok = False
+
+        # --- Optional: Stripe ---
+        checks["stripe"] = {
+            "name": "stripe",
+            "required": False,
+            "ok": bool(settings.stripe_secret_key),
+            "configured": bool(settings.stripe_secret_key),
+        }
+
+        # --- Optional: Sentry ---
+        checks["sentry"] = {
+            "name": "sentry",
+            "required": False,
+            "ok": bool(settings.sentry_dsn),
+            "configured": bool(settings.sentry_dsn),
+        }
+
+        # --- Optional: email ---
+        checks["email"] = {
+            "name": "email",
+            "required": False,
+            "ok": settings.email_enabled,
+            "configured": settings.email_enabled,
+        }
+
+        body = {
+            "status": "ready" if overall_ok else "not_ready",
+            "checks": checks,
+        }
+        if not overall_ok:
+            return JSONResponse(status_code=503, content=body)
+        return body
 
     return app
 
