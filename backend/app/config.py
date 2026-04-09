@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"  # DEBUG / INFO / WARNING / ERROR
     log_json: bool = True    # structured JSON in production, pretty console in dev
 
+    # Redis (optional). Rate limiter falls back to in-memory when empty.
+    redis_url: str = ""
+
     # App
     app_name: str = "LMS"
     debug: bool = False

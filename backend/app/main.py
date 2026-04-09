@@ -489,6 +489,28 @@ def create_app() -> FastAPI:
             overall_ok = False
         checks["database"] = db_check
 
+        # --- Optional: Redis (required iff configured) ---
+        redis_required = bool(settings.redis_url)
+        redis_check = {
+            "name": "redis",
+            "required": redis_required,
+            "ok": not redis_required,  # if not configured, don't block
+            "configured": redis_required,
+        }
+        if redis_required:
+            try:
+                import redis.asyncio as aioredis
+                t0 = time.monotonic()
+                r = aioredis.from_url(settings.redis_url, socket_timeout=2)
+                await r.ping()
+                await r.aclose()
+                redis_check["ok"] = True
+                redis_check["latency_ms"] = round((time.monotonic() - t0) * 1000, 1)
+            except Exception as e:
+                redis_check["error"] = str(e)[:200]
+                overall_ok = False
+        checks["redis"] = redis_check
+
         # --- Required: scheduler ---
         sched_check = {"name": "scheduler", "required": True, "ok": False}
         try:
