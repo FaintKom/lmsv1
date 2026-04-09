@@ -1,11 +1,15 @@
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.db.session import get_db
+from app.progress.models import VideoProgress
 from app.progress.schemas import EnrollmentResponse, EnrollRequest, LessonProgressResponse
 from app.progress.service import (
     complete_lesson,
@@ -15,6 +19,21 @@ from app.progress.service import (
 )
 
 router = APIRouter()
+
+
+class VideoProgressUpdate(BaseModel):
+    position_seconds: float
+    duration_seconds: float | None = None
+
+
+class VideoProgressResponse(BaseModel):
+    lesson_id: uuid.UUID
+    position_seconds: float
+    duration_seconds: float | None
+    watched_seconds: float
+    completed_at: datetime | None
+
+    model_config = {"from_attributes": True}
 
 
 @router.post("/enroll", response_model=EnrollmentResponse)
@@ -72,3 +91,97 @@ async def my_courses_endpoint(
 ):
     enrollments = await get_my_enrollments(db, user)
     return [EnrollmentResponse.model_validate(e) for e in enrollments]
+
+
+# --- P1-9 video progress tracking --------------------------------------
+
+
+@router.get(
+    "/lessons/{lesson_id}/video-progress",
+    response_model=VideoProgressResponse | None,
+)
+async def get_video_progress_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the user's watch progress for a lesson's video, or null if they
+    have not watched it before. The frontend uses this to seek the player to
+    `position_seconds` on mount so "resume where you left off" works."""
+    result = await db.execute(
+        select(VideoProgress).where(
+            VideoProgress.user_id == user.id,
+            VideoProgress.lesson_id == lesson_id,
+        )
+    )
+    row = result.scalar_one_or_none()
+    if row is None:
+        return None
+    return VideoProgressResponse.model_validate(row)
+
+
+@router.put(
+    "/lessons/{lesson_id}/video-progress",
+    response_model=VideoProgressResponse,
+)
+async def update_video_progress_endpoint(
+    lesson_id: uuid.UUID,
+    data: VideoProgressUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upsert the user's watch progress. Called by the frontend every few
+    seconds while a video is playing. When the user crosses 90% of the
+    duration, auto-marks the LessonProgress as completed via the existing
+    complete_lesson() service.
+    """
+    # Clamp position to sane values
+    position = max(0.0, float(data.position_seconds))
+    duration = float(data.duration_seconds) if data.duration_seconds is not None else None
+
+    result = await db.execute(
+        select(VideoProgress).where(
+            VideoProgress.user_id == user.id,
+            VideoProgress.lesson_id == lesson_id,
+        )
+    )
+    row = result.scalar_one_or_none()
+
+    if row is None:
+        row = VideoProgress(
+            user_id=user.id,
+            lesson_id=lesson_id,
+            position_seconds=position,
+            duration_seconds=duration,
+            watched_seconds=position,
+        )
+        db.add(row)
+    else:
+        # Forward-only "watched" counter so that scrubbing back doesn't
+        # undo progress. Watched grows by the delta from the furthest
+        # position we've previously recorded.
+        if position > row.watched_seconds:
+            row.watched_seconds = position
+        row.position_seconds = position
+        if duration is not None:
+            row.duration_seconds = duration
+        db.add(row)
+
+    # Auto-complete at 90% of duration
+    if (
+        row.duration_seconds
+        and row.watched_seconds >= 0.9 * row.duration_seconds
+        and row.completed_at is None
+    ):
+        row.completed_at = datetime.now(timezone.utc)
+        db.add(row)
+        # Also mark the lesson complete in the broader progress system
+        try:
+            await complete_lesson(db, lesson_id, user)
+        except Exception:
+            # Student might not have an enrollment row yet if they're
+            # previewing — don't block the video progress save.
+            pass
+
+    await db.flush()
+    return VideoProgressResponse.model_validate(row)

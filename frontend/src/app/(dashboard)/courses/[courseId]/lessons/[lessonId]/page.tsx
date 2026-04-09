@@ -34,6 +34,7 @@ import CommentSection from "@/components/discussions/comment-section";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
+import { VideoPlayer } from "@/components/video-player";
 
 interface LessonProgressItem {
   lesson_id: string;
@@ -335,6 +336,7 @@ export default function LessonViewerPage() {
               blocks={lesson.content.blocks || []}
               exercises={exercises}
               courseId={courseId}
+              lessonId={lessonId}
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               prevLesson={prevLesson}
@@ -440,6 +442,7 @@ function BlockContent({
   blocks,
   exercises,
   courseId,
+  lessonId,
   currentPage,
   setCurrentPage,
   prevLesson,
@@ -448,6 +451,7 @@ function BlockContent({
   blocks: LessonBlock[];
   exercises: { id: string; exercise_type: string; title: string; config: Record<string, unknown>; questions?: unknown[]; test_cases?: unknown[] }[];
   courseId: string;
+  lessonId: string;
   currentPage: number;
   setCurrentPage: (p: number) => void;
   prevLesson: { lesson: Lesson; moduleId: string } | null;
@@ -476,6 +480,7 @@ function BlockContent({
             block={block}
             exercises={exercises}
             courseId={courseId}
+            lessonId={lessonId}
             prevLesson={prevLesson}
             nextLesson={nextLesson}
           />
@@ -501,12 +506,14 @@ function BlockRenderer({
   block,
   exercises,
   courseId,
+  lessonId,
   prevLesson,
   nextLesson,
 }: {
   block: LessonBlock;
   exercises: { id: string; exercise_type: string; title: string; config: Record<string, unknown>; questions?: unknown[]; test_cases?: unknown[] }[];
   courseId: string;
+  lessonId: string;
   prevLesson: { lesson: Lesson; moduleId: string } | null;
   nextLesson: { lesson: Lesson; moduleId: string } | null;
 }) {
@@ -533,14 +540,7 @@ function BlockRenderer({
 
     case "video":
       return block.url ? (
-        <div className="aspect-video overflow-hidden rounded-xl bg-black">
-          <iframe
-            src={getEmbedUrl(block.url)}
-            className="h-full w-full"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
+        <VideoPlayer url={block.url} lessonId={lessonId} />
       ) : null;
 
     case "exercise": {
@@ -648,20 +648,13 @@ function LegacyContent({
         )}
 
         {lesson.content_type === "video" && (
-          <div className="aspect-video overflow-hidden rounded-xl bg-black">
-            {lesson.content.url ? (
-              <iframe
-                src={getEmbedUrl(lesson.content.url as string)}
-                className="h-full w-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-white">
-                No video URL provided
-              </div>
-            )}
-          </div>
+          lesson.content.url ? (
+            <VideoPlayer url={lesson.content.url as string} lessonId={lessonId} />
+          ) : (
+            <div className="flex aspect-video items-center justify-center rounded-xl bg-black text-white">
+              No video URL provided
+            </div>
+          )
         )}
 
         {lesson.content_type === "code_challenge" && challenge && (
