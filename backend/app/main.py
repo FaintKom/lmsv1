@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import time
+import uuid as _uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -8,6 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
+
+# Configure structured logging BEFORE anything else so even import-time
+# messages go through the same pipeline.
+from app.logging_config import configure_logging, request_id_var
+configure_logging()
 
 # Initialize Sentry BEFORE importing routers so the SDK can patch modules.
 # Empty DSN disables Sentry entirely — no network calls, no overhead.
@@ -362,6 +368,26 @@ def create_app() -> FastAPI:
     # this process accepts any request, the DB is fully set up. If setup
     # fails in production the lifespan raises and the container exits
     # with a visible error, which is strictly better than silent 503s.
+
+    @app.middleware("http")
+    async def request_id_middleware(request: Request, call_next):
+        """Assign a unique request id to every request for log correlation.
+
+        If the caller sends an `X-Request-ID` header we trust and propagate
+        it, otherwise we generate a short random id. The id is set on a
+        contextvar so every log line inside the request carries it, and
+        echoed back in the response header so clients can include it in
+        bug reports.
+        """
+        incoming = request.headers.get("x-request-id")
+        rid = incoming if incoming else _uuid.uuid4().hex[:12]
+        token = request_id_var.set(rid)
+        try:
+            response = await call_next(request)
+        finally:
+            request_id_var.reset(token)
+        response.headers["x-request-id"] = rid
+        return response
 
     @app.middleware("http")
     async def strip_trailing_slash(request, call_next):

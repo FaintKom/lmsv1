@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.1  # 10% — tune for free tier quota
 
+    # Logging
+    log_level: str = "INFO"  # DEBUG / INFO / WARNING / ERROR
+    log_json: bool = True    # structured JSON in production, pretty console in dev
+
     # App
     app_name: str = "LMS"
     debug: bool = False
