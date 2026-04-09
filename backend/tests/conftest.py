@@ -7,6 +7,7 @@ that is rolled back after the test, so tests don't pollute each other.
 import uuid
 from datetime import datetime, timezone
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
@@ -42,6 +43,25 @@ from app.main import app as fastapi_app
 TEST_DB_URL = settings.get_database_url()
 
 _tables_created = False
+
+
+# ---------------------------------------------------------------------------
+# Rate limiter state isolation
+# ---------------------------------------------------------------------------
+# slowapi's `memory://` storage is a single per-process dict that is NOT
+# cleared between tests. Without this fixture the first test that hits a
+# rate-limited endpoint poisons every subsequent test in the file because
+# the counter keeps climbing across requests. Reset the limiter before
+# every test so each test starts with a clean budget.
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    try:
+        from app.common.rate_limit import limiter
+
+        limiter.reset()
+    except Exception:
+        pass
+    yield
 
 
 # ---------------------------------------------------------------------------

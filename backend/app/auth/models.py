@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -58,6 +58,41 @@ class User(Base, IDMixin, TimestampMixin):
     )
 
     organization: Mapped["Organization"] = relationship(back_populates="users")
+
+
+class OrganizationMembership(Base, IDMixin, TimestampMixin):
+    """Links a user to an organization with a per-org role.
+
+    Supports P2-11 "multi-org for a single user": a teacher or admin
+    who works at multiple schools can have memberships in each one
+    while keeping a single login. The user's "active" org is still
+    tracked on `users.org_id` — switching orgs updates both
+    `users.org_id` and `users.role` from the selected membership.
+
+    For every existing user at migration time we create one membership
+    row mirroring (users.org_id, users.role) so nothing breaks.
+    """
+
+    __tablename__ = "organization_memberships"
+    __table_args__ = (
+        UniqueConstraint("user_id", "org_id", name="uq_org_memberships_user_org"),
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole), default=UserRole.student, nullable=False
+    )
 
 
 class ParentChild(Base, IDMixin, TimestampMixin):

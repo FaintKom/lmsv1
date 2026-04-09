@@ -70,6 +70,12 @@ async def register(
     if not data.consent_accepted:
         raise BadRequestError("You must accept the Privacy Policy and Terms of Service")
 
+    # A teacher who self-registers a brand-new organization is the
+    # founding user of that org, so promote them to admin. Without this,
+    # a fresh school has no one who can manage members or billing.
+    if org_was_created and user_role == UserRole.teacher:
+        user_role = UserRole.admin
+
     user = User(
         org_id=org.id,
         email=data.email,

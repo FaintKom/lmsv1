@@ -54,6 +54,7 @@ from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.meetings.router import router as meetings_router
 from app.notifications.router import router as notifications_router
+from app.orgs.router import router as orgs_router
 from app.parent.router import router as parent_router
 from app.progress.router import router as progress_router
 from app.recommendations.router import router as recommendations_router
@@ -134,6 +135,16 @@ async def _run_setup():
             "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
             # P0-6: email verification
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP WITH TIME ZONE",
+            # P2-11: backfill organization_memberships for existing users
+            # who predate the multi-org feature. One row per user mirroring
+            # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
+            """INSERT INTO organization_memberships (id, user_id, org_id, role, created_at, updated_at)
+               SELECT gen_random_uuid(), u.id, u.org_id, u.role, NOW(), NOW()
+               FROM users u
+               WHERE NOT EXISTS (
+                   SELECT 1 FROM organization_memberships m
+                   WHERE m.user_id = u.id AND m.org_id = u.org_id
+               )""",
         ]
         for stmt in alter_statements:
             try:
@@ -418,6 +429,7 @@ def create_app() -> FastAPI:
     app.include_router(submissions_router, prefix="/api/v1/submissions", tags=["Submissions"])
     app.include_router(discussions_router, prefix="/api/v1/discussions", tags=["Discussions"])
     app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["Notifications"])
+    app.include_router(orgs_router, prefix="/api/v1", tags=["Organizations"])
     app.include_router(gamification_router, prefix="/api/v1/gamification", tags=["Gamification"])
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])

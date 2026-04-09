@@ -185,4 +185,7 @@ async def test_check_math_answer(client: AsyncClient, student):
 async def test_health(client: AsyncClient):
     resp = await client.get("/health")
     assert resp.status_code == 200
-    assert resp.json() == {"status": "ok"}
+    # /health grew extra diagnostic fields in P0-10 (ready, scheduler, error).
+    # Assert only the stable contract: status key is "ok".
+    body = resp.json()
+    assert body.get("status") == "ok"
