@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
             1. Introduction
           </h2>
           <p>
-            LearnHub (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is a
+            GrassLMS (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is a
             software-as-a-service learning management system that helps schools and learning centers
             teach programming, mathematics, and languages. We are committed to protecting the privacy
             of all users of our platform, including school administrators, teachers, students, and
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
             .
           </p>
           <p className="mt-2">
-            LearnHub acts as the data controller for account and platform data. When a school or
+            GrassLMS acts as the data controller for account and platform data. When a school or
             learning center subscribes to our service, they may also act as a data controller for
             their students&rsquo; educational data, and we act as a data processor on their behalf.
           </p>
@@ -212,7 +212,7 @@ export default function PrivacyPolicyPage() {
             6. AI Tutor and Your Data
           </h2>
           <p>
-            LearnHub includes an AI Tutor feature that helps students with coursework. The AI model
+            GrassLMS includes an AI Tutor feature that helps students with coursework. The AI model
             is entirely self-hosted on our own servers. No student data, questions, code, or
             conversation content is sent to any external AI provider or third-party service.
           </p>
@@ -234,7 +234,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
-              <strong>School Consent:</strong> When a school subscribes to LearnHub and creates
+              <strong>School Consent:</strong> When a school subscribes to GrassLMS and creates
               student accounts, the school provides consent on behalf of parents for the collection
               and use of students&rsquo; educational data, as permitted under COPPA and FERPA. The
               school acts as the parent&rsquo;s agent in providing this consent, and data is used
@@ -466,7 +466,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="font-medium text-slate-700 dark:text-slate-300">
-              LearnHub Privacy Team
+              GrassLMS Privacy Team
             </p>
             <p className="mt-1">
               Email:{" "}

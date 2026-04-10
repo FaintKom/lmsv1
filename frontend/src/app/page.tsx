@@ -27,7 +27,7 @@ export default function Home() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">LearnHub</span>
+            <span className="text-xl font-bold text-slate-900">GrassLMS</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/pricing">
@@ -269,7 +269,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span className="text-sm text-slate-400">
-              &copy; 2026 LearnHub &mdash; Modern Learning Platform
+              &copy; 2026 GrassLMS &mdash; Modern Learning Platform
             </span>
             <div className="flex gap-6 text-sm text-slate-400">
               <Link href="/terms" className="hover:text-slate-600">Terms</Link>

@@ -73,14 +73,14 @@ def _base_template(content: str) -> str:
         <tr><td align="center">
           <table width="560" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.1);overflow:hidden;">
             <tr><td style="background-color:#4f46e5;padding:24px 32px;">
-              <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">LearnHub</h1>
+              <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">GrassLMS</h1>
             </td></tr>
             <tr><td style="padding:32px;">
               {content}
             </td></tr>
             <tr><td style="padding:16px 32px;border-top:1px solid #e2e8f0;">
               <p style="margin:0;color:#94a3b8;font-size:12px;text-align:center;">
-                &copy; LearnHub. This is an automated message.
+                &copy; GrassLMS. This is an automated message.
               </p>
             </td></tr>
           </table>
@@ -94,7 +94,7 @@ def _base_template(content: str) -> str:
 def send_welcome(to_email: str, full_name: str) -> bool:
     """Send welcome email after registration."""
     content = f"""
-    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Welcome to LearnHub, {full_name}!</h2>
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Welcome to GrassLMS, {full_name}!</h2>
     <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
       Your account has been created successfully. You can now start learning!
     </p>
@@ -102,7 +102,7 @@ def send_welcome(to_email: str, full_name: str) -> bool:
       Go to Dashboard
     </a>
     """
-    return _send_email(to_email, "Welcome to LearnHub!", _base_template(content))
+    return _send_email(to_email, "Welcome to GrassLMS!", _base_template(content))
 
 
 def send_email_verification(to_email: str, full_name: str, token: str) -> bool:
@@ -121,7 +121,7 @@ def send_email_verification(to_email: str, full_name: str, token: str) -> bool:
       If you didn't create this account, you can safely ignore this email.
     </p>
     """
-    return _send_email(to_email, "Verify your LearnHub email", _base_template(content))
+    return _send_email(to_email, "Verify your GrassLMS email", _base_template(content))
 
 
 def send_password_reset(to_email: str, token: str) -> bool:

@@ -15,7 +15,7 @@ export default function AuthLayout({
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
             <GraduationCap className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mb-3 text-3xl font-bold text-white">LearnHub</h2>
+          <h2 className="mb-3 text-3xl font-bold text-white">GrassLMS</h2>
           <p className="text-lg leading-relaxed text-indigo-200">
             The modern learning platform for schools and online courses.
             Programming, languages, and mathematics.
@@ -32,7 +32,7 @@ export default function AuthLayout({
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
           </Link>
           {children}
         </div>

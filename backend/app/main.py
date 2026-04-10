@@ -369,7 +369,7 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="LearnHub API",
+        title="GrassLMS API",
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",

@@ -26,9 +26,9 @@ export default function RefundPolicyPage() {
             1. Overview
           </h2>
           <p>
-            LearnHub is committed to providing a clear and fair refund and cancellation policy for
+            GrassLMS is committed to providing a clear and fair refund and cancellation policy for
             all subscription tiers. This policy applies to all organizations and individuals who
-            subscribe to paid LearnHub plans. If you have any questions about billing, cancellations,
+            subscribe to paid GrassLMS plans. If you have any questions about billing, cancellations,
             or refunds, please contact us at{" "}
             <a
               href="mailto:support@learnhub.app"
@@ -187,7 +187,7 @@ export default function RefundPolicyPage() {
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
-              <strong>Service Outage:</strong> If LearnHub experiences a service outage exceeding 24
+              <strong>Service Outage:</strong> If GrassLMS experiences a service outage exceeding 24
               hours, an automatic pro-rata credit will be applied to your next invoice.
             </li>
             <li>
@@ -219,7 +219,7 @@ export default function RefundPolicyPage() {
           </p>
           <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="font-medium text-slate-700 dark:text-slate-300">
-              LearnHub Billing Support
+              GrassLMS Billing Support
             </p>
             <p className="mt-1">
               Email:{" "}

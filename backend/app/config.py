@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     email_from: str = "noreply@learnhub.io"
-    email_from_name: str = "LearnHub"
+    email_from_name: str = "GrassLMS"
     app_url: str = "http://localhost:3000"
 
     # Email verification enforcement. Off by default — only enable once SMTP

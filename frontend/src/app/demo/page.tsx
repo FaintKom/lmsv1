@@ -71,7 +71,7 @@ function DemoRunner() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
+            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
           </Link>
           <Link href="/login">
             <Button variant="ghost" size="sm">
@@ -87,7 +87,7 @@ function DemoRunner() {
           No signup required
         </div>
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 md:text-5xl">
-          Try LearnHub in one click
+          Try GrassLMS in one click
         </h1>
         <p className="mx-auto mb-10 max-w-xl text-lg text-slate-500 dark:text-slate-400">
           Pick a role and we'll drop you straight into the product with a

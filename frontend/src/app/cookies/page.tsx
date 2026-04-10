@@ -31,7 +31,7 @@ export default function CookiePolicyPage() {
             better user experience, and give site operators useful information.
           </p>
           <p className="mt-2">
-            LearnHub uses a minimal number of cookies, limited to what is necessary for the platform
+            GrassLMS uses a minimal number of cookies, limited to what is necessary for the platform
             to function and to remember your preferences. We do not use any advertising, analytics,
             or third-party tracking cookies.
           </p>
@@ -143,7 +143,7 @@ export default function CookiePolicyPage() {
           <h3 className="mb-2 mt-6 font-semibold text-slate-700 dark:text-slate-300">
             2.3 What We Do Not Use
           </h3>
-          <p>LearnHub does not use:</p>
+          <p>GrassLMS does not use:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>
               <strong>Analytics cookies</strong> &mdash; We do not use Google Analytics or any other
@@ -180,7 +180,7 @@ export default function CookiePolicyPage() {
           <p className="mt-2">
             Please note that if you block or delete essential cookies, you will not be able to log in
             or use the platform. Functional preferences stored in local storage can be cleared
-            through your browser&rsquo;s developer tools or by clearing site data for LearnHub.
+            through your browser&rsquo;s developer tools or by clearing site data for GrassLMS.
           </p>
           <p className="mt-2">
             For specific instructions, refer to your browser&rsquo;s help documentation:

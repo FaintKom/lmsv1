@@ -26,7 +26,7 @@ export default function CopyrightPolicyPage() {
             1. Intellectual Property Overview
           </h2>
           <p>
-            This policy describes the ownership of content on the LearnHub platform and outlines our
+            This policy describes the ownership of content on the GrassLMS platform and outlines our
             procedures for handling copyright infringement claims under the Digital Millennium
             Copyright Act (DMCA).
           </p>
@@ -35,8 +35,8 @@ export default function CopyrightPolicyPage() {
             Platform Content
           </h3>
           <p>
-            The LearnHub platform itself &mdash; including its source code, design, user interface,
-            logos, and branding &mdash; is owned by LearnHub and protected by applicable intellectual
+            The GrassLMS platform itself &mdash; including its source code, design, user interface,
+            logos, and branding &mdash; is owned by GrassLMS and protected by applicable intellectual
             property laws.
           </p>
 
@@ -46,7 +46,7 @@ export default function CopyrightPolicyPage() {
           <p>
             Course content created by teachers (including lesson text, exercises, quizzes, images,
             and other educational materials) is owned by the teacher or their school, as determined
-            by their agreement with each other. LearnHub does not claim ownership of course content.
+            by their agreement with each other. GrassLMS does not claim ownership of course content.
           </p>
 
           <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
@@ -54,16 +54,16 @@ export default function CopyrightPolicyPage() {
           </h3>
           <p>
             Student submissions &mdash; including code, assignment responses, and comments &mdash;
-            are owned by the student. LearnHub does not claim ownership of student content.
+            are owned by the student. GrassLMS does not claim ownership of student content.
           </p>
 
           <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
-            License to LearnHub
+            License to GrassLMS
           </h3>
           <p>
-            By uploading content to the platform, you grant LearnHub a limited, non-exclusive,
+            By uploading content to the platform, you grant GrassLMS a limited, non-exclusive,
             royalty-free license to host, display, transmit, and backup that content solely for the
-            purpose of operating and providing the LearnHub service. This license does not transfer
+            purpose of operating and providing the GrassLMS service. This license does not transfer
             ownership and terminates when you remove the content or your account is deleted.
           </p>
         </section>
@@ -74,7 +74,7 @@ export default function CopyrightPolicyPage() {
             2. DMCA Takedown Process
           </h2>
           <p>
-            If you believe that content on the LearnHub platform infringes your copyright, you may
+            If you believe that content on the GrassLMS platform infringes your copyright, you may
             submit a written notification to our designated copyright agent at{" "}
             <a
               href="mailto:copyright@learnhub.app"
@@ -152,7 +152,7 @@ export default function CopyrightPolicyPage() {
             4. Repeat Infringers
           </h2>
           <p>
-            LearnHub has adopted a policy for addressing repeat copyright infringement. Consequences
+            GrassLMS has adopted a policy for addressing repeat copyright infringement. Consequences
             escalate as follows:
           </p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -201,7 +201,7 @@ export default function CopyrightPolicyPage() {
             6. Open Source
           </h2>
           <p>
-            The LearnHub platform incorporates open-source software components, each governed by its
+            The GrassLMS platform incorporates open-source software components, each governed by its
             own license terms. A full list of open-source licenses and attributions is available upon
             request. To request this information, contact us at{" "}
             <a
@@ -225,7 +225,7 @@ export default function CopyrightPolicyPage() {
           </p>
           <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="font-medium text-slate-700 dark:text-slate-300">
-              LearnHub Copyright Agent
+              GrassLMS Copyright Agent
             </p>
             <p className="mt-1">
               Email:{" "}

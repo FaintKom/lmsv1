@@ -235,6 +235,6 @@ async def test_webhook(
 
     count = await dispatch_event(
         db, admin.org_id, "test.ping",
-        {"message": "This is a test event from LearnHub."},
+        {"message": "This is a test event from GrassLMS."},
     )
     return {"status": "sent", "successes": count}

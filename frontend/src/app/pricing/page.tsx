@@ -71,7 +71,7 @@ const PLAN_ICON: Record<string, React.ReactNode> = {
 };
 
 const PLAN_TAGLINE: Record<string, string> = {
-  Free: "For trying LearnHub with a small class",
+  Free: "For trying GrassLMS with a small class",
   Starter: "For small schools and solo teachers",
   Professional: "For growing programs with real analytics needs",
   Enterprise: "For schools and districts that need the whole platform",
@@ -88,7 +88,7 @@ const FEATURE_ROWS: { key: string; label: string }[] = [
 
 const FAQ = [
   {
-    q: "Can I try LearnHub before paying?",
+    q: "Can I try GrassLMS before paying?",
     a: "Yes — Free includes up to 10 students and 3 courses forever. No credit card required.",
   },
   {
@@ -151,7 +151,7 @@ export default function PricingPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">LearnHub</span>
+            <span className="text-xl font-bold text-slate-900">GrassLMS</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -358,7 +358,7 @@ export default function PricingPage() {
       {/* Footer */}
       <footer className="border-t border-slate-100 py-10 text-center text-sm text-slate-400">
         <div className="mx-auto max-w-6xl px-6">
-          <p>&copy; {new Date().getFullYear()} LearnHub. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} GrassLMS. All rights reserved.</p>
         </div>
       </footer>
     </div>

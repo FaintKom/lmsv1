@@ -23,13 +23,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "LearnHub — Modern Learning Platform",
+  title: "GrassLMS — Modern Learning Platform",
   description: "A powerful LMS for schools and online courses. Programming, languages, and mathematics.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "LearnHub",
+    title: "GrassLMS",
   },
 };
 

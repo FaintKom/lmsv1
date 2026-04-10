@@ -152,7 +152,7 @@ def generate_certificate_html(
 </head>
 <body>
 <div class="cert">
-  <div class="logo">LearnHub</div>
+  <div class="logo">GrassLMS</div>
   <div class="header">Certificate of Completion</div>
   <div class="title">Certificate of Achievement</div>
   <div class="subtitle">This is to certify that</div>

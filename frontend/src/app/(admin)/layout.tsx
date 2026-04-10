@@ -83,7 +83,7 @@ export default function AdminLayout({
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600">
               <GraduationCap className="h-4 w-4 text-white" aria-hidden="true" />
             </div>
-            <span className="text-sm font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
+            <span className="text-sm font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
           </div>
         </div>
         <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12">{children}</main>

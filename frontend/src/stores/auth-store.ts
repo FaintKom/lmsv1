@@ -43,7 +43,7 @@ interface AuthState {
 const DEFAULT_BRANDING: OrgBranding = {
   logo_url: null,
   primary_color: null,
-  display_name: "LearnHub",
+  display_name: "GrassLMS",
 };
 
 export const useAuthStore = create<AuthState>((set) => ({

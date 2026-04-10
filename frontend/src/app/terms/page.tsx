@@ -26,9 +26,9 @@ export default function TermsOfServicePage() {
             1. Acceptance of Terms
           </h2>
           <p>
-            By accessing or using LearnHub (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or
+            By accessing or using GrassLMS (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or
             &ldquo;our&rdquo;), you agree to be bound by these Terms of Service
-            (&ldquo;Terms&rdquo;). If you are using LearnHub on behalf of a school or organization,
+            (&ldquo;Terms&rdquo;). If you are using GrassLMS on behalf of a school or organization,
             you represent that you have the authority to bind that organization to these Terms, and
             &ldquo;you&rdquo; refers to both you individually and the organization.
           </p>
@@ -44,7 +44,7 @@ export default function TermsOfServicePage() {
             2. Description of Service
           </h2>
           <p>
-            LearnHub is a business-to-business (B2B) software-as-a-service learning management
+            GrassLMS is a business-to-business (B2B) software-as-a-service learning management
             system designed for schools and learning centers. The platform enables schools to teach
             programming, mathematics, and languages through a comprehensive suite of educational
             tools.
@@ -75,7 +75,7 @@ export default function TermsOfServicePage() {
           <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
             3. User Accounts &amp; Roles
           </h2>
-          <p>LearnHub supports four user roles:</p>
+          <p>GrassLMS supports four user roles:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>
               <strong>Administrator:</strong> Manages the school&rsquo;s subscription, creates and
@@ -115,7 +115,7 @@ export default function TermsOfServicePage() {
           <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
             4. Subscription &amp; Payment
           </h2>
-          <p>LearnHub offers the following subscription plans:</p>
+          <p>GrassLMS offers the following subscription plans:</p>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
               <strong>Free:</strong> $0/month &mdash; up to 5 students and 1 teacher.
@@ -163,7 +163,7 @@ export default function TermsOfServicePage() {
             submissions, including code, written responses, and other work product.
           </p>
           <p className="mt-2">
-            By uploading content to LearnHub, you grant us a non-exclusive, worldwide, royalty-free
+            By uploading content to GrassLMS, you grant us a non-exclusive, worldwide, royalty-free
             license to host, display, transmit, cache, and back up your content solely for the
             purpose of operating, maintaining, and providing the platform to you and your
             organization. This license ends when you delete your content or when your account is
@@ -183,7 +183,7 @@ export default function TermsOfServicePage() {
             6. Intellectual Property
           </h2>
           <p>
-            LearnHub and its licensors own all rights, title, and interest in and to the platform,
+            GrassLMS and its licensors own all rights, title, and interest in and to the platform,
             including but not limited to the source code, object code, design, user interface,
             graphics, branding, logo, and all related intellectual property. All rights are reserved.
           </p>
@@ -201,7 +201,7 @@ export default function TermsOfServicePage() {
             7. Code Execution
           </h2>
           <p>
-            LearnHub provides a sandboxed code execution environment that supports 37 programming
+            GrassLMS provides a sandboxed code execution environment that supports 37 programming
             languages. This environment is provided &ldquo;as is&rdquo; for educational purposes
             only. We make no guarantees regarding the accuracy, completeness, or reliability of code
             execution results.
@@ -232,7 +232,7 @@ export default function TermsOfServicePage() {
             8. AI Tutor
           </h2>
           <p>
-            LearnHub includes an AI Tutor feature powered by a language model that is entirely
+            GrassLMS includes an AI Tutor feature powered by a language model that is entirely
             self-hosted on our own servers. No student data, questions, code, or conversation content
             is sent to any external AI provider or third-party service.
           </p>
@@ -262,7 +262,7 @@ export default function TermsOfServicePage() {
             9. Acceptable Use
           </h2>
           <p>
-            You agree to use LearnHub in compliance with all applicable laws and our{" "}
+            You agree to use GrassLMS in compliance with all applicable laws and our{" "}
             <Link
               href="/acceptable-use"
               className="font-medium text-indigo-600 hover:text-indigo-700"
@@ -286,7 +286,7 @@ export default function TermsOfServicePage() {
             10. Privacy
           </h2>
           <p>
-            Your use of LearnHub is also governed by our{" "}
+            Your use of GrassLMS is also governed by our{" "}
             <Link
               href="/privacy"
               className="font-medium text-indigo-600 hover:text-indigo-700"
@@ -308,7 +308,7 @@ export default function TermsOfServicePage() {
             COPPA Compliance
           </h3>
           <p>
-            When a school subscribes to LearnHub and creates student accounts, the school acts as an
+            When a school subscribes to GrassLMS and creates student accounts, the school acts as an
             agent of the parents and provides consent on behalf of parents for the collection and use
             of students&rsquo; educational data, as permitted under the Children&rsquo;s Online
             Privacy Protection Act (COPPA). Data collected from students is used solely for
@@ -319,7 +319,7 @@ export default function TermsOfServicePage() {
             FERPA Compliance
           </h3>
           <p>
-            LearnHub acts as a &ldquo;school official&rdquo; with a &ldquo;legitimate educational
+            GrassLMS acts as a &ldquo;school official&rdquo; with a &ldquo;legitimate educational
             interest&rdquo; under the Family Educational Rights and Privacy Act (FERPA). We access
             student education records only to provide the educational services contracted by the
             school. We do not use student data for any purpose other than providing and improving the
@@ -446,7 +446,7 @@ export default function TermsOfServicePage() {
             YOU AGREE THAT ANY DISPUTE RESOLUTION PROCEEDINGS WILL BE CONDUCTED ONLY ON AN
             INDIVIDUAL BASIS AND NOT IN A CLASS, CONSOLIDATED, OR REPRESENTATIVE ACTION. You waive
             any right to participate in a class action lawsuit or class-wide arbitration against
-            LearnHub.
+            GrassLMS.
           </p>
         </section>
 
@@ -479,7 +479,7 @@ export default function TermsOfServicePage() {
           </p>
           <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="font-medium text-slate-700 dark:text-slate-300">
-              LearnHub Support Team
+              GrassLMS Support Team
             </p>
             <p className="mt-1">
               Email:{" "}

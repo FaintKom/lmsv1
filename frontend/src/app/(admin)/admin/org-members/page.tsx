@@ -119,7 +119,7 @@ export default function OrgMembersPage() {
           </h1>
           <p className="text-sm text-slate-500">
             Add existing users to this organization or remove their access.
-            Users must have already registered a LearnHub account.
+            Users must have already registered a GrassLMS account.
           </p>
         </div>
       </div>

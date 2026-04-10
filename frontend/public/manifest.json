@@ -1,6 +1,6 @@
 {
-  "name": "LearnHub",
-  "short_name": "LearnHub",
+  "name": "GrassLMS",
+  "short_name": "GrassLMS",
   "description": "Modern Learning Platform",
   "start_url": "/dashboard",
   "display": "standalone",

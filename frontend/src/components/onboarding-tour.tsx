@@ -37,7 +37,7 @@ const STEPS = [
   {
     element: '[data-tour="sidebar-dashboard"]',
     popover: {
-      title: "Welcome to LearnHub 👋",
+      title: "Welcome to GrassLMS 👋",
       description:
         "This is your Admin Dashboard — the control centre for your school. Let's take a quick 60-second tour of the essentials.",
     },

@@ -26,10 +26,10 @@ export default function AcceptableUsePolicyPage() {
             1. Purpose
           </h2>
           <p>
-            These rules ensure that LearnHub is a safe, productive learning environment for all
+            These rules ensure that GrassLMS is a safe, productive learning environment for all
             users, including minors. By using the platform, you agree to follow this Acceptable Use
             Policy. This policy applies to all users: students, teachers, parents, school
-            administrators, and any other individuals who access LearnHub.
+            administrators, and any other individuals who access GrassLMS.
           </p>
         </section>
 
@@ -38,7 +38,7 @@ export default function AcceptableUsePolicyPage() {
           <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
             2. Prohibited Content
           </h2>
-          <p>You may not upload, share, or create any of the following on LearnHub:</p>
+          <p>You may not upload, share, or create any of the following on GrassLMS:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Illegal material</li>
             <li>Content harmful to minors</li>
@@ -63,7 +63,7 @@ export default function AcceptableUsePolicyPage() {
             <li>Reverse engineer or decompile any part of the platform</li>
             <li>Launch DDoS or similar attacks</li>
             <li>Sell, transfer, or share your account</li>
-            <li>Impersonate another user or LearnHub staff</li>
+            <li>Impersonate another user or GrassLMS staff</li>
             <li>Circumvent security measures or access controls</li>
             <li>Use automated tools to submit answers or complete exercises</li>
           </ul>
@@ -248,7 +248,7 @@ export default function AcceptableUsePolicyPage() {
           </p>
           <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="font-medium text-slate-700 dark:text-slate-300">
-              LearnHub Support Team
+              GrassLMS Support Team
             </p>
             <p className="mt-1">
               Email:{" "}
