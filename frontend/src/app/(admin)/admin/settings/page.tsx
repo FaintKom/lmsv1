@@ -31,7 +31,8 @@ export default function SettingsPage() {
   // Branding fields (P2-2)
   const [displayName, setDisplayName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
-  const [primaryColor, setPrimaryColor] = useState("#6366f1");
+  const [primaryColor, setPrimaryColor] = useState("#22c55e");
+  const [secondaryColor, setSecondaryColor] = useState("#3b82f6");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -46,7 +47,8 @@ export default function SettingsPage() {
         // Branding
         setDisplayName(settings.display_name || data.name || "");
         setLogoUrl(settings.logo_url || "");
-        setPrimaryColor(settings.primary_color || "#6366f1");
+        setPrimaryColor(settings.primary_color || "#22c55e");
+        setSecondaryColor(settings.secondary_color || "#3b82f6");
       } catch {
         const vis: Record<string, boolean> = {};
         for (const item of MENU_ITEMS) vis[item.key] = true;
@@ -71,6 +73,7 @@ export default function SettingsPage() {
           display_name: displayName.trim() || undefined,
           logo_url: logoUrl.trim() || undefined,
           primary_color: primaryColor || undefined,
+          secondary_color: secondaryColor || undefined,
         },
       });
       // Refresh the auth store so sidebar/CSS picks up new branding
@@ -176,7 +179,34 @@ export default function SettingsPage() {
                 style={{ background: primaryColor }}
               />
             </div>
-            <p className="mt-1 text-xs text-slate-400">Used as the accent color across buttons, links, and the sidebar icon.</p>
+            <p className="mt-1 text-xs text-slate-400">Main accent: buttons, links, sidebar icon, active states.</p>
+          </div>
+
+          <div>
+            <label htmlFor="secondaryColor" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Secondary color
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="secondaryColor"
+                type="color"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                className="h-10 w-10 cursor-pointer rounded-lg border border-slate-300 p-0.5 dark:border-white/10"
+              />
+              <input
+                type="text"
+                value={secondaryColor}
+                onChange={(e) => setSecondaryColor(e.target.value)}
+                className="w-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none"
+                placeholder="#3b82f6"
+              />
+              <div
+                className="h-10 flex-1 rounded-lg"
+                style={{ background: secondaryColor }}
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-400">Complementary accent: badges, highlights, secondary buttons, category tags.</p>
           </div>
         </div>
       </div>

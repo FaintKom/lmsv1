@@ -30,25 +30,29 @@ export default function DashboardLayout({
   const user = useAuthStore((s) => s.user);
   const branding = useAuthStore((s) => s.branding);
 
-  // P2-2: inject org primary color into CSS custom properties so every
-  // element using var(--primary) or Tailwind's primary color adapts
-  // automatically to the org's brand.
+  // P2-2: inject org brand colors into CSS custom properties.
+  // primary = buttons, links, main accent
+  // secondary = badges, highlights, complementary accent
+  // Auto-computed: light/dark variants via color-mix()
   useEffect(() => {
-    const color = branding?.primary_color;
-    if (!color) return;
     const root = document.documentElement;
-    root.style.setProperty("--primary", color);
-    // Compute a lighter variant (for hover/light backgrounds)
-    // and a darker variant (for active/pressed states).
-    // Simple approach: lighten by 30% and darken by 15% via opacity blending.
-    root.style.setProperty("--primary-light", color + "22");
-    root.style.setProperty("--primary-dark", color);
-    return () => {
-      root.style.removeProperty("--primary");
-      root.style.removeProperty("--primary-light");
-      root.style.removeProperty("--primary-dark");
-    };
-  }, [branding?.primary_color]);
+    const vars: string[] = [];
+    const primary = branding?.primary_color;
+    if (primary) {
+      root.style.setProperty("--primary", primary);
+      root.style.setProperty("--primary-light", `color-mix(in srgb, ${primary} 15%, transparent)`);
+      root.style.setProperty("--primary-dark", `color-mix(in srgb, ${primary} 85%, black)`);
+      vars.push("--primary", "--primary-light", "--primary-dark");
+    }
+    const secondary = branding?.secondary_color;
+    if (secondary) {
+      root.style.setProperty("--secondary", secondary);
+      root.style.setProperty("--secondary-light", `color-mix(in srgb, ${secondary} 15%, transparent)`);
+      root.style.setProperty("--secondary-dark", `color-mix(in srgb, ${secondary} 85%, black)`);
+      vars.push("--secondary", "--secondary-light", "--secondary-dark");
+    }
+    return () => { vars.forEach((v) => root.style.removeProperty(v)); };
+  }, [branding?.primary_color, branding?.secondary_color]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

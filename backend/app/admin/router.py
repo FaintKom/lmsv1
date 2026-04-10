@@ -763,6 +763,43 @@ async def list_groups_endpoint(
     ]
 
 
+@router.post("/organizations")
+async def create_organization_endpoint(
+    data: dict,
+    user: User = Depends(require_role(UserRole.super_admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Super admin only: create a new organization."""
+    from python_slugify import slugify
+
+    name = data.get("name", "").strip()
+    if not name:
+        raise HTTPException(400, "Organization name is required")
+
+    slug = slugify(name)
+    # Ensure unique slug
+    base_slug = slug
+    counter = 1
+    while True:
+        existing = (
+            await db.execute(select(Organization).where(Organization.slug == slug))
+        ).scalar_one_or_none()
+        if not existing:
+            break
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
+    org = Organization(name=name, slug=slug, is_active=True, settings=data.get("settings", {}))
+    db.add(org)
+    await db.flush()
+    return {
+        "id": str(org.id),
+        "name": org.name,
+        "slug": org.slug,
+        "is_active": org.is_active,
+    }
+
+
 @router.post("/groups")
 async def create_group_endpoint(
     data: dict,

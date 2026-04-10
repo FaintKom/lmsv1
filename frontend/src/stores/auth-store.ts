@@ -4,6 +4,7 @@ import apiClient from "@/lib/api-client";
 export interface OrgBranding {
   logo_url: string | null;
   primary_color: string | null;
+  secondary_color: string | null;
   display_name: string;
 }
 
@@ -43,6 +44,7 @@ interface AuthState {
 const DEFAULT_BRANDING: OrgBranding = {
   logo_url: null,
   primary_color: null,
+  secondary_color: null,
   display_name: "GrassLMS",
 };
 

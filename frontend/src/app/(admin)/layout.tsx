@@ -20,20 +20,26 @@ export default function AdminLayout({
     fetchUser();
   }, [fetchUser]);
 
-  // P2-2: inject org primary color (same as dashboard layout)
+  // P2-2: inject org brand colors (same logic as dashboard layout)
   useEffect(() => {
-    const color = branding?.primary_color;
-    if (!color) return;
     const root = document.documentElement;
-    root.style.setProperty("--primary", color);
-    root.style.setProperty("--primary-light", color + "22");
-    root.style.setProperty("--primary-dark", color);
-    return () => {
-      root.style.removeProperty("--primary");
-      root.style.removeProperty("--primary-light");
-      root.style.removeProperty("--primary-dark");
-    };
-  }, [branding?.primary_color]);
+    const vars: string[] = [];
+    const primary = branding?.primary_color;
+    if (primary) {
+      root.style.setProperty("--primary", primary);
+      root.style.setProperty("--primary-light", `color-mix(in srgb, ${primary} 15%, transparent)`);
+      root.style.setProperty("--primary-dark", `color-mix(in srgb, ${primary} 85%, black)`);
+      vars.push("--primary", "--primary-light", "--primary-dark");
+    }
+    const secondary = branding?.secondary_color;
+    if (secondary) {
+      root.style.setProperty("--secondary", secondary);
+      root.style.setProperty("--secondary-light", `color-mix(in srgb, ${secondary} 15%, transparent)`);
+      root.style.setProperty("--secondary-dark", `color-mix(in srgb, ${secondary} 85%, black)`);
+      vars.push("--secondary", "--secondary-light", "--secondary-dark");
+    }
+    return () => { vars.forEach((v) => root.style.removeProperty(v)); };
+  }, [branding?.primary_color, branding?.secondary_color]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

@@ -397,6 +397,7 @@ async def me_endpoint(user: User = Depends(get_current_user)):
     user_data["org_branding"] = {
         "logo_url": org_settings.get("logo_url"),
         "primary_color": org_settings.get("primary_color"),
+        "secondary_color": org_settings.get("secondary_color"),
         "display_name": org_settings.get("display_name") or (
             user.organization.name if hasattr(user, "organization") and user.organization else "GrassLMS"
         ),
