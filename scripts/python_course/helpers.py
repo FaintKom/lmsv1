@@ -58,21 +58,21 @@ def code(source: str, output: str = "") -> str:
 
 def note(body: str) -> str:
     """A subtle note/callout — used sparingly, not for every concept."""
-    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.92rem;line-height:1.7">
+    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;background:rgba(245,158,11,0.1);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.92rem;line-height:1.7">
 {body}
 </div>'''
 
 
 def important(body: str) -> str:
     """Important note — for things students MUST remember."""
-    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;background:#fef2f2;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;font-size:0.92rem;line-height:1.7">
+    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;border-radius:0 8px 8px 0;font-size:0.92rem;line-height:1.7">
 <strong>Important:</strong> {body}
 </div>'''
 
 
 def try_it(instruction: str = "Open the Python sandbox and try this yourself.") -> str:
     """Subtle inline prompt to practice."""
-    return f'<p style="margin:1rem 0;padding:0.75rem 1rem;background:#ecfdf5;border-radius:8px;font-size:0.9rem;color:#065f46">&#x25B6; {instruction}</p>'
+    return f'<p style="margin:1rem 0;padding:0.75rem 1rem;background:rgba(16,185,129,0.1);border-radius:8px;font-size:0.9rem">&#x25B6; {instruction}</p>'
 
 
 def exercise(level: str, title: str, description: str, hint: str = "") -> str:
