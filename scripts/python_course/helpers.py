@@ -41,17 +41,17 @@ def text(body: str) -> str:
 
 
 def code(source: str, output: str = "") -> str:
-    """Code block with optional output. Clean light-gray style with copy hint."""
+    """Code block with optional output. Dark theme for readability in both modes."""
     lines = source.split("\n")
     numbered = "\n".join(
-        f'<span style="display:inline-block;width:2.5em;color:#94a3b8;user-select:none;text-align:right;padding-right:1em">{i+1}</span>{line}'
+        f'<span style="display:inline-block;width:2.5em;color:#64748b;user-select:none;text-align:right;padding-right:1em">{i+1}</span>{line}'
         for i, line in enumerate(lines)
     )
     out_html = ""
     if output:
-        out_html = f'''<div style="padding:10px 14px;background:#f1f5f9;border-top:1px solid #e2e8f0;font-family:ui-monospace,monospace;font-size:0.85rem;color:#334155;white-space:pre-wrap;border-radius:0 0 10px 10px">{output}</div>'''
-    return f'''<div style="margin:1rem 0;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
-<pre style="margin:0;padding:14px 14px 14px 0;background:#f8fafc;font-family:ui-monospace,Menlo,monospace;font-size:0.87rem;line-height:1.7;overflow-x:auto;border-radius:{('10px' if not output else '10px 10px 0 0')}">{numbered}</pre>
+        out_html = f'''<div style="padding:10px 14px;background:#1e293b;border-top:1px dashed #334155;font-family:ui-monospace,monospace;font-size:0.85rem;color:#4ade80;white-space:pre-wrap;border-radius:0 0 10px 10px">{output}</div>'''
+    return f'''<div style="margin:1rem 0;border-radius:10px;overflow:hidden">
+<pre style="margin:0;padding:14px 14px 14px 0;background:#0f172a;color:#e2e8f0;font-family:ui-monospace,Menlo,monospace;font-size:0.87rem;line-height:1.7;overflow-x:auto;border-radius:{('10px' if not output else '10px 10px 0 0')}">{numbered}</pre>
 {out_html}
 </div>'''
 
