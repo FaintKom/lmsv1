@@ -69,9 +69,27 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
   );
 }
 
+/**
+ * Strip inline `max-width: NNNpx` (and related `margin: auto` that
+ * old lesson authors added to hand-center content). The page layout
+ * already constrains width, so leaving the inline style in causes
+ * a double constraint where content renders in a narrow column.
+ * Also strips `font-family` so content inherits the app font.
+ */
+function normalizeLessonHtml(html: string): string {
+  return html
+    // Drop inline max-width on the outermost wrapper divs
+    .replace(/max-width\s*:\s*[^;"}]+;?/gi, "")
+    // Drop margin:0 auto etc — rely on page layout
+    .replace(/margin\s*:\s*0\s+auto\s*;?/gi, "")
+    // Drop hardcoded font-family so app font wins
+    .replace(/font-family\s*:\s*[^;"}]+;?/gi, "");
+}
+
 /** Render HTML with KaTeX math support. First inserts HTML, then processes $...$ and $$...$$ */
 function HtmlWithMath({ html }: { html: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const normalized = normalizeLessonHtml(html);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -92,7 +110,6 @@ function HtmlWithMath({ html }: { html: string }) {
       if (parent && /^(code|pre|script|style)$/i.test(parent.tagName)) continue;
 
       // Process block math $$...$$ and inline math $...$
-      const parts: (string | { tex: string; display: boolean })[] = [];
       let remaining = text;
       let hasMatch = false;
 
@@ -132,9 +149,15 @@ function HtmlWithMath({ html }: { html: string }) {
 
       textNode.parentNode?.replaceChild(span, textNode);
     }
-  }, [html]);
+  }, [normalized]);
 
-  return <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <div
+      ref={ref}
+      className="lms-lesson-content"
+      dangerouslySetInnerHTML={{ __html: normalized }}
+    />
+  );
 }
 
 /** Split HTML into { before, interactive, after } around script-containing blocks */
@@ -193,33 +216,94 @@ function splitInteractive(html: string): { before: string; interactive: string; 
   };
 }
 
+/**
+ * Strip an outer `<!DOCTYPE ...><html>...<body>...</body></html>` wrapper
+ * if the author embedded a full HTML document inside a lesson block.
+ * Keeps `<head>`'s `<style>` tags so widget CSS still applies — we
+ * move them to the top of body so they parse correctly inside our
+ * own srcdoc template.
+ *
+ * Without this, we end up with nested DOCTYPE/html/body tags inside the
+ * iframe, which browsers "parse" but the result is fragile: scrollHeight
+ * is wrong, scripts may run in the outer context only, and postMessage
+ * resize never fires.
+ */
+function unwrapFullHtmlDoc(html: string): string {
+  let s = html;
+  // Strip doctype
+  s = s.replace(/<!doctype[^>]*>/gi, "");
+  // Extract <head> content (we want to keep its <style> tags)
+  const headMatch = s.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+  const headInner = headMatch
+    ? headMatch[1]
+        // Drop meta/title/link — we provide our own
+        .replace(/<(?:meta|title|link)[^>]*>/gi, "")
+        .replace(/<\/(?:meta|title|link)\s*>/gi, "")
+        .trim()
+    : "";
+  // Extract <body> content, or fall back to everything-after-html-open
+  const bodyMatch = s.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    s = (headInner ? headInner + "\n" : "") + bodyMatch[1];
+  } else {
+    // Remove <html> and </html> tags but keep their contents
+    s = s.replace(/<\/?html[^>]*>/gi, "");
+    if (headInner) s = headInner + "\n" + s;
+  }
+  return s;
+}
+
 function SandboxedIframe({ html }: { html: string }) {
-  // Inject a script that sends its height to parent via postMessage
-  const resizeScript = `<script>
-    function sendHeight(){
-      var h = document.documentElement.scrollHeight;
-      parent.postMessage({type:'iframe-resize', height: h}, '*');
+  // Remove any embedded <!DOCTYPE html><html>...<body>...</body></html>
+  // wrapper the author may have pasted in. Keeps their <style> blocks.
+  const cleaned = unwrapFullHtmlDoc(html);
+
+  // The resize script runs in the iframe. It uses a ResizeObserver on
+  // documentElement so the height updates as sliders, canvases, and
+  // async content grow. postMessage goes to window.parent with target
+  // '*' because the iframe has a null origin under sandbox="allow-scripts".
+  const resizeScript = `<script>(function(){
+    function send(){
+      var h = Math.max(
+        document.documentElement.scrollHeight,
+        document.body ? document.body.scrollHeight : 0,
+        document.body ? document.body.offsetHeight : 0
+      );
+      if (h > 0) parent.postMessage({type:'lms-iframe-resize', height: h}, '*');
     }
-    window.addEventListener('load', function(){ sendHeight(); setTimeout(sendHeight, 100); setTimeout(sendHeight, 500); });
-    new MutationObserver(sendHeight).observe(document.body, {childList:true, subtree:true, attributes:true});
-  </script>`;
-  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:system-ui,sans-serif;color:#1e293b;line-height:1.7;overflow:hidden}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${html}${resizeScript}</body></html>`;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', send);
+    } else { send(); }
+    window.addEventListener('load', send);
+    setTimeout(send, 50); setTimeout(send, 200); setTimeout(send, 600); setTimeout(send, 1500);
+    if (window.ResizeObserver) {
+      try { new ResizeObserver(send).observe(document.documentElement); } catch(e){}
+      try { if (document.body) new ResizeObserver(send).observe(document.body); } catch(e){}
+    }
+    if (window.MutationObserver && document.body) {
+      new MutationObserver(send).observe(document.body, {childList:true, subtree:true, attributes:true, characterData:true});
+    }
+    // Re-send on user input (sliders, buttons) because some changes don't
+    // trigger mutation or resize observers.
+    document.addEventListener('input', send, true);
+    document.addEventListener('click', send, true);
+  })();</script>`;
+
+  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;color:#1e293b;line-height:1.6;padding:12px}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${cleaned}${resizeScript}</body></html>`;
 
   const handleRef = (iframe: HTMLIFrameElement | null) => {
     if (!iframe) return;
     const onMessage = (e: MessageEvent) => {
-      if (e.source === iframe.contentWindow && e.data?.type === 'iframe-resize' && e.data.height) {
-        iframe.style.height = e.data.height + 'px';
+      if (
+        e.source === iframe.contentWindow &&
+        e.data?.type === "lms-iframe-resize" &&
+        typeof e.data.height === "number" &&
+        e.data.height > 20
+      ) {
+        iframe.style.height = e.data.height + "px";
       }
     };
-    window.addEventListener('message', onMessage);
-    // Also try direct access as fallback
-    iframe.onload = () => {
-      try {
-        const h = iframe.contentDocument?.documentElement?.scrollHeight;
-        if (h) iframe.style.height = h + 'px';
-      } catch { /* sandbox restriction */ }
-    };
+    window.addEventListener("message", onMessage);
   };
 
   return (
@@ -227,9 +311,10 @@ function SandboxedIframe({ html }: { html: string }) {
       ref={handleRef}
       srcDoc={srcdoc}
       sandbox="allow-scripts"
-      className="w-full border-0 rounded-xl overflow-hidden"
-      style={{ minHeight: 100 }}
+      className="w-full border-0 rounded-xl overflow-hidden bg-white dark:bg-[#1e1e1e]"
+      style={{ minHeight: 120 }}
       scrolling="no"
+      title="Interactive widget"
     />
   );
 }

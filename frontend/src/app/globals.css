@@ -85,6 +85,75 @@ body {
   }
 }
 
+/* Lesson content typography. Tailwind preflight strips all default
+   list markers, heading sizes, and spacing. Lesson HTML is authored
+   in plain HTML by methodists/the AI, so we restore sensible defaults
+   ONLY inside .lms-lesson-content (not globally) so the rest of the
+   app's design system isn't affected. */
+.lms-lesson-content {
+  color: inherit;
+  line-height: 1.7;
+}
+.lms-lesson-content h1 { font-size: 1.875rem; font-weight: 800; margin: 1.5rem 0 0.75rem; }
+.lms-lesson-content h2 { font-size: 1.5rem;   font-weight: 700; margin: 1.25rem 0 0.6rem; }
+.lms-lesson-content h3 { font-size: 1.25rem;  font-weight: 700; margin: 1rem 0 0.5rem; }
+.lms-lesson-content h4 { font-size: 1.1rem;   font-weight: 700; margin: 0.875rem 0 0.4rem; }
+.lms-lesson-content p { margin: 0.75rem 0; }
+.lms-lesson-content ul,
+.lms-lesson-content ol { margin: 0.75rem 0; padding-left: 1.6rem; }
+.lms-lesson-content ul { list-style: disc outside; }
+.lms-lesson-content ol { list-style: decimal outside; }
+.lms-lesson-content ul ul { list-style: circle outside; }
+.lms-lesson-content ol ol { list-style: lower-alpha outside; }
+.lms-lesson-content li { margin: 0.25rem 0; padding-left: 0.25rem; }
+.lms-lesson-content li::marker { color: #6366f1; font-weight: 600; }
+.lms-lesson-content strong { font-weight: 700; }
+.lms-lesson-content em { font-style: italic; }
+.lms-lesson-content a { color: #4f46e5; text-decoration: underline; text-underline-offset: 2px; }
+.lms-lesson-content a:hover { color: #4338ca; }
+.lms-lesson-content code:not(pre code) {
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+}
+.lms-lesson-content pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.lms-lesson-content blockquote {
+  border-left: 4px solid #c7d2fe;
+  padding: 0.5rem 0 0.5rem 1rem;
+  color: #475569;
+  font-style: italic;
+  margin: 1rem 0;
+}
+.lms-lesson-content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+}
+.lms-lesson-content th,
+.lms-lesson-content td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.lms-lesson-content th { background: #f8fafc; font-weight: 700; }
+.lms-lesson-content hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5rem 0; }
+.dark .lms-lesson-content code:not(pre code) { background: rgba(255,255,255,0.08); }
+.dark .lms-lesson-content blockquote { border-color: #4338ca; color: #cbd5e1; }
+.dark .lms-lesson-content th { background: rgba(255,255,255,0.04); }
+.dark .lms-lesson-content th,
+.dark .lms-lesson-content td { border-color: rgba(255,255,255,0.1); }
+.dark .lms-lesson-content hr { border-top-color: rgba(255,255,255,0.1); }
+.dark .lms-lesson-content li::marker { color: #818cf8; }
+
 /* Accessibility: visible focus indicator for keyboard navigation.
    WCAG 2.1 SC 2.4.7 "Focus Visible". We use :focus-visible so the
    ring only appears for keyboard users, not on every mouse click. */
