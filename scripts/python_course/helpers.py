@@ -10,16 +10,16 @@ from __future__ import annotations
 def lesson_header(number: str, title: str, intro: str) -> str:
     """Clean lesson header: section number + title + intro paragraph."""
     return f'''<div style="margin-bottom:2rem">
-<p style="margin:0 0 4px;font-size:0.85rem;color:#64748b">&lsaquo; Python Programming</p>
+<p style="margin:0 0 4px;font-size:0.85rem;color:inherit;opacity:0.6">&lsaquo; Python Programming</p>
 <h1 style="margin:0 0 16px;font-size:1.75rem;font-weight:700;color:inherit">{number} {title}</h1>
-<p style="margin:0;font-size:1rem;line-height:1.7;color:#64748b">{intro}</p>
+<p style="margin:0;font-size:1rem;line-height:1.7;color:inherit;opacity:0.6">{intro}</p>
 </div>'''
 
 
 def key_questions(items: list[str]) -> str:
     """Numbered list of key questions covered in this lesson."""
     li = "".join(f"<li>{q}</li>" for q in items)
-    return f'''<div style="margin:1.5rem 0;padding:1.25rem 1.5rem;background:#f8fafc;border-radius:12px">
+    return f'''<div style="margin:1.5rem 0;padding:1.25rem 1.5rem;background:rgba(128,128,128,0.08);border-radius:12px">
 <h3 style="margin:0 0 10px;font-size:1rem;font-weight:700">Key questions</h3>
 <ol style="margin:0;padding-left:1.4rem;line-height:1.8">{li}</ol>
 </div>'''
@@ -44,7 +44,7 @@ def code(source: str, output: str = "") -> str:
     """Code block with optional output. Dark theme for readability in both modes."""
     lines = source.split("\n")
     numbered = "\n".join(
-        f'<span style="display:inline-block;width:2.5em;color:#64748b;user-select:none;text-align:right;padding-right:1em">{i+1}</span>{line}'
+        f'<span style="display:inline-block;width:2.5em;color:inherit;opacity:0.6;user-select:none;text-align:right;padding-right:1em">{i+1}</span>{line}'
         for i, line in enumerate(lines)
     )
     out_html = ""
@@ -81,10 +81,10 @@ def exercise(level: str, title: str, description: str, hint: str = "") -> str:
     label = level_labels.get(level, level.title())
     hint_html = ""
     if hint:
-        hint_html = f'<details style="margin-top:8px"><summary style="cursor:pointer;font-size:0.85rem;color:#64748b">Show hint</summary><p style="margin:6px 0 0;font-size:0.85rem;color:#64748b">{hint}</p></details>'
-    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;border:1px solid #e2e8f0;border-radius:10px">
+        hint_html = f'<details style="margin-top:8px"><summary style="cursor:pointer;font-size:0.85rem;color:inherit;opacity:0.6">Show hint</summary><p style="margin:6px 0 0;font-size:0.85rem;color:inherit;opacity:0.6">{hint}</p></details>'
+    return f'''<div style="margin:1rem 0;padding:1rem 1.25rem;border:1px solid rgba(128,128,128,0.2);border-radius:10px">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-  <span style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#64748b">{label}</span>
+  <span style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:2px 8px;border-radius:4px;background:rgba(128,128,128,0.1);color:inherit;opacity:0.6">{label}</span>
 </div>
 <p style="margin:0 0 6px;font-weight:600">{title}</p>
 <div style="font-size:0.92rem;line-height:1.7">{description}</div>
@@ -116,7 +116,7 @@ def pro_tips(items: list[str]) -> str:
 def recap(items: list[str]) -> str:
     """Key takeaways — clean bullet list at end."""
     li = "".join(f"<li style='margin:0.3rem 0'>{i}</li>" for i in items)
-    return f'''<div style="margin:2rem 0 1rem;padding:1.25rem 1.5rem;background:#f8fafc;border-radius:12px">
+    return f'''<div style="margin:2rem 0 1rem;padding:1.25rem 1.5rem;background:rgba(128,128,128,0.08);border-radius:12px">
 <h3 style="margin:0 0 10px;font-size:1rem;font-weight:700">Key takeaways</h3>
 <ul style="margin:0;padding-left:1.4rem;line-height:1.7">{li}</ul>
 </div>'''
@@ -124,7 +124,7 @@ def recap(items: list[str]) -> str:
 
 def whats_next(title: str, preview: str) -> str:
     """What's next section — preview of next lesson."""
-    return f'''<div style="margin:2rem 0;padding:1.25rem 1.5rem;border:1px solid #e2e8f0;border-radius:12px">
+    return f'''<div style="margin:2rem 0;padding:1.25rem 1.5rem;border:1px solid rgba(128,128,128,0.2);border-radius:12px">
 <h3 style="margin:0 0 8px;font-size:1rem;font-weight:700">What&rsquo;s next</h3>
 <p style="margin:0;line-height:1.7">In the next lesson — <strong>{title}</strong> — {preview}</p>
 </div>'''
@@ -143,7 +143,7 @@ def concept(title: str, body: str) -> str:
 def code_example(title: str, source: str, output: str = "", explanation: str = "") -> str:
     result = code(source, output)
     if explanation:
-        result += f'\n<p style="margin:8px 0;font-size:0.9rem;color:#64748b;line-height:1.7">{explanation}</p>'
+        result += f'\n<p style="margin:8px 0;font-size:0.9rem;color:inherit;opacity:0.6;line-height:1.7">{explanation}</p>'
     return result
 
 
