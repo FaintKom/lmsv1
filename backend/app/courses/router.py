@@ -141,6 +141,10 @@ async def create_course_endpoint(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
+    # P2: enforce plan course limit
+    from app.billing.limits import check_course_limit
+    await check_course_limit(db, user.org_id)
+
     course = await create_course(db, data, user)
     return CourseResponse.model_validate(course)
 

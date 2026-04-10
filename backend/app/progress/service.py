@@ -11,6 +11,10 @@ from app.progress.models import Enrollment, LessonProgress, LessonStatus
 
 
 async def enroll(db: AsyncSession, course_id: uuid.UUID, user: User) -> Enrollment:
+    # P2: enforce plan student limit before enrolling
+    from app.billing.limits import check_student_limit
+    await check_student_limit(db, user.org_id)
+
     # Check course exists and is published
     result = await db.execute(
         select(Course).where(
