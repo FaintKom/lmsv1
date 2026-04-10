@@ -118,11 +118,19 @@ function HtmlWithMath({ html }: { html: string }) {
         hasMatch = true;
         return `\x00BLOCK:${tex}\x00`;
       });
-      // Inline math
-      remaining = remaining.replace(/\$([^$\n]+?)\$/g, (_, tex) => {
-        hasMatch = true;
-        return `\x00INLINE:${tex}\x00`;
-      });
+      // Inline math. The opening and closing $ must NOT be padded by
+      // whitespace — that's the LaTeX convention and it's the only
+      // reliable way to distinguish "$x$" (math) from "$2 ... $3"
+      // (currency in a word problem). Single-char form `$x$` is also
+      // allowed. This stops the renderer from accidentally rendering
+      // "$2 each and oranges for $" as a broken KaTeX expression.
+      remaining = remaining.replace(
+        /\$(\S[^$\n]*?\S|\S)\$/g,
+        (_, tex) => {
+          hasMatch = true;
+          return `\x00INLINE:${tex}\x00`;
+        }
+      );
 
       if (!hasMatch) continue;
 
