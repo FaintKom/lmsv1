@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
-import { Building2, Pencil, Trash2, X, Check, Users } from "lucide-react";
+import { Building2, Pencil, Trash2, X, Check, Users, Plus } from "lucide-react";
 
 interface Org {
   id: string;
@@ -23,6 +23,9 @@ export default function OrganizationsPage() {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [showCreate, setShowCreate] = useState(false);
+  const [newOrgName, setNewOrgName] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const isSuperAdmin = user?.role === "super_admin";
 
@@ -80,6 +83,22 @@ export default function OrganizationsPage() {
     }
   };
 
+  const createOrg = async () => {
+    if (!newOrgName.trim()) return;
+    setCreating(true);
+    try {
+      await apiClient.post("/admin/organizations", { name: newOrgName.trim() });
+      toast.success("Organization created");
+      setNewOrgName("");
+      setShowCreate(false);
+      fetchOrgs();
+    } catch {
+      toast.error("Failed to create organization");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -97,7 +116,42 @@ export default function OrganizationsPage() {
             {isSuperAdmin ? "Manage all organizations" : "Your organization settings"}
           </p>
         </div>
+        {isSuperAdmin && (
+          <Button onClick={() => setShowCreate(!showCreate)}>
+            <Plus className="h-4 w-4" />
+            New Organization
+          </Button>
+        )}
       </div>
+
+      {showCreate && (
+        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]">
+          <h3 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">Create organization</h3>
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <label htmlFor="newOrgName" className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                Organization name
+              </label>
+              <input
+                id="newOrgName"
+                type="text"
+                value={newOrgName}
+                onChange={(e) => setNewOrgName(e.target.value)}
+                placeholder="Acme School"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                onKeyDown={(e) => e.key === "Enter" && createOrg()}
+                disabled={creating}
+              />
+            </div>
+            <Button onClick={createOrg} disabled={creating || !newOrgName.trim()}>
+              {creating ? "Creating..." : "Create"}
+            </Button>
+            <Button variant="ghost" onClick={() => { setShowCreate(false); setNewOrgName(""); }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-3">
         {orgs.map((org) => (
