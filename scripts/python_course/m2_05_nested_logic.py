@@ -1,7 +1,7 @@
 """Module 2, Lesson 5: Nested Logic & Pattern Matching."""
 from .helpers import (
     assemble, hero, why_it_matters, concept, code_example, try_it,
-    exercise, mistakes, pro_tips, recap, section,
+    exercise, mistakes, pro_tips, recap, section, important,
 )
 
 
@@ -96,6 +96,10 @@ def build() -> str:
             "<p>Python 3.10 introduced <code>match/case</code>, similar to switch/case "
             "in other languages but much more powerful. It matches values against patterns.</p>"
         ),
+
+        important("The <code>match/case</code> syntax requires <strong>Python 3.10 or newer</strong>. "
+            "If you are using an older version, use <code>if/elif</code> chains instead. "
+            "You can check your version by running: <code>python --version</code>"),
 
         code_example("Basic match/case",
             'command = "start"\n'

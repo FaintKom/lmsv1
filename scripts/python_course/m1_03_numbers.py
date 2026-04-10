@@ -90,6 +90,28 @@ def build() -> str:
             "it rounds toward negative infinity."
         ),
 
+        concept("Why negative floor division rounds down",
+            "<p>Floor division always rounds <strong>down</strong> (toward negative infinity), "
+            "not toward zero. So <code>-10 // 3</code> equals <code>-4</code>, not <code>-3</code>, "
+            "because &minus;3.33... rounded down is &minus;4. This surprises many beginners who expect "
+            "it to simply chop off the decimal.</p>"
+        ),
+
+        code_example("Negative floor division",
+            '# Positive: rounds down toward zero\n'
+            'print(10 // 3)      # 3   (3.33 -> 3)\n'
+            '\n'
+            '# Negative: rounds down toward NEGATIVE infinity\n'
+            'print(-10 // 3)     # -4  (-3.33 -> -4, not -3)\n'
+            'print(10 // -3)     # -4  (same idea)\n'
+            '\n'
+            '# Compare with int() which truncates toward zero\n'
+            'print(int(-10 / 3)) # -3  (truncation, not floor)',
+            output="3\n-4\n-4\n-3",
+            explanation="<code>//</code> always rounds toward negative infinity. "
+            "If you want truncation toward zero instead, use <code>int()</code> on the true division result."
+        ),
+
         section("Order of operations (PEMDAS)"),
 
         concept("Python follows standard math order",

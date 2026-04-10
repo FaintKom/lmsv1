@@ -1,7 +1,7 @@
 """Module 1, Lesson 6: Project — CLI Budget Tracker."""
 from .helpers import (
     assemble, hero, why_it_matters, concept, code_example, try_it,
-    exercise, mistakes, pro_tips, recap, section,
+    exercise, mistakes, pro_tips, recap, section, note,
 )
 
 
@@ -144,6 +144,11 @@ def build() -> str:
         ),
 
         section("Step 6: Show summary"),
+
+        note("The <code>sum()</code> function adds up all numbers in a collection. "
+            "We will learn more about it in Module 3, but the basic usage is simple: "
+            "<code>sum([1, 2, 3])</code> returns <code>6</code>. "
+            "Below we use it with a short filter pattern to total income and expenses separately."),
 
         code_example("Formatted transaction summary",
             '# Inside the choice == "4" block:\n'
