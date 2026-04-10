@@ -32,7 +32,7 @@ interface RadarPoint {
 const CATEGORY_COLORS: Record<string, string> = {
   programming: "text-blue-600 bg-blue-100 dark:bg-blue-500/20 dark:text-blue-400",
   math: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
-  language: "text-violet-600 bg-violet-100 dark:bg-violet-500/20 dark:text-violet-400",
+  language: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
 };
 
 export default function SkillsPage() {

@@ -243,7 +243,7 @@ export default function AdminUsersPage() {
                           onClick={() => handleToggleMethodist(u.id, !!u.is_methodist)}
                           className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             u.is_methodist
-                              ? "bg-violet-50 dark:bg-violet-500/20 text-violet-600"
+                              ? "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600"
                               : "bg-slate-50 dark:bg-white/5 text-slate-400"
                           }`}
                         >

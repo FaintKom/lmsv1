@@ -136,10 +136,10 @@ export default function AdminDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+          <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
-                <TrendingUp className="h-5 w-5 text-violet-600" />
+              <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Avg Score</p>
@@ -204,10 +204,10 @@ export default function AdminDashboardPage() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Link href="/admin/content-library">
-            <Card className="cursor-pointer border-l-4 border-l-violet-400 hover:shadow-md">
+            <Card className="cursor-pointer border-l-4 border-l-emerald-400 hover:shadow-md">
               <CardContent className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-3">
-                  <Library className="h-5 w-5 text-violet-500" />
+                  <Library className="h-5 w-5 text-emerald-500" />
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Browse Templates</span>
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
@@ -361,10 +361,10 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
-              <GraduationCap className="h-5 w-5 text-violet-600" />
+            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
+              <GraduationCap className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Enrollments</p>
@@ -446,10 +446,10 @@ export default function AdminDashboardPage() {
           </Card>
         </Link>
         <Link href="/admin/analytics">
-          <Card className="cursor-pointer border-l-4 border-l-violet-400 hover:shadow-md">
+          <Card className="cursor-pointer border-l-4 border-l-emerald-400 hover:shadow-md">
             <CardContent className="flex items-center justify-between p-5">
               <div className="flex items-center gap-3">
-                <GraduationCap className="h-5 w-5 text-violet-500" />
+                <GraduationCap className="h-5 w-5 text-emerald-500" />
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   View Analytics
                 </span>

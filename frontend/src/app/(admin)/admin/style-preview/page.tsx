@@ -18,7 +18,7 @@ const EXTRA_STATS = [
 const colorMap: Record<string, { bg: string; iconBg: string; text: string; border: string; gradient: string; ring: string }> = {
   indigo: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
   emerald: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
-  violet: { bg: "bg-violet-50", iconBg: "bg-violet-100", text: "text-violet-600", border: "border-violet-400", gradient: "from-violet-50/80 to-white", ring: "ring-violet-200" },
+  violet: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
   amber: { bg: "bg-amber-50", iconBg: "bg-amber-100", text: "text-amber-600", border: "border-amber-400", gradient: "from-amber-50/80 to-white", ring: "ring-amber-200" },
   orange: { bg: "bg-orange-50", iconBg: "bg-orange-100", text: "text-orange-600", border: "border-orange-400", gradient: "from-orange-50/80 to-white", ring: "ring-orange-200" },
 };

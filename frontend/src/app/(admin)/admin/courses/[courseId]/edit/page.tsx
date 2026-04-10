@@ -154,7 +154,7 @@ const BLOCK_TYPE_COLORS: Record<string, string> = {
   text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400",
   html: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400",
   video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400",
-  exercise: "bg-violet-50 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400",
+  exercise: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
 };
 
 function getBlockPreview(block: LessonBlock): string {
@@ -236,7 +236,7 @@ const TYPE_COLORS: Record<string, string> = {
   quiz: "bg-green-50 dark:bg-green-500/20 text-green-600 border-green-200 dark:border-white/10",
   code_challenge: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
   file_upload: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 border-amber-200 dark:border-white/10",
-  interactive: "bg-violet-50 dark:bg-violet-500/20 text-violet-600 border-violet-200 dark:border-white/10",
+  interactive: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
 };
 
 const TYPE_EXPANDED_BG: Record<string, string> = {
@@ -245,7 +245,7 @@ const TYPE_EXPANDED_BG: Record<string, string> = {
   quiz: "border-green-200 dark:border-white/10 bg-green-50/30 dark:bg-green-500/20",
   code_challenge: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
   file_upload: "border-amber-200 dark:border-white/10 bg-amber-50/30 dark:bg-amber-500/20",
-  interactive: "border-violet-200 dark:border-white/10 bg-violet-50/30 dark:bg-violet-500/20",
+  interactive: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
 };
 
 export default function CourseEditorPage() {
@@ -1199,7 +1199,7 @@ export default function CourseEditorPage() {
                                                         <div className="space-y-2">
                                                           {block.exercise_id ? (
                                                             <div className="flex items-center gap-2">
-                                                              <span className="rounded-full bg-violet-50 dark:bg-violet-500/20 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400">
+                                                              <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
                                                                 {block.exercise_id.slice(0, 8)}...
                                                               </span>
                                                               <a
@@ -1270,7 +1270,7 @@ export default function CourseEditorPage() {
                                     </button>
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "exercise")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-violet-300 hover:text-violet-600 dark:text-slate-400 dark:hover:text-violet-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-emerald-300 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> Exercise
                                     </button>

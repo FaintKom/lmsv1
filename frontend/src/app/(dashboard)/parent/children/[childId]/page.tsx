@@ -85,10 +85,10 @@ export default function ChildDetailPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-violet-400">
+          <Card className="border-l-4 border-l-emerald-400">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-violet-100 p-2 dark:bg-violet-500/20">
-                <TrendingUp className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+              <div className="rounded-xl bg-emerald-100 p-2 dark:bg-emerald-500/20">
+                <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{t("parent.avgProgress")}</p>

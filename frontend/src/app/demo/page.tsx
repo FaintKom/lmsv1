@@ -63,7 +63,7 @@ function DemoRunner() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-violet-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
       {/* Minimal header */}
       <header className="border-b border-slate-100 bg-white/60 backdrop-blur dark:border-white/10 dark:bg-[#2C2C2C]/60">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">

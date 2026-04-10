@@ -126,9 +126,9 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-violet-200 hover:shadow-lg hover:shadow-violet-50">
-                <div className="mb-5 inline-flex rounded-2xl bg-violet-50 p-3.5">
-                  <Brain className="h-6 w-6 text-violet-600" />
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-50">
+                <div className="mb-5 inline-flex rounded-2xl bg-emerald-50 p-3.5">
+                  <Brain className="h-6 w-6 text-emerald-600" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
                   AI Tutor

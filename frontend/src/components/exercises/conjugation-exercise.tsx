@@ -58,7 +58,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
   return (
     <div className="space-y-5">
       {/* Verb header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-purple-600 p-6 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
         <div className="absolute -right-4 -top-4 text-[80px] opacity-10 select-none">
           {"\u270D\uFE0F"}
         </div>

@@ -185,11 +185,11 @@ export default function World3DExercise({
           {allowPython && (
             <div className="flex rounded-lg border border-slate-200 dark:border-white/10">
               <button onClick={() => setMode("blocks")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" : "text-slate-500"}`}>
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "text-slate-500"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Blocks
               </button>
               <button onClick={() => setMode("python")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" : "text-slate-500"}`}>
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "text-slate-500"}`}>
                 <Code className="h-3.5 w-3.5" /> Python
               </button>
             </div>
@@ -201,7 +201,7 @@ export default function World3DExercise({
           <Gauge className="h-3.5 w-3.5 text-slate-400" />
           <input type="range" min={50} max={800} step={50} value={850 - speed}
             onChange={(e) => setSpeed(850 - parseInt(e.target.value))}
-            className="h-1.5 w-16 accent-violet-500" title="Speed" />
+            className="h-1.5 w-16 accent-emerald-500" title="Speed" />
 
           {isRunning ? (
             <Button size="sm" onClick={handlePause}>

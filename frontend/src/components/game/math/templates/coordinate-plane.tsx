@@ -15,7 +15,7 @@ const POINT_COLORS = [
   { fill: "#f59e0b", label: "#d97706", name: "B", bg: "bg-amber-100 text-amber-700" },
   { fill: "#ec4899", label: "#db2777", name: "C", bg: "bg-pink-100 text-pink-700" },
   { fill: "#22c55e", label: "#16a34a", name: "D", bg: "bg-emerald-100 text-emerald-700" },
-  { fill: "#8b5cf6", label: "#7c3aed", name: "E", bg: "bg-violet-100 text-violet-700" },
+  { fill: "#8b5cf6", label: "#7c3aed", name: "E", bg: "bg-emerald-100 text-emerald-700" },
 ];
 
 export default function CoordinatePlane({ config, onComplete }: MathTemplateProps) {

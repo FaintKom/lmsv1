@@ -146,7 +146,7 @@ export default function InteractiveBuilder({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-        <Puzzle className="h-4 w-4 text-violet-500" />
+        <Puzzle className="h-4 w-4 text-emerald-500" />
         Interactive Exercise Builder
       </div>
 
@@ -158,7 +158,7 @@ export default function InteractiveBuilder({
             onClick={() => handleTypeChange(et.value)}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
               exerciseType === et.value
-                ? "border-violet-300 bg-violet-50 text-violet-700"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-700"
                 : "border-slate-200 text-slate-500 hover:border-slate-300"
             }`}
           >

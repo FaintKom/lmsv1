@@ -10,7 +10,7 @@ export default function AuthLayout({
     <div className="flex min-h-screen">
       <a href="#auth-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-green-600 focus:px-4 focus:py-2 focus:text-white">Skip to content</a>
       {/* Left side - branding */}
-      <div className="hidden w-1/2 bg-gradient-to-br from-green-600 via-green-700 to-violet-800 lg:flex lg:flex-col lg:items-center lg:justify-center">
+      <div className="hidden w-1/2 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 lg:flex lg:flex-col lg:items-center lg:justify-center">
         <div className="max-w-md px-8 text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
             <GraduationCap className="h-8 w-8 text-white" />

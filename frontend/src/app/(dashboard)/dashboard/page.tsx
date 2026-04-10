@@ -113,10 +113,10 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 p-3 dark:bg-violet-500/20">
-              <TrendingUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-500/20">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Avg. Progress</p>

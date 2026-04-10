@@ -226,10 +226,10 @@ export default function AdminBillingPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-violet-400">
+        <Card className="border-l-4 border-l-emerald-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
-              <Receipt className="h-5 w-5 text-violet-500" />
+            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
+              <Receipt className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Monthly Cost</p>

@@ -295,12 +295,12 @@ function TemplatesTab() {
           {templates.map((course) => (
             <Card
               key={course.id}
-              className="border-l-4 border-l-violet-400 transition-shadow hover:shadow-md"
+              className="border-l-4 border-l-emerald-400 transition-shadow hover:shadow-md"
             >
               <CardContent className="p-5">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <FileStack className="h-5 w-5 text-violet-500" />
+                    <FileStack className="h-5 w-5 text-emerald-500" />
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                         course.status === "published"

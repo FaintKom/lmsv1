@@ -195,10 +195,10 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
-              <GraduationCap className="h-5 w-5 text-violet-600" />
+            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
+              <GraduationCap className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Enrollments</p>
@@ -235,10 +235,10 @@ export default function AdminAnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-violet-400 hover:shadow-md">
+          <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-violet-100 dark:bg-violet-500/20 p-3">
-                <Award className="h-5 w-5 text-violet-600" />
+              <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
+                <Award className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Avg Quiz Score</p>
@@ -340,7 +340,7 @@ export default function AdminAnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <BookOpen className="h-4 w-4 text-violet-500" />
+                <BookOpen className="h-4 w-4 text-emerald-500" />
                 Lesson Types
               </CardTitle>
             </CardHeader>
@@ -374,7 +374,7 @@ export default function AdminAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <BarChart3 className="h-4 w-4 text-violet-500" />
+              <BarChart3 className="h-4 w-4 text-emerald-500" />
               Categories
             </CardTitle>
           </CardHeader>
@@ -411,7 +411,7 @@ export default function AdminAnalyticsPage() {
           <CardContent>
             <div className="space-y-3">
               <BarItem label="Students" value={studentCount} total={users.length} color="bg-emerald-500" />
-              <BarItem label="Teachers" value={teacherCount} total={users.length} color="bg-violet-500" />
+              <BarItem label="Teachers" value={teacherCount} total={users.length} color="bg-emerald-500" />
               <BarItem label="Admins" value={adminCount} total={users.length} color="bg-amber-500" />
             </div>
           </CardContent>

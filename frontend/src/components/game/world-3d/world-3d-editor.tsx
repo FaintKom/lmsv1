@@ -162,7 +162,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
 
       <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
         <input type="checkbox" checked={allowPython} onChange={(e) => updateConfig({ allow_python: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-violet-600" />
+          className="h-4 w-4 rounded border-slate-300 text-emerald-600" />
         Allow Python mode
       </label>
 
@@ -175,7 +175,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
             <button key={t.type} onClick={() => setActiveTool(t.type)}
               className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                 activeTool === t.type
-                  ? "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400"
               }`}>
               <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: t.color }} />
@@ -200,7 +200,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
 
                 return (
                   <button key={`${x}-${z}`} onClick={() => handleCellClick(x, z)}
-                    className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-slate-200 text-[9px] font-bold transition-colors hover:ring-2 hover:ring-violet-400 dark:border-white/10"
+                    className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-slate-200 text-[9px] font-bold transition-colors hover:ring-2 hover:ring-emerald-400 dark:border-white/10"
                     style={{ backgroundColor: bgColor }}
                     title={`(${x}, ${z})${topCell ? ` — ${topCell.type} y=${topCell.y}` : ""}${isPlayerStart ? " — PLAYER" : ""}`}
                   >

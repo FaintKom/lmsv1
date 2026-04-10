@@ -84,7 +84,7 @@ interface RadarPoint {
 const CATEGORY_COLORS: Record<string, string> = {
   programming: "text-blue-600 bg-blue-100 dark:bg-blue-500/20 dark:text-blue-400",
   math: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
-  language: "text-violet-600 bg-violet-100 dark:bg-violet-500/20 dark:text-violet-400",
+  language: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
 };
 
 type Tab = "achievements" | "certificates" | "skills";
@@ -395,9 +395,9 @@ function AchievementsTab({
               <p className="text-2xl font-bold text-emerald-600">+25</p>
               <p className="mt-1 text-xs text-emerald-500">Pass a quiz</p>
             </div>
-            <div className="rounded-lg bg-violet-50 p-4 text-center dark:bg-violet-500/10">
-              <p className="text-2xl font-bold text-violet-600">+50</p>
-              <p className="mt-1 text-xs text-violet-500">Pass a code challenge</p>
+            <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-500/10">
+              <p className="text-2xl font-bold text-emerald-600">+50</p>
+              <p className="mt-1 text-xs text-emerald-500">Pass a code challenge</p>
             </div>
             <div className="rounded-lg bg-orange-50 p-4 text-center dark:bg-orange-500/10">
               <p className="text-2xl font-bold text-orange-600">+5</p>

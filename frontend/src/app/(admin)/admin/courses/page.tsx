@@ -201,7 +201,7 @@ export default function AdminCoursesPage() {
     const isTemplate = 'is_template' in course && course.is_template;
     const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
     const category = 'category' in course ? course.category : null;
-    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-violet-500 to-purple-600" : "from-green-500 to-emerald-600");
+    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-emerald-500 to-green-600" : "from-green-500 to-emerald-600");
 
     return (
       <Card key={course.id} className="group overflow-hidden transition-all hover:shadow-lg dark:hover:shadow-none">
@@ -216,7 +216,7 @@ export default function AdminCoursesPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             <div className="absolute right-2 top-2 flex items-center gap-1.5">
               {isTemplate && (
-                <span className="rounded-full bg-violet-500/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                <span className="rounded-full bg-emerald-500/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
                   Template
                 </span>
               )}
@@ -250,7 +250,7 @@ export default function AdminCoursesPage() {
               </span>
             )}
             {'source_course_id' in course && course.source_course_id && (
-              <span className="rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                 From template{('template_version' in course && course.template_version) ? ` v${course.template_version}` : ""}
               </span>
             )}
@@ -384,7 +384,7 @@ export default function AdminCoursesPage() {
                     type="checkbox"
                     checked={form.is_template}
                     onChange={(e) => setForm({ ...form, is_template: e.target.checked })}
-                    className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                   />
                   Create as organization template
                   <span className="text-xs text-slate-400">(visible to all teachers for copying)</span>
@@ -403,7 +403,7 @@ export default function AdminCoursesPage() {
         <div className="mb-8">
           <div className="mb-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-              <FileStack className="h-5 w-5 text-violet-500" />
+              <FileStack className="h-5 w-5 text-emerald-500" />
               Organization Templates
               <span className="text-sm font-normal text-slate-400 dark:text-slate-500">({templates.length})</span>
             </h2>

@@ -110,7 +110,7 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
   quiz: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
   code_challenge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-  matching: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  matching: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
   ordering: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
   fill_blanks: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300",
   true_false: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
@@ -118,7 +118,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
   file_upload: "bg-slate-100 text-slate-700 dark:bg-slate-700/30 dark:text-slate-300",
   robot_2d: "bg-green-100 text-green-700 dark:bg-indigo-900/30 dark:text-green-300",
   math_interactive: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
-  world_3d: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
+  world_3d: "bg-emerald-100 text-emerald-700 dark:bg-green-900/30 dark:text-emerald-300",
   translation: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
   sentence_builder: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300",
   dialogue: "bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300",

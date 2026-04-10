@@ -37,7 +37,7 @@ const CONTENT_COLORS: Record<string, string> = {
   text: "bg-blue-50 text-blue-500",
   video: "bg-rose-50 text-rose-500",
   quiz: "bg-emerald-50 text-emerald-500",
-  code_challenge: "bg-violet-50 text-violet-500",
+  code_challenge: "bg-emerald-50 text-emerald-500",
 };
 
 export default function CourseDetailPage() {

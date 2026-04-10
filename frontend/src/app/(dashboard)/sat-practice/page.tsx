@@ -42,7 +42,7 @@ export default function SATPracticePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Hero */}
-      <div className="rounded-2xl bg-gradient-to-br from-green-600 via-violet-600 to-purple-700 p-8 text-white">
+      <div className="rounded-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 p-8 text-white">
         <div className="flex items-center gap-3 mb-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
             <GraduationCap className="h-6 w-6" />
