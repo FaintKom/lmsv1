@@ -105,7 +105,13 @@ async def authenticate(db: AsyncSession, email: str, password: str) -> User:
 
 
 async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> User:
-    result = await db.execute(select(User).where(User.id == user_id))
+    from sqlalchemy.orm import selectinload
+
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.organization))
+        .where(User.id == user_id)
+    )
     user = result.scalar_one_or_none()
     if not user:
         raise NotFoundError("User not found")

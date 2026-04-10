@@ -23,9 +23,15 @@ const MENU_ITEMS = [
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
+  const fetchUser = useAuthStore((s) => s.fetchUser);
   const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Branding fields (P2-2)
+  const [displayName, setDisplayName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#6366f1");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -34,11 +40,14 @@ export default function SettingsPage() {
         const settings = data.settings || {};
         const vis: Record<string, boolean> = {};
         for (const item of MENU_ITEMS) {
-          vis[item.key] = settings.menu_visibility?.[item.key] !== false; // default true
+          vis[item.key] = settings.menu_visibility?.[item.key] !== false;
         }
         setMenuVisibility(vis);
+        // Branding
+        setDisplayName(settings.display_name || data.name || "");
+        setLogoUrl(settings.logo_url || "");
+        setPrimaryColor(settings.primary_color || "#6366f1");
       } catch {
-        // Default all to visible
         const vis: Record<string, boolean> = {};
         for (const item of MENU_ITEMS) vis[item.key] = true;
         setMenuVisibility(vis);
@@ -57,9 +66,16 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await apiClient.put(`/admin/organizations/${user?.org_id}`, {
-        settings: { menu_visibility: menuVisibility },
+        settings: {
+          menu_visibility: menuVisibility,
+          display_name: displayName.trim() || undefined,
+          logo_url: logoUrl.trim() || undefined,
+          primary_color: primaryColor || undefined,
+        },
       });
-      toast.success("Settings saved");
+      toast.success("Settings saved — reload to see branding changes.");
+      // Refresh the auth store so sidebar/CSS picks up new branding
+      await fetchUser();
     } catch {
       toast.error("Failed to save settings");
     } finally {
@@ -85,6 +101,84 @@ export default function SettingsPage() {
         <p className="text-sm text-slate-500 dark:text-slate-400">
           Configure which menu items are visible in the admin sidebar
         </p>
+      </div>
+
+      {/* P2-2: Branding card */}
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C]">
+        <div className="border-b border-slate-100 px-6 py-4 dark:border-white/10">
+          <h2 className="font-semibold text-slate-900 dark:text-slate-100">Branding</h2>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Customize how your organization appears to staff and students
+          </p>
+        </div>
+        <div className="space-y-5 p-6">
+          <div>
+            <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Organization display name
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="My School"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+            />
+            <p className="mt-1 text-xs text-slate-400">Shown in the sidebar header instead of &ldquo;LearnHub&rdquo;</p>
+          </div>
+
+          <div>
+            <label htmlFor="logoUrl" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Logo URL
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="logoUrl"
+                type="url"
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                placeholder="https://example.com/logo.png"
+                className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+              {logoUrl && (
+                <img
+                  src={logoUrl}
+                  alt="Logo preview"
+                  className="h-10 w-10 rounded-lg border border-slate-200 object-cover dark:border-white/10"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              )}
+            </div>
+            <p className="mt-1 text-xs text-slate-400">Square image recommended (e.g. 128×128 px). Leave blank for the default icon.</p>
+          </div>
+
+          <div>
+            <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Primary color
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="primaryColor"
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                className="h-10 w-10 cursor-pointer rounded-lg border border-slate-300 p-0.5 dark:border-white/10"
+              />
+              <input
+                type="text"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                className="w-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none"
+                placeholder="#6366f1"
+              />
+              <div
+                className="h-10 flex-1 rounded-lg"
+                style={{ background: primaryColor }}
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-400">Used as the accent color across buttons, links, and the sidebar icon.</p>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C]">

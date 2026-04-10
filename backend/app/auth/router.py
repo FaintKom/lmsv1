@@ -382,9 +382,26 @@ async def resend_verification_endpoint(
     return {"message": "If the email exists and is unverified, a new link has been sent."}
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me")
 async def me_endpoint(user: User = Depends(get_current_user)):
-    return UserResponse.model_validate(user)
+    """Return the authenticated user plus their org's branding settings.
+
+    The org_branding dict is used by the frontend to customise the
+    sidebar logo/name and inject the org's primary colour into the
+    CSS custom properties (P2-2 white-label).
+    """
+    user_data = UserResponse.model_validate(user).model_dump()
+    org_settings = {}
+    if hasattr(user, "organization") and user.organization:
+        org_settings = user.organization.settings or {}
+    user_data["org_branding"] = {
+        "logo_url": org_settings.get("logo_url"),
+        "primary_color": org_settings.get("primary_color"),
+        "display_name": org_settings.get("display_name") or (
+            user.organization.name if hasattr(user, "organization") and user.organization else "LearnHub"
+        ),
+    }
+    return user_data
 
 
 @router.put("/me", response_model=UserResponse)

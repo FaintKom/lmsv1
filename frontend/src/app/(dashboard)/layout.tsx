@@ -28,6 +28,27 @@ export default function DashboardLayout({
   }, [fetchUser]);
 
   const user = useAuthStore((s) => s.user);
+  const branding = useAuthStore((s) => s.branding);
+
+  // P2-2: inject org primary color into CSS custom properties so every
+  // element using var(--primary) or Tailwind's primary color adapts
+  // automatically to the org's brand.
+  useEffect(() => {
+    const color = branding?.primary_color;
+    if (!color) return;
+    const root = document.documentElement;
+    root.style.setProperty("--primary", color);
+    // Compute a lighter variant (for hover/light backgrounds)
+    // and a darker variant (for active/pressed states).
+    // Simple approach: lighten by 30% and darken by 15% via opacity blending.
+    root.style.setProperty("--primary-light", color + "22");
+    root.style.setProperty("--primary-dark", color);
+    return () => {
+      root.style.removeProperty("--primary");
+      root.style.removeProperty("--primary-light");
+      root.style.removeProperty("--primary-dark");
+    };
+  }, [branding?.primary_color]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

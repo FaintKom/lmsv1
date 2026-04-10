@@ -45,6 +45,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const branding = useAuthStore((s) => s.branding);
   const logout = useAuthStore((s) => s.logout);
   const { t } = useTranslation();
 
@@ -135,13 +136,26 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-      {/* Logo */}
+      {/* Logo — dynamic per-org branding (P2-2) */}
       <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6 dark:border-white/10">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-            <GraduationCap className="h-4.5 w-4.5 text-white" />
-          </div>
-          <span className="text-lg font-bold text-slate-900 dark:text-slate-100">LearnHub</span>
+          {branding.logo_url ? (
+            <img
+              src={branding.logo_url}
+              alt={branding.display_name}
+              className="h-8 w-8 rounded-lg object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-lg"
+              style={{ background: branding.primary_color || "#6366f1" }}
+            >
+              <GraduationCap className="h-4.5 w-4.5 text-white" />
+            </div>
+          )}
+          <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {branding.display_name}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <NotificationBell />

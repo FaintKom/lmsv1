@@ -13,12 +13,27 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, fetchUser } = useAuthStore();
+  const { user, branding, isAuthenticated, isLoading, fetchUser } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
+
+  // P2-2: inject org primary color (same as dashboard layout)
+  useEffect(() => {
+    const color = branding?.primary_color;
+    if (!color) return;
+    const root = document.documentElement;
+    root.style.setProperty("--primary", color);
+    root.style.setProperty("--primary-light", color + "22");
+    root.style.setProperty("--primary-dark", color);
+    return () => {
+      root.style.removeProperty("--primary");
+      root.style.removeProperty("--primary-light");
+      root.style.removeProperty("--primary-dark");
+    };
+  }, [branding?.primary_color]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

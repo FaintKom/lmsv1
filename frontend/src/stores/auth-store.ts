@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import apiClient from "@/lib/api-client";
 
+export interface OrgBranding {
+  logo_url: string | null;
+  primary_color: string | null;
+  display_name: string;
+}
+
 interface User {
   id: string;
   email: string;
@@ -12,10 +18,12 @@ interface User {
   is_active: boolean;
   is_methodist: boolean;
   email_verified_at: string | null;
+  org_branding?: OrgBranding;
 }
 
 interface AuthState {
   user: User | null;
+  branding: OrgBranding;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -32,8 +40,15 @@ interface AuthState {
   fetchUser: () => Promise<void>;
 }
 
+const DEFAULT_BRANDING: OrgBranding = {
+  logo_url: null,
+  primary_color: null,
+  display_name: "LearnHub",
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  branding: DEFAULT_BRANDING,
   isLoading: true,
   isAuthenticated: false,
 
@@ -41,14 +56,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { data } = await apiClient.post("/auth/login/", { email, password });
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
-    set({ user: data.user, isAuthenticated: true, isLoading: false });
+    const branding = data.user?.org_branding || DEFAULT_BRANDING;
+    set({ user: data.user, branding, isAuthenticated: true, isLoading: false });
   },
 
   register: async (registerData) => {
     const { data } = await apiClient.post("/auth/register/", registerData);
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
-    set({ user: data.user, isAuthenticated: true, isLoading: false });
+    const branding = data.user?.org_branding || DEFAULT_BRANDING;
+    set({ user: data.user, branding, isAuthenticated: true, isLoading: false });
   },
 
   logout: () => {
@@ -60,9 +77,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     try {
       const { data } = await apiClient.get("/auth/me/");
-      set({ user: data, isAuthenticated: true, isLoading: false });
+      const branding = data.org_branding || DEFAULT_BRANDING;
+      set({ user: data, branding, isAuthenticated: true, isLoading: false });
     } catch {
-      set({ user: null, isAuthenticated: false, isLoading: false });
+      set({ user: null, branding: DEFAULT_BRANDING, isAuthenticated: false, isLoading: false });
     }
   },
 }));
