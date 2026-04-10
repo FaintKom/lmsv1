@@ -301,6 +301,23 @@ body {
 .lms-lesson-content .lms-pitfall-name { color: #991b1b; }
 .dark .lms-lesson-content .lms-pitfall-name { color: #fca5a5; }
 
+/* Mobile: touch utilities and responsive sizing */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices: ensure minimum tap targets */
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+}
+
+/* Responsive lesson typography — fluid scaling so text is readable
+   on phones but doesn't shrink excessively on tiny screens. */
+@media (max-width: 640px) {
+  .lms-lesson-content { font-size: clamp(0.88rem, 2.5vw, 1rem); }
+  .lms-lesson-content h1 { font-size: clamp(1.5rem, 5vw, 1.875rem); }
+  .lms-lesson-content h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
+  .lms-lesson-content h3 { font-size: clamp(1.05rem, 3.5vw, 1.25rem); }
+}
+
 /* Accessibility: visible focus indicator for keyboard navigation.
    WCAG 2.1 SC 2.4.7 "Focus Visible". We use :focus-visible so the
    ring only appears for keyboard users, not on every mouse click. */

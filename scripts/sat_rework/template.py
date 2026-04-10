@@ -134,6 +134,15 @@ canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1
   .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
   .lms-info b{color:#a5b4fc}
 }
+@media(max-width:480px){
+  body{padding:10px}
+  canvas{width:100%!important;height:auto!important}
+  input[type=range]{min-height:44px}
+  .lms-btn{min-height:44px;padding:10px 14px;font-size:0.9rem}
+  .lms-widget-title{font-size:0.95rem}
+  .lms-row{flex-direction:column;align-items:stretch}
+  .lms-row label{min-width:auto}
+}
 """
 
 

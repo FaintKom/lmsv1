@@ -297,7 +297,7 @@ function SandboxedIframe({ html }: { html: string }) {
     document.addEventListener('click', send, true);
   })();</script>`;
 
-  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;color:#1e293b;line-height:1.6;padding:12px}*{box-sizing:border-box}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${cleaned}${resizeScript}</body></html>`;
+  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;color:#1e293b;line-height:1.6;padding:12px;touch-action:manipulation}*{box-sizing:border-box}canvas{max-width:100%}input[type=range]{min-height:44px}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${cleaned}${resizeScript}</body></html>`;
 
   const handleRef = (iframe: HTMLIFrameElement | null) => {
     if (!iframe) return;

@@ -227,7 +227,7 @@ export default function LessonViewerPage() {
       )}
       {/* Sidebar — overlay on mobile, static on desktop */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-72 md:w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-[min(288px,85vw)] md:w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-transform duration-200 ease-in-out overscroll-contain md:relative md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden"
         }`}
       >
@@ -307,7 +307,7 @@ export default function LessonViewerPage() {
           </button>
         )}
 
-        <div className="mx-auto max-w-3xl px-3 py-4 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-8">
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">

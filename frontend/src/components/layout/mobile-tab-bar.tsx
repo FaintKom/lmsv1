@@ -47,15 +47,16 @@ export function MobileTabBar() {
             <Link
               key={tab.href}
               href={tab.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex min-w-[64px] flex-col items-center gap-0.5 px-2 py-2.5 text-[10px] font-medium transition-colors",
+                "flex min-h-[48px] min-w-[48px] flex-1 flex-col items-center justify-center gap-1 px-1 text-xs font-medium transition-colors active:scale-[0.95] active:opacity-80",
                 isActive
                   ? "text-indigo-600 dark:text-indigo-400"
                   : "text-slate-400 dark:text-slate-500"
               )}
             >
-              <tab.icon className="h-5 w-5" />
-              {tab.label}
+              <tab.icon className="h-5 w-5" aria-hidden="true" />
+              <span>{tab.label}</span>
             </Link>
           );
         })}

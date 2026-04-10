@@ -15,6 +15,7 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   // WCAG 2.1 SC 1.4.4 "Resize text" — users must be able to zoom. Do NOT
   // set maximumScale/userScalable: false. Zoom up to 5x is the spec
   // requirement and the browser default is fine.
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <script dangerouslySetInnerHTML={{ __html: `
   (function() {
     var theme = localStorage.getItem('theme');

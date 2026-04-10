@@ -80,7 +80,7 @@ export function AiTutorPanel({ context }: AiTutorPanelProps) {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-[98] flex h-[500px] w-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl shadow-black/10 dark:border-white/10 dark:bg-[#2C2C2C] dark:shadow-black/30 md:bottom-4 md:right-6 md:h-[540px] md:w-[380px]">
+    <div className="fixed bottom-20 right-2 left-2 z-[98] flex max-h-[75vh] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl shadow-black/10 dark:border-white/10 dark:bg-[#2C2C2C] dark:shadow-black/30 md:bottom-4 md:left-auto md:right-6 md:h-[540px] md:w-[380px] md:max-h-none">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-200/60 bg-gradient-to-r from-violet-500 to-indigo-600 px-4 py-3 dark:border-white/10">
         <div className="flex items-center gap-2">
