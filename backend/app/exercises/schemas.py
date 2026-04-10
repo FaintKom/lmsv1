@@ -117,6 +117,14 @@ class ReadingConfig(BaseModel):
     questions: list[dict] = []  # [{question, type, options?, correct_answer?}]
 
 
+class WebEditorConfig(BaseModel):
+    description: str = ""
+    starter_html: str = ""
+    starter_css: str = ""
+    starter_js: str = ""
+    requirements: list[str] = []
+
+
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
 class ExerciseCreate(BaseModel):
@@ -195,6 +203,8 @@ class SubmitExerciseRequest(BaseModel):
     interactive_answers: dict | None = None
     # Game levels (robot_2d, math_interactive, world_3d)
     game_result: dict | None = None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
+    # Web editor (HTML/CSS/JS)
+    web_code: dict | None = None  # {html, css, js}
 
 
 class ExerciseSubmissionResponse(BaseModel):

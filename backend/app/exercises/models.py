@@ -36,6 +36,7 @@ class ExerciseType(str, enum.Enum):
     dialogue = "dialogue"
     conjugation = "conjugation"
     reading = "reading"
+    web_editor = "web_editor"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -55,6 +56,7 @@ EXERCISE_TYPE_PREFIX = {
     "dialogue": "DG",
     "conjugation": "CJ",
     "reading": "RD",
+    "web_editor": "W",
 }
 
 

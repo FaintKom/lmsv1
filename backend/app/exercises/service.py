@@ -428,6 +428,8 @@ async def submit_exercise(
         ExerciseType.robot_2d, ExerciseType.math_interactive, ExerciseType.world_3d
     ):
         return await _submit_game_level(db, exercise, user, data, now)
+    elif exercise.exercise_type == ExerciseType.web_editor:
+        return await _submit_web_editor(db, exercise, user, data, now)
     elif exercise.exercise_type in (
         ExerciseType.translation,
         ExerciseType.sentence_builder,
@@ -714,6 +716,47 @@ async def _submit_game_level(
         xp = GAME_XP.get(exercise.exercise_type, 25)
         reason = f"{exercise.exercise_type.value}_completed"
         await _award_xp(db, user.id, xp, reason)
+
+    return await _reload_submission(db, submission.id)
+
+
+# ─── Web Editor ────────────────────────────────────────────────────────
+
+async def _submit_web_editor(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    web_code = data.get("web_code")
+    if not web_code or not isinstance(web_code, dict):
+        raise BadRequestError("web_code is required for web editor exercises")
+
+    html_code = web_code.get("html", "")
+    css_code = web_code.get("css", "")
+    js_code = web_code.get("js", "")
+
+    # Store as submitted — no auto-grading; teacher reviews manually
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers={
+            "html": html_code,
+            "css": css_code,
+            "js": js_code,
+        },
+        source_code=html_code,  # primary code for review queue display
+        language="html",
+        score=None,
+        passed=None,
+        status="submitted",
+        submitted_at=now,
+    )
+    db.add(submission)
+    await db.flush()
+
+    await _award_xp(db, user.id, 15, "web_editor_submitted")
 
     return await _reload_submission(db, submission.id)
 

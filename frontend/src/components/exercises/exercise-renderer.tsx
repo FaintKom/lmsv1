@@ -37,6 +37,11 @@ const World3DExercise = dynamic(() => import("@/components/game/world-3d/world-3
   loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 3D World...</div>,
 });
 
+const WebEditorExercise = dynamic(() => import("@/components/exercises/web-editor-exercise"), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Web Editor...</div>,
+});
+
 interface Question {
   id: string;
   question_text: string;
@@ -73,7 +78,8 @@ interface Exercise {
     | "sentence_builder"
     | "dialogue"
     | "conjugation"
-    | "reading";
+    | "reading"
+    | "web_editor";
   title: string;
   config: Record<string, unknown>;
   questions?: Question[];
@@ -559,6 +565,19 @@ function ExerciseBody({
       const cfg = exercise.config as { passage?: string; questions?: { question: string; type: "multiple_choice" | "text"; options?: { id: string; text: string; is_correct?: boolean }[]; correct_answer?: string }[] };
       return <ReadingExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
     }
+
+    case "web_editor":
+      return (
+        <WebEditorExercise
+          exerciseId={exercise.id}
+          config={exercise.config as { description?: string; starter_html?: string; starter_css?: string; starter_js?: string; requirements?: string[] }}
+          onSubmit={(body) => {
+            if (!(body as { _already_submitted?: boolean })._already_submitted) {
+              onSubmit(body);
+            }
+          }}
+        />
+      );
 
     default:
       return (

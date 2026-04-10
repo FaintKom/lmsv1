@@ -69,7 +69,7 @@ export default function LessonViewerPage() {
   const [exercises, setExercises] = useState<
     {
       id: string;
-      exercise_type: "quiz" | "code_challenge" | "matching" | "ordering" | "fill_blanks" | "true_false" | "categorize" | "file_upload";
+      exercise_type: string;
       title: string;
       config: Record<string, unknown>;
       questions?: unknown[];
