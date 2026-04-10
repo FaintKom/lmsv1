@@ -339,3 +339,349 @@ test.describe("Lesson 6: Real-World Linear Model Translator", () => {
     await expect(page.locator('.scenario-picker button[data-s="0"]')).not.toHaveClass(/active/);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Lesson 7 — Proportion Solver
+// ---------------------------------------------------------------------------
+test.describe("Lesson 7: Proportion Solver", () => {
+  test("solves a/b = c/d when one box is blank", async ({ page }) => {
+    await page.goto(FIX("lesson-07-ratios"));
+    // Default 3/5 = 12/?  → d = (5*12)/3 = 20
+    await page.click("#solveBtn");
+    await expect(page.locator("#ans")).toContainText("20");
+    await expect(page.locator("#d")).toHaveValue("20");
+  });
+
+  test("rejects when not exactly one box is blank", async ({ page }) => {
+    await page.goto(FIX("lesson-07-ratios"));
+    await page.fill("#d", "15");
+    await page.click("#solveBtn");
+    await expect(page.locator("#ans")).toContainText(/EXACTLY one/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 8 — Percent Calculator
+// ---------------------------------------------------------------------------
+test.describe("Lesson 8: Percent Calculator", () => {
+  test("default mode: 20% of 80 = 16", async ({ page }) => {
+    await page.goto(FIX("lesson-08-percentages"));
+    await expect(page.locator("#result")).toContainText("16");
+  });
+
+  test("switching to mode 1 computes A as % of B", async ({ page }) => {
+    await page.goto(FIX("lesson-08-percentages"));
+    await page.click('.mode-picker button[data-mode="1"]');
+    // After switch: A=16, B=80 → 16 is 20% of 80
+    await expect(page.locator("#result")).toContainText("20%");
+  });
+
+  test("switching to mode 2 computes A as X% of what", async ({ page }) => {
+    await page.goto(FIX("lesson-08-percentages"));
+    await page.click('.mode-picker button[data-mode="2"]');
+    // After switch: X=20%, A=16 → 16 is 20% of 80
+    await expect(page.locator("#result")).toContainText("80");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 9 — Live Statistics Calculator
+// ---------------------------------------------------------------------------
+test.describe("Lesson 9: Live Statistics", () => {
+  test("preset gives mean=7.6, median=7, mode=7", async ({ page }) => {
+    await page.goto(FIX("lesson-09-statistics"));
+    await page.click("#presetBtn");
+    await expect(page.locator("#mean")).toHaveText("7.6");
+    await expect(page.locator("#median")).toHaveText("7");
+    await expect(page.locator("#mode")).toHaveText("7");
+  });
+
+  test("clear empties the list", async ({ page }) => {
+    await page.goto(FIX("lesson-09-statistics"));
+    await page.click("#presetBtn");
+    await page.click("#clearBtn");
+    await expect(page.locator("#mean")).toHaveText("—");
+  });
+
+  test("adding a number updates the mean", async ({ page }) => {
+    await page.goto(FIX("lesson-09-statistics"));
+    await page.fill("#newNum", "10");
+    await page.click("#addBtn");
+    await page.fill("#newNum", "20");
+    await page.click("#addBtn");
+    await expect(page.locator("#mean")).toHaveText("15");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 10 — Scatter / Line of Best Fit Tuner
+// ---------------------------------------------------------------------------
+test.describe("Lesson 10: Scatter / Line of Best Fit", () => {
+  test("default has indigo line and point dataset", async ({ page }) => {
+    await page.goto(FIX("lesson-10-scatter"));
+    await expect(page.locator("#eq")).toHaveText("y = 1.0·x + 0.0");
+    await expect(page.locator("#fit")).toContainText(/Sum of squared residuals/);
+  });
+
+  test("changing slope updates equation and residual", async ({ page }) => {
+    await page.goto(FIX("lesson-10-scatter"));
+    await page.evaluate(() => {
+      const m = document.getElementById("m") as HTMLInputElement;
+      m.value = "0.7"; m.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#eq")).toContainText("0.7");
+  });
+
+  test("dataset picker swaps the points", async ({ page }) => {
+    await page.goto(FIX("lesson-10-scatter"));
+    await page.click('.dataset-picker button[data-set="1"]');
+    await expect(page.locator('.dataset-picker button[data-set="1"]')).toHaveClass(/active/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 11 — Two-Way Table Probability
+// ---------------------------------------------------------------------------
+test.describe("Lesson 11: Two-Way Table Probability", () => {
+  test("default P(adult) = 50/100", async ({ page }) => {
+    await page.goto(FIX("lesson-11-probability"));
+    await expect(page.locator("#result")).toContainText("50 / 100");
+    await expect(page.locator("#grand")).toHaveText("100");
+  });
+
+  test("switching to conditional P(likes | adult) = 40/50", async ({ page }) => {
+    await page.goto(FIX("lesson-11-probability"));
+    await page.click('.q-picker button[data-q="3"]');
+    await expect(page.locator("#result")).toContainText("40 / 50");
+    await expect(page.locator("#result")).toContainText("80%");
+  });
+
+  test("editing a cell updates the totals", async ({ page }) => {
+    await page.goto(FIX("lesson-11-probability"));
+    await page.fill("#aa", "60");
+    await expect(page.locator("#ra")).toHaveText("70");
+    await expect(page.locator("#grand")).toHaveText("120");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 12 — Quadratic Solver
+// ---------------------------------------------------------------------------
+test.describe("Lesson 12: Quadratic Solver", () => {
+  test("default x² + 5x + 6 → roots -2, -3", async ({ page }) => {
+    await page.goto(FIX("lesson-12-quadratics"));
+    await expect(page.locator("#disc")).toContainText("2 real roots");
+    await expect(page.locator("#roots")).toContainText("-2");
+    await expect(page.locator("#roots")).toContainText("-3");
+  });
+
+  test("discriminant 0 → 1 repeated root", async ({ page }) => {
+    await page.goto(FIX("lesson-12-quadratics"));
+    // x² - 4x + 4 has discriminant = 16 - 16 = 0, root x = 2
+    await page.fill("#a", "1");
+    await page.fill("#b", "-4");
+    await page.fill("#c", "4");
+    await expect(page.locator("#disc")).toContainText("1 repeated root");
+    await expect(page.locator("#roots")).toContainText("double root");
+  });
+
+  test("negative discriminant → no real roots", async ({ page }) => {
+    await page.goto(FIX("lesson-12-quadratics"));
+    // x² + x + 1: disc = 1 - 4 = -3
+    await page.fill("#a", "1");
+    await page.fill("#b", "1");
+    await page.fill("#c", "1");
+    await expect(page.locator("#disc")).toContainText("no real roots");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 13 — Parabola Explorer
+// ---------------------------------------------------------------------------
+test.describe("Lesson 13: Parabola Explorer", () => {
+  test("default y = x², vertex at origin", async ({ page }) => {
+    await page.goto(FIX("lesson-13-parabolas"));
+    await expect(page.locator("#vertexInfo")).toContainText("vertex (0, 0)");
+    await expect(page.locator("#axisInfo")).toContainText("x = 0");
+  });
+
+  test("changing b shifts the vertex", async ({ page }) => {
+    await page.goto(FIX("lesson-13-parabolas"));
+    // Set a=1, b=4, c=0 → vertex x = -4/(2·1) = -2, y = (-2)² + 4·(-2) + 0 = -4
+    await page.evaluate(() => {
+      const b = document.getElementById("b") as HTMLInputElement;
+      b.value = "4"; b.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#vertexInfo")).toContainText("(-2, -4)");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 14 — Polynomial Expander
+// ---------------------------------------------------------------------------
+test.describe("Lesson 14: Polynomial Expander", () => {
+  test("default (x+2)(x+3) = x² + 5x + 6", async ({ page }) => {
+    await page.goto(FIX("lesson-14-polynomials"));
+    await expect(page.locator("#result")).toContainText("x² + 5x + 6");
+  });
+
+  test("switch to (x+a)² mode", async ({ page }) => {
+    await page.goto(FIX("lesson-14-polynomials"));
+    await page.click('.method-picker button[data-m="1"]');
+    // Default a=3 → (x+3)² = x² + 6x + 9
+    await expect(page.locator("#result")).toContainText("x² + 6x + 9");
+  });
+
+  test("difference of squares mode", async ({ page }) => {
+    await page.goto(FIX("lesson-14-polynomials"));
+    await page.click('.method-picker button[data-m="2"]');
+    // Default a=4, b=4 → (x+4)(x-4) = x² - 16
+    await expect(page.locator("#result")).toContainText("x² − 16");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 15 — Exponential Curve Explorer
+// ---------------------------------------------------------------------------
+test.describe("Lesson 15: Exponential Explorer", () => {
+  test("default y = 2 · 1.5ˣ is growth", async ({ page }) => {
+    await page.goto(FIX("lesson-15-exponentials"));
+    await expect(page.locator("#eq")).toHaveText("y = 2 · 1.5ˣ");
+    await expect(page.locator("#kind")).toHaveText("growth");
+  });
+
+  test("base < 1 switches to decay", async ({ page }) => {
+    await page.goto(FIX("lesson-15-exponentials"));
+    await page.evaluate(() => {
+      const b = document.getElementById("b") as HTMLInputElement;
+      b.value = "0.5"; b.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#kind")).toHaveText("decay");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 16 — Function Transformer
+// ---------------------------------------------------------------------------
+test.describe("Lesson 16: Function Transformer", () => {
+  test("default identity has h=0, k=0, a=1", async ({ page }) => {
+    await page.goto(FIX("lesson-16-transformations"));
+    await expect(page.locator("#eq")).toHaveText("y = 1·(x − 0)² + 0");
+  });
+
+  test("changing h updates equation", async ({ page }) => {
+    await page.goto(FIX("lesson-16-transformations"));
+    await page.evaluate(() => {
+      const h = document.getElementById("h") as HTMLInputElement;
+      h.value = "2"; h.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#eq")).toContainText("(x − 2)²");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 17 — Shape Explorer (Geometry)
+// ---------------------------------------------------------------------------
+test.describe("Lesson 17: Shape Explorer", () => {
+  test("default rectangle 6x4 → area 24, perimeter 20", async ({ page }) => {
+    await page.goto(FIX("lesson-17-geometry"));
+    await expect(page.locator("#formula")).toContainText("24");
+    await expect(page.locator("#info1")).toContainText("20");
+  });
+
+  test("switching to right triangle shows hypotenuse", async ({ page }) => {
+    await page.goto(FIX("lesson-17-geometry"));
+    await page.click('.shape-picker button[data-s="2"]');
+    // Default 6 and 4 → hypotenuse √52 ≈ 7.21
+    await expect(page.locator("#info1")).toContainText("7.21");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 18 — Circle Calculator
+// ---------------------------------------------------------------------------
+test.describe("Lesson 18: Circle Calculator", () => {
+  test("default radius 4 → diameter 8, circumference ≈ 25.13, area ≈ 50.27", async ({ page }) => {
+    await page.goto(FIX("lesson-18-circles"));
+    await expect(page.locator("#d")).toHaveText("8.0");
+    await expect(page.locator("#c")).toHaveText("25.13");
+    await expect(page.locator("#a")).toHaveText("50.27");
+  });
+
+  test("changing radius to 5 → C = 2π·5 ≈ 31.42", async ({ page }) => {
+    await page.goto(FIX("lesson-18-circles"));
+    await page.evaluate(() => {
+      const r = document.getElementById("r") as HTMLInputElement;
+      r.value = "5"; r.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#c")).toHaveText("31.42");
+    await expect(page.locator("#a")).toHaveText("78.54");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 19 — Unit Circle Explorer (Trig)
+// ---------------------------------------------------------------------------
+test.describe("Lesson 19: Unit Circle / Trig", () => {
+  test("default 30° → sin = 0.5, cos ≈ 0.866", async ({ page }) => {
+    await page.goto(FIX("lesson-19-trigonometry"));
+    await expect(page.locator("#sinV")).toHaveText("0.500");
+    await expect(page.locator("#cosV")).toHaveText("0.866");
+  });
+
+  test("90° → sin = 1, cos = 0", async ({ page }) => {
+    await page.goto(FIX("lesson-19-trigonometry"));
+    await page.evaluate(() => {
+      const a = document.getElementById("ang") as HTMLInputElement;
+      a.value = "90"; a.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await expect(page.locator("#sinV")).toHaveText("1.000");
+    await expect(page.locator("#cosV")).toHaveText("0.000");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 20 — Complex Number Calculator
+// ---------------------------------------------------------------------------
+test.describe("Lesson 20: Complex Numbers", () => {
+  test("default (3+2i) + (1+4i) = 4 + 6i", async ({ page }) => {
+    await page.goto(FIX("lesson-20-complex"));
+    await expect(page.locator("#result")).toContainText("4 + 6i");
+  });
+
+  test("multiplication: (3+2i)(1+4i) = -5 + 14i", async ({ page }) => {
+    await page.goto(FIX("lesson-20-complex"));
+    await page.click('.op-picker button[data-op="mul"]');
+    await expect(page.locator("#result")).toContainText("−5 + 14i");
+  });
+
+  test("subtraction: (3+2i) − (1+4i) = 2 − 2i", async ({ page }) => {
+    await page.goto(FIX("lesson-20-complex"));
+    await page.click('.op-picker button[data-op="sub"]');
+    await expect(page.locator("#result")).toContainText("2 − 2i");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lesson 21 — 3D Shape Calculator (Volume & Surface Area)
+// ---------------------------------------------------------------------------
+test.describe("Lesson 21: 3D Shape Calculator", () => {
+  test("default cube side 4 → V=64, SA=96", async ({ page }) => {
+    await page.goto(FIX("lesson-21-volume"));
+    await expect(page.locator("#volV")).toHaveText("64");
+    await expect(page.locator("#saV")).toHaveText("96");
+  });
+
+  test("sphere mode default radius 4 → V ≈ 268.08, SA ≈ 201.06", async ({ page }) => {
+    await page.goto(FIX("lesson-21-volume"));
+    await page.click('.shape-picker button[data-s="3"]');
+    await expect(page.locator("#volV")).toHaveText("268.08");
+    await expect(page.locator("#saV")).toHaveText("201.06");
+  });
+
+  test("cylinder mode default r=4 h=3 → V ≈ 150.80", async ({ page }) => {
+    await page.goto(FIX("lesson-21-volume"));
+    await page.click('.shape-picker button[data-s="2"]');
+    await expect(page.locator("#volV")).toHaveText("150.8");
+  });
+});

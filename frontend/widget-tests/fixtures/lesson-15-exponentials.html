@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exponential Curve Explorer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.eq-display{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.25rem;font-weight:700;color:#4338ca;margin:8px 0}
+@media(prefers-color-scheme:dark){.eq-display{color:#a5b4fc}}
+.kind-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin:6px 0}
+.kind-badge.growth{background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7}
+.kind-badge.decay{background:#fef2f2;color:#991b1b;border:1px solid #fca5a5}
+@media(prefers-color-scheme:dark){
+  .kind-badge.growth{background:#022c22;color:#6ee7b7;border-color:#047857}
+  .kind-badge.decay{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
+}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Exponential Curve Explorer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  $y = a \cdot b^x$. Adjust the base <strong>b</strong> and the starting value <strong>a</strong>. Watch the curve grow or decay.
+</p>
+<canvas id="exp" width="440" height="340"></canvas>
+<div class="eq-display"><span id="eq">y = 2 · 1.5ˣ</span> &nbsp; <span class="kind-badge growth" id="kind">growth</span></div>
+<div class="lms-row"><label>a</label><input type="range" id="a" min="0.5" max="10" step="0.5" value="2"><span class="lms-val" id="aVal">2</span></div>
+<div class="lms-row"><label>b</label><input type="range" id="b" min="0.1" max="3" step="0.1" value="1.5"><span class="lms-val" id="bVal">1.5</span></div>
+<div class="lms-info">If $b &gt; 1$ → exponential <strong>growth</strong>. If $0 &lt; b &lt; 1$ → exponential <strong>decay</strong>. The starting value $y(0) = a$.</div>
+
+</div>
+<script>
+var canvas = document.getElementById('exp');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height, unitX = 38, unitY = 22;
+function gs(x, y){ return {x: 30 + (x + 4) * unitX, y: H - 30 - y * unitY}; }
+
+function draw(){
+  var a = +document.getElementById('a').value;
+  var b = +document.getElementById('b').value;
+  document.getElementById('aVal').textContent = a;
+  document.getElementById('bVal').textContent = b;
+  document.getElementById('eq').textContent = 'y = ' + a + ' · ' + b + 'ˣ';
+  var kind = document.getElementById('kind');
+  if (b > 1) { kind.textContent = 'growth'; kind.className = 'kind-badge growth'; }
+  else if (b < 1 && b > 0) { kind.textContent = 'decay'; kind.className = 'kind-badge decay'; }
+  else { kind.textContent = 'b = 1: constant'; kind.className = 'kind-badge growth'; }
+
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (var i = -4; i <= 8; i++){
+    var p = gs(i, 0); ctx.beginPath(); ctx.moveTo(p.x, 30); ctx.lineTo(p.x, H-30); ctx.stroke();
+  }
+  for (var j = 0; j <= 14; j++){
+    var q = gs(0, j); ctx.beginPath(); ctx.moveTo(30, q.y); ctx.lineTo(W-10, q.y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(30, H-30); ctx.lineTo(W-10, H-30); ctx.stroke();
+  var yAxis = gs(0, 0);
+  ctx.beginPath(); ctx.moveTo(yAxis.x, 30); ctx.lineTo(yAxis.x, H-30); ctx.stroke();
+
+  // Curve
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3; ctx.beginPath();
+  var first = true;
+  for (var x = -4; x <= 8; x += 0.05){
+    var y = a * Math.pow(b, x);
+    if (y < 0 || y > 14) { first = true; continue; }
+    var p2 = gs(x, y);
+    if (first) { ctx.moveTo(p2.x, p2.y); first = false; }
+    else ctx.lineTo(p2.x, p2.y);
+  }
+  ctx.stroke();
+  // Starting value marker
+  var s = gs(0, a);
+  ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#10b981'; ctx.fill();
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+}
+
+document.getElementById('a').addEventListener('input', draw);
+document.getElementById('b').addEventListener('input', draw);
+draw();
+</script>
+</body>
+</html>

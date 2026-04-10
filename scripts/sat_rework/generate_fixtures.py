@@ -21,6 +21,21 @@ from . import (
     lesson_04_slope,
     lesson_05_graphing,
     lesson_06_interpreting,
+    lesson_07_ratios,
+    lesson_08_percentages,
+    lesson_09_statistics,
+    lesson_10_scatter,
+    lesson_11_probability,
+    lesson_12_quadratics,
+    lesson_13_parabolas,
+    lesson_14_polynomials,
+    lesson_15_exponentials,
+    lesson_16_transformations,
+    lesson_17_geometry,
+    lesson_18_circles,
+    lesson_19_trigonometry,
+    lesson_20_complex,
+    lesson_21_volume,
 )
 
 
@@ -32,6 +47,21 @@ LESSONS = [
     ("lesson-04-slope", "Slope from Two Points", lesson_04_slope),
     ("lesson-05-graphing", "y = mx + b Explorer", lesson_05_graphing),
     ("lesson-06-interpreting", "Real-World Linear Model Translator", lesson_06_interpreting),
+    ("lesson-07-ratios", "Proportion Solver", lesson_07_ratios),
+    ("lesson-08-percentages", "Percent Calculator", lesson_08_percentages),
+    ("lesson-09-statistics", "Live Statistics Calculator", lesson_09_statistics),
+    ("lesson-10-scatter", "Line of Best Fit Tuner", lesson_10_scatter),
+    ("lesson-11-probability", "Two-Way Table Probability Calculator", lesson_11_probability),
+    ("lesson-12-quadratics", "Quadratic Solver + Discriminant", lesson_12_quadratics),
+    ("lesson-13-parabolas", "Parabola Explorer", lesson_13_parabolas),
+    ("lesson-14-polynomials", "Polynomial Expander", lesson_14_polynomials),
+    ("lesson-15-exponentials", "Exponential Curve Explorer", lesson_15_exponentials),
+    ("lesson-16-transformations", "Function Transformer", lesson_16_transformations),
+    ("lesson-17-geometry", "Shape Explorer", lesson_17_geometry),
+    ("lesson-18-circles", "Circle Calculator", lesson_18_circles),
+    ("lesson-19-trigonometry", "Unit Circle Explorer", lesson_19_trigonometry),
+    ("lesson-20-complex", "Complex Number Calculator", lesson_20_complex),
+    ("lesson-21-volume", "3D Shape Calculator", lesson_21_volume),
 ]
 
 

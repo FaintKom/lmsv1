@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quadratic Solver + Discriminant</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.coef-row{display:flex;gap:10px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.coef-row label{display:flex;align-items:center;gap:6px;font-family:ui-monospace,Menlo,monospace;font-size:0.9rem;background:white;padding:6px 12px;border:1px solid #c7d2fe;border-radius:8px;color:#4338ca;font-weight:700}
+.coef-row label input{width:50px;border:none;background:transparent;font-family:inherit;font-size:1rem;text-align:center;color:#4338ca}
+@media(prefers-color-scheme:dark){.coef-row label{background:#0f172a;border-color:#3730a3;color:#a5b4fc}.coef-row label input{color:#a5b4fc}}
+.eq-display{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.25rem;font-weight:700;color:#4338ca;margin:10px 0}
+@media(prefers-color-scheme:dark){.eq-display{color:#a5b4fc}}
+.disc-card{padding:12px 16px;border-radius:10px;margin:10px 0;text-align:center;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+.disc-card.pos{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+.disc-card.zero{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.disc-card.neg{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b}
+@media(prefers-color-scheme:dark){
+  .disc-card.pos{background:#022c22;border-color:#047857;color:#6ee7b7}
+  .disc-card.zero{background:#451a03;border-color:#a16207;color:#fcd34d}
+  .disc-card.neg{background:#450a0a;border-color:#7f1d1d;color:#fca5a5}
+}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Quadratic Solver + Discriminant</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Set <strong>a</strong>, <strong>b</strong>, <strong>c</strong>. The widget computes the discriminant and applies the quadratic formula.
+</p>
+<div class="eq-display" id="eq">x² + 5x + 6 = 0</div>
+<div class="coef-row">
+  <label>a = <input id="a" type="number" value="1"></label>
+  <label>b = <input id="b" type="number" value="5"></label>
+  <label>c = <input id="c" type="number" value="6"></label>
+</div>
+<div class="disc-card pos" id="disc">Discriminant = 25 − 24 = 1 → 2 real roots</div>
+<div class="disc-card pos" id="roots">x = -2  or  x = -3</div>
+<div class="lms-info">Quadratic formula: $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$. The discriminant $b^2 - 4ac$ tells you how many real roots: positive → 2, zero → 1, negative → 0.</div>
+
+</div>
+<script>
+function fmtCoef(c, v, first){
+  if (c === 0) return '';
+  var sign = c > 0 ? (first ? '' : ' + ') : ' − ';
+  var abs = Math.abs(c);
+  var coef = (abs === 1 && v !== '') ? '' : abs;
+  return sign + coef + v;
+}
+
+function update(){
+  var a = Number(document.getElementById('a').value);
+  var b = Number(document.getElementById('b').value);
+  var c = Number(document.getElementById('c').value);
+  if (a === 0) {
+    document.getElementById('eq').textContent = 'a cannot be 0 (not quadratic)';
+    document.getElementById('disc').className = 'disc-card neg';
+    document.getElementById('disc').textContent = 'Set a ≠ 0 to make a quadratic.';
+    document.getElementById('roots').className = 'disc-card neg';
+    document.getElementById('roots').textContent = '—';
+    return;
+  }
+  // Display equation
+  var eq = (a === 1 ? 'x²' : (a === -1 ? '−x²' : a + 'x²'));
+  eq += fmtCoef(b, 'x', false);
+  eq += fmtCoef(c, '', false);
+  if (eq === '0') eq = '0';
+  document.getElementById('eq').textContent = eq + ' = 0';
+
+  // Discriminant
+  var disc = b*b - 4*a*c;
+  var discEl = document.getElementById('disc');
+  var rootsEl = document.getElementById('roots');
+  if (disc > 0) {
+    discEl.className = 'disc-card pos';
+    discEl.textContent = 'Discriminant = ' + (b*b) + ' − ' + (4*a*c) + ' = ' + disc + ' → 2 real roots';
+    var sq = Math.sqrt(disc);
+    var x1 = (-b + sq) / (2*a);
+    var x2 = (-b - sq) / (2*a);
+    rootsEl.className = 'disc-card pos';
+    rootsEl.textContent = 'x = ' + round(x1) + '  or  x = ' + round(x2);
+  } else if (disc === 0) {
+    discEl.className = 'disc-card zero';
+    discEl.textContent = 'Discriminant = 0 → 1 repeated root';
+    var x = -b / (2*a);
+    rootsEl.className = 'disc-card zero';
+    rootsEl.textContent = 'x = ' + round(x) + ' (double root)';
+  } else {
+    discEl.className = 'disc-card neg';
+    discEl.textContent = 'Discriminant = ' + disc + ' < 0 → no real roots';
+    rootsEl.className = 'disc-card neg';
+    rootsEl.textContent = 'x = (complex, no real solution)';
+  }
+}
+
+function round(n){ return Math.round(n * 10000) / 10000; }
+
+['a','b','c'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', update);
+});
+update();
+</script>
+</body>
+</html>

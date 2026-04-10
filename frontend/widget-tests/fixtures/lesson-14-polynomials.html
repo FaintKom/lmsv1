@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Polynomial Expander</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.poly-row{display:flex;gap:10px;justify-content:center;align-items:center;margin:12px 0;font-family:ui-monospace,Menlo,monospace;font-size:1.05rem;color:#4338ca;flex-wrap:wrap}
+.poly-row input{width:50px;padding:6px;text-align:center;border:1px solid #c7d2fe;border-radius:6px;background:white;font-family:inherit;font-size:1rem;color:#4338ca}
+@media(prefers-color-scheme:dark){.poly-row,.poly-row input{color:#a5b4fc}.poly-row input{background:#0f172a;border-color:#3730a3}}
+.expand-card{background:#fffbeb;border:1px solid #fcd34d;color:#92400e;padding:14px 16px;border-radius:10px;margin:12px 0;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.05rem;font-weight:700}
+@media(prefers-color-scheme:dark){.expand-card{background:#451a03;border-color:#a16207;color:#fcd34d}}
+.method-picker{display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap}
+.method-picker button{font-size:0.78rem;padding:6px 12px}
+.method-picker button.active{background:#4338ca}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Polynomial Expander</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Pick a multiplication pattern. Edit the coefficients to see the expansion.
+</p>
+<div class="method-picker">
+  <button class="lms-btn ghost active" data-m="0">(x + a)(x + b)</button>
+  <button class="lms-btn ghost" data-m="1">(x + a)²</button>
+  <button class="lms-btn ghost" data-m="2">(x + a)(x − a)</button>
+</div>
+<div class="poly-row" id="inputRow"></div>
+<div class="expand-card" id="result">x² + 5x + 6</div>
+<div class="lms-info" id="rule"><strong>FOIL:</strong> First, Outer, Inner, Last. (x + a)(x + b) = x² + (a + b)x + ab.</div>
+
+</div>
+<script>
+var method = 0;
+
+function fmtTerm(c, v, first){
+  if (c === 0) return '';
+  var sign = c > 0 ? (first ? '' : ' + ') : ' − ';
+  var abs = Math.abs(c);
+  var coef = (abs === 1 && v !== '') ? '' : abs;
+  return sign + coef + v;
+}
+
+function update(){
+  var rule = document.getElementById('rule');
+  var result = document.getElementById('result');
+  var inputRow = document.getElementById('inputRow');
+  if (method === 0) {
+    inputRow.innerHTML = '(x + <input id="a" type="number" value="2">)(x + <input id="b" type="number" value="3">)';
+    rule.innerHTML = '<strong>FOIL:</strong> (x + a)(x + b) = x² + (a + b)x + ab';
+    bindAndExpand();
+  } else if (method === 1) {
+    inputRow.innerHTML = '(x + <input id="a" type="number" value="3">)²';
+    rule.innerHTML = '<strong>Square:</strong> (x + a)² = x² + 2ax + a²';
+    bindAndExpand();
+  } else {
+    inputRow.innerHTML = '(x + <input id="a" type="number" value="4">)(x − <input id="b" type="number" value="4">)';
+    rule.innerHTML = '<strong>Difference of squares:</strong> (x + a)(x − a) = x² − a²';
+    bindAndExpand();
+  }
+}
+
+function bindAndExpand(){
+  document.querySelectorAll('#inputRow input').forEach(function(i){
+    i.addEventListener('input', expand);
+  });
+  expand();
+}
+
+function expand(){
+  var a = Number((document.getElementById('a') || {}).value || 0);
+  var b = Number((document.getElementById('b') || {}).value || 0);
+  var poly;
+  if (method === 0) {
+    poly = 'x²' + fmtTerm(a + b, 'x', false) + fmtTerm(a * b, '', false);
+  } else if (method === 1) {
+    poly = 'x²' + fmtTerm(2 * a, 'x', false) + fmtTerm(a * a, '', false);
+  } else {
+    poly = 'x²' + fmtTerm(-a * b, '', false);
+  }
+  document.getElementById('result').textContent = poly;
+}
+
+document.querySelectorAll('.method-picker button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.method-picker button').forEach(function(x){ x.classList.remove('active'); });
+    btn.classList.add('active');
+    method = +btn.dataset.m;
+    update();
+  });
+});
+update();
+</script>
+</body>
+</html>

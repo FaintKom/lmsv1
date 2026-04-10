@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D Shape Calculator</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.shape-picker{display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap}
+.shape-picker button{font-size:0.78rem;padding:6px 12px}
+.shape-picker button.active{background:#4338ca}
+.formula-card{background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;padding:12px 16px;border-radius:10px;margin:10px 0;text-align:center;font-family:ui-monospace,Menlo,monospace;font-weight:700}
+@media(prefers-color-scheme:dark){.formula-card{background:#1e1b4b;border-color:#3730a3;color:#a5b4fc}}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.metric{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
+.metric .lab{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;font-weight:700}
+.metric .val{font-size:1.1rem;font-weight:800;color:#4338ca;margin-top:4px;font-family:ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){.metric{background:#0f172a;border-color:#334155}.metric .val{color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; 3D Shape Calculator</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Pick a 3D shape. Adjust dimensions. Volume and surface area update with the right formula.
+</p>
+<div class="shape-picker">
+  <button class="lms-btn ghost active" data-s="0">cube</button>
+  <button class="lms-btn ghost" data-s="1">box</button>
+  <button class="lms-btn ghost" data-s="2">cylinder</button>
+  <button class="lms-btn ghost" data-s="3">sphere</button>
+</div>
+<canvas id="shape3d" width="320" height="220"></canvas>
+<div id="dim1Wrap" class="lms-row"><label id="lab1">side</label><input type="range" id="d1" min="1" max="10" step="0.5" value="4"><span class="lms-val" id="d1Val">4</span></div>
+<div id="dim2Wrap" class="lms-row" style="display:none"><label id="lab2">—</label><input type="range" id="d2" min="1" max="10" step="0.5" value="3"><span class="lms-val" id="d2Val">3</span></div>
+<div id="dim3Wrap" class="lms-row" style="display:none"><label id="lab3">—</label><input type="range" id="d3" min="1" max="10" step="0.5" value="2"><span class="lms-val" id="d3Val">2</span></div>
+<div class="formula-card" id="formula">V = s³ = 4³ = 64</div>
+<div class="metrics">
+  <div class="metric"><div class="lab">Volume</div><div class="val" id="volV">64</div></div>
+  <div class="metric"><div class="lab">Surface Area</div><div class="val" id="saV">96</div></div>
+</div>
+
+</div>
+<script>
+var shape = 0;
+var canvas = document.getElementById('shape3d');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height;
+
+function showDim2(show){ document.getElementById('dim2Wrap').style.display = show ? 'flex' : 'none'; }
+function showDim3(show){ document.getElementById('dim3Wrap').style.display = show ? 'flex' : 'none'; }
+
+function update(){
+  var d1 = +document.getElementById('d1').value;
+  var d2 = +document.getElementById('d2').value;
+  var d3 = +document.getElementById('d3').value;
+  document.getElementById('d1Val').textContent = d1;
+  document.getElementById('d2Val').textContent = d2;
+  document.getElementById('d3Val').textContent = d3;
+
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  var cx = W/2, cy = H/2 + 10;
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 2.5;
+  ctx.fillStyle = 'rgba(99,102,241,0.15)';
+
+  var vol, sa, formula;
+  if (shape === 0) {
+    document.getElementById('lab1').textContent = 'side (s)';
+    showDim2(false); showDim3(false);
+    var s = d1, sz = 14 * Math.sqrt(s);
+    drawBox(cx, cy, sz, sz, sz);
+    vol = s * s * s;
+    sa = 6 * s * s;
+    formula = 'V = s³ = ' + s + '³ = ' + round(vol);
+  } else if (shape === 1) {
+    document.getElementById('lab1').textContent = 'length (l)';
+    document.getElementById('lab2').textContent = 'width (w)';
+    document.getElementById('lab3').textContent = 'height (h)';
+    showDim2(true); showDim3(true);
+    drawBox(cx, cy, d1*8, d3*8, d2*8);
+    vol = d1 * d2 * d3;
+    sa = 2 * (d1*d2 + d2*d3 + d1*d3);
+    formula = 'V = l·w·h = ' + d1 + '·' + d2 + '·' + d3 + ' = ' + round(vol);
+  } else if (shape === 2) {
+    document.getElementById('lab1').textContent = 'radius (r)';
+    document.getElementById('lab2').textContent = 'height (h)';
+    showDim2(true); showDim3(false);
+    drawCylinder(cx, cy, d1*10, d2*8);
+    vol = Math.PI * d1*d1 * d2;
+    sa = 2 * Math.PI * d1*d1 + 2 * Math.PI * d1 * d2;
+    formula = 'V = πr²h = π·' + d1 + '²·' + d2 + ' = ' + round(vol);
+  } else {
+    document.getElementById('lab1').textContent = 'radius (r)';
+    showDim2(false); showDim3(false);
+    drawSphere(cx, cy, d1*10);
+    vol = (4/3) * Math.PI * d1*d1*d1;
+    sa = 4 * Math.PI * d1*d1;
+    formula = 'V = (4/3)πr³ = (4/3)π·' + d1 + '³ = ' + round(vol);
+  }
+  document.getElementById('formula').textContent = formula;
+  document.getElementById('volV').textContent = round(vol);
+  document.getElementById('saV').textContent = round(sa);
+}
+
+function drawBox(cx, cy, w, h, d){
+  // Front face
+  ctx.fillRect(cx - w/2, cy - h/2, w, h);
+  ctx.strokeRect(cx - w/2, cy - h/2, w, h);
+  // Top
+  ctx.beginPath();
+  ctx.moveTo(cx - w/2, cy - h/2);
+  ctx.lineTo(cx - w/2 + d*0.5, cy - h/2 - d*0.4);
+  ctx.lineTo(cx + w/2 + d*0.5, cy - h/2 - d*0.4);
+  ctx.lineTo(cx + w/2, cy - h/2);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Right
+  ctx.beginPath();
+  ctx.moveTo(cx + w/2, cy - h/2);
+  ctx.lineTo(cx + w/2 + d*0.5, cy - h/2 - d*0.4);
+  ctx.lineTo(cx + w/2 + d*0.5, cy + h/2 - d*0.4);
+  ctx.lineTo(cx + w/2, cy + h/2);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+
+function drawCylinder(cx, cy, r, h){
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(cx - r, cy - h/2);
+  ctx.lineTo(cx - r, cy + h/2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + r, cy - h/2);
+  ctx.lineTo(cx + r, cy + h/2);
+  ctx.stroke();
+  // Bottom ellipse
+  ctx.beginPath(); ctx.ellipse(cx, cy + h/2, r, r*0.3, 0, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+  // Top ellipse
+  ctx.beginPath(); ctx.ellipse(cx, cy - h/2, r, r*0.3, 0, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+}
+
+function drawSphere(cx, cy, r){
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+  // Equator ellipse for 3D feel
+  ctx.beginPath(); ctx.ellipse(cx, cy, r, r*0.3, 0, 0, Math.PI*2);
+  ctx.strokeStyle = '#a5b4fc'; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+function round(n){ return Math.round(n * 100) / 100; }
+
+document.querySelectorAll('.shape-picker button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.shape-picker button').forEach(function(x){ x.classList.remove('active'); });
+    btn.classList.add('active');
+    shape = +btn.dataset.s;
+    update();
+  });
+});
+['d1','d2','d3'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', update);
+});
+update();
+</script>
+</body>
+</html>

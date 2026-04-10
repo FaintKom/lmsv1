@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Statistics Calculator</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.num-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0;min-height:36px}
+.num-chip{display:inline-flex;align-items:center;gap:4px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;padding:5px 10px;border-radius:999px;font-family:ui-monospace,Menlo,monospace;font-size:0.9rem;font-weight:600}
+.num-chip button{background:transparent;border:none;color:#4338ca;cursor:pointer;font-size:1rem;line-height:1;padding:0 0 0 4px}
+@media(prefers-color-scheme:dark){.num-chip{background:#1e1b4b;border-color:#3730a3;color:#a5b4fc}.num-chip button{color:#a5b4fc}}
+.input-row{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.input-row input{width:80px;padding:8px 10px;border:1px solid #c7d2fe;border-radius:8px;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1rem;background:white}
+@media(prefers-color-scheme:dark){.input-row input{background:#0f172a;color:#e2e8f0;border-color:#3730a3}}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.stat{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
+.stat .lab{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;font-weight:700}
+.stat .val{font-size:1.3rem;font-weight:800;color:#4338ca;margin-top:4px;font-family:ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){.stat{background:#0f172a;border-color:#334155}.stat .val{color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Live Statistics Calculator</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Add numbers one at a time. Mean, median, and mode update live.
+</p>
+<div class="input-row">
+  <input id="newNum" type="number" placeholder="number" value="">
+  <button class="lms-btn" id="addBtn">add</button>
+  <button class="lms-btn ghost" id="presetBtn">preset</button>
+  <button class="lms-btn ghost" id="clearBtn">clear</button>
+</div>
+<div class="num-list" id="list"></div>
+<div class="stats-grid">
+  <div class="stat"><div class="lab">Mean</div><div class="val" id="mean">—</div></div>
+  <div class="stat"><div class="lab">Median</div><div class="val" id="median">—</div></div>
+  <div class="stat"><div class="lab">Mode</div><div class="val" id="mode">—</div></div>
+</div>
+<div class="lms-info" id="explain">Add at least one number to see the statistics.</div>
+
+</div>
+<script>
+var nums = [];
+
+function render(){
+  var listEl = document.getElementById('list');
+  if (nums.length === 0){
+    listEl.innerHTML = '<span style="color:#94a3b8;font-size:0.85rem">no numbers yet</span>';
+  } else {
+    listEl.innerHTML = nums.map(function(n, i){
+      return '<span class="num-chip">' + n + '<button data-i="' + i + '" aria-label="remove">×</button></span>';
+    }).join('');
+    listEl.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){ nums.splice(+btn.dataset.i, 1); render(); });
+    });
+  }
+  updateStats();
+}
+
+function updateStats(){
+  if (nums.length === 0){
+    document.getElementById('mean').textContent = '—';
+    document.getElementById('median').textContent = '—';
+    document.getElementById('mode').textContent = '—';
+    document.getElementById('explain').textContent = 'Add at least one number to see the statistics.';
+    return;
+  }
+  // Mean
+  var sum = nums.reduce(function(a,b){ return a+b; }, 0);
+  var mean = sum / nums.length;
+  document.getElementById('mean').textContent = round(mean);
+  // Median
+  var sorted = nums.slice().sort(function(a,b){ return a-b; });
+  var n = sorted.length;
+  var median = (n % 2 === 1) ? sorted[(n-1)/2] : (sorted[n/2 - 1] + sorted[n/2]) / 2;
+  document.getElementById('median').textContent = round(median);
+  // Mode
+  var counts = {};
+  nums.forEach(function(x){ counts[x] = (counts[x] || 0) + 1; });
+  var maxCount = 0;
+  for (var k in counts) if (counts[k] > maxCount) maxCount = counts[k];
+  if (maxCount === 1) {
+    document.getElementById('mode').textContent = 'none';
+  } else {
+    var modes = [];
+    for (var k2 in counts) if (counts[k2] === maxCount) modes.push(k2);
+    document.getElementById('mode').textContent = modes.join(', ');
+  }
+  document.getElementById('explain').innerHTML = '<b>Mean</b> = sum ÷ count. <b>Median</b> = middle value when sorted. <b>Mode</b> = most frequent value(s).';
+}
+
+function round(n){ return Math.round(n * 100) / 100; }
+
+document.getElementById('addBtn').addEventListener('click', function(){
+  var v = document.getElementById('newNum').value.trim();
+  if (v === '') return;
+  var n = Number(v);
+  if (isNaN(n)) return;
+  nums.push(n);
+  document.getElementById('newNum').value = '';
+  document.getElementById('newNum').focus();
+  render();
+});
+document.getElementById('newNum').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') document.getElementById('addBtn').click();
+});
+document.getElementById('clearBtn').addEventListener('click', function(){ nums = []; render(); });
+document.getElementById('presetBtn').addEventListener('click', function(){
+  nums = [4, 7, 7, 8, 12];
+  render();
+});
+render();
+</script>
+</body>
+</html>

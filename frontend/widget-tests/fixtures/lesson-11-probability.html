@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Two-Way Table Probability Calculator</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.tw-table{margin:12px auto;border-collapse:collapse;font-family:ui-monospace,Menlo,monospace}
+.tw-table th,.tw-table td{border:1px solid #c7d2fe;padding:8px 14px;text-align:center;background:white}
+.tw-table th{background:#eef2ff;color:#4338ca;font-weight:700;font-size:0.85rem}
+.tw-table td.total{background:#f5f3ff;font-weight:700}
+.tw-table input{width:48px;text-align:center;border:none;background:transparent;font-family:inherit;font-size:1rem;font-weight:600;color:#4338ca}
+@media(prefers-color-scheme:dark){
+  .tw-table th,.tw-table td{background:#0f172a;border-color:#3730a3;color:#e2e8f0}
+  .tw-table th{background:#1e1b4b;color:#a5b4fc}
+  .tw-table td.total{background:#1e1b4b}
+  .tw-table input{color:#a5b4fc}
+}
+.q-picker{display:flex;gap:6px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.q-picker button{font-size:0.78rem;padding:6px 12px}
+.q-picker button.active{background:#4338ca}
+.prob-result{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;padding:12px 16px;border-radius:10px;margin:10px 0;text-align:center;font-weight:600}
+@media(prefers-color-scheme:dark){.prob-result{background:#022c22;border-color:#047857;color:#6ee7b7}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Two-Way Table Probability Calculator</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Edit the cells. Pick a probability question to compute it from your table.
+</p>
+<table class="tw-table">
+  <tr><th></th><th>Likes coffee</th><th>Dislikes coffee</th><th>Total</th></tr>
+  <tr><th>Adult</th><td><input id="aa" value="40"></td><td><input id="ab" value="10"></td><td class="total" id="ra">50</td></tr>
+  <tr><th>Teen</th><td><input id="ba" value="15"></td><td><input id="bb" value="35"></td><td class="total" id="rb">50</td></tr>
+  <tr><th>Total</th><td class="total" id="ca">55</td><td class="total" id="cb">45</td><td class="total" id="grand">100</td></tr>
+</table>
+<div class="q-picker">
+  <button class="lms-btn ghost active" data-q="0">P(adult)</button>
+  <button class="lms-btn ghost" data-q="1">P(likes coffee)</button>
+  <button class="lms-btn ghost" data-q="2">P(adult AND likes)</button>
+  <button class="lms-btn ghost" data-q="3">P(likes | adult)</button>
+  <button class="lms-btn ghost" data-q="4">P(adult | likes)</button>
+</div>
+<div class="prob-result" id="result">P(adult) = 50 / 100 = 0.50 (50%)</div>
+<div class="lms-info"><strong>Conditional probability:</strong> $P(A \mid B) = \dfrac{P(A \cap B)}{P(B)}$ &mdash; restrict to the row or column matching the condition first.</div>
+
+</div>
+<script>
+function readTable(){
+  return {
+    aa: Number(document.getElementById('aa').value) || 0,
+    ab: Number(document.getElementById('ab').value) || 0,
+    ba: Number(document.getElementById('ba').value) || 0,
+    bb: Number(document.getElementById('bb').value) || 0,
+  };
+}
+
+function update(){
+  var t = readTable();
+  var ra = t.aa + t.ab, rb = t.ba + t.bb;
+  var ca = t.aa + t.ba, cb = t.ab + t.bb;
+  var grand = ra + rb;
+  document.getElementById('ra').textContent = ra;
+  document.getElementById('rb').textContent = rb;
+  document.getElementById('ca').textContent = ca;
+  document.getElementById('cb').textContent = cb;
+  document.getElementById('grand').textContent = grand;
+  computeQuestion();
+}
+
+var currentQ = 0;
+function computeQuestion(){
+  var t = readTable();
+  var ra = t.aa + t.ab, rb = t.ba + t.bb;
+  var ca = t.aa + t.ba, cb = t.ab + t.bb;
+  var grand = ra + rb;
+  if (grand === 0) { document.getElementById('result').textContent = 'Add some values first.'; return; }
+  var p, formula;
+  if (currentQ === 0) { p = ra / grand; formula = 'P(adult) = ' + ra + ' / ' + grand + ' = ' + fmtPct(p); }
+  else if (currentQ === 1) { p = ca / grand; formula = 'P(likes coffee) = ' + ca + ' / ' + grand + ' = ' + fmtPct(p); }
+  else if (currentQ === 2) { p = t.aa / grand; formula = 'P(adult AND likes) = ' + t.aa + ' / ' + grand + ' = ' + fmtPct(p); }
+  else if (currentQ === 3) { p = ra ? t.aa / ra : 0; formula = 'P(likes | adult) = ' + t.aa + ' / ' + ra + ' = ' + fmtPct(p); }
+  else { p = ca ? t.aa / ca : 0; formula = 'P(adult | likes) = ' + t.aa + ' / ' + ca + ' = ' + fmtPct(p); }
+  document.getElementById('result').textContent = formula;
+}
+
+function fmtPct(p){ return (Math.round(p * 1000) / 1000) + ' (' + Math.round(p*100) + '%)'; }
+
+['aa','ab','ba','bb'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', update);
+});
+document.querySelectorAll('.q-picker button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.q-picker button').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    currentQ = +b.dataset.q;
+    computeQuestion();
+  });
+});
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proportion Solver</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.ratio-row{display:flex;gap:14px;justify-content:center;align-items:center;margin:14px 0;font-family:ui-monospace,Menlo,monospace;font-size:1.15rem}
+.ratio-row .frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}
+.ratio-row .frac .num,.ratio-row .frac .den{padding:0 6px}
+.ratio-row .frac .bar{display:block;height:2px;background:currentColor;width:100%;margin:2px 0}
+.ratio-row .equals{font-size:1.4rem;color:#6366f1;font-weight:700}
+.ratio-row input{width:60px;text-align:center;padding:4px 6px;border:1px solid #c7d2fe;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:1rem;background:white}
+@media(prefers-color-scheme:dark){.ratio-row input{background:#0f172a;color:#e2e8f0;border-color:#3730a3}}
+.answer-card{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;padding:10px 14px;border-radius:10px;text-align:center;font-weight:600;margin:10px 0}
+.answer-card.err{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+@media(prefers-color-scheme:dark){.answer-card{background:#022c22;border-color:#047857;color:#6ee7b7} .answer-card.err{background:#450a0a;border-color:#7f1d1d;color:#fca5a5}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Proportion Solver</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Set up the proportion <strong>a/b = c/d</strong>. Fill any 3 of the 4 boxes — leave the unknown blank. Click <strong>solve</strong> to cross-multiply.
+</p>
+<div class="ratio-row">
+  <span class="frac"><span class="num"><input id="a" value="3"></span><span class="bar"></span><span class="den"><input id="b" value="5"></span></span>
+  <span class="equals">=</span>
+  <span class="frac"><span class="num"><input id="c" value="12"></span><span class="bar"></span><span class="den"><input id="d" value=""></span></span>
+</div>
+<div style="text-align:center;margin:10px 0">
+  <button class="lms-btn" id="solveBtn">solve</button>
+  <button class="lms-btn ghost" id="presetBtn">load example</button>
+</div>
+<div class="answer-card" id="ans">Fill in 3 boxes and press solve.</div>
+<div class="lms-info"><strong>Cross-multiply rule:</strong> if a/b = c/d, then a × d = b × c. Solve for the missing value.</div>
+
+</div>
+<script>
+function get(id){ var v = document.getElementById(id).value.trim(); return v === '' ? null : Number(v); }
+function set(id, v){ document.getElementById(id).value = v; }
+
+document.getElementById('solveBtn').addEventListener('click', function(){
+  var a = get('a'), b = get('b'), c = get('c'), d = get('d');
+  var blanks = [a,b,c,d].filter(function(x){ return x === null; }).length;
+  var ans = document.getElementById('ans');
+  ans.classList.remove('err');
+  if (blanks !== 1) {
+    ans.textContent = 'Leave EXACTLY one box blank to solve for it.';
+    ans.classList.add('err');
+    return;
+  }
+  if ((a !== null && isNaN(a)) || (b !== null && isNaN(b)) || (c !== null && isNaN(c)) || (d !== null && isNaN(d))) {
+    ans.textContent = 'All filled boxes must be numbers.';
+    ans.classList.add('err');
+    return;
+  }
+  var result, label;
+  if (a === null) { result = (b * c) / d; label = 'a = (b × c) / d = (' + b + ' × ' + c + ') / ' + d + ' = ' + round(result); set('a', round(result)); }
+  else if (b === null) { result = (a * d) / c; label = 'b = (a × d) / c = (' + a + ' × ' + d + ') / ' + c + ' = ' + round(result); set('b', round(result)); }
+  else if (c === null) { result = (a * d) / b; label = 'c = (a × d) / b = (' + a + ' × ' + d + ') / ' + b + ' = ' + round(result); set('c', round(result)); }
+  else { result = (b * c) / a; label = 'd = (b × c) / a = (' + b + ' × ' + c + ') / ' + a + ' = ' + round(result); set('d', round(result)); }
+  ans.textContent = label;
+});
+
+function round(n){ return Math.round(n * 1000) / 1000; }
+
+document.getElementById('presetBtn').addEventListener('click', function(){
+  set('a', '3'); set('b', '5'); set('c', '12'); set('d', '');
+  document.getElementById('ans').textContent = 'Loaded: 3/5 = 12/?  → press solve';
+  document.getElementById('ans').classList.remove('err');
+});
+</script>
+</body>
+</html>

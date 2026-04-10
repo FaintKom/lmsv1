@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shape Explorer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.shape-picker{display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap}
+.shape-picker button{font-size:0.78rem;padding:6px 12px}
+.shape-picker button.active{background:#4338ca}
+.angle-info{display:flex;justify-content:space-around;font-family:ui-monospace,Menlo,monospace;font-size:0.95rem;margin:8px 0;flex-wrap:wrap;gap:8px}
+.angle-info span{background:white;border:1px solid #c7d2fe;padding:6px 12px;border-radius:8px;color:#4338ca}
+@media(prefers-color-scheme:dark){.angle-info span{background:#0f172a;border-color:#3730a3;color:#a5b4fc}}
+.formula-card{background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;padding:10px 14px;border-radius:10px;margin:10px 0;text-align:center;font-family:ui-monospace,Menlo,monospace;font-weight:600}
+@media(prefers-color-scheme:dark){.formula-card{background:#1e1b4b;border-color:#3730a3;color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Shape Explorer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Pick a shape and adjust its dimensions. Area, perimeter, and key angles update.
+</p>
+<div class="shape-picker">
+  <button class="lms-btn ghost active" data-s="0">rectangle</button>
+  <button class="lms-btn ghost" data-s="1">triangle</button>
+  <button class="lms-btn ghost" data-s="2">right triangle</button>
+</div>
+<canvas id="shape" width="440" height="280"></canvas>
+<div class="lms-row" id="dim1Row"><label>width</label><input type="range" id="d1" min="2" max="10" step="1" value="6"><span class="lms-val" id="d1Val">6</span></div>
+<div class="lms-row" id="dim2Row"><label>height</label><input type="range" id="d2" min="2" max="8" step="1" value="4"><span class="lms-val" id="d2Val">4</span></div>
+<div class="formula-card" id="formula">Area = w × h = 6 × 4 = 24</div>
+<div class="angle-info">
+  <span id="info1">perimeter: 20</span>
+  <span id="info2">interior angles sum: 360°</span>
+</div>
+
+</div>
+<script>
+var shape = 0;
+var canvas = document.getElementById('shape');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height;
+
+function draw(){
+  var d1 = +document.getElementById('d1').value;
+  var d2 = +document.getElementById('d2').value;
+  document.getElementById('d1Val').textContent = d1;
+  document.getElementById('d2Val').textContent = d2;
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+
+  var scale = 22;
+  var cx = W/2, cy = H/2 + 20;
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3;
+  ctx.fillStyle = 'rgba(99,102,241,0.15)';
+  if (shape === 0) {
+    var w = d1*scale, h = d2*scale;
+    ctx.beginPath();
+    ctx.rect(cx - w/2, cy - h/2, w, h);
+    ctx.fill(); ctx.stroke();
+    var area = d1 * d2;
+    var per = 2 * (d1 + d2);
+    document.getElementById('formula').textContent = 'Area = w × h = ' + d1 + ' × ' + d2 + ' = ' + area;
+    document.getElementById('info1').textContent = 'perimeter: ' + per;
+    document.getElementById('info2').textContent = 'interior angles: 4 × 90° = 360°';
+  } else if (shape === 1) {
+    // Generic triangle: base d1, height d2
+    var base = d1*scale, height = d2*scale;
+    var x1 = cx - base/2, y1 = cy + height/2;
+    var x2 = cx + base/2, y2 = cy + height/2;
+    var x3 = cx, y3 = cy - height/2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x3,y3); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    var area = 0.5 * d1 * d2;
+    document.getElementById('formula').textContent = 'Area = ½ × b × h = ½ × ' + d1 + ' × ' + d2 + ' = ' + area;
+    document.getElementById('info1').textContent = 'base: ' + d1 + ', height: ' + d2;
+    document.getElementById('info2').textContent = 'interior angles sum: 180°';
+  } else {
+    // Right triangle: legs d1 and d2
+    var a = d1*scale, b = d2*scale;
+    var x1 = cx - a/2, y1 = cy + b/2;
+    var x2 = cx + a/2, y2 = cy + b/2;
+    var x3 = x1, y3 = cy - b/2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x3,y3); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Right-angle marker
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+    ctx.strokeRect(x1, y1 - 12, 12, 12);
+    var hyp = Math.sqrt(d1*d1 + d2*d2);
+    var area = 0.5 * d1 * d2;
+    document.getElementById('formula').textContent = 'Hypotenuse² = ' + d1 + '² + ' + d2 + '² = ' + (d1*d1 + d2*d2);
+    document.getElementById('info1').textContent = 'hypotenuse ≈ ' + (Math.round(hyp*100)/100);
+    document.getElementById('info2').textContent = 'area = ½ · ' + d1 + ' · ' + d2 + ' = ' + area;
+  }
+}
+
+document.querySelectorAll('.shape-picker button').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.shape-picker button').forEach(function(x){ x.classList.remove('active'); });
+    btn.classList.add('active');
+    shape = +btn.dataset.s;
+    draw();
+  });
+});
+['d1','d2'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', draw);
+});
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unit Circle Explorer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.trig-display{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.trig-cell{background:white;border:1px solid #c7d2fe;border-radius:10px;padding:10px;text-align:center;font-family:ui-monospace,Menlo,monospace}
+.trig-cell .lab{font-size:0.7rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;font-weight:700}
+.trig-cell .val{font-size:1.1rem;font-weight:800;color:#4338ca;margin-top:4px}
+@media(prefers-color-scheme:dark){.trig-cell{background:#0f172a;border-color:#3730a3}.trig-cell .val{color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Unit Circle Explorer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Move the slider to change the angle. The unit-circle point shows $(\cos\theta, \sin\theta)$.
+</p>
+<canvas id="unit" width="320" height="320"></canvas>
+<div class="lms-row"><label>angle θ</label><input type="range" id="ang" min="0" max="360" step="1" value="30"><span class="lms-val" id="angVal">30°</span></div>
+<div class="trig-display">
+  <div class="trig-cell"><div class="lab">sin θ</div><div class="val" id="sinV">0.500</div></div>
+  <div class="trig-cell"><div class="lab">cos θ</div><div class="val" id="cosV">0.866</div></div>
+  <div class="trig-cell"><div class="lab">tan θ</div><div class="val" id="tanV">0.577</div></div>
+</div>
+<div class="lms-info"><strong>SOH-CAH-TOA (right triangles):</strong> sin = opp/hyp, cos = adj/hyp, tan = opp/adj. <strong>Unit circle:</strong> $(x, y) = (\cos\theta, \sin\theta)$.</div>
+
+</div>
+<script>
+var canvas = document.getElementById('unit');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height;
+var cx = W/2, cy = H/2, r = 110;
+
+function draw(){
+  var ang = +document.getElementById('ang').value;
+  var rad = ang * Math.PI / 180;
+  document.getElementById('angVal').textContent = ang + '°';
+  var s = Math.sin(rad);
+  var c = Math.cos(rad);
+  var t = Math.cos(rad) === 0 ? 'undefined' : (s/c).toFixed(3);
+  document.getElementById('sinV').textContent = s.toFixed(3);
+  document.getElementById('cosV').textContent = c.toFixed(3);
+  document.getElementById('tanV').textContent = t;
+
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+
+  // Axes
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(W-20, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, 20); ctx.lineTo(cx, H-20); ctx.stroke();
+
+  // Unit circle
+  ctx.strokeStyle = '#c7d2fe'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+
+  // Angle arc
+  ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, 28, 0, -rad, true); ctx.stroke();
+
+  // Radius line
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + r*c, cy - r*s); ctx.stroke();
+
+  // Point
+  ctx.beginPath(); ctx.arc(cx + r*c, cy - r*s, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#4338ca'; ctx.fill();
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Sin (vertical green dashed)
+  ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx + r*c, cy - r*s); ctx.lineTo(cx + r*c, cy); ctx.stroke();
+  ctx.setLineDash([]);
+  // Cos (horizontal orange dashed)
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + r*c, cy); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+document.getElementById('ang').addEventListener('input', draw);
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Function Transformer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.eq-display{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.15rem;font-weight:700;color:#4338ca;margin:8px 0}
+@media(prefers-color-scheme:dark){.eq-display{color:#a5b4fc}}
+.legend{display:flex;justify-content:center;gap:14px;font-size:0.85rem;margin:6px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .swatch{display:inline-block;width:14px;height:3px;border-radius:2px}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Function Transformer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  See how each transformation moves $f(x) = x^2$. Adjust the sliders.
+</p>
+<canvas id="trans" width="440" height="340"></canvas>
+<div class="legend">
+  <span><span class="swatch" style="background:#94a3b8"></span>original $f(x) = x^2$</span>
+  <span><span class="swatch" style="background:#6366f1"></span>transformed</span>
+</div>
+<div class="eq-display" id="eq">y = 1·(x − 0)² + 0</div>
+<div class="lms-row"><label>vert (k)</label><input type="range" id="k" min="-5" max="5" step="0.5" value="0"><span class="lms-val" id="kVal">0</span></div>
+<div class="lms-row"><label>horiz (h)</label><input type="range" id="h" min="-5" max="5" step="0.5" value="0"><span class="lms-val" id="hVal">0</span></div>
+<div class="lms-row"><label>stretch (a)</label><input type="range" id="a" min="-3" max="3" step="0.5" value="1"><span class="lms-val" id="aVal">1</span></div>
+<div class="lms-info"><strong>Rules:</strong> $f(x) + k$ shifts UP by $k$. $f(x - h)$ shifts RIGHT by $h$. $a \cdot f(x)$ stretches vertically by $a$ (negative flips upside-down).</div>
+
+</div>
+<script>
+var canvas = document.getElementById('trans');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height, unit = 26;
+function gs(x,y){ return {x: W/2 + x*unit, y: H/2 - y*unit}; }
+
+function draw(){
+  var k = +document.getElementById('k').value;
+  var h = +document.getElementById('h').value;
+  var a = +document.getElementById('a').value;
+  document.getElementById('kVal').textContent = k;
+  document.getElementById('hVal').textContent = h;
+  document.getElementById('aVal').textContent = a;
+  document.getElementById('eq').textContent = 'y = ' + a + '·(x − ' + h + ')² + ' + k;
+
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (var i=-7;i<=7;i++){
+    var p = gs(i,0); ctx.beginPath(); ctx.moveTo(p.x,0); ctx.lineTo(p.x,H); ctx.stroke();
+    var q = gs(0,i); ctx.beginPath(); ctx.moveTo(0,q.y); ctx.lineTo(W,q.y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+
+  // Original f(x) = x²
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.setLineDash([4,4]); ctx.beginPath();
+  var first = true;
+  for (var x = -7; x <= 7; x += 0.05){
+    var y = x*x;
+    if (y > 7) { first = true; continue; }
+    var p2 = gs(x, y);
+    if (first) { ctx.moveTo(p2.x, p2.y); first = false; }
+    else ctx.lineTo(p2.x, p2.y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Transformed
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3; ctx.beginPath();
+  var first2 = true;
+  for (var xx = -7; xx <= 7; xx += 0.05){
+    var yy = a * (xx - h) * (xx - h) + k;
+    if (yy < -7 || yy > 7) { first2 = true; continue; }
+    var p3 = gs(xx, yy);
+    if (first2) { ctx.moveTo(p3.x, p3.y); first2 = false; }
+    else ctx.lineTo(p3.x, p3.y);
+  }
+  ctx.stroke();
+}
+
+['k','h','a'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', draw);
+});
+draw();
+</script>
+</body>
+</html>
