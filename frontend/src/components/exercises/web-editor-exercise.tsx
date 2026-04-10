@@ -290,7 +290,7 @@ export default function WebEditorExercise({
             <div className={`bg-white ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
               <iframe
                 srcDoc={previewDoc}
-                sandbox="allow-scripts"
+                sandbox="allow-scripts allow-same-origin"
                 className="w-full h-full border-0"
                 title="Live preview"
                 style={{ minHeight: isExpanded ? undefined : previewHeight }}
