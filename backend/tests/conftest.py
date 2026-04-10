@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 import app.admin.models  # noqa
 import app.assessments.models  # noqa
 import app.assignments.models  # noqa
+import app.attendance.models  # noqa
 
 # Import all models so metadata knows about them
 import app.auth.models  # noqa
@@ -34,6 +35,7 @@ import app.sandbox.models  # noqa
 import app.skills.models  # noqa
 import app.submissions.models  # noqa
 import app.waitlist.models  # noqa
+import app.webhooks.models  # noqa
 from app.auth.models import Organization, User, UserRole
 from app.auth.security import create_access_token, hash_password
 from app.config import settings

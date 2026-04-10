@@ -42,6 +42,7 @@ from app.admin.router import router as admin_router
 from app.ai.router import router as ai_router
 from app.assessments.router import router as assessments_router
 from app.assignments.router import router as assignments_router
+from app.attendance.router import router as attendance_router
 from app.auth.router import router as auth_router
 from app.billing.router import router as billing_router
 from app.calendar.router import router as calendar_router
@@ -62,6 +63,7 @@ from app.sandbox.router import router as sandbox_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.waitlist.router import router as waitlist_router
+from app.webhooks.router import router as webhooks_router
 
 logger = logging.getLogger(__name__)
 
@@ -293,6 +295,8 @@ async def lifespan(app: FastAPI):
     import app.skills.models  # noqa
     import app.exercises.models  # noqa
     import app.waitlist.models  # noqa
+    import app.webhooks.models  # noqa
+    import app.attendance.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
@@ -443,6 +447,8 @@ def create_app() -> FastAPI:
     app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
     app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI Tutor"])
     app.include_router(waitlist_router, prefix="/api/v1", tags=["Waitlist"])
+    app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
+    app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
 
     @app.get("/health")
     async def health():
