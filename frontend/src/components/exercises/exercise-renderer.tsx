@@ -660,7 +660,7 @@ function CodeChallengeExercise({
   onSubmit,
 }: {
   exerciseId: string;
-  config: { language?: string; starter_code?: string };
+  config: { language?: string; starter_code?: string; description?: string };
   testCases: TestCase[];
   onSubmit: (body: Record<string, unknown>) => void;
 }) {
@@ -749,6 +749,14 @@ function CodeChallengeExercise({
 
   return (
     <div className="space-y-0 -mx-5 -mb-5">
+      {/* Task description */}
+      {config.description && (
+        <div className="px-5 pb-4">
+          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-line">
+            {config.description}
+          </p>
+        </div>
+      )}
       {/* Visible test cases */}
       {visibleTests.length > 0 && (
         <div className="px-5 pb-3 space-y-2">
