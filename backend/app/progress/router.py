@@ -185,3 +185,40 @@ async def update_video_progress_endpoint(
 
     await db.flush()
     return VideoProgressResponse.model_validate(row)
+
+
+@router.get("/my-grades")
+async def my_grades(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the student's graded assignment submissions + quiz attempts.
+
+    Combines data from assignment_submissions and quiz_attempts into
+    one list so the frontend can show a unified "My Grades" view.
+    """
+    from app.assignments.models import Assignment, AssignmentSubmission
+
+    # Graded assignment submissions
+    result = await db.execute(
+        select(AssignmentSubmission, Assignment.title.label("assignment_title"))
+        .join(Assignment, AssignmentSubmission.assignment_id == Assignment.id)
+        .where(AssignmentSubmission.student_id == user.id)
+        .order_by(AssignmentSubmission.submitted_at.desc())
+        .limit(50)
+    )
+    rows = result.all()
+
+    grades = []
+    for sub, title in rows:
+        grades.append({
+            "type": "assignment",
+            "title": title,
+            "score": sub.score,
+            "max_score": 100,
+            "status": sub.status.value if hasattr(sub.status, "value") else str(sub.status),
+            "feedback": sub.feedback if hasattr(sub, "feedback") else None,
+            "submitted_at": sub.submitted_at.isoformat() if sub.submitted_at else None,
+        })
+
+    return {"grades": grades}

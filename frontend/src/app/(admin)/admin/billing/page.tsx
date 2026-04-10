@@ -110,9 +110,9 @@ export default function AdminBillingPage() {
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "";
       if (detail.includes("Stripe is not configured")) {
-        toast.error("Оплата временно недоступна. Stripe ещё не подключён.");
+        toast.error("Payments are not available yet. Stripe is not configured.");
       } else {
-        toast.error(detail || "Не удалось оформить подписку");
+        toast.error(detail || "Could not start checkout. Please try again.");
       }
     } finally {
       setCheckingOut(null);
@@ -305,11 +305,11 @@ export default function AdminBillingPage() {
                 {isCurrent || (plan.price_monthly === 0 && !subscription) ? (
                   <Button disabled className="w-full">
                     <CheckCircle className="mr-1 h-4 w-4" />
-                    Текущий план
+                    Current plan
                   </Button>
                 ) : plan.price_monthly === 0 ? (
                   <Button variant="outline" disabled className="w-full">
-                    Бесплатный
+                    Free
                   </Button>
                 ) : (
                   <Button
@@ -318,7 +318,7 @@ export default function AdminBillingPage() {
                     disabled={!!checkingOut}
                   >
                     {checkingOut === plan.id && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                    Подписаться
+                    Subscribe
                   </Button>
                 )}
               </CardContent>

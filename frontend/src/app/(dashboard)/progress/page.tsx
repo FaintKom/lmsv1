@@ -4,22 +4,35 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, Trophy, CheckCircle, Clock, ArrowRight } from "lucide-react";
+import { BookOpen, Trophy, CheckCircle, Clock, ArrowRight, FileText } from "lucide-react";
 import type { Enrollment, Course } from "@/types/api";
+
+interface Grade {
+  type: string;
+  title: string;
+  score: number | null;
+  max_score: number;
+  status: string;
+  feedback: string | null;
+  submitted_at: string | null;
+}
 
 export default function ProgressPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       apiClient.get("/progress/my-courses/").then(({ data }) => data),
       apiClient.get("/courses/").then(({ data }) => data.items || []),
+      apiClient.get("/progress/my-grades").then(({ data }) => data.grades || []).catch(() => []),
     ])
-      .then(([enrollData, courseData]) => {
+      .then(([enrollData, courseData, gradeData]) => {
         setEnrollments(enrollData);
         setCourses(courseData);
+        setGrades(gradeData);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -137,6 +150,61 @@ export default function ProgressPage() {
                     </Link>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* My Grades */}
+          {grades.length > 0 && (
+            <div>
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <FileText className="h-4 w-4 text-indigo-500" />
+                My Grades
+              </h2>
+              <div className="space-y-2">
+                {grades.map((g, i) => (
+                  <Card key={i}>
+                    <CardContent className="flex items-center gap-4 p-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                          {g.title}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {g.status === "graded"
+                            ? `Graded${g.submitted_at ? " · " + new Date(g.submitted_at).toLocaleDateString() : ""}`
+                            : g.status === "submitted" || g.status === "late"
+                              ? "Awaiting review"
+                              : g.status}
+                        </p>
+                        {g.feedback && (
+                          <p className="mt-1 text-xs italic text-slate-400 dark:text-slate-500">
+                            &ldquo;{g.feedback}&rdquo;
+                          </p>
+                        )}
+                      </div>
+                      {g.score !== null ? (
+                        <div className="text-right">
+                          <p
+                            className={`text-lg font-bold ${
+                              g.score >= 80
+                                ? "text-emerald-600"
+                                : g.score >= 60
+                                  ? "text-amber-600"
+                                  : "text-rose-600"
+                            }`}
+                          >
+                            {Math.round(g.score)}
+                          </p>
+                          <p className="text-xs text-slate-400">/ {g.max_score}</p>
+                        </div>
+                      ) : (
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500 dark:bg-white/10">
+                          Pending
+                        </span>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           )}

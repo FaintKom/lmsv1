@@ -73,9 +73,9 @@ export default function SettingsPage() {
           primary_color: primaryColor || undefined,
         },
       });
-      toast.success("Settings saved — reload to see branding changes.");
       // Refresh the auth store so sidebar/CSS picks up new branding
       await fetchUser();
+      toast.success("Settings saved");
     } catch {
       toast.error("Failed to save settings");
     } finally {
