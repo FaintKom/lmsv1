@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Sparkles, Send, X, Trash2, ChevronDown } from "lucide-react";
 import { useAiTutorStore, type ChatMessage } from "@/stores/ai-tutor-store";
 import { MathRenderer } from "@/components/common/math-renderer";
@@ -14,6 +14,87 @@ interface AiTutorPanelProps {
     lessonTitle?: string;
     exerciseTitle?: string;
   };
+}
+
+/* ── Draggable + dismissable FAB hook ───────────────────────────── */
+function useDraggableFab() {
+  const STORAGE_KEY = "ai-fab-pos";
+  const HIDDEN_KEY = "ai-fab-hidden";
+
+  const getInitial = (): { x: number; y: number } | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch { /* ignore */ }
+    return null;
+  };
+
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [hidden, setHidden] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const dragRef = useRef({ startX: 0, startY: 0, origX: 0, origY: 0, moved: false });
+
+  // Load persisted state
+  useEffect(() => {
+    const saved = getInitial();
+    if (saved) setPos(saved);
+    setHidden(localStorage.getItem(HIDDEN_KEY) === "1");
+  }, []);
+
+  const clamp = useCallback((x: number, y: number) => {
+    const margin = 8;
+    const size = 56;
+    return {
+      x: Math.max(margin, Math.min(window.innerWidth - size - margin, x)),
+      y: Math.max(margin, Math.min(window.innerHeight - size - margin, y)),
+    };
+  }, []);
+
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    const el = e.currentTarget as HTMLElement;
+    el.setPointerCapture(e.pointerId);
+    const rect = el.getBoundingClientRect();
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: rect.left,
+      origY: rect.top,
+      moved: false,
+    };
+    setDragging(true);
+  }, []);
+
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
+    const clamped = clamp(dragRef.current.origX + dx, dragRef.current.origY + dy);
+    setPos(clamped);
+  }, [dragging, clamp]);
+
+  const onPointerUp = useCallback(() => {
+    setDragging(false);
+    if (pos) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
+    }
+  }, [pos]);
+
+  const wasDrag = useCallback(() => dragRef.current.moved, []);
+
+  const dismiss = useCallback(() => {
+    setHidden(true);
+    try { localStorage.setItem(HIDDEN_KEY, "1"); } catch { /* ignore */ }
+  }, []);
+
+  const restore = useCallback(() => {
+    setHidden(false);
+    try { localStorage.removeItem(HIDDEN_KEY); } catch { /* ignore */ }
+  }, []);
+
+  return { pos, hidden, dragging, onPointerDown, onPointerMove, onPointerUp, wasDrag, dismiss, restore };
 }
 
 export function AiTutorPanel({ context }: AiTutorPanelProps) {
@@ -33,6 +114,7 @@ export function AiTutorPanel({ context }: AiTutorPanelProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fab = useDraggableFab();
 
   // Update context when props change
   useEffect(() => {
@@ -53,6 +135,11 @@ export function AiTutorPanel({ context }: AiTutorPanelProps) {
     }
   }, [isOpen]);
 
+  // Restore FAB when panel opens
+  useEffect(() => {
+    if (isOpen && fab.hidden) fab.restore();
+  }, [isOpen, fab.hidden, fab.restore]);
+
   const handleSend = () => {
     if (!input.trim() || isStreaming) return;
     sendMessage(input, locale);
@@ -68,14 +155,41 @@ export function AiTutorPanel({ context }: AiTutorPanelProps) {
 
   // Floating button when closed
   if (!isOpen) {
+    if (fab.hidden) return null;
+
+    const fabStyle: React.CSSProperties = fab.pos
+      ? { left: fab.pos.x, top: fab.pos.y, right: "auto", bottom: "auto" }
+      : {};
+
     return (
-      <button
-        onClick={toggle}
-        className="fixed bottom-24 right-6 z-[98] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-green-500/30 transition-all hover:scale-110 hover:shadow-xl hover:shadow-green-500/40 md:bottom-6"
-        aria-label={t("ai.title")}
+      <div
+        className="fixed z-[98] group"
+        style={fab.pos ? { left: fab.pos.x, top: fab.pos.y } : { bottom: 24, right: 24 }}
       >
-        <Sparkles className="h-6 w-6" />
-      </button>
+        {/* Dismiss button — visible on hover */}
+        <button
+          onClick={(e) => { e.stopPropagation(); fab.dismiss(); }}
+          className="absolute -top-2 -right-2 z-[99] flex h-5 w-5 items-center justify-center rounded-full bg-slate-700/80 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500"
+          aria-label="Hide AI assistant"
+        >
+          <X className="h-3 w-3" />
+        </button>
+        <button
+          onPointerDown={fab.onPointerDown}
+          onPointerMove={fab.onPointerMove}
+          onPointerUp={(e) => {
+            fab.onPointerUp();
+            if (!fab.wasDrag()) toggle();
+          }}
+          className={`flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg shadow-green-500/30 transition-all hover:shadow-xl hover:shadow-green-500/40 ${
+            fab.dragging ? "scale-110 cursor-grabbing" : "cursor-grab hover:scale-110"
+          }`}
+          style={{ touchAction: "none" }}
+          aria-label={t("ai.title")}
+        >
+          <Sparkles className="h-6 w-6 pointer-events-none" />
+        </button>
+      </div>
     );
   }
 
