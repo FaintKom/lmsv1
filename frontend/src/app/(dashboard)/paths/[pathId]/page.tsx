@@ -56,7 +56,7 @@ export default function PathDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -65,7 +65,7 @@ export default function PathDetailPage() {
     return (
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-slate-500 dark:text-slate-400">Learning path not found.</p>
-        <Link href="/paths" className="mt-2 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
+        <Link href="/paths" className="mt-2 inline-flex items-center gap-1 text-sm text-green-600 hover:text-green-700">
           <ArrowLeft className="h-3 w-3" /> Back to paths
         </Link>
       </div>
@@ -96,7 +96,7 @@ export default function PathDetailPage() {
             <div className="flex-1">
               <div className="h-3 rounded-full bg-slate-200 dark:bg-white/10">
                 <div
-                  className="h-3 rounded-full bg-indigo-500 transition-all"
+                  className="h-3 rounded-full bg-green-500 transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -127,13 +127,13 @@ export default function PathDetailPage() {
                   step.completed
                     ? "border-emerald-500 bg-emerald-100 dark:bg-emerald-500/20"
                     : isCurrent
-                    ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-500/20"
+                    ? "border-green-500 bg-green-100 dark:bg-green-500/20"
                     : "border-slate-300 bg-slate-100 dark:border-white/20 dark:bg-white/5"
                 }`}>
                   {step.completed ? (
                     <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                   ) : isUnlocked ? (
-                    <BookOpen className={`h-5 w-5 ${isCurrent ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"}`} />
+                    <BookOpen className={`h-5 w-5 ${isCurrent ? "text-green-600 dark:text-green-400" : "text-slate-400"}`} />
                   ) : (
                     <Lock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                   )}
@@ -148,7 +148,7 @@ export default function PathDetailPage() {
               {/* Step card */}
               <div className="mb-4 flex-1 pb-2">
                 <Card className={`${
-                  isCurrent ? "border-indigo-300 shadow-sm dark:border-indigo-500/40" : ""
+                  isCurrent ? "border-green-300 shadow-sm dark:border-green-500/40" : ""
                 } ${step.completed ? "opacity-75" : ""}`}>
                   <CardContent className="flex items-center justify-between p-4">
                     <div>

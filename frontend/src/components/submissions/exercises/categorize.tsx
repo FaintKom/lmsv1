@@ -66,7 +66,7 @@ export default function CategorizeExercise({
               draggable
               onDragStart={() => setDraggedItem(item)}
               onDragEnd={() => setDraggedItem(null)}
-              className="cursor-grab rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 active:cursor-grabbing dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300"
+              className="cursor-grab rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 active:cursor-grabbing dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300"
             >
               {item}
             </button>
@@ -90,7 +90,7 @@ export default function CategorizeExercise({
                 setDraggedItem(null);
               }
             }}
-            className="min-h-[120px] rounded-xl border-2 border-dashed border-slate-300 p-4 transition-colors hover:border-indigo-300 dark:border-white/20 dark:hover:border-indigo-500/50"
+            className="min-h-[120px] rounded-xl border-2 border-dashed border-slate-300 p-4 transition-colors hover:border-green-300 dark:border-white/20 dark:hover:border-green-500/50"
           >
             <h4 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">{cat.name}</h4>
             <div className="flex flex-wrap gap-1.5">
@@ -134,7 +134,7 @@ export default function CategorizeExercise({
       <button
         onClick={handleSubmit}
         disabled={totalAssigned < allItems.length}
-        className="mt-6 w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="mt-6 w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
       >
         Submit Answer
       </button>

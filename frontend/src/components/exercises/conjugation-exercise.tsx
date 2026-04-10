@@ -58,11 +58,11 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
   return (
     <div className="space-y-5">
       {/* Verb header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-purple-600 p-6 text-white shadow-lg">
         <div className="absolute -right-4 -top-4 text-[80px] opacity-10 select-none">
           {"\u270D\uFE0F"}
         </div>
-        <p className="text-sm font-medium text-indigo-100 mb-1">Conjugate the verb</p>
+        <p className="text-sm font-medium text-green-100 mb-1">Conjugate the verb</p>
         <p className="text-3xl font-bold tracking-tight">{config.verb || "?"}</p>
         {config.tense && (
           <span className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
@@ -98,7 +98,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
             >
               {/* Pronoun badge */}
               <div className="flex-shrink-0 w-24">
-                <span className="inline-block rounded-xl bg-indigo-100 dark:bg-indigo-500/20 px-3 py-1.5 text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+                <span className="inline-block rounded-xl bg-green-100 dark:bg-green-500/20 px-3 py-1.5 text-sm font-semibold text-green-700 dark:text-green-300">
                   {pronoun}
                 </span>
               </div>
@@ -117,7 +117,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
                         ? "border-2 border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : submitted && isCorrect === false
                         ? "border-2 border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                        : "border-2 border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                        : "border-2 border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
                     }
                     disabled:cursor-not-allowed
                   `}
@@ -166,7 +166,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleCheck}
           disabled={!allFilled}
-          className="w-full rounded-2xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-md"
+          className="w-full rounded-2xl bg-green-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-md"
         >
           Check Answers
         </button>

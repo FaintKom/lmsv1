@@ -75,7 +75,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
             ? results[key]
               ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
               : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-            : "border-indigo-300 bg-white text-indigo-700 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+            : "border-green-300 bg-white text-green-700 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
         }`}
         placeholder="?"
       />
@@ -126,7 +126,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
         {regionKeys.map((key) => (
           <span key={key} className="flex items-center gap-1">
             <span className={`inline-block h-2.5 w-2.5 rounded-full ${
-              key === "a_only" ? "bg-indigo-400" :
+              key === "a_only" ? "bg-green-400" :
               key === "b_only" ? "bg-amber-400" :
               key === "intersection" ? "bg-green-400" : "bg-slate-300"
             }`} />

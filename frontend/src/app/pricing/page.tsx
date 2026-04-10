@@ -148,7 +148,7 @@ export default function PricingPage() {
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900">GrassLMS</span>
@@ -191,12 +191,12 @@ export default function PricingPage() {
                 key={plan.id}
                 className={`relative flex flex-col rounded-2xl border p-6 shadow-sm ${
                   isPopular
-                    ? "border-indigo-400 bg-indigo-50 ring-2 ring-indigo-500/30"
+                    ? "border-green-400 bg-green-50 ring-2 ring-green-500/30"
                     : "border-slate-200 bg-white"
                 }`}
               >
                 {isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-xs font-semibold text-white">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white">
                     MOST POPULAR
                   </div>
                 )}
@@ -335,18 +335,18 @@ export default function PricingPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 px-8 py-12 text-center text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 px-8 py-12 text-center text-white">
           <h2 className="mb-3 text-3xl font-extrabold">
             Not sure which plan fits?
           </h2>
-          <p className="mx-auto mb-6 max-w-xl text-indigo-100">
+          <p className="mx-auto mb-6 max-w-xl text-green-100">
             Start on Free and upgrade later once you know your class size.
             You can export your data at any time.
           </p>
           <Link href="/register">
             <Button
               size="lg"
-              className="bg-white text-indigo-700 hover:bg-indigo-50"
+              className="bg-white text-green-700 hover:bg-green-50"
             >
               Create your school — it's free
               <ArrowRight className="h-5 w-5" />

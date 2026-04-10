@@ -77,7 +77,7 @@ export default function FileUploadConfig({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-        <Upload className="h-4 w-4 text-indigo-500" />
+        <Upload className="h-4 w-4 text-green-500" />
         File Upload Configuration
       </div>
 
@@ -90,7 +90,7 @@ export default function FileUploadConfig({
           onChange={(e) => setInstructions(e.target.value)}
           placeholder="Upload your completed assignment as a PDF..."
           rows={3}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -123,7 +123,7 @@ export default function FileUploadConfig({
           onChange={(e) => setMaxFileMb(parseInt(e.target.value) || 10)}
           min={1}
           max={50}
-          className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 

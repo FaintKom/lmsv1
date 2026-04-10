@@ -56,7 +56,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/forgot-password"
-          className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          className="text-sm font-medium text-green-600 hover:text-green-700"
         >
           Request a new reset link
         </Link>
@@ -128,7 +128,7 @@ function ResetPasswordForm() {
       <p className="mt-6 text-center">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-indigo-600 dark:text-slate-400"
+          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-green-600 dark:text-slate-400"
         >
           <ArrowLeft className="h-3 w-3" /> Back to sign in
         </Link>
@@ -139,7 +139,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>}>
+    <Suspense fallback={<div className="flex h-32 items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-green-600 border-t-transparent" /></div>}>
       <ResetPasswordForm />
     </Suspense>
   );

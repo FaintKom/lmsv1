@@ -52,7 +52,7 @@ export default function SkillsPage() {
   }, []);
 
   if (loading) {
-    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-indigo-500" /></div>;
+    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
   }
 
   const categories = [...new Set(skills.map((s) => s.category))];
@@ -111,7 +111,7 @@ export default function SkillsPage() {
                   .map((s) => {
                     const progressToNext = ((s.total_xp % 50) / 50) * 100;
                     return (
-                      <Card key={s.skill_id} className="border-l-4 border-l-indigo-400">
+                      <Card key={s.skill_id} className="border-l-4 border-l-green-400">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export default function SkillsPage() {
                               </span>
                               <span className="font-medium text-slate-800 dark:text-slate-200">{s.skill_name}</span>
                             </div>
-                            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-500/20 dark:text-green-300">
                               {t("skills.level")}{s.level}
                             </span>
                           </div>
@@ -130,7 +130,7 @@ export default function SkillsPage() {
                               <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
                             </div>
                             <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
-                              <div className="h-full rounded-full bg-indigo-500" style={{ width: `${progressToNext}%` }} />
+                              <div className="h-full rounded-full bg-green-500" style={{ width: `${progressToNext}%` }} />
                             </div>
                           </div>
                         </CardContent>

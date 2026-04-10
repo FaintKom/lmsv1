@@ -167,7 +167,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
       {/* Info bar */}
       {mode === "best_fit" && !checked && (
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Drag the orange dots to draw a line of best fit. Slope: <b className="text-indigo-600 dark:text-indigo-400">{userSlope === Infinity ? "∞" : userSlope.toFixed(2)}</b>, y-intercept: <b className="text-indigo-600 dark:text-indigo-400">{userIntercept.toFixed(2)}</b>
+          Drag the orange dots to draw a line of best fit. Slope: <b className="text-green-600 dark:text-green-400">{userSlope === Infinity ? "∞" : userSlope.toFixed(2)}</b>, y-intercept: <b className="text-green-600 dark:text-green-400">{userIntercept.toFixed(2)}</b>
         </p>
       )}
 
@@ -179,7 +179,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
           </label>
           {mode === "correlation" ? (
             <select value={answer} onChange={(e) => setAnswer(e.target.value)}
-              className="rounded-xl border-2 border-indigo-300 bg-white px-4 py-2 text-sm font-semibold dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-slate-200">
+              className="rounded-xl border-2 border-green-300 bg-white px-4 py-2 text-sm font-semibold dark:border-green-500 dark:bg-[#1E1E1E] dark:text-slate-200">
               <option value="">Select...</option>
               <option value="positive">Positive</option>
               <option value="negative">Negative</option>
@@ -189,7 +189,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
             <input type="text" value={answer} onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCheck()}
               placeholder="Enter value"
-              className="w-28 rounded-xl border-2 border-indigo-300 bg-white px-3 py-2 text-center text-lg font-bold dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300" />
+              className="w-28 rounded-xl border-2 border-green-300 bg-white px-3 py-2 text-center text-lg font-bold dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300" />
           )}
         </div>
       )}

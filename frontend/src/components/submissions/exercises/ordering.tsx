@@ -31,7 +31,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
             className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5"
           >
             <GripVertical className="h-4 w-4 text-slate-300 dark:text-slate-500" />
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-xs font-bold text-green-600 dark:bg-green-500/20 dark:text-green-400">
               {i + 1}
             </span>
             <span className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-300">{item}</span>
@@ -59,7 +59,7 @@ export default function OrderingExercise({ items, onSubmit }: OrderingExercisePr
 
       <button
         onClick={() => onSubmit({ order })}
-        className="mt-6 w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="mt-6 w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
       >
         Submit Answer
       </button>

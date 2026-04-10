@@ -114,7 +114,7 @@ export function NotificationBell() {
             {unread > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                className="flex items-center gap-1 text-xs font-medium text-green-600 hover:text-green-700"
               >
                 <CheckCheck className="h-3 w-3" />
                 Mark all read
@@ -133,14 +133,14 @@ export function NotificationBell() {
                   key={notif.id}
                   onClick={() => handleClick(notif)}
                   className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
-                    !notif.is_read ? "bg-indigo-50/50" : ""
+                    !notif.is_read ? "bg-green-50/50" : ""
                   }`}
                 >
                   <div className="mt-0.5 shrink-0">
                     {notif.is_read ? (
                       <Check className="h-4 w-4 text-slate-400" />
                     ) : (
-                      <div className="h-2 w-2 rounded-full bg-indigo-500" />
+                      <div className="h-2 w-2 rounded-full bg-green-500" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">

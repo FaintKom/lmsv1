@@ -6,7 +6,7 @@ export default function TermsOfServicePage() {
     <div className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/login"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Login
@@ -102,7 +102,7 @@ export default function TermsOfServicePage() {
             activity that occurs under your account. You must notify us immediately at{" "}
             <a
               href="mailto:support@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               support@learnhub.app
             </a>{" "}
@@ -144,7 +144,7 @@ export default function TermsOfServicePage() {
               href="https://stripe.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Stripe&rsquo;s Privacy Policy
             </a>
@@ -265,7 +265,7 @@ export default function TermsOfServicePage() {
             You agree to use GrassLMS in compliance with all applicable laws and our{" "}
             <Link
               href="/acceptable-use"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Acceptable Use Policy
             </Link>
@@ -289,7 +289,7 @@ export default function TermsOfServicePage() {
             Your use of GrassLMS is also governed by our{" "}
             <Link
               href="/privacy"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Privacy Policy
             </Link>
@@ -348,7 +348,7 @@ export default function TermsOfServicePage() {
             or by contacting us at{" "}
             <a
               href="mailto:support@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               support@learnhub.app
             </a>
@@ -485,7 +485,7 @@ export default function TermsOfServicePage() {
               Email:{" "}
               <a
                 href="mailto:support@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 support@learnhub.app
               </a>

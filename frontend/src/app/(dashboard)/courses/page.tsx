@@ -67,7 +67,7 @@ export default function CoursesPage() {
             </p>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+              className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700"
             >
               Back to dashboard <ArrowRight className="h-3 w-3" />
             </Link>

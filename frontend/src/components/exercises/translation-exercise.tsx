@@ -130,7 +130,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
                   ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                   : submitted && isCorrect === false
                   ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                  : "border-slate-200 dark:border-white/15 bg-white dark:bg-[#1E1E1E] text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  : "border-slate-200 dark:border-white/15 bg-white dark:bg-[#1E1E1E] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
               }
               disabled:cursor-not-allowed
             `}
@@ -178,7 +178,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
                 onClick={() => toggleHint(i)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   revealedHints.has(i)
-                    ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30"
+                    ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-500/30"
                     : "bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/15"
                 }`}
               >
@@ -194,7 +194,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleSubmit}
           disabled={!answer.trim()}
-          className="w-full rounded-2xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full rounded-2xl bg-green-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Submit Translation
         </button>

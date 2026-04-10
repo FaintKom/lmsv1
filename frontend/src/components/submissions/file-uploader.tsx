@@ -105,12 +105,12 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
         onDrop={handleDrop}
         className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
           dragOver
-            ? "border-indigo-400 bg-indigo-50"
-            : "border-slate-300 hover:border-indigo-300 hover:bg-slate-50"
+            ? "border-green-400 bg-green-50"
+            : "border-slate-300 hover:border-green-300 hover:bg-slate-50"
         }`}
         onClick={() => inputRef.current?.click()}
       >
-        <Upload className={`mx-auto mb-3 h-10 w-10 ${dragOver ? "text-indigo-500" : "text-slate-400"}`} />
+        <Upload className={`mx-auto mb-3 h-10 w-10 ${dragOver ? "text-green-500" : "text-slate-400"}`} />
         <p className="text-sm font-medium text-slate-600">
           {uploading ? "Uploading..." : "Drop file here or click to browse"}
         </p>
@@ -154,7 +154,7 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
               </div>
               <a
                 href={`/api/v1/submissions/files/${f.id}/download/`}
-                className="rounded p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                className="rounded p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600"
                 title="Download"
               >
                 <Download className="h-4 w-4" />

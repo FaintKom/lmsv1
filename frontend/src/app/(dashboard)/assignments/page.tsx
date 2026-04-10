@@ -53,7 +53,7 @@ export default function AssignmentsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -79,7 +79,7 @@ export default function AssignmentsPage() {
       case "submitted": return "border-l-blue-400";
       case "overdue":
       case "late": return "border-l-red-400";
-      default: return "border-l-indigo-400";
+      default: return "border-l-green-400";
     }
   };
 
@@ -100,7 +100,7 @@ export default function AssignmentsPage() {
             onClick={() => setTab(t.key)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               tab === t.key
-                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                 : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5"
             }`}
           >
@@ -148,8 +148,8 @@ export default function AssignmentsPage() {
                         <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                     ) : (
-                      <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
-                        <ClipboardList className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+                        <ClipboardList className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
                     )}
                   </div>

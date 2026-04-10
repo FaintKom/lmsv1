@@ -173,7 +173,7 @@ export default function GradebookPage() {
         <select
           value={courseId}
           onChange={(e) => setCourseId(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
         >
           <option value="">Select a course...</option>
           {courses.map((c) => (
@@ -220,7 +220,7 @@ export default function GradebookPage() {
       )}
 
       {data && !loading && data.students.length > 0 && (
-        <Card className="border-l-4 border-l-indigo-400">
+        <Card className="border-l-4 border-l-green-400">
           <CardContent className="overflow-x-auto p-0">
             <table className="w-full text-sm">
               <thead>

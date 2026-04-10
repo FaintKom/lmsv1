@@ -76,7 +76,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
           {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
         </div>
         {false && cfg.standard && (
-          <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+          <span className="mt-2 inline-block rounded bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
             {cfg.standard}
           </span>
         )}
@@ -101,7 +101,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
               ? isCorrect
                 ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                 : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-              : "border-indigo-300 bg-white text-indigo-700 focus:border-indigo-500 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+              : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
           }`}
           autoFocus
         />

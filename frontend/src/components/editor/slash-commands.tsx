@@ -184,7 +184,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
             onClick={() => selectItem(index)}
             className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
               index === selectedIndex
-                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                ? "bg-green-50 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                 : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
             }`}
           >

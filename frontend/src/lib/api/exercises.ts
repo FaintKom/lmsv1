@@ -116,7 +116,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
   true_false: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300",
   categorize: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300",
   file_upload: "bg-slate-100 text-slate-700 dark:bg-slate-700/30 dark:text-slate-300",
-  robot_2d: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+  robot_2d: "bg-green-100 text-green-700 dark:bg-indigo-900/30 dark:text-green-300",
   math_interactive: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",
   world_3d: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300",
   translation: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300",

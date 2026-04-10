@@ -138,7 +138,7 @@ export default function GridRenderer({
               {/* Edit hover */}
               {editMode && (
                 <rect x={cx} y={cy} width={cw} height={cw} rx={5}
-                  fill="transparent" className="hover:fill-indigo-500/10" />
+                  fill="transparent" className="hover:fill-green-500/10" />
               )}
             </g>
           );

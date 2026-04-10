@@ -12,7 +12,7 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
     return (
       <button
         onClick={onToggle}
-        className="fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-indigo-700"
+        className="fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-green-700"
         title="Open Calculator"
       >
         <Calculator className="h-5 w-5" />

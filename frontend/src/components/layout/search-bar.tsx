@@ -127,8 +127,8 @@ export function SearchBar() {
       {/* Search input */}
       {open && (
         <div className="relative">
-          <div className="flex items-center gap-2 rounded-lg border border-indigo-300 bg-white px-3 py-2 shadow-sm ring-1 ring-indigo-100">
-            <Search className="h-3.5 w-3.5 text-indigo-500" />
+          <div className="flex items-center gap-2 rounded-lg border border-green-300 bg-white px-3 py-2 shadow-sm ring-1 ring-green-100">
+            <Search className="h-3.5 w-3.5 text-green-500" />
             <input
               ref={inputRef}
               type="text"
@@ -180,7 +180,7 @@ export function SearchBar() {
                           onClick={() => handleSelect("course", course)}
                           className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-50"
                         >
-                          <BookOpen className="h-4 w-4 shrink-0 text-indigo-500" />
+                          <BookOpen className="h-4 w-4 shrink-0 text-green-500" />
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium text-slate-700">{course.title}</p>
                             {course.description && (

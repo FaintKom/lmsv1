@@ -51,7 +51,7 @@ export function MobileTabBar() {
               className={cn(
                 "flex min-h-[48px] min-w-[48px] flex-1 flex-col items-center justify-center gap-1 px-1 text-xs font-medium transition-colors active:scale-[0.95] active:opacity-80",
                 isActive
-                  ? "text-indigo-600 dark:text-indigo-400"
+                  ? "text-green-600 dark:text-green-400"
                   : "text-slate-400 dark:text-slate-500"
               )}
             >

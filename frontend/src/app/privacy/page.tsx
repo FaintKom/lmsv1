@@ -6,7 +6,7 @@ export default function PrivacyPolicyPage() {
     <div className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/login"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Login
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
             reach our privacy team at{" "}
             <a
               href="mailto:privacy@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               privacy@learnhub.app
             </a>
@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
             to keep you logged in and remember your preferences. See our{" "}
             <Link
               href="/cookies"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Cookie Policy
             </Link>{" "}
@@ -112,7 +112,7 @@ export default function PrivacyPolicyPage() {
               href="https://stripe.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Stripe&rsquo;s Privacy Policy
             </a>
@@ -252,7 +252,7 @@ export default function PrivacyPolicyPage() {
               contact us at{" "}
               <a
                 href="mailto:privacy@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 privacy@learnhub.app
               </a>{" "}
@@ -324,7 +324,7 @@ export default function PrivacyPolicyPage() {
             you discover a security vulnerability, please report it to{" "}
             <a
               href="mailto:privacy@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               privacy@learnhub.app
             </a>
@@ -413,7 +413,7 @@ export default function PrivacyPolicyPage() {
             To exercise any of these rights, contact us at{" "}
             <a
               href="mailto:privacy@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               privacy@learnhub.app
             </a>
@@ -433,7 +433,7 @@ export default function PrivacyPolicyPage() {
             we use and how to manage them, please see our{" "}
             <Link
               href="/cookies"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               Cookie Policy
             </Link>
@@ -472,7 +472,7 @@ export default function PrivacyPolicyPage() {
               Email:{" "}
               <a
                 href="mailto:privacy@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 privacy@learnhub.app
               </a>

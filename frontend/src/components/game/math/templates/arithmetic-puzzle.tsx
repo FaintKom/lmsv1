@@ -77,7 +77,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
                         ? results[eqIdx]
                           ? "border-emerald-400 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300"
                           : "border-red-400 text-red-700 dark:border-red-500 dark:text-red-300"
-                        : "border-indigo-300 text-indigo-700 focus:border-indigo-500 dark:border-indigo-500 dark:text-indigo-300"
+                        : "border-green-300 text-green-700 focus:border-green-500 dark:border-green-500 dark:text-green-300"
                     }`}
                     placeholder="?"
                   />

@@ -63,12 +63,12 @@ function DemoRunner() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-violet-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
       {/* Minimal header */}
       <header className="border-b border-slate-100 bg-white/60 backdrop-blur dark:border-white/10 dark:bg-[#2C2C2C]/60">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
@@ -82,7 +82,7 @@ function DemoRunner() {
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-1.5 text-sm font-medium text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300">
           <Play className="h-3.5 w-3.5" />
           No signup required
         </div>
@@ -107,7 +107,7 @@ function DemoRunner() {
             type="button"
             onClick={() => enterDemo("student")}
             disabled={loading !== null}
-            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-indigo-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
+            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-500/20">
               <Users className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
@@ -119,7 +119,7 @@ function DemoRunner() {
               Take an SAT Math lesson, write some code, see what the student
               experience looks like.
             </p>
-            <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
               {loading === "student" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -136,10 +136,10 @@ function DemoRunner() {
             type="button"
             onClick={() => enterDemo("teacher")}
             disabled={loading !== null}
-            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-indigo-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
+            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 dark:bg-indigo-500/20">
-              <GraduationCap className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-500/20">
+              <GraduationCap className="h-7 w-7 text-green-600 dark:text-green-400" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
               Try as a teacher
@@ -148,7 +148,7 @@ function DemoRunner() {
               See the admin dashboard, build a course, try the gradebook and
               bulk enrollment.
             </p>
-            <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
               {loading === "teacher" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -164,7 +164,7 @@ function DemoRunner() {
         <p className="mx-auto mt-12 max-w-md text-xs text-slate-400 dark:text-slate-500">
           Demo accounts are shared — your changes are visible to other visitors
           and reset periodically. For private trials,{" "}
-          <Link href="/register" className="text-indigo-600 hover:underline">
+          <Link href="/register" className="text-green-600 hover:underline">
             create a free account
           </Link>
           .

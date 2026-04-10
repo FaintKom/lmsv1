@@ -233,7 +233,7 @@ const CONTENT_TYPE_OPTIONS = [
 const TYPE_COLORS: Record<string, string> = {
   text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10",
   video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 border-rose-200 dark:border-white/10",
-  quiz: "bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 border-indigo-200 dark:border-white/10",
+  quiz: "bg-green-50 dark:bg-green-500/20 text-green-600 border-green-200 dark:border-white/10",
   code_challenge: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
   file_upload: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 border-amber-200 dark:border-white/10",
   interactive: "bg-violet-50 dark:bg-violet-500/20 text-violet-600 border-violet-200 dark:border-white/10",
@@ -242,7 +242,7 @@ const TYPE_COLORS: Record<string, string> = {
 const TYPE_EXPANDED_BG: Record<string, string> = {
   text: "border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5",
   video: "border-rose-200 dark:border-white/10 bg-rose-50/30 dark:bg-rose-500/20",
-  quiz: "border-indigo-200 dark:border-white/10 bg-indigo-50/30 dark:bg-indigo-500/20",
+  quiz: "border-green-200 dark:border-white/10 bg-green-50/30 dark:bg-green-500/20",
   code_challenge: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
   file_upload: "border-amber-200 dark:border-white/10 bg-amber-50/30 dark:bg-amber-500/20",
   interactive: "border-violet-200 dark:border-white/10 bg-violet-50/30 dark:bg-violet-500/20",
@@ -769,7 +769,7 @@ export default function CourseEditorPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -821,7 +821,7 @@ export default function CourseEditorPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -830,7 +830,7 @@ export default function CourseEditorPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -840,7 +840,7 @@ export default function CourseEditorPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., programming, math, languages"
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <Button onClick={handleSaveMeta} disabled={saving}>
@@ -868,7 +868,7 @@ export default function CourseEditorPage() {
               ) : (
                 <ChevronRight className="h-4 w-4 text-slate-400" />
               )}
-              <span className="flex h-6 w-6 items-center justify-center rounded bg-indigo-50 dark:bg-indigo-500/20 text-xs font-bold text-indigo-600">
+              <span className="flex h-6 w-6 items-center justify-center rounded bg-green-50 dark:bg-green-500/20 text-xs font-bold text-green-600">
                 {mi + 1}
               </span>
 
@@ -879,7 +879,7 @@ export default function CourseEditorPage() {
                     value={editingModuleTitle}
                     onChange={(e) => setEditingModuleTitle(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleUpdateModule(module.id)}
-                    className="flex-1 rounded border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
+                    className="flex-1 rounded border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
                     autoFocus
                   />
                   <Button size="sm" onClick={() => handleUpdateModule(module.id)}>
@@ -1020,7 +1020,7 @@ export default function CourseEditorPage() {
                                       type="text"
                                       value={editLessonForm.title}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
-                                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                     />
                                   </div>
                                   <div>
@@ -1030,7 +1030,7 @@ export default function CourseEditorPage() {
                                       value={editLessonForm.duration_minutes}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
                                       placeholder="Optional"
-                                      className="w-32 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                      className="w-32 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                     />
                                   </div>
                                   <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
@@ -1089,12 +1089,12 @@ export default function CourseEditorPage() {
                                                             page: parseInt(e.target.value) || 1,
                                                           })
                                                         }
-                                                        className="w-10 rounded border border-slate-200 dark:border-white/10 bg-transparent px-1 py-0.5 text-center text-[10px] dark:text-slate-300 focus:outline-none focus:border-indigo-400"
+                                                        className="w-10 rounded border border-slate-200 dark:border-white/10 bg-transparent px-1 py-0.5 text-center text-[10px] dark:text-slate-300 focus:outline-none focus:border-green-400"
                                                       />
                                                     </label>
                                                     <button
                                                       onClick={() => setEditingBlockId(isEditing ? null : block.id)}
-                                                      className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-indigo-600"
+                                                      className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-green-600"
                                                       title={isEditing ? "Collapse" : "Edit"}
                                                     >
                                                       {isEditing ? <ChevronDown className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
@@ -1176,7 +1176,7 @@ export default function CourseEditorPage() {
                                                               handleUpdateBlock(lesson.id, block.id, { url: e.target.value })
                                                             }
                                                             placeholder="https://www.youtube.com/watch?v=..."
-                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                                           />
                                                           {block.url && (
                                                             <div className="mt-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
@@ -1185,7 +1185,7 @@ export default function CourseEditorPage() {
                                                                 href={block.url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-xs text-indigo-600 hover:underline"
+                                                                className="text-xs text-green-600 hover:underline"
                                                               >
                                                                 {block.url}
                                                               </a>
@@ -1206,7 +1206,7 @@ export default function CourseEditorPage() {
                                                                 href={`/admin/content-library/${block.exercise_id}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                                                className="flex items-center gap-1 text-xs font-medium text-green-600 hover:underline dark:text-green-400"
                                                               >
                                                                 <ExternalLink className="h-3 w-3" />
                                                                 Open Exercise Editor
@@ -1252,7 +1252,7 @@ export default function CourseEditorPage() {
                                   <div className="flex flex-wrap items-center gap-2">
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "text")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-300 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-green-300 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> Text
                                     </button>
@@ -1345,7 +1345,7 @@ export default function CourseEditorPage() {
                         value={lessonForm.title}
                         onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
                         placeholder="Lesson title"
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
                         autoFocus
                       />
                       <div>
@@ -1385,7 +1385,7 @@ export default function CourseEditorPage() {
                                   })}
                                   className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                                     (lessonForm.content.format || "markdown") === fmt
-                                      ? "border-indigo-300 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400"
+                                      ? "border-green-300 bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-400"
                                       : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
                                   }`}
                                 >
@@ -1404,7 +1404,7 @@ export default function CourseEditorPage() {
                             }
                             placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
                             rows={6}
-                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-indigo-500 focus:outline-none"
+                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-green-500 focus:outline-none"
                           />
                         </>
                       )}
@@ -1421,7 +1421,7 @@ export default function CourseEditorPage() {
                         value={lessonForm.duration_minutes}
                         onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
                         placeholder="Duration (minutes, optional)"
-                        className="w-48 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-48 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => handleAddLesson(module.id)}>
@@ -1443,7 +1443,7 @@ export default function CourseEditorPage() {
                 ) : (
                   <button
                     onClick={() => setAddingLessonToModule(module.id)}
-                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
+                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-green-300 hover:text-green-500"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Lesson
@@ -1463,7 +1463,7 @@ export default function CourseEditorPage() {
           onChange={(e) => setNewModuleTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
           placeholder="New module title..."
-          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         />
         <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
           <Plus className="mr-1 h-4 w-4" />
@@ -1478,14 +1478,14 @@ export default function CourseEditorPage() {
           onClick={() => setShowStudents(!showStudents)}
         >
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="h-5 w-5 text-indigo-500" />
+            <Users className="h-5 w-5 text-green-500" />
             Enrolled Students
             {showStudents ? (
               <ChevronDown className="ml-auto h-4 w-4 text-slate-400" />
             ) : (
               <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
             )}
-            <span className="ml-1 rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-xs font-medium text-indigo-600">
+            <span className="ml-1 rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600">
               {students.length}
             </span>
           </CardTitle>
@@ -1497,7 +1497,7 @@ export default function CourseEditorPage() {
               <select
                 value={enrollingUser}
                 onChange={(e) => setEnrollingUser(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 <option value="">Select a user to enroll...</option>
                 {allUsers
@@ -1526,7 +1526,7 @@ export default function CourseEditorPage() {
                     key={student.enrollment_id}
                     className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50 dark:hover:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-xs font-bold text-indigo-600">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 dark:bg-green-500/20 text-xs font-bold text-green-600">
                       {student.full_name
                         .split(" ")
                         .map((n) => n[0])
@@ -1543,7 +1543,7 @@ export default function CourseEditorPage() {
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{student.progress_percent}%</p>
                         <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                           <div
-                            className="h-full rounded-full bg-indigo-500 transition-all"
+                            className="h-full rounded-full bg-green-500 transition-all"
                             style={{ width: `${student.progress_percent}%` }}
                           />
                         </div>
@@ -1571,14 +1571,14 @@ export default function CourseEditorPage() {
           onClick={() => setShowAssignments(!showAssignments)}
         >
           <CardTitle className="flex items-center gap-2 text-lg">
-            <ClipboardList className="h-5 w-5 text-indigo-500" />
+            <ClipboardList className="h-5 w-5 text-green-500" />
             Assignments
             {showAssignments ? (
               <ChevronDown className="ml-auto h-4 w-4 text-slate-400" />
             ) : (
               <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
             )}
-            <span className="ml-1 rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-xs font-medium text-indigo-600">
+            <span className="ml-1 rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600">
               {assignments.length}
             </span>
           </CardTitle>
@@ -1620,7 +1620,7 @@ export default function CourseEditorPage() {
                               minute: "2-digit",
                             })}
                           </span>
-                          <span className="rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:text-indigo-400">
+                          <span className="rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
                             Max: {assignment.max_score} pts
                           </span>
                           {assignment.allow_late && (
@@ -1638,7 +1638,7 @@ export default function CourseEditorPage() {
                       <div className="flex shrink-0 items-center gap-1">
                         <button
                           onClick={() => window.open(`/admin/assignments/${assignment.id}/edit`, "_blank")}
-                          className="rounded p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400"
+                          className="rounded p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/10 dark:hover:text-green-400"
                           title="Edit assignment"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -1676,7 +1676,7 @@ export default function CourseEditorPage() {
                       value={assignmentForm.title}
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
                       placeholder="Assignment title"
-                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       autoFocus
                     />
                   </div>
@@ -1687,7 +1687,7 @@ export default function CourseEditorPage() {
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
                       placeholder="Optional description..."
                       rows={3}
-                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -1697,7 +1697,7 @@ export default function CourseEditorPage() {
                         type="datetime-local"
                         value={assignmentForm.due_date}
                         onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       />
                     </div>
                     <div>
@@ -1708,7 +1708,7 @@ export default function CourseEditorPage() {
                         onChange={(e) => setAssignmentForm({ ...assignmentForm, max_score: e.target.value })}
                         placeholder="100"
                         min={0}
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -1717,7 +1717,7 @@ export default function CourseEditorPage() {
                       type="checkbox"
                       checked={assignmentForm.allow_late}
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
                     />
                     Allow late submissions
                   </label>
@@ -1742,7 +1742,7 @@ export default function CourseEditorPage() {
             ) : (
               <button
                 onClick={() => setShowAddAssignment(true)}
-                className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-indigo-300 hover:text-indigo-500"
+                className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-green-300 hover:text-green-500"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add Assignment
@@ -1833,7 +1833,7 @@ function ExerciseBlockCreator({
             onClick={() => setSelectedType(t.value)}
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
               selectedType === t.value
-                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
             }`}
           >
@@ -1847,7 +1847,7 @@ function ExerciseBlockCreator({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Exercise title..."
-          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           onKeyDown={(e) => e.key === "Enter" && handleCreate()}
         />
         <Button size="sm" onClick={handleCreate} disabled={creating || !title.trim()}>
@@ -1932,7 +1932,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
         </h4>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+          className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10"
         >
           <Plus className="h-3 w-3" />
           Add
@@ -1979,14 +1979,14 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
               <span className="flex-1 text-xs font-medium text-slate-700 dark:text-slate-300">
                 {ex.title}
               </span>
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+              <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/10 dark:text-green-400">
                 {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
               </span>
               <a
                 href={`/admin/content-library/${ex.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded p-1 text-indigo-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10"
+                className="rounded p-1 text-green-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/10"
                 title="Edit exercise"
               >
                 <Pencil className="h-3.5 w-3.5" />

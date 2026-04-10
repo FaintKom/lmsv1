@@ -67,11 +67,11 @@ export default function DashboardLayout({
   if (isLoading) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 bg-slate-50 dark:bg-[#1E1E1E]">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-600">
           <GraduationCap className="h-6 w-6 text-white" />
         </div>
         <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
-          <div className="h-full w-1/2 animate-pulse rounded-full bg-indigo-500" />
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-green-500" />
         </div>
       </div>
     );
@@ -86,7 +86,7 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-slate-50 dark:bg-[#1E1E1E]">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-indigo-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-green-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
       >
         Skip to content
       </a>
@@ -105,7 +105,7 @@ export default function DashboardLayout({
             <Menu className="h-5 w-5" />
           </button>
           <div className="ml-3 flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-600">
               <GraduationCap className="h-4 w-4 text-white" aria-hidden="true" />
             </div>
             <span className="text-sm font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>

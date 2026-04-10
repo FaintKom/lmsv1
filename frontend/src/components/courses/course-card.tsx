@@ -4,7 +4,7 @@ import { BookOpen } from "lucide-react";
 import type { Course } from "@/types/api";
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
-  programming: "from-indigo-500 to-violet-600",
+  programming: "from-green-500 to-emerald-600",
   math: "from-emerald-500 to-teal-600",
   languages: "from-amber-500 to-orange-600",
 };
@@ -17,11 +17,11 @@ interface CourseCardProps {
 export function CourseCard({ course, progress }: CourseCardProps) {
   const gradient =
     CATEGORY_GRADIENTS[course.category || ""] ||
-    "from-indigo-500 to-violet-600";
+    "from-green-500 to-emerald-600";
 
   return (
     <Link href={`/courses/${course.id}`}>
-      <Card className="group overflow-hidden transition-all hover:shadow-lg hover:shadow-indigo-100 dark:hover:shadow-none">
+      <Card className="group overflow-hidden transition-all hover:shadow-lg hover:shadow-green-100 dark:hover:shadow-none">
         {course.thumbnail_url ? (
           <div className="h-36 overflow-hidden">
             <img
@@ -39,7 +39,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
         )}
         <CardContent className="p-5">
           {course.category && (
-            <span className="mb-2 inline-block rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+            <span className="mb-2 inline-block rounded-full bg-green-50 dark:bg-green-500/20 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-green-600 dark:text-green-400">
               {course.category}
             </span>
           )}
@@ -51,13 +51,13 @@ export function CourseCard({ course, progress }: CourseCardProps) {
             <div>
               <div className="mb-1 flex justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>Progress</span>
-                <span className="font-semibold text-indigo-600">
+                <span className="font-semibold text-green-600">
                   {Math.round(progress)}%
                 </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={"Course progress: " + Math.round(progress) + "%"}>
                 <div
-                  className="h-full rounded-full bg-indigo-500 transition-all"
+                  className="h-full rounded-full bg-green-500 transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>

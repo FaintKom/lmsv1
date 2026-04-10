@@ -50,15 +50,15 @@ export function NewcomerChecklist({
   }
 
   return (
-    <div className="mb-8 rounded-2xl border border-slate-200/60 dark:border-white/10 border-l-4 border-l-indigo-500 bg-white dark:bg-[#2C2C2C] shadow-sm">
+    <div className="mb-8 rounded-2xl border border-slate-200/60 dark:border-white/10 border-l-4 border-l-green-500 bg-white dark:bg-[#2C2C2C] shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-5 pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-indigo-500" />
+          <Sparkles className="h-5 w-5 text-green-500" />
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             Getting Started
           </h3>
-          <span className="rounded-full bg-indigo-50 dark:bg-indigo-500/20 px-2 py-0.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+          <span className="rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
             {doneCount}/{items.length}
           </span>
         </div>
@@ -74,7 +74,7 @@ export function NewcomerChecklist({
       {/* Progress bar */}
       <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
         <div
-          className="h-full rounded-full bg-indigo-500 transition-all duration-500"
+          className="h-full rounded-full bg-green-500 transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>

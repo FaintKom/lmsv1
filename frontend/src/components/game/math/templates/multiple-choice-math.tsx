@@ -54,7 +54,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
           {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
         </div>
         {false && cfg.standard && (
-          <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+          <span className="mt-2 inline-block rounded bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
             {cfg.standard}
           </span>
         )}
@@ -76,8 +76,8 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
               bgClass = "bg-red-50 dark:bg-red-500/10";
             }
           } else if (isThis) {
-            borderClass = "border-indigo-400 dark:border-indigo-500";
-            bgClass = "bg-indigo-50 dark:bg-indigo-500/10";
+            borderClass = "border-green-400 dark:border-green-500";
+            bgClass = "bg-green-50 dark:bg-green-500/10";
           }
 
           return (
@@ -86,7 +86,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
               onClick={() => !submitted && setSelected(i)}
               disabled={submitted}
               className={`flex w-full items-center gap-4 rounded-xl border-2 px-5 py-4 text-left transition-all ${borderClass} ${bgClass} ${
-                !submitted ? "hover:border-indigo-300 dark:hover:border-indigo-500/50" : ""
+                !submitted ? "hover:border-green-300 dark:hover:border-green-500/50" : ""
               }`}
             >
               <span
@@ -96,7 +96,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
                     : submitted && isThis && !choice.correct
                       ? "bg-red-500 text-white"
                       : isThis
-                        ? "bg-indigo-500 text-white"
+                        ? "bg-green-500 text-white"
                         : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
                 }`}
               >

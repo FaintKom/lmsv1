@@ -125,7 +125,7 @@ export function CalendarView({ canCreate = false }: Props) {
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
       </div>
     );
   }
@@ -145,7 +145,7 @@ export function CalendarView({ canCreate = false }: Props) {
         {canCreate && (
           <button
             onClick={() => { setShowForm(!showForm); setSelectedEvent(null); }}
-            className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+            className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
           >
             <Plus className="h-4 w-4" /> New Event
           </button>
@@ -204,7 +204,7 @@ export function CalendarView({ canCreate = false }: Props) {
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Create Event
@@ -252,7 +252,7 @@ export function CalendarView({ canCreate = false }: Props) {
       )}
 
       {/* Calendar */}
-      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm dark:border-white/10 dark:bg-[#232323] [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-indigo-600 [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-indigo-700 [&_.fc-button:hover]:!bg-indigo-700 [&_.fc-daygrid-day]:dark:!bg-[#1a1a1a] [&_.fc-day-today]:!bg-indigo-50 [&_.fc-day-today]:dark:!bg-indigo-500/10 [&_.fc-theme-standard_td]:!border-slate-100 [&_.fc-theme-standard_td]:dark:!border-white/5 [&_.fc-theme-standard_th]:!border-slate-100 [&_.fc-theme-standard_th]:dark:!border-white/5 [&_.fc-col-header-cell-cushion]:!text-slate-500 [&_.fc-col-header-cell-cushion]:dark:!text-slate-400 [&_.fc-daygrid-day-number]:!text-slate-600 [&_.fc-daygrid-day-number]:dark:!text-slate-300 [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-slate-800 [&_.fc-toolbar-title]:dark:!text-slate-100">
+      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm dark:border-white/10 dark:bg-[#232323] [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-green-600 [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-green-700 [&_.fc-button:hover]:!bg-green-700 [&_.fc-daygrid-day]:dark:!bg-[#1a1a1a] [&_.fc-day-today]:!bg-green-50 [&_.fc-day-today]:dark:!bg-green-500/10 [&_.fc-theme-standard_td]:!border-slate-100 [&_.fc-theme-standard_td]:dark:!border-white/5 [&_.fc-theme-standard_th]:!border-slate-100 [&_.fc-theme-standard_th]:dark:!border-white/5 [&_.fc-col-header-cell-cushion]:!text-slate-500 [&_.fc-col-header-cell-cushion]:dark:!text-slate-400 [&_.fc-daygrid-day-number]:!text-slate-600 [&_.fc-daygrid-day-number]:dark:!text-slate-300 [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-slate-800 [&_.fc-toolbar-title]:dark:!text-slate-100">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"

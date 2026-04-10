@@ -5,10 +5,10 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --primary: #14b8a6;
-  --primary-dark: #0d9488;
-  --primary-light: #ccfbf1;
-  --accent: #2dd4bf;
+  --primary: #22c55e;
+  --primary-dark: #16a34a;
+  --primary-light: #dcfce7;
+  --accent: #4ade80;
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
@@ -47,10 +47,10 @@ body {
 .dark {
   --background: #1E1E1E;
   --foreground: #E0E0E0;
-  --primary: #2dd4bf;
-  --primary-dark: #5eead4;
-  --primary-light: #134e4a;
-  --accent: #5eead4;
+  --primary: #4ade80;
+  --primary-dark: #86efac;
+  --primary-light: #14532d;
+  --accent: #86efac;
   --success: #34d399;
   --warning: #fbbf24;
   --error: #f87171;
@@ -58,7 +58,7 @@ body {
 
 /* Selection */
 ::selection {
-  background: #99f6e4;
+  background: #bbf7d0;
   color: #312e81;
 }
 

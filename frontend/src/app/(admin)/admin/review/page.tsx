@@ -114,7 +114,7 @@ export default function ReviewQueuePage() {
                 onClick={() => handleSelect(item)}
                 className={`w-full text-left rounded-xl border p-4 transition-all ${
                   selected?.id === item.id
-                    ? "border-indigo-400 bg-indigo-50 shadow-sm dark:border-indigo-500/40 dark:bg-indigo-500/10"
+                    ? "border-green-400 bg-green-50 shadow-sm dark:border-green-500/40 dark:bg-green-500/10"
                     : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-white/10 dark:bg-[#2C2C2C] dark:hover:border-white/20"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function ReviewQueuePage() {
           {/* Right: detail + grade form */}
           <div>
             {selected ? (
-              <Card className="border-l-4 border-l-indigo-400">
+              <Card className="border-l-4 border-l-green-400">
                 <CardHeader>
                   <CardTitle className="text-base">{selected.assignment_title}</CardTitle>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -189,7 +189,7 @@ export default function ReviewQueuePage() {
                         href={`${apiClient.defaults.baseURL?.replace("/api/v1", "")}/uploads/${selected.file_path}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-white/10 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-green-600 transition-colors hover:bg-green-50 dark:border-white/10 dark:text-green-400 dark:hover:bg-green-500/10"
                       >
                         <Download className="h-4 w-4" />
                         {selected.original_filename}
@@ -217,7 +217,7 @@ export default function ReviewQueuePage() {
                           max={selected.max_score}
                           value={score}
                           onChange={(e) => setScore(e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                           placeholder="Score"
                         />
                       </div>
@@ -230,7 +230,7 @@ export default function ReviewQueuePage() {
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         rows={3}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                         placeholder="Write feedback for the student..."
                       />
                     </div>

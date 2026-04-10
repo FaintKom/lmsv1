@@ -174,7 +174,7 @@ function CoordinatePlaneConfig({
           </div>
         ))}
         <button onClick={() => onChange({ ...config, target_points: [...points, { x: 0, y: 0 }] })}
-          className="text-xs text-indigo-500 hover:text-indigo-700">+ Add point</button>
+          className="text-xs text-green-500 hover:text-green-700">+ Add point</button>
       </div>
     </div>
   );

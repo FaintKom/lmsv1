@@ -20,7 +20,7 @@ export default function MeetingsPage() {
   const past = meetings.filter((m) => !m.is_active);
 
   if (loading) {
-    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-indigo-500" /></div>;
+    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
   }
 
   return (

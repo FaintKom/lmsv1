@@ -104,7 +104,7 @@ export function ProblemGenerator() {
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="block w-40 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="block w-40 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 {PROBLEM_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -120,7 +120,7 @@ export function ProblemGenerator() {
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="block w-32 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="block w-32 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 {DIFFICULTIES.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -139,7 +139,7 @@ export function ProblemGenerator() {
                 max={20}
                 value={count}
                 onChange={(e) => setCount(Math.max(1, Math.min(20, Number(e.target.value))))}
-                className="block w-20 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="block w-20 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
             </div>
 
@@ -147,7 +147,7 @@ export function ProblemGenerator() {
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               Generate
@@ -210,7 +210,7 @@ export function ProblemGenerator() {
                           ? isCorrect
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-red-100 text-red-700"
-                          : "bg-indigo-100 text-indigo-700"
+                          : "bg-green-100 text-green-700"
                       }`}>
                         {isChecked ? (
                           isCorrect ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />
@@ -247,7 +247,7 @@ export function ProblemGenerator() {
                           ? isCorrect
                             ? "border-emerald-300 bg-emerald-50 text-emerald-700"
                             : "border-red-300 bg-red-50 text-red-700"
-                          : "border-slate-200 bg-white focus:border-indigo-500 focus:ring-indigo-500"
+                          : "border-slate-200 bg-white focus:border-green-500 focus:ring-green-500"
                       }`}
                     />
                     {isChecked && !isCorrect && (
@@ -264,7 +264,7 @@ export function ProblemGenerator() {
                         onClick={() =>
                           setShowExplanations((prev) => ({ ...prev, [index]: !prev[index] }))
                         }
-                        className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                        className="text-xs font-medium text-green-600 hover:text-indigo-800"
                       >
                         {showExplanations[index] ? "Hide Explanation" : "Show Explanation"}
                       </button>

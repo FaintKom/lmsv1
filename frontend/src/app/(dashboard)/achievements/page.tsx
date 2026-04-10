@@ -131,7 +131,7 @@ export default function AchievementsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -164,7 +164,7 @@ export default function AchievementsPage() {
             className={cn(
               "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
               tab === t.key
-                ? "bg-white text-indigo-700 shadow-sm dark:bg-white/10 dark:text-indigo-300"
+                ? "bg-white text-green-700 shadow-sm dark:bg-white/10 dark:text-green-300"
                 : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             )}
           >
@@ -286,10 +286,10 @@ function AchievementsTab({
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-green-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
-              <TrendingUp className="h-5 w-5 text-indigo-500" />
+            <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+              <TrendingUp className="h-5 w-5 text-green-500" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Longest Streak</p>
@@ -334,7 +334,7 @@ function AchievementsTab({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Medal className="h-4 w-4 text-indigo-500" />
+                <Medal className="h-4 w-4 text-green-500" />
                 Leaderboard
               </CardTitle>
             </CardHeader>
@@ -447,7 +447,7 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
                   href={`/api/v1/certificates/${cert.id}/download`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30"
+                  className="flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-700 hover:bg-green-100 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-green-500/30"
                 >
                   <Download className="h-3.5 w-3.5" />
                   View
@@ -509,7 +509,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
                   .map((s) => {
                     const progressToNext = ((s.total_xp % 50) / 50) * 100;
                     return (
-                      <Card key={s.skill_id} className="border-l-4 border-l-indigo-400">
+                      <Card key={s.skill_id} className="border-l-4 border-l-green-400">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -518,7 +518,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
                               </span>
                               <span className="font-medium text-slate-800 dark:text-slate-200">{s.skill_name}</span>
                             </div>
-                            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-500/20 dark:text-green-300">
                               {t("skills.level") || "Lv."}{s.level}
                             </span>
                           </div>
@@ -528,7 +528,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
                               <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
                             </div>
                             <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
-                              <div className="h-full rounded-full bg-indigo-500" style={{ width: `${progressToNext}%` }} />
+                              <div className="h-full rounded-full bg-green-500" style={{ width: `${progressToNext}%` }} />
                             </div>
                           </div>
                         </CardContent>

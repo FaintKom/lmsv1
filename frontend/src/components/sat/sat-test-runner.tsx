@@ -33,7 +33,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
       <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
         <MathText text={question} className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200" />
         {false && standard && (
-          <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+          <span className="mt-2 inline-block rounded bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
             {standard}
           </span>
         )}
@@ -55,11 +55,11 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
               onContextMenu={(e) => { e.preventDefault(); onEliminate(i); }}
               className={`flex w-full items-center gap-4 rounded-xl border-2 px-5 py-4 text-left transition-all duration-200 ${
                 isSelected
-                  ? "border-indigo-500 bg-indigo-50 shadow-md dark:border-indigo-400 dark:bg-indigo-500/10"
-                  : "border-slate-200 bg-white hover:border-indigo-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 dark:border-white/10 dark:bg-white/5 dark:hover:border-indigo-500/50"
+                  ? "border-green-500 bg-green-50 shadow-md dark:border-green-400 dark:bg-green-500/10"
+                  : "border-slate-200 bg-white hover:border-green-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 dark:border-white/10 dark:bg-white/5 dark:hover:border-green-500/50"
               }`}>
               <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
-                isSelected ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
+                isSelected ? "bg-green-500 text-white" : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
               }`}>{labels[i]}</span>
               <MathText text={choice.text} className="text-sm font-medium text-slate-700 dark:text-slate-300" />
             </button>
@@ -84,7 +84,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
       <div className="rounded-xl bg-slate-50 px-4 py-4 sm:px-6 sm:py-5 dark:bg-white/5">
         <MathText text={question} className="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-200" />
         {false && standard && (
-          <span className="mt-2 inline-block rounded bg-indigo-100 px-2 py-0.5 text-[10px] font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+          <span className="mt-2 inline-block rounded bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
             {standard}
           </span>
         )}
@@ -96,7 +96,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
           value={answer || ""}
           onChange={(e) => onAnswer(e.target.value)}
           placeholder="e.g. 7 or 3/4"
-          className="w-44 rounded-xl border-2 border-indigo-300 bg-white px-4 py-3 text-center text-xl font-bold text-indigo-700 outline-none focus:border-indigo-500 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+          className="w-44 rounded-xl border-2 border-green-300 bg-white px-4 py-3 text-center text-xl font-bold text-green-700 outline-none focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
           autoFocus
         />
       </div>
@@ -240,7 +240,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
       <div className="flex h-auto min-h-[48px] shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 dark:border-white/10 dark:bg-[#161622]">
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{config.name}</span>
-          <span className="rounded bg-indigo-100 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+          <span className="rounded bg-green-100 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
             {currentQ + 1}/{questions.length}
           </span>
         </div>
@@ -260,7 +260,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
           {/* Reference sheet */}
           <button onClick={() => setShowFormulas(!showFormulas)}
             className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-              showFormulas ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
+              showFormulas ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
             }`}>
             <BookOpen className="h-3.5 w-3.5" /> Reference
           </button>
@@ -330,7 +330,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
                   onClick={() => goTo(i)}
                   className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
                     isCurrent
-                      ? "bg-indigo-600 text-white ring-2 ring-indigo-300"
+                      ? "bg-green-600 text-white ring-2 ring-green-300"
                       : isAnswered
                         ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
                         : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"

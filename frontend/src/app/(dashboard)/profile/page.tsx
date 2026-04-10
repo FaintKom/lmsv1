@@ -244,7 +244,7 @@ export default function ProfilePage() {
               className="h-20 w-20 rounded-full object-cover shadow-lg"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-2xl font-bold text-white shadow-lg">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-2xl font-bold text-white shadow-lg">
               {initials}
             </div>
           )}
@@ -254,7 +254,7 @@ export default function ProfilePage() {
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
             <div className="mt-1.5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium capitalize text-green-600 dark:bg-green-500/20 dark:text-green-400">
                 <Shield className="h-3 w-3" />
                 {user?.role}
               </span>
@@ -293,7 +293,7 @@ export default function ProfilePage() {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                   required
                 />
               </div>
@@ -323,7 +323,7 @@ export default function ProfilePage() {
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
                   placeholder="https://example.com/avatar.jpg"
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                 />
               </div>
 
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="Tell us about yourself..."
                   rows={3}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200"
                 />
               </div>
 
@@ -426,7 +426,7 @@ export default function ProfilePage() {
                 type="checkbox"
                 checked={emailPrefs[item.key]}
                 onChange={(e) => setEmailPrefs({ ...emailPrefs, [item.key]: e.target.checked })}
-                className="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 rounded border-slate-300 text-green-600 focus:ring-green-500"
               />
               <div>
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</p>
@@ -461,7 +461,7 @@ export default function ProfilePage() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-green-500 dark:focus:ring-green-500/20"
               />
             </div>
             <div>
@@ -475,7 +475,7 @@ export default function ProfilePage() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-green-500 dark:focus:ring-green-500/20"
               />
               <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
                 Minimum 8 characters. Use a password manager.
@@ -492,7 +492,7 @@ export default function ProfilePage() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:focus:border-green-500 dark:focus:ring-green-500/20"
               />
             </div>
             <Button type="submit" disabled={changingPassword}>
@@ -538,7 +538,7 @@ export default function ProfilePage() {
                 onClick={() => setLocale(l.code as Locale)}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
                   locale === l.code
-                    ? "border-indigo-300 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100 dark:border-indigo-500/50 dark:bg-indigo-500/20 dark:text-indigo-400"
+                    ? "border-green-300 bg-green-50 text-green-700 ring-1 ring-green-100 dark:border-green-500/50 dark:bg-green-500/20 dark:text-green-400"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20 dark:hover:bg-white/5"
                 }`}
               >

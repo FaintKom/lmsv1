@@ -245,7 +245,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
               <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
               <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
             </div>
-            <span className="text-xs text-indigo-500">{t("game.fullscreen")}</span>
+            <span className="text-xs text-green-500">{t("game.fullscreen")}</span>
           </div>
         </div>
 
@@ -321,7 +321,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
         {isGameType && (
           <button
             onClick={openFullscreen}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10"
             title="Open fullscreen"
           >
             <Maximize2 className="h-3.5 w-3.5" />
@@ -607,7 +607,7 @@ function QuizExercise({
                 key={oi}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                   selected[q.id] === opt.text
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-300"
+                    ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300"
                     : "border-slate-200 text-slate-600 hover:border-slate-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20"
                 }`}
               >
@@ -617,7 +617,7 @@ function QuizExercise({
                   value={opt.text}
                   checked={selected[q.id] === opt.text}
                   onChange={() => handleSelect(q.id, opt.text)}
-                  className="h-4 w-4 text-indigo-600"
+                  className="h-4 w-4 text-green-600"
                 />
                 {opt.text}
               </label>
@@ -629,7 +629,7 @@ function QuizExercise({
       <button
         onClick={handleSubmit}
         disabled={!allAnswered}
-        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
       >
         Submit Quiz
       </button>
@@ -782,7 +782,7 @@ function CodeChallengeExercise({
           <select
             value={selectedLang}
             onChange={(e) => setSelectedLang(e.target.value)}
-            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-indigo-400 focus:outline-none dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-green-400 focus:outline-none dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
           >
             {langs.map((l) => (
               <option key={l.key} value={l.key}>{l.name}</option>
@@ -836,7 +836,7 @@ function CodeChallengeExercise({
               onClick={() => setActiveTab("output")}
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "output"
-                  ? "border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  ? "border-b-2 border-green-600 text-green-600 dark:border-green-400 dark:text-green-400"
                   : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
@@ -849,7 +849,7 @@ function CodeChallengeExercise({
               onClick={() => setActiveTab("tests")}
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "tests"
-                  ? "border-b-2 border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                  ? "border-b-2 border-green-600 text-green-600 dark:border-green-400 dark:text-green-400"
                   : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
@@ -932,7 +932,7 @@ function FileUploadExercise({
   return (
     <div className="space-y-4">
       <div
-        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center transition-colors hover:border-indigo-300 dark:border-white/20 dark:bg-white/5 dark:hover:border-indigo-500"
+        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center transition-colors hover:border-green-300 dark:border-white/20 dark:bg-white/5 dark:hover:border-green-500"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -964,7 +964,7 @@ function FileUploadExercise({
       <button
         onClick={() => file && onUpload(file)}
         disabled={!file}
-        className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
       >
         Upload File
       </button>

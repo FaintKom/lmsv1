@@ -91,7 +91,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
           <span className="inline-block h-0.5 w-5 bg-emerald-400" style={{ borderBottom: "2px dashed #22c55e" }} /> Target
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-5 bg-indigo-500" /> Your graph
+          <span className="inline-block h-0.5 w-5 bg-green-500" /> Your graph
         </span>
       </div>
 
@@ -113,7 +113,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
 
       {/* Transformation equation */}
       <div className="rounded-lg bg-slate-50 px-4 py-2 text-center dark:bg-white/5">
-        <span className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+        <span className="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
           y = {a !== 1 ? `${a}` : ""}({fnLabel.replace("x", `(x${h >= 0 ? " - " + h : " + " + Math.abs(h)})`)}) {v >= 0 ? "+" : "-"} {Math.abs(v)}
         </span>
       </div>
@@ -122,27 +122,27 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
       <div className="w-full max-w-sm space-y-3">
         <div className="flex items-center gap-3">
           <label className="w-32 text-right text-xs font-medium text-slate-500">
-            ↔ Horizontal = <span className="font-mono text-indigo-600 dark:text-indigo-400">{h}</span>
+            ↔ Horizontal = <span className="font-mono text-green-600 dark:text-green-400">{h}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={h}
             onChange={(e) => { setH(parseFloat(e.target.value)); setChecked(false); }}
-            className="flex-1 accent-indigo-500" />
+            className="flex-1 accent-green-500" />
         </div>
         <div className="flex items-center gap-3">
           <label className="w-32 text-right text-xs font-medium text-slate-500">
-            ↕ Vertical = <span className="font-mono text-indigo-600 dark:text-indigo-400">{v}</span>
+            ↕ Vertical = <span className="font-mono text-green-600 dark:text-green-400">{v}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={v}
             onChange={(e) => { setV(parseFloat(e.target.value)); setChecked(false); }}
-            className="flex-1 accent-indigo-500" />
+            className="flex-1 accent-green-500" />
         </div>
         <div className="flex items-center gap-3">
           <label className="w-32 text-right text-xs font-medium text-slate-500">
-            ↕ Stretch = <span className="font-mono text-indigo-600 dark:text-indigo-400">{a}</span>
+            ↕ Stretch = <span className="font-mono text-green-600 dark:text-green-400">{a}</span>
           </label>
           <input type="range" min={-3} max={3} step={0.25} value={a}
             onChange={(e) => { setA(parseFloat(e.target.value)); setChecked(false); }}
-            className="flex-1 accent-indigo-500" />
+            className="flex-1 accent-green-500" />
         </div>
       </div>
 

@@ -91,7 +91,7 @@ export default function AdminAnalyticsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -162,7 +162,7 @@ export default function AdminAnalyticsPage() {
         </div>
         <button
           onClick={handleExportCSV}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -171,10 +171,10 @@ export default function AdminAnalyticsPage() {
 
       {/* Main stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-green-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
-              <Users className="h-5 w-5 text-indigo-600" />
+            <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-3">
+              <Users className="h-5 w-5 text-green-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Total Users</p>
@@ -249,10 +249,10 @@ export default function AdminAnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+          <Card className="border-l-4 border-l-green-400 hover:shadow-md">
             <CardContent className="flex items-center gap-4 p-6">
-              <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
-                <Code className="h-5 w-5 text-indigo-600" />
+              <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-3">
+                <Code className="h-5 w-5 text-green-600" />
               </div>
               <div>
                 <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Code Pass Rate</p>
@@ -272,7 +272,7 @@ export default function AdminAnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <TrendingUp className="h-4 w-4 text-indigo-500" />
+                <TrendingUp className="h-4 w-4 text-green-500" />
                 Enrollments (Last 30 Days)
               </CardTitle>
             </CardHeader>
@@ -389,7 +389,7 @@ export default function AdminAnalyticsPage() {
                     label={cat}
                     value={count}
                     total={courses.length}
-                    color="bg-indigo-500"
+                    color="bg-green-500"
                   />
                 ))}
               </div>
@@ -404,7 +404,7 @@ export default function AdminAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Users className="h-4 w-4 text-indigo-500" />
+              <Users className="h-4 w-4 text-green-500" />
               User Breakdown
             </CardTitle>
           </CardHeader>
@@ -432,7 +432,7 @@ export default function AdminAnalyticsPage() {
             </div>
             <div className="mt-4 rounded-lg bg-slate-50 dark:bg-white/5 p-3">
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Enrollment Rate</p>
-              <p className="text-lg font-bold text-indigo-600">{enrollmentRate}%</p>
+              <p className="text-lg font-bold text-green-600">{enrollmentRate}%</p>
               <p className="text-[10px] text-slate-400 dark:text-slate-400">
                 {stats?.total_enrollments || 0} enrollments across {stats?.total_users || 0} users
               </p>

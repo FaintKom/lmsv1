@@ -105,7 +105,7 @@ export function EditorLayout({
           <select
             value={selectedLang}
             onChange={(e) => setSelectedLang(e.target.value)}
-            className="appearance-none rounded-xl border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/20"
+            className="appearance-none rounded-xl border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/20"
           >
             {langs.map((l) => (
               <option key={l.key} value={l.key}>
@@ -165,7 +165,7 @@ export function EditorLayout({
               onClick={() => setActiveTab("output")}
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "output"
-                  ? "border-b-2 border-indigo-600 text-indigo-600"
+                  ? "border-b-2 border-green-600 text-green-600"
                   : "text-slate-400 hover:text-slate-600"
               }`}
             >
@@ -176,7 +176,7 @@ export function EditorLayout({
                 onClick={() => setActiveTab("tests")}
                 className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                   activeTab === "tests"
-                    ? "border-b-2 border-indigo-600 text-indigo-600"
+                    ? "border-b-2 border-green-600 text-green-600"
                     : "text-slate-400 hover:text-slate-600"
                 }`}
               >

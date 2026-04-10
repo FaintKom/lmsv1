@@ -207,7 +207,7 @@ export default function LessonViewerPage() {
     return (
       <div className="text-center">
         <p className="text-slate-500">Lesson not found</p>
-        <Link href={`/courses/${courseId}`} className="text-indigo-600 hover:underline">
+        <Link href={`/courses/${courseId}`} className="text-green-600 hover:underline">
           Back to course
         </Link>
       </div>
@@ -253,7 +253,7 @@ export default function LessonViewerPage() {
                   ) : (
                     <ChevronRight className="h-3 w-3 text-slate-400" />
                   )}
-                  <span className="flex h-5 w-5 items-center justify-center rounded bg-indigo-50 text-[10px] font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                  <span className="flex h-5 w-5 items-center justify-center rounded bg-green-50 text-[10px] font-bold text-green-600 dark:bg-green-500/20 dark:text-green-400">
                     {mi + 1}
                   </span>
                   <span className="flex-1 truncate">{module.title}</span>
@@ -272,7 +272,7 @@ export default function LessonViewerPage() {
                             href={`/courses/${courseId}/lessons/${l.id}`}
                             className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors ${
                               isActive
-                                ? "bg-indigo-50 font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                                ? "bg-green-50 font-semibold text-green-700 dark:bg-green-500/20 dark:text-green-300"
                                 : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
                             }`}
                           >
@@ -311,7 +311,7 @@ export default function LessonViewerPage() {
           {/* Lesson header */}
           <div className="mb-6">
             <div className="mb-2 flex items-center gap-2">
-              <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium capitalize text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+              <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium capitalize text-green-600 dark:bg-green-500/20 dark:text-green-400">
                 {lesson.content_type.replace("_", " ")}
               </span>
               {lesson.duration_minutes && (
@@ -401,10 +401,10 @@ export default function LessonViewerPage() {
             {nextLesson ? (
               <Link
                 href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-                className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30"
+                className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-100 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-green-500/30"
               >
                 <div className="text-right">
-                  <div className="text-xs uppercase text-indigo-400">Next</div>
+                  <div className="text-xs uppercase text-green-400">Next</div>
                   <div className="max-w-[200px] truncate">{nextLesson.lesson.title}</div>
                 </div>
                 <ArrowRight className="h-4 w-4" />
@@ -592,7 +592,7 @@ function PageNav({
             onClick={() => setCurrentPage(p)}
             className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
               p === currentPage
-                ? "bg-indigo-600 text-white dark:bg-indigo-500"
+                ? "bg-green-600 text-white dark:bg-green-500"
                 : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
             }`}
           >

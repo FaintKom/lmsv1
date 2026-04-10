@@ -101,7 +101,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
               key={term.id}
               onClick={() => removeFromRight(term)}
               disabled={checked}
-              className="rounded-lg bg-indigo-100 px-3 py-1.5 text-sm font-semibold text-indigo-700 transition-colors hover:bg-red-100 hover:text-red-700 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-red-500/20 dark:hover:text-red-300"
+              className="rounded-lg bg-green-100 px-3 py-1.5 text-sm font-semibold text-green-700 transition-colors hover:bg-red-100 hover:text-red-700 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-red-500/20 dark:hover:text-red-300"
             >
               {term.label} &times;
             </button>
@@ -117,7 +117,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
             key={term.id}
             onClick={() => addToRight(term)}
             disabled={checked}
-            className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-indigo-100 hover:text-indigo-700 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-300"
+            className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-green-100 hover:text-green-700 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-green-500/20 dark:hover:text-green-300"
           >
             +{term.label}
           </button>

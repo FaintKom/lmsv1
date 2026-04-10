@@ -83,7 +83,7 @@ export default function OrganizationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -105,8 +105,8 @@ export default function OrganizationsPage() {
             key={org.id}
             className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-500/20">
-              <Building2 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/20">
+              <Building2 className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
 
             <div className="min-w-0 flex-1">

@@ -21,7 +21,7 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
   const btnClass = (active: boolean) =>
     `rounded p-1.5 transition-colors ${
       active
-        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+        ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
         : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
     }`;
 

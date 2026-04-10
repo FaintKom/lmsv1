@@ -198,7 +198,7 @@ export default function ChallengeBuilder({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -206,7 +206,7 @@ export default function ChallengeBuilder({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-        <Code className="h-4 w-4 text-indigo-500" />
+        <Code className="h-4 w-4 text-green-500" />
         {challenge ? "Edit Challenge" : "Create Challenge"}
       </div>
 
@@ -219,7 +219,7 @@ export default function ChallengeBuilder({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Challenge title"
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
         <div>
@@ -227,7 +227,7 @@ export default function ChallengeBuilder({
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           >
             {languages.map((l) => (
               <option key={l.value} value={l.value}>
@@ -246,7 +246,7 @@ export default function ChallengeBuilder({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the challenge requirements..."
           rows={3}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -258,7 +258,7 @@ export default function ChallengeBuilder({
           onChange={(e) => setStarterCode(e.target.value)}
           placeholder="def solution():\n    pass"
           rows={5}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -270,7 +270,7 @@ export default function ChallengeBuilder({
           onChange={(e) => setSolutionCode(e.target.value)}
           placeholder="def solution():\n    return 42"
           rows={5}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -284,7 +284,7 @@ export default function ChallengeBuilder({
             onChange={(e) => setTimeLimit(parseInt(e.target.value) || 10)}
             min={1}
             max={60}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
         <div>
@@ -295,7 +295,7 @@ export default function ChallengeBuilder({
             onChange={(e) => setMemoryLimit(parseInt(e.target.value) || 256)}
             min={32}
             max={1024}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
       </div>
@@ -384,7 +384,7 @@ export default function ChallengeBuilder({
 
           {/* Add test case form */}
           {addingTestCase && (
-            <div className="mt-3 rounded-lg border border-dashed border-indigo-300 bg-indigo-50/30 p-3">
+            <div className="mt-3 rounded-lg border border-dashed border-green-300 bg-green-50/30 p-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -397,7 +397,7 @@ export default function ChallengeBuilder({
                     }
                     placeholder="5&#10;3 1 4 1 5"
                     rows={3}
-                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -411,7 +411,7 @@ export default function ChallengeBuilder({
                     }
                     placeholder="1 1 3 4 5"
                     rows={3}
-                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
                   />
                 </div>
               </div>

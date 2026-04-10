@@ -108,8 +108,8 @@ export default function ContentLibraryPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
-          <Library className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-indigo-900/30">
+          <Library className="h-5 w-5 text-green-600 dark:text-green-400" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Content Library</h1>
       </div>
@@ -413,14 +413,14 @@ function TemplatesTab() {
                     onClick={() => toggleGroup(group.id)}
                     className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                       selectedGroups.includes(group.id)
-                        ? "border-indigo-300 bg-indigo-50 dark:border-indigo-500/50 dark:bg-indigo-500/10"
+                        ? "border-green-300 bg-green-50 dark:border-green-500/50 dark:bg-green-500/10"
                         : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5"
                     }`}
                   >
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded border ${
                         selectedGroups.includes(group.id)
-                          ? "border-indigo-500 bg-indigo-500"
+                          ? "border-green-500 bg-green-500"
                           : "border-slate-300 dark:border-white/20"
                       }`}
                     >
@@ -539,7 +539,7 @@ function ExercisesTab() {
                 placeholder="Search by title or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
               />
             </div>
           </div>
@@ -549,7 +549,7 @@ function ExercisesTab() {
               onClick={() => { setActiveType("all"); setPage(1); }}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                 activeType === "all"
-                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                  ? "bg-green-100 text-green-700 dark:bg-indigo-900/30 dark:text-green-300"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
               }`}
             >
@@ -801,7 +801,7 @@ function AssignmentsTab() {
   );
 
   const inputClass =
-    "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20";
+    "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20";
 
   return (
     <>
@@ -816,7 +816,7 @@ function AssignmentsTab() {
                 placeholder="Search assignments by title..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/20"
+                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
               />
             </div>
             <Button onClick={() => setShowForm((v) => !v)}>
@@ -929,7 +929,7 @@ function AssignmentsTab() {
                   type="checkbox"
                   checked={formAllowLate}
                   onChange={(e) => setFormAllowLate(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-white/20"
+                  className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500 dark:border-white/20"
                 />
                 Allow late submissions
               </label>

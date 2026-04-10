@@ -24,7 +24,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <span className="text-xl font-bold text-slate-900">GrassLMS</span>
@@ -60,14 +60,14 @@ export default function Home() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_60%,rgba(99,102,241,0.08),transparent)]" />
           <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center md:pt-28">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-1.5 text-sm font-medium text-green-700">
               <Sparkles className="h-4 w-4" />
               Platform for modern education
             </div>
             <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
               Teach smarter with
               <br />
-              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 interactive learning
               </span>
             </h1>
@@ -104,9 +104,9 @@ export default function Home() {
               </p>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-50">
-                <div className="mb-5 inline-flex rounded-2xl bg-indigo-50 p-3.5">
-                  <Code className="h-6 w-6 text-indigo-600" />
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:border-green-200 hover:shadow-lg hover:shadow-green-50">
+                <div className="mb-5 inline-flex rounded-2xl bg-green-50 p-3.5">
+                  <Code className="h-6 w-6 text-green-600" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
                   Code in 37 Languages
@@ -214,8 +214,8 @@ export default function Home() {
                 </p>
               </div>
               <div className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
-                  <BarChart3 className="h-6 w-6 text-indigo-500" />
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+                  <BarChart3 className="h-6 w-6 text-green-500" />
                 </div>
                 <h3 className="mb-1 font-semibold text-slate-900">
                   Teacher Dashboard
@@ -230,7 +230,7 @@ export default function Home() {
         </section>
 
         {/* CTA */}
-        <section className="border-t border-slate-100 bg-gradient-to-b from-indigo-50/50 to-white py-20">
+        <section className="border-t border-slate-100 bg-gradient-to-b from-green-50/50 to-white py-20">
           <div className="mx-auto max-w-2xl px-6 text-center">
             <h2 className="mb-4 text-3xl font-bold text-slate-900">
               Ready to get started?

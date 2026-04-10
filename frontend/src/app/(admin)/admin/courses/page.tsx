@@ -191,7 +191,7 @@ export default function AdminCoursesPage() {
   const canCreateTemplate = isAdmin || isMethodist;
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
-    programming: "from-indigo-500 to-violet-600",
+    programming: "from-green-500 to-emerald-600",
     math: "from-emerald-500 to-teal-600",
     languages: "from-amber-500 to-orange-600",
   };
@@ -201,7 +201,7 @@ export default function AdminCoursesPage() {
     const isTemplate = 'is_template' in course && course.is_template;
     const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
     const category = 'category' in course ? course.category : null;
-    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-violet-500 to-purple-600" : "from-indigo-500 to-violet-600");
+    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-violet-500 to-purple-600" : "from-green-500 to-emerald-600");
 
     return (
       <Card key={course.id} className="group overflow-hidden transition-all hover:shadow-lg dark:hover:shadow-none">
@@ -245,7 +245,7 @@ export default function AdminCoursesPage() {
           {/* Category + source badges */}
           <div className="mb-2 flex flex-wrap items-center gap-1.5">
             {category && (
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-green-600 dark:bg-green-500/20 dark:text-green-400">
                 {category}
               </span>
             )}
@@ -267,7 +267,7 @@ export default function AdminCoursesPage() {
               <select
                 value={course.org_id}
                 onChange={(e) => handleOrgChange(course.id, e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-600 focus:border-indigo-300 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-600 focus:border-green-300 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
               >
                 {orgs.map((o) => (
                   <option key={o.id} value={o.id}>

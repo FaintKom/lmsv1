@@ -73,12 +73,12 @@ export const MathBlock = Node.create({
       const showEditor = () => {
         const latex = node.attrs.latex || "";
         dom.innerHTML = "";
-        dom.className = "math-block my-4 rounded-lg border-2 border-indigo-300 dark:border-indigo-500/50 bg-slate-50 dark:bg-white/5 p-4 space-y-3";
+        dom.className = "math-block my-4 rounded-lg border-2 border-green-300 dark:border-green-500/50 bg-slate-50 dark:bg-white/5 p-4 space-y-3";
 
         const textarea = document.createElement("textarea");
         textarea.value = latex;
         textarea.placeholder = "Enter LaTeX formula... e.g. \\int_0^1 f(x)dx";
-        textarea.className = "w-full rounded-md border border-slate-300 dark:border-white/20 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:outline-none resize-none";
+        textarea.className = "w-full rounded-md border border-slate-300 dark:border-white/20 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:border-green-500 focus:outline-none resize-none";
         textarea.rows = 3;
         textarea.addEventListener("input", () => {
           // Update preview

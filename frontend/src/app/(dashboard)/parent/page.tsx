@@ -82,7 +82,7 @@ export default function ParentDashboard() {
             <button
               type="submit"
               disabled={linking}
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
               {linking ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {t("parent.link")}
@@ -93,7 +93,7 @@ export default function ParentDashboard() {
 
       {/* Children */}
       {loading ? (
-        <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-indigo-500" /></div>
+        <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>
       ) : children.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
@@ -108,9 +108,9 @@ export default function ParentDashboard() {
         <div className="grid gap-4 sm:grid-cols-2">
           {children.map((child) => (
             <Link key={child.id} href={`/parent/children/${child.id}`}>
-              <Card className="border-l-4 border-l-indigo-400 transition-shadow hover:shadow-md">
+              <Card className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
                 <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-lg font-bold text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-lg font-bold text-white">
                     {child.full_name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">

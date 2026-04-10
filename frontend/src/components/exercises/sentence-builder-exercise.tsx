@@ -67,9 +67,9 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
     <div className="space-y-5">
       {/* Instructions */}
       {config.instructions && (
-        <div className="flex items-start gap-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 px-5 py-4">
+        <div className="flex items-start gap-3 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20 px-5 py-4">
           <span className="text-lg flex-shrink-0">{"\uD83D\uDCA1"}</span>
-          <p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+          <p className="text-sm font-medium text-green-700 dark:text-green-300">
             {config.instructions}
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
             ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-500/40 dark:bg-emerald-500/5"
             : submitted && isCorrect === false
             ? "border-red-300 bg-red-50/50 dark:border-red-500/40 dark:bg-red-500/5"
-            : "border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-500/5"
+            : "border-green-200 dark:border-green-500/30 bg-green-50/30 dark:bg-green-500/5"
         }`}
       >
         <div className="flex items-center gap-2 mb-3">
@@ -110,8 +110,8 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
                 className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 shadow-sm
                   ${
                     submitted
-                      ? "bg-indigo-500 text-white cursor-default"
-                      : "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md active:scale-95"
+                      ? "bg-green-500 text-white cursor-default"
+                      : "bg-green-600 text-white hover:bg-green-700 hover:shadow-md active:scale-95"
                   }
                 `}
               >
@@ -146,7 +146,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
                 key={`p-${i}`}
                 onClick={() => addWord(word, i)}
                 disabled={submitted}
-                className="rounded-xl border-2 border-slate-200 dark:border-white/15 bg-white dark:bg-[#2A2A2A] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-sm dark:hover:border-indigo-500 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-xl border-2 border-slate-200 dark:border-white/15 bg-white dark:bg-[#2A2A2A] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:text-green-700 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 dark:hover:text-green-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {word}
               </button>
@@ -161,7 +161,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
           <button
             onClick={handleSubmit}
             disabled={sentence.length === 0}
-            className="flex-1 rounded-2xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 rounded-2xl bg-green-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Check Sentence
           </button>

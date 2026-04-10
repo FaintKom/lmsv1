@@ -186,7 +186,7 @@ export default function GroupsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -217,7 +217,7 @@ export default function GroupsPage() {
                 placeholder="Group name (e.g. Class 10-A)"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
                 autoFocus
               />
               <input
@@ -225,7 +225,7 @@ export default function GroupsPage() {
                 placeholder="Description (optional)"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={createGroup} disabled={!newName.trim()}>
@@ -263,8 +263,8 @@ export default function GroupsPage() {
                 onClick={() => toggleExpand(g.id)}
               >
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-indigo-50 dark:bg-indigo-500/20 p-2.5">
-                    <UsersRound className="h-5 w-5 text-indigo-600" />
+                  <div className="rounded-xl bg-green-50 dark:bg-green-500/20 p-2.5">
+                    <UsersRound className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">{g.name}</h3>
@@ -340,7 +340,7 @@ export default function GroupsPage() {
                           placeholder="Search users..."
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 dark:border-white/10 py-2 pl-9 pr-3 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-indigo-500 focus:outline-none"
+                          className="w-full rounded-lg border border-slate-200 dark:border-white/10 py-2 pl-9 pr-3 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
                         />
                         {userSearch && (
                           <button
@@ -424,7 +424,7 @@ export default function GroupsPage() {
                       <select
                         value={selectedCourse}
                         onChange={(e) => setSelectedCourse(e.target.value)}
-                        className="mb-3 w-full rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-indigo-500 focus:outline-none"
+                        className="mb-3 w-full rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
                       >
                         <option value="">Choose a course...</option>
                         {courses.map((c) => (
@@ -474,7 +474,7 @@ export default function GroupsPage() {
                             className="flex items-center justify-between rounded-lg bg-white dark:bg-[#2C2C2C] px-3 py-2"
                           >
                             <div className="flex items-center gap-2">
-                              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-xs font-bold text-indigo-600">
+                              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-green-100 dark:bg-green-500/20 text-xs font-bold text-green-600">
                                 {m.full_name.charAt(0).toUpperCase()}
                               </div>
                               <div>

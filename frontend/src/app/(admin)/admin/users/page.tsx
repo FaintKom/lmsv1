@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
                 placeholder="Full Name"
                 value={form.full_name}
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <input
@@ -164,7 +164,7 @@ export default function AdminUsersPage() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <input
@@ -172,13 +172,13 @@ export default function AdminUsersPage() {
                 placeholder="Password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 <option value="student">Student</option>
                 <option value="teacher">Teacher</option>
@@ -218,7 +218,7 @@ export default function AdminUsersPage() {
                   <tr key={u.id} className="border-b border-slate-50 dark:border-white/5 text-sm hover:bg-slate-50/50 dark:hover:bg-white/5">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-xs font-semibold text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-xs font-semibold text-white">
                           {u.full_name.charAt(0).toUpperCase()}
                         </div>
                         <span className="font-medium text-slate-900 dark:text-slate-100">{u.full_name}</span>
@@ -229,7 +229,7 @@ export default function AdminUsersPage() {
                       <select
                         value={u.role}
                         onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                        className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium focus:border-indigo-300 focus:outline-none"
+                        className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium focus:border-green-300 focus:outline-none"
                       >
                         <option value="student">student</option>
                         <option value="teacher">teacher</option>
@@ -258,7 +258,7 @@ export default function AdminUsersPage() {
                         <select
                           value={u.org_id}
                           onChange={(e) => handleOrgChange(u.id, e.target.value)}
-                          className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium focus:border-indigo-300 focus:outline-none"
+                          className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium focus:border-green-300 focus:outline-none"
                         >
                           {orgs.map((o) => (
                             <option key={o.id} value={o.id}>

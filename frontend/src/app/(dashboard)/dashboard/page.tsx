@@ -81,10 +81,10 @@ export default function DashboardPage() {
       {/* Stats */}
       <h2 className="sr-only">Learning Stats</h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-green-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
-              <BookOpen className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+              <BookOpen className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -155,7 +155,7 @@ export default function DashboardPage() {
               const colors = {
                 review: "border-l-orange-400 bg-orange-50 dark:bg-orange-500/5",
                 continue: "border-l-blue-400 bg-blue-50 dark:bg-blue-500/5",
-                new: "border-l-indigo-400 bg-indigo-50 dark:bg-indigo-500/5",
+                new: "border-l-green-400 bg-green-50 dark:bg-green-500/5",
                 almost_done: "border-l-emerald-400 bg-emerald-50 dark:bg-emerald-500/5",
               };
               return (
@@ -182,7 +182,7 @@ export default function DashboardPage() {
             </h2>
             <Link
               href="/progress"
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+              className="text-sm font-medium text-green-600 hover:text-green-700"
             >
               View all
             </Link>
@@ -204,7 +204,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-indigo-500" />
+              <Sparkles className="h-5 w-5 text-green-500" />
               Get Started
             </CardTitle>
           </CardHeader>
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 </p>
                 <Link
                   href="/courses"
-                  className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                  className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700"
                 >
                   Browse courses <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -282,8 +282,8 @@ export default function DashboardPage() {
                     href={`/courses/${enrollment.course_id}`}
                     className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-colors hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-500/20">
-                      <BookOpen className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50 dark:bg-green-500/20">
+                      <BookOpen className="h-4 w-4 text-green-500 dark:text-green-400" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -295,7 +295,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                       <div
-                        className="h-full rounded-full bg-indigo-500"
+                        className="h-full rounded-full bg-green-500"
                         style={{ width: `${enrollment.progress_percent}%` }}
                       />
                     </div>

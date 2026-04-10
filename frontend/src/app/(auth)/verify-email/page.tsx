@@ -41,8 +41,8 @@ function VerifyEmailFlow() {
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm dark:bg-[#2C2C2C]">
         <div className="mb-6 flex justify-center">
           {status === "loading" && (
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-100 dark:bg-indigo-500/20">
-              <MailCheck className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-500/20">
+              <MailCheck className="h-7 w-7 text-green-600 dark:text-green-400" />
             </div>
           )}
           {status === "success" && (

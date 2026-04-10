@@ -110,7 +110,7 @@ export default function OrgMembersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">
           <Users className="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
@@ -150,7 +150,7 @@ export default function OrgMembersPage() {
                 placeholder="teacher@school.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 disabled={submitting}
               />
             </div>
@@ -165,7 +165,7 @@ export default function OrgMembersPage() {
                 id="member-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm capitalize focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm capitalize focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 disabled={submitting}
               >
                 {ROLES.map((r) => (

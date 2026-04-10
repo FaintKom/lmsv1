@@ -63,7 +63,7 @@ function ToolbarButton({
       title={title}
       className={`rounded p-1.5 transition-colors ${
         active
-          ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+          ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
           : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200"
       }`}
     >
@@ -284,7 +284,7 @@ export function BlockEditor({
       LinkExtension.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-indigo-600 underline dark:text-indigo-400",
+          class: "text-green-600 underline dark:text-green-400",
         },
       }),
       Mathematics.configure({

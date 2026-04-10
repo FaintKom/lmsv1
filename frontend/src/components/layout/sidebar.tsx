@@ -209,14 +209,14 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
                   className={cn(
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
                     isActive
-                      ? "bg-indigo-50 text-indigo-700 shadow-sm dark:bg-indigo-500/20 dark:text-indigo-300"
+                      ? "bg-green-50 text-green-700 shadow-sm dark:bg-green-500/20 dark:text-green-300"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200"
                   )}
                 >
                   <item.icon
                     className={cn(
                       "h-[18px] w-[18px]",
-                      isActive ? "text-indigo-600" : "text-slate-400"
+                      isActive ? "text-green-600" : "text-slate-400"
                     )}
                     aria-hidden="true"
                   />
@@ -244,7 +244,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
           href="/profile"
           className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-semibold text-white shadow-sm">
             {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div className="min-w-0 flex-1">

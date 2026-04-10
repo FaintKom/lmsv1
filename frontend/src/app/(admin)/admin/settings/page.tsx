@@ -86,7 +86,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -95,7 +95,7 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <Settings className="h-6 w-6 text-indigo-600" />
+          <Settings className="h-6 w-6 text-green-600" />
           Settings
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -122,7 +122,7 @@ export default function SettingsPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="My School"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
             />
             <p className="mt-1 text-xs text-slate-400">Shown in the sidebar header instead of &ldquo;GrassLMS&rdquo;</p>
           </div>
@@ -138,7 +138,7 @@ export default function SettingsPage() {
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
                 placeholder="https://example.com/logo.png"
-                className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
               />
               {logoUrl && (
                 <img
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                 type="text"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-indigo-500 focus:outline-none"
+                className="w-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none"
                 placeholder="#6366f1"
               />
               <div
@@ -211,7 +211,7 @@ export default function SettingsPage() {
                   onChange={() => toggle(item.key)}
                   className="sr-only peer"
                 />
-                <div className="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-indigo-600 dark:bg-slate-600 transition-colors" />
+                <div className="h-6 w-11 rounded-full bg-slate-200 peer-checked:bg-green-600 dark:bg-slate-600 transition-colors" />
                 <div className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
               </div>
             </label>

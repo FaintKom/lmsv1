@@ -16,7 +16,7 @@ const EXTRA_STATS = [
 ];
 
 const colorMap: Record<string, { bg: string; iconBg: string; text: string; border: string; gradient: string; ring: string }> = {
-  indigo: { bg: "bg-indigo-50", iconBg: "bg-indigo-100", text: "text-indigo-600", border: "border-indigo-400", gradient: "from-indigo-50/80 to-white", ring: "ring-indigo-200" },
+  indigo: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
   emerald: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
   violet: { bg: "bg-violet-50", iconBg: "bg-violet-100", text: "text-violet-600", border: "border-violet-400", gradient: "from-violet-50/80 to-white", ring: "ring-violet-200" },
   amber: { bg: "bg-amber-50", iconBg: "bg-amber-100", text: "text-amber-600", border: "border-amber-400", gradient: "from-amber-50/80 to-white", ring: "ring-amber-200" },
@@ -156,11 +156,11 @@ export default function StylePreviewPage() {
             onClick={() => setActiveStyle(s.id)}
             className={`rounded-xl border-2 px-4 py-3 text-left transition-all duration-200 ${
               activeStyle === s.id
-                ? "border-indigo-500 bg-indigo-50 shadow-md"
+                ? "border-green-500 bg-green-50 shadow-md"
                 : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
             }`}
           >
-            <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-indigo-700" : "text-slate-700"}`}>
+            <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-green-700" : "text-slate-700"}`}>
               {s.name}
             </p>
             <p className="mt-0.5 text-[11px] text-slate-400">{s.desc}</p>

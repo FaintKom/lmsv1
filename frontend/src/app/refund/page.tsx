@@ -6,7 +6,7 @@ export default function RefundPolicyPage() {
     <div className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/login"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-green-600 hover:text-green-700"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Login
@@ -32,7 +32,7 @@ export default function RefundPolicyPage() {
             or refunds, please contact us at{" "}
             <a
               href="mailto:support@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               support@learnhub.app
             </a>
@@ -84,7 +84,7 @@ export default function RefundPolicyPage() {
             refund &mdash; no questions asked. Contact{" "}
             <a
               href="mailto:support@learnhub.app"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
+              className="font-medium text-green-600 hover:text-green-700"
             >
               support@learnhub.app
             </a>{" "}
@@ -116,7 +116,7 @@ export default function RefundPolicyPage() {
               <strong>Option 2:</strong> Email{" "}
               <a
                 href="mailto:support@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 support@learnhub.app
               </a>{" "}
@@ -199,7 +199,7 @@ export default function RefundPolicyPage() {
               this policy, please contact{" "}
               <a
                 href="mailto:support@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 support@learnhub.app
               </a>
@@ -225,7 +225,7 @@ export default function RefundPolicyPage() {
               Email:{" "}
               <a
                 href="mailto:support@learnhub.app"
-                className="font-medium text-indigo-600 hover:text-indigo-700"
+                className="font-medium text-green-600 hover:text-green-700"
               >
                 support@learnhub.app
               </a>

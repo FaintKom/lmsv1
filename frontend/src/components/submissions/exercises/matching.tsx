@@ -52,10 +52,10 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
               aria-pressed={activeLeft === p.left}
               className={`w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors ${
                 activeLeft === p.left
-                  ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-300"
+                  ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300"
                   : selected[p.left]
                     ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
-                    : "border-slate-200 text-slate-700 hover:border-indigo-300 dark:border-white/10 dark:text-slate-300 dark:hover:border-indigo-500/50"
+                    : "border-slate-200 text-slate-700 hover:border-green-300 dark:border-white/10 dark:text-slate-300 dark:hover:border-green-500/50"
               }`}
             >
               {p.left}
@@ -79,7 +79,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
                 usedRight.has(right)
                   ? "border-slate-100 bg-slate-50 text-slate-400 dark:border-white/5 dark:bg-white/5 dark:text-slate-500"
                   : activeLeft
-                    ? "border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-white/10 dark:text-slate-300 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10"
+                    ? "border-slate-200 text-slate-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:text-slate-300 dark:hover:border-green-500/50 dark:hover:bg-green-500/10"
                     : "border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400"
               }`}
             >
@@ -92,7 +92,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
       <button
         onClick={handleSubmit}
         disabled={Object.keys(selected).length < pairs.length}
-        className="mt-6 w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="mt-6 w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
       >
         Submit Answer
       </button>

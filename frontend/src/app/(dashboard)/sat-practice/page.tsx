@@ -42,7 +42,7 @@ export default function SATPracticePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Hero */}
-      <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-8 text-white">
+      <div className="rounded-2xl bg-gradient-to-br from-green-600 via-violet-600 to-purple-700 p-8 text-white">
         <div className="flex items-center gap-3 mb-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
             <GraduationCap className="h-6 w-6" />
@@ -61,7 +61,7 @@ export default function SATPracticePage() {
       {/* Test modes */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Mini test */}
-        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-500/50"
+        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-green-300 dark:hover:border-green-500/50"
           onClick={() => startTest(SAT_MINI_CONFIG)}>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
@@ -81,11 +81,11 @@ export default function SATPracticePage() {
         </Card>
 
         {/* Full test */}
-        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-500/50"
+        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-green-300 dark:hover:border-green-500/50"
           onClick={() => startTest(SAT_MATH_CONFIG)}>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400">
                 <BookOpen className="h-5 w-5" />
               </div>
               <div>
@@ -129,19 +129,19 @@ export default function SATPracticePage() {
           <h3 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-200">Test-Taking Tips</h3>
           <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
             <li className="flex items-start gap-2">
-              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
               <span><b>Pace yourself:</b> ~1.5 minutes per question. Skip hard ones and come back.</span>
             </li>
             <li className="flex items-start gap-2">
-              <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+              <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
               <span><b>Use Desmos:</b> The graphing calculator can solve ~30% of questions. Click the calculator button.</span>
             </li>
             <li className="flex items-start gap-2">
-              <Zap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+              <Zap className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
               <span><b>Flag and move on:</b> If stuck for 45+ seconds, flag it and return later.</span>
             </li>
             <li className="flex items-start gap-2">
-              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
+              <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
               <span><b>Never leave blanks:</b> No penalty for guessing. Always pick an answer.</span>
             </li>
           </ul>

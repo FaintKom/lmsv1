@@ -72,7 +72,7 @@ export default function AssignmentDetailPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function AssignmentDetailPage() {
     return (
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-slate-500 dark:text-slate-400">Assignment not found.</p>
-        <Link href="/assignments" className="mt-2 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
+        <Link href="/assignments" className="mt-2 inline-flex items-center gap-1 text-sm text-green-600 hover:text-green-700">
           <ArrowLeft className="h-3 w-3" /> Back to assignments
         </Link>
       </div>
@@ -114,7 +114,7 @@ export default function AssignmentDetailPage() {
             <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ${
               isPastDue
                 ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
-                : "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400"
+                : "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             }`}>
               <Clock className="h-3.5 w-3.5" />
               {timeLeft(assignment.due_date)}
@@ -194,7 +194,7 @@ export default function AssignmentDetailPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={6}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Type your answer here..."
               />
             </div>
@@ -202,7 +202,7 @@ export default function AssignmentDetailPage() {
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                 Attach file (optional)
               </label>
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 transition-colors hover:border-indigo-400 hover:text-indigo-600 dark:border-white/20 dark:text-slate-400 dark:hover:border-indigo-500">
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 transition-colors hover:border-green-400 hover:text-green-600 dark:border-white/20 dark:text-slate-400 dark:hover:border-green-500">
                 <Upload className="h-4 w-4" />
                 {file ? file.name : "Click to choose a file"}
                 <input
@@ -221,7 +221,7 @@ export default function AssignmentDetailPage() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-50"
+              className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 disabled:opacity-50"
             >
               {submitting ? "Submitting..." : submission ? "Resubmit" : "Submit"}
             </button>

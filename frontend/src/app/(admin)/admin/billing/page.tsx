@@ -56,7 +56,7 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
 const PLAN_COLORS: Record<string, string> = {
   Free: "border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C]",
   Starter: "border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/20",
-  Professional: "border-indigo-300 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/20 ring-2 ring-indigo-500",
+  Professional: "border-green-300 dark:border-green-500/30 bg-green-50 dark:bg-green-500/20 ring-2 ring-green-500",
   Enterprise: "border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/20",
 };
 
@@ -259,13 +259,13 @@ export default function AdminBillingPage() {
               className={`relative overflow-hidden transition-shadow hover:shadow-lg ${PLAN_COLORS[plan.name] || "border-slate-200 dark:border-white/10"}`}
             >
               {recommended && (
-                <div className="absolute right-0 top-0 bg-indigo-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
+                <div className="absolute right-0 top-0 bg-green-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
                   Popular
                 </div>
               )}
               <CardContent className="p-5">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className={`rounded-xl p-2 ${recommended ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600" : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400"}`}>
+                  <div className={`rounded-xl p-2 ${recommended ? "bg-green-100 dark:bg-green-500/20 text-green-600" : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400"}`}>
                     {PLAN_ICONS[plan.name] || <Zap className="h-6 w-6" />}
                   </div>
                   <div>
@@ -313,7 +313,7 @@ export default function AdminBillingPage() {
                   </Button>
                 ) : (
                   <Button
-                    className={`w-full ${recommended ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                    className={`w-full ${recommended ? "bg-green-600 hover:bg-green-700" : ""}`}
                     onClick={() => handleCheckout(plan.id)}
                     disabled={!!checkingOut}
                   >
@@ -373,7 +373,7 @@ export default function AdminBillingPage() {
                             href={inv.invoice_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-800"
+                            className="text-green-600 hover:text-indigo-800"
                           >
                             View <ExternalLink className="ml-0.5 inline h-3 w-3" />
                           </a>

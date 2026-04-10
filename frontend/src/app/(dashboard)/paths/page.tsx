@@ -46,7 +46,7 @@ export default function PathsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -79,12 +79,12 @@ export default function PathsPage() {
           {paths.map((p) => {
             const progress = p.step_count > 0 ? Math.round((p.current_step / p.step_count) * 100) : 0;
             return (
-              <Card key={p.id} className="border-l-4 border-l-indigo-400 transition-shadow hover:shadow-md">
+              <Card key={p.id} className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
-                        <Route className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+                        <Route className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{p.title}</h3>
@@ -107,7 +107,7 @@ export default function PathsPage() {
                           <div className="flex items-center gap-2">
                             <div className="h-2 w-24 rounded-full bg-slate-200 dark:bg-white/10">
                               <div
-                                className="h-2 rounded-full bg-indigo-500"
+                                className="h-2 rounded-full bg-green-500"
                                 style={{ width: `${progress}%` }}
                               />
                             </div>

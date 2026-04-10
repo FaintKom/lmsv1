@@ -229,7 +229,7 @@ export default function Robot2DEditor({
           type="checkbox"
           checked={allowPython}
           onChange={(e) => updateConfig({ allow_python: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-indigo-600"
+          className="h-4 w-4 rounded border-slate-300 text-green-600"
         />
         Allow Python mode (for advanced students)
       </label>
@@ -249,7 +249,7 @@ export default function Robot2DEditor({
                 onClick={() => setActiveTool(tool.type)}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                   activeTool === tool.type
-                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                    ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                     : "bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
                 }`}
               >

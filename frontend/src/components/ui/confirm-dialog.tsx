@@ -92,8 +92,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
       button: "bg-amber-600 hover:bg-amber-700 text-white",
     },
     default: {
-      icon: "bg-indigo-100 text-indigo-600",
-      button: "bg-indigo-600 hover:bg-indigo-700 text-white",
+      icon: "bg-green-100 text-green-600",
+      button: "bg-green-600 hover:bg-green-700 text-white",
     },
   };
 

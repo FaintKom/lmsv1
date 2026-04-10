@@ -130,14 +130,14 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
               <button key={op} onClick={() => { setUserOperator(op); setChecked(false); }}
                 className={`px-4 py-2 text-sm font-bold transition-colors ${
                   userOperator === op
-                    ? "bg-indigo-500 text-white"
+                    ? "bg-green-500 text-white"
                     : "bg-white text-slate-600 hover:bg-slate-50 dark:bg-[#1E1E1E] dark:text-slate-400"
                 }`}>
                 {op.replace(">=", "\u2265").replace("<=", "\u2264")}
               </button>
             ))}
           </div>
-          <span className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+          <span className="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
             {userSlope}x {userIntercept >= 0 ? "+" : ""} {userIntercept}
           </span>
         </div>
@@ -145,21 +145,21 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
         {/* Slope slider */}
         <div className="flex items-center gap-3">
           <label className="w-28 text-right text-xs font-medium text-slate-500">
-            slope = <span className="font-mono text-indigo-600 dark:text-indigo-400">{userSlope}</span>
+            slope = <span className="font-mono text-green-600 dark:text-green-400">{userSlope}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={userSlope}
             onChange={(e) => { setUserSlope(parseFloat(e.target.value)); setChecked(false); }}
-            className="flex-1 accent-indigo-500" />
+            className="flex-1 accent-green-500" />
         </div>
 
         {/* Intercept slider */}
         <div className="flex items-center gap-3">
           <label className="w-28 text-right text-xs font-medium text-slate-500">
-            intercept = <span className="font-mono text-indigo-600 dark:text-indigo-400">{userIntercept}</span>
+            intercept = <span className="font-mono text-green-600 dark:text-green-400">{userIntercept}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={userIntercept}
             onChange={(e) => { setUserIntercept(parseFloat(e.target.value)); setChecked(false); }}
-            className="flex-1 accent-indigo-500" />
+            className="flex-1 accent-green-500" />
         </div>
 
         {/* Shade instruction */}

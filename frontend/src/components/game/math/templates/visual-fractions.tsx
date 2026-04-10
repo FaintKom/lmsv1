@@ -76,7 +76,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
                   fill={fillColor}
                   stroke="#cbd5e1"
                   strokeWidth={1.5}
-                  className={`transition-colors ${!checked && !isSelected ? "hover:fill-indigo-100 dark:hover:fill-indigo-500/20" : ""}`}
+                  className={`transition-colors ${!checked && !isSelected ? "hover:fill-green-100 dark:hover:fill-green-500/20" : ""}`}
                 />
               </g>
             );
@@ -112,7 +112,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
                 strokeWidth={1.5}
                 onClick={() => togglePart(i)}
                 style={{ cursor: checked ? "default" : "pointer" }}
-                className={`transition-colors ${!checked && !isSelected ? "hover:fill-indigo-100" : ""}`}
+                className={`transition-colors ${!checked && !isSelected ? "hover:fill-green-100" : ""}`}
               />
             );
           })}

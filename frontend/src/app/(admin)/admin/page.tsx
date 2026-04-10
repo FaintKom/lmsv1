@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
 
         {/* Recent Submissions */}
         {teacherStats?.recent_submissions && teacherStats.recent_submissions.length > 0 && (
-          <Card className="mb-8 border-l-4 border-l-indigo-400">
+          <Card className="mb-8 border-l-4 border-l-green-400">
             <CardHeader>
               <CardTitle className="text-base">Recent Submissions</CardTitle>
             </CardHeader>
@@ -226,10 +226,10 @@ export default function AdminDashboardPage() {
             </Card>
           </Link>
           <Link href="/admin/assignments">
-            <Card className="cursor-pointer border-l-4 border-l-indigo-400 hover:shadow-md">
+            <Card className="cursor-pointer border-l-4 border-l-green-400 hover:shadow-md">
               <CardContent className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-3">
-                  <ClipboardList className="h-5 w-5 text-indigo-500" />
+                  <ClipboardList className="h-5 w-5 text-green-500" />
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Assignments</span>
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
@@ -290,10 +290,10 @@ export default function AdminDashboardPage() {
       {!onboardingDismissed &&
         stats &&
         (stats.total_courses === 0 || stats.total_users === 0) && (
-          <Card className="mb-8 border-l-4 border-l-indigo-500 hover:shadow-md">
+          <Card className="mb-8 border-l-4 border-l-green-500 hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100">
-                <Sparkles className="h-5 w-5 text-indigo-500" />
+                <Sparkles className="h-5 w-5 text-green-500" />
                 Getting Started
               </CardTitle>
               <button
@@ -309,23 +309,23 @@ export default function AdminDashboardPage() {
             <CardContent className="flex flex-col gap-2 pb-5">
               <Link
                 href="/admin/courses"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-500/10"
               >
-                <PlusCircle className="h-4 w-4 text-indigo-500" />
+                <PlusCircle className="h-4 w-4 text-green-500" />
                 Create your first course
               </Link>
               <Link
                 href="/admin/users"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-500/10"
               >
-                <UserPlus className="h-4 w-4 text-indigo-500" />
+                <UserPlus className="h-4 w-4 text-green-500" />
                 Invite students
               </Link>
               <Link
                 href="/admin/analytics"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-500/10"
               >
-                <BarChart3 className="h-4 w-4 text-indigo-500" />
+                <BarChart3 className="h-4 w-4 text-green-500" />
                 View analytics
               </Link>
             </CardContent>
@@ -333,10 +333,10 @@ export default function AdminDashboardPage() {
         )}
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-indigo-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-green-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-3">
-              <Users className="h-5 w-5 text-indigo-600" />
+            <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-3">
+              <Users className="h-5 w-5 text-green-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total Users</p>
@@ -389,11 +389,11 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Invite Students */}
-      <Card className="mb-8 border-indigo-100 bg-indigo-50/30 dark:border-indigo-500/20 dark:bg-indigo-500/10">
+      <Card className="mb-8 border-green-100 bg-green-50/30 dark:border-green-500/20 dark:bg-green-500/10">
         <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-100 dark:bg-indigo-500/20 p-2.5">
-              <LinkIcon className="h-5 w-5 text-indigo-600" />
+            <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-2.5">
+              <LinkIcon className="h-5 w-5 text-green-600" />
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Invite Students</p>
@@ -420,10 +420,10 @@ export default function AdminDashboardPage() {
       {/* Quick Links */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Link href="/admin/users">
-          <Card className="cursor-pointer border-l-4 border-l-indigo-400 hover:shadow-md">
+          <Card className="cursor-pointer border-l-4 border-l-green-400 hover:shadow-md">
             <CardContent className="flex items-center justify-between p-5">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-indigo-500" />
+                <Users className="h-5 w-5 text-green-500" />
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Manage Users
                 </span>

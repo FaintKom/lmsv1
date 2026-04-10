@@ -51,22 +51,22 @@ export default function ChildDetailPage() {
   }, [childId]);
 
   if (loading) {
-    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-indigo-500" /></div>;
+    return <div className="flex h-96 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-green-500" /></div>;
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
-      <Link href="/parent" className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700">
+      <Link href="/parent" className="flex items-center gap-1 text-sm text-green-600 hover:text-green-700">
         <ArrowLeft className="h-4 w-4" /> {t("parent.backToChildren")}
       </Link>
 
       {/* Stats */}
       {progress && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Card className="border-l-4 border-l-indigo-400">
+          <Card className="border-l-4 border-l-green-400">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-xl bg-indigo-100 p-2 dark:bg-indigo-500/20">
-                <BookOpen className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <div className="rounded-xl bg-green-100 p-2 dark:bg-green-500/20">
+                <BookOpen className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{t("parent.courses")}</p>
@@ -144,7 +144,7 @@ export default function ChildDetailPage() {
                   </div>
                   <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                     <div
-                      className={`h-full rounded-full ${e.completed_at ? "bg-emerald-500" : "bg-indigo-500"}`}
+                      className={`h-full rounded-full ${e.completed_at ? "bg-emerald-500" : "bg-green-500"}`}
                       style={{ width: `${e.progress_percent}%` }}
                     />
                   </div>

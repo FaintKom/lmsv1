@@ -404,11 +404,11 @@ export default function Robot2DExercise({
           {allowPython && (
             <div className="flex items-center gap-1 border-b border-slate-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">
               <button onClick={() => setMode("blocks")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Блоки
               </button>
               <button onClick={() => setMode("python")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
                 <Code className="h-3.5 w-3.5" /> Python
               </button>
             </div>

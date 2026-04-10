@@ -101,13 +101,13 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                 onClick={() => setCurrentQ(i)}
                 className={`h-2.5 rounded-full transition-all duration-300 ${
                   i === currentQ
-                    ? "w-8 bg-indigo-500"
+                    ? "w-8 bg-green-500"
                     : submitted && results[String(i)] === true
                     ? "w-2.5 bg-emerald-400"
                     : submitted && results[String(i)] === false
                     ? "w-2.5 bg-red-400"
                     : answers[String(i)]?.trim()
-                    ? "w-2.5 bg-indigo-300"
+                    ? "w-2.5 bg-green-300"
                     : "w-2.5 bg-slate-200 dark:bg-white/15"
                 }`}
               />
@@ -128,7 +128,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
           <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm p-5 space-y-4">
             {/* Question text */}
             <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-sm font-bold text-indigo-600 dark:text-indigo-400">
+              <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/20 text-sm font-bold text-green-600 dark:text-green-400">
                 {qi + 1}
               </span>
               <p className="text-[15px] font-medium text-slate-800 dark:text-slate-200 pt-1">
@@ -156,8 +156,8 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                             : isWrongSelection
                             ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
                             : isSelected
-                            ? "border-indigo-500 bg-indigo-50 text-indigo-800 dark:border-indigo-400 dark:bg-indigo-500/15 dark:text-indigo-300 shadow-sm"
-                            : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-indigo-300 hover:bg-indigo-50/50 dark:hover:border-indigo-500/40 dark:hover:bg-indigo-500/5"
+                            ? "border-green-500 bg-green-50 text-indigo-800 dark:border-green-400 dark:bg-green-500/15 dark:text-green-300 shadow-sm"
+                            : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-green-300 hover:bg-green-50/50 dark:hover:border-green-500/40 dark:hover:bg-green-500/5"
                         }
                         disabled:cursor-default
                       `}
@@ -190,7 +190,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                         ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                         : submitted && results[String(qi)] === false
                         ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                        : "border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                        : "border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
                     }
                     disabled:cursor-not-allowed
                   `}
@@ -220,7 +220,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
         {totalQuestions > 1 && currentQ < totalQuestions - 1 && (
           <button
             onClick={() => setCurrentQ((p) => p + 1)}
-            className="rounded-2xl border-2 border-indigo-200 dark:border-indigo-500/30 px-5 py-3 text-sm font-semibold text-indigo-600 dark:text-indigo-400 transition-all duration-200 hover:bg-indigo-50 dark:hover:bg-indigo-500/10"
+            className="rounded-2xl border-2 border-green-200 dark:border-green-500/30 px-5 py-3 text-sm font-semibold text-green-600 dark:text-green-400 transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-500/10"
           >
             Next {"\u2192"}
           </button>
@@ -230,7 +230,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
           <button
             onClick={handleSubmit}
             disabled={!allAnswered}
-            className="flex-1 rounded-2xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 rounded-2xl bg-green-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Submit Answers
           </button>

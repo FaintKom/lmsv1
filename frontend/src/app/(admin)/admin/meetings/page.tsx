@@ -69,7 +69,7 @@ export default function AdminMeetingsPage() {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
         >
           <Plus className="h-4 w-4" /> {t("meet.startLesson")}
         </button>
@@ -170,7 +170,7 @@ export default function AdminMeetingsPage() {
       <div>
         <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">{t("meet.pastMeetings")}</h2>
         {loading ? (
-          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-indigo-500" /></div>
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-green-500" /></div>
         ) : pastMeetings.length === 0 ? (
           <Card><CardContent className="py-8 text-center text-sm text-slate-400">{t("meet.noMeetings")}</CardContent></Card>
         ) : (

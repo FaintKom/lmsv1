@@ -87,7 +87,7 @@ export default function LoginPage() {
       <div className="mt-3 text-center">
         <Link
           href="/forgot-password"
-          className="text-sm text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400"
+          className="text-sm text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400"
         >
           Forgot your password?
         </Link>
@@ -97,7 +97,7 @@ export default function LoginPage() {
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="font-medium text-indigo-600 hover:text-indigo-700"
+          className="font-medium text-green-600 hover:text-green-700"
         >
           Create one
         </Link>

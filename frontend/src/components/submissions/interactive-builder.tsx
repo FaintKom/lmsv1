@@ -175,7 +175,7 @@ export default function InteractiveBuilder({
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
           placeholder="Instructions for the student..."
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -194,7 +194,7 @@ export default function InteractiveBuilder({
                   setPairs(p);
                 }}
                 placeholder="Term"
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
               <span className="text-slate-400">↔</span>
               <input
@@ -206,7 +206,7 @@ export default function InteractiveBuilder({
                   setPairs(p);
                 }}
                 placeholder="Definition"
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
               <button
                 onClick={() => setPairs(pairs.filter((_, j) => j !== i))}
@@ -241,7 +241,7 @@ export default function InteractiveBuilder({
                   setCorrectOrder(it.filter(Boolean));
                 }}
                 placeholder={`Item ${i + 1}`}
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
               <button
                 onClick={() => {
@@ -273,7 +273,7 @@ export default function InteractiveBuilder({
               onChange={(e) => setTextTemplate(e.target.value)}
               placeholder={"A {{blank}} is a named storage location."}
               rows={4}
-              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
             />
           </div>
           {blankCount > 0 && (
@@ -293,7 +293,7 @@ export default function InteractiveBuilder({
                         nb[i] = e.target.value;
                         setBlanks(nb);
                       }}
-                      className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+                      className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                     />
                   </div>
                 ))}
@@ -313,7 +313,7 @@ export default function InteractiveBuilder({
               onChange={(e) => setStatement(e.target.value)}
               placeholder="JavaScript is a statically typed language."
               rows={2}
-              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
             />
           </div>
           <div>
@@ -360,7 +360,7 @@ export default function InteractiveBuilder({
                     setCategories(c);
                   }}
                   placeholder="Category name"
-                  className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm font-medium focus:border-indigo-500 focus:outline-none"
+                  className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm font-medium focus:border-green-500 focus:outline-none"
                 />
                 <button
                   onClick={() => setCategories(categories.filter((_, j) => j !== ci))}
@@ -382,7 +382,7 @@ export default function InteractiveBuilder({
                       setCategories(c);
                     }}
                     placeholder="Item"
-                    className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
+                    className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -402,7 +402,7 @@ export default function InteractiveBuilder({
                   c[ci] = { ...c[ci], items: [...c[ci].items, ""] };
                   setCategories(c);
                 }}
-                className="ml-4 mt-1 text-xs font-medium text-indigo-600 hover:text-indigo-800"
+                className="ml-4 mt-1 text-xs font-medium text-green-600 hover:text-indigo-800"
               >
                 + Add item
               </button>

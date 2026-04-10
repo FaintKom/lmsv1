@@ -90,7 +90,7 @@ export default function CourseDetailPage() {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
-          <div className="h-full w-1/2 animate-pulse rounded-full bg-indigo-500" />
+          <div className="h-full w-1/2 animate-pulse rounded-full bg-green-500" />
         </div>
       </div>
     );
@@ -105,7 +105,7 @@ export default function CourseDetailPage() {
   return (
     <div className="mx-auto max-w-4xl">
       {/* Course Header */}
-      <div className="mb-8 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-white">
+      <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white">
         <div className="flex items-start justify-between">
           <div>
             {course.category && (
@@ -114,10 +114,10 @@ export default function CourseDetailPage() {
               </span>
             )}
             <h1 className="mb-3 text-3xl font-bold">{course.title}</h1>
-            <p className="mb-4 max-w-xl text-indigo-100">
+            <p className="mb-4 max-w-xl text-green-100">
               {course.description}
             </p>
-            <div className="flex items-center gap-4 text-sm text-indigo-200">
+            <div className="flex items-center gap-4 text-sm text-green-200">
               <span className="flex items-center gap-1">
                 <BookOpen className="h-4 w-4" />
                 {course.modules?.length || 0} modules
@@ -148,7 +148,7 @@ export default function CourseDetailPage() {
             <Button
               onClick={handleEnroll}
               disabled={enrolling}
-              className="bg-white text-indigo-700 hover:bg-white/90"
+              className="bg-white text-green-700 hover:bg-white/90"
             >
               {enrolling ? "Enrolling..." : "Enroll in Course"}
             </Button>
@@ -162,7 +162,7 @@ export default function CourseDetailPage() {
           <Card key={module.id}>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600">
+                <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-green-50 text-xs font-bold text-green-600">
                   {mi + 1}
                 </span>
                 {module.title}
@@ -180,14 +180,14 @@ export default function CourseDetailPage() {
                       {canAccessLessons ? (
                         <Link
                           href={`/courses/${params.courseId}/lessons/${lesson.id}`}
-                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-indigo-50"
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-green-50"
                         >
                           <div
                             className={`flex h-8 w-8 items-center justify-center rounded-lg ${colorClass}`}
                           >
                             <Icon className="h-4 w-4" />
                           </div>
-                          <span className="flex-1 text-sm font-medium text-indigo-700 hover:underline">
+                          <span className="flex-1 text-sm font-medium text-green-700 hover:underline">
                             {lesson.title}
                           </span>
                           {lesson.duration_minutes && (

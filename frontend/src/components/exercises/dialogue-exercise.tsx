@@ -145,7 +145,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                       : result === false
                       ? "bg-red-400 w-3"
                       : selections[String(ci)]
-                      ? "bg-indigo-400"
+                      ? "bg-green-400"
                       : "bg-slate-200 dark:bg-white/15"
                   }`}
                 />
@@ -208,7 +208,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                           ? "bg-emerald-500 text-white"
                           : choiceResult === false
                           ? "bg-red-400 text-white"
-                          : "bg-indigo-600 text-white"
+                          : "bg-green-600 text-white"
                         : "bg-white dark:bg-[#2A2A2A] border border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-200"
                     }`}
                   >
@@ -236,7 +236,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                 <button
                   key={opt.id}
                   onClick={() => handleChoice(currentChoiceIndex, opt.id)}
-                  className="w-full text-left rounded-2xl border-2 border-indigo-200 dark:border-indigo-500/30 bg-white dark:bg-[#2A2A2A] px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-sm dark:hover:border-indigo-500 dark:hover:bg-indigo-500/10 active:scale-[0.98]"
+                  className="w-full text-left rounded-2xl border-2 border-green-200 dark:border-green-500/30 bg-white dark:bg-[#2A2A2A] px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 active:scale-[0.98]"
                 >
                   {opt.text}
                 </button>
@@ -267,7 +267,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
       {isFinished && !submitted && (
         <button
           onClick={handleSubmit}
-          className="w-full rounded-2xl bg-indigo-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98]"
+          className="w-full rounded-2xl bg-green-600 px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-lg active:scale-[0.98]"
         >
           Complete Dialogue
         </button>

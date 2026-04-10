@@ -43,7 +43,7 @@ export default function ProgressPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function ProgressPage() {
             </p>
             <Link
               href="/courses"
-              className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+              className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-700"
             >
               Browse courses <ArrowRight className="h-3 w-3" />
             </Link>
@@ -85,7 +85,7 @@ export default function ProgressPage() {
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold text-indigo-600">{enrollments.length}</p>
+                <p className="text-2xl font-bold text-green-600">{enrollments.length}</p>
                 <p className="text-xs text-slate-500">Enrolled</p>
               </CardContent>
             </Card>
@@ -117,8 +117,8 @@ export default function ProgressPage() {
                     <Link key={e.id} href={`/courses/${e.course_id}`}>
                       <Card className="transition-shadow hover:shadow-md">
                         <CardContent className="flex items-center gap-4 p-5">
-                          <div className="rounded-xl bg-indigo-50 dark:bg-indigo-500/20 p-3">
-                            <BookOpen className="h-6 w-6 text-indigo-600" />
+                          <div className="rounded-xl bg-green-50 dark:bg-green-500/20 p-3">
+                            <BookOpen className="h-6 w-6 text-green-600" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-slate-900 dark:text-slate-100">
@@ -135,12 +135,12 @@ export default function ProgressPage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-indigo-600">
+                            <p className="text-xl font-bold text-green-600">
                               {Math.round(e.progress_percent)}%
                             </p>
                             <div className="mt-1 h-2 w-24 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
                               <div
-                                className="h-full rounded-full bg-indigo-500 transition-all"
+                                className="h-full rounded-full bg-green-500 transition-all"
                                 style={{ width: `${e.progress_percent}%` }}
                               />
                             </div>
@@ -158,7 +158,7 @@ export default function ProgressPage() {
           {grades.length > 0 && (
             <div>
               <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                <FileText className="h-4 w-4 text-indigo-500" />
+                <FileText className="h-4 w-4 text-green-500" />
                 My Grades
               </h2>
               <div className="space-y-2">

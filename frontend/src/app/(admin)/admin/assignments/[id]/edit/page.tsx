@@ -115,7 +115,7 @@ export default function EditAssignmentPage() {
             <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
               Course
             </label>
-            <span className="inline-block rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+            <span className="inline-block rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-600 dark:bg-green-500/10 dark:text-green-400">
               {form.course_title}
             </span>
           </div>
@@ -130,7 +130,7 @@ export default function EditAssignmentPage() {
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
             required
           />
         </div>
@@ -144,7 +144,7 @@ export default function EditAssignmentPage() {
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={4}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
           />
         </div>
 
@@ -158,7 +158,7 @@ export default function EditAssignmentPage() {
               type="datetime-local"
               value={form.due_date}
               onChange={(e) => setForm({ ...form, due_date: e.target.value })}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
               required
             />
           </div>
@@ -173,7 +173,7 @@ export default function EditAssignmentPage() {
               onChange={(e) =>
                 setForm({ ...form, max_score: parseInt(e.target.value) || 100 })
               }
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
             />
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function EditAssignmentPage() {
             type="checkbox"
             checked={form.allow_late}
             onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
-            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            className="rounded border-slate-300 text-green-600 focus:ring-green-500"
           />
           Allow late submissions
         </label>

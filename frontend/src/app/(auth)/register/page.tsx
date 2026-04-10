@@ -17,7 +17,7 @@ interface OrgOption {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>}>
+    <Suspense fallback={<div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-green-600 border-t-transparent" /></div>}>
       <RegisterForm />
     </Suspense>
   );
@@ -126,7 +126,7 @@ function RegisterForm() {
 
         {/* Invite banner */}
         {inviteOrg && (
-          <div className="rounded-xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/20 px-4 py-3 text-sm text-indigo-700 dark:text-indigo-400">
+          <div className="rounded-xl border border-green-200 dark:border-green-500/30 bg-green-50 dark:bg-green-500/20 px-4 py-3 text-sm text-green-700 dark:text-green-400">
             You&apos;re joining <strong>{inviteOrg.name}</strong> as a student
           </div>
         )}
@@ -200,13 +200,13 @@ function RegisterForm() {
             type="checkbox"
             checked={form.consent}
             onChange={(e) => setForm((prev) => ({ ...prev, consent: e.target.checked }))}
-            className="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+            className="mt-1 rounded border-slate-300 text-green-600 focus:ring-green-500"
           />
           <label htmlFor="reg-consent" className="text-sm text-slate-600 dark:text-slate-400">
             I agree to the{" "}
-            <Link href="/privacy" className="font-medium text-indigo-600 hover:text-indigo-700">Privacy Policy</Link>
+            <Link href="/privacy" className="font-medium text-green-600 hover:text-green-700">Privacy Policy</Link>
             {" "}and{" "}
-            <Link href="/terms" className="font-medium text-indigo-600 hover:text-indigo-700">Terms of Service</Link>
+            <Link href="/terms" className="font-medium text-green-600 hover:text-green-700">Terms of Service</Link>
           </label>
         </div>
 
@@ -220,7 +220,7 @@ function RegisterForm() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-indigo-600 hover:text-indigo-700"
+          className="font-medium text-green-600 hover:text-green-700"
         >
           Sign in
         </Link>

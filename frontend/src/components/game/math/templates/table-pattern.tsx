@@ -65,7 +65,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
         <table className="border-collapse">
           <thead>
             <tr>
-              <th className="border-b border-r border-slate-200 bg-indigo-50 px-6 py-3 text-sm font-bold text-indigo-700 dark:border-white/10 dark:bg-indigo-500/10 dark:text-indigo-300">
+              <th className="border-b border-r border-slate-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
                 {xHeader}
               </th>
               {xValues.map((x, i) => (
@@ -77,7 +77,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
           </thead>
           <tbody>
             <tr>
-              <td className="border-r border-slate-200 bg-indigo-50 px-6 py-3 text-sm font-bold text-indigo-700 dark:border-white/10 dark:bg-indigo-500/10 dark:text-indigo-300">
+              <td className="border-r border-slate-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
                 {yHeader}
               </td>
               {yValues.map((y, i) => (
@@ -95,7 +95,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
                           ? cellResults[i]
                             ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                             : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                          : "border-indigo-300 bg-white text-indigo-700 focus:border-indigo-500 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+                          : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
                       }`}
                       placeholder="?"
                     />
@@ -122,7 +122,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
                 ? ruleCorrect
                   ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                   : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                : "border-indigo-300 bg-white text-indigo-700 focus:border-indigo-500 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+                : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
             }`}
           />
         </div>

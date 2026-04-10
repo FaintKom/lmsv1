@@ -381,7 +381,7 @@ function FileSubmissionDetail({ submission }: { submission: ExerciseSubmission }
       </div>
       <a
         href={`/api/v1/exercises/submissions/${submission.id}/download`}
-        className="ml-auto flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/30"
+        className="ml-auto flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-100 dark:bg-indigo-900/20 dark:text-green-400 dark:hover:bg-indigo-900/30"
         download
       >
         <Download className="h-3.5 w-3.5" />

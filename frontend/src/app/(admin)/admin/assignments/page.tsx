@@ -101,7 +101,7 @@ export default function AdminAssignmentsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -135,7 +135,7 @@ export default function AdminAssignmentsPage() {
                 placeholder="Assignment Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                 required
                 autoFocus
               />
@@ -143,7 +143,7 @@ export default function AdminAssignmentsPage() {
                 placeholder="Description (instructions for students)"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                 rows={3}
               />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -152,7 +152,7 @@ export default function AdminAssignmentsPage() {
                   <select
                     value={form.course_id}
                     onChange={(e) => setForm({ ...form, course_id: e.target.value })}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                     required
                   >
                     <option value="">Select course...</option>
@@ -166,7 +166,7 @@ export default function AdminAssignmentsPage() {
                   <select
                     value={form.group_id}
                     onChange={(e) => setForm({ ...form, group_id: e.target.value })}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                   >
                     <option value="">All students</option>
                     {groups.map((g) => (
@@ -182,7 +182,7 @@ export default function AdminAssignmentsPage() {
                     type="datetime-local"
                     value={form.due_date}
                     onChange={(e) => setForm({ ...form, due_date: e.target.value })}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                     required
                   />
                 </div>
@@ -193,7 +193,7 @@ export default function AdminAssignmentsPage() {
                     min={1}
                     value={form.max_score}
                     onChange={(e) => setForm({ ...form, max_score: parseInt(e.target.value) || 100 })}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                   />
                 </div>
                 <div className="flex items-end">
@@ -202,7 +202,7 @@ export default function AdminAssignmentsPage() {
                       type="checkbox"
                       checked={form.allow_late}
                       onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                      className="rounded border-slate-300 text-green-600 focus:ring-green-500"
                     />
                     Allow late submissions
                   </label>
@@ -236,13 +236,13 @@ export default function AdminAssignmentsPage() {
             <Card
               key={a.id}
               className={`border-l-4 transition-shadow hover:shadow-md ${
-                isPast(a.due_date) ? "border-l-slate-300" : "border-l-indigo-400"
+                isPast(a.due_date) ? "border-l-slate-300" : "border-l-green-400"
               }`}
             >
               <CardContent className="flex items-center gap-4">
                 <div className="hidden shrink-0 sm:block">
-                  <div className={`rounded-xl p-3 ${isPast(a.due_date) ? "bg-slate-100 dark:bg-white/5" : "bg-indigo-100 dark:bg-indigo-500/20"}`}>
-                    <ClipboardList className={`h-5 w-5 ${isPast(a.due_date) ? "text-slate-400" : "text-indigo-600 dark:text-indigo-400"}`} />
+                  <div className={`rounded-xl p-3 ${isPast(a.due_date) ? "bg-slate-100 dark:bg-white/5" : "bg-green-100 dark:bg-green-500/20"}`}>
+                    <ClipboardList className={`h-5 w-5 ${isPast(a.due_date) ? "text-slate-400" : "text-green-600 dark:text-green-400"}`} />
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -260,7 +260,7 @@ export default function AdminAssignmentsPage() {
                 </div>
                 <Link
                   href={`/admin/assignments/${a.id}/review`}
-                  className="flex items-center gap-1 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+                  className="flex items-center gap-1 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
                 >
                   <Users className="h-3 w-3" />
                   Review

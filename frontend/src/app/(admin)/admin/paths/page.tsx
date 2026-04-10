@@ -113,7 +113,7 @@ export default function AdminPathsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function AdminPathsPage() {
                 placeholder="Path Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                 required
                 autoFocus
               />
@@ -153,7 +153,7 @@ export default function AdminPathsPage() {
                 placeholder="Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                 rows={2}
               />
               {/* Course selector */}
@@ -166,7 +166,7 @@ export default function AdminPathsPage() {
                     if (e.target.value) addCourse(e.target.value);
                     e.target.value = "";
                   }}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
                 >
                   <option value="">Select a course to add...</option>
                   {courses
@@ -196,7 +196,7 @@ export default function AdminPathsPage() {
                             type="checkbox"
                             checked={s.is_required}
                             onChange={() => toggleRequired(s.course_id)}
-                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            className="rounded border-slate-300 text-green-600 focus:ring-green-500"
                           />
                           Required
                         </label>
@@ -237,11 +237,11 @@ export default function AdminPathsPage() {
       ) : (
         <div className="space-y-3">
           {paths.map((p) => (
-            <Card key={p.id} className="border-l-4 border-l-indigo-400 transition-shadow hover:shadow-md">
+            <Card key={p.id} className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
               <CardContent className="flex items-center gap-4">
                 <div className="hidden shrink-0 sm:block">
-                  <div className="rounded-xl bg-indigo-100 p-3 dark:bg-indigo-500/20">
-                    <Route className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+                    <Route className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">

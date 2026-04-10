@@ -231,7 +231,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
     saveLabel: string,
     savingLabel: string
   ) => (
-    <Card className="border-indigo-200 bg-indigo-50/30 dark:bg-indigo-500/5 dark:border-indigo-500/30">
+    <Card className="border-green-200 bg-green-50/30 dark:bg-green-500/5 dark:border-green-500/30">
       <CardContent className="space-y-3 p-4">
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
@@ -241,7 +241,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
             value={q.question_text}
             onChange={(e) => setter({ ...q, question_text: e.target.value })}
             rows={2}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
           />
         </div>
 
@@ -255,7 +255,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                   onClick={() => setter({ ...q, question_type: type })}
                   className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
                     q.question_type === type
-                      ? "border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/50 dark:bg-indigo-500/20 dark:text-indigo-300"
+                      ? "border-green-300 bg-green-50 text-green-700 dark:border-green-500/50 dark:bg-green-500/20 dark:text-green-300"
                       : "border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400"
                   }`}
                 >
@@ -270,7 +270,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
               type="number"
               value={q.points}
               onChange={(e) => setter({ ...q, points: parseInt(e.target.value) || 1 })}
-              className="w-16 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+              className="w-16 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
             />
           </div>
         </div>
@@ -298,7 +298,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                     value={opt.text}
                     onChange={(e) => updateOptionIn(q, i, "text", e.target.value, setter)}
                     placeholder={`Option ${String.fromCharCode(65 + i)}`}
-                    className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                    className="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
                   />
                   {q.options.length > 2 && (
                     <button
@@ -313,7 +313,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
               {q.options.length < 6 && (
                 <button
                   onClick={() => addOptionTo(q, setter)}
-                  className="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
+                  className="text-xs text-green-600 hover:underline dark:text-green-400"
                 >
                   + Add option
                 </button>
@@ -331,7 +331,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
               type="text"
               value={q.correct_answer}
               onChange={(e) => setter({ ...q, correct_answer: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
             />
           </div>
         )}
@@ -371,7 +371,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
       {quizId && (
         <>
           {editingMeta ? (
-            <Card className="border-indigo-200 dark:border-indigo-500/30">
+            <Card className="border-green-200 dark:border-green-500/30">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Edit Quiz Settings</CardTitle>
               </CardHeader>
@@ -419,7 +419,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                 <Card className="border-slate-200 dark:border-white/10 group">
                   <CardContent className="p-3">
                     <div className="flex items-start gap-2">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[10px] font-bold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-50 text-[10px] font-bold text-green-600 dark:bg-green-500/20 dark:text-green-300">
                         {i + 1}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -458,7 +458,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                       <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEditing(q)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-400"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/20 dark:hover:text-green-400"
                           title="Edit question"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -496,7 +496,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
                 setNewQuestion(emptyQuestion(questions.length));
                 setShowAddQuestion(true);
               }}
-              className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-3 text-sm font-medium text-slate-400 hover:border-indigo-300 hover:text-indigo-500 dark:border-white/10 dark:hover:border-indigo-500/50 dark:hover:text-indigo-400"
+              className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 py-3 text-sm font-medium text-slate-400 hover:border-green-300 hover:text-green-500 dark:border-white/10 dark:hover:border-green-500/50 dark:hover:text-green-400"
             >
               <Plus className="h-4 w-4" />
               Add Question
@@ -516,7 +516,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
           />
         </div>
         <div className="flex gap-3">
@@ -528,7 +528,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
               type="number"
               value={passingScore}
               onChange={(e) => setPassingScore(parseInt(e.target.value) || 70)}
-              className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+              className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
             />
           </div>
           <div>
@@ -540,7 +540,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
               value={timeLimit}
               onChange={(e) => setTimeLimit(e.target.value)}
               placeholder="No limit"
-              className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-indigo-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+              className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
             />
           </div>
         </div>

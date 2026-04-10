@@ -117,10 +117,10 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
               onClick={() => setTappedCard(tappedCard?.id === card.id ? null : card)}
               className={`rounded-xl border-2 bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition-all hover:shadow-md active:scale-95 dark:bg-[#1E1E1E] ${
                 tappedCard?.id === card.id
-                  ? "border-indigo-400 ring-2 ring-indigo-300 text-indigo-700 dark:border-indigo-500 dark:text-indigo-300"
+                  ? "border-green-400 ring-2 ring-green-300 text-green-700 dark:border-green-500 dark:text-green-300"
                   : checked && results[card.id] === false
                     ? "border-red-300 text-red-700 dark:border-red-500 dark:text-red-300"
-                    : "border-slate-200 text-slate-700 hover:border-indigo-300 dark:border-white/10 dark:text-slate-300"
+                    : "border-slate-200 text-slate-700 hover:border-green-300 dark:border-white/10 dark:text-slate-300"
               }`}
             >
               {card.text}

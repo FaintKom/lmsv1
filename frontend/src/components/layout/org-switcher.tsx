@@ -107,7 +107,7 @@ export function OrgSwitcher() {
                   className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
                 >
                   <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
-                    {isActive && <Check className="h-4 w-4 text-indigo-600" aria-hidden="true" />}
+                    {isActive && <Check className="h-4 w-4 text-green-600" aria-hidden="true" />}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-slate-800 dark:text-slate-200">

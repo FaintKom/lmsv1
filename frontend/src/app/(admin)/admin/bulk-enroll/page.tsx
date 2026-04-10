@@ -227,7 +227,7 @@ export default function BulkEnrollPage() {
               <button
                 type="button"
                 onClick={() => setCsvText(CSV_TEMPLATE)}
-                className="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                className="text-xs font-medium text-green-600 hover:underline dark:text-green-400"
               >
                 Use sample template
               </button>

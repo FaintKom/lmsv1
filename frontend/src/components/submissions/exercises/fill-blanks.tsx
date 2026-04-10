@@ -32,7 +32,7 @@ function DraggableWord({ id, word, isPlaced }: { id: string; word: string; isPla
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`cursor-grab select-none rounded-lg border-2 border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-sm transition-all hover:border-indigo-300 hover:bg-indigo-100 hover:shadow-md active:cursor-grabbing dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 ${
+      className={`cursor-grab select-none rounded-lg border-2 border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 shadow-sm transition-all hover:border-green-300 hover:bg-green-100 hover:shadow-md active:cursor-grabbing dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300 ${
         isDragging ? "opacity-30" : ""
       }`}
     >
@@ -71,7 +71,7 @@ function DroppableBlank({
       ref={setNodeRef}
       className={`mx-1 inline-block min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 text-center text-sm transition-colors ${
         isOver
-          ? "border-indigo-400 bg-indigo-50 text-indigo-500 dark:border-indigo-400 dark:bg-indigo-500/20"
+          ? "border-green-400 bg-green-50 text-green-500 dark:border-green-400 dark:bg-green-500/20"
           : "border-slate-300 bg-slate-50 text-slate-400 dark:border-white/20 dark:bg-white/5 dark:text-slate-500"
       }`}
     >
@@ -200,7 +200,7 @@ export default function FillBlanksExercise({
         <button
           onClick={() => onSubmit({ blanks: placements.map((p) => p || "") })}
           disabled={!allFilled}
-          className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+          className="w-full rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
         >
           Submit Answer
         </button>
@@ -209,7 +209,7 @@ export default function FillBlanksExercise({
       {/* Drag overlay */}
       <DragOverlay>
         {activeWord ? (
-          <div className="rounded-lg border-2 border-indigo-400 bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 shadow-lg dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200">
+          <div className="rounded-lg border-2 border-green-400 bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700 shadow-lg dark:border-green-400 dark:bg-green-500/20 dark:text-green-200">
             {activeWord}
           </div>
         ) : null}

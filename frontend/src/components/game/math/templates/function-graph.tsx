@@ -182,7 +182,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
       {/* Current equation display */}
       <div className="rounded-lg bg-slate-50 px-4 py-2 text-center dark:bg-white/5">
-        <span className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+        <span className="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
           {getFnString(function_type, userParams)}
         </span>
       </div>
@@ -192,7 +192,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
         {paramDefs.map((p) => (
           <div key={p.key} className="flex items-center gap-3">
             <label className="w-24 text-right text-xs font-medium text-slate-500">
-              {p.label} = <span className="font-mono text-indigo-600 dark:text-indigo-400">{userParams[p.key]}</span>
+              {p.label} = <span className="font-mono text-green-600 dark:text-green-400">{userParams[p.key]}</span>
             </label>
             <input
               type="range"
@@ -204,7 +204,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
                 setUserParams((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) }))
               }
               disabled={checked && isCorrect}
-              className="flex-1 accent-indigo-500"
+              className="flex-1 accent-green-500"
             />
           </div>
         ))}

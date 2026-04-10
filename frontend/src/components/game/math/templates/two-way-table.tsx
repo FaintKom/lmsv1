@@ -68,7 +68,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
               <th className="border-b border-r border-slate-200 bg-slate-50 px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"></th>
               {colHeaders.map((h, i) => (
                 <th key={i} className={`border-b border-slate-200 px-5 py-3 text-center text-sm font-bold dark:border-white/10 ${
-                  i === colHeaders.length - 1 ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
+                  i === colHeaders.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
                 }`}>
                   {h}
                 </th>
@@ -79,7 +79,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
             {cells.map((row, r) => (
               <tr key={r}>
                 <td className={`border-r border-b border-slate-200 px-5 py-3 text-sm font-bold dark:border-white/10 ${
-                  r === cells.length - 1 ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
+                  r === cells.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
                 }`}>
                   {rowHeaders[r]}
                 </td>
@@ -110,7 +110,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
                             ? results[key]
                               ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
                               : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                            : "border-indigo-300 bg-white text-indigo-700 focus:border-indigo-500 dark:border-indigo-500 dark:bg-[#1E1E1E] dark:text-indigo-300"
+                            : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
                         }`}
                         placeholder="?"
                       />

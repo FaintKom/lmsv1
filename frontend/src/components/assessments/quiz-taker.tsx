@@ -111,7 +111,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
   if (loading) {
     return (
       <div className="flex h-32 items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
       </div>
     );
   }
@@ -172,10 +172,10 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
   return (
     <div className="space-y-4">
       {/* Quiz header */}
-      <div className="flex items-center justify-between rounded-xl bg-indigo-50 px-4 py-3">
+      <div className="flex items-center justify-between rounded-xl bg-green-50 px-4 py-3">
         <div>
           <h3 className="font-semibold text-indigo-900">{quiz.title}</h3>
-          <p className="text-xs text-indigo-600">
+          <p className="text-xs text-green-600">
             {answeredCount}/{totalQuestions} answered · Pass: {quiz.passing_score}%
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
         <Card key={q.id} className="border-slate-200">
           <CardContent className="p-4">
             <div className="mb-3 flex items-start gap-2">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-50 text-xs font-bold text-green-600">
                 {i + 1}
               </span>
               <div className="flex-1">
@@ -213,14 +213,14 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                     onClick={() => setAnswers({ ...answers, [q.id]: opt.id })}
                     className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
                       answers[q.id] === opt.id
-                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                        ? "border-green-300 bg-green-50 text-green-700"
                         : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
                         answers[q.id] === opt.id
-                          ? "border-indigo-500 bg-indigo-500 text-white"
+                          ? "border-green-500 bg-green-500 text-white"
                           : "border-slate-300 text-slate-400"
                       }`}
                     >
@@ -239,7 +239,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                   value={answers[q.id] || ""}
                   onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
                   placeholder="Type your answer..."
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             )}

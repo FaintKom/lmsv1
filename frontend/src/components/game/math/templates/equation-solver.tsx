@@ -120,8 +120,8 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
       {/* Equation display */}
       <div className="w-full max-w-md space-y-3">
         {/* Initial equation */}
-        <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 px-6 py-4 text-center dark:border-indigo-500/30 dark:bg-indigo-500/10">
-          <span className="font-mono text-2xl font-bold text-indigo-700 dark:text-indigo-300">
+        <div className="rounded-xl border-2 border-green-200 bg-green-50 px-6 py-4 text-center dark:border-green-500/30 dark:bg-green-500/10">
+          <span className="font-mono text-2xl font-bold text-green-700 dark:text-green-300">
             {cfg.initial_left} = {cfg.initial_right}
           </span>
         </div>
@@ -154,7 +154,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
                   className={`rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${
                     wrongChoice === choice.id
                       ? "border-red-400 bg-red-50 text-red-700 animate-pulse dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-indigo-500 dark:hover:bg-indigo-500/10"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-green-500 dark:hover:bg-green-500/10"
                   }`}
                 >
                   {choice.label}
@@ -184,7 +184,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
               i < currentStep
                 ? "bg-emerald-400"
                 : i === currentStep
-                  ? "bg-indigo-400"
+                  ? "bg-green-400"
                   : "bg-slate-200 dark:bg-slate-700"
             }`}
           />
