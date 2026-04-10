@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real-World Linear Model Translator</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.scenario-picker{display:flex;gap:6px;justify-content:center;margin:8px 0 14px;flex-wrap:wrap}
+.scenario-picker button{font-size:0.78rem;padding:6px 12px}
+.scenario-picker button.active{background:#4338ca}
+.eq-card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:10px 0;text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.15rem;font-weight:700;color:#4338ca}
+.parts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.part{padding:12px 14px;border-radius:10px;border:1px solid #c7d2fe;background:#eef2ff}
+.part h4{margin:0 0 4px;font-size:0.85rem;color:#4338ca;text-transform:uppercase;letter-spacing:0.04em}
+.part p{margin:0;font-size:0.92rem;color:#312e81}
+@media(prefers-color-scheme:dark){
+  .eq-card{background:#0f172a;border-color:#334155;color:#a5b4fc}
+  .part{background:#1e1b4b;border-color:#3730a3}
+  .part h4{color:#a5b4fc}
+  .part p{color:#cbd5e1}
+}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Real-World Linear Model Translator</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Pick a real-world scenario. See how the same equation form means different things in context.
+</p>
+<div class="scenario-picker">
+  <button class="lms-btn ghost active" data-s="0">📞 phone bill</button>
+  <button class="lms-btn ghost" data-s="1">🚗 road trip</button>
+  <button class="lms-btn ghost" data-s="2">🌱 plant growth</button>
+  <button class="lms-btn ghost" data-s="3">💰 savings</button>
+</div>
+<div class="eq-card" id="eq">C = 0.10·m + 25</div>
+<div class="parts-grid">
+  <div class="part"><h4>Slope (m)</h4><p id="slopePart">$0.10 — cost per text message</p></div>
+  <div class="part"><h4>Intercept (b)</h4><p id="interPart">$25 — flat monthly base fee</p></div>
+</div>
+<div class="lms-info" id="storyInfo"><b>Translation:</b> Your monthly bill is a $25 base fee plus 10 cents for each text you send. After 100 texts, the total is $25 + $10 = $35.</div>
+
+</div>
+<script>
+var scenarios = [
+  {
+    eq: 'C = 0.10·m + 25',
+    slopeWord: '$0.10 — cost per text message',
+    interWord: '$25 — flat monthly base fee',
+    story: '<b>Translation:</b> Your monthly bill is a $25 base fee plus 10 cents for each text you send. After 100 texts, the total is $25 + $10 = $35.'
+  },
+  {
+    eq: 'D = 60·t + 30',
+    slopeWord: '60 mph — driving speed',
+    interWord: '30 miles — head start before time started',
+    story: '<b>Translation:</b> A car travels at 60 mph and was already 30 miles down the road when timing began. After 2 hours, total distance = 30 + 120 = 150 miles.'
+  },
+  {
+    eq: 'H = 0.5·d + 4',
+    slopeWord: '0.5 cm — growth per day',
+    interWord: '4 cm — initial height of seedling',
+    story: '<b>Translation:</b> A plant starts at 4 cm tall and grows half a centimeter each day. After 10 days it is 4 + 5 = 9 cm tall.'
+  },
+  {
+    eq: 'B = 50·w + 200',
+    slopeWord: '$50 — saved each week',
+    interWord: '$200 — starting balance',
+    story: '<b>Translation:</b> You start with $200 and add $50 every week. After 8 weeks the balance is $200 + $400 = $600.'
+  }
+];
+function setScenario(i){
+  var s = scenarios[i];
+  document.getElementById('eq').textContent = s.eq;
+  document.getElementById('slopePart').textContent = s.slopeWord;
+  document.getElementById('interPart').textContent = s.interWord;
+  document.getElementById('storyInfo').innerHTML = s.story;
+}
+document.querySelectorAll('.scenario-picker button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.scenario-picker button').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    setScenario(+b.dataset.s);
+  });
+});
+setScenario(0);
+</script>
+</body>
+</html>

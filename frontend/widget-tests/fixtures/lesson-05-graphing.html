@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>y = mx + b Explorer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.canvas-wrap{display:flex;justify-content:center;margin:10px 0}
+.eq-display{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.3rem;font-weight:700;color:#4338ca;margin:8px 0}
+@media(prefers-color-scheme:dark){.eq-display{color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; y = mx + b Explorer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Adjust slope <strong>m</strong> and y-intercept <strong>b</strong> with the sliders. Watch the line transform.
+</p>
+<div class="eq-display" id="eq">y = 1·x + 0</div>
+<div class="canvas-wrap"><canvas id="plane" width="440" height="340"></canvas></div>
+<div class="lms-row">
+  <label>m</label><input type="range" id="m" min="-5" max="5" step="0.5" value="1"><span class="lms-val" id="mVal">1</span>
+</div>
+<div class="lms-row">
+  <label>b</label><input type="range" id="b" min="-6" max="6" step="1" value="0"><span class="lms-val" id="bVal">0</span>
+</div>
+<div class="lms-info">Try <strong>m = 0</strong> for a horizontal line, <strong>m = 1</strong> for 45°, large m for steep climbs, and negative m for downhill lines. Move <strong>b</strong> to slide the line up and down.</div>
+
+</div>
+<script>
+var canvas = document.getElementById('plane');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height, unit = 30;
+function gs(x,y){ return {x: W/2 + x*unit, y: H/2 - y*unit}; }
+
+function draw(){
+  var m = +document.getElementById('m').value;
+  var b = +document.getElementById('b').value;
+  document.getElementById('mVal').textContent = m;
+  document.getElementById('bVal').textContent = b;
+  var mTxt = (m === 1 ? 'x' : (m === -1 ? '−x' : (m === 0 ? '0' : m + '·x')));
+  var bTxt = (b === 0 ? '' : (b > 0 ? ' + ' + b : ' − ' + (-b)));
+  document.getElementById('eq').textContent = 'y = ' + mTxt + bTxt;
+
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (var i=-7;i<=7;i++){
+    var p = gs(i,0); ctx.beginPath(); ctx.moveTo(p.x,0); ctx.lineTo(p.x,H); ctx.stroke();
+    var q = gs(0,i); ctx.beginPath(); ctx.moveTo(0,q.y); ctx.lineTo(W,q.y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke();
+
+  // line y = mx + b
+  var x1 = -8, y1 = m*x1 + b, x2 = 8, y2 = m*x2 + b;
+  var p1 = gs(x1,y1), p2 = gs(x2,y2);
+  ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3.5;
+  ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+
+  // y-intercept marker
+  var bp = gs(0,b);
+  ctx.beginPath(); ctx.arc(bp.x, bp.y, 8, 0, Math.PI*2);
+  ctx.fillStyle = '#10b981'; ctx.fill();
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#065f46'; ctx.font = 'bold 12px ui-monospace,monospace';
+  ctx.fillText('(0,'+b+')', bp.x+12, bp.y+4);
+
+  // slope triangle from (0,b) to (1, b+m)
+  if (m !== 0){
+    var p3 = gs(1, b);
+    var p4 = gs(1, b+m);
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(bp.x,bp.y); ctx.lineTo(p3.x,p3.y); ctx.lineTo(p4.x,p4.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9a3412'; ctx.font = 'bold 11px ui-monospace,monospace';
+    ctx.fillText('1', (bp.x+p3.x)/2-3, p3.y+14);
+    ctx.fillText(''+m, p3.x+5, (p3.y+p4.y)/2+4);
+  }
+}
+document.getElementById('m').addEventListener('input', draw);
+document.getElementById('b').addEventListener('input', draw);
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Two-Line Intersection Explorer</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.coef-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0}
+.coef-row > div{display:flex;align-items:center;gap:6px;background:white;padding:6px 12px;border-radius:8px;border:1px solid #e2e8f0}
+.coef-row label{font-size:0.8rem;color:#64748b;font-weight:600}
+.coef-row input{width:55px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;text-align:center;font-family:ui-monospace,Menlo,monospace}
+.eq-row{font-family:ui-monospace,Menlo,monospace;text-align:center;font-size:1.05rem;margin:6px 0;font-weight:700}
+.eq-row.l1{color:#6366f1}
+.eq-row.l2{color:#f97316}
+.intersection-info{background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:10px 14px;margin:10px 0;text-align:center;color:#065f46;font-weight:600}
+.no-sol{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+@media(prefers-color-scheme:dark){
+  .coef-row > div{background:#0f172a;border-color:#334155}
+  .coef-row input{background:#1e293b;color:#e2e8f0;border-color:#475569}
+  .intersection-info{background:#022c22;border-color:#047857;color:#6ee7b7}
+}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Two-Line Intersection Explorer</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Adjust the coefficients and watch where the two lines meet.
+</p>
+<div class="coef-row">
+  <div><label>a₁</label><input type="number" id="a1" value="2"></div>
+  <div><label>b₁</label><input type="number" id="b1" value="1"></div>
+  <div><label>c₁</label><input type="number" id="c1" value="7"></div>
+</div>
+<div class="eq-row l1" id="eq1">2x + y = 7</div>
+<div class="coef-row">
+  <div><label>a₂</label><input type="number" id="a2" value="1"></div>
+  <div><label>b₂</label><input type="number" id="b2" value="-1"></div>
+  <div><label>c₂</label><input type="number" id="c2" value="-1"></div>
+</div>
+<div class="eq-row l2" id="eq2">x − y = −1</div>
+<canvas id="graph" width="420" height="320"></canvas>
+<div class="intersection-info" id="info">Solution: x = 2, y = 3</div>
+
+</div>
+<script>
+var canvas = document.getElementById('graph');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height;
+var unit = 28;
+
+function gridToScreen(x, y){ return {x: W/2 + x*unit, y: H/2 - y*unit}; }
+function fmtTerm(c, v, first){
+  if (c === 0) return '';
+  var sign = c > 0 ? (first ? '' : ' + ') : ' − ';
+  var abs = Math.abs(c);
+  var coef = (abs === 1 ? '' : abs);
+  return sign + coef + v;
+}
+function fmtEq(a,b,c){
+  var s = (fmtTerm(a,'x',true) || '0') + fmtTerm(b,'y',false);
+  return (s || '0') + ' = ' + c;
+}
+
+function drawAxes(){
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (var i=-7;i<=7;i++){
+    var p = gridToScreen(i, 0);
+    ctx.beginPath(); ctx.moveTo(p.x, 0); ctx.lineTo(p.x, H); ctx.stroke();
+    var q = gridToScreen(0, i);
+    ctx.beginPath(); ctx.moveTo(0, q.y); ctx.lineTo(W, q.y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+}
+
+function drawLine(a, b, c, color){
+  // ax + by = c → solve for two endpoints in view
+  ctx.strokeStyle = color; ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (b !== 0){
+    var x1 = -8, y1 = (c - a*x1)/b;
+    var x2 = 8,  y2 = (c - a*x2)/b;
+    var p1 = gridToScreen(x1, y1), p2 = gridToScreen(x2, y2);
+    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+  } else if (a !== 0){
+    var x = c/a;
+    var p1 = gridToScreen(x, -8), p2 = gridToScreen(x, 8);
+    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+  }
+  ctx.stroke();
+}
+
+function solve(a1,b1,c1,a2,b2,c2){
+  var det = a1*b2 - a2*b1;
+  if (det === 0){
+    // No unique solution
+    if (a1*c2 - a2*c1 === 0 && b1*c2 - b2*c1 === 0) return {kind:'infinite'};
+    return {kind:'none'};
+  }
+  return {kind:'unique', x: (c1*b2 - c2*b1)/det, y: (a1*c2 - a2*c1)/det};
+}
+
+function update(){
+  var a1 = +document.getElementById('a1').value;
+  var b1 = +document.getElementById('b1').value;
+  var c1 = +document.getElementById('c1').value;
+  var a2 = +document.getElementById('a2').value;
+  var b2 = +document.getElementById('b2').value;
+  var c2 = +document.getElementById('c2').value;
+  document.getElementById('eq1').textContent = fmtEq(a1,b1,c1);
+  document.getElementById('eq2').textContent = fmtEq(a2,b2,c2);
+  drawAxes();
+  drawLine(a1,b1,c1,'#6366f1');
+  drawLine(a2,b2,c2,'#f97316');
+  var s = solve(a1,b1,c1,a2,b2,c2);
+  var info = document.getElementById('info');
+  info.classList.remove('no-sol');
+  if (s.kind === 'unique'){
+    var p = gridToScreen(s.x, s.y);
+    ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI*2);
+    ctx.fillStyle = '#10b981'; ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    var nx = Math.round(s.x*100)/100, ny = Math.round(s.y*100)/100;
+    info.textContent = 'Solution: x = ' + nx + ', y = ' + ny;
+  } else if (s.kind === 'none'){
+    info.textContent = 'No solution — the lines are parallel.';
+    info.classList.add('no-sol');
+  } else {
+    info.textContent = 'Infinite solutions — the equations describe the same line.';
+  }
+}
+
+['a1','b1','c1','a2','b2','c2'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', update);
+});
+update();
+</script>
+</body>
+</html>

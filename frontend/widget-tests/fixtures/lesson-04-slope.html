@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slope from Two Points</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}
+* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e2e8f0; background: #1e1e1e; }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:16px}
+@media(prefers-color-scheme:dark){body{background:#1e1e1e;color:#e2e8f0}}
+.lms-widget-title{font-size:1.05rem;font-weight:700;color:#4f46e5;margin-bottom:8px}
+.lms-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.lms-row label{font-size:0.85rem;font-weight:600;color:#475569;min-width:60px}
+.lms-row input[type=range]{flex:1;min-width:140px;accent-color:#6366f1}
+.lms-val{display:inline-block;min-width:42px;text-align:center;font-weight:700;color:#6366f1;font-size:0.95rem;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.lms-display{text-align:center;font-size:1.35rem;font-weight:700;padding:14px;background:white;border-radius:12px;border:1px solid #e2e8f0;margin:10px 0}
+.lms-info{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px 16px;margin:12px 0;font-size:0.9rem;line-height:1.55;color:#312e81}
+.lms-info b{color:#4338ca}
+.lms-btn{background:#6366f1;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+.lms-btn:hover{background:#4f46e5}
+.lms-btn.ghost{background:transparent;color:#6366f1;border:1px solid #c7d2fe}
+.lms-btn.ghost:hover{background:#eef2ff}
+canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1px solid #e2e8f0}
+@media(prefers-color-scheme:dark){
+  .lms-display,canvas{background:#0f172a;border-color:#334155;color:#e2e8f0}
+  .lms-val{background:#312e81;color:#c7d2fe}
+  .lms-info{background:#1e1b4b;border-color:#3730a3;color:#c7d2fe}
+  .lms-info b{color:#a5b4fc}
+}
+
+.canvas-wrap{display:flex;justify-content:center;margin:10px 0}
+.slope-formula{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:1.2rem;font-weight:700;color:#4338ca;margin:8px 0;padding:10px;background:white;border:1px solid #e2e8f0;border-radius:10px}
+.point-info{display:flex;justify-content:space-around;font-family:ui-monospace,Menlo,monospace;font-size:0.95rem;margin:6px 0}
+.point-info .pt1{color:#6366f1}
+.point-info .pt2{color:#f97316}
+@media(prefers-color-scheme:dark){.slope-formula{background:#0f172a;border-color:#334155;color:#a5b4fc}}
+
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; Slope from Two Points</div>
+
+<p style="font-size:0.88rem;color:#64748b;margin:6px 0 10px;text-align:center">
+  Drag either point. The slope updates live using <strong>m = (y₂ − y₁) / (x₂ − x₁)</strong>.
+</p>
+<div class="canvas-wrap"><canvas id="plane" width="440" height="340"></canvas></div>
+<div class="point-info">
+  <span class="pt1" id="p1Lbl">P₁ (1, 2)</span>
+  <span class="pt2" id="p2Lbl">P₂ (5, 6)</span>
+</div>
+<div class="slope-formula" id="slope">m = (6 − 2) / (5 − 1) = 4 / 4 = 1</div>
+
+</div>
+<script>
+var canvas = document.getElementById('plane');
+var ctx = canvas.getContext('2d');
+var W = canvas.width, H = canvas.height;
+var unit = 30;
+var p1 = {x: 1, y: 2};
+var p2 = {x: 5, y: 6};
+var dragging = null;
+
+function gs(x, y){ return {x: W/2 + x*unit, y: H/2 - y*unit}; }
+function sg(px, py){ return {x: Math.round((px - W/2)/unit), y: Math.round((H/2 - py)/unit)}; }
+
+function draw(){
+  ctx.fillStyle = getComputedStyle(canvas).backgroundColor || 'white';
+  ctx.fillRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+  for (var i=-7;i<=7;i++){
+    var p = gs(i, 0); ctx.beginPath(); ctx.moveTo(p.x, 0); ctx.lineTo(p.x, H); ctx.stroke();
+    var q = gs(0, i); ctx.beginPath(); ctx.moveTo(0, q.y); ctx.lineTo(W, q.y); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  // line through points
+  if (p2.x !== p1.x){
+    var m = (p2.y - p1.y)/(p2.x - p1.x);
+    var b = p1.y - m*p1.x;
+    var x1 = -8, y1 = m*x1 + b;
+    var x2 = 8,  y2 = m*x2 + b;
+    var l1 = gs(x1, y1), l2 = gs(x2, y2);
+    ctx.strokeStyle = '#4338ca'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(l1.x, l1.y); ctx.lineTo(l2.x, l2.y); ctx.stroke();
+  } else {
+    // vertical
+    var v = gs(p1.x, 0);
+    ctx.strokeStyle = '#4338ca'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(v.x, 0); ctx.lineTo(v.x, H); ctx.stroke();
+  }
+  // rise/run dotted triangle
+  var sp1 = gs(p1.x, p1.y), sp2 = gs(p2.x, p2.y);
+  ctx.strokeStyle = '#10b981'; ctx.setLineDash([5,4]); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(sp1.x, sp1.y); ctx.lineTo(sp2.x, sp1.y); ctx.lineTo(sp2.x, sp2.y); ctx.stroke();
+  ctx.setLineDash([]);
+  // points
+  ctx.beginPath(); ctx.arc(sp1.x, sp1.y, 9, 0, Math.PI*2);
+  ctx.fillStyle = '#6366f1'; ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.beginPath(); ctx.arc(sp2.x, sp2.y, 9, 0, Math.PI*2);
+  ctx.fillStyle = '#f97316'; ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 3; ctx.stroke();
+}
+
+function updateLabels(){
+  document.getElementById('p1Lbl').textContent = 'P₁ (' + p1.x + ', ' + p1.y + ')';
+  document.getElementById('p2Lbl').textContent = 'P₂ (' + p2.x + ', ' + p2.y + ')';
+  var dx = p2.x - p1.x, dy = p2.y - p1.y;
+  var formula = 'm = (' + p2.y + ' − ' + p1.y + ') / (' + p2.x + ' − ' + p1.x + ')';
+  if (dx === 0){
+    document.getElementById('slope').textContent = formula + ' = undefined (vertical line)';
+  } else {
+    var m = dy/dx;
+    var mTxt = (Math.round(m*1000)/1000).toString();
+    document.getElementById('slope').textContent = formula + ' = ' + dy + ' / ' + dx + ' = ' + mTxt;
+  }
+}
+
+function nearest(px, py){
+  var sp1 = gs(p1.x, p1.y), sp2 = gs(p2.x, p2.y);
+  var d1 = Math.hypot(px-sp1.x, py-sp1.y);
+  var d2 = Math.hypot(px-sp2.x, py-sp2.y);
+  if (d1 < 22 && d1 < d2) return 'p1';
+  if (d2 < 22) return 'p2';
+  return null;
+}
+
+canvas.addEventListener('pointerdown', function(e){
+  var r = canvas.getBoundingClientRect();
+  var px = (e.clientX - r.left) * (W/r.width);
+  var py = (e.clientY - r.top) * (H/r.height);
+  dragging = nearest(px, py);
+});
+canvas.addEventListener('pointermove', function(e){
+  if (!dragging) return;
+  var r = canvas.getBoundingClientRect();
+  var px = (e.clientX - r.left) * (W/r.width);
+  var py = (e.clientY - r.top) * (H/r.height);
+  var g = sg(px, py);
+  if (g.x < -7) g.x = -7; if (g.x > 7) g.x = 7;
+  if (g.y < -5) g.y = -5; if (g.y > 5) g.y = 5;
+  if (dragging === 'p1') p1 = g; else p2 = g;
+  draw(); updateLabels();
+});
+canvas.addEventListener('pointerup', function(){ dragging = null; });
+canvas.addEventListener('pointerleave', function(){ dragging = null; });
+draw(); updateLabels();
+</script>
+</body>
+</html>

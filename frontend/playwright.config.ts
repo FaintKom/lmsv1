@@ -3,15 +3,18 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Playwright configuration for end-to-end browser tests.
  *
- * Tests live in `e2e/` and run against a dev or staging URL configured by
- * PLAYWRIGHT_BASE_URL. In CI we point this at a freshly-built backend +
- * frontend pair; locally the default is http://localhost:3000.
+ * Two test suites live here:
+ *   - `e2e/`           — full LMS smoke tests against a running server
+ *                        (PLAYWRIGHT_BASE_URL points at the dev/staging URL)
+ *   - `widget-tests/`  — standalone tests for the SAT lesson widgets,
+ *                        loaded directly from file:// fixtures, no server
  *
  * Unit / component tests live elsewhere and run via Vitest — see
  * vitest.config.ts.
  */
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: ".",
+  testMatch: ["e2e/**/*.spec.ts", "widget-tests/**/*.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

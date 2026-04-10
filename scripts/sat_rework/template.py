@@ -140,3 +140,45 @@ canvas{display:block;max-width:100%;background:white;border-radius:10px;border:1
 def assemble_lesson(parts: list[str]) -> str:
     """Glue the per-lesson parts into one HTML string."""
     return "\n".join(parts)
+
+
+def widget_standalone_html(title: str, html_body: str, css: str, js: str) -> str:
+    """Wrap a widget's CSS/HTML/JS into a complete standalone HTML page.
+
+    This is the format used both by the runtime SandboxedIframe in
+    content-renderer.tsx AND by the static fixtures under
+    `frontend/widget-tests/fixtures/` that Playwright loads to test
+    widget logic without the rest of the LMS.
+
+    Keep this in sync with SandboxedIframe's srcdoc template.
+    """
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<style>
+html, body {{ margin: 0; padding: 0; }}
+body {{
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 12px;
+}}
+* {{ box-sizing: border-box; }}
+@media (prefers-color-scheme: dark) {{
+  body {{ color: #e2e8f0; background: #1e1e1e; }}
+}}
+{css}
+</style>
+</head>
+<body>
+<div class="lms-widget">
+<div class="lms-widget-title">&#x1F3AE; {title}</div>
+{html_body}
+</div>
+<script>{js}</script>
+</body>
+</html>
+"""
