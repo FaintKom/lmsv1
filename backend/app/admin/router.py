@@ -771,6 +771,9 @@ async def create_group_endpoint(
 ):
     """Create a new student group."""
     from app.admin.models import StudentGroup
+    from app.billing.limits import check_group_limit
+
+    await check_group_limit(db, admin.org_id)
 
     group = StudentGroup(
         org_id=admin.org_id,
