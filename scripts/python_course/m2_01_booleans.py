@@ -243,7 +243,7 @@ def build() -> str:
             "The <code>in</code> operator works with strings, lists, tuples, dicts, and sets."
         ),
 
-        try_it("Open the sandbox and experiment with comparisons. Try chaining them!"),
+        try_it("Use the code editor below to experiment with comparisons. Try chaining them!"),
 
         section("Exercises"),
 

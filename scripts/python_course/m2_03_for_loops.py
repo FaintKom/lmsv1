@@ -119,7 +119,7 @@ def build() -> str:
             '# Start from 1 instead of 0\n'
             'for i, color in enumerate(colors, start=1):\n'
             '    print(f"{i}. {color}")',
-            output="0: red\n0: green\n0: blue\n0: yellow\n---\n0: red\n1: green\n2: blue\n3: yellow\n---\n1. red\n2. green\n3. blue\n4. yellow",
+            output="0: red\n1: green\n2: blue\n3: yellow\n---\n0: red\n1: green\n2: blue\n3: yellow\n---\n1. red\n2. green\n3. blue\n4. yellow",
             explanation="<code>enumerate()</code> returns pairs of (index, value). "
             "The <code>start</code> parameter changes the starting index number."
         ),

@@ -112,36 +112,26 @@ def build() -> str:
             "collects all the data, then calculates and displays results."
         ),
 
-        section("What can go wrong: handling bad input"),
+        section("What happens with bad input?"),
 
         concept("Invalid conversions crash your program",
             "<p>If a user types <code>\"hello\"</code> when you expect a number, "
-            "<code>int(\"hello\")</code> raises a <code>ValueError</code> and your program crashes. "
-            "The <code>try/except</code> pattern catches these errors gracefully.</p>"
+            "<code>int(\"hello\")</code> raises a <code>ValueError</code> and your program stops immediately.</p>"
         ),
 
-        code_example("Basic error handling with try/except",
-            'try:\n'
-            '    age = int(input("Enter your age: "))\n'
-            '    print(f"You entered: {age}")\n'
-            'except ValueError:\n'
-            '    print("That\'s not a valid number!")',
-            explanation="If <code>int()</code> fails, Python jumps to the <code>except</code> block "
-            "instead of crashing. We'll cover error handling in depth later &mdash; "
-            "for now, this simple pattern is enough."
+        code_example("A crash from bad input",
+            '# If the user types "abc" instead of a number:\n'
+            'age = int(input("Enter your age: "))\n'
+            '# ValueError: invalid literal for int() with base 10: \'abc\'',
+            explanation="The program immediately stops with an error message. "
+            "For now, just be aware this can happen."
         ),
 
-        code_example("Robust input with a retry loop",
-            'while True:\n'
-            '    try:\n'
-            '        age = int(input("Enter your age: "))\n'
-            '        break    # exit the loop if conversion worked\n'
-            '    except ValueError:\n'
-            '        print("Please enter a whole number.")\n'
-            '\n'
-            'print(f"Got it! You are {age} years old.")',
-            explanation="This keeps asking until the user provides valid input. "
-            "You'll see this pattern in every professional CLI tool."
+        why_it_matters(
+            "<p>If the user enters non-numeric text when your program expects a number, "
+            "the program will crash. We will learn how to handle this gracefully in "
+            "Module 6 (Error Handling). For now, it is fine to assume the user enters "
+            "valid input.</p>"
         ),
 
         section("Bool conversion: truthy and falsy"),
@@ -163,7 +153,7 @@ def build() -> str:
             "<code>if name:</code> is the same as <code>if name != \"\":</code>."
         ),
 
-        try_it("Build a small interactive program that asks for two numbers and prints their sum."),
+        try_it("Use the code editor below the lesson to build a small interactive program that asks for two numbers and prints their sum."),
 
         section("Real-world pattern: Simple order form"),
 
@@ -205,36 +195,32 @@ def build() -> str:
             "then <code>age = 2026 - birth_year</code>"
         ),
 
-        exercise("medium", "Unit converter",
-            "Build a mini unit converter that asks the user for:<br>"
-            "1. A number<br>"
-            "2. The source unit (km, miles, kg, lbs, C, F)<br>"
-            "Then convert and display the result. Support at least three conversion pairs:<br>"
-            "&bull; km to miles (divide by 1.60934)<br>"
-            "&bull; kg to lbs (multiply by 2.20462)<br>"
-            "&bull; Celsius to Fahrenheit (C * 9/5 + 32)",
-            hint="Read the unit as a string with <code>input()</code>, then use "
-            "<code>if/elif</code> to pick the right formula."
+        exercise("medium", "Temperature converter",
+            "Ask the user for a temperature in Celsius (as a float). "
+            "Convert it to Fahrenheit using: <code>F = C * 9/5 + 32</code>. "
+            "Also convert it to Kelvin using: <code>K = C + 273.15</code>. "
+            "Print all three values with labels and one decimal place.",
+            hint="<code>celsius = float(input(\"Temperature in Celsius: \"))</code>, "
+            "then apply each formula and print with <code>f\"{fahrenheit:.1f}\"</code>."
         ),
 
-        exercise("medium", "Age calculator",
-            "Ask the user for their birth year, birth month, and birth day (all as numbers). "
-            "Given that today is April 10, 2026, calculate their exact age in years. "
-            "If their birthday has not yet occurred this year, subtract one. "
-            "Print: <em>You are X years old. Your birthday is in Y days.</em>",
-            hint="Compare birth month/day to the current date. "
-            "If birth_month &gt; 4 or (birth_month == 4 and birth_day &gt; 10), "
-            "they haven't had their birthday yet this year."
+        exercise("medium", "Trip cost splitter",
+            "Ask the user for: distance in miles (float), car's MPG (float), "
+            "gas price per gallon (float), and number of passengers (int). "
+            "Calculate the total fuel cost and cost per passenger. "
+            "Print a summary with all values formatted as currency.",
+            hint="<code>gallons = distance / mpg</code>, then <code>total = gallons * gas_price</code>, "
+            "then <code>per_person = total / passengers</code>."
         ),
 
-        exercise("real-world", "Complete order form",
-            "Expand the order form example to support multiple items. "
-            "Ask the user how many items they want to order. "
-            "For each item, ask for the name, quantity, and unit price. "
-            "Print a formatted receipt showing each line item, subtotal, "
-            "8% tax, and grand total. Use f-string alignment to make columns line up.",
-            hint="Use a <code>for</code> loop (or a <code>while</code> loop) to collect items. "
-            "Store a running subtotal: <code>subtotal += qty * price</code> for each item."
+        exercise("real-world", "Personal stats card",
+            "Ask the user for their name, birth year (int), height in cm (float), "
+            "and weight in kg (float). Calculate: approximate age (2026 - birth year), "
+            "height in feet (<code>cm / 30.48</code>), BMI (<code>weight / (height/100) ** 2</code>). "
+            "Print a formatted card with all the info, using <code>print(\"=\" * 35)</code> "
+            "for borders and f-strings for alignment.",
+            hint="Read each value, convert with <code>int()</code> or <code>float()</code>, "
+            "calculate the derived values, then print everything formatted nicely."
         ),
 
         mistakes([
@@ -247,9 +233,9 @@ def build() -> str:
             ("No space in the prompt string",
              "<code>input(\"Name:\")</code> shows <code>Name:Alice</code> with no space. "
              "Always add a trailing space: <code>input(\"Name: \")</code>."),
-            ("Crashing on invalid input without try/except",
-             "Always assume users will type garbage. Even a simple <code>try/except ValueError</code> "
-             "makes your program dramatically more robust."),
+            ("Crashing on invalid input",
+             "If the user types text when you expect a number, <code>int()</code> will crash. "
+             "For now, assume valid input. You will learn to handle errors in Module 6."),
         ]),
 
         pro_tips([
@@ -260,7 +246,7 @@ def build() -> str:
             "<strong>Use descriptive prompts.</strong> <code>input(\"Enter weight in kg: \")</code> "
             "is better than <code>input(\"Weight: \")</code> &mdash; users should never have to guess the format.",
             "<strong>The <code>int(input())</code> one-liner</strong> is idiomatic Python. "
-            "You'll see it everywhere. But in production code, always add error handling.",
+            "You'll see it everywhere. In Module 6 you will learn to add error handling around it.",
             "<strong>Test with edge cases:</strong> empty input, zero, negative numbers, "
             "extremely large numbers, and non-numeric text.",
         ]),
@@ -269,7 +255,7 @@ def build() -> str:
             "<code>input(prompt)</code> always returns a string",
             "Convert with <code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>",
             "Pattern: <code>age = int(input(\"Age: \"))</code>",
-            "<code>try/except ValueError</code> catches bad conversions",
+            "Invalid input will crash the program (error handling comes in Module 6)",
             "Falsy values: <code>0</code>, <code>0.0</code>, <code>\"\"</code>, <code>None</code>",
             "Always <code>.strip()</code> text input from users",
         ]),

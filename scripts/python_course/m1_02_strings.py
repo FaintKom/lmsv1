@@ -184,7 +184,7 @@ def build() -> str:
             output="Name: Alice\nAverage: 87.8\nPass: YES",
         ),
 
-        try_it("Open the Python sandbox and experiment with slicing and f-strings."),
+        try_it("Use the code editor below to experiment with slicing and f-strings."),
 
         section("Real-world pattern: Markdown text formatter"),
 

@@ -1,7 +1,7 @@
 """Module 3, Lesson 5: Sorting, Filtering, Mapping."""
 from .helpers import (
     assemble, hero, why_it_matters, concept, code_example, try_it,
-    exercise, mistakes, pro_tips, recap, section,
+    exercise, mistakes, pro_tips, recap, section, subsection, text, note,
 )
 
 
@@ -15,6 +15,49 @@ def build() -> str:
             "filter out invalid entries, and transform values into a different format. "
             "These three operations — sort, filter, map — are the backbone of data "
             "processing in every language, not just Python.</p>"
+        ),
+
+        section("Quick intro: lambda"),
+
+        text(
+            "This lesson uses small inline functions called <strong>lambdas</strong>. "
+            "We will cover lambdas in depth in Module 4, but you need the basics now "
+            "for sorting and filtering. Think of this as a just-in-time introduction."
+        ),
+
+        text(
+            "A <code>lambda</code> is a tiny, anonymous (unnamed) function written on "
+            "a single line. It takes one or more arguments and returns a single expression. "
+            "The syntax is: <code>lambda arguments: expression</code>."
+        ),
+
+        code_example("Lambda basics",
+            '# A regular function\n'
+            'def double(x):\n'
+            '    return x * 2\n'
+            '\n'
+            'print(double(5))        # 10\n'
+            '\n'
+            '# The same thing as a lambda\n'
+            'double_lambda = lambda x: x * 2\n'
+            '\n'
+            'print(double_lambda(5)) # 10\n'
+            '\n'
+            '# Lambdas are most useful when passed directly\n'
+            '# to functions like sorted(), filter(), and map()\n'
+            'print(sorted([3, 1, 2], key=lambda x: -x))  # [3, 2, 1]',
+            output="10\n10\n[3, 2, 1]",
+            explanation="The lambda <code>lambda x: x * 2</code> is equivalent to a function "
+            "that takes <code>x</code> and returns <code>x * 2</code>. You will almost never "
+            "store a lambda in a variable &mdash; the real power is passing them directly "
+            "as arguments."
+        ),
+
+        note(
+            "You do not need to fully understand lambdas right now. Just know that "
+            "<code>lambda x: x[\"name\"]</code> means \"a small function that takes "
+            "<code>x</code> and returns <code>x[\"name\"]</code>\". "
+            "Module 4 will explain closures, higher-order functions, and advanced lambda patterns."
         ),
 
         section("Sorting"),

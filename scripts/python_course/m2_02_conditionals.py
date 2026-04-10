@@ -1,7 +1,7 @@
 """Module 2, Lesson 2: If, Elif, Else."""
 from .helpers import (
     assemble, hero, why_it_matters, concept, code_example, try_it,
-    exercise, mistakes, pro_tips, recap, section,
+    exercise, mistakes, pro_tips, recap, section, text, important,
 )
 
 
@@ -105,6 +105,33 @@ def build() -> str:
             explanation="You can use as many <code>elif</code> branches as you need. "
             "The <code>else</code> at the end is optional but recommended for catching "
             "unexpected values."
+        ),
+
+        important(
+            "Python checks conditions from top to bottom and runs the "
+            "<strong>FIRST</strong> block that matches. Once a match is found, all remaining "
+            "<code>elif</code>/<code>else</code> blocks are skipped entirely &mdash; even if "
+            "their conditions are also true."
+        ),
+
+        code_example("Only the first match runs",
+            'score = 95\n'
+            '\n'
+            '# All three conditions are true for 95,\n'
+            '# but only the FIRST matching block runs.\n'
+            'if score >= 70:\n'
+            '    print("Passing")\n'
+            'elif score >= 80:\n'
+            '    print("Good")       # skipped!\n'
+            'elif score >= 90:\n'
+            '    print("Excellent")  # skipped!\n'
+            'else:\n'
+            '    print("Failing")',
+            output="Passing",
+            explanation="A score of 95 satisfies all three conditions, but Python stops "
+            "at the first match (<code>score >= 70</code>) and prints only \"Passing\". "
+            "This is why the grade calculator checks from <strong>highest to lowest</strong>: "
+            "<code>if score >= 90</code> first, then <code>elif score >= 80</code>, and so on."
         ),
 
         section("Nesting conditionals"),

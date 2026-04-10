@@ -79,21 +79,17 @@ def build() -> str:
             "and often become outdated lies."
         ),
 
-        code_example("Docstrings for functions",
-            'def calculate_bmi(weight_kg, height_m):\n'
-            '    """Calculate Body Mass Index.\n'
+        code_example("Multi-line comments with triple quotes",
+            '"""This is a multi-line comment.\n'
+            'It can span several lines.\n'
+            'Useful for explaining a whole section of code."""\n'
             '\n'
-            '    Args:\n'
-            '        weight_kg: Body weight in kilograms.\n'
-            '        height_m: Height in meters.\n'
-            '\n'
-            '    Returns:\n'
-            '        BMI as a float, rounded to 1 decimal.\n'
-            '    """\n'
-            '    bmi = weight_kg / height_m ** 2\n'
-            '    return round(bmi, 1)',
-            explanation="Triple-quoted strings right after a function definition are called docstrings. "
-            "They show up in <code>help(calculate_bmi)</code> and in your editor's tooltips."
+            '# In Module 3, you will learn about functions.\n'
+            '# Functions use these triple-quoted strings as\n'
+            '# "docstrings" to document what the function does.',
+            explanation="Triple-quoted strings (<code>\"\"\"...\"\"\"</code>) can span multiple lines. "
+            "When used at the top of a file or after a function definition (Module 3), "
+            "they are called docstrings."
         ),
 
         section("The print() function in depth"),
@@ -121,96 +117,65 @@ def build() -> str:
         ),
 
         code_example("Formatting output with f-strings and print()",
-            '# Build a formatted table\n'
-            'products = [\n'
-            '    ("Widget A", 3, 12.99),\n'
-            '    ("Gadget Pro", 1, 89.50),\n'
-            '    ("Cable USB-C", 5, 7.25),\n'
-            ']\n'
+            '# Build a formatted receipt\n'
+            'item_1 = "Widget A"\n'
+            'qty_1 = 3\n'
+            'price_1 = 12.99\n'
+            'total_1 = qty_1 * price_1\n'
+            '\n'
+            'item_2 = "Gadget Pro"\n'
+            'qty_2 = 1\n'
+            'price_2 = 89.50\n'
+            'total_2 = qty_2 * price_2\n'
+            '\n'
+            'grand_total = total_1 + total_2\n'
             '\n'
             'print(f"{\'Item\':<20} {\'Qty\':>5} {\'Price\':>10} {\'Total\':>10}")\n'
             'print("-" * 47)\n'
-            '\n'
-            'grand_total = 0\n'
-            'for name, qty, price in products:\n'
-            '    total = qty * price\n'
-            '    grand_total += total\n'
-            '    print(f"{name:<20} {qty:>5} ${price:>9.2f} ${total:>9.2f}")\n'
-            '\n'
+            'print(f"{item_1:<20} {qty_1:>5} ${price_1:>9.2f} ${total_1:>9.2f}")\n'
+            'print(f"{item_2:<20} {qty_2:>5} ${price_2:>9.2f} ${total_2:>9.2f}")\n'
             'print("-" * 47)\n'
             'print(f"{\'TOTAL\':<20} {\'\':>5} {\'\':>10} ${grand_total:>9.2f}")',
-            output="Item                   Qty      Price      Total\n-----------------------------------------------\nWidget A                 3 $    12.99 $    38.97\nGadget Pro               1 $    89.50 $    89.50\nCable USB-C              5 $     7.25 $    36.25\n-----------------------------------------------\nTOTAL                                 $   164.72",
+            output="Item                   Qty      Price      Total\n-----------------------------------------------\nWidget A                 3 $    12.99 $    38.97\nGadget Pro               1 $    89.50 $    89.50\n-----------------------------------------------\nTOTAL                                 $   128.47",
             explanation="F-string alignment: <code>&lt;</code> = left-align, <code>&gt;</code> = right-align, "
-            "followed by the width in characters. This is how you make clean tables."
+            "followed by the width in characters. This is how you make clean tables. "
+            "In Module 2, you will learn loops to avoid repeating lines like this."
         ),
 
         section("Putting it all together"),
 
-        code_example("Complete program: Password strength checker",
-            '# === Password Strength Checker ===\n'
+        code_example("Complete program: Personal profile card",
+            '# === Personal Profile Card ===\n'
             '\n'
-            'password = input("Enter a password to check: ")\n'
+            '# 1. INPUT\n'
+            'first_name = input("First name: ").strip()\n'
+            'last_name = input("Last name: ").strip()\n'
+            'birth_year = int(input("Birth year: "))\n'
+            'height_cm = float(input("Height in cm: "))\n'
             '\n'
-            '# Calculate strength score\n'
-            'score = 0\n'
-            'feedback = []\n'
+            '# 2. PROCESS\n'
+            'full_name = first_name + " " + last_name\n'
+            'age = 2026 - birth_year\n'
+            'height_m = height_cm / 100\n'
+            'height_ft = height_cm / 30.48\n'
+            'initials = first_name[0] + last_name[0]\n'
             '\n'
-            'if len(password) >= 8:\n'
-            '    score += 1\n'
-            'else:\n'
-            '    feedback.append("Use at least 8 characters")\n'
-            '\n'
-            'if len(password) >= 12:\n'
-            '    score += 1\n'
-            '\n'
-            'has_upper = any(c.isupper() for c in password)\n'
-            'has_lower = any(c.islower() for c in password)\n'
-            'has_digit = any(c.isdigit() for c in password)\n'
-            'has_special = any(c in "!@#$%^&*()_+-=" for c in password)\n'
-            '\n'
-            'if has_upper:\n'
-            '    score += 1\n'
-            'else:\n'
-            '    feedback.append("Add uppercase letters")\n'
-            '\n'
-            'if has_lower:\n'
-            '    score += 1\n'
-            'else:\n'
-            '    feedback.append("Add lowercase letters")\n'
-            '\n'
-            'if has_digit:\n'
-            '    score += 1\n'
-            'else:\n'
-            '    feedback.append("Add numbers")\n'
-            '\n'
-            'if has_special:\n'
-            '    score += 1\n'
-            'else:\n'
-            '    feedback.append("Add special characters (!@#$%...)")\n'
-            '\n'
-            '# Determine rating\n'
-            'if score >= 5:\n'
-            '    rating = "STRONG"\n'
-            'elif score >= 3:\n'
-            '    rating = "MEDIUM"\n'
-            'else:\n'
-            '    rating = "WEAK"\n'
-            '\n'
-            '# Display results\n'
-            'print(f"\\nPassword: {\'*\' * len(password)}")\n'
-            'print(f"Length: {len(password)} characters")\n'
-            'print(f"Strength: {rating} ({score}/6)")\n'
-            '\n'
-            'if feedback:\n'
-            '    print("\\nSuggestions:")\n'
-            '    for tip in feedback:\n'
-            '        print(f"  - {tip}")',
-            explanation="This program uses everything we've learned: string methods, "
-            "len(), conditionals, lists, f-strings, and structured output. "
+            '# 3. OUTPUT\n'
+            'print(f"\\n{\'=\' * 35}")\n'
+            'print(f"  PROFILE CARD [{initials}]")\n'
+            'print(f"{\'=\' * 35}")\n'
+            'print(f"  Name:      {full_name}")\n'
+            'print(f"  Age:       {age} years")\n'
+            'print(f"  Height:    {height_m:.2f} m ({height_ft:.1f} ft)")\n'
+            'print(f"  Born:      {birth_year}")\n'
+            'print(f"{\'=\' * 35}")',
+            explanation="This program uses everything from Module 1: variables, "
+            "string concatenation, indexing, number arithmetic, f-string formatting, "
+            "input with type conversion, and structured output. "
             "It follows the Input &rarr; Process &rarr; Output pattern."
         ),
 
-        try_it("Try running the password checker with different passwords to see how the scoring works."),
+        try_it("Use the code editor below the lesson to build your own profile card with extra fields."),
 
         section("Exercises"),
 
@@ -227,32 +192,28 @@ def build() -> str:
             "Make the story entertaining!"
         ),
 
-        exercise("medium", "Fortune teller",
-            "Build a fortune teller that asks for the user's name and birth month (1-12). "
-            "Use the birth month to select a fortune from a list of 12 fortunes. "
-            "Print the result in a decorative box:<br>"
-            "<code>+========================+<br>"
-            "|   FORTUNE TELLER 3000  |<br>"
-            "+========================+<br>"
-            "| Dear Alice,            |<br>"
-            "| Great success awaits   |<br>"
-            "| you this month!        |<br>"
-            "+========================+</code>",
-            hint="Store fortunes in a list: <code>fortunes = [\"...\", \"...\", ...]</code>. "
-            "Access with <code>fortunes[month - 1]</code> (since lists are 0-indexed)."
+        exercise("medium", "Travel planner",
+            "Build a trip summary that asks the user for:<br>"
+            "&bull; Destination city (string)<br>"
+            "&bull; Distance in km (float)<br>"
+            "&bull; Travel speed in km/h (float)<br>"
+            "&bull; Hotel cost per night (float)<br>"
+            "&bull; Number of nights (int)<br>"
+            "Calculate travel time in hours and minutes, total hotel cost, "
+            "and display a formatted travel summary with all the details.",
+            hint="<code>total_hours = distance / speed</code>, "
+            "<code>hours = int(total_hours)</code>, "
+            "<code>minutes = int((total_hours - hours) * 60)</code>."
         ),
 
-        exercise("medium", "Unit conversion tool",
-            "Build a multi-unit converter. Show a menu:<br>"
-            "<code>1. km &rarr; miles<br>"
-            "2. kg &rarr; lbs<br>"
-            "3. Celsius &rarr; Fahrenheit<br>"
-            "4. Liters &rarr; gallons</code><br>"
-            "Ask the user to pick an option and enter a value. "
-            "Display the converted result with proper formatting. "
-            "Handle invalid menu choices with a friendly error message.",
-            hint="Read the menu choice with <code>int(input(...))</code>, "
-            "use <code>if/elif/else</code> to pick the right conversion formula."
+        exercise("medium", "Receipt generator",
+            "Build an interactive receipt. Ask the user for an item name, "
+            "quantity (int), and unit price (float). Calculate the subtotal, "
+            "tax (8%), and total. Display a formatted receipt using "
+            "<code>print(\"=\" * 30)</code> for borders, f-strings for alignment, "
+            "and <code>:.2f</code> for currency formatting.",
+            hint="<code>subtotal = quantity * unit_price</code>, "
+            "<code>tax = subtotal * 0.08</code>, <code>total = subtotal + tax</code>."
         ),
 
         exercise("real-world", "Business card generator",
@@ -309,7 +270,7 @@ def build() -> str:
         recap([
             "Programs follow Input &rarr; Process &rarr; Output",
             "Comments explain <strong>why</strong>, not <strong>what</strong>",
-            "Docstrings document functions with triple quotes",
+            "Triple-quoted strings (<code>\"\"\"...\"\"\"</code>) can span multiple lines",
             "<code>print()</code> supports <code>sep</code> and <code>end</code> parameters",
             "F-string alignment: <code>&lt;</code> left, <code>&gt;</code> right, <code>^</code> center",
             "Test your programs with normal, edge-case, and invalid inputs",

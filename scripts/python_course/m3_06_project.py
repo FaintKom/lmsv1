@@ -206,7 +206,7 @@ def build() -> str:
             "if/elif chain + break to exit. You'll use this in many projects."
         ),
 
-        try_it("Copy the full program into the Python sandbox and try adding, "
+        try_it("Copy the full program into the code editor and try adding, "
                "searching, and deleting contacts. Then try adding the extensions below."),
 
         section("Extensions — try these yourself"),

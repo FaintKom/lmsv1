@@ -166,45 +166,37 @@ def build() -> str:
             'final_price = total - discount\n'
             'print(f"${total} - {discount_pct}% = ${final_price:.2f}")\n'
             '\n'
-            '# Check if a number is even or odd\n'
+            '# Check if a number is even or odd (remainder trick)\n'
             'number = 42\n'
-            'print(f"{number} is {\'even\' if number % 2 == 0 else \'odd\'}")\n'
+            'remainder = number % 2\n'
+            'print(f"{number} % 2 = {remainder}")  # 0 means even\n'
             '\n'
             '# Convert between units\n'
             'miles = 26.2\n'
             'km = miles * 1.60934\n'
             'print(f"{miles} miles = {km:.1f} km")',
-            output="$250 - 15% = $212.50\n42 is even\n26.2 miles = 42.2 km",
+            output="$250 - 15% = $212.50\n42 % 2 = 0\n26.2 miles = 42.2 km",
         ),
 
-        try_it("Try calculating compound interest or converting temperatures in the sandbox."),
+        try_it("Use the code editor below the lesson to try calculating compound interest or converting temperatures."),
 
-        section("Real-world pattern: Shipping cost calculator"),
+        section("Real-world pattern: Unit conversion chain"),
 
-        code_example("Shipping costs with weight brackets",
-            'import math\n'
+        code_example("Converting through multiple units",
+            '# Convert a marathon distance through several units\n'
+            'miles = 26.2\n'
+            'km = miles * 1.60934\n'
+            'meters = km * 1000\n'
+            'feet = meters * 3.28084\n'
             '\n'
-            'weight_kg = 7.3\n'
-            'base_rate = 5.99\n'
-            'per_kg_rate = 1.50\n'
-            'express_multiplier = 1.75\n'
-            'is_express = True\n'
-            '\n'
-            '# Round weight up to nearest whole kg\n'
-            'billable_weight = math.ceil(weight_kg)\n'
-            '\n'
-            '# Calculate cost\n'
-            'shipping_cost = base_rate + (billable_weight * per_kg_rate)\n'
-            'if is_express:\n'
-            '    shipping_cost *= express_multiplier\n'
-            '\n'
-            'print(f"Package weight: {weight_kg} kg")\n'
-            'print(f"Billable weight: {billable_weight} kg")\n'
-            'print(f"Shipping method: {\'Express\' if is_express else \'Standard\'}")\n'
-            'print(f"Shipping cost: ${shipping_cost:.2f}")',
-            output="Package weight: 7.3 kg\nBillable weight: 8 kg\nShipping method: Express\nShipping cost: $31.48",
-            explanation="Real shipping APIs use exactly this pattern: base rate plus per-unit "
-            "charges with multipliers for service levels."
+            'print(f"Marathon distance:")\n'
+            'print(f"  {miles} miles")\n'
+            'print(f"  {km:.2f} kilometers")\n'
+            'print(f"  {meters:.0f} meters")\n'
+            'print(f"  {feet:,.0f} feet")',
+            output="Marathon distance:\n  26.2 miles\n  42.16 kilometers\n  42165 meters\n  138,306 feet",
+            explanation="Each conversion builds on the previous one. This chaining pattern "
+            "appears in any unit conversion, currency exchange, or measurement system."
         ),
 
         section("Exercises"),
@@ -240,18 +232,16 @@ def build() -> str:
             "** (compounds_per_year * years)</code>"
         ),
 
-        exercise("real-world", "Shipping cost calculator",
-            "Build a shipping cost calculator. Given a package weight in kg, "
-            "compute the cost using these rules:<br>"
-            "&bull; Base rate: $5.99<br>"
-            "&bull; 0-2 kg: $2.00/kg<br>"
-            "&bull; 2-5 kg: $1.75/kg<br>"
-            "&bull; 5-10 kg: $1.50/kg<br>"
-            "&bull; 10+ kg: $1.25/kg<br>"
-            "Always round weight up to the nearest whole kg. "
-            "Test with weights of 1.2, 4.8, and 12.3 kg.",
-            hint="Use <code>math.ceil()</code> to round up. Use if/elif to pick the per-kg rate. "
-            "Total = base_rate + billable_weight * per_kg_rate."
+        exercise("real-world", "Investment growth calculator",
+            "Calculate how an investment grows over time using compound interest. "
+            "Given: <code>principal = 5000</code>, <code>annual_rate = 0.07</code>, "
+            "<code>years = 5</code>, <code>compounds_per_year = 4</code> (quarterly). "
+            "Use the formula: <code>A = P * (1 + r/n) ** (n * t)</code>.<br>"
+            "Print the value at the end of each year (year 1 through 5), "
+            "and the total interest earned. Format all values as currency.",
+            hint="For year 1: <code>amount = principal * (1 + annual_rate / compounds_per_year) "
+            "** (compounds_per_year * 1)</code>. Repeat for each year. "
+            "Interest = amount - principal."
         ),
 
         mistakes([
