@@ -30,11 +30,7 @@ export default function Home() {
             <span className="text-xl font-bold text-slate-900">GrassLMS</span>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/pricing">
-              <Button variant="ghost" size="sm">
-                Pricing
-              </Button>
-            </Link>
+            {/* Pricing hidden until payment providers connected */}
             <Link href="/demo">
               <Button variant="ghost" size="sm">
                 Try Demo
