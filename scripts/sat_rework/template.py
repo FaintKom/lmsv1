@@ -33,63 +33,61 @@ def hero(title: str, subtitle: str, gradient: str = "from-indigo-600 to-violet-6
 
 
 def callout(title: str, body: str, kind: str = "info") -> str:
-    """Coloured callout: info / concept / example / pitfall / tactic / recap."""
-    styles = {
-        "info":    ("#eff6ff", "#3b82f6", "#1d4ed8", "&#x1F4A1;"),
-        "concept": ("#eef2ff", "#6366f1", "#4338ca", "&#x1F511;"),
-        "example": ("#fffbeb", "#fbbf24", "#92400e", "&#x1F4DD;"),
-        "pitfall": ("#fef2f2", "#f87171", "#991b1b", "&#x26A0;&#xFE0F;"),
-        "tactic":  ("#ecfdf5", "#10b981", "#065f46", "&#x1F3AF;"),
-        "recap":   ("#f5f3ff", "#a78bfa", "#5b21b6", "&#x1F4DA;"),
+    """Theme-aware callout. Colors live in globals.css under
+    .lms-callout / .lms-callout--{kind} so they adapt to dark mode.
+
+    kind ∈ {info, concept, example, pitfall, tactic, recap}
+    """
+    icons = {
+        "info":    "&#x1F4A1;",
+        "concept": "&#x1F511;",
+        "example": "&#x1F4DD;",
+        "pitfall": "&#x26A0;&#xFE0F;",
+        "tactic":  "&#x1F3AF;",
+        "recap":   "&#x1F4DA;",
     }
-    bg, border, color, icon = styles.get(kind, styles["info"])
-    return f'''<div style="background:{bg};border-left:4px solid {border};border-radius:0 12px 12px 0;padding:16px 20px;margin:18px 0">
-<h3 style="color:{color};margin:0 0 10px;font-size:1.05rem;font-weight:700">{icon} {title}</h3>
-{body}
+    icon = icons.get(kind, icons["info"])
+    return f'''<div class="lms-callout lms-callout--{kind}">
+<h3 class="lms-callout__title">{icon} {title}</h3>
+<div class="lms-callout__body">{body}</div>
 </div>'''
 
 
-def section(title: str, body: str, anchor_color: str = "#4338ca") -> str:
-    """Plain section with a coloured header bar."""
-    return f'''<h3 style="color:{anchor_color};font-size:1.2rem;font-weight:700;margin:1.5rem 0 0.5rem;border-bottom:2px solid {anchor_color}22;padding-bottom:0.4rem">{title}</h3>
-{body}'''
+def section(title: str, body: str) -> str:
+    """Section header bar — color comes from .lms-section-h CSS."""
+    return f'<h3 class="lms-section-h">{title}</h3>\n{body}'
 
 
 def worked_example(label: str, problem: str, steps: list[str], answer: str) -> str:
-    """A worked example card with numbered steps and final answer."""
-    steps_html = "".join(
-        f'<li style="margin:0.4rem 0">{s}</li>' for s in steps
-    )
-    return f'''<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:18px 22px;margin:16px 0">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-  <span style="background:#fbbf24;color:#78350f;padding:2px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">{label}</span>
-</div>
-<p style="margin:0 0 12px;font-size:1.02rem"><strong>{problem}</strong></p>
-<ol style="margin:0 0 12px;padding-left:1.4rem">{steps_html}</ol>
-<p style="margin:0;padding:10px 14px;background:#fef3c7;border-radius:8px;font-weight:600;color:#78350f">&#x2705; {answer}</p>
+    """Worked example card. Theme-aware via .lms-example CSS class."""
+    steps_html = "".join(f"<li>{s}</li>" for s in steps)
+    return f'''<div class="lms-example">
+<div class="lms-example__label">{label}</div>
+<p class="lms-example__problem"><strong>{problem}</strong></p>
+<ol class="lms-example__steps">{steps_html}</ol>
+<p class="lms-example__answer">&#x2705; {answer}</p>
 </div>'''
 
 
 def pitfall_list(items: list[tuple[str, str]]) -> str:
     """Numbered list of pitfalls. Each item is (mistake, why_wrong)."""
     li = "".join(
-        f'<li style="margin:0.5rem 0"><strong style="color:#991b1b">{m}</strong> &mdash; {w}</li>'
+        f'<li><strong class="lms-pitfall-name">{m}</strong> &mdash; {w}</li>'
         for m, w in items
     )
-    return f'<ol style="margin:0;padding-left:1.4rem">{li}</ol>'
+    return f'<ol class="lms-pitfall-list">{li}</ol>'
 
 
 def tactic_list(items: list[str]) -> str:
-    """Bullet list of SAT tactics."""
-    li = "".join(
-        f'<li style="margin:0.4rem 0">{t}</li>' for t in items
-    )
-    return f'<ul style="margin:0;padding-left:1.4rem">{li}</ul>'
+    """Bullet list of SAT tactics. Inherits styling from .lms-lesson-content ul."""
+    li = "".join(f"<li>{t}</li>" for t in items)
+    return f"<ul>{li}</ul>"
 
 
 def recap_list(items: list[str]) -> str:
-    li = "".join(f'<li style="margin:0.35rem 0">{i}</li>' for i in items)
-    return f'<ul style="margin:0;padding-left:1.4rem">{li}</ul>'
+    """Bullet list for the quick recap callout."""
+    li = "".join(f"<li>{i}</li>" for i in items)
+    return f"<ul>{li}</ul>"
 
 
 def widget(title: str, html_body: str, css: str = "", js: str = "") -> str:
