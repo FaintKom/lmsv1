@@ -58,7 +58,7 @@ async def update_skill_endpoint(
 @router.delete("/{skill_id}")
 async def delete_skill_endpoint(
     skill_id: uuid.UUID,
-    user: User = Depends(require_role(UserRole.admin)),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
     try:

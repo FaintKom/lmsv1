@@ -38,9 +38,10 @@ class UsageRecordResponse(BaseModel):
 @router.post("/report-usage", response_model=UsageRecordResponse, status_code=201)
 async def report_usage(
     body: UsageReportRequest,
+    user: User = Depends(require_role(UserRole.super_admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Internal endpoint — no auth for now (service token auth will be added later)."""
+    """Report usage for an org. Restricted to super_admin only."""
     record = UsageRecord(
         org_id=body.org_id,
         metric=body.metric,
