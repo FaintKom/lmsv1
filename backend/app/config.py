@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"  # DEBUG / INFO / WARNING / ERROR
     log_json: bool = True    # structured JSON in production, pretty console in dev
 
+    # Read replica (optional). Falls back to primary when empty.
+    replica_database_url: str = ""
+
     # Redis (optional). Rate limiter falls back to in-memory when empty.
     redis_url: str = ""
 

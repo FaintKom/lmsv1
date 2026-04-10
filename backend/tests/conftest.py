@@ -29,11 +29,17 @@ import app.exercises.models  # noqa
 import app.gamification.models  # noqa
 import app.learning_paths.models  # noqa
 import app.meetings.models  # noqa
+import app.metered_billing.models  # noqa
 import app.notifications.models  # noqa
+import app.peer_review.models  # noqa
+import app.plagiarism.models  # noqa
 import app.progress.models  # noqa
+import app.recording.models  # noqa
 import app.sandbox.models  # noqa
+import app.scorm.models  # noqa
 import app.skills.models  # noqa
 import app.submissions.models  # noqa
+import app.team_projects.models  # noqa
 import app.waitlist.models  # noqa
 import app.webhooks.models  # noqa
 from app.auth.models import Organization, User, UserRole

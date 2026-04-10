@@ -54,14 +54,20 @@ from app.gamification.router import router as gamification_router
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.meetings.router import router as meetings_router
+from app.metered_billing.router import router as metered_billing_router
 from app.notifications.router import router as notifications_router
 from app.orgs.router import router as orgs_router
 from app.parent.router import router as parent_router
+from app.peer_review.router import router as peer_review_router
+from app.plagiarism.router import router as plagiarism_router
 from app.progress.router import router as progress_router
 from app.recommendations.router import router as recommendations_router
+from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
+from app.scorm.router import router as scorm_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
+from app.team_projects.router import router as team_projects_router
 from app.waitlist.router import router as waitlist_router
 from app.webhooks.router import router as webhooks_router
 
@@ -297,6 +303,12 @@ async def lifespan(app: FastAPI):
     import app.waitlist.models  # noqa
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
+    import app.scorm.models  # noqa
+    import app.plagiarism.models  # noqa
+    import app.peer_review.models  # noqa
+    import app.team_projects.models  # noqa
+    import app.recording.models  # noqa
+    import app.metered_billing.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
@@ -449,6 +461,12 @@ def create_app() -> FastAPI:
     app.include_router(waitlist_router, prefix="/api/v1", tags=["Waitlist"])
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
+    app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
+    app.include_router(plagiarism_router, prefix="/api/v1/admin/plagiarism", tags=["Plagiarism"])
+    app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
+    app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
+    app.include_router(recording_router, prefix="/api/v1/recordings", tags=["Recordings"])
+    app.include_router(metered_billing_router, prefix="/api/v1/billing", tags=["Metered Billing"])
 
     @app.get("/health")
     async def health():

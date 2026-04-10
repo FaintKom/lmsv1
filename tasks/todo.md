@@ -146,16 +146,16 @@ Four parallel explore agents analyzed: backend, frontend, deployment/ops, produc
 
 ## P2 — Nice to have (after first customer)
 
-- [ ] P2-1. SCORM/xAPI export (corporate clients)
+- [x] P2-1. SCORM/xAPI export (corporate clients) ✅
 - [x] P2-2. White label + custom domain (Enterprise tier feature) ✅
-- [ ] P2-3. Plagiarism detection
-- [ ] P2-4. Peer code review
-- [ ] P2-5. Team projects
+- [x] P2-3. Plagiarism detection ✅
+- [x] P2-4. Peer code review ✅
+- [x] P2-5. Team projects ✅
 - [x] P2-6. Offline/PWA ✅
-- [ ] P2-7. In-app video/audio recording
+- [x] P2-7. In-app video/audio recording ✅
 - [x] P2-8. Attendance tracking ✅
-- [ ] P2-9. Metered billing / usage-based pricing
-- [ ] P2-10. Postgres read replicas
+- [x] P2-9. Metered billing / usage-based pricing ✅
+- [x] P2-10. Postgres read replicas ✅
 - [x] P2-11. Multi-org for single user ✅
 - [x] P2-12. Webhook API for customers ✅
 - [x] P2-13. Waitlist / pre-launch community mechanism ✅
