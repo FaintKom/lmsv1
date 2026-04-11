@@ -27,44 +27,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { InteractiveDemo } from "@/components/landing/interactive-demo";
+import { LandingHeader } from "@/components/landing/landing-header";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">GrassLMS</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/pricing">
-              <Button variant="ghost" size="sm">
-                Pricing
-              </Button>
-            </Link>
-            <Link href="/demo">
-              <Button variant="ghost" size="sm">
-                Try Demo
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">
-                Get Started
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingHeader />
 
       <main>
         {/* Hero */}

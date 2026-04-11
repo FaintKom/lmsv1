@@ -156,6 +156,83 @@ export default function AdminDashboardPage() {
           </Card>
         </div>
 
+        {/* Quick Insights */}
+        {teacherStats && (
+          <Card className="mb-8 border-l-4 border-l-violet-400">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Sparkles className="h-4 w-4 text-violet-500" />
+                Quick Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {teacherStats.to_review > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-orange-50 p-3 dark:bg-orange-500/10">
+                  <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    <span className="font-semibold">{teacherStats.to_review} submission{teacherStats.to_review !== 1 ? "s" : ""}</span>{" "}
+                    waiting for review.{" "}
+                    <Link href="/admin/review" className="font-medium text-orange-600 hover:underline dark:text-orange-400">
+                      Review now
+                    </Link>
+                  </p>
+                </div>
+              )}
+              {teacherStats.my_students > 0 && teacherStats.avg_score > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-emerald-50 p-3 dark:bg-emerald-500/10">
+                  <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    Average score across your students is{" "}
+                    <span className="font-semibold">{teacherStats.avg_score}%</span>.
+                    {teacherStats.avg_score >= 80
+                      ? " Great job — your students are performing well!"
+                      : teacherStats.avg_score >= 60
+                      ? " Consider reviewing topics where students struggle."
+                      : " Some students may need extra support."}
+                  </p>
+                </div>
+              )}
+              {teacherStats.my_courses === 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
+                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    You haven&apos;t created any courses yet.{" "}
+                    <Link href="/admin/courses" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                      Create your first course
+                    </Link>
+                  </p>
+                </div>
+              )}
+              {teacherStats.my_students === 0 && teacherStats.my_courses > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
+                  <Users className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    No students enrolled yet. Share your invite link to get started.
+                  </p>
+                </div>
+              )}
+              {teacherStats.to_review === 0 && teacherStats.my_students > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-green-50 p-3 dark:bg-green-500/10">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    All caught up — no submissions pending review.
+                  </p>
+                </div>
+              )}
+              {teacherStats.recent_submissions && teacherStats.recent_submissions.length > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3 dark:bg-white/5">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    Last submission from{" "}
+                    <span className="font-semibold">{teacherStats.recent_submissions[0].student_name}</span>{" "}
+                    on {new Date(teacherStats.recent_submissions[0].submitted_at).toLocaleDateString()}.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Recent Submissions */}
         {teacherStats?.recent_submissions && teacherStats.recent_submissions.length > 0 && (
           <Card className="mb-8 border-l-4 border-l-green-400">
