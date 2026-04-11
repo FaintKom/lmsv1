@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -295,3 +295,275 @@ async def create_zoom_meeting(
         }
     else:
         raise HTTPException(resp.status_code, f"Zoom API error: {resp.text}")
+
+
+# ---------------------------------------------------------------------------
+# Google OAuth Integration (Meet, Drive, Classroom)
+# ---------------------------------------------------------------------------
+
+_GOOGLE_SCOPES = {
+    "google_meet": "openid email profile https://www.googleapis.com/auth/calendar.events",
+    "google_drive": "openid email profile https://www.googleapis.com/auth/drive.file",
+    "google_classroom": (
+        "openid email profile"
+        " https://www.googleapis.com/auth/classroom.courses.readonly"
+        " https://www.googleapis.com/auth/classroom.rosters.readonly"
+        " https://www.googleapis.com/auth/classroom.coursework.students"
+    ),
+}
+
+_GOOGLE_PROVIDER_MAP = {
+    "google_meet": IntegrationProvider.google_meet,
+    "google_drive": IntegrationProvider.google_drive,
+    "google_classroom": IntegrationProvider.google_classroom,
+}
+
+
+async def _refresh_google_token(conn: OAuthConnection, db: AsyncSession) -> str:
+    """Refresh Google OAuth token if expired, return valid access_token."""
+    if conn.token_expires_at and conn.token_expires_at > datetime.now(timezone.utc):
+        return conn.access_token  # still valid
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "grant_type": "refresh_token",
+                "refresh_token": conn.refresh_token,
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+            },
+        )
+    if resp.status_code != 200:
+        raise HTTPException(401, "Google token refresh failed. Please reconnect.")
+
+    data = resp.json()
+    conn.access_token = data["access_token"]
+    conn.token_expires_at = datetime.now(timezone.utc) + timedelta(
+        seconds=data.get("expires_in", 3600)
+    )
+    await db.commit()
+    return conn.access_token
+
+
+@router.get("/google/authorize")
+async def google_authorize(
+    provider: str = Query("google_meet"),
+    user: User = Depends(get_current_user),
+):
+    """Redirect to Google OAuth consent screen."""
+    if not settings.google_client_id:
+        raise HTTPException(400, "Google integration not configured")
+
+    if provider not in _GOOGLE_SCOPES:
+        raise HTTPException(400, f"Unknown Google provider: {provider}")
+
+    state = f"{user.org_id}:{user.id}:{provider}"
+    params = {
+        "response_type": "code",
+        "client_id": settings.google_client_id,
+        "redirect_uri": settings.google_redirect_uri,
+        "scope": _GOOGLE_SCOPES[provider],
+        "state": state,
+        "access_type": "offline",
+        "prompt": "consent",
+    }
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+    return RedirectResponse(url)
+
+
+@router.get("/google/callback")
+async def google_callback(
+    code: str, state: str, db: AsyncSession = Depends(get_db)
+):
+    """Handle Google OAuth callback — exchange code for tokens and save."""
+    parts = state.split(":")
+    if len(parts) != 3:
+        return RedirectResponse("/admin/integrations?error=google_invalid_state")
+
+    org_id_str, user_id_str, provider_str = parts
+    org_id = uuid.UUID(org_id_str)
+    user_id = uuid.UUID(user_id_str)
+
+    provider_enum = _GOOGLE_PROVIDER_MAP.get(provider_str)
+    if provider_enum is None:
+        return RedirectResponse("/admin/integrations?error=google_unknown_provider")
+
+    # Exchange code for tokens
+    async with httpx.AsyncClient() as client:
+        token_resp = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": settings.google_redirect_uri,
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+            },
+        )
+
+    if token_resp.status_code != 200:
+        return RedirectResponse("/admin/integrations?error=google_auth_failed")
+
+    token_data = token_resp.json()
+    access_token = token_data["access_token"]
+    refresh_token = token_data.get("refresh_token")
+    expires_in = token_data.get("expires_in", 3600)
+
+    # Get user profile from Google
+    async with httpx.AsyncClient() as client:
+        profile_resp = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    account_email = None
+    account_name = None
+    if profile_resp.status_code == 200:
+        profile = profile_resp.json()
+        account_email = profile.get("email")
+        account_name = profile.get("name")
+
+    # Upsert OAuthConnection
+    existing = await db.execute(
+        select(OAuthConnection).where(
+            OAuthConnection.org_id == org_id,
+            OAuthConnection.provider == provider_enum,
+        )
+    )
+    conn = existing.scalar_one_or_none()
+
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(seconds=expires_in)
+
+    if conn:
+        conn.access_token = access_token
+        conn.refresh_token = refresh_token or conn.refresh_token
+        conn.token_expires_at = expires_at
+        conn.account_email = account_email
+        conn.account_name = account_name
+        conn.scopes = _GOOGLE_SCOPES[provider_str]
+        conn.is_active = True
+        conn.connected_by = user_id
+    else:
+        conn = OAuthConnection(
+            org_id=org_id,
+            provider=provider_enum,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_expires_at=expires_at,
+            account_email=account_email,
+            account_name=account_name,
+            scopes=_GOOGLE_SCOPES[provider_str],
+            is_active=True,
+            connected_by=user_id,
+        )
+        db.add(conn)
+
+    await db.commit()
+    return RedirectResponse(f"/admin/integrations?connected={provider_str}")
+
+
+@router.post("/google/meet")
+async def create_google_meet(
+    title: str,
+    start_time: str,
+    duration: int = 60,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a Google Meet meeting via Google Calendar event."""
+    result = await db.execute(
+        select(OAuthConnection).where(
+            OAuthConnection.org_id == user.org_id,
+            OAuthConnection.provider == IntegrationProvider.google_meet,
+            OAuthConnection.is_active == True,
+        )
+    )
+    conn = result.scalar_one_or_none()
+    if not conn:
+        raise HTTPException(
+            400, "Google Meet not connected. Go to Admin > Integrations to connect."
+        )
+
+    access_token = await _refresh_google_token(conn, db)
+
+    # Parse start_time and compute end_time
+    start_dt = datetime.fromisoformat(start_time)
+    end_dt = start_dt + timedelta(minutes=duration)
+
+    event_body = {
+        "summary": title,
+        "start": {"dateTime": start_dt.isoformat(), "timeZone": "UTC"},
+        "end": {"dateTime": end_dt.isoformat(), "timeZone": "UTC"},
+        "conferenceData": {
+            "createRequest": {
+                "requestId": str(uuid.uuid4()),
+                "conferenceSolutionKey": {"type": "hangoutsMeet"},
+            }
+        },
+    }
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events"
+            "?conferenceDataVersion=1",
+            json=event_body,
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    if resp.status_code not in (200, 201):
+        raise HTTPException(resp.status_code, f"Google Calendar API error: {resp.text}")
+
+    data = resp.json()
+    meet_link = (
+        data.get("conferenceData", {})
+        .get("entryPoints", [{}])[0]
+        .get("uri")
+    )
+    return {
+        "id": data["id"],
+        "meet_link": meet_link,
+        "calendar_event_id": data["id"],
+        "title": data.get("summary"),
+        "start_time": data.get("start", {}).get("dateTime"),
+    }
+
+
+@router.get("/google/drive/files")
+async def list_google_drive_files(
+    q: str = "",
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List files from the org's connected Google Drive."""
+    result = await db.execute(
+        select(OAuthConnection).where(
+            OAuthConnection.org_id == user.org_id,
+            OAuthConnection.provider == IntegrationProvider.google_drive,
+            OAuthConnection.is_active == True,
+        )
+    )
+    conn = result.scalar_one_or_none()
+    if not conn:
+        raise HTTPException(
+            400, "Google Drive not connected. Go to Admin > Integrations to connect."
+        )
+
+    access_token = await _refresh_google_token(conn, db)
+
+    params = {"fields": "files(id,name,mimeType,thumbnailLink,webViewLink)"}
+    if q:
+        params["q"] = q
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            "https://www.googleapis.com/drive/v3/files",
+            params=params,
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+
+    if resp.status_code != 200:
+        raise HTTPException(resp.status_code, f"Google Drive API error: {resp.text}")
+
+    return resp.json().get("files", [])

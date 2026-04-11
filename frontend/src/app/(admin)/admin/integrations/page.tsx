@@ -63,7 +63,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     bgColor: "bg-blue-50",
     features: ["File picker", "Assignment submissions", "Shared materials"],
     docsUrl: "https://developers.google.com/drive",
-    status: "coming_soon",
+    status: "available",
   },
   {
     provider: "zoom",
@@ -74,7 +74,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     bgColor: "bg-blue-50",
     features: ["Create meetings", "Join links", "Recording access"],
     docsUrl: "https://developers.zoom.us",
-    status: "coming_soon",
+    status: "available",
   },
   {
     provider: "google_meet",
@@ -85,7 +85,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     bgColor: "bg-green-50",
     features: ["Calendar integration", "One-click meetings", "Free for schools"],
     docsUrl: "https://developers.google.com/meet",
-    status: "coming_soon",
+    status: "available",
   },
   {
     provider: "google_classroom",
@@ -96,7 +96,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     bgColor: "bg-emerald-50",
     features: ["Import roster", "Grade sync", "Assignment sync"],
     docsUrl: "https://developers.google.com/classroom",
-    status: "coming_soon",
+    status: "available",
   },
   {
     provider: "microsoft_teams",
@@ -124,9 +124,9 @@ const INTEGRATIONS: IntegrationDef[] = [
 
 const OAUTH_PROVIDERS: Record<string, string> = {
   zoom: "/api/v1/integrations/zoom/authorize",
-  google_meet: "/api/v1/integrations/google/authorize",
-  google_drive: "/api/v1/integrations/google/authorize",
-  google_classroom: "/api/v1/integrations/google/authorize",
+  google_meet: "/api/v1/integrations/google/authorize?provider=google_meet",
+  google_drive: "/api/v1/integrations/google/authorize?provider=google_drive",
+  google_classroom: "/api/v1/integrations/google/authorize?provider=google_classroom",
 };
 
 export default function IntegrationsPage() {
