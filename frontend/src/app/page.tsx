@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
+import { InteractiveDemo } from "@/components/landing/interactive-demo";
 
 export default function Home() {
   return (
@@ -30,7 +31,11 @@ export default function Home() {
             <span className="text-xl font-bold text-slate-900">GrassLMS</span>
           </div>
           <div className="flex items-center gap-3">
-            {/* Pricing hidden until payment providers connected */}
+            <Link href="/pricing">
+              <Button variant="ghost" size="sm">
+                Pricing
+              </Button>
+            </Link>
             <Link href="/demo">
               <Button variant="ghost" size="sm">
                 Try Demo
@@ -54,7 +59,7 @@ export default function Home() {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_60%,rgba(99,102,241,0.08),transparent)]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_60%,rgba(34,197,94,0.08),transparent)]" />
           <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center md:pt-28">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-1.5 text-sm font-medium text-green-700">
               <Sparkles className="h-4 w-4" />
@@ -180,6 +185,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Interactive Demo */}
+        <InteractiveDemo />
 
         {/* Trust */}
         <section className="py-20">
