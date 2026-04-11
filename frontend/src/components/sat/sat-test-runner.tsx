@@ -12,6 +12,8 @@ function MathText({ text, className }: { text: string; className?: string }) {
   return <span className={className}>{text}</span>;
 }
 import SATResults from "./sat-results";
+import SATReviewScreen from "./sat-review-screen";
+import { generateModuleQuestions } from "./question-generator";
 import type { SATQuestion, SATTestConfig } from "./sat-question-bank";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
@@ -105,7 +107,11 @@ function NumericQuestion({ config, answer, onAnswer }: {
   );
 }
 
-// ─── Main Test Runner ───────────────────────────────────────────────
+// ─── Phase Types ───────────────────────────────────────────────────
+
+type TestPhase = "module1" | "review_m1" | "break" | "module2" | "review_m2" | "finished";
+
+// ─── Main Test Runner ──────────────────────────────────────────────
 
 interface SATTestRunnerProps {
   questions: SATQuestion[];
@@ -114,81 +120,170 @@ interface SATTestRunnerProps {
 }
 
 export default function SATTestRunner({ questions, config, onFinish }: SATTestRunnerProps) {
+  // Phase state machine
+  const [phase, setPhase] = useState<TestPhase>("module1");
+
+  // Per-module questions
+  const [m1Questions] = useState<SATQuestion[]>(questions);
+  const [m2Questions, setM2Questions] = useState<SATQuestion[]>([]);
+
+  // Per-module answers
+  const [m1Answers, setM1Answers] = useState<Record<string, string | null>>({});
+  const [m2Answers, setM2Answers] = useState<Record<string, string | null>>({});
+
+  // Per-module flagged
+  const [m1Flagged, setM1Flagged] = useState<Set<number>>(new Set());
+  const [m2Flagged, setM2Flagged] = useState<Set<number>>(new Set());
+
+  // Per-module eliminated choices
+  const [m1Eliminated, setM1Eliminated] = useState<Record<number, Set<number>>>({});
+  const [m2Eliminated, setM2Eliminated] = useState<Record<number, Set<number>>>({});
+
+  // Per-module timers
+  const [m1TimeLeft, setM1TimeLeft] = useState(config.time_per_module_minutes * 60);
+  const [m2TimeLeft, setM2TimeLeft] = useState(config.time_per_module_minutes * 60);
+  const [breakTimeLeft, setBreakTimeLeft] = useState((config.breakMinutes || 0) * 60);
+
+  // Module 2 routing
+  const [module2Difficulty, setModule2Difficulty] = useState<"easy" | "hard" | "none">("none");
+
+  // Current question index (resets per module)
   const [currentQ, setCurrentQ] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | null>>({});
-  const [flagged, setFlagged] = useState<Set<number>>(new Set());
-  const [eliminated, setEliminated] = useState<Record<number, Set<number>>>({});
-  const [timeLeft, setTimeLeft] = useState(config.time_per_module_minutes * 60);
+
+  // UI toggles
   const [showTimer, setShowTimer] = useState(true);
   const [showDesmos, setShowDesmos] = useState(false);
   const [showFormulas, setShowFormulas] = useState(false);
-  const [finished, setFinished] = useState(false);
+
+  // Results
   const [results, setResults] = useState<React.ComponentProps<typeof SATResults>["results"] | null>(null);
 
   // Time tracking per question
   const questionStartRef = useRef(Date.now());
-  const timePerQuestion = useRef<Record<number, number>>({});
+  const timePerQuestion = useRef<Record<string, number>>({});
   const testStartRef = useRef(Date.now());
+  const module2StartRef = useRef(0);
 
-  // Timer countdown
+  // ─── Phase-aware aliases ─────────────────────────────────────────
+
+  const isM2 = phase === "module2" || phase === "review_m2";
+  const currentQuestions = isM2 ? m2Questions : m1Questions;
+  const currentAnswers = isM2 ? m2Answers : m1Answers;
+  const setCurrentAnswers = isM2 ? setM2Answers : setM1Answers;
+  const currentFlagged = isM2 ? m2Flagged : m1Flagged;
+  const setCurrentFlagged = isM2 ? setM2Flagged : setM1Flagged;
+  const currentEliminated = isM2 ? m2Eliminated : m1Eliminated;
+  const setCurrentEliminated = isM2 ? setM2Eliminated : setM1Eliminated;
+  const currentTimeLeft = isM2 ? m2TimeLeft : m1TimeLeft;
+  const setCurrentTimeLeft = isM2 ? setM2TimeLeft : setM1TimeLeft;
+  const moduleNumber = isM2 ? 2 : 1;
+  const totalModules = config.adaptive ? 2 : config.modules;
+
+  // ─── Timer countdown ─────────────────────────────────────────────
+
   useEffect(() => {
-    if (finished) return;
+    if (phase === "finished" || phase === "review_m1" || phase === "review_m2") return;
+
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (phase === "module1") {
+        setM1TimeLeft((prev) => {
+          if (prev <= 1) {
+            setPhase("review_m1");
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else if (phase === "module2") {
+        setM2TimeLeft((prev) => {
+          if (prev <= 1) {
+            setPhase("review_m2");
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else if (phase === "break") {
+        setBreakTimeLeft((prev) => {
+          if (prev <= 1) {
+            startModule2();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [finished]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // Track time per question
   useEffect(() => {
     questionStartRef.current = Date.now();
-  }, [currentQ]);
+  }, [currentQ, phase]);
+
+  // ─── Helpers ─────────────────────────────────────────────────────
 
   const recordQuestionTime = useCallback(() => {
     const elapsed = (Date.now() - questionStartRef.current) / 1000;
-    timePerQuestion.current[currentQ] = (timePerQuestion.current[currentQ] || 0) + elapsed;
-  }, [currentQ]);
+    const key = `${moduleNumber}-${currentQ}`;
+    timePerQuestion.current[key] = (timePerQuestion.current[key] || 0) + elapsed;
+  }, [currentQ, moduleNumber]);
 
   const handleAnswer = useCallback((answer: string) => {
-    setAnswers((prev) => ({ ...prev, [questions[currentQ].id]: answer }));
-  }, [currentQ, questions]);
+    setCurrentAnswers((prev) => ({ ...prev, [currentQuestions[currentQ].id]: answer }));
+  }, [currentQ, currentQuestions, setCurrentAnswers]);
 
   const handleFlag = useCallback(() => {
-    setFlagged((prev) => {
+    setCurrentFlagged((prev) => {
       const next = new Set(prev);
       if (next.has(currentQ)) next.delete(currentQ);
       else next.add(currentQ);
       return next;
     });
-  }, [currentQ]);
+  }, [currentQ, setCurrentFlagged]);
 
   const handleEliminate = useCallback((choiceIdx: number) => {
-    setEliminated((prev) => {
+    setCurrentEliminated((prev) => {
       const current = new Set(prev[currentQ] || []);
       if (current.has(choiceIdx)) current.delete(choiceIdx);
       else current.add(choiceIdx);
       return { ...prev, [currentQ]: current };
     });
-  }, [currentQ]);
+  }, [currentQ, setCurrentEliminated]);
 
   const goTo = useCallback((idx: number) => {
     recordQuestionTime();
-    setCurrentQ(Math.max(0, Math.min(questions.length - 1, idx)));
-  }, [questions.length, recordQuestionTime]);
+    setCurrentQ(Math.max(0, Math.min(currentQuestions.length - 1, idx)));
+  }, [currentQuestions.length, recordQuestionTime]);
 
-  const handleSubmit = useCallback(() => {
-    recordQuestionTime();
-    const totalTime = (Date.now() - testStartRef.current) / 1000;
+  // ─── Grading ─────────────────────────────────────────────────────
 
-    // Grade all questions
-    const questionResults = questions.map((q, i) => {
-      const userAnswer = answers[q.id] || null;
+  function gradeModule(qs: SATQuestion[], ans: Record<string, string | null>): number {
+    return qs.filter((q) => {
+      const userAnswer = ans[q.id];
+      if (!userAnswer) return false;
+      if (q.template_type === "multiple_choice_math") {
+        const choices = q.config.choices as { text: string; correct: boolean }[];
+        return choices.some((c) => c.correct && c.text === userAnswer);
+      } else {
+        const correctAnswers = q.config.correct_answers as number[];
+        const tolerance = (q.config.tolerance as number) || 0.01;
+        const parsed = parseFloat(
+          userAnswer.includes("/")
+            ? (() => { const [n, d] = userAnswer.split("/").map(Number); return (n / d).toString(); })()
+            : userAnswer
+        );
+        return correctAnswers?.some((ca) => Math.abs(parsed - ca) <= tolerance) || false;
+      }
+    }).length;
+  }
+
+  function gradeAndFinish(
+    allQuestions: SATQuestion[],
+    allAnswers: Record<string, string | null>,
+    m2Diff: "easy" | "hard" | "none"
+  ) {
+    const questionResults = allQuestions.map((q, i) => {
+      const userAnswer = allAnswers[q.id] || null;
       let correct = false;
 
       if (q.template_type === "multiple_choice_math") {
@@ -197,30 +292,126 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
       } else if (q.template_type === "numeric_input") {
         const correctAnswers = q.config.correct_answers as number[];
         const tolerance = (q.config.tolerance as number) || 0.01;
-        const parsed = userAnswer ? parseFloat(userAnswer.includes("/") ?
-          (() => { const [n, d] = userAnswer.split("/").map(Number); return (n / d).toString(); })() : userAnswer) : NaN;
+        const parsed = userAnswer
+          ? parseFloat(
+              userAnswer.includes("/")
+                ? (() => { const [n, d] = userAnswer.split("/").map(Number); return (n / d).toString(); })()
+                : userAnswer
+            )
+          : NaN;
         correct = correctAnswers?.some((ca) => Math.abs(parsed - ca) <= tolerance) || false;
       }
+
+      const mod = i < m1Questions.length ? 1 : 2;
+      const qIdx = mod === 1 ? i : i - m1Questions.length;
+      const key = `${mod}-${qIdx}`;
 
       return {
         question: q,
         userAnswer,
         correct,
-        timeSeconds: timePerQuestion.current[i] || 0,
+        timeSeconds: timePerQuestion.current[key] || 0,
       };
     });
 
     setResults(questionResults);
-    setFinished(true);
-  }, [answers, questions, recordQuestionTime]);
+    setModule2Difficulty(m2Diff);
+    setPhase("finished");
+  }
 
-  // Format time
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  const timeStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  const isLowTime = timeLeft < 60;
+  // ─── Phase transitions ───────────────────────────────────────────
 
-  if (finished && results) {
+  function submitModule1() {
+    recordQuestionTime();
+
+    if (!config.adaptive) {
+      // Non-adaptive: grade and finish immediately
+      gradeAndFinish(m1Questions, m1Answers, "none");
+      return;
+    }
+
+    // Adaptive: grade M1, determine routing, generate M2
+    const m1Correct = gradeModule(m1Questions, m1Answers);
+    const threshold = Math.ceil(m1Questions.length * 0.6);
+    const difficulty: "easy" | "hard" = m1Correct >= threshold ? "hard" : "easy";
+    setModule2Difficulty(difficulty);
+
+    // Generate M2 questions with appropriate difficulty bias
+    const m2Qs = generateModuleQuestions(config.questions_per_module, difficulty);
+    setM2Questions(m2Qs);
+    setCurrentQ(0);
+    setPhase("break");
+  }
+
+  function startModule2() {
+    setCurrentQ(0);
+    questionStartRef.current = Date.now();
+    module2StartRef.current = Date.now();
+    setPhase("module2");
+  }
+
+  function submitModule2() {
+    recordQuestionTime();
+    gradeAndFinish(
+      [...m1Questions, ...m2Questions],
+      { ...m1Answers, ...m2Answers },
+      module2Difficulty
+    );
+  }
+
+  // ─── Keyboard shortcuts ──────────────────────────────────────────
+
+  useEffect(() => {
+    if (phase !== "module1" && phase !== "module2") return;
+
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+        if (e.key === "Escape") {
+          setShowDesmos(false);
+          setShowFormulas(false);
+        }
+        return;
+      }
+
+      const q = currentQuestions[currentQ];
+      if (q?.template_type === "multiple_choice_math") {
+        const choices = q.config.choices as { text: string }[];
+        const keyMap: Record<string, number> = { a: 0, b: 1, c: 2, d: 3 };
+        const idx = keyMap[e.key.toLowerCase()];
+        if (idx !== undefined && idx < choices.length) {
+          handleAnswer(choices[idx].text);
+          return;
+        }
+      }
+
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") goTo(currentQ + 1);
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") goTo(currentQ - 1);
+      else if (e.key.toLowerCase() === "f") handleFlag();
+      else if (e.key === "Escape") {
+        setShowDesmos(false);
+        setShowFormulas(false);
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [phase, currentQ, currentQuestions, handleAnswer, goTo, handleFlag]);
+
+  // ─── Format time helper ──────────────────────────────────────────
+
+  function formatTime(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  const timeStr = formatTime(currentTimeLeft);
+  const isLowTime = currentTimeLeft < 60;
+
+  // ─── Render: Finished ────────────────────────────────────────────
+
+  if (phase === "finished" && results) {
     return (
       <SATResults
         results={results}
@@ -231,17 +422,72 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
     );
   }
 
-  const q = questions[currentQ];
-  const answeredCount = Object.values(answers).filter(Boolean).length;
+  // ─── Render: Review phases ───────────────────────────────────────
+
+  if (phase === "review_m1" || phase === "review_m2") {
+    return (
+      <SATReviewScreen
+        moduleNumber={phase === "review_m1" ? 1 : 2}
+        totalModules={totalModules}
+        questions={currentQuestions}
+        answers={currentAnswers}
+        flagged={currentFlagged}
+        onGoToQuestion={(i) => {
+          setCurrentQ(i);
+          setPhase(phase === "review_m1" ? "module1" : "module2");
+        }}
+        onSubmitModule={phase === "review_m1" ? submitModule1 : submitModule2}
+        onCancel={() => setPhase(phase === "review_m1" ? "module1" : "module2")}
+      />
+    );
+  }
+
+  // ─── Render: Break ───────────────────────────────────────────────
+
+  if (phase === "break") {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50 dark:bg-[#1E1E1E]">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <div className="text-6xl">&#9749;</div>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Break Time</h2>
+          <p className="text-slate-500 dark:text-slate-400">Take a moment to rest before Module 2</p>
+
+          {/* Module 1 result indicator */}
+          <div className="rounded-xl bg-white border border-slate-200 p-4 dark:bg-[#2C2C2C] dark:border-white/10">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Module 2 Difficulty</p>
+            <p className={`text-lg font-bold ${module2Difficulty === "hard" ? "text-red-500" : "text-blue-500"}`}>
+              {module2Difficulty === "hard" ? "Hard" : "Standard"}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">Based on your Module 1 performance</p>
+          </div>
+
+          <div className="text-4xl font-mono font-bold text-slate-700 dark:text-slate-300">
+            {formatTime(breakTimeLeft)}
+          </div>
+
+          <Button onClick={startModule2} className="bg-green-600 hover:bg-green-700 text-white">
+            Skip Break &rarr; Start Module 2
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Render: Module 1 or Module 2 (question view) ────────────────
+
+  const q = currentQuestions[currentQ];
+  const answeredCount = Object.values(currentAnswers).filter(Boolean).length;
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#1E1E1E]">
       {/* Top bar */}
       <div className="flex h-auto min-h-[48px] shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 sm:px-4 dark:border-white/10 dark:bg-[#161622]">
         <div className="flex items-center gap-2 sm:gap-3">
-          <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{config.name}</span>
+          <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+            Module {moduleNumber} of {totalModules}
+          </span>
           <span className="rounded bg-green-100 px-2 py-0.5 text-[10px] sm:text-xs font-medium text-green-600 dark:bg-green-500/20 dark:text-green-400">
-            {currentQ + 1}/{questions.length}
+            {currentQ + 1}/{currentQuestions.length}
           </span>
         </div>
 
@@ -265,9 +511,16 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
             <BookOpen className="h-3.5 w-3.5" /> Reference
           </button>
 
-          {/* Submit */}
-          <Button size="sm" variant="outline" onClick={handleSubmit}>
-            Submit ({answeredCount}/{questions.length})
+          {/* Review & Submit */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              recordQuestionTime();
+              setPhase(phase === "module1" ? "review_m1" : "review_m2");
+            }}
+          >
+            Review &amp; Submit ({answeredCount}/{currentQuestions.length})
           </Button>
 
           {/* Exit */}
@@ -282,15 +535,15 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
         {q.template_type === "multiple_choice_math" ? (
           <MCQuestion
             config={q.config}
-            answer={answers[q.id] || null}
+            answer={currentAnswers[q.id] || null}
             onAnswer={handleAnswer}
-            eliminatedChoices={eliminated[currentQ] || new Set()}
+            eliminatedChoices={currentEliminated[currentQ] || new Set()}
             onEliminate={handleEliminate}
           />
         ) : (
           <NumericQuestion
             config={q.config}
-            answer={answers[q.id] || null}
+            answer={currentAnswers[q.id] || null}
             onAnswer={handleAnswer}
           />
         )}
@@ -305,24 +558,24 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
               <ChevronLeft className="h-4 w-4" /> Prev
             </Button>
             <Button
-              variant={flagged.has(currentQ) ? "default" : "outline"}
+              variant={currentFlagged.has(currentQ) ? "default" : "outline"}
               size="sm"
               onClick={handleFlag}
-              className={flagged.has(currentQ) ? "bg-amber-500 hover:bg-amber-600" : ""}
+              className={currentFlagged.has(currentQ) ? "bg-amber-500 hover:bg-amber-600" : ""}
             >
               <Flag className="h-3.5 w-3.5 mr-1" />
-              {flagged.has(currentQ) ? "Flagged" : "Flag"}
+              {currentFlagged.has(currentQ) ? "Flagged" : "Flag"}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => goTo(currentQ + 1)} disabled={currentQ === questions.length - 1}>
+            <Button variant="outline" size="sm" onClick={() => goTo(currentQ + 1)} disabled={currentQ === currentQuestions.length - 1}>
               Next <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Question map */}
+          {/* Question map (scoped to current module) */}
           <div className="flex gap-1 overflow-x-auto max-w-full pb-1">
-            {questions.map((_, i) => {
-              const isAnswered = !!answers[questions[i].id];
-              const isFlagged = flagged.has(i);
+            {currentQuestions.map((_, i) => {
+              const isAnswered = !!currentAnswers[currentQuestions[i].id];
+              const isFlagged = currentFlagged.has(i);
               const isCurrent = i === currentQ;
               return (
                 <button
@@ -391,7 +644,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
       <AiTutorPanel
         context={{
           type: "sat",
-          exerciseTitle: `SAT Math Q${currentQ + 1}: ${(questions[currentQ]?.config as Record<string, unknown>)?.question || ""}`.slice(0, 100),
+          exerciseTitle: `SAT Math Q${currentQ + 1}: ${(currentQuestions[currentQ]?.config as Record<string, unknown>)?.question || ""}`.slice(0, 100),
         }}
       />
     </div>

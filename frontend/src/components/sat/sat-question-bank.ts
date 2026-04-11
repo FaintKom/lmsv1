@@ -14,6 +14,9 @@ export interface SATTestConfig {
   questions_per_module: number;
   time_per_module_minutes: number;
   modules: number;
+  adaptive: boolean;
+  breakMinutes: number;
+  domain?: SATDomain;
 }
 
 export const SAT_MATH_CONFIG: SATTestConfig = {
@@ -21,6 +24,8 @@ export const SAT_MATH_CONFIG: SATTestConfig = {
   questions_per_module: 22,
   time_per_module_minutes: 35,
   modules: 2,
+  adaptive: true,
+  breakMinutes: 5,
 };
 
 export const SAT_MINI_CONFIG: SATTestConfig = {
@@ -28,6 +33,8 @@ export const SAT_MINI_CONFIG: SATTestConfig = {
   questions_per_module: 10,
   time_per_module_minutes: 10,
   modules: 1,
+  adaptive: false,
+  breakMinutes: 0,
 };
 
 export const DOMAIN_LABELS: Record<SATDomain, string> = {

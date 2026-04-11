@@ -451,6 +451,76 @@ export const ALL_GENERATORS: Record<SATDomain, Gen[]> = {
   geometry_trig: geometryGenerators,
 };
 
+type DifficultyBias = "standard" | "easy" | "hard";
+
+const DIFFICULTY_DISTRIBUTIONS: Record<DifficultyBias, [number, number, number]> = {
+  standard: [0.30, 0.40, 0.30],  // Module 1
+  easy:     [0.50, 0.35, 0.15],  // Module 2 easy route
+  hard:     [0.15, 0.35, 0.50],  // Module 2 hard route
+};
+
+function generateWithBias(gens: Gen[], count: number, bias: DifficultyBias): SATQuestion[] {
+  const [pEasy, pMed, pHard] = DIFFICULTY_DISTRIBUTIONS[bias];
+  const targetEasy = Math.round(count * pEasy);
+  const targetMed = Math.round(count * pMed);
+  const targetHard = count - targetEasy - targetMed;
+  const targets: Record<SATDifficulty, number> = { 1: targetEasy, 2: targetMed, 3: targetHard };
+  const buckets: Record<SATDifficulty, SATQuestion[]> = { 1: [], 2: [], 3: [] };
+
+  // Generate extra to fill difficulty buckets
+  const maxAttempts = count * 8;
+  let attempts = 0;
+  const total = () => buckets[1].length + buckets[2].length + buckets[3].length;
+
+  while (total() < count && attempts < maxAttempts) {
+    const gen = gens[attempts % gens.length];
+    const q = gen();
+    if (buckets[q.difficulty].length < targets[q.difficulty]) {
+      buckets[q.difficulty].push(q);
+    } else if (total() < count) {
+      // Overflow into least-filled bucket
+      const least = ([1, 2, 3] as SATDifficulty[]).sort((a, b) =>
+        (buckets[a].length - targets[a]) - (buckets[b].length - targets[b])
+      )[0];
+      buckets[least].push(q);
+    }
+    attempts++;
+  }
+
+  return [...buckets[1], ...buckets[2], ...buckets[3]].slice(0, count);
+}
+
+/**
+ * Generate module questions with difficulty bias for adaptive test.
+ * "standard" = Module 1, "easy" = easy Module 2, "hard" = hard Module 2.
+ */
+export function generateModuleQuestions(count: number, bias: DifficultyBias): SATQuestion[] {
+  _counter = 0;
+  const domains: SATDomain[] = ["algebra", "advanced_math", "problem_solving", "geometry_trig"];
+  const distribution = [
+    Math.round(count * 0.35),
+    Math.round(count * 0.35),
+    Math.round(count * 0.15),
+    count - Math.round(count * 0.35) - Math.round(count * 0.35) - Math.round(count * 0.15),
+  ];
+
+  const questions: SATQuestion[] = [];
+  for (let d = 0; d < domains.length; d++) {
+    const gens = ALL_GENERATORS[domains[d]];
+    questions.push(...generateWithBias(gens, distribution[d], bias));
+  }
+  return questions.sort(() => Math.random() - 0.5);
+}
+
+/**
+ * Generate questions from a single domain.
+ */
+export function generateDomainQuestions(domain: SATDomain, count: number): SATQuestion[] {
+  _counter = 0;
+  const gens = ALL_GENERATORS[domain];
+  return generateWithBias(gens, count, "standard").sort(() => Math.random() - 0.5);
+}
+
 /** Generate N questions with balanced domain distribution */
 export function generateQuestions(count: number): SATQuestion[] {
   _counter = 0;

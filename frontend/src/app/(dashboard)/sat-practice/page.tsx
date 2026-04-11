@@ -1,32 +1,60 @@
 "use client";
 
 import { useState } from "react";
-import { GraduationCap, Clock, BarChart3, Zap, BookOpen } from "lucide-react";
+import Link from "next/link";
+import { GraduationCap, Clock, BarChart3, Zap, BookOpen, Target, TrendingUp, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SATTestRunner from "@/components/sat/sat-test-runner";
+import { generateModuleQuestions, generateDomainQuestions } from "@/components/sat/question-generator";
 import {
   SAT_MATH_CONFIG,
   SAT_MINI_CONFIG,
-  generateTest,
   DOMAIN_LABELS,
   DOMAIN_COLORS,
   type SATTestConfig,
   type SATDomain,
+  type SATQuestion,
 } from "@/components/sat/sat-question-bank";
+import { useSATHistoryStore } from "@/stores/sat-history-store";
 
 type PageState = "lobby" | "test";
 
 export default function SATPracticePage() {
   const [state, setState] = useState<PageState>("lobby");
   const [selectedConfig, setSelectedConfig] = useState<SATTestConfig>(SAT_MINI_CONFIG);
-  const [questions, setQuestions] = useState<ReturnType<typeof generateTest>>([]);
+  const [questions, setQuestions] = useState<SATQuestion[]>([]);
+
+  const recentTests = useSATHistoryStore((s) => s.getRecentTests(5));
+  const domainStats = useSATHistoryStore((s) => s.getDomainStats());
+  const weakDomains = useSATHistoryStore((s) => s.getWeakDomains());
 
   const startTest = (config: SATTestConfig) => {
-    const qs = generateTest(config.questions_per_module * config.modules);
+    let qs: SATQuestion[];
+    if (config.domain) {
+      qs = generateDomainQuestions(config.domain, config.questions_per_module);
+    } else if (config.adaptive) {
+      // For adaptive, only generate Module 1 — Module 2 generated inside runner
+      qs = generateModuleQuestions(config.questions_per_module, "standard");
+    } else {
+      qs = generateModuleQuestions(config.questions_per_module * config.modules, "standard");
+    }
     setQuestions(qs);
     setSelectedConfig(config);
     setState("test");
+  };
+
+  const startDomainPractice = (domain: SATDomain) => {
+    const config: SATTestConfig = {
+      name: `${DOMAIN_LABELS[domain]} Practice`,
+      questions_per_module: 10,
+      time_per_module_minutes: 15,
+      modules: 1,
+      adaptive: false,
+      breakMinutes: 0,
+      domain,
+    };
+    startTest(config);
   };
 
   if (state === "test" && questions.length > 0) {
@@ -49,12 +77,12 @@ export default function SATPracticePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">SAT Math Practice</h1>
-            <p className="text-sm opacity-80">Practice in real test conditions</p>
+            <p className="text-sm opacity-80">Adaptive simulation with real test conditions</p>
           </div>
         </div>
         <p className="mt-3 max-w-xl text-sm leading-relaxed opacity-90">
-          Simulate the Digital SAT Math section with timed modules, question navigation,
-          Desmos calculator, and score estimation. Choose a practice mode below.
+          Experience the real Digital SAT Math format: 2 adaptive modules, timed sessions,
+          Desmos calculator, and College Board-style score estimation.
         </p>
       </div>
 
@@ -80,8 +108,8 @@ export default function SATPracticePage() {
           </CardContent>
         </Card>
 
-        {/* Full test */}
-        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-green-300 dark:hover:border-green-500/50"
+        {/* Full adaptive test */}
+        <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-green-300 dark:hover:border-green-500/50 ring-2 ring-green-200 dark:ring-green-500/30"
           onClick={() => startTest(SAT_MATH_CONFIG)}>
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
@@ -90,38 +118,102 @@ export default function SATPracticePage() {
               </div>
               <div>
                 <h3 className="font-bold text-slate-800 dark:text-slate-200">Full SAT Math</h3>
-                <p className="text-xs text-slate-500">44 questions · 70 minutes</p>
+                <p className="text-xs text-slate-500">2 adaptive modules · 22q each · 35 min/module</p>
               </div>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Complete SAT Math simulation with 2 modules, adaptive difficulty, and full score report.
+              Complete simulation: Module 1 → adaptive routing → Module 2 (Easy or Hard) → realistic score.
             </p>
             <Button className="mt-4 w-full">Start Full Test</Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Domain coverage info */}
+      {/* Domain practice */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200">SAT Math Domains</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <Target className="h-4 w-4 text-green-600" />
+              Practice by Domain
+            </h3>
+            <span className="text-[10px] text-slate-400">10 questions · 15 min each</span>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {(Object.keys(DOMAIN_LABELS) as SATDomain[]).map((domain) => (
-              <div key={domain} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: DOMAIN_COLORS[domain] }} />
-                <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{DOMAIN_LABELS[domain]}</p>
-                  <p className="text-[10px] text-slate-400">
-                    {domain === "algebra" ? "~35% of test" :
-                     domain === "advanced_math" ? "~35% of test" :
-                     domain === "problem_solving" ? "~15% of test" : "~15% of test"}
-                  </p>
-                </div>
-              </div>
-            ))}
+            {(Object.keys(DOMAIN_LABELS) as SATDomain[]).map((domain) => {
+              const stat = domainStats[domain];
+              const isWeak = weakDomains.includes(domain);
+              return (
+                <button
+                  key={domain}
+                  onClick={() => startDomainPractice(domain)}
+                  className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition-all hover:border-green-300 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:hover:border-green-500/50"
+                >
+                  <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: DOMAIN_COLORS[domain] }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{DOMAIN_LABELS[domain]}</p>
+                    <p className="text-[10px] text-slate-400">
+                      {domain === "algebra" || domain === "advanced_math" ? "~35% of test" : "~15% of test"}
+                      {stat && stat.total > 0 && (
+                        <span className={`ml-2 font-semibold ${stat.percent >= 70 ? "text-green-500" : stat.percent >= 50 ? "text-amber-500" : "text-red-500"}`}>
+                          · {stat.percent}% avg
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  {isWeak && (
+                    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[9px] font-bold text-red-600 dark:bg-red-500/20 dark:text-red-400 shrink-0">
+                      Weak
+                    </span>
+                  )}
+                  <ChevronRight className="h-4 w-4 text-slate-300 shrink-0" />
+                </button>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
+
+      {/* Recent test history */}
+      {recentTests.length > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                Recent Tests
+              </h3>
+              <Link href="/sat-practice/analytics" className="text-xs text-green-600 hover:text-green-700 font-medium">
+                View Analytics →
+              </Link>
+            </div>
+            <div className="space-y-2">
+              {recentTests.map((test) => (
+                <div key={test.id} className="flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/20">
+                    <span className="text-sm font-bold text-green-600 dark:text-green-400">{test.scaledScore}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      {test.mode === "full_adaptive" ? "Full SAT" : test.mode === "mini" ? "Quick Practice" : "Domain Practice"}
+                      {test.module2Difficulty !== "none" && (
+                        <span className={`ml-2 text-[10px] font-bold ${
+                          test.module2Difficulty === "hard" ? "text-red-500" : "text-blue-500"
+                        }`}>
+                          {test.module2Difficulty === "hard" ? "Hard Route" : "Standard Route"}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[10px] text-slate-400">
+                      {new Date(test.date).toLocaleDateString()} · {test.rawCorrect}/{test.totalQuestions} correct · {Math.floor(test.totalTimeSeconds / 60)}min
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tips */}
       <Card>
@@ -143,6 +235,10 @@ export default function SATPracticePage() {
             <li className="flex items-start gap-2">
               <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
               <span><b>Never leave blanks:</b> No penalty for guessing. Always pick an answer.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Target className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+              <span><b>Keyboard shortcuts:</b> Press A/B/C/D to select answers, arrow keys to navigate, F to flag.</span>
             </li>
           </ul>
         </CardContent>
