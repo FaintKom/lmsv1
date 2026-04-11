@@ -51,10 +51,10 @@ from app.courses.router import router as courses_router
 from app.discussions.router import router as discussions_router
 from app.exercises.router import router as exercises_router
 from app.gamification.router import router as gamification_router
+from app.integrations.router import router as integrations_router
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.meetings.router import router as meetings_router
-from app.integrations.router import router as integrations_router
 from app.metered_billing.router import router as metered_billing_router
 from app.notifications.router import router as notifications_router
 from app.orgs.router import router as orgs_router
