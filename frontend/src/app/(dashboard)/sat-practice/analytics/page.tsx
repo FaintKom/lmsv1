@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp, Target, Clock, AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,11 +80,22 @@ function DomainBars({ stats }: { stats: Record<SATDomain, { correct: number; tot
 }
 
 export default function SATAnalyticsPage() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    useSATHistoryStore.persist.rehydrate();
+    setHydrated(true);
+  }, []);
+
   const records = useSATHistoryStore((s) => s.records);
-  const scoreTrend = useSATHistoryStore((s) => s.getScoreTrend());
-  const domainStats = useSATHistoryStore((s) => s.getDomainStats());
-  const weakDomains = useSATHistoryStore((s) => s.getWeakDomains());
+  const getScoreTrend = useSATHistoryStore((s) => s.getScoreTrend);
+  const getDomainStats = useSATHistoryStore((s) => s.getDomainStats);
+  const getWeakDomains = useSATHistoryStore((s) => s.getWeakDomains);
   const clearHistory = useSATHistoryStore((s) => s.clearHistory);
+
+  // Only compute derived data after hydration to avoid SSR mismatch
+  const scoreTrend = hydrated ? getScoreTrend() : [];
+  const domainStats = hydrated ? getDomainStats() : { algebra: { correct: 0, total: 0, percent: 0 }, advanced_math: { correct: 0, total: 0, percent: 0 }, problem_solving: { correct: 0, total: 0, percent: 0 }, geometry_trig: { correct: 0, total: 0, percent: 0 } };
+  const weakDomains = hydrated ? getWeakDomains() : [];
 
   const avgScore = records.length > 0
     ? Math.round(records.reduce((sum, r) => sum + r.scaledScore, 0) / records.length)

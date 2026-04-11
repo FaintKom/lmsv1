@@ -106,6 +106,7 @@ export const useSATHistoryStore = create<SATHistoryState>()(
     }),
     {
       name: "sat-practice-history",
+      skipHydration: true,
     }
   )
 );

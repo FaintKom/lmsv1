@@ -65,6 +65,7 @@ export default function SATResults({
   const addRecord = useSATHistoryStore((s) => s.addRecord);
 
   useEffect(() => {
+    useSATHistoryStore.persist.rehydrate();
     const domainScores: Record<SATDomain, { correct: number; total: number; avgTimeSeconds: number }> = {
       algebra: { correct: 0, total: 0, avgTimeSeconds: 0 },
       advanced_math: { correct: 0, total: 0, avgTimeSeconds: 0 },

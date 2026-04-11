@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GraduationCap, Clock, BarChart3, Zap, BookOpen, Target, TrendingUp, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,18 @@ export default function SATPracticePage() {
   const [selectedConfig, setSelectedConfig] = useState<SATTestConfig>(SAT_MINI_CONFIG);
   const [questions, setQuestions] = useState<SATQuestion[]>([]);
 
-  const recentTests = useSATHistoryStore((s) => s.getRecentTests(5));
-  const domainStats = useSATHistoryStore((s) => s.getDomainStats());
-  const weakDomains = useSATHistoryStore((s) => s.getWeakDomains());
+  // Hydration-safe: manually rehydrate persisted store on mount
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    useSATHistoryStore.persist.rehydrate();
+    setHydrated(true);
+  }, []);
+  const getRecentTests = useSATHistoryStore((s) => s.getRecentTests);
+  const getDomainStats = useSATHistoryStore((s) => s.getDomainStats);
+  const getWeakDomains = useSATHistoryStore((s) => s.getWeakDomains);
+  const recentTests = hydrated ? getRecentTests(5) : [];
+  const domainStats = hydrated ? getDomainStats() : { algebra: { correct: 0, total: 0, percent: 0 }, advanced_math: { correct: 0, total: 0, percent: 0 }, problem_solving: { correct: 0, total: 0, percent: 0 }, geometry_trig: { correct: 0, total: 0, percent: 0 } };
+  const weakDomains = hydrated ? getWeakDomains() : [];
 
   const startTest = (config: SATTestConfig) => {
     let qs: SATQuestion[];
