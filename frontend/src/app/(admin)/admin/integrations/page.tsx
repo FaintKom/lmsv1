@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Video,
   FileText,
@@ -121,9 +122,17 @@ const INTEGRATIONS: IntegrationDef[] = [
   },
 ];
 
+const OAUTH_PROVIDERS: Record<string, string> = {
+  zoom: "/api/v1/integrations/zoom/authorize",
+  google_meet: "/api/v1/integrations/google/authorize",
+  google_drive: "/api/v1/integrations/google/authorize",
+  google_classroom: "/api/v1/integrations/google/authorize",
+};
+
 export default function IntegrationsPage() {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     apiClient
@@ -131,6 +140,32 @@ export default function IntegrationsPage() {
       .then(({ data }) => setConnections(data.connections || []))
       .catch(() => {})
       .finally(() => setLoading(false));
+  }, []);
+
+  // Handle OAuth callback messages
+  useEffect(() => {
+    const connected = searchParams.get("connected");
+    const error = searchParams.get("error");
+    if (connected) {
+      toast.success(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
+      // Refresh connections
+      apiClient.get("/integrations/status").then(({ data }) => setConnections(data.connections || []));
+      // Clean URL
+      window.history.replaceState({}, "", "/admin/integrations");
+    }
+    if (error) {
+      toast.error(`Connection failed: ${error.replace(/_/g, " ")}`);
+      window.history.replaceState({}, "", "/admin/integrations");
+    }
+  }, [searchParams]);
+
+  const handleConnect = useCallback((provider: string) => {
+    const authUrl = OAUTH_PROVIDERS[provider];
+    if (authUrl) {
+      window.location.href = authUrl;
+    } else {
+      toast.info("This integration is coming soon");
+    }
   }, []);
 
   const getConnection = (provider: string) =>
