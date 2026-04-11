@@ -1,8 +1,10 @@
 import csv
 import io
+import secrets
+import string
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -536,7 +538,7 @@ async def admin_bulk_enroll_endpoint(
             "Cannot bulk-enroll students into a template course. Copy the template first.",
         )
 
-    EMAIL_RE = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")  # noqa: N806
+    email_re = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")  # noqa: N806
 
     total = len(rows)
     created = 0
@@ -555,7 +557,7 @@ async def admin_bulk_enroll_endpoint(
         full_name = (raw_row.get("full_name") or raw_row.get("name") or "").strip()
         password = (raw_row.get("password") or default_password).strip()
 
-        if not email or not EMAIL_RE.match(email):
+        if not email or not email_re.match(email):
             errors.append({"row": row_num, "email": email, "message": "Invalid email"})
             continue
         if not full_name:
@@ -640,6 +642,146 @@ async def admin_bulk_enroll_endpoint(
         "already_enrolled": already_enrolled,
         "errors": errors,
     }
+
+
+@router.post("/bulk-import-students")
+async def bulk_import_students(
+    file: UploadFile,
+    group_id: str | None = None,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Bulk-import students from a CSV file upload.
+
+    Accepts a CSV file with columns: name, email (required), password (optional).
+    For each row, creates a User with role=student in the admin's org.
+    If password is blank, generates a random 8-char password.
+    If group_id is provided, adds the created students to that group.
+    Skips rows where email already exists in the org.
+
+    Returns: { created: int, skipped: int, errors: string[] }
+    """
+    import re as _re
+    from datetime import datetime, timezone
+
+    from app.admin.models import StudentGroup, StudentGroupMember
+    from app.auth.security import hash_password
+
+    email_re = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
+
+    def _generate_password(length: int = 8) -> str:
+        alphabet = string.ascii_letters + string.digits
+        return "".join(secrets.choice(alphabet) for _ in range(length))
+
+    # Validate group_id upfront if provided
+    group_uuid = None
+    if group_id:
+        try:
+            group_uuid = uuid.UUID(group_id)
+        except ValueError:
+            raise HTTPException(400, "Invalid group_id") from None
+        query = select(StudentGroup).where(StudentGroup.id == group_uuid)
+        if user.role != UserRole.super_admin:
+            query = query.where(StudentGroup.org_id == user.org_id)
+        group = (await db.execute(query)).scalar_one_or_none()
+        if not group:
+            raise HTTPException(404, "Group not found")
+
+    # Read and parse CSV
+    try:
+        content = await file.read()
+        text = content.decode("utf-8-sig")  # handle BOM from Excel
+    except Exception:
+        raise HTTPException(400, "Could not read CSV file") from None
+
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        raise HTTPException(400, "CSV file is empty or has no header row")
+
+    # Normalise header names (lowercase, strip)
+    normalised_fields = [f.strip().lower() for f in reader.fieldnames]
+    if "email" not in normalised_fields:
+        raise HTTPException(
+            400,
+            f"CSV must have an 'email' column. Found columns: {', '.join(reader.fieldnames)}",
+        )
+
+    created = 0
+    skipped = 0
+    errors: list[str] = []
+
+    for row_num, raw_row in enumerate(reader, start=2):  # row 1 is header
+        # Normalise keys
+        row = {k.strip().lower(): (v or "").strip() for k, v in raw_row.items()}
+
+        email = row.get("email", "").lower()
+        name = row.get("name") or row.get("full_name") or ""
+        password = row.get("password", "")
+
+        if not email:
+            errors.append(f"Row {row_num}: missing email")
+            continue
+        if not email_re.match(email):
+            errors.append(f"Row {row_num}: invalid email '{email}'")
+            continue
+        if not name:
+            # Derive name from email if not provided
+            name = email.split("@")[0].replace(".", " ").title()
+
+        # Check if user already exists in the org
+        existing = (
+            await db.execute(select(User).where(User.email == email))
+        ).scalar_one_or_none()
+
+        if existing:
+            if existing.org_id == user.org_id or user.role == UserRole.super_admin:
+                skipped += 1
+                # Still add to group if requested
+                if group_uuid:
+                    already_member = (
+                        await db.execute(
+                            select(StudentGroupMember).where(
+                                StudentGroupMember.group_id == group_uuid,
+                                StudentGroupMember.user_id == existing.id,
+                            )
+                        )
+                    ).scalar_one_or_none()
+                    if not already_member:
+                        db.add(StudentGroupMember(group_id=group_uuid, user_id=existing.id))
+            else:
+                errors.append(f"Row {row_num}: email '{email}' belongs to a different organization")
+            continue
+
+        # Generate password if blank
+        if not password:
+            password = _generate_password()
+
+        try:
+            new_user = User(
+                org_id=user.org_id,
+                email=email,
+                hashed_password=hash_password(password),
+                full_name=name,
+                role=UserRole.student,
+                is_active=True,
+                consent_accepted_at=datetime.now(timezone.utc),
+                privacy_policy_version="1.0",
+                email_verified_at=datetime.now(timezone.utc),
+            )
+            db.add(new_user)
+            await db.flush()
+            created += 1
+
+            # Add to group if requested
+            if group_uuid:
+                db.add(StudentGroupMember(group_id=group_uuid, user_id=new_user.id))
+
+        except Exception as e:
+            errors.append(f"Row {row_num} ({email}): {str(e)[:200]}")
+
+    await db.commit()
+
+    return {"created": created, "skipped": skipped, "errors": errors}
 
 
 @router.get("/courses/{course_id}/students")

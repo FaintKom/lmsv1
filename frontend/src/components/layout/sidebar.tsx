@@ -87,6 +87,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 { href: "/paths", label: t("nav.paths"), icon: Route },
     { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
     { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
+    { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
     { href: "/meetings", label: t("nav.meetings"), icon: Video },
   ];

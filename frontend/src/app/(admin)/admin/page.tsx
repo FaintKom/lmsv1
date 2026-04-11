@@ -28,6 +28,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import { TeacherOnboarding } from "@/components/onboarding/teacher-onboarding";
 import { toast } from "sonner";
 import { OnboardingTour, startOnboardingTour } from "@/components/onboarding-tour";
 
@@ -91,6 +92,10 @@ export default function AdminDashboardPage() {
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Welcome back, {user?.full_name}
           </p>
+        </div>
+
+        <div className="mb-6">
+          <TeacherOnboarding />
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

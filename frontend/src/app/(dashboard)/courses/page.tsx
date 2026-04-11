@@ -11,12 +11,24 @@ import type { Course } from "@/types/api";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient
-      .get("/courses/")
-      .then(({ data }) => setCourses(data.items))
+    Promise.all([
+      apiClient.get("/courses/").then(({ data }) => data.items as Course[]),
+      apiClient.get("/progress/my-courses").then(({ data }) => data).catch(() => []),
+    ])
+      .then(([courseItems, enrollments]) => {
+        setCourses(courseItems);
+        const pMap: Record<string, number> = {};
+        for (const e of enrollments) {
+          if (e.course_id && typeof e.progress_percent === "number") {
+            pMap[e.course_id] = e.progress_percent;
+          }
+        }
+        setProgressMap(pMap);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -76,7 +88,7 @@ export default function CoursesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
-            <CourseCard key={course.id} course={course} />
+            <CourseCard key={course.id} course={course} progress={progressMap[course.id]} />
           ))}
         </div>
       )}
