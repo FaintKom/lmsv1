@@ -13,6 +13,16 @@ import {
   Calculator,
   Trophy,
   Globe,
+  Monitor,
+  Users,
+  School,
+  UserCheck,
+  Layout,
+  PieChart,
+  FileText,
+  ChevronDown,
+  Languages,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
@@ -229,6 +239,219 @@ export default function Home() {
                   content library. Everything in one place.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Metrics / Social Proof */}
+        <section className="border-t border-slate-100 bg-white py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+              {[
+                { value: "37", label: "Programming Languages", sub: "Python, JS, Java, C++, Go, Rust..." },
+                { value: "15+", label: "Exercise Types", sub: "Code, quizzes, matching, games..." },
+                { value: "4", label: "Interface Languages", sub: "English, Spanish, Russian, Turkish" },
+                { value: "200-800", label: "SAT Score Range", sub: "Adaptive simulation with Desmos" },
+              ].map((m) => (
+                <div key={m.label} className="text-center">
+                  <p className="text-4xl font-extrabold text-green-600 md:text-5xl">{m.value}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-800">{m.label}</p>
+                  <p className="mt-1 text-xs text-slate-400">{m.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Product Showcase */}
+        <section className="border-t border-slate-100 bg-slate-50/50 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-12 text-center">
+              <h2 className="mb-3 text-3xl font-bold text-slate-900">See what you get</h2>
+              <p className="text-slate-500">A complete teaching toolkit, ready out of the box</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:shadow-lg">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-green-50 p-3"><Monitor className="h-6 w-6 text-green-600" /></div>
+                  <h3 className="text-lg font-semibold text-slate-900">Student Dashboard</h3>
+                </div>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Clean, distraction-free learning environment. Course catalog, progress tracking,
+                  achievements, and a personal calendar — all in one place.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["Course catalog", "Progress tracker", "Achievements", "Calendar", "Dark mode"].map((f) => (
+                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                      <CheckCircle className="h-3 w-3" /> {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:shadow-lg">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-emerald-50 p-3"><Layout className="h-6 w-6 text-emerald-600" /></div>
+                  <h3 className="text-lg font-semibold text-slate-900">Teacher Admin Panel</h3>
+                </div>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Create courses with drag-and-drop, manage students and groups, grade assignments,
+                  and track performance — all from a powerful admin dashboard.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["Course builder", "Gradebook", "Student groups", "Analytics", "Review queue"].map((f) => (
+                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                      <CheckCircle className="h-3 w-3" /> {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:shadow-lg">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-amber-50 p-3"><Code className="h-6 w-6 text-amber-600" /></div>
+                  <h3 className="text-lg font-semibold text-slate-900">Code Sandbox</h3>
+                </div>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Monaco editor (same as VS Code) with syntax highlighting, auto-complete, and
+                  sandboxed execution. Students run code safely in the browser.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["37 languages", "Auto-grading", "Test cases", "Live preview", "HTML/CSS/JS editor"].map((f) => (
+                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                      <CheckCircle className="h-3 w-3" /> {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="group rounded-2xl border border-slate-200/60 bg-white p-8 transition-all hover:shadow-lg">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-xl bg-sky-50 p-3"><PieChart className="h-6 w-6 text-sky-600" /></div>
+                  <h3 className="text-lg font-semibold text-slate-900">SAT Math Simulator</h3>
+                </div>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Full Digital SAT experience: 2 adaptive modules, Desmos calculator, realistic scoring,
+                  domain analytics, and unlimited practice questions.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["Adaptive modules", "Desmos calc", "Score analytics", "Domain practice", "Keyboard shortcuts"].map((f) => (
+                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                      <CheckCircle className="h-3 w-3" /> {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* For Whom */}
+        <section className="py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-12 text-center">
+              <h2 className="mb-3 text-3xl font-bold text-slate-900">Built for everyone who teaches</h2>
+              <p className="text-slate-500">Whether you run a school, teach online, or tutor small groups</p>
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="rounded-2xl border border-green-200/60 bg-gradient-to-b from-green-50 to-white p-8">
+                <div className="mb-5 inline-flex rounded-2xl bg-green-100 p-3.5">
+                  <School className="h-7 w-7 text-green-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-slate-900">Schools</h3>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Manage classes, departments, and curricula. Track student progress across subjects.
+                  GDPR-compliant and privacy-first.
+                </p>
+                <ul className="space-y-2 text-sm text-slate-600">
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500 shrink-0" /> Multi-teacher organization</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500 shrink-0" /> Student groups & enrollment</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500 shrink-0" /> Custom branding (logo & colors)</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-green-500 shrink-0" /> Gradebook & assignments</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-b from-emerald-50 to-white p-8">
+                <div className="mb-5 inline-flex rounded-2xl bg-emerald-100 p-3.5">
+                  <Users className="h-7 w-7 text-emerald-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-slate-900">Online Schools</h3>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Launch your online education business. Create courses, sell access,
+                  and scale to hundreds of students with automated tools.
+                </p>
+                <ul className="space-y-2 text-sm text-slate-600">
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" /> Unlimited course creation</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" /> Student analytics & progress</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" /> Certificates & achievements</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" /> AI tutor for 24/7 support</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200/60 bg-gradient-to-b from-amber-50 to-white p-8">
+                <div className="mb-5 inline-flex rounded-2xl bg-amber-100 p-3.5">
+                  <UserCheck className="h-7 w-7 text-amber-600" />
+                </div>
+                <h3 className="mb-2 text-lg font-bold text-slate-900">Tutors</h3>
+                <p className="mb-4 text-sm leading-relaxed text-slate-500">
+                  Perfect for private tutors and small groups. Interactive lessons,
+                  SAT prep, and coding exercises — all in one platform.
+                </p>
+                <ul className="space-y-2 text-sm text-slate-600">
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-amber-500 shrink-0" /> Free plan for up to 20 students</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-amber-500 shrink-0" /> SAT Math adaptive simulator</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-amber-500 shrink-0" /> Live lessons & calendar</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-amber-500 shrink-0" /> Quick setup, no tech needed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-t border-slate-100 bg-slate-50/50 py-20">
+          <div className="mx-auto max-w-3xl px-6">
+            <div className="mb-12 text-center">
+              <h2 className="mb-3 text-3xl font-bold text-slate-900">Frequently asked questions</h2>
+              <p className="text-slate-500">Everything you need to know before getting started</p>
+            </div>
+            <div className="space-y-3">
+              {[
+                {
+                  q: "Is GrassLMS really free?",
+                  a: "Yes! The free plan includes up to 20 students, 3 courses, and 2 groups — with no time limit. You can upgrade anytime as you grow.",
+                },
+                {
+                  q: "Do I need to install anything?",
+                  a: "No. GrassLMS runs entirely in the browser. Students and teachers just need a web browser — works on desktop, tablet, and phone.",
+                },
+                {
+                  q: "Can I use it for SAT prep?",
+                  a: "Absolutely. GrassLMS includes a full Digital SAT Math simulator with adaptive 2-module tests, Desmos calculator, realistic scoring (200-800), and unlimited practice questions.",
+                },
+                {
+                  q: "What programming languages are supported?",
+                  a: "37 languages including Python, JavaScript, Java, C++, Go, Rust, TypeScript, Ruby, PHP, Swift, Kotlin, and more. All execute in a secure sandbox.",
+                },
+                {
+                  q: "Is student data private and secure?",
+                  a: "Yes. We are GDPR and COPPA compliant. The AI tutor runs on your server, no student data is shared with third parties, and all communication is encrypted.",
+                },
+                {
+                  q: "Can I customize the platform with my brand?",
+                  a: "Yes. Upload your logo, set your brand colors, and your students see your school name — not ours. Available on all plans.",
+                },
+              ].map((item) => (
+                <details key={item.q} className="group rounded-xl border border-slate-200 bg-white">
+                  <summary className="flex cursor-pointer items-center justify-between px-6 py-4 text-sm font-semibold text-slate-800 [&::-webkit-details-marker]:hidden">
+                    {item.q}
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <div className="px-6 pb-4 text-sm leading-relaxed text-slate-500">
+                    {item.a}
+                  </div>
+                </details>
+              ))}
             </div>
           </div>
         </section>
