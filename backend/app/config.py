@@ -84,6 +84,25 @@ class Settings(BaseSettings):
     s3_region: str = "auto"    # R2 expects "auto"; AWS expects e.g. "us-east-1"
     s3_public_url_base: str = ""  # optional CDN / custom domain in front of bucket
 
+    # OAuth — Zoom
+    zoom_client_id: str = ""
+    zoom_client_secret: str = ""
+    zoom_redirect_uri: str = ""
+
+    # OAuth — Google (shared for Meet, Drive, Classroom)
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = ""
+
+    # OAuth — Microsoft (Teams)
+    microsoft_client_id: str = ""
+    microsoft_client_secret: str = ""
+    microsoft_redirect_uri: str = ""
+    microsoft_tenant_id: str = ""
+
+    # YouTube Data API
+    youtube_api_key: str = ""
+
     # App
     app_name: str = "LMS"
     debug: bool = False

@@ -28,6 +28,7 @@ import {
   Settings,
   Library,
   Calculator,
+  Plug,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -106,6 +107,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
     // Billing hidden until payment providers connected (Prodamus/iyzico)
     // ...(isAdminOnly && isMenuVisible("billing") ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
     ...(isSuperAdmin ? [{ href: "/admin/organizations", label: "Organizations", icon: Building2 }] : []),
+    ...(isAdminOnly ? [{ href: "/admin/integrations", label: "Integrations", icon: Plug }] : []),
     ...(isAdminOnly ? [{ href: "/admin/settings", label: "Settings", icon: Settings }] : []),
   ];
 
