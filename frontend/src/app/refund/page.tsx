@@ -31,10 +31,10 @@ export default function RefundPolicyPage() {
             subscribe to paid GrassLMS plans. If you have any questions about billing, cancellations,
             or refunds, please contact us at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>
             .
           </p>
@@ -83,10 +83,10 @@ export default function RefundPolicyPage() {
             you are not satisfied for any reason within the first 14 days, you may request a full
             refund &mdash; no questions asked. Contact{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>{" "}
             to request your refund.
           </p>
@@ -115,10 +115,10 @@ export default function RefundPolicyPage() {
             <li>
               <strong>Option 2:</strong> Email{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>{" "}
               with your organization name. We will process the cancellation on your behalf.
             </li>
@@ -198,10 +198,10 @@ export default function RefundPolicyPage() {
               <strong>Special Circumstances:</strong> If you have a unique situation not covered by
               this policy, please contact{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>
               . Each case is reviewed individually.
             </li>
@@ -224,10 +224,10 @@ export default function RefundPolicyPage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>
             </p>
           </div>

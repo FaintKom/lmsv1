@@ -1,5 +1,5 @@
 #!/bin/bash
-# LearnHub Postgres backup — runs daily via cron at 04:00.
+# GrassLMS Postgres backup — runs daily via cron at 04:00.
 #
 # Dumps the `lms` database from the lms-db-1 container into /opt/lms/backups/
 # with a date-stamped filename, gzips it, and prunes backups older than

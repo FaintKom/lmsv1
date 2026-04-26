@@ -6,8 +6,8 @@
  * server pointed at by PLAYWRIGHT_BASE_URL.
  *
  * Test accounts (from reference_test_accounts.md):
- *   student@learnhub.app / Student2026!
- *   teacher@learnhub.app / Teacher2026!
+ *   student@grasslms.online / Student2026!
+ *   teacher@grasslms.online / Teacher2026!
  *
  * Run:
  *   PLAYWRIGHT_BASE_URL=https://204-168-165-41.nip.io \
@@ -33,7 +33,7 @@ async function login(page: Page, email: string, password: string) {
 // ---------------------------------------------------------------------------
 test.describe("Student role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "student@learnhub.app", "Student2026!");
+    await login(page, "student@grasslms.online", "Student2026!");
   });
 
   test("can access /dashboard", async ({ page }) => {
@@ -84,7 +84,7 @@ test.describe("Student role", () => {
 // ---------------------------------------------------------------------------
 test.describe("Teacher role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "teacher@learnhub.app", "Teacher2026!");
+    await login(page, "teacher@grasslms.online", "Teacher2026!");
   });
 
   test("can access /admin (dashboard)", async ({ page }) => {

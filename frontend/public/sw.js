@@ -1,11 +1,11 @@
 /**
- * LearnHub Service Worker — P2-6 Offline/PWA support.
+ * GrassLMS Service Worker — P2-6 Offline/PWA support.
  *
  * Strategy: Network-First for API requests, Cache-First for static
  * assets. This lets the app work offline for previously visited
  * pages while always fetching fresh data when online.
  */
-const CACHE_NAME = "learnhub-v1";
+const CACHE_NAME = "grasslms-v1";
 const STATIC_ASSETS = [
   "/",
   "/dashboard",

@@ -2,7 +2,7 @@
 
 *Updated 2026-04-10*
 
-LearnHub has technical features that could plausibly serve several markets.
+GrassLMS has technical features that could plausibly serve several markets.
 This document picks **one** segment to focus all GTM on for the next 90 days.
 Pick too many and positioning gets mushy. Pick the wrong one and the
 pitch doesn't land. Pick one well and you can reuse everything (landing
@@ -40,7 +40,7 @@ page copy, demo video, cold email, case study structure).
    per-student analytics, and parent portal map 1:1 to this need.
 
 4. **Viral mechanic: students switch centers often.** A student who
-   took a class on LearnHub at Center X and liked the experience is
+   took a class on GrassLMS at Center X and liked the experience is
    inclined to ask their new center to use it too. That's not true for
    universities or K-12 where the institution sticks.
 
@@ -107,7 +107,7 @@ In rough order of cost/effort:
    direct than LinkedIn but the audience is huge.
 
 5. **SAT tutor marketplaces** (Wyzant, Varsity Tutors) — find solo
-   tutors, offer them a free year to white-label LearnHub for their
+   tutors, offer them a free year to white-label GrassLMS for their
    own students.
 
 ## Commitment

@@ -1,10 +1,10 @@
-# LearnHub Launch Posts
+# GrassLMS Launch Posts
 
 ---
 
 ## 1. TELEGRAM (Channel/Chat)
 
-Introducing LearnHub -- an LMS built for schools that actually makes learning engaging.
+Introducing GrassLMS -- an LMS built for schools that actually makes learning engaging.
 
 What's inside:
 
@@ -54,11 +54,11 @@ Live now. First student groups onboarding soon.
 
 I built an LMS from scratch. Here's what it does.
 
-LearnHub is a learning management system designed for schools teaching programming, mathematics, and languages.
+GrassLMS is a learning management system designed for schools teaching programming, mathematics, and languages.
 
 The problem: Most LMS platforms are either too simple (just video + quiz) or too complex and expensive for small schools. None of them make coding or math genuinely interactive.
 
-What makes LearnHub different:
+What makes GrassLMS different:
 
 Code execution in 37 languages with auto-graded challenges. Students write real code, run it against test cases, and get instant feedback. Python, JavaScript, Java, C++, Go, Rust -- all in the browser.
 
@@ -84,7 +84,7 @@ Now onboarding the first student groups.
 
 ## 3. INSTAGRAM (Short caption for carousel/story)
 
-Meet LearnHub -- an LMS that makes coding and math actually fun.
+Meet GrassLMS -- an LMS that makes coding and math actually fun.
 
 37 programming languages. Interactive math exercises. 2D robot puzzles. 3D exploration worlds. AI tutor. SAT prep. Gamification with leagues and streaks.
 
@@ -96,7 +96,7 @@ First groups starting soon.
 
 ## 4. FOR SCHOOLS & PARENTS (Commercial pitch)
 
-LearnHub -- Modern Learning Platform for Schools
+GrassLMS -- Modern Learning Platform for Schools
 
 An all-in-one platform where students learn programming, mathematics, and prepare for exams through interactive exercises, games, and AI-powered guidance.
 
