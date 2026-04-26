@@ -34,6 +34,31 @@ _(пусто)_
 
 ## Идеи на потом
 
+### Staging — вариант B (отдельная VPS)
+
+Сейчас staging живёт на той же CX22, что и прод (вариант A,
+см. `docs/STAGING.md`). Когда переезжать на отдельную VPS:
+
+- ≥1 платящий клиент (production isolation становится критичной)
+- Staging упёрся в OOM хотя бы раз
+- Нужно тестировать infra-изменения (Postgres major upgrade, OS upgrade,
+  Cloudflare-конфиг) без риска для прода
+- В команде >1 человека и они одновременно деплоят на staging
+
+План миграции (из `docs/STAGING.md`, секция "Variant B"):
+1. Поднять вторую Hetzner CX22 (~€4/мес), отдельный IP
+2. Перенаправить `staging.grasslms.online` A-record на новый IP
+3. Перенести `/opt/lms-staging/` на новый сервер
+4. Поправить `docker-compose.staging.yml`: убрать `external: true` из
+   network, добавить свой `internal` network, добавить nginx +
+   cloudflared service по аналогии с прод-стеком
+5. Новый SSL-серт через certbot
+6. Обновить корневой `CLAUDE.md` с новым host'ом
+
+Эстимейт: 2-3 часа, без изменений в коде.
+
+### Прочие идеи
+
 _(добавляй сюда фичи/улучшения, до которых пока не дошли руки)_
 
 ---

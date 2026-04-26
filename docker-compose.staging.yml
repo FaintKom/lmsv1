@@ -1,0 +1,130 @@
+# GrassLMS — Staging stack on the same VPS as production.
+#
+# Run from /opt/lms-staging on the prod server with:
+#   docker compose -p staging -f docker-compose.staging.yml up -d
+#
+# Container names are explicit (staging-*) so they never collide with
+# the prod stack (lms-*). Volumes are separate. Memory limits are tight
+# (~1.5 GB total cap) so staging can never starve prod on a CX22 (4 GB).
+#
+# Network: reuses the prod stack's `lms_internal` network as `external`
+# so the prod nginx can reach staging-backend / staging-frontend by name.
+# Staging containers also see prod containers — isolation comes from
+# separate DB credentials + volumes, not from the network.
+
+services:
+  staging-db:
+    image: pgvector/pgvector:pg16
+    container_name: staging-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lms_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-lms_staging}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.staging}
+    volumes:
+      - staging_pgdata:/var/lib/postgresql/data
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lms_staging}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  staging-redis:
+    image: redis:7-alpine
+    container_name: staging-redis
+    command: ["redis-server", "--save", "60", "1", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - staging_redisdata:/data
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 96M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  staging-backend:
+    build: ./backend
+    container_name: staging-backend
+    env_file:
+      - .env.staging
+    environment:
+      ENVIRONMENT: staging
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms_staging}:${POSTGRES_PASSWORD}@staging-db:5432/${POSTGRES_DB:-lms_staging}
+      SANDBOX_URL: http://staging-sandbox:8001
+      RATE_LIMIT_STORAGE_URI: redis://staging-redis:6379/0
+      REDIS_URL: redis://staging-redis:6379/0
+      APP_URL: https://staging.grasslms.online
+      CORS_ORIGINS: https://staging.grasslms.online
+    depends_on:
+      staging-db:
+        condition: service_healthy
+      staging-redis:
+        condition: service_healthy
+    volumes:
+      - staging_uploads:/data/uploads
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+
+  staging-frontend:
+    build: ./frontend
+    container_name: staging-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: https://staging.grasslms.online
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    restart: unless-stopped
+
+  staging-sandbox:
+    build: ./sandbox
+    container_name: staging-sandbox
+    command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M
+    security_opt:
+      - "no-new-privileges:true"
+    restart: unless-stopped
+
+volumes:
+  staging_pgdata:
+  staging_uploads:
+  staging_redisdata:
+
+networks:
+  default:
+    # Reuses the prod stack's bridge so nginx (in lms-nginx-1) can reach
+    # staging-backend / staging-frontend by container name. Created by
+    # the prod compose run; we attach as external so staging never owns
+    # or destroys it.
+    name: lms_internal
+    external: true
