@@ -1,17 +1,102 @@
-# Lessons Learned
+# Уроки из инцидентов
 
-## 2026-04-02: Deployment broke SSL and DB connectivity
+Краткие правила, выработанные после реальных факапов. Цель — не повторить.
 
-### What happened
-- `docker compose up -d --force-recreate` recreated DB container, resetting password
-- nginx lost network connections to new backend/frontend containers
-- SSL was already configured via Let's Encrypt but I didn't check before deploying
-- Generated unnecessary self-signed cert instead of finding existing LE cert
+---
 
-### Rules to prevent recurrence
-1. **Before ANY deploy**: run `docker ps`, check networks, test `curl https://...` and save the output
-2. **Never use `--force-recreate`** unless absolutely necessary — use `docker compose restart` instead
-3. **Check `.env` vs `docker-compose.yml`** for password/config mismatches BEFORE touching containers
-4. **Check `/etc/letsencrypt/`** before generating any SSL certs
-5. **Deploy order**: pull code → rebuild images → restart containers one by one → verify after each step
-6. **Don't fix what isn't broken** — if SSL works, don't touch nginx SSL config
+## 2026-04-02 — Деплой сломал SSL и БД
+
+**Что случилось.**
+- `docker compose up -d --force-recreate` пересоздал DB-контейнер, сбросив пароль.
+- nginx потерял сетевые соединения с новыми backend/frontend.
+- SSL уже был настроен через Let's Encrypt — не проверил перед деплоем,
+  сгенерировал лишний self-signed.
+
+**Правила.**
+1. **Перед ЛЮБЫМ деплоем:** `docker ps`, проверить сети, `curl https://...`
+   и сохранить вывод.
+2. **Никогда не использовать `--force-recreate`**, если не критично нужно —
+   `docker compose restart` достаточно.
+3. **Сверять `.env` vs `docker-compose.yml`** на password/config-mismatch
+   ДО любых действий с контейнерами.
+4. **Проверять `/etc/letsencrypt/`** до генерации новых SSL-сертов.
+5. **Порядок деплоя:** pull code → rebuild images → restart по одному
+   контейнеру → verify после каждого шага.
+6. **Не чинить то, что не сломано** — если SSL работает, не трогать
+   nginx SSL-конфиг.
+
+---
+
+## 2026-04-09 — Hardcoded credentials в git history
+
+**Что случилось.**
+- В `backend/app/main.py` лежал `faintkom@gmail.com` / `REDACTED_PASSWORD`
+  как fallback для super-admin bootstrap.
+- Удалили из кода в P0-1, но история git осталась с паролем.
+
+**Правила.**
+1. **Никаких secrets в коде, даже как fallback.** Bootstrap — только
+   через env vars (`SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`),
+   с fail-soft если пусто.
+2. **Если secret попал в git** — `git filter-repo` (не `filter-branch`!),
+   потом ротация секрета. Force-push на main только после согласования.
+3. **Перед коммитом seed-скриптов** — `grep -r "@gmail" .` на всякий случай.
+
+---
+
+## 2026-04-10 — Sentry 9.x vs React 19 (peer deps)
+
+**Что случилось.**
+- `@sentry/nextjs@^9.0.0` имеет peerDep на React 18.x, а у нас React 19.
+- `npm install` упал в Dockerfile фронтенда.
+
+**Правило.**
+- В `frontend/Dockerfile` и в локальной разработке использовать
+  `npm install --legacy-peer-deps`. Документировано в `frontend/CLAUDE.md`.
+- При апгрейде Sentry на 10.x — проверить, добавили ли поддержку React 19,
+  и убрать `--legacy-peer-deps`.
+
+---
+
+## 2026-04-25 — Ребрендинг `learnhub.app` → `grasslms.online`
+
+**Что случилось.**
+- Сменили домен и rebrand. Тест-аккаунты (`student@learnhub.app` и т.п.)
+  остались в БД со старыми email.
+- `seed_*.py` и тесты ломались на несоответствии.
+
+**Правило.**
+- Любые **домен-зависимые литералы** (test emails, URL'ы в шаблонах
+  писем, страницы лендинга) централизуем в `app/config.py` через env-vars
+  (`DEMO_STUDENT_EMAIL`, `APP_URL`). Не зашиваем `@grasslms.online` в код.
+- При следующем rebrand — поменять только env, не код.
+
+---
+
+## 2026-04-10 — Rate limiter падал при перезапуске
+
+**Что случилось.**
+- `slowapi` с `memory://` хранилищем — каждый рестарт обнуляет счётчики
+  (можно было обходить лимиты простым redeploy).
+- На multi-worker запуске (uvicorn --workers 4) каждый worker имел свой
+  счётчик — тоже фактически no-op.
+
+**Правило.**
+- В проде всегда `RATE_LIMIT_STORAGE_URI=redis://redis:6379/0`.
+  Если Redis в стеке нет — добавить **до** уделичения числа воркеров.
+- Сделано в P1-5; проверять при настройке любого нового окружения.
+
+---
+
+## Шаблон для новых уроков
+
+```
+## YYYY-MM-DD — короткое описание инцидента
+
+**Что случилось.**
+- Цепочка событий, конкретные команды, последствия.
+
+**Правило.**
+- Что делать, чтобы не повторить. Желательно — проверяемое (чеклист или
+  команда), а не "быть внимательнее".
+```

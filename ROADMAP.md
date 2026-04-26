@@ -1,4 +1,4 @@
-# LearnHub LMS — Roadmap & Feature Specification
+# GrassLMS — Roadmap & Feature Specification
 
 ## Current State: 80+ features implemented (see bottom for full list)
 

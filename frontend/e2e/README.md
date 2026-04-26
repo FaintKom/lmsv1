@@ -1,7 +1,7 @@
 # E2E Tests (Playwright)
 
 Browser-level end-to-end tests. These run a real Chromium against a
-running LearnHub deployment and exercise the actual UI.
+running GrassLMS deployment and exercise the actual UI.
 
 ## Run locally
 

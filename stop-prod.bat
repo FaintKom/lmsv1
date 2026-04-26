@@ -1,5 +1,5 @@
 @echo off
-echo Stopping LearnHub production services...
+echo Stopping GrassLMS production services...
 docker compose -f docker-compose.prod.yml down
 echo.
 echo All services stopped.
