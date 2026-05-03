@@ -48,12 +48,11 @@ export default function RootLayout({
     if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     }
-    // P2-6: Register service worker for PWA/offline support
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').catch(function() {});
-      });
-    }
+    // P2-6 / 2026-05-04: PWA service worker is disabled. The previous SW
+    // (cache-first for static assets) locked users on stale chunk hashes
+    // after every frontend rebuild. We now serve a kill-switch /sw.js
+    // that unregisters any leftover SW on activate, but no new
+    // registration is started here. See public/sw.js + tasks/lessons.md.
   })();
 ` }} />
       </head>

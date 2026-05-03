@@ -88,6 +88,65 @@
 
 ---
 
+## 2026-05-04 — Staging захватил половину prod-трафика через shared docker-сеть
+
+**Что случилось.**
+- Юзеры на `grasslms.online` ловили `Failed to load chunk df94...js`,
+  бесконечный редирект на `/login`, рандомные `400` на `/auth/login`.
+- Контейнеры `lms-staging-frontend-1` и `lms-staging-backend-1`
+  были подключены к **двум** сетям: своему `lms-staging_internal` и
+  общему `lms_internal` (где живёт prod nginx). Compose без явных
+  `aliases:` регистрирует service-name (`backend`, `frontend`) как
+  network-alias на ВСЕХ сетях, включая `lms_internal`.
+- Внутри `lms_internal` имя `frontend` → 2 IP (prod + staging),
+  то же для `backend`. Docker DNS round-robin → ~50 % nginx-запросов
+  попадало в staging:
+  - static chunks 404 (у staging другой build → другие хэши),
+  - `POST /auth/login` 400 (в staging-DB нет prod-юзеров),
+  - `POST /auth/refresh` 400 (тот же flap).
+- Сверху ехал service worker со стратегией cache-first, который
+  кэшировал stale HTML с битыми чанками — поэтому одна реклоада
+  чинила, две — нет.
+
+**Правила.**
+1. **Никогда не делать сервис `backend` / `frontend`** в staging-compose
+   если он подключён к prod-network. Renamed services
+   (`staging-backend`, `staging-frontend`) — единственный способ
+   полностью убрать дефолтный alias на shared-network. `aliases:`
+   аддитивен, дефолт не убирает.
+2. **Перед подключением к external network** сделать `docker exec
+   <prod-resolver> nslookup <service>` и убедиться что один IP.
+   Команда:
+   ```
+   ssh root@204.168.165.41 "docker exec lms-nginx-1 nslookup backend; docker exec lms-nginx-1 nslookup frontend"
+   ```
+   Должна возвращать ровно один Address на каждый.
+3. **nginx upstream — explicit container_name**, не network alias.
+   `set $frontend_upstream http://lms-frontend-1:3000;` вместо
+   `http://frontend:3000;`. Container-name всегда уникален.
+4. **Service Worker = бомба замедленного действия.** Cache-first SW
+   на статике лочит юзеров на старых чанках. Если SW нужен — сделать
+   network-first для HTML, версионировать `CACHE_NAME` и удалять
+   старые на activate. Лучше — не делать SW пока нет реального
+   offline-юзкейса.
+5. **HTML не должно кэшироваться `s-maxage`-долго.** Next.js по
+   умолчанию шлёт `Cache-Control: s-maxage=31536000` на пререндернутые
+   страницы. Cloudflare/CDN уносит в кэш на год. После каждого
+   ребилда фронта чанк-хэши меняются → старый HTML 404'ит. Override
+   в nginx:
+   ```
+   map $uri $cache_control_override {
+       default              "no-store, must-revalidate";
+       "~^/_next/static/"   "public, max-age=31536000, immutable";
+   }
+   ```
+6. **Refresh token rotation** на бэке = на фронте дедупить параллельные
+   refresh. Иначе первый рефреш ротирует, второй приходит со старым
+   jti → 400 → `window.location.href = "/login"` → пользователь
+   выкинут несмотря на верный пароль.
+
+---
+
 ## Шаблон для новых уроков
 
 ```
