@@ -20,6 +20,27 @@ _(пусто)_
       SAT prep-центров — DM в LinkedIn, оффер 3 месяца бесплатно
       за testimonial + cohort observation. Целевой сегмент описан в
       `marketing/target-segment.md`.
+- [ ] **Integrations credentials (КРИТИЧНО для прода).**
+      Google OAuth credentials в prod `.env` невалидны
+      (`invalid_client` от Google). Frontend и backend OAuth init
+      работают (commit `02e969c`), но без живых ключей ни одну
+      интеграцию подключить нельзя.
+      1. Создать OAuth 2.0 Client ID в
+         [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+         (Web application).
+      2. Authorized redirect URI:
+         `https://grasslms.online/api/v1/integrations/google/callback`
+      3. Активировать в API Library: Google Calendar API (для Meet),
+         Google Drive API, Google Classroom API.
+      4. Обновить prod `/opt/lms/.env`:
+         `GOOGLE_CLIENT_ID=`, `GOOGLE_CLIENT_SECRET=`,
+         `GOOGLE_REDIRECT_URI=https://grasslms.online/api/v1/integrations/google/callback`
+      5. Проверить Zoom (client_id `WXT8_vDIRxaD1C58JALyXg` есть, но
+         callback не тестировался end-to-end —
+         https://marketplace.zoom.us/develop/apps).
+      6. (Опционально) `YOUTUBE_API_KEY=` для richer метаданных видео.
+      7. Restart backend: `docker compose -f docker-compose.prod.yml
+         up -d backend`.
 
 ## Опциональные конфиги (когда понадобится монетизация)
 
