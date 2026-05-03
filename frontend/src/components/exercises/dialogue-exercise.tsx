@@ -25,12 +25,12 @@ interface Props {
 
 function getSpeakerColor(speaker: string): string {
   const colors = [
-    "bg-blue-500",
     "bg-green-500",
-    "bg-green-500",
+    "bg-green-700",
     "bg-sun-500",
     "bg-coral-500",
-    "bg-cyan-500",
+    "bg-ink-500",
+    "bg-ink-700",
   ];
   let hash = 0;
   for (let i = 0; i < speaker.length; i++) {

@@ -34,7 +34,7 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
 };
 
 const CONTENT_COLORS: Record<string, string> = {
-  text: "bg-blue-50 text-blue-500",
+  text: "bg-ink-50 text-ink-500",
   video: "bg-coral-50 text-coral-500",
   quiz: "bg-green-50 text-green-500",
   code_challenge: "bg-green-50 text-green-500",

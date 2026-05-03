@@ -171,7 +171,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   line-height: 1.6;
 }
 
@@ -632,3 +632,166 @@ select:focus-visible,
   transition: background 80ms ease;
 }
 .gl-btn-ghost:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* ============================================================
+   MOBILE-FIRST FLASHCARD / EXERCISE PATTERNS
+   Single-card-per-viewport, swipe gestures, thumb-zone CTAs.
+   Used by SRS flashcards and other mobile-friendly exercises.
+   ============================================================ */
+
+.gl-mobile-card {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1px solid var(--ink-100);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  .gl-mobile-card {
+    min-height: calc(100vh - 160px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 20px;
+  }
+}
+
+.gl-flashcard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-width: 480px;
+  margin: 0 auto;
+  perspective: 1200px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+.gl-flashcard-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.gl-flashcard.is-flipped .gl-flashcard-inner {
+  transform: rotateY(180deg);
+}
+.gl-flashcard-face {
+  position: absolute;
+  inset: 0;
+  background: var(--paper-2);
+  border: 2px solid var(--ink-200);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: var(--shadow-md);
+}
+.gl-flashcard-face.back {
+  background: var(--green-50);
+  border-color: var(--green-300);
+  transform: rotateY(180deg);
+}
+.gl-flashcard-face .term {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.gl-flashcard-face .definition {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--green-800);
+  line-height: 1.4;
+}
+.gl-flashcard-face .hint {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  color: var(--ink-400);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-mono), monospace;
+}
+
+.gl-flashcard.swiping-left .gl-flashcard-inner { transform: translateX(-30%) rotateZ(-6deg); }
+.gl-flashcard.swiping-right .gl-flashcard-inner { transform: translateX(30%) rotateZ(6deg); }
+
+.gl-thumb-zone {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+  .gl-thumb-zone {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--paper-2);
+    border-top: 1px solid var(--ink-100);
+    box-shadow: 0 -4px 16px rgba(10, 26, 16, 0.08);
+    z-index: 40;
+  }
+}
+
+.gl-thumb-zone > * { flex: 1; }
+
+.gl-mobile-progress {
+  height: 4px;
+  background: var(--ink-100);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.gl-mobile-progress > .fill {
+  height: 100%;
+  background: var(--green-600);
+  transition: width 240ms ease;
+}
+
+.gl-srs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 2px solid;
+  border-radius: var(--r-md);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 120ms ease;
+  font-family: inherit;
+}
+.gl-srs-btn small {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.7;
+  letter-spacing: 0;
+}
+.gl-srs-btn.again  { border-color: var(--coral-300); color: var(--coral-700); }
+.gl-srs-btn.hard   { border-color: var(--sun-300);   color: var(--sun-700); }
+.gl-srs-btn.good   { border-color: var(--green-300); color: var(--green-700); }
+.gl-srs-btn.easy   { border-color: var(--green-500); color: var(--green-800); background: var(--green-50); }
+.gl-srs-btn:hover  { transform: translateY(-1px); }
+.gl-srs-btn:active { transform: translateY(1px); }

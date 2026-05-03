@@ -14,6 +14,7 @@ import MatchingExercise from "@/components/submissions/exercises/matching";
 import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
 import TrueFalseExercise from "@/components/submissions/exercises/true-false";
+import SrsFlashcardExercise from "@/components/submissions/exercises/srs-flashcard";
 import CategorizeExercise from "@/components/submissions/exercises/categorize";
 import TranslationExercise from "@/components/exercises/translation-exercise";
 import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exercise";
@@ -79,7 +80,12 @@ interface Exercise {
     | "dialogue"
     | "conjugation"
     | "reading"
-    | "web_editor";
+    | "web_editor"
+    | "srs_flashcard"
+    | "crossword"
+    | "word_search"
+    | "map_pin_drop"
+    | "bubble_sheet";
   title: string;
   config: Record<string, unknown>;
   questions?: Question[];
@@ -482,6 +488,25 @@ function ExerciseBody({
         />
       );
 
+    case "srs_flashcard": {
+      const cfg = exercise.config as {
+        cards?: { id?: string; front: string; back: string; hint?: string; audio_url?: string; image_url?: string }[];
+        instructions?: string;
+        daily_new_cards?: number;
+        daily_review_cap?: number;
+      };
+      return (
+        <SrsFlashcardExercise
+          exerciseId={exercise.id}
+          cards={cfg.cards || []}
+          instructions={cfg.instructions}
+          dailyNewCards={cfg.daily_new_cards}
+          dailyReviewCap={cfg.daily_review_cap}
+          onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
+        />
+      );
+    }
+
     case "categorize": {
       const catCfg = exercise.config as {
         categories?: { name: string; items: string[] }[];
@@ -579,6 +604,18 @@ function ExerciseBody({
         />
       );
 
+    case "crossword":
+    case "word_search":
+    case "map_pin_drop":
+    case "bubble_sheet":
+      return (
+        <div className="rounded-xl border border-sun-300 bg-sun-50 p-6 text-sm text-sun-700 dark:border-sun-300/30 dark:bg-sun-300/10 dark:text-sun-300">
+          <p className="font-semibold mb-1 capitalize">{exercise.exercise_type.replace(/_/g, " ")}</p>
+          <p className="text-ink-700 dark:text-ink-300">
+            Backend schema and MCP tool ready. The student-facing renderer ships in the next sprint.
+          </p>
+        </div>
+      );
     default:
       return (
         <p className="text-sm text-ink-500">
