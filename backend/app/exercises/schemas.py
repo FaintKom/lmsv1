@@ -125,6 +125,101 @@ class WebEditorConfig(BaseModel):
     requirements: list[str] = []
 
 
+class SrsCardItem(BaseModel):
+    """One front/back flashcard inside a deck."""
+    id: str = ""
+    front: str
+    back: str
+    hint: str | None = None
+    audio_url: str | None = None
+    image_url: str | None = None
+
+
+class SrsFlashcardConfig(BaseModel):
+    """Spaced-repetition flashcard deck.
+
+    Cards have client-side scheduling (SM-2). Server stores the deck only.
+    Submission carries per-card review history; backend persists to
+    `exercise_submissions.answers` for analytics.
+    """
+    cards: list[SrsCardItem] = []
+    instructions: str = ""
+    daily_new_cards: int = 10
+    daily_review_cap: int = 100
+    front_to_back_ratio: float = 1.0
+    show_audio: bool = True
+
+
+class CrosswordCell(BaseModel):
+    row: int
+    col: int
+    letter: str
+    number: int | None = None
+
+
+class CrosswordClue(BaseModel):
+    number: int
+    direction: str
+    clue: str
+    answer: str
+    start_row: int
+    start_col: int
+
+
+class CrosswordConfig(BaseModel):
+    rows: int = 10
+    cols: int = 10
+    grid: list[CrosswordCell] = []
+    clues: list[CrosswordClue] = []
+    title: str = ""
+
+
+class WordSearchConfig(BaseModel):
+    rows: int = 12
+    cols: int = 12
+    words: list[str] = []
+    grid: list[str] = []
+    case_sensitive: bool = False
+    diagonals: bool = True
+    backwards: bool = True
+
+
+class MapPinDropTarget(BaseModel):
+    label: str
+    lat: float
+    lng: float
+    tolerance_km: float = 50.0
+
+
+class MapPinDropConfig(BaseModel):
+    """Click-on-map exercise. Frontend renders Leaflet+OSM."""
+    targets: list[MapPinDropTarget] = []
+    initial_center: list[float] = [0.0, 0.0]
+    initial_zoom: int = 2
+    show_labels: bool = False
+    time_limit_seconds: int | None = None
+    max_score_per_target: int = 100
+
+
+class BubbleSheetQuestion(BaseModel):
+    number: int
+    options: list[str] = ["A", "B", "C", "D"]
+    correct: str
+
+
+class BubbleSheetConfig(BaseModel):
+    """Printable bubble-sheet test (OMR scan grading).
+
+    Backend generates a printable PDF with per-row bubbles + corner ArUco
+    fiducials. Teacher uploads phone photo of filled sheets; OMR pipeline
+    extracts answers and grades.
+    """
+    title: str = ""
+    questions: list[BubbleSheetQuestion] = []
+    answer_key_visible_to_students: bool = False
+    randomize_options_per_form: bool = False
+
+
 # ─── Type → Config schema map ───────────────────────────────────────
 # Single source of truth: maps each ExerciseType to the Pydantic config
 # schema that validates `Exercise.config`. Used by:
@@ -146,6 +241,11 @@ CONFIG_SCHEMAS: dict[ExerciseType, type[BaseModel]] = {
     ExerciseType.conjugation: ConjugationConfig,
     ExerciseType.reading: ReadingConfig,
     ExerciseType.web_editor: WebEditorConfig,
+    ExerciseType.srs_flashcard: SrsFlashcardConfig,
+    ExerciseType.crossword: CrosswordConfig,
+    ExerciseType.word_search: WordSearchConfig,
+    ExerciseType.map_pin_drop: MapPinDropConfig,
+    ExerciseType.bubble_sheet: BubbleSheetConfig,
 }
 
 

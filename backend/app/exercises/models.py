@@ -37,6 +37,12 @@ class ExerciseType(str, enum.Enum):
     conjugation = "conjugation"
     reading = "reading"
     web_editor = "web_editor"
+    # — added 2026-05-03 —
+    srs_flashcard = "srs_flashcard"
+    crossword = "crossword"
+    word_search = "word_search"
+    map_pin_drop = "map_pin_drop"
+    bubble_sheet = "bubble_sheet"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -57,6 +63,11 @@ EXERCISE_TYPE_PREFIX = {
     "conjugation": "CJ",
     "reading": "RD",
     "web_editor": "W",
+    "srs_flashcard": "SR",
+    "crossword": "CW",
+    "word_search": "WS",
+    "map_pin_drop": "MP",
+    "bubble_sheet": "BS",
 }
 
 

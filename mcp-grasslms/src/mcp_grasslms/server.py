@@ -272,6 +272,124 @@ async def create_web_editor(
 
 
 @mcp.tool()
+async def create_srs_flashcard(
+    lesson_id: str, title: str,
+    cards: list[dict],
+    instructions: str = "",
+    daily_new_cards: int = 10,
+    daily_review_cap: int = 100,
+    show_audio: bool = True,
+) -> str:
+    """Create an SRS flashcard deck (spaced repetition).
+
+    `cards`: [{"front": "...", "back": "...", "hint"?: "...",
+              "audio_url"?: "...", "image_url"?: "..."}].
+    Scheduling (SM-2) runs client-side; backend stores deck only.
+    """
+    return await _create("srs_flashcard", lesson_id, title, {
+        "cards": cards,
+        "instructions": instructions,
+        "daily_new_cards": daily_new_cards,
+        "daily_review_cap": daily_review_cap,
+        "show_audio": show_audio,
+    })
+
+
+@mcp.tool()
+async def create_crossword(
+    lesson_id: str, title: str,
+    rows: int, cols: int,
+    grid: list[dict],
+    clues: list[dict],
+    deck_title: str = "",
+) -> str:
+    """Create a Crossword exercise.
+
+    `grid`: [{"row": int, "col": int, "letter": "A"|"#" (black),
+              "number"?: int}].
+    `clues`: [{"number": int, "direction": "across"|"down",
+               "clue": "...", "answer": "...",
+               "start_row": int, "start_col": int}].
+    """
+    return await _create("crossword", lesson_id, title, {
+        "rows": rows, "cols": cols,
+        "grid": grid, "clues": clues,
+        "title": deck_title,
+    })
+
+
+@mcp.tool()
+async def create_word_search(
+    lesson_id: str, title: str,
+    words: list[str],
+    rows: int = 12, cols: int = 12,
+    grid: list[str] | None = None,
+    diagonals: bool = True,
+    backwards: bool = True,
+) -> str:
+    """Create a Word Search exercise.
+
+    `words` are upper-cased, no spaces. If `grid` is empty/None, the
+    frontend auto-generates a layout. Otherwise pass `rows` strings of
+    `cols` chars each.
+    """
+    return await _create("word_search", lesson_id, title, {
+        "rows": rows, "cols": cols,
+        "words": words,
+        "grid": grid or [],
+        "diagonals": diagonals,
+        "backwards": backwards,
+    })
+
+
+@mcp.tool()
+async def create_map_pin_drop(
+    lesson_id: str, title: str,
+    targets: list[dict],
+    initial_center: list[float] | None = None,
+    initial_zoom: int = 2,
+    show_labels: bool = False,
+    time_limit_seconds: int | None = None,
+) -> str:
+    """Create a Map Pin-Drop exercise (click on Leaflet map to answer).
+
+    `targets`: [{"label": "...", "lat": float, "lng": float,
+                 "tolerance_km"?: float (default 50)}].
+    `initial_center`: [lat, lng] or None (defaults to [0, 0]).
+    """
+    return await _create("map_pin_drop", lesson_id, title, {
+        "targets": targets,
+        "initial_center": initial_center or [0.0, 0.0],
+        "initial_zoom": initial_zoom,
+        "show_labels": show_labels,
+        "time_limit_seconds": time_limit_seconds,
+    })
+
+
+@mcp.tool()
+async def create_bubble_sheet(
+    lesson_id: str, title: str,
+    questions: list[dict],
+    deck_title: str = "",
+    answer_key_visible_to_students: bool = False,
+    randomize_options_per_form: bool = False,
+) -> str:
+    """Create a printable Bubble-Sheet test (OMR scan grading).
+
+    `questions`: [{"number": int, "options": ["A","B","C","D"],
+                   "correct": "B"}].
+    Backend generates printable PDF with ArUco fiducials; teacher
+    photographs filled sheets, OMR pipeline grades.
+    """
+    return await _create("bubble_sheet", lesson_id, title, {
+        "title": deck_title,
+        "questions": questions,
+        "answer_key_visible_to_students": answer_key_visible_to_students,
+        "randomize_options_per_form": randomize_options_per_form,
+    })
+
+
+@mcp.tool()
 async def list_exercises_for_lesson(lesson_id: str) -> str:
     return json.dumps(await _get_client().list_exercises_for_lesson(lesson_id), indent=2)
 
