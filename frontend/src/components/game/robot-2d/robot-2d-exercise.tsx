@@ -288,7 +288,7 @@ export default function Robot2DExercise({
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4C97FF] text-white text-lg">
               🤖
             </div>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{taskText}</p>
+            <p className="text-sm font-semibold text-ink-700 dark:text-ink-200">{taskText}</p>
           </div>
 
           {/* Grid visualization */}
@@ -300,14 +300,14 @@ export default function Robot2DExercise({
           <div className="flex items-center justify-between bg-white border-t border-[#e5e0d5] px-3 py-2.5 dark:bg-[#222] dark:border-[#333]">
             {/* Stats badges */}
             <div className="flex items-center gap-2">
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-500 dark:bg-white/10 dark:text-slate-400">
+              <span className="rounded-md bg-ink-100 px-2 py-1 text-[11px] font-semibold text-ink-500 dark:bg-white/10 dark:text-ink-400">
                 {stepsUsed} {t("game.steps")}
               </span>
               {mode === "blocks" && (
                 <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
                   maxBlocks && blockCount > maxBlocks
-                    ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400"
-                    : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                    ? "bg-coral-50 text-coral-500 dark:bg-coral-500/20 dark:text-coral-300"
+                    : "bg-ink-100 text-ink-500 dark:bg-white/10 dark:text-ink-400"
                 }`}>
                   {blockCount}{maxBlocks ? `/${maxBlocks}` : ""} {t("game.blocks")}
                 </span>
@@ -322,19 +322,19 @@ export default function Robot2DExercise({
               </button>
 
               <button onClick={handleStep} disabled={isRunning || completed} title={t("game.step")}
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 text-slate-600 transition-all hover:bg-slate-300 active:scale-95 disabled:opacity-30 dark:bg-white/10 dark:text-slate-300">
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink-200 text-ink-700 transition-all hover:bg-ink-300 active:scale-95 disabled:opacity-30 dark:bg-white/10 dark:text-ink-300">
                 <SkipForward className="h-4 w-4" />
               </button>
 
               {isRunning ? (
                 <button onClick={handlePause}
-                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 dark:shadow-none">
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md shadow-sun-100 transition-all hover:bg-[#e69400] active:scale-95 dark:shadow-none">
                   {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
                   {isPaused ? "▶" : "⏸"}
                 </button>
               ) : (
                 <button onClick={handlePlay} disabled={completed}
-                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 disabled:opacity-40 dark:shadow-none">
+                  className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-sun-100 transition-all hover:bg-[#e69400] active:scale-95 disabled:opacity-40 dark:shadow-none">
                   <Play className="h-4 w-4" />
                   {t("game.run")}
                 </button>
@@ -342,7 +342,7 @@ export default function Robot2DExercise({
 
               {/* Speed slider */}
               <div className="hidden sm:flex items-center gap-1 ml-1">
-                <Gauge className="h-3.5 w-3.5 text-slate-400" />
+                <Gauge className="h-3.5 w-3.5 text-ink-400" />
                 <input type="range" min={50} max={600} step={50}
                   value={650 - speed} onChange={(e) => setSpeed(650 - parseInt(e.target.value))}
                   className="h-1 w-12 accent-[#FFA400]" />
@@ -353,7 +353,7 @@ export default function Robot2DExercise({
             <div>
               {hints.length > 0 && !completed && (
                 <button onClick={() => setShowHint(!showHint)}
-                  className="flex items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-600 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20">
+                  className="flex items-center gap-1 rounded-lg bg-sun-50 px-2.5 py-1.5 text-xs font-semibold text-sun-500 transition-colors hover:bg-sun-100 dark:bg-sun-500/10 dark:text-sun-400 dark:hover:bg-sun-500/20">
                   <Lightbulb className="h-3.5 w-3.5" />
                   {t("game.hint")}
                 </button>
@@ -363,18 +363,18 @@ export default function Robot2DExercise({
 
           {/* Status overlay: completion / failure / hint */}
           {(completed || failed || showHint) && (
-            <div className="border-t border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#1E1E1E]">
+            <div className="border-t border-ink-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#1E1E1E]">
               {completed && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex gap-0.5">
                       {[1, 2, 3].map((n) => (
-                        <span key={n} className={`text-xl transition-all ${n <= getStars(stepsUsed, blockCount) ? "text-amber-400 scale-110" : "text-slate-300 dark:text-slate-600"}`}>★</span>
+                        <span key={n} className={`text-xl transition-all ${n <= getStars(stepsUsed, blockCount) ? "text-sun-400 scale-110" : "text-ink-300 dark:text-ink-700"}`}>★</span>
                       ))}
                     </div>
                     <div>
-                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t("game.levelComplete")}</span>
-                      <span className="ml-2 text-xs text-slate-400">{stepsUsed} {t("game.steps")} · {blockCount} {t("game.blocks")}</span>
+                      <span className="text-sm font-bold text-green-600 dark:text-green-400">{t("game.levelComplete")}</span>
+                      <span className="ml-2 text-xs text-ink-400">{stepsUsed} {t("game.steps")} · {blockCount} {t("game.blocks")}</span>
                     </div>
                   </div>
                   <Button size="sm" onClick={handleSubmit}>{t("game.submit")}</Button>
@@ -382,15 +382,15 @@ export default function Robot2DExercise({
               )}
               {failed && !completed && (
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-red-500 dark:text-red-400">{failed}</span>
+                  <span className="text-sm text-coral-500 dark:text-coral-300">{failed}</span>
                   <Button variant="outline" size="sm" onClick={handleReset}>{t("game.tryAgain")}</Button>
                 </div>
               )}
               {showHint && hints.length > 0 && !completed && (
-                <div className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+                <div className="mt-2 rounded-lg bg-sun-50 p-2.5 text-xs text-sun-700 dark:bg-sun-500/10 dark:text-sun-300">
                   <p>{hints[hintIndex]}</p>
                   {hintIndex < hints.length - 1 && (
-                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-amber-600 underline dark:text-amber-400">{t("game.nextHint")}</button>
+                    <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-sun-500 underline dark:text-sun-400">{t("game.nextHint")}</button>
                   )}
                 </div>
               )}
@@ -402,13 +402,13 @@ export default function Robot2DExercise({
         <div className="flex flex-1 flex-col min-w-0 min-h-[250px] border-t lg:border-t-0 lg:border-l border-[#e5e0d5] dark:border-[#333]">
           {/* Mode toggle header */}
           {allowPython && (
-            <div className="flex items-center gap-1 border-b border-slate-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">
+            <div className="flex items-center gap-1 border-b border-ink-200/60 bg-white px-4 py-2 dark:border-white/5 dark:bg-[#1E1E1E]">
               <button onClick={() => setMode("blocks")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-ink-500 hover:text-ink-700 dark:text-ink-400"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Блоки
               </button>
               <button onClick={() => setMode("python")}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"}`}>
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-ink-500 hover:text-ink-700 dark:text-ink-400"}`}>
                 <Code className="h-3.5 w-3.5" /> Python
               </button>
             </div>

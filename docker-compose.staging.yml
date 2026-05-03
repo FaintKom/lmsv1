@@ -1,0 +1,117 @@
+# GrassLMS — Staging environment.
+# Runs alongside prod on the same Hetzner VPS. Uses a separate Postgres
+# volume, separate Redis, separate uploads. Containers attach to the
+# external `lms_internal` network so the prod nginx can route
+# staging.grasslms.online traffic to them.
+#
+# Deploy:
+#   docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --build
+#
+# Logs:
+#   docker compose -f docker-compose.staging.yml logs -f backend
+#
+# Rebuild a single service:
+#   docker compose -f docker-compose.staging.yml build backend
+#   docker compose -f docker-compose.staging.yml up -d backend
+
+name: lms-staging
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lms_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-lms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.staging}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env.staging
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lms_staging}
+      SANDBOX_URL: http://sandbox:8001
+      OLLAMA_URL: http://172.18.0.1:11434
+      RATE_LIMIT_STORAGE_URI: ${RATE_LIMIT_STORAGE_URI:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      ENVIRONMENT: staging
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/data/uploads
+    networks:
+      - internal
+      - shared
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+
+  frontend:
+    build: ./frontend
+    networks:
+      - internal
+      - shared
+    environment:
+      BACKEND_URL: http://backend:8000
+    restart: unless-stopped
+
+  sandbox:
+    build: ./sandbox
+    command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
+    security_opt:
+      - "no-new-privileges:true"
+    restart: unless-stopped
+
+# Volumes are namespaced under the `lms-staging` project name automatically
+# (e.g. lms-staging_pgdata) so they never collide with prod volumes.
+volumes:
+  pgdata:
+  uploads:
+  redisdata:
+
+networks:
+  # Private network for staging-only service-to-service traffic.
+  internal:
+  # External network that prod nginx is on; lets staging-backend /
+  # staging-frontend be reachable as `lms-staging-backend-1:8000` /
+  # `lms-staging-frontend-1:3000` from the prod nginx container.
+  shared:
+    name: lms_internal
+    external: true

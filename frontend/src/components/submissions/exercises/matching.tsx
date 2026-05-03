@@ -54,13 +54,13 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
                 activeLeft === p.left
                   ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300"
                   : selected[p.left]
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
-                    : "border-slate-200 text-slate-700 hover:border-green-300 dark:border-white/10 dark:text-slate-300 dark:hover:border-green-500/50"
+                    ? "border-green-300 bg-green-50 text-green-700 dark:border-green-500/40 dark:bg-green-500/10 dark:text-green-300"
+                    : "border-ink-200 text-ink-700 hover:border-green-300 dark:border-white/10 dark:text-ink-300 dark:hover:border-green-500/50"
               }`}
             >
               {p.left}
               {selected[p.left] && (
-                <span className="mt-1 block text-xs text-emerald-500 dark:text-emerald-400">
+                <span className="mt-1 block text-xs text-green-500 dark:text-green-400">
                   → {selected[p.left]}
                 </span>
               )}
@@ -77,10 +77,10 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
               disabled={!activeLeft}
               className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
                 usedRight.has(right)
-                  ? "border-slate-100 bg-slate-50 text-slate-400 dark:border-white/5 dark:bg-white/5 dark:text-slate-500"
+                  ? "border-ink-100 bg-ink-50 text-ink-400 dark:border-white/5 dark:bg-white/5 dark:text-ink-500"
                   : activeLeft
-                    ? "border-slate-200 text-slate-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:text-slate-300 dark:hover:border-green-500/50 dark:hover:bg-green-500/10"
-                    : "border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400"
+                    ? "border-ink-200 text-ink-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:text-ink-300 dark:hover:border-green-500/50 dark:hover:bg-green-500/10"
+                    : "border-ink-200 text-ink-500 dark:border-white/10 dark:text-ink-400"
               }`}
             >
               {right}

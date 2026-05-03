@@ -54,8 +54,8 @@ export default function PathsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Learning Paths</h1>
-        <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Learning Paths</h1>
+        <p className="mt-1 text-base text-ink-500 dark:text-ink-400">
           Follow structured course sequences to master a topic
         </p>
       </div>
@@ -63,13 +63,13 @@ export default function PathsPage() {
       {paths.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <Route className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <Route className="h-8 w-8 text-ink-400 dark:text-ink-500" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               No learning paths available
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="text-base text-ink-500 dark:text-ink-400">
               Check back later for structured course sequences.
             </p>
           </CardContent>
@@ -87,11 +87,11 @@ export default function PathsPage() {
                         <Route className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{p.title}</h3>
-                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        <h3 className="text-lg font-semibold text-ink-900 dark:text-ink-100">{p.title}</h3>
+                        <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
                           {p.description || "No description"}
                         </p>
-                        <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                        <p className="mt-2 text-xs text-ink-400 dark:text-ink-500">
                           {p.step_count} course{p.step_count !== 1 ? "s" : ""}
                         </p>
                       </div>
@@ -105,13 +105,13 @@ export default function PathsPage() {
                             </Button>
                           </Link>
                           <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 rounded-full bg-slate-200 dark:bg-white/10">
+                            <div className="h-2 w-24 rounded-full bg-ink-200 dark:bg-white/10">
                               <div
                                 className="h-2 rounded-full bg-green-500"
                                 style={{ width: `${progress}%` }}
                               />
                             </div>
-                            <span className="text-xs text-slate-500 dark:text-slate-400">{progress}%</span>
+                            <span className="text-xs text-ink-500 dark:text-ink-400">{progress}%</span>
                           </div>
                         </>
                       ) : (

@@ -63,15 +63,15 @@ function DemoRunner() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-[#1E1E1E] dark:via-[#1E1E1E] dark:to-[#2C2C2C]">
       {/* Minimal header */}
-      <header className="border-b border-slate-100 bg-white/60 backdrop-blur dark:border-white/10 dark:bg-[#2C2C2C]/60">
+      <header className="border-b border-ink-100 bg-white/60 backdrop-blur dark:border-white/10 dark:bg-[#2C2C2C]/60">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
+            <span className="text-xl font-bold text-ink-900 dark:text-ink-100">GrassLMS</span>
           </Link>
           <Link href="/login">
             <Button variant="ghost" size="sm">
@@ -86,17 +86,17 @@ function DemoRunner() {
           <Play className="h-3.5 w-3.5" />
           No signup required
         </div>
-        <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 md:text-5xl">
+        <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-ink-900 dark:text-ink-100 md:text-5xl">
           Try GrassLMS in one click
         </h1>
-        <p className="mx-auto mb-10 max-w-xl text-lg text-slate-500 dark:text-slate-400">
+        <p className="mx-auto mb-10 max-w-xl text-lg text-ink-500 dark:text-ink-400">
           Pick a role and we'll drop you straight into the product with a
           pre-built SAT Math course to explore. No account, no credit card,
           no email.
         </p>
 
         {error && (
-          <div className="mx-auto mb-6 max-w-md rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+          <div className="mx-auto mb-6 max-w-md rounded-xl border border-coral-300 bg-coral-50 p-4 text-sm text-coral-700 dark:border-coral-500/30 dark:bg-coral-500/10 dark:text-coral-300">
             {error}
           </div>
         )}
@@ -107,15 +107,15 @@ function DemoRunner() {
             type="button"
             onClick={() => enterDemo("student")}
             disabled={loading !== null}
-            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
+            className="flex flex-col items-center gap-4 rounded-2xl border border-ink-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-500/20">
-              <Users className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-500/20">
+              <Users className="h-7 w-7 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl font-bold text-ink-900 dark:text-ink-100">
               Try as a student
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-ink-500 dark:text-ink-400">
               Take an SAT Math lesson, write some code, see what the student
               experience looks like.
             </p>
@@ -136,15 +136,15 @@ function DemoRunner() {
             type="button"
             onClick={() => enterDemo("teacher")}
             disabled={loading !== null}
-            className="flex flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
+            className="flex flex-col items-center gap-4 rounded-2xl border border-ink-200 bg-white p-8 text-left shadow-sm transition-all hover:border-green-400 hover:shadow-md disabled:opacity-50 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-500/20">
               <GraduationCap className="h-7 w-7 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-xl font-bold text-ink-900 dark:text-ink-100">
               Try as a teacher
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-ink-500 dark:text-ink-400">
               See the admin dashboard, build a course, try the gradebook and
               bulk enrollment.
             </p>
@@ -161,7 +161,7 @@ function DemoRunner() {
           </button>
         </div>
 
-        <p className="mx-auto mt-12 max-w-md text-xs text-slate-400 dark:text-slate-500">
+        <p className="mx-auto mt-12 max-w-md text-xs text-ink-400 dark:text-ink-500">
           Demo accounts are shared — your changes are visible to other visitors
           and reset periodically. For private trials,{" "}
           <Link href="/register" className="text-green-600 hover:underline">

@@ -35,9 +35,9 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
 
 const CONTENT_COLORS: Record<string, string> = {
   text: "bg-blue-50 text-blue-500",
-  video: "bg-rose-50 text-rose-500",
-  quiz: "bg-emerald-50 text-emerald-500",
-  code_challenge: "bg-emerald-50 text-emerald-500",
+  video: "bg-coral-50 text-coral-500",
+  quiz: "bg-green-50 text-green-500",
+  code_challenge: "bg-green-50 text-green-500",
 };
 
 export default function CourseDetailPage() {
@@ -89,7 +89,7 @@ export default function CourseDetailPage() {
   if (loading || !course) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
+        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-200">
           <div className="h-full w-1/2 animate-pulse rounded-full bg-green-500" />
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function CourseDetailPage() {
   return (
     <div className="mx-auto max-w-4xl">
       {/* Course Header */}
-      <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-white">
+      <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-600 to-green-600 p-8 text-white">
         <div className="flex items-start justify-between">
           <div>
             {course.category && (
@@ -174,7 +174,7 @@ export default function CourseDetailPage() {
                   const Icon =
                     CONTENT_ICONS[lesson.content_type] || BookOpen;
                   const colorClass =
-                    CONTENT_COLORS[lesson.content_type] || "bg-slate-50 text-slate-500";
+                    CONTENT_COLORS[lesson.content_type] || "bg-ink-50 text-ink-500";
                   return (
                     <li key={lesson.id}>
                       {canAccessLessons ? (
@@ -191,24 +191,24 @@ export default function CourseDetailPage() {
                             {lesson.title}
                           </span>
                           {lesson.duration_minutes && (
-                            <span className="flex items-center gap-1 text-xs text-slate-400">
+                            <span className="flex items-center gap-1 text-xs text-ink-400">
                               <Clock className="h-3 w-3" />
                               {lesson.duration_minutes} min
                             </span>
                           )}
                         </Link>
                       ) : (
-                        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-50">
+                        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-ink-50">
                           <div
                             className={`flex h-8 w-8 items-center justify-center rounded-lg ${colorClass}`}
                           >
                             <Icon className="h-4 w-4" />
                           </div>
-                          <span className="flex-1 text-sm font-medium text-slate-700">
+                          <span className="flex-1 text-sm font-medium text-ink-700">
                             {lesson.title}
                           </span>
                           {lesson.duration_minutes && (
-                            <span className="flex items-center gap-1 text-xs text-slate-400">
+                            <span className="flex items-center gap-1 text-xs text-ink-400">
                               <Clock className="h-3 w-3" />
                               {lesson.duration_minutes} min
                             </span>

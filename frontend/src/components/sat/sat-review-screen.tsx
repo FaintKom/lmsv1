@@ -43,9 +43,9 @@ export default function SATReviewScreen({
   };
 
   return (
-    <div className="fixed inset-0 z-[101] flex flex-col bg-white dark:bg-gray-950">
+    <div className="fixed inset-0 z-[101] flex flex-col bg-white dark:bg-ink-950">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+      <div className="bg-gradient-to-r from-green-600 to-green-600 px-6 py-4">
         <h1 className="text-lg font-semibold text-white">
           Review &mdash; Module {moduleNumber} of {totalModules}
         </h1>
@@ -64,8 +64,8 @@ export default function SATReviewScreen({
           <div
             className={`flex items-center gap-2 ${
               unansweredCount > 0
-                ? "text-red-600 dark:text-red-400"
-                : "text-gray-400 dark:text-gray-500"
+                ? "text-coral-500 dark:text-coral-300"
+                : "text-ink-400 dark:text-ink-500"
             }`}
           >
             <AlertCircle className="h-5 w-5" />
@@ -76,8 +76,8 @@ export default function SATReviewScreen({
           <div
             className={`flex items-center gap-2 ${
               flaggedCount > 0
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-gray-400 dark:text-gray-500"
+                ? "text-sun-500 dark:text-sun-400"
+                : "text-ink-400 dark:text-ink-500"
             }`}
           >
             <Flag className="h-5 w-5" />
@@ -102,11 +102,11 @@ export default function SATReviewScreen({
                   ${
                     isAnswered
                       ? "bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
-                      : "border-2 border-red-500 text-red-600 hover:bg-red-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-950"
+                      : "border-2 border-coral-500 text-coral-500 hover:bg-coral-50 dark:border-coral-300 dark:text-coral-300 dark:hover:bg-coral-950"
                   }
                   ${
                     isFlagged
-                      ? "ring-2 ring-amber-400 ring-offset-2 dark:ring-amber-500 dark:ring-offset-gray-950"
+                      ? "ring-2 ring-sun-400 ring-offset-2 dark:ring-sun-500 dark:ring-offset-ink-900"
                       : ""
                   }
                 `}
@@ -119,7 +119,7 @@ export default function SATReviewScreen({
 
         {/* Unanswered warning */}
         {unansweredCount > 0 && (
-          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300">
+          <div className="mt-6 rounded-lg border border-coral-300 bg-coral-50 px-4 py-3 text-sm text-coral-700 dark:border-coral-700 dark:bg-coral-950/50 dark:text-coral-300">
             You have {unansweredCount} unanswered question
             {unansweredCount > 1 ? "s" : ""}. Unanswered questions are scored as
             incorrect.
@@ -128,10 +128,10 @@ export default function SATReviewScreen({
       </div>
 
       {/* Bottom buttons */}
-      <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+      <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4 dark:border-ink-900">
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          className="rounded-lg border border-ink-300 px-5 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50 dark:border-ink-700 dark:text-ink-300 dark:hover:bg-ink-900"
         >
           Return to Questions
         </button>
@@ -139,7 +139,7 @@ export default function SATReviewScreen({
           onClick={handleSubmitClick}
           className={`rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-colors ${
             confirmSubmit
-              ? "bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+              ? "bg-coral-500 hover:bg-coral-700 dark:bg-coral-500 dark:hover:bg-coral-500"
               : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
           }`}
         >

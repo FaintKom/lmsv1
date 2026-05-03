@@ -46,7 +46,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-ink-700 dark:text-ink-300">
         Fill in the missing numbers
       </p>
 
@@ -57,9 +57,9 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
             className={`flex items-center gap-2 rounded-xl border p-3 transition-colors ${
               checked
                 ? results[eqIdx]
-                  ? "border-emerald-300 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10"
-                  : "border-red-300 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10"
-                : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5"
+                  ? "border-green-300 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10"
+                  : "border-coral-300 bg-coral-50 dark:border-coral-500/30 dark:bg-coral-500/10"
+                : "border-ink-200 bg-ink-50 dark:border-white/10 dark:bg-white/5"
             }`}
           >
             {eq.cells.map((cell, cellIdx) => {
@@ -75,8 +75,8 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
                     className={`w-14 rounded-lg border-2 bg-white px-2 py-1.5 text-center text-lg font-bold outline-none transition-colors dark:bg-[#1E1E1E] ${
                       checked
                         ? results[eqIdx]
-                          ? "border-emerald-400 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300"
-                          : "border-red-400 text-red-700 dark:border-red-500 dark:text-red-300"
+                          ? "border-green-400 text-green-700 dark:border-green-500 dark:text-green-300"
+                          : "border-coral-300 text-coral-700 dark:border-coral-500 dark:text-coral-300"
                         : "border-green-300 text-green-700 focus:border-green-500 dark:border-green-500 dark:text-green-300"
                     }`}
                     placeholder="?"
@@ -89,8 +89,8 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
                   key={cellIdx}
                   className={`text-lg font-bold ${
                     cell.display === "+" || cell.display === "-" || cell.display === "×" || cell.display === "÷" || cell.display === "="
-                      ? "text-slate-400 dark:text-slate-500"
-                      : "text-slate-700 dark:text-slate-200"
+                      ? "text-ink-400 dark:text-ink-500"
+                      : "text-ink-700 dark:text-ink-200"
                   }`}
                 >
                   {cell.display}
@@ -99,7 +99,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
             })}
 
             {checked && !results[eqIdx] && (
-              <span className="ml-2 text-xs text-red-500">= {eq.answer}</span>
+              <span className="ml-2 text-xs text-coral-500">= {eq.answer}</span>
             )}
           </div>
         ))}

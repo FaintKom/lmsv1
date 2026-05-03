@@ -99,17 +99,17 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
   };
 
   return (
-    <div className="border-t border-slate-200 pt-6">
+    <div className="border-t border-ink-200 pt-6">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="mb-4 flex items-center gap-2 text-lg font-semibold text-slate-900"
+        className="mb-4 flex items-center gap-2 text-lg font-semibold text-ink-900"
       >
         <MessageSquare className="h-5 w-5 text-green-500" />
         Discussion ({comments.length})
         {collapsed ? (
-          <ChevronDown className="h-4 w-4 text-slate-400" />
+          <ChevronDown className="h-4 w-4 text-ink-400" />
         ) : (
-          <ChevronUp className="h-4 w-4 text-slate-400" />
+          <ChevronUp className="h-4 w-4 text-ink-400" />
         )}
       </button>
 
@@ -117,7 +117,7 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
         <div className="space-y-4">
           {/* New comment form */}
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-xs font-semibold text-white">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-xs font-semibold text-white">
               {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
             </div>
             <div className="flex-1">
@@ -126,7 +126,7 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment..."
                 rows={2}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="w-full rounded-lg border border-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
                     handleSubmit();
@@ -134,7 +134,7 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
                 }}
               />
               <div className="mt-2 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">Ctrl+Enter to send</span>
+                <span className="text-[10px] text-ink-400">Ctrl+Enter to send</span>
                 <Button
                   size="sm"
                   onClick={handleSubmit}
@@ -156,7 +156,7 @@ export default function CommentSection({ lessonId }: CommentSectionProps) {
 
           {/* Comments list */}
           {!loading && comments.length === 0 && (
-            <p className="py-4 text-center text-sm text-slate-400">
+            <p className="py-4 text-center text-sm text-ink-400">
               No comments yet. Be the first to discuss!
             </p>
           )}
@@ -221,20 +221,20 @@ function CommentItem({
 
   return (
     <div className="flex gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-600">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink-200 text-xs font-semibold text-ink-700">
         {comment.user_name.charAt(0).toUpperCase()}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="rounded-lg bg-slate-50 px-3 py-2">
+        <div className="rounded-lg bg-ink-50 px-3 py-2">
           <div className="mb-1 flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-700">
+            <span className="text-sm font-semibold text-ink-700">
               {comment.user_name}
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-ink-400">
               {timeAgo(comment.created_at)}
             </span>
           </div>
-          <p className="whitespace-pre-wrap text-sm text-slate-600">
+          <p className="whitespace-pre-wrap text-sm text-ink-700">
             {comment.body}
           </p>
         </div>
@@ -243,7 +243,7 @@ function CommentItem({
         <div className="mt-1 flex items-center gap-3 px-1">
           <button
             onClick={() => setReplying(!replying)}
-            className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-green-600"
+            className="flex items-center gap-1 text-[11px] font-medium text-ink-400 hover:text-green-600"
           >
             <Reply className="h-3 w-3" />
             Reply
@@ -251,7 +251,7 @@ function CommentItem({
           {canDelete && (
             <button
               onClick={() => onDelete(comment.id)}
-              className="flex items-center gap-1 text-[11px] font-medium text-slate-400 hover:text-red-500"
+              className="flex items-center gap-1 text-[11px] font-medium text-ink-400 hover:text-coral-500"
             >
               <Trash2 className="h-3 w-3" />
               Delete
@@ -267,7 +267,7 @@ function CommentItem({
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Write a reply..."
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+              className="flex-1 rounded-lg border border-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
               autoFocus
             />
@@ -279,7 +279,7 @@ function CommentItem({
 
         {/* Nested replies */}
         {comment.replies.length > 0 && (
-          <div className="mt-2 space-y-2 border-l-2 border-slate-100 pl-3">
+          <div className="mt-2 space-y-2 border-l-2 border-ink-100 pl-3">
             {comment.replies.map((reply) => (
               <CommentItem
                 key={reply.id}

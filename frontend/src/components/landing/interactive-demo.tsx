@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[200px] items-center justify-center bg-[#1e1e1e] rounded-xl text-sm text-slate-400">
+    <div className="flex h-[200px] items-center justify-center bg-[#1e1e1e] rounded-xl text-sm text-ink-400">
       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading editor...
     </div>
   ),
@@ -96,10 +96,10 @@ function PythonDemo() {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-slate-500">
+      <p className="mb-3 text-sm text-ink-500">
         Complete the function that adds two numbers:
       </p>
-      <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
+      <div className="overflow-hidden rounded-xl border border-ink-200 dark:border-white/10">
         <MonacoEditor
           height="180px"
           language="python"
@@ -126,15 +126,15 @@ function PythonDemo() {
             {success ? (
               <CheckCircle className="h-4 w-4 text-green-500" />
             ) : (
-              <XCircle className="h-4 w-4 text-red-500" />
+              <XCircle className="h-4 w-4 text-coral-500" />
             )}
-            <code className="rounded bg-slate-100 px-2 py-1 text-xs font-mono text-slate-700 dark:bg-white/10 dark:text-slate-300">
+            <code className="rounded bg-ink-100 px-2 py-1 text-xs font-mono text-ink-700 dark:bg-white/10 dark:text-ink-300">
               {output.split("\n").join(", ")}
             </code>
           </div>
         )}
       </div>
-      <p className="mt-3 text-[10px] text-slate-400">
+      <p className="mt-3 text-[10px] text-ink-400">
         Supports Python, JavaScript, Java, C++, Go, Rust, and 31 more languages
       </p>
     </div>
@@ -159,8 +159,8 @@ function SATDemo() {
 
   return (
     <div>
-      <div className="mb-4 rounded-xl bg-slate-50 px-5 py-4 dark:bg-white/5">
-        <p className="text-base font-medium text-slate-800 dark:text-slate-200">
+      <div className="mb-4 rounded-xl bg-ink-50 px-5 py-4 dark:bg-white/5">
+        <p className="text-base font-medium text-ink-900 dark:text-ink-200">
           {SAT_QUESTION.text}
         </p>
       </div>
@@ -178,24 +178,24 @@ function SATDemo() {
                 showResult && isSelected && isCorrect
                   ? "border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-500/10"
                   : showResult && isSelected && !isCorrect
-                    ? "border-red-400 bg-red-50 dark:border-red-400 dark:bg-red-500/10"
+                    ? "border-coral-300 bg-coral-50 dark:border-coral-300 dark:bg-coral-500/10"
                     : showResult && isCorrect
                       ? "border-green-300 bg-green-50/50 dark:border-green-500/50 dark:bg-green-500/5"
-                      : "border-slate-200 bg-white hover:border-green-300 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:hover:border-green-500/50"
+                      : "border-ink-200 bg-white hover:border-green-300 hover:shadow-sm dark:border-white/10 dark:bg-white/5 dark:hover:border-green-500/50"
               }`}
             >
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
                 showResult && isCorrect
                   ? "bg-green-500 text-white"
                   : showResult && isSelected
-                    ? "bg-red-500 text-white"
-                    : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
+                    ? "bg-coral-500 text-white"
+                    : "bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-400"
               }`}>
                 {showResult && isCorrect ? "\u2713" : showResult && isSelected ? "\u2717" : c.label}
               </span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{c.text}</span>
+              <span className="text-sm font-medium text-ink-700 dark:text-ink-300">{c.text}</span>
               {showResult && isSelected && !isCorrect && (
-                <XCircle className="ml-auto h-4 w-4 text-red-400 shrink-0" />
+                <XCircle className="ml-auto h-4 w-4 text-coral-300 shrink-0" />
               )}
               {showResult && isCorrect && (
                 <CheckCircle className="ml-auto h-4 w-4 text-green-500 shrink-0" />
@@ -209,7 +209,7 @@ function SATDemo() {
           <span className="font-semibold">Explanation:</span> {SAT_QUESTION.explanation}
         </div>
       )}
-      <p className="mt-3 text-[10px] text-slate-400">
+      <p className="mt-3 text-[10px] text-ink-400">
         Full adaptive SAT simulator with 2 modules, Desmos calculator, and realistic scoring
       </p>
     </div>
@@ -235,8 +235,8 @@ const WEB_STARTER = `<div class="card">
   font-family: system-ui, sans-serif;
 }
 h2 { margin: 0 0 4px; color: #166534; }
-.role { color: #16a34a; font-size: 14px; margin: 0 0 12px; }
-p { color: #64748b; font-size: 14px; margin: 0; }
+.role { color: #0a8754; font-size: 14px; margin: 0 0 12px; }
+p { color: #4d5a51; font-size: 14px; margin: 0; }
 </style>`;
 
 function buildWebPreview(code: string): string {
@@ -260,11 +260,11 @@ function WebDemo() {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-slate-500">
+      <p className="mb-3 text-sm text-ink-500">
         Edit the HTML & CSS to customize the card:
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
-        <div className="border-b md:border-b-0 md:border-r border-slate-200 dark:border-white/10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 overflow-hidden rounded-xl border border-ink-200 dark:border-white/10">
+        <div className="border-b md:border-b-0 md:border-r border-ink-200 dark:border-white/10">
           <MonacoEditor
             height="220px"
             language="html"
@@ -292,7 +292,7 @@ function WebDemo() {
           />
         </div>
       </div>
-      <p className="mt-3 text-[10px] text-slate-400">
+      <p className="mt-3 text-[10px] text-ink-400">
         Build real projects from day one with our HTML/CSS/JS live editor
       </p>
     </div>
@@ -305,28 +305,28 @@ export function InteractiveDemo() {
   const [tab, setTab] = useState<DemoTab>("python");
 
   return (
-    <section className="border-t border-slate-100 bg-white py-20">
+    <section className="border-t border-ink-100 bg-white py-20">
       <div className="mx-auto max-w-3xl px-6">
         <div className="mb-8 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-slate-900">
+          <h2 className="mb-3 text-3xl font-bold text-ink-900">
             Try it right now
           </h2>
-          <p className="text-slate-500">
+          <p className="text-ink-500">
             No signup required. Experience the platform instantly.
           </p>
         </div>
 
         {/* Tabs */}
         <div className="mb-6 flex justify-center">
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-white/10">
+          <div className="inline-flex rounded-xl bg-ink-100 p-1 dark:bg-white/10">
             {TABS.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
                   tab === t.key
-                    ? "bg-white text-slate-900 shadow-sm dark:bg-[#2C2C2C] dark:text-white"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                    ? "bg-white text-ink-900 shadow-sm dark:bg-[#2C2C2C] dark:text-white"
+                    : "text-ink-500 hover:text-ink-700 dark:text-ink-400"
                 }`}
               >
                 <span className="mr-1.5">{t.emoji}</span>
@@ -337,7 +337,7 @@ export function InteractiveDemo() {
         </div>
 
         {/* Demo content */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#1E1E1E]">
+        <div className="rounded-2xl border border-ink-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#1E1E1E]">
           {tab === "python" && <PythonDemo />}
           {tab === "sat" && <SATDemo />}
           {tab === "web" && <WebDemo />}

@@ -61,15 +61,15 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
   return (
     <div className="flex flex-col items-center gap-5">
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-ink-200 dark:border-white/10">
         <table className="border-collapse">
           <thead>
             <tr>
-              <th className="border-b border-r border-slate-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
+              <th className="border-b border-r border-ink-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
                 {xHeader}
               </th>
               {xValues.map((x, i) => (
-                <th key={i} className="border-b border-slate-200 bg-slate-50 px-5 py-3 text-center text-sm font-semibold text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                <th key={i} className="border-b border-ink-200 bg-ink-50 px-5 py-3 text-center text-sm font-semibold text-ink-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-300">
                   {x}
                 </th>
               ))}
@@ -77,13 +77,13 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
           </thead>
           <tbody>
             <tr>
-              <td className="border-r border-slate-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
+              <td className="border-r border-ink-200 bg-green-50 px-6 py-3 text-sm font-bold text-green-700 dark:border-white/10 dark:bg-green-500/10 dark:text-green-300">
                 {yHeader}
               </td>
               {yValues.map((y, i) => (
-                <td key={i} className="border-slate-200 px-2 py-2 text-center dark:border-white/10">
+                <td key={i} className="border-ink-200 px-2 py-2 text-center dark:border-white/10">
                   {y !== null ? (
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{y}</span>
+                    <span className="text-sm font-semibold text-ink-700 dark:text-ink-300">{y}</span>
                   ) : (
                     <input
                       type="number"
@@ -93,8 +93,8 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
                       className={`w-14 rounded-lg border-2 px-2 py-2 text-center text-sm font-bold outline-none transition-colors ${
                         checked
                           ? cellResults[i]
-                            ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
-                            : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
+                            ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
+                            : "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
                           : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
                       }`}
                       placeholder="?"
@@ -110,7 +110,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
       {/* Rule input */}
       {ruleLabel && (
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-slate-600 dark:text-slate-400">{ruleLabel}</label>
+          <label className="text-sm font-medium text-ink-700 dark:text-ink-400">{ruleLabel}</label>
           <input
             type="text"
             value={userRule}
@@ -120,8 +120,8 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
             className={`w-40 rounded-xl border-2 px-4 py-2 text-center text-sm font-bold outline-none transition-colors ${
               checked
                 ? ruleCorrect
-                  ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
-                  : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
+                  ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
+                  : "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
                 : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
             }`}
           />
@@ -133,7 +133,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
       </Button>
 
       {checked && !(Object.values(cellResults).every(Boolean) && (!ruleLabel || ruleCorrect)) && (
-        <p className="text-xs text-slate-500">Look for the pattern between x and f(x) values.</p>
+        <p className="text-xs text-ink-500">Look for the pattern between x and f(x) values.</p>
       )}
     </div>
   );

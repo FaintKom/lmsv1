@@ -12,17 +12,17 @@ export default function TermsOfServicePage() {
         Back to Login
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-3xl font-bold text-ink-900 dark:text-ink-100">
         Terms of Service
       </h1>
-      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-500 dark:text-ink-400">
         Effective Date: March 31, 2026
       </p>
 
-      <div className="space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <div className="space-y-8 text-sm leading-relaxed text-ink-700 dark:text-ink-400">
         {/* 1. Acceptance of Terms */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             1. Acceptance of Terms
           </h2>
           <p>
@@ -40,7 +40,7 @@ export default function TermsOfServicePage() {
 
         {/* 2. Description of Service */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             2. Description of Service
           </h2>
           <p>
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
 
         {/* 3. User Accounts & Roles */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             3. User Accounts &amp; Roles
           </h2>
           <p>GrassLMS supports four user roles:</p>
@@ -112,7 +112,7 @@ export default function TermsOfServicePage() {
 
         {/* 4. Subscription & Payment */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             4. Subscription &amp; Payment
           </h2>
           <p>GrassLMS offers the following subscription plans:</p>
@@ -154,7 +154,7 @@ export default function TermsOfServicePage() {
 
         {/* 5. User Content */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             5. User Content
           </h2>
           <p>
@@ -179,7 +179,7 @@ export default function TermsOfServicePage() {
 
         {/* 6. Intellectual Property */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             6. Intellectual Property
           </h2>
           <p>
@@ -197,7 +197,7 @@ export default function TermsOfServicePage() {
 
         {/* 7. Code Execution */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             7. Code Execution
           </h2>
           <p>
@@ -228,7 +228,7 @@ export default function TermsOfServicePage() {
 
         {/* 8. AI Tutor */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             8. AI Tutor
           </h2>
           <p>
@@ -258,7 +258,7 @@ export default function TermsOfServicePage() {
 
         {/* 9. Acceptable Use */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             9. Acceptable Use
           </h2>
           <p>
@@ -282,7 +282,7 @@ export default function TermsOfServicePage() {
 
         {/* 10. Privacy */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             10. Privacy
           </h2>
           <p>
@@ -300,11 +300,11 @@ export default function TermsOfServicePage() {
 
         {/* 11. Children & Student Data */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             11. Children &amp; Student Data
           </h2>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             COPPA Compliance
           </h3>
           <p>
@@ -315,7 +315,7 @@ export default function TermsOfServicePage() {
             educational purposes within the scope of the school&rsquo;s subscription.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             FERPA Compliance
           </h3>
           <p>
@@ -326,7 +326,7 @@ export default function TermsOfServicePage() {
             educational services described in these Terms.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Minimum Data Collection
           </h3>
           <p>
@@ -339,7 +339,7 @@ export default function TermsOfServicePage() {
 
         {/* 12. Termination */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             12. Termination
           </h2>
           <p>
@@ -384,7 +384,7 @@ export default function TermsOfServicePage() {
 
         {/* 13. Disclaimers */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             13. Disclaimers
           </h2>
           <p>
@@ -403,7 +403,7 @@ export default function TermsOfServicePage() {
 
         {/* 14. Limitation of Liability */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             14. Limitation of Liability
           </h2>
           <p>
@@ -427,7 +427,7 @@ export default function TermsOfServicePage() {
 
         {/* 15. Governing Law */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             15. Governing Law
           </h2>
           <p>
@@ -452,7 +452,7 @@ export default function TermsOfServicePage() {
 
         {/* 16. Changes to Terms */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             16. Changes to Terms
           </h2>
           <p>
@@ -470,15 +470,15 @@ export default function TermsOfServicePage() {
 
         {/* 17. Contact */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             17. Contact Us
           </h2>
           <p>
             If you have any questions, concerns, or requests regarding these Terms of Service,
             please contact us:
           </p>
-          <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="font-medium text-slate-700 dark:text-slate-300">
+          <div className="mt-2 rounded-lg border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <p className="font-medium text-ink-700 dark:text-ink-300">
               GrassLMS Support Team
             </p>
             <p className="mt-1">

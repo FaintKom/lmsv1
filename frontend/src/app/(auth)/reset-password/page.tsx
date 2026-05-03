@@ -50,8 +50,8 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="text-center">
-        <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">Invalid link</h1>
-        <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="mb-2 text-xl font-bold text-ink-900 dark:text-ink-100">Invalid link</h1>
+        <p className="mb-6 text-sm text-ink-500 dark:text-ink-400">
           This password reset link is invalid or has expired.
         </p>
         <Link
@@ -67,11 +67,11 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/20">
-          <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-500/20">
+          <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
         </div>
-        <h1 className="mb-2 text-xl font-bold text-slate-900 dark:text-slate-100">Password updated!</h1>
-        <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="mb-2 text-xl font-bold text-ink-900 dark:text-ink-100">Password updated!</h1>
+        <p className="mb-6 text-sm text-ink-500 dark:text-ink-400">
           Your password has been reset. Redirecting to sign in...
         </p>
       </div>
@@ -80,21 +80,21 @@ function ResetPasswordForm() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-center text-2xl font-bold text-ink-900 dark:text-ink-100">
         Reset password
       </h1>
-      <p className="mb-8 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-center text-sm text-ink-500 dark:text-ink-400">
         Enter your new password
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div className="rounded-xl border border-coral-300 bg-coral-50 px-4 py-3 text-sm text-coral-500">
             {error}
           </div>
         )}
         <div>
-          <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             New Password
           </label>
           <Input
@@ -107,7 +107,7 @@ function ResetPasswordForm() {
           />
         </div>
         <div>
-          <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Confirm Password
           </label>
           <Input
@@ -128,7 +128,7 @@ function ResetPasswordForm() {
       <p className="mt-6 text-center">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-green-600 dark:text-slate-400"
+          className="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-green-600 dark:text-ink-400"
         >
           <ArrowLeft className="h-3 w-3" /> Back to sign in
         </Link>

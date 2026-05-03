@@ -76,13 +76,13 @@ export default function FileUploadConfig({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+      <div className="flex items-center gap-2 text-sm font-semibold text-ink-700">
         <Upload className="h-4 w-4 text-green-500" />
         File Upload Configuration
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">
+        <label className="mb-1 block text-xs font-medium text-ink-700">
           Instructions for students
         </label>
         <textarea
@@ -90,22 +90,22 @@ export default function FileUploadConfig({
           onChange={(e) => setInstructions(e.target.value)}
           placeholder="Upload your completed assignment as a PDF..."
           rows={3}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
       <div>
-        <label className="mb-2 block text-xs font-medium text-slate-600">
+        <label className="mb-2 block text-xs font-medium text-ink-700">
           Allowed file types
         </label>
         <div className="space-y-2">
           {FILE_TYPE_GROUPS.map((group) => (
-            <label key={group.label} className="flex items-center gap-2 text-sm text-slate-600">
+            <label key={group.label} className="flex items-center gap-2 text-sm text-ink-700">
               <input
                 type="checkbox"
                 checked={group.types.every((t) => allowedTypes.includes(t))}
                 onChange={() => toggleGroup(group.types)}
-                className="rounded border-slate-300"
+                className="rounded border-ink-300"
               />
               {group.label}
             </label>
@@ -114,7 +114,7 @@ export default function FileUploadConfig({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">
+        <label className="mb-1 block text-xs font-medium text-ink-700">
           Max file size (MB)
         </label>
         <input
@@ -123,7 +123,7 @@ export default function FileUploadConfig({
           onChange={(e) => setMaxFileMb(parseInt(e.target.value) || 10)}
           min={1}
           max={50}
-          className="w-32 rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+          className="w-32 rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
@@ -133,7 +133,7 @@ export default function FileUploadConfig({
           {saving ? "Saving..." : "Save Config"}
         </Button>
         {saved && (
-          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
             <CheckCircle className="h-3 w-3" />
             Saved!
           </span>

@@ -31,8 +31,8 @@ interface RadarPoint {
 
 const CATEGORY_COLORS: Record<string, string> = {
   programming: "text-blue-600 bg-blue-100 dark:bg-blue-500/20 dark:text-blue-400",
-  math: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
-  language: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
+  math: "text-green-600 bg-green-100 dark:bg-green-500/20 dark:text-green-400",
+  language: "text-green-600 bg-green-100 dark:bg-green-500/20 dark:text-green-400",
 };
 
 export default function SkillsPage() {
@@ -60,18 +60,18 @@ export default function SkillsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("skills.title")}</h1>
-        <p className="text-base text-slate-500 dark:text-slate-400">{t("skills.subtitle")}</p>
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">{t("skills.title")}</h1>
+        <p className="text-base text-ink-500 dark:text-ink-400">{t("skills.subtitle")}</p>
       </div>
 
       {skills.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
-            <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
-              <Zap className="h-6 w-6 text-slate-400" />
+            <div className="mb-3 rounded-full bg-ink-100 p-3 dark:bg-white/10">
+              <Zap className="h-6 w-6 text-ink-400" />
             </div>
-            <p className="text-sm font-medium text-slate-500">{t("skills.noSkills")}</p>
-            <p className="mt-1 text-xs text-slate-400">{t("skills.noSkillsHint")}</p>
+            <p className="text-sm font-medium text-ink-500">{t("skills.noSkills")}</p>
+            <p className="mt-1 text-xs text-ink-400">{t("skills.noSkillsHint")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -85,14 +85,14 @@ export default function SkillsPage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <RadarChart data={radarData}>
-                    <PolarGrid stroke="#e2e8f0" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#64748b" }} />
-                    <PolarRadiusAxis tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                    <PolarGrid stroke="#e6e8e4" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#4d5a51" }} />
+                    <PolarRadiusAxis tick={{ fontSize: 10, fill: "#9aa39d" }} />
                     <Radar
                       name="XP"
                       dataKey="value"
-                      stroke="#6366f1"
-                      fill="#6366f1"
+                      stroke="#0a8754"
+                      fill="#0a8754"
                       fillOpacity={0.3}
                     />
                   </RadarChart>
@@ -104,7 +104,7 @@ export default function SkillsPage() {
           {/* Skills by category */}
           {categories.map((cat) => (
             <div key={cat}>
-              <h2 className="mb-3 text-lg font-semibold capitalize text-slate-900 dark:text-slate-100">{cat}</h2>
+              <h2 className="mb-3 text-lg font-semibold capitalize text-ink-900 dark:text-ink-100">{cat}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {skills
                   .filter((s) => s.category === cat)
@@ -115,21 +115,21 @@ export default function SkillsPage() {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-600"}`}>
+                              <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-ink-100 text-ink-700"}`}>
                                 {s.skill_icon || "⚡"}
                               </span>
-                              <span className="font-medium text-slate-800 dark:text-slate-200">{s.skill_name}</span>
+                              <span className="font-medium text-ink-900 dark:text-ink-200">{s.skill_name}</span>
                             </div>
                             <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-500/20 dark:text-green-300">
                               {t("skills.level")}{s.level}
                             </span>
                           </div>
                           <div className="mt-3">
-                            <div className="mb-1 flex justify-between text-xs text-slate-400">
+                            <div className="mb-1 flex justify-between text-xs text-ink-400">
                               <span>{s.total_xp} XP</span>
                               <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
                             </div>
-                            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                            <div className="h-1.5 overflow-hidden rounded-full bg-ink-100 dark:bg-white/10">
                               <div className="h-full rounded-full bg-green-500" style={{ width: `${progressToNext}%` }} />
                             </div>
                           </div>

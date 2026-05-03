@@ -263,10 +263,10 @@ export default function BulkEnrollPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">
           Bulk Student Import
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
           Upload a CSV to create student accounts and optionally enroll them in a course.
         </p>
       </div>
@@ -278,7 +278,7 @@ export default function BulkEnrollPage() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "enroll"
               ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+              : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
           }`}
         >
           <Users className="h-4 w-4" />
@@ -289,7 +289,7 @@ export default function BulkEnrollPage() {
           className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "import"
               ? "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+              : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
           }`}
         >
           <UserPlus className="h-4 w-4" />
@@ -310,7 +310,7 @@ export default function BulkEnrollPage() {
             <select
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+              className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-100"
             >
               <option value="">-- Select a course --</option>
               {courses.map((c) => (
@@ -336,7 +336,7 @@ export default function BulkEnrollPage() {
             <select
               value={groupId}
               onChange={(e) => setGroupId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+              className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-100"
             >
               <option value="">-- No group --</option>
               {groups.map((g) => (
@@ -359,10 +359,10 @@ export default function BulkEnrollPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-              Format: header row with <code className="rounded bg-slate-100 px-1 dark:bg-white/10">email</code> (required),{" "}
-              <code className="rounded bg-slate-100 px-1 dark:bg-white/10">name</code> and{" "}
-              <code className="rounded bg-slate-100 px-1 dark:bg-white/10">password</code> (optional).
+            <p className="text-xs font-medium text-ink-700 dark:text-ink-400">
+              Format: header row with <code className="rounded bg-ink-100 px-1 dark:bg-white/10">email</code> (required),{" "}
+              <code className="rounded bg-ink-100 px-1 dark:bg-white/10">name</code> and{" "}
+              <code className="rounded bg-ink-100 px-1 dark:bg-white/10">password</code> (optional).
             </p>
             <button
               type="button"
@@ -383,14 +383,14 @@ export default function BulkEnrollPage() {
             className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors ${
               isDragging
                 ? "border-green-400 bg-green-50 dark:border-green-500 dark:bg-green-500/10"
-                : "border-slate-300 bg-slate-50 hover:border-slate-400 dark:border-white/20 dark:bg-white/5 dark:hover:border-white/30"
+                : "border-ink-300 bg-ink-50 hover:border-ink-400 dark:border-white/20 dark:bg-white/5 dark:hover:border-white/30"
             }`}
           >
-            <Upload className={`mb-2 h-8 w-8 ${isDragging ? "text-green-500" : "text-slate-400"}`} />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            <Upload className={`mb-2 h-8 w-8 ${isDragging ? "text-green-500" : "text-ink-400"}`} />
+            <p className="text-sm font-medium text-ink-700 dark:text-ink-300">
               {isDragging ? "Drop CSV file here" : "Drag & drop a CSV file, or click to browse"}
             </p>
-            <p className="mt-1 text-xs text-slate-400">Only .csv files accepted</p>
+            <p className="mt-1 text-xs text-ink-400">Only .csv files accepted</p>
             {csvFile && (
               <p className="mt-2 text-xs font-medium text-green-600 dark:text-green-400">
                 Loaded: {csvFile.name}
@@ -410,7 +410,7 @@ export default function BulkEnrollPage() {
 
           {/* Manual textarea */}
           <details className="group">
-            <summary className="cursor-pointer text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+            <summary className="cursor-pointer text-xs font-medium text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300">
               Or paste CSV text manually
             </summary>
             <textarea
@@ -422,7 +422,7 @@ export default function BulkEnrollPage() {
               }}
               placeholder={CSV_TEMPLATE}
               rows={8}
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+              className="mt-2 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 font-mono text-xs text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-100"
             />
           </details>
 
@@ -443,7 +443,7 @@ export default function BulkEnrollPage() {
           </div>
 
           {parseError && (
-            <p className="flex items-center gap-1 text-xs text-rose-600">
+            <p className="flex items-center gap-1 text-xs text-coral-500">
               <AlertCircle className="h-3.5 w-3.5" />
               {parseError}
             </p>
@@ -460,23 +460,23 @@ export default function BulkEnrollPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="max-h-72 overflow-auto rounded-lg border border-slate-200 dark:border-white/10">
+            <div className="max-h-72 overflow-auto rounded-lg border border-ink-200 dark:border-white/10">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-slate-50 dark:bg-white/5">
+                <thead className="sticky top-0 bg-ink-50 dark:bg-white/5">
                   <tr>
-                    <th className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-400">#</th>
-                    <th className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-400">Email</th>
-                    <th className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-400">Name</th>
-                    <th className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-400">Password</th>
+                    <th className="px-3 py-2 font-semibold text-ink-700 dark:text-ink-400">#</th>
+                    <th className="px-3 py-2 font-semibold text-ink-700 dark:text-ink-400">Email</th>
+                    <th className="px-3 py-2 font-semibold text-ink-700 dark:text-ink-400">Name</th>
+                    <th className="px-3 py-2 font-semibold text-ink-700 dark:text-ink-400">Password</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                <tbody className="divide-y divide-ink-100 dark:divide-white/5">
                   {parsed.map((row, i) => (
-                    <tr key={i} className="hover:bg-slate-50 dark:hover:bg-white/5">
-                      <td className="px-3 py-1.5 text-slate-400">{i + 1}</td>
-                      <td className="px-3 py-1.5 font-mono text-slate-900 dark:text-slate-100">{row.email}</td>
-                      <td className="px-3 py-1.5 text-slate-700 dark:text-slate-300">{row.full_name || <span className="italic text-slate-400">auto</span>}</td>
-                      <td className="px-3 py-1.5 text-slate-500">{row.password ? "***" : <span className="italic text-slate-400">{mode === "enroll" ? "default" : "random"}</span>}</td>
+                    <tr key={i} className="hover:bg-ink-50 dark:hover:bg-white/5">
+                      <td className="px-3 py-1.5 text-ink-400">{i + 1}</td>
+                      <td className="px-3 py-1.5 font-mono text-ink-900 dark:text-ink-100">{row.email}</td>
+                      <td className="px-3 py-1.5 text-ink-700 dark:text-ink-300">{row.full_name || <span className="italic text-ink-400">auto</span>}</td>
+                      <td className="px-3 py-1.5 text-ink-500">{row.password ? "***" : <span className="italic text-ink-400">{mode === "enroll" ? "default" : "random"}</span>}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -501,9 +501,9 @@ export default function BulkEnrollPage() {
               value={defaultPassword}
               onChange={(e) => setDefaultPassword(e.target.value)}
               placeholder="Welcome2026!"
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+              className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-100"
             />
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
               Minimum 8 characters. Students should change this on first login.
             </p>
           </CardContent>
@@ -538,7 +538,7 @@ export default function BulkEnrollPage() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              <CheckCircle className="h-4 w-4 text-green-500" />
               Import results
             </CardTitle>
           </CardHeader>
@@ -550,7 +550,7 @@ export default function BulkEnrollPage() {
               <Stat label="Enrolled" value={enrollResult.enrolled} />
             </div>
             {enrollResult.already_enrolled > 0 && (
-              <p className="mb-3 text-xs text-slate-500">
+              <p className="mb-3 text-xs text-ink-500">
                 {enrollResult.already_enrolled} student
                 {enrollResult.already_enrolled === 1 ? " was" : "s were"} already
                 enrolled in the course (skipped).
@@ -568,7 +568,7 @@ export default function BulkEnrollPage() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle className="h-4 w-4 text-emerald-500" />
+              <CheckCircle className="h-4 w-4 text-green-500" />
               Import results
             </CardTitle>
           </CardHeader>
@@ -590,9 +590,9 @@ export default function BulkEnrollPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 text-center dark:border-white/10 dark:bg-white/5">
-      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</div>
-      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
+    <div className="rounded-lg border border-ink-200 bg-white p-3 text-center dark:border-white/10 dark:bg-white/5">
+      <div className="text-2xl font-bold text-ink-900 dark:text-ink-100">{value}</div>
+      <div className="text-xs text-ink-500 dark:text-ink-400">{label}</div>
     </div>
   );
 }
@@ -600,12 +600,12 @@ function Stat({ label, value }: { label: string; value: number }) {
 function ErrorList({ errors }: { errors: string[] }) {
   return (
     <div>
-      <p className="mb-2 text-sm font-semibold text-rose-700 dark:text-rose-400">
+      <p className="mb-2 text-sm font-semibold text-coral-700 dark:text-coral-300">
         Errors ({errors.length})
       </p>
-      <div className="max-h-48 overflow-y-auto rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-500/30 dark:bg-rose-500/10">
+      <div className="max-h-48 overflow-y-auto rounded-lg border border-coral-300 bg-coral-50 p-3 dark:border-coral-500/30 dark:bg-coral-500/10">
         {errors.map((err, i) => (
-          <div key={i} className="mb-1 text-xs text-rose-700 dark:text-rose-400">
+          <div key={i} className="mb-1 text-xs text-coral-700 dark:text-coral-300">
             {err}
           </div>
         ))}

@@ -37,7 +37,7 @@ function VerifyEmailFlow() {
   }, [token]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 dark:bg-[#1E1E1E]">
+    <div className="flex min-h-screen items-center justify-center bg-ink-50 px-4 dark:bg-[#1E1E1E]">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm dark:bg-[#2C2C2C]">
         <div className="mb-6 flex justify-center">
           {status === "loading" && (
@@ -46,22 +46,22 @@ function VerifyEmailFlow() {
             </div>
           )}
           {status === "success" && (
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-500/20">
-              <CheckCircle className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-500/20">
+              <CheckCircle className="h-7 w-7 text-green-600 dark:text-green-400" />
             </div>
           )}
           {status === "error" && (
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-500/20">
-              <XCircle className="h-7 w-7 text-rose-600 dark:text-rose-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-coral-50 dark:bg-coral-500/20">
+              <XCircle className="h-7 w-7 text-coral-500 dark:text-coral-300" />
             </div>
           )}
         </div>
-        <h1 className="mb-2 text-center text-xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="mb-2 text-center text-xl font-bold text-ink-900 dark:text-ink-100">
           {status === "loading" && "Verifying your email..."}
           {status === "success" && "Email verified"}
           {status === "error" && "Verification failed"}
         </h1>
-        <p className="mb-6 text-center text-sm text-slate-600 dark:text-slate-400">
+        <p className="mb-6 text-center text-sm text-ink-700 dark:text-ink-400">
           {message || "Please wait while we confirm your address."}
         </p>
         {status !== "loading" && (

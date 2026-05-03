@@ -85,19 +85,19 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
   return (
     <div className="space-y-5">
       {/* Source text card */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
         {/* Language bar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.03]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-ink-100 dark:border-white/5 bg-ink-50 dark:bg-white/[0.03]">
           <div className="flex items-center gap-2">
             <span className="text-lg">{getLangFlag(config.source_language)}</span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
               {getLangLabel(config.source_language)}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-400">
+          <div className="flex items-center gap-1.5 text-ink-400">
             <span className="text-xs">{"\u2192"}</span>
             <span className="text-lg">{getLangFlag(config.target_language)}</span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
               {getLangLabel(config.target_language)}
             </span>
           </div>
@@ -105,7 +105,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
 
         {/* Source text */}
         <div className="p-6">
-          <p className="text-xl font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+          <p className="text-xl font-semibold text-ink-900 dark:text-ink-100 leading-relaxed">
             {config.source_text || "No text provided"}
           </p>
         </div>
@@ -127,10 +127,10 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
             className={`w-full rounded-2xl border-2 px-5 py-4 text-[15px] font-medium transition-all duration-200 outline-none resize-none
               ${
                 submitted && isCorrect === true
-                  ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  ? "border-green-400 bg-green-50 text-green-800 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
                   : submitted && isCorrect === false
-                  ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                  : "border-slate-200 dark:border-white/15 bg-white dark:bg-[#1E1E1E] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+                  ? "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
+                  : "border-ink-200 dark:border-white/15 bg-white dark:bg-[#1E1E1E] text-ink-900 dark:text-ink-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
               }
               disabled:cursor-not-allowed
             `}
@@ -138,7 +138,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
           {/* Character count */}
           <span
             className={`absolute bottom-3 right-4 text-xs font-medium ${
-              charCount > maxLen * 0.9 ? "text-amber-500" : "text-slate-300 dark:text-slate-600"
+              charCount > maxLen * 0.9 ? "text-sun-500" : "text-ink-300 dark:text-ink-700"
             }`}
           >
             {charCount}/{maxLen}
@@ -147,17 +147,17 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
 
         {/* Feedback after submit */}
         {submitted && isCorrect === true && (
-          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          <p className="text-sm font-semibold text-green-600 dark:text-green-400">
             {"\u2713"} Great translation!
           </p>
         )}
         {submitted && isCorrect === false && (
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+            <p className="text-sm font-semibold text-coral-500 dark:text-coral-300">
               {"\u2717"} Not quite right
             </p>
             {config.accepted_answers && config.accepted_answers.length > 0 && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-ink-500 dark:text-ink-400">
                 Accepted: {config.accepted_answers[0]}
               </p>
             )}
@@ -168,7 +168,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
       {/* Hints */}
       {config.hints && config.hints.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
             {"\uD83D\uDCA1"} Hints (tap to reveal)
           </p>
           <div className="flex flex-wrap gap-2">
@@ -179,7 +179,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   revealedHints.has(i)
                     ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-500/30"
-                    : "bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/15"
+                    : "bg-ink-100 dark:bg-white/10 text-ink-400 dark:text-ink-500 border border-ink-200 dark:border-white/10 hover:bg-ink-200 dark:hover:bg-white/15"
                 }`}
               >
                 {revealedHints.has(i) ? h : `Hint ${i + 1}`}

@@ -55,7 +55,7 @@ export default function MathExercise({
     return (
       <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-0">
         {instructions && (
-          <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+          <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-500/10 dark:text-green-300">
             {instructions}
           </div>
         )}
@@ -68,7 +68,7 @@ export default function MathExercise({
   const template = MATH_TEMPLATES[templateType];
   if (!template || !template.component) {
     return (
-      <div className="py-8 text-center text-sm text-slate-500">
+      <div className="py-8 text-center text-sm text-ink-500">
         Unknown template type: {templateType}
       </div>
     );
@@ -79,13 +79,13 @@ export default function MathExercise({
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-3 py-4 sm:px-0">
       {instructions && (
-        <div className="rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 dark:bg-teal-500/10 dark:text-teal-300">
+        <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-500/10 dark:text-green-300">
           📝 {instructions}
         </div>
       )}
       <Suspense
         fallback={
-          <div className="flex items-center justify-center py-12 text-sm text-slate-500">
+          <div className="flex items-center justify-center py-12 text-sm text-ink-500">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Loading...
           </div>
@@ -156,7 +156,7 @@ ${html}
     <iframe
       srcDoc={srcdoc}
       sandbox="allow-scripts"
-      className="h-[400px] w-full rounded-lg border border-slate-200 dark:border-white/10"
+      className="h-[400px] w-full rounded-lg border border-ink-200 dark:border-white/10"
       title="Math Exercise"
     />
   );

@@ -77,15 +77,15 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
   return (
     <div className="space-y-5">
       {/* Passage card */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.03]">
+      <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
+        <div className="flex items-center gap-2 px-5 py-3 border-b border-ink-100 dark:border-white/5 bg-ink-50 dark:bg-white/[0.03]">
           <span className="text-lg">{"\uD83D\uDCD6"}</span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">
             Reading Passage
           </span>
         </div>
         <div className="p-5 max-h-[320px] overflow-y-auto">
-          <div className="text-[15px] leading-[1.8] text-slate-700 dark:text-slate-200 whitespace-pre-wrap font-[Georgia,serif]">
+          <div className="text-[15px] leading-[1.8] text-ink-700 dark:text-ink-200 whitespace-pre-wrap font-[Georgia,serif]">
             {config.passage || "No passage provided."}
           </div>
         </div>
@@ -103,17 +103,17 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                   i === currentQ
                     ? "w-8 bg-green-500"
                     : submitted && results[String(i)] === true
-                    ? "w-2.5 bg-emerald-400"
+                    ? "w-2.5 bg-green-400"
                     : submitted && results[String(i)] === false
-                    ? "w-2.5 bg-red-400"
+                    ? "w-2.5 bg-coral-300"
                     : answers[String(i)]?.trim()
                     ? "w-2.5 bg-green-300"
-                    : "w-2.5 bg-slate-200 dark:bg-white/15"
+                    : "w-2.5 bg-ink-200 dark:bg-white/15"
                 }`}
               />
             ))}
           </div>
-          <span className="text-xs font-medium text-slate-400">
+          <span className="text-xs font-medium text-ink-400">
             {currentQ + 1} / {totalQuestions}
           </span>
         </div>
@@ -125,13 +125,13 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
           key={qi}
           className={`transition-all duration-300 ${qi === currentQ ? "block" : "hidden"}`}
         >
-          <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm p-5 space-y-4">
+          <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm p-5 space-y-4">
             {/* Question text */}
             <div className="flex items-start gap-3">
               <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-500/20 text-sm font-bold text-green-600 dark:text-green-400">
                 {qi + 1}
               </span>
-              <p className="text-[15px] font-medium text-slate-800 dark:text-slate-200 pt-1">
+              <p className="text-[15px] font-medium text-ink-900 dark:text-ink-200 pt-1">
                 {q.question}
               </p>
             </div>
@@ -152,12 +152,12 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                       className={`w-full text-left rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-all duration-200
                         ${
                           isCorrectOption
-                            ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
+                            ? "border-green-400 bg-green-50 text-green-800 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
                             : isWrongSelection
-                            ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
+                            ? "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
                             : isSelected
-                            ? "border-green-500 bg-green-50 text-indigo-800 dark:border-green-400 dark:bg-green-500/15 dark:text-green-300 shadow-sm"
-                            : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-green-300 hover:bg-green-50/50 dark:hover:border-green-500/40 dark:hover:bg-green-500/5"
+                            ? "border-green-500 bg-green-50 text-green-800 dark:border-green-400 dark:bg-green-500/15 dark:text-green-300 shadow-sm"
+                            : "border-ink-200 dark:border-white/10 text-ink-700 dark:text-ink-300 hover:border-green-300 hover:bg-green-50/50 dark:hover:border-green-500/40 dark:hover:bg-green-500/5"
                         }
                         disabled:cursor-default
                       `}
@@ -165,10 +165,10 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                       <div className="flex items-center justify-between">
                         <span>{opt.text}</span>
                         {isCorrectOption && (
-                          <span className="text-emerald-500 font-bold">{"\u2713"}</span>
+                          <span className="text-green-500 font-bold">{"\u2713"}</span>
                         )}
                         {isWrongSelection && (
-                          <span className="text-red-500 font-bold">{"\u2717"}</span>
+                          <span className="text-coral-500 font-bold">{"\u2717"}</span>
                         )}
                       </div>
                     </button>
@@ -187,16 +187,16 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
                   className={`w-full rounded-2xl border-2 px-4 py-3 text-sm font-medium transition-all duration-200 outline-none
                     ${
                       submitted && results[String(qi)] === true
-                        ? "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
+                        ? "border-green-400 bg-green-50 text-green-800 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
                         : submitted && results[String(qi)] === false
-                        ? "border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                        : "border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+                        ? "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
+                        : "border-ink-200 dark:border-white/15 bg-ink-50 dark:bg-[#2A2A2A] text-ink-900 dark:text-ink-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
                     }
                     disabled:cursor-not-allowed
                   `}
                 />
                 {submitted && results[String(qi)] === false && q.correct_answer && (
-                  <p className="mt-2 text-xs text-red-500 dark:text-red-400 font-medium">
+                  <p className="mt-2 text-xs text-coral-500 dark:text-coral-300 font-medium">
                     Correct answer: {q.correct_answer}
                   </p>
                 )}
@@ -211,7 +211,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
         {totalQuestions > 1 && currentQ > 0 && (
           <button
             onClick={() => setCurrentQ((p) => p - 1)}
-            className="rounded-2xl border-2 border-slate-200 dark:border-white/15 px-5 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-white/5"
+            className="rounded-2xl border-2 border-ink-200 dark:border-white/15 px-5 py-3 text-sm font-semibold text-ink-700 dark:text-ink-300 transition-all duration-200 hover:bg-ink-50 dark:hover:bg-white/5"
           >
             {"\u2190"} Previous
           </button>
@@ -242,8 +242,8 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
         <div
           className={`rounded-2xl px-5 py-3 text-sm font-semibold ${
             correctCount === totalQuestions
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-              : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+              ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+              : "bg-sun-50 text-sun-700 dark:bg-sun-500/10 dark:text-sun-400"
           }`}
         >
           {correctCount === totalQuestions

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>Student Dashboard — GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green-25:#f4fbef; --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e;
+    --green-300:#8fd770; --green-400:#6bc44d; --green-500:#3fb04b; --green-600:#0a8754;
+    --green-700:#07683f; --green-800:#054d2f; --green-900:#0a3d24;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-400:#ffd84d;
+    --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-300:#ffae9a; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-900:#0a1a10; --ink-700:#1a2a1f; --ink-500:#4d5a51; --ink-400:#6b7a70;
+    --ink-300:#9aa39d; --ink-200:#c9cec9; --ink-100:#e6e8e4; --ink-50:#f4f5f1;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --shadow-pop:0 4px 0 0 var(--green-700);
+    --shadow-pop-coral:0 4px 0 0 var(--coral-700);
+    --shadow-sm:0 2px 6px -1px rgba(10,26,16,0.07);
+    --shadow-md:0 8px 24px -8px rgba(10,26,16,0.12);
+    --shadow-lg:0 18px 50px -20px rgba(10,26,16,0.18);
+    --r-md:14px; --r-lg:18px;
+    --font-sans:'Manrope',system-ui,sans-serif;
+    --font-mono:'Geist Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:var(--font-sans);background:var(--ink-50);color:var(--ink-900);-webkit-font-smoothing:antialiased}
+  body{padding:48px 0 96px}
+
+  .doc{max-width:1440px;margin:0 auto;padding:0 48px}
+  .doc-head{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;padding-bottom:28px;border-bottom:1px solid var(--ink-100);margin-bottom:48px}
+  .doc-head h1{font-size:40px;font-weight:800;letter-spacing:-0.025em;line-height:1.05;margin:0 0 10px;max-width:780px}
+  .doc-head h1 em{font-style:normal;background:var(--sun-300);padding:0 8px;border-radius:8px;display:inline-block;transform:rotate(-1deg)}
+  .doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-700);margin:0 0 12px}
+  .doc-head .lede{font-size:16px;line-height:1.55;color:var(--ink-500);max-width:620px;margin:0}
+  .doc-head .meta{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.04em;line-height:1.7;text-align:right}
+  .doc-head .meta strong{display:block;font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--ink-900);text-transform:none;letter-spacing:0;margin-bottom:2px}
+
+  .section-label{display:flex;align-items:baseline;gap:16px;justify-content:space-between;border-bottom:2px solid var(--ink-900);padding-bottom:14px;margin-bottom:24px}
+  .section-label h2{font-size:24px;font-weight:800;letter-spacing:-0.02em;margin:0}
+  .section-label .num{font-family:var(--font-mono);font-size:11px;color:var(--green-700);letter-spacing:0.1em}
+  .section-label .desc{font-size:13px;color:var(--ink-500);text-align:right;max-width:440px;line-height:1.5;margin:0}
+
+  /* Browser frame */
+  .browser{background:#fff;border-radius:18px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--ink-100);margin-bottom:80px}
+  .browser-bar{background:var(--ink-50);border-bottom:1px solid var(--ink-100);padding:10px 16px;display:flex;align-items:center;gap:10px}
+  .browser-dots{display:flex;gap:6px}
+  .browser-dot{width:11px;height:11px;border-radius:50%}
+  .browser-url{flex:1;background:#fff;border:1px solid var(--ink-100);border-radius:8px;padding:5px 12px;font-family:var(--font-mono);font-size:11px;color:var(--ink-500);max-width:520px;margin:0 auto;text-align:center}
+
+  /* App shell */
+  .app{display:grid;grid-template-columns:240px 1fr;background:var(--paper);min-height:900px}
+
+  /* Rail */
+  .rail{background:var(--ink-900);color:#fff;padding:18px 16px;display:flex;flex-direction:column;gap:6px}
+  .rail-logo{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px}
+  .rail-logo .mark{width:32px;height:32px;background:var(--green-500);border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:18px;letter-spacing:-0.03em;position:relative}
+  .rail-logo .mark::after{content:'';position:absolute;bottom:4px;right:5px;width:5px;height:5px;background:var(--sun-400);border-radius:50%}
+  .rail-logo .name{font-weight:800;font-size:15px;letter-spacing:-0.01em}
+  .rail-logo .name small{display:block;font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;margin-top:1px;font-weight:500;text-transform:uppercase}
+  .rail-section{font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;padding:14px 8px 6px}
+  .rail-item{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+  .rail-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+  .rail-item.active{background:var(--green-600);color:#fff}
+  .rail-item .badge{margin-left:auto;background:var(--coral-500);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:800;font-family:var(--font-mono)}
+  .rail-foot{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px}
+  .rail-foot .av{width:30px;height:30px;border-radius:50%;background:var(--green-400);display:grid;place-items:center;font-weight:800;color:var(--green-900);font-size:13px}
+  .rail-foot .who .nm{font-size:13px;font-weight:700;color:#fff}
+  .rail-foot .who .ml{font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--font-mono);letter-spacing:0.04em}
+
+  /* Main */
+  .main{padding:36px 48px}
+
+  /* Hero greeting */
+  .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-bottom:36px}
+  .hero-card{background:linear-gradient(135deg,var(--green-600) 0%,var(--green-700) 100%);color:#fff;border-radius:24px;padding:36px 36px 32px;position:relative;overflow:hidden}
+  .hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(255,216,77,0.25),transparent 70%)}
+  .hero-card::after{content:'';position:absolute;bottom:-50px;left:60%;width:140px;height:140px;background:radial-gradient(circle,rgba(63,176,75,0.5),transparent 70%)}
+  .hero-card .eb{font-family:var(--font-mono);font-size:11px;color:var(--green-200);letter-spacing:0.1em;text-transform:uppercase;margin:0 0 10px;font-weight:600;position:relative}
+  .hero-card h2{font-size:36px;font-weight:800;letter-spacing:-0.025em;line-height:1.05;margin:0 0 12px;position:relative}
+  .hero-card h2 em{font-style:normal;background:var(--sun-300);color:var(--ink-900);padding:0 8px;border-radius:8px;display:inline-block;transform:rotate(-1deg)}
+  .hero-card .sub{font-size:15px;line-height:1.5;color:rgba(255,255,255,0.85);margin:0 0 24px;max-width:380px;position:relative}
+  .hero-card .actions{display:flex;gap:10px;position:relative;flex-wrap:wrap}
+  .hero-card .btn{font-family:var(--font-sans);font-weight:700;font-size:13px;padding:13px 22px;border-radius:14px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;transition:transform 0.12s,box-shadow 0.12s}
+  .hero-card .btn-sun{background:var(--sun-400);color:var(--ink-900);box-shadow:0 4px 0 0 var(--sun-500)}
+  .hero-card .btn-sun:hover{transform:translateY(2px);box-shadow:0 2px 0 0 var(--sun-500)}
+  .hero-card .btn-ghost{background:rgba(255,255,255,0.12);color:#fff}
+  .hero-card .btn-ghost:hover{background:rgba(255,255,255,0.18)}
+
+  /* Streak card (right side of hero) */
+  .streak-card{background:#fff;border-radius:24px;padding:24px;border:1px solid var(--ink-100);position:relative;overflow:hidden}
+  .streak-card .top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+  .streak-card .lbl{font-family:var(--font-mono);font-size:10px;color:var(--ink-400);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+  .streak-card .big{font-size:64px;font-weight:800;letter-spacing:-0.04em;line-height:0.9;color:var(--coral-500)}
+  .streak-card .big small{font-size:18px;color:var(--coral-700);font-weight:700;letter-spacing:-0.01em}
+  .streak-flame{width:48px;height:48px;background:var(--coral-500);border-radius:14px;display:grid;place-items:center;color:#fff;font-size:24px;box-shadow:var(--shadow-pop-coral)}
+  .streak-card h3{font-size:18px;font-weight:800;margin:6px 0 14px;letter-spacing:-0.015em}
+  .streak-week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px}
+  .day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;justify-content:space-between;padding:6px;font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:0.04em}
+  .day.done{background:var(--coral-500);color:#fff}
+  .day.today{background:var(--coral-50);color:var(--coral-700);border:2px dashed var(--coral-500)}
+  .day.future{background:var(--ink-50);color:var(--ink-300)}
+  .day .d{font-size:14px;font-weight:800}
+  .streak-card .note{font-size:12px;color:var(--ink-500);margin:0;line-height:1.4}
+  .streak-card .note b{color:var(--coral-700)}
+
+  /* Quick stats */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px}
+  .stat{background:var(--paper-2);border-radius:14px;padding:18px 20px;border:1px solid var(--ink-100);position:relative}
+  .stat .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .stat .lbl{font-family:var(--font-mono);font-size:10px;color:var(--ink-400);letter-spacing:0.08em;text-transform:uppercase;font-weight:600}
+  .stat .ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center}
+  .stat.green .ico{background:var(--green-100);color:var(--green-700)}
+  .stat.sun .ico{background:var(--sun-100);color:var(--sun-700)}
+  .stat.coral .ico{background:var(--coral-50);color:var(--coral-700)}
+  .stat.ink .ico{background:var(--ink-100);color:var(--ink-700)}
+  .stat .v{font-size:30px;font-weight:800;letter-spacing:-0.025em;line-height:1}
+  .stat .v small{font-size:14px;color:var(--ink-400);font-weight:600;letter-spacing:0}
+  .stat .delta{font-size:11px;color:var(--green-700);font-weight:700;margin-top:6px;display:flex;align-items:center;gap:4px}
+  .stat .delta.down{color:var(--coral-700)}
+
+  /* Two-col layout */
+  .layout{display:grid;grid-template-columns:1.7fr 1fr;gap:24px}
+
+  .panel{background:var(--paper-2);border-radius:18px;border:1px solid var(--ink-100);overflow:hidden}
+  .panel-head{padding:20px 24px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .panel-head h3{font-size:17px;font-weight:800;letter-spacing:-0.015em;margin:0}
+  .panel-head .a{font-size:12px;color:var(--green-700);font-weight:700;text-decoration:none;cursor:pointer;font-family:var(--font-sans)}
+  .panel-head .a:hover{text-decoration:underline}
+  .panel-body{padding:0 24px 24px}
+
+  /* Continue cards */
+  .continue-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .ccard{display:flex;flex-direction:column;border-radius:14px;border:2px solid var(--ink-100);overflow:hidden;background:#fff;cursor:pointer;transition:transform 0.12s,box-shadow 0.12s}
+  .ccard:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--green-300)}
+  .ccard .cover{aspect-ratio:16/9;display:flex;align-items:flex-end;padding:14px;color:#fff;position:relative;overflow:hidden}
+  .ccard .cover::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.4))}
+  .ccard .cover.algebra{background:radial-gradient(circle at 75% 25%,#3fb04b,#054d2f)}
+  .ccard .cover.js{background:radial-gradient(circle at 75% 25%,#0a8754,#0a1a10)}
+  .ccard .cover.spanish{background:radial-gradient(circle at 75% 25%,#ff7a5c,#7a2e15)}
+  .ccard .cover.sat{background:radial-gradient(circle at 75% 25%,#ffd84d,#7a5500)}
+  .ccard .cover .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:700;position:relative}
+  .ccard .cover .glyph{position:absolute;top:14px;right:14px;font-size:32px;font-weight:800;font-family:var(--font-mono);color:rgba(255,255,255,0.25)}
+  .ccard .body{padding:14px 16px}
+  .ccard .body h4{font-size:14px;font-weight:800;letter-spacing:-0.01em;margin:0 0 4px;color:var(--ink-900);line-height:1.25}
+  .ccard .body .nx{font-size:12px;color:var(--ink-500);margin:0 0 10px;line-height:1.4;display:flex;gap:5px;align-items:center}
+  .ccard .progress{display:flex;align-items:center;gap:8px}
+  .ccard .progress .bar{flex:1;height:6px;background:var(--ink-100);border-radius:999px;overflow:hidden}
+  .ccard .progress .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green-400),var(--green-600));border-radius:999px}
+  .ccard .progress .pct{font-family:var(--font-mono);font-size:10px;color:var(--green-700);font-weight:700}
+
+  /* Today's plan */
+  .today{display:flex;flex-direction:column;gap:10px}
+  .ti{display:grid;grid-template-columns:48px 1fr auto;gap:14px;align-items:center;padding:14px;background:var(--paper-2);border-radius:12px;border:1px solid var(--ink-100);transition:all 0.12s}
+  .ti:hover{border-color:var(--green-300);background:var(--green-25)}
+  .ti.done{opacity:0.5}
+  .ti.done .ttl{text-decoration:line-through}
+  .ti .time{text-align:center}
+  .ti .time .h{font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--ink-900);letter-spacing:-0.01em}
+  .ti .time .m{font-family:var(--font-mono);font-size:9px;color:var(--ink-400);letter-spacing:0.04em;font-weight:600;text-transform:uppercase}
+  .ti .body .ttl{font-size:13px;font-weight:700;margin:0 0 2px;color:var(--ink-900)}
+  .ti .body .sub{font-size:11px;color:var(--ink-500);margin:0;display:flex;gap:8px;align-items:center}
+  .ti .body .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;font-family:var(--font-mono);letter-spacing:0.04em;text-transform:uppercase}
+  .ti .body .pill.green{background:var(--green-100);color:var(--green-800)}
+  .ti .body .pill.coral{background:var(--coral-50);color:var(--coral-700)}
+  .ti .body .pill.sun{background:var(--sun-100);color:var(--sun-700)}
+  .ti .check{width:32px;height:32px;border-radius:50%;display:grid;place-items:center}
+  .ti .check.todo{background:var(--ink-50);border:1.5px dashed var(--ink-200);color:var(--ink-400);font-size:11px;font-weight:800;font-family:var(--font-mono)}
+  .ti .check.done{background:var(--green-500);color:#fff;font-weight:800}
+
+  /* Achievements row */
+  .ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .ach{background:var(--paper-2);border-radius:14px;padding:14px;border:1px solid var(--ink-100);text-align:center;position:relative;overflow:hidden}
+  .ach .badge{width:64px;height:64px;border-radius:18px;margin:4px auto 10px;display:grid;place-items:center;font-size:30px;color:#fff;position:relative}
+  .ach.bronze .badge{background:linear-gradient(135deg,#a86b3d,#7a4423);box-shadow:0 4px 0 0 #5c3318}
+  .ach.silver .badge{background:linear-gradient(135deg,#d4d4d4,#9a9a9a);box-shadow:0 4px 0 0 #6b6b6b}
+  .ach.gold .badge{background:linear-gradient(135deg,var(--sun-400),var(--sun-500));box-shadow:0 4px 0 0 var(--sun-700);color:var(--sun-700)}
+  .ach.locked .badge{background:var(--ink-100);color:var(--ink-300);box-shadow:0 4px 0 0 var(--ink-200)}
+  .ach h5{font-size:12px;font-weight:800;letter-spacing:-0.005em;margin:0 0 3px}
+  .ach.locked h5{color:var(--ink-400)}
+  .ach p{font-size:10px;color:var(--ink-500);margin:0;line-height:1.35;font-family:var(--font-mono);letter-spacing:0.02em}
+
+  /* Activity heatmap-ish */
+  .activity{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;padding:14px 0}
+  .ad{aspect-ratio:1;border-radius:3px;background:var(--ink-100)}
+  .ad.l1{background:var(--green-100)}
+  .ad.l2{background:var(--green-300)}
+  .ad.l3{background:var(--green-500)}
+  .ad.l4{background:var(--green-700)}
+
+  /* Skills radar */
+  .skills{display:flex;flex-direction:column;gap:10px}
+  .skill{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center}
+  .skill .ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:13px}
+  .skill .ttl{font-size:13px;font-weight:600;color:var(--ink-900)}
+  .skill .ttl small{display:block;font-size:10px;color:var(--ink-400);font-family:var(--font-mono);letter-spacing:0.04em;font-weight:500;margin-top:1px}
+  .skill .lvl{display:flex;gap:2px;align-items:center}
+  .skill .lvl span{width:10px;height:14px;border-radius:2px;background:var(--ink-100)}
+  .skill .lvl span.fill{background:var(--green-500)}
+
+  /* Leaderboard mini */
+  .lb{display:flex;flex-direction:column;gap:8px}
+  .lb-row{display:grid;grid-template-columns:24px 32px 1fr auto;gap:10px;align-items:center;padding:8px 12px;border-radius:10px}
+  .lb-row.me{background:var(--green-50);border:1px solid var(--green-200)}
+  .lb-row .rank{font-family:var(--font-mono);font-size:13px;font-weight:800;color:var(--ink-400);text-align:center}
+  .lb-row.top1 .rank{color:var(--sun-500)}
+  .lb-row.top2 .rank{color:var(--ink-300)}
+  .lb-row.top3 .rank{color:var(--coral-500)}
+  .lb-row .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}
+  .lb-row .nm{font-size:13px;font-weight:700;color:var(--ink-900)}
+  .lb-row .nm small{display:block;font-size:10px;color:var(--ink-400);font-weight:500;font-family:var(--font-mono);letter-spacing:0.04em}
+  .lb-row .xp{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--green-700)}
+  .lb-row.me .xp{color:var(--green-800)}
+
+  /* AI tutor card */
+  .ai-card{background:var(--ink-900);color:#fff;border-radius:18px;padding:22px;position:relative;overflow:hidden}
+  .ai-card::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(63,176,75,0.3),transparent 70%)}
+  .ai-card .top{display:flex;gap:12px;margin-bottom:14px;position:relative}
+  .ai-card .av{width:42px;height:42px;background:var(--green-500);border-radius:12px;display:grid;place-items:center;color:#fff;font-size:20px;flex-shrink:0;box-shadow:0 4px 0 0 var(--green-700)}
+  .ai-card .top .nm{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--green-400);text-transform:uppercase;font-weight:700;margin-bottom:2px}
+  .ai-card .top h4{font-size:16px;font-weight:800;margin:0;letter-spacing:-0.01em}
+  .ai-card p{font-size:13px;line-height:1.5;color:rgba(255,255,255,0.8);margin:0 0 14px;position:relative}
+  .ai-card .tags{display:flex;gap:6px;flex-wrap:wrap;position:relative;margin-bottom:14px}
+  .ai-card .tag{font-size:11px;font-weight:600;background:rgba(255,255,255,0.08);padding:6px 10px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.9)}
+  .ai-card .tag:hover{background:rgba(63,176,75,0.3);color:#fff}
+  .ai-card input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:500}
+  .ai-card input::placeholder{color:rgba(255,255,255,0.4)}
+
+  .ico{display:inline-block;vertical-align:middle}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .pill.coral{background:var(--coral-50);color:var(--coral-700)}
+  .pill.green{background:var(--green-100);color:var(--green-800)}
+  .pill.sun{background:var(--sun-100);color:var(--sun-700)}
+</style>
+</head>
+<body>
+
+<div class="doc">
+  <header class="doc-head">
+    <div>
+      <p class="eyebrow">Screen 02 · Student dashboard · Lively system</p>
+      <h1>Заходишь — и сразу видишь, <em>с чего начать</em>.</h1>
+      <p class="lede">Не лента событий, не админка, не пустая «доска». Дашборд отвечает на один вопрос: «что мне сейчас полезно сделать?» — и предлагает 1-2 действия, не пять.</p>
+    </div>
+    <div class="meta">
+      <strong>Student dashboard</strong>
+      desktop · 1440×900<br/>
+      <br/>
+      <strong>7 modules</strong>
+      hero · streak · stats · continue<br/>
+      today · achievements · AI tutor
+    </div>
+  </header>
+
+  <div class="section-label">
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <span class="num">DESKTOP · 1440</span>
+      <h2>Anna's Monday morning</h2>
+    </div>
+    <p class="desc">Сверху — hero с одним явным CTA, стрик-карта справа поддерживает мотивацию. Дальше — что прямо сейчас можно делать. Сухой админский low-data вид внизу.</p>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#ff6157"></div>
+        <div class="browser-dot" style="background:#ffbd2e"></div>
+        <div class="browser-dot" style="background:#28c941"></div>
+      </div>
+      <div class="browser-url">grasslms.online/dashboard</div>
+    </div>
+
+    <div class="app">
+      <!-- Rail -->
+      <aside class="rail">
+        <div class="rail-logo">
+          <div class="mark">g</div>
+          <div class="name">GrassLMS<small>v1.0 · Lively</small></div>
+        </div>
+        <div class="rail-section">Learn</div>
+        <a class="rail-item active">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Dashboard
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Courses
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M16 8 8 16"/><path d="m16 16-8-8"/></svg>
+          Assignments
+          <span class="badge">3</span>
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/></svg>
+          Progress
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+          Calendar
+        </a>
+        <div class="rail-section">Discover</div>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Catalog
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          Achievements
+        </a>
+        <a class="rail-item">
+          <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          Leaderboard
+        </a>
+        <div class="rail-foot">
+          <div class="av">A</div>
+          <div class="who">
+            <div class="nm">Anna P.</div>
+            <div class="ml">9th · 2,840 XP</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+
+        <!-- Hero + streak -->
+        <div class="hero">
+          <div class="hero-card">
+            <p class="eb">Monday, April 27 · 9:14 am</p>
+            <h2>Доброе утро, Anna!<br/>Сегодня по плану — <em>3 урока</em>.</h2>
+            <p class="sub">Продолжишь с того места, где остановилась вчера: алгебра, дискриминант. Это займёт 12 минут.</p>
+            <div class="actions">
+              <a class="btn btn-sun">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                Continue lesson
+              </a>
+              <a class="btn btn-ghost">See plan for the week →</a>
+            </div>
+          </div>
+
+          <div class="streak-card">
+            <div class="top">
+              <div>
+                <p class="lbl" style="margin:0 0 4px">Current streak</p>
+                <div class="big">7<small> days</small></div>
+              </div>
+              <div class="streak-flame">🔥</div>
+            </div>
+            <h3>Don't break the chain</h3>
+            <div class="streak-week">
+              <div class="day done"><div class="d">M</div><div>21</div></div>
+              <div class="day done"><div class="d">T</div><div>22</div></div>
+              <div class="day done"><div class="d">W</div><div>23</div></div>
+              <div class="day done"><div class="d">T</div><div>24</div></div>
+              <div class="day done"><div class="d">F</div><div>25</div></div>
+              <div class="day done"><div class="d">S</div><div>26</div></div>
+              <div class="day today"><div class="d">S</div><div>27</div></div>
+            </div>
+            <p class="note">Just <b>1 lesson</b> today keeps your streak alive. You're <b>3 days</b> from your record.</p>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-row">
+          <div class="stat green">
+            <div class="top">
+              <span class="lbl">XP earned this week</span>
+              <div class="ico">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+            </div>
+            <div class="v">410<small> xp</small></div>
+            <div class="delta">↑ 23% vs last week</div>
+          </div>
+          <div class="stat sun">
+            <div class="top">
+              <span class="lbl">Lessons completed</span>
+              <div class="ico">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+            </div>
+            <div class="v">8<small> / 12</small></div>
+            <div class="delta">↑ on track for week goal</div>
+          </div>
+          <div class="stat coral">
+            <div class="top">
+              <span class="lbl">Time studied</span>
+              <div class="ico">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+            </div>
+            <div class="v">3h 42m</div>
+            <div class="delta down">↓ 12m vs last week</div>
+          </div>
+          <div class="stat ink">
+            <div class="top">
+              <span class="lbl">Avg. quiz score</span>
+              <div class="ico">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </div>
+            </div>
+            <div class="v">87%</div>
+            <div class="delta">↑ 5pp vs last week</div>
+          </div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="layout">
+
+          <div style="display:flex;flex-direction:column;gap:24px">
+
+            <!-- Continue learning -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Continue where you left off</h3>
+                <a class="a">All courses →</a>
+              </div>
+              <div class="panel-body">
+                <div class="continue-grid">
+
+                  <div class="ccard">
+                    <div class="cover algebra">
+                      <span class="glyph">x²</span>
+                      <span class="meta">9TH GRADE · ALGEBRA</span>
+                    </div>
+                    <div class="body">
+                      <h4>The discriminant formula</h4>
+                      <p class="nx">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        Module 3 · Lesson 7 of 14
+                      </p>
+                      <div class="progress">
+                        <div class="bar"><i style="width:32%"></i></div>
+                        <span class="pct">32%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ccard">
+                    <div class="cover js">
+                      <span class="glyph">JS</span>
+                      <span class="meta">SELF-PACED · 4 WEEKS</span>
+                    </div>
+                    <div class="body">
+                      <h4>JavaScript Basics</h4>
+                      <p class="nx">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+                        Functions and scope
+                      </p>
+                      <div class="progress">
+                        <div class="bar"><i style="width:48%"></i></div>
+                        <span class="pct">48%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ccard">
+                    <div class="cover spanish">
+                      <span class="glyph">¡!</span>
+                      <span class="meta">A2 · ELECTIVE</span>
+                    </div>
+                    <div class="body">
+                      <h4>Spanish · A2 elementary</h4>
+                      <p class="nx">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--green-600)"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                        Hablando de la familia
+                      </p>
+                      <div class="progress">
+                        <div class="bar"><i style="width:12%"></i></div>
+                        <span class="pct">12%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ccard">
+                    <div class="cover sat">
+                      <span class="glyph" style="color:rgba(0,0,0,0.2)">SAT</span>
+                      <span class="meta" style="color:rgba(0,0,0,0.6)">PREP · DEC EXAM</span>
+                    </div>
+                    <div class="body">
+                      <h4>SAT Math · Practice 4</h4>
+                      <p class="nx">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--coral-600)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                        <span style="color:var(--coral-700);font-weight:700">Due tomorrow</span>
+                      </p>
+                      <div class="progress">
+                        <div class="bar"><i style="width:0%"></i></div>
+                        <span class="pct" style="color:var(--ink-400)">0%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Activity heatmap -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Last 100 days</h3>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.04em">
+                  <span style="display:inline-block;width:10px;height:10px;background:var(--ink-100);border-radius:2px;margin-right:3px"></span> none
+                  <span style="display:inline-block;width:10px;height:10px;background:var(--green-100);border-radius:2px;margin:0 3px 0 8px"></span>
+                  <span style="display:inline-block;width:10px;height:10px;background:var(--green-300);border-radius:2px;margin-right:3px"></span>
+                  <span style="display:inline-block;width:10px;height:10px;background:var(--green-500);border-radius:2px;margin-right:3px"></span>
+                  <span style="display:inline-block;width:10px;height:10px;background:var(--green-700);border-radius:2px;margin:0 3px 0 0"></span> intense
+                </span>
+              </div>
+              <div class="panel-body">
+                <div class="activity" id="activity"></div>
+                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--ink-400);margin-top:6px">
+                  <span>Jan 17</span><span>Feb 6</span><span>Mar 2</span><span>Mar 26</span><span>Apr 27</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right column -->
+          <div style="display:flex;flex-direction:column;gap:24px">
+
+            <!-- Today's plan -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Today's plan</h3>
+                <a class="a">Edit →</a>
+              </div>
+              <div class="panel-body">
+                <div class="today">
+                  <div class="ti done">
+                    <div class="time"><div class="h">08:30</div><div class="m">15m</div></div>
+                    <div class="body">
+                      <h5 class="ttl">Spanish · vocabulary review</h5>
+                      <p class="sub"><span class="pill green">+30 XP</span></p>
+                    </div>
+                    <div class="check done">✓</div>
+                  </div>
+
+                  <div class="ti">
+                    <div class="time"><div class="h">09:15</div><div class="m">12m</div></div>
+                    <div class="body">
+                      <h5 class="ttl">Algebra · The discriminant formula</h5>
+                      <p class="sub"><span class="pill green">+50 XP</span><span style="color:var(--green-700);font-weight:700">Now</span></p>
+                    </div>
+                    <div class="check todo">2</div>
+                  </div>
+
+                  <div class="ti">
+                    <div class="time"><div class="h">10:00</div><div class="m">25m</div></div>
+                    <div class="body">
+                      <h5 class="ttl">SAT Math · Practice Test 4</h5>
+                      <p class="sub"><span class="pill coral">DUE</span><span style="color:var(--ink-400)">22 questions</span></p>
+                    </div>
+                    <div class="check todo">3</div>
+                  </div>
+
+                  <div class="ti">
+                    <div class="time"><div class="h">14:30</div><div class="m">45m</div></div>
+                    <div class="body">
+                      <h5 class="ttl">JavaScript · Live class with Anna</h5>
+                      <p class="sub"><span class="pill sun">CLASS</span><span style="color:var(--ink-400)">12 students</span></p>
+                    </div>
+                    <div class="check todo">4</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Your skills</h3>
+                <a class="a">Tree →</a>
+              </div>
+              <div class="panel-body">
+                <div class="skills">
+                  <div class="skill">
+                    <div class="ico" style="background:var(--green-100);color:var(--green-700)">∑</div>
+                    <div class="ttl">Algebra<small>Lvl 4 · 320/500 XP</small></div>
+                    <div class="lvl"><span class="fill"></span><span class="fill"></span><span class="fill"></span><span class="fill"></span><span></span></div>
+                  </div>
+                  <div class="skill">
+                    <div class="ico" style="background:var(--sun-100);color:var(--sun-700)">{}</div>
+                    <div class="ttl">JavaScript<small>Lvl 3 · 180/400 XP</small></div>
+                    <div class="lvl"><span class="fill"></span><span class="fill"></span><span class="fill"></span><span></span><span></span></div>
+                  </div>
+                  <div class="skill">
+                    <div class="ico" style="background:var(--coral-50);color:var(--coral-700)">¡!</div>
+                    <div class="ttl">Spanish A2<small>Lvl 2 · 90/200 XP</small></div>
+                    <div class="lvl"><span class="fill"></span><span class="fill"></span><span></span><span></span><span></span></div>
+                  </div>
+                  <div class="skill">
+                    <div class="ico" style="background:var(--ink-100);color:var(--ink-700)">π</div>
+                    <div class="ttl">Geometry<small>Lvl 5 · 580/700 XP</small></div>
+                    <div class="lvl"><span class="fill"></span><span class="fill"></span><span class="fill"></span><span class="fill"></span><span class="fill"></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI tutor -->
+            <div class="ai-card">
+              <div class="top">
+                <div class="av">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+                </div>
+                <div>
+                  <p class="nm" style="margin:0">SPROUT · AI TUTOR</p>
+                  <h4>Need a hand?</h4>
+                </div>
+              </div>
+              <p>I noticed you got 3/3 on yesterday's quiz. Want to push into harder problems, or review what you know?</p>
+              <div class="tags">
+                <span class="tag">Push me harder</span>
+                <span class="tag">Review with me</span>
+                <span class="tag">Help with homework</span>
+              </div>
+              <input placeholder="Or ask anything..."/>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Achievements + Leaderboard row -->
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;margin-top:24px">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Achievements</h3>
+              <a class="a">All 47 →</a>
+            </div>
+            <div class="panel-body">
+              <div class="ach-grid">
+                <div class="ach gold">
+                  <div class="badge">★</div>
+                  <h5>Week warrior</h5>
+                  <p>7-day streak · earned today</p>
+                </div>
+                <div class="ach silver">
+                  <div class="badge">∑</div>
+                  <h5>Math fluent</h5>
+                  <p>50 algebra questions correct</p>
+                </div>
+                <div class="ach bronze">
+                  <div class="badge">⚡</div>
+                  <h5>Quick learner</h5>
+                  <p>Lesson under 10 min · ×3</p>
+                </div>
+                <div class="ach locked">
+                  <div class="badge">?</div>
+                  <h5>Perfect score</h5>
+                  <p>100% on a practice test</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Class leaderboard · this week</h3>
+              <a class="a">Full →</a>
+            </div>
+            <div class="panel-body">
+              <div class="lb">
+                <div class="lb-row top1"><span class="rank">1</span><div class="av" style="background:var(--sun-400);color:var(--sun-700)">M</div><span class="nm">Marko J.<small>9th grade · 12 lessons</small></span><span class="xp">560 XP</span></div>
+                <div class="lb-row top2"><span class="rank">2</span><div class="av" style="background:var(--green-400);color:var(--green-900)">D</div><span class="nm">Dmitry V.<small>9th grade · 11 lessons</small></span><span class="xp">490 XP</span></div>
+                <div class="lb-row me top3"><span class="rank">3</span><div class="av" style="background:var(--green-600)">A</div><span class="nm">Anna P.<small>You · 8 lessons</small></span><span class="xp">410 XP</span></div>
+                <div class="lb-row"><span class="rank">4</span><div class="av" style="background:var(--coral-500)">K</div><span class="nm">Katja S.<small>9th grade · 8 lessons</small></span><span class="xp">380 XP</span></div>
+                <div class="lb-row"><span class="rank">5</span><div class="av" style="background:var(--ink-400)">L</div><span class="nm">Luka M.<small>9th grade · 7 lessons</small></span><span class="xp">340 XP</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Reasoning -->
+  <div class="section-label" style="margin-top:32px">
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <span class="num">DESIGN NOTES</span>
+      <h2>Что заложено и почему</h2>
+    </div>
+    <p class="desc"></p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">01 · One question</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">«Что мне сейчас сделать?»</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Hero-карта отвечает прямо. Один CTA — Continue lesson. Не 5, не «выбери из меню».</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">02 · Streak ≠ давление</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">«1 урок и день засчитан»</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Стрик не угрожает: подсказка «just 1 lesson keeps it alive». Низкий порог входа в день.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">03 · Stats без слопа</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">4 цифры, не 12</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">XP, lessons, time, score — каждая с дельтой относительно прошлой недели. Конкретный сигнал, а не «графики на графиках».</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">04 · Continue cards</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Курс ≠ обложка из стока</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Геометрические radial-обложки + большой моно-глиф (x², JS, ¡!). Узнаваемо без AI-арта или эмодзи.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">05 · Today's plan</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Расписание = действие</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Календарь не просто «что было», а live-чеклист. Done — серым, Now — зелёным, due — коралловым.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">06 · Sprout</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">AI с предложением, не строкой</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Карта ИИ — тёмная, чтобы выделиться, но не доминирует. Предлагает 3 типичных хода, чтобы не «думать что спросить».</p>
+    </div>
+  </div>
+
+  <footer style="margin-top:48px; padding-top:24px; border-top:1px solid var(--ink-100); display:flex; justify-content:space-between; align-items:baseline; font-family:var(--font-mono); font-size:11px; color:var(--ink-400); letter-spacing:0.06em">
+    <span>GRASSLMS · STUDENT DASHBOARD · LIVELY · v1</span>
+    <span>Next: Catalog → Course builder → Admin</span>
+  </footer>
+</div>
+
+<script>
+  // Activity heatmap — 100 cells with random levels
+  (function(){
+    const el = document.getElementById('activity');
+    if(!el) return;
+    const seed = [2,0,1,3,0,2,1,4,0,1, 2,3,1,0,2,1,3,0,1,2, 1,0,2,1,3,2,1,0,4,3, 2,1,0,1,3,2,4,1,0,2, 0,1,2,3,1,0,2,4,1,2, 3,1,0,1,2,4,3,1,0,1, 2,3,1,0,2,1,3,4,1,2, 0,2,1,3,2,1,4,0,1,3, 2,1,0,2,3,1,4,2,1,0, 3,2,1,4,2,3,4,2,3,4];
+    el.innerHTML = seed.map(v => `<div class="ad${v?' l'+v:''}"></div>`).join('');
+  })();
+</script>
+
+</body>
+</html>

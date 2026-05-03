@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>GrassLMS — Moodboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #fafaf7;
+    color: #0a0a0a;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 80px 64px 120px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #e7e5e0;
+    margin-bottom: 56px;
+  }
+  .header-left .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #737373;
+    margin: 0 0 14px;
+  }
+  .header-left h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 1.05;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+  }
+  .header-left h1 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+  .header-left p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #525252;
+    margin: 0;
+    max-width: 580px;
+  }
+  .header-right {
+    text-align: right;
+    color: #737373;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .header-right strong { color: #0a0a0a; font-weight: 600; }
+
+  /* Intro principles */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid #e7e5e0;
+    border-radius: 20px;
+    background: #fff;
+    overflow: hidden;
+    margin-bottom: 80px;
+  }
+  .principle {
+    padding: 28px 28px 32px;
+    border-right: 1px solid #e7e5e0;
+  }
+  .principle:last-child { border-right: none; }
+  .principle .num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    color: #a3a3a3;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .principle h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #0a0a0a;
+  }
+  .principle p {
+    font-size: 13px;
+    color: #525252;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Direction card */
+  .direction {
+    margin-bottom: 96px;
+  }
+  .direction-head {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 24px;
+    align-items: baseline;
+    margin-bottom: 28px;
+  }
+  .direction-num {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 64px;
+    line-height: 0.9;
+    color: #d4d4d4;
+  }
+  .direction-title h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1.05;
+    margin: 0 0 6px;
+    letter-spacing: -0.015em;
+  }
+  .direction-title .tag {
+    font-size: 13px;
+    color: #737373;
+    font-style: italic;
+  }
+  .direction-meta {
+    font-size: 12px;
+    color: #737373;
+    text-align: right;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .direction-meta strong {
+    display: block;
+    color: #0a0a0a;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .direction-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 24px;
+  }
+
+  /* Hero panel — the "vibe" preview */
+  .hero {
+    border-radius: 24px;
+    padding: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px -40px rgba(0,0,0,0.18);
+  }
+
+  /* Side panel container */
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .side-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .side-card {
+    background: #fff;
+    border: 1px solid #e7e5e0;
+    border-radius: 18px;
+    padding: 20px;
+  }
+  .side-card .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #a3a3a3;
+    margin: 0 0 12px;
+  }
+
+  /* Color swatches */
+  .swatches {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .swatch {
+    flex: 1;
+    min-width: 0;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .swatch.dark { color: rgba(255,255,255,0.8); }
+  .swatch.light { color: rgba(0,0,0,0.55); }
+
+  /* Type spec */
+  .type-spec .pair {
+    margin-bottom: 14px;
+  }
+  .type-spec .pair:last-child { margin-bottom: 0; }
+  .type-display {
+    font-size: 32px;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .type-meta {
+    font-size: 11px;
+    color: #737373;
+    margin: 4px 0 0;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+  }
+  .type-body {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    color: #404040;
+  }
+
+  /* UI element preview */
+  .ui-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+  .btn.ghost {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+  .chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  /* Footer notes */
+  .notes {
+    margin-top: 24px;
+    padding: 24px;
+    border: 1px dashed #d4d4d4;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.02);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .note h5 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #737373;
+    margin: 0 0 8px;
+  }
+  .note p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #262626;
+  }
+
+  /* ============================================================
+     DIRECTION 1 — "GARDEN" (Botanical, warm, like Khan-meets-Mubi)
+     Deep forest greens + cream + soft terracotta accents
+     ============================================================ */
+  .d1 .hero {
+    background: #f4efe6;
+    background-image:
+      radial-gradient(circle at 80% 20%, rgba(212, 156, 95, 0.18), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(40, 78, 53, 0.12), transparent 50%);
+  }
+  .d1 .hero-inner {
+    position: absolute;
+    inset: 0;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .d1 .hero-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .d1 .hero-mark-glyph {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: #1f4c34;
+    display: grid;
+    place-items: center;
+    color: #f4efe6;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    font-style: italic;
+  }
+  .d1 .hero-mark-name {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #1f4c34;
+  }
+  .d1 .hero-quote {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    line-height: 1.05;
+    color: #1f4c34;
+    letter-spacing: -0.02em;
+    max-width: 540px;
+    margin: 0;
+  }
+  .d1 .hero-quote em { font-style: italic; font-weight: 400; }
+  .d1 .hero-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #1f4c34;
+    opacity: 0.7;
+    font-family: 'Geist Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .d1 .botanical {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     DIRECTION 2 — "STUDIO" (Editorial, confident, type-driven)
+     Crisp green + warm white + black. Stripe meets Linear meets
+     a contemporary art magazine.
+     ============================================================ */
+  .d2 .hero {
+    background: #ffffff;
+    border: 1px solid #e7e5e0;
+  }
+  .d2 .hero-inner {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  .d2 .hero-bar {
+    padding: 20px 28px;
+    border-bottom: 1px solid #f0ede5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #525252;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .d2 .hero-bar span:last-child {
+    color: #198754;
+  }
+  .d2 .hero-body {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+    padding: 0 48px;
+  }
+  .d2 .hero-headline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 80px;
+    line-height: 0.9;
+    letter-spacing: -0.045em;
+    margin: 0;
+    color: #0a0a0a;
+  }
+  .d2 .hero-headline .accent {
+    color: #198754;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .d2 .hero-side {
+    border-left: 1px solid #f0ede5;
+    padding-left: 28px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+  }
+  .d2 .hero-side-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13px;
+    color: #525252;
+  }
+  .d2 .hero-side-row strong {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #0a0a0a;
+    line-height: 1;
+  }
+  .d2 .hero-foot {
+    padding: 16px 28px;
+    border-top: 1px solid #f0ede5;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: 'Geist Mono', monospace;
+    color: #a3a3a3;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============================================================
+     DIRECTION 3 — "LIVELY" (Friendly, illustrative, Duolingo-y but elevated)
+     Bright kelly green + sky + sunny yellow + plump rounded shapes
+     ============================================================ */
+  .d3 .hero {
+    background: #ecf9e7;
+    background-image: radial-gradient(circle at 30% 110%, #d4f1c4 0%, transparent 60%);
+  }
+  .d3 .hero-inner {
+    position: absolute;
+    inset: 0;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .d3 .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .d3 .blob-stack {
+    display: flex;
+    gap: -10px;
+    align-items: center;
+  }
+  .d3 .blob {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    border: 4px solid #ecf9e7;
+    display: grid;
+    place-items: center;
+    margin-left: -16px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    color: #fff;
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.15);
+  }
+  .d3 .blob:first-child { margin-left: 0; }
+  .d3 .badge {
+    background: #fff;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #0a8754;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px -4px rgba(0,0,0,0.08);
+  }
+  .d3 .hero-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 56px;
+    line-height: 0.95;
+    color: #0a3d24;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .d3 .hero-title .pop {
+    background: #ffd84d;
+    padding: 0 10px;
+    border-radius: 16px;
+    display: inline-block;
+    transform: rotate(-2deg);
+  }
+  .d3 .hero-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .d3 .progress-pill {
+    background: #fff;
+    border-radius: 20px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 4px 16px -6px rgba(0,0,0,0.1);
+    width: 220px;
+  }
+  .d3 .progress-pill-top {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #525252;
+  }
+  .d3 .progress-pill-top strong {
+    color: #0a8754;
+  }
+  .d3 .progress-track {
+    height: 8px;
+    background: #ecf9e7;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .d3 .progress-fill {
+    height: 100%;
+    width: 68%;
+    background: linear-gradient(90deg, #56c271, #0a8754);
+    border-radius: 999px;
+  }
+  .d3 .streak {
+    background: #ff7a5c;
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px 16px 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 6px 18px -6px rgba(255, 122, 92, 0.6);
+  }
+  .d3 .streak-flame {
+    width: 22px; height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #ff7a5c;
+    font-size: 14px;
+  }
+
+  /* ============================================================
+     DIRECTION 4 — "GROUNDED" (Calm, paper-like, stripped-back)
+     Olive/sage greens + paper white + ink black. Notion-meets-academic.
+     ============================================================ */
+  .d4 .hero {
+    background: #f6f4ec;
+  }
+  .d4 .hero-inner {
+    position: absolute;
+    inset: 0;
+    padding: 44px 48px;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 24px;
+  }
+  .d4 .hero-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .d4 .hero-meta-left {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    color: #4d5a3a;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .d4 .hero-meta-dot {
+    width: 8px; height: 8px;
+    background: #6e8358;
+    border-radius: 50%;
+  }
+  .d4 .hero-meta-right {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #8b8978;
+    letter-spacing: 0.05em;
+  }
+  .d4 .hero-headline {
+    font-family: 'Geist', 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 52px;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: #2a3422;
+    margin: 0;
+    align-self: center;
+  }
+  .d4 .hero-headline em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: #6e8358;
+  }
+  .d4 .hero-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(110, 131, 88, 0.25);
+  }
+  .d4 .stat .v {
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    line-height: 1;
+    color: #2a3422;
+  }
+  .d4 .stat .l {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #6e8358;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* CTA box */
+  .verdict {
+    margin-top: 96px;
+    padding: 48px 56px;
+    background: #0a0a0a;
+    color: #f4efe6;
+    border-radius: 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .verdict h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+  }
+  .verdict p {
+    font-size: 15px;
+    color: #a3a3a3;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 500px;
+  }
+  .verdict-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .vbtn {
+    text-align: left;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f4efe6;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .vbtn-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-family: 'Geist Mono', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="header-left">
+      <p class="eyebrow">GrassLMS · Visual exploration · Round 01</p>
+      <h1>Четыре направления, в&nbsp;каких может звучать <em>зелёный</em>.</h1>
+      <p>До того, как мы начнём строить дизайн-систему — выбираем тон голоса. Каждое направление это законченный взгляд: палитра, шрифт, форма, температура, ритм. Не «варианты кнопки» — а четыре разных продукта.</p>
+    </div>
+    <div class="header-right">
+      <strong>Брифинг</strong>
+      Дружелюбный · образовательный<br/>
+      Эволюция зелёного<br/>
+      Mobile-first для студентов<br/>
+      Средняя плотность (Notion-like)<br/>
+      <br/>
+      <strong>Решение нужно</strong>
+      Перед стартом дизайн-системы
+    </div>
+  </header>
+
+  <!-- Principles bar -->
+  <section class="principles">
+    <div class="principle">
+      <div class="num">01</div>
+      <h4>Тёплое, не пластиковое</h4>
+      <p>Учить — это уютно. Кремовые подложки вместо чисто-белого; органичные формы вместо силиконовых.</p>
+    </div>
+    <div class="principle">
+      <div class="num">02</div>
+      <h4>Зелёный — характер, не фон</h4>
+      <p>Один сильный оттенок, который запоминается. Не «все возможные зелёные сразу».</p>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <h4>Иерархия через типографику</h4>
+      <p>Размер, контраст шрифтов, паузы — а не цветные плашки и тени.</p>
+    </div>
+    <div class="principle">
+      <div class="num">04</div>
+      <h4>Один яркий приём</h4>
+      <p>Каждое направление держится на одной запоминающейся детали — не «всё сразу красиво».</p>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       DIRECTION 1 — GARDEN
+       =========================================================== -->
+  <section class="direction d1">
+    <header class="direction-head">
+      <div class="direction-num">i.</div>
+      <div class="direction-title">
+        <h2>«Сад» — botanical, ремесленный</h2>
+        <p class="tag">Глубокий лес + крем + терракот · Fraunces serif · ботанические иллюстрации</p>
+      </div>
+      <div class="direction-meta">
+        <strong>Garden</strong>
+        Mubi × Khan × Aesop
+      </div>
+    </header>
+
+    <div class="direction-grid">
+      <!-- Hero -->
+      <div class="hero">
+        <!-- Botanical SVG decoration -->
+        <svg class="botanical" viewBox="0 0 240 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M120 30 Q 110 90 120 160 Q 130 240 120 310" stroke="#1f4c34" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M120 70 Q 60 60 30 90 Q 60 100 120 100" fill="none" stroke="#1f4c34" stroke-width="2"/>
+          <path d="M120 100 Q 200 80 230 110 Q 200 130 120 130" fill="none" stroke="#1f4c34" stroke-width="2"/>
+          <path d="M120 145 Q 50 145 20 180 Q 60 195 120 175" fill="none" stroke="#1f4c34" stroke-width="2"/>
+          <path d="M120 185 Q 200 180 235 220 Q 195 235 120 215" fill="none" stroke="#1f4c34" stroke-width="2"/>
+          <path d="M120 230 Q 60 230 35 265 Q 70 280 120 260" fill="none" stroke="#1f4c34" stroke-width="2"/>
+          <ellipse cx="60" cy="92" rx="30" ry="8" fill="#5b8a6c" opacity="0.8"/>
+          <ellipse cx="180" cy="113" rx="30" ry="8" fill="#5b8a6c" opacity="0.6"/>
+          <ellipse cx="55" cy="180" rx="34" ry="9" fill="#5b8a6c" opacity="0.85"/>
+          <ellipse cx="190" cy="220" rx="32" ry="9" fill="#5b8a6c" opacity="0.65"/>
+          <ellipse cx="65" cy="265" rx="28" ry="8" fill="#5b8a6c" opacity="0.75"/>
+          <circle cx="120" cy="30" r="7" fill="#d49c5f"/>
+        </svg>
+
+        <div class="hero-inner">
+          <div class="hero-mark">
+            <div class="hero-mark-glyph">g</div>
+            <div class="hero-mark-name">grass</div>
+          </div>
+          <p class="hero-quote">Учиться — это <em>возделывать</em>. Каждый день по&nbsp;грядке.</p>
+          <div class="hero-foot">
+            <span>№ 01 — GARDEN</span>
+            <span>EST. 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side panels -->
+      <div class="side">
+        <div class="side-card">
+          <p class="label">Палитра</p>
+          <div class="swatches">
+            <div class="swatch dark" style="background: #1f4c34">#1F4C34</div>
+            <div class="swatch dark" style="background: #5b8a6c">#5B8A6C</div>
+            <div class="swatch light" style="background: #d49c5f">#D49C5F</div>
+            <div class="swatch light" style="background: #f4efe6">#F4EFE6</div>
+            <div class="swatch dark" style="background: #2a2a26">#2A2A26</div>
+          </div>
+        </div>
+
+        <div class="side-card type-spec">
+          <p class="label">Типографика</p>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Fraunces',serif; font-weight:600; font-style:italic; color:#1f4c34">Cultivate</p>
+            <p class="type-meta">Display · Fraunces 600 italic</p>
+          </div>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Inter',sans-serif; font-weight:600; font-size:24px; color:#1f4c34">Practice algebra</p>
+            <p class="type-meta">UI · Inter 600</p>
+          </div>
+          <div class="pair">
+            <p class="type-body">Spend 15 minutes a day. Watch your garden grow over weeks.</p>
+            <p class="type-meta">Body · Inter 400 / 14px / 1.55</p>
+          </div>
+        </div>
+
+        <div class="side-row">
+          <div class="side-card" style="background: #f4efe6; border-color: #e0d8c4;">
+            <p class="label">Кнопки</p>
+            <div class="ui-row">
+              <button class="btn" style="background:#1f4c34; color:#f4efe6">Continue</button>
+              <button class="btn ghost" style="color:#1f4c34">Skip</button>
+            </div>
+            <div class="ui-row" style="margin-top:10px">
+              <span class="chip" style="background:#1f4c34; color:#f4efe6">Algebra</span>
+              <span class="chip" style="background:#d49c5f; color:#3a2a14">New</span>
+            </div>
+          </div>
+          <div class="side-card">
+            <p class="label">Форма</p>
+            <p class="type-body" style="font-size:13px">Closed-shape, мягкие радиусы 12-16px. Текстуры — крафтовая бумага. Иллюстрации — ботанические линии. Никаких градиентов.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <h5>Где работает</h5>
+        <p>Гуманитарии, искусство, языки, академические курсы. Атмосфера старого библиотечного зала с современной типографикой.</p>
+      </div>
+      <div class="note">
+        <h5>Где может проседать</h5>
+        <p>Может казаться слишком «литературным» для технических курсов и SAT-практики. Иллюстрации требуют ресурсов на отрисовку.</p>
+      </div>
+      <div class="note">
+        <h5>Уникальное</h5>
+        <p>Серьёзный взрослый продукт, который никто из EdTech не делает. Анти-Duolingo. Редко выглядит как другой LMS.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       DIRECTION 2 — STUDIO
+       =========================================================== -->
+  <section class="direction d2">
+    <header class="direction-head">
+      <div class="direction-num">ii.</div>
+      <div class="direction-title">
+        <h2>«Студия» — editorial, type-driven</h2>
+        <p class="tag">Чёрно-белый каркас + один сочный зелёный · большая типографика · Stripe&nbsp;⨉&nbsp;Linear</p>
+      </div>
+      <div class="direction-meta">
+        <strong>Studio</strong>
+        Stripe × Linear × Mono
+      </div>
+    </header>
+
+    <div class="direction-grid">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-bar">
+            <span>GrassLMS · v3 redesign</span>
+            <span>● live</span>
+          </div>
+          <div class="hero-body">
+            <h3 class="hero-headline">Build the<br/>school <span class="accent">you</span> want.</h3>
+            <div class="hero-side">
+              <div class="hero-side-row">
+                <strong>14</strong>
+                <span>Active courses</span>
+              </div>
+              <div class="hero-side-row">
+                <strong>2,847</strong>
+                <span>Students learning</span>
+              </div>
+              <div class="hero-side-row">
+                <strong>96%</strong>
+                <span>Completion rate</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-foot">
+            <span>02 — STUDIO</span>
+            <span>fig. 1.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="side-card">
+          <p class="label">Палитра</p>
+          <div class="swatches">
+            <div class="swatch dark" style="background: #0a0a0a">#0A0A0A</div>
+            <div class="swatch dark" style="background: #198754">#198754</div>
+            <div class="swatch dark" style="background: #2dd4a4">#2DD4A4</div>
+            <div class="swatch light" style="background: #ffffff; border:1px solid #e7e5e0">#FFFFFF</div>
+            <div class="swatch light" style="background: #f5f5f4">#F5F5F4</div>
+          </div>
+        </div>
+
+        <div class="side-card type-spec">
+          <p class="label">Типографика</p>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.04em; color:#0a0a0a">Build →</p>
+            <p class="type-meta">Display · Inter 800 −4% tracking</p>
+          </div>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Fraunces',serif; font-style:italic; font-size:28px; color:#198754">accent moment</p>
+            <p class="type-meta">Accent · Fraunces italic 500</p>
+          </div>
+          <div class="pair">
+            <p class="type-body" style="font-family:'Geist Mono', monospace; font-size:12px; color:#525252">14 ACTIVE / 2 IN REVIEW / 96% COMPLETE</p>
+            <p class="type-meta">Mono · Geist Mono 12px / uppercase</p>
+          </div>
+        </div>
+
+        <div class="side-row">
+          <div class="side-card">
+            <p class="label">Кнопки</p>
+            <div class="ui-row">
+              <button class="btn" style="background:#0a0a0a; color:#fff">Get started ↗</button>
+              <button class="btn" style="background:#fff; border:1px solid #0a0a0a; color:#0a0a0a">Sign in</button>
+            </div>
+            <div class="ui-row" style="margin-top:10px">
+              <span class="chip" style="background:#198754; color:#fff">● Live</span>
+              <span class="chip" style="background:#0a0a0a; color:#fff">PRO</span>
+              <span class="chip" style="background:#f5f5f4; color:#0a0a0a">Draft</span>
+            </div>
+          </div>
+          <div class="side-card">
+            <p class="label">Форма</p>
+            <p class="type-body" style="font-size:13px">Острые радиусы 6-10px. Тонкие границы 1px. Mono-цифры. Hairline-линии. Никаких теней. Зелёный — только акцент.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <h5>Где работает</h5>
+        <p>Программирование, SAT, бизнес-админка. Учитель/админ читают как «pro tool». Студент-старшеклассник — как «взрослый продукт».</p>
+      </div>
+      <div class="note">
+        <h5>Где может проседать</h5>
+        <p>Холодновато для младших классов и языков. Требует дисциплины: один неаккуратный градиент — и магия рушится.</p>
+      </div>
+      <div class="note">
+        <h5>Уникальное</h5>
+        <p>Дает GrassLMS лицо инженерного продукта, а не «детского LMS». Конкуренты в этой нише так не выглядят.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       DIRECTION 3 — LIVELY
+       =========================================================== -->
+  <section class="direction d3">
+    <header class="direction-head">
+      <div class="direction-num">iii.</div>
+      <div class="direction-title">
+        <h2>«Живой» — friendly, illustrative</h2>
+        <p class="tag">Сочный kelly green + солнечный жёлтый + коралл · plump rounded shapes · Manrope</p>
+      </div>
+      <div class="direction-meta">
+        <strong>Lively</strong>
+        Duolingo × Cal.com × Linear
+      </div>
+    </header>
+
+    <div class="direction-grid">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-top">
+            <span class="badge">
+              <span style="width:8px;height:8px;background:#0a8754;border-radius:50%;"></span>
+              7-day streak
+            </span>
+            <div class="blob-stack">
+              <div class="blob" style="background: #0a8754">A</div>
+              <div class="blob" style="background: #56c271">M</div>
+              <div class="blob" style="background: #ffd84d; color:#7a5500">+</div>
+            </div>
+          </div>
+          <h3 class="hero-title">Today's lesson is&nbsp;<span class="pop">ready</span></h3>
+          <div class="hero-bottom">
+            <div class="progress-pill">
+              <div class="progress-pill-top">
+                <span>Algebra · Lesson 6</span>
+                <strong>68%</strong>
+              </div>
+              <div class="progress-track"><div class="progress-fill"></div></div>
+            </div>
+            <span class="streak"><span class="streak-flame">🔥</span> 7 days</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="side-card">
+          <p class="label">Палитра</p>
+          <div class="swatches">
+            <div class="swatch dark" style="background: #0a8754">#0A8754</div>
+            <div class="swatch dark" style="background: #56c271">#56C271</div>
+            <div class="swatch light" style="background: #ffd84d">#FFD84D</div>
+            <div class="swatch dark" style="background: #ff7a5c">#FF7A5C</div>
+            <div class="swatch light" style="background: #ecf9e7">#ECF9E7</div>
+          </div>
+        </div>
+
+        <div class="side-card type-spec">
+          <p class="label">Типографика</p>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Manrope',sans-serif; font-weight:800; letter-spacing:-0.025em; color:#0a3d24">Let's go!</p>
+            <p class="type-meta">Display · Manrope 800</p>
+          </div>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Manrope',sans-serif; font-weight:700; font-size:22px; color:#0a8754">Solve quadratic equations</p>
+            <p class="type-meta">UI · Manrope 700</p>
+          </div>
+          <div class="pair">
+            <p class="type-body" style="font-family:'Manrope',sans-serif">A friendly tap-along walkthrough. You'll get it.</p>
+            <p class="type-meta">Body · Manrope 500 / 14px</p>
+          </div>
+        </div>
+
+        <div class="side-row">
+          <div class="side-card" style="background:#ecf9e7; border-color:#c8e6bb">
+            <p class="label">Кнопки</p>
+            <div class="ui-row">
+              <button class="btn" style="background:#0a8754; color:#fff; border-radius:14px; padding:12px 20px; box-shadow: 0 4px 0 #07683f">Continue</button>
+              <button class="btn" style="background:#fff; color:#0a8754; border-radius:14px; padding:12px 20px; box-shadow: 0 4px 0 #c8e6bb">Skip</button>
+            </div>
+            <div class="ui-row" style="margin-top:10px">
+              <span class="chip" style="background:#ffd84d; color:#7a5500; font-weight:800">⭐ +50 XP</span>
+              <span class="chip" style="background:#ff7a5c; color:#fff">🔥 Streak</span>
+            </div>
+          </div>
+          <div class="side-card">
+            <p class="label">Форма</p>
+            <p class="type-body" style="font-size:13px">Большие радиусы 14-20px. Объёмные кнопки с тенью-«опорой». Круги, blob-аватары. Эмодзи как первоклассный visual element.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <h5>Где работает</h5>
+        <p>Языки, младшая школа, мобильное прохождение. Геймификация ощущается естественно: streaks, XP, badges не наклеены, а вшиты.</p>
+      </div>
+      <div class="note">
+        <h5>Где может проседать</h5>
+        <p>Учителю/админу-методисту в страшном Excel-режиме нужно отключать «детский» вайб — иначе будет несерьёзно.</p>
+      </div>
+      <div class="note">
+        <h5>Уникальное</h5>
+        <p>Сильный pull у студентов-подростков. Единственное направление, где геймификация — не довесок, а ядро.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================================================
+       DIRECTION 4 — GROUNDED
+       =========================================================== -->
+  <section class="direction d4">
+    <header class="direction-head">
+      <div class="direction-num">iv.</div>
+      <div class="direction-title">
+        <h2>«Заземлённый» — paper, calm, scholarly</h2>
+        <p class="tag">Olive sage + бумажный крем + чернильный · Geist + Instrument Serif · минимум хрома</p>
+      </div>
+      <div class="direction-meta">
+        <strong>Grounded</strong>
+        Notion × Are.na × Mono
+      </div>
+    </header>
+
+    <div class="direction-grid">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-meta">
+            <div class="hero-meta-left">
+              <span class="hero-meta-dot"></span>
+              GrassLMS — Study Journal
+            </div>
+            <div class="hero-meta-right">№ 03 · WK 04 / 12</div>
+          </div>
+          <h3 class="hero-headline">Quiet rooms make&nbsp;<em>better</em>&nbsp;learners.</h3>
+          <div class="hero-foot">
+            <div class="stat">
+              <div class="v">14</div>
+              <div class="l">courses</div>
+            </div>
+            <div class="stat">
+              <div class="v">96<span style="font-size:18px;color:#6e8358">%</span></div>
+              <div class="l">complete</div>
+            </div>
+            <div class="stat">
+              <div class="v">2,847</div>
+              <div class="l">readers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="side-card">
+          <p class="label">Палитра</p>
+          <div class="swatches">
+            <div class="swatch dark" style="background: #2a3422">#2A3422</div>
+            <div class="swatch dark" style="background: #6e8358">#6E8358</div>
+            <div class="swatch dark" style="background: #a4b591">#A4B591</div>
+            <div class="swatch light" style="background: #f6f4ec">#F6F4EC</div>
+            <div class="swatch light" style="background: #e8e3d2">#E8E3D2</div>
+          </div>
+        </div>
+
+        <div class="side-card type-spec">
+          <p class="label">Типографика</p>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Geist',sans-serif; font-weight:500; letter-spacing:-0.03em; color:#2a3422">Quiet rooms.</p>
+            <p class="type-meta">Display · Geist 500</p>
+          </div>
+          <div class="pair">
+            <p class="type-display" style="font-family:'Instrument Serif',serif; font-style:italic; font-size:30px; color:#6e8358">— a study journal</p>
+            <p class="type-meta">Accent · Instrument Serif italic</p>
+          </div>
+          <div class="pair">
+            <p class="type-body" style="font-family:'Geist',sans-serif">Paper texture. Wide margins. Reading as a place, not a task.</p>
+            <p class="type-meta">Body · Geist 400 / 14px / 1.6</p>
+          </div>
+        </div>
+
+        <div class="side-row">
+          <div class="side-card" style="background:#f6f4ec; border-color:#e8e3d2">
+            <p class="label">Кнопки</p>
+            <div class="ui-row">
+              <button class="btn" style="background:#2a3422; color:#f6f4ec; border-radius:6px">Continue reading</button>
+              <button class="btn ghost" style="color:#6e8358; border-radius:6px">Save</button>
+            </div>
+            <div class="ui-row" style="margin-top:10px">
+              <span class="chip" style="background:#e8e3d2; color:#6e8358; font-family:'Geist Mono',monospace; letter-spacing:0.05em; text-transform:uppercase">Algebra</span>
+              <span class="chip" style="background:#6e8358; color:#f6f4ec; font-family:'Geist Mono',monospace; letter-spacing:0.05em; text-transform:uppercase">In progress</span>
+            </div>
+          </div>
+          <div class="side-card">
+            <p class="label">Форма</p>
+            <p class="type-body" style="font-size:13px">Острые радиусы 4-8px. Бумажные текстуры. Тонкие 1px разделители olive-цвета. Курсив-serif как вкрапление в sans. Читается как тетрадь.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note">
+        <h5>Где работает</h5>
+        <p>Длинные тексты, гуманитарные курсы, методисты, читатели Are.na. Учить — это медленно и вдумчиво.</p>
+      </div>
+      <div class="note">
+        <h5>Где может проседать</h5>
+        <p>Может ощущаться слишком сдержанно для геймификации. Подросткам — «скучновато». Может выглядеть «как ещё один Notion».</p>
+      </div>
+      <div class="note">
+        <h5>Уникальное</h5>
+        <p>Самый «взрослый» и «премиальный» из всех. Хорошо отстраивает от Khan/Duolingo: не «школьное приложение», а «инструмент».</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Verdict / next step -->
+  <section class="verdict">
+    <div>
+      <h3>Какое направление чувствуется как&nbsp;GrassLMS?</h3>
+      <p>Выбираем одно — и от него растёт всё: дизайн-система, шрифт, иконки, иллюстрации, копирайтинг. Можно смешивать (например, «Studio + чуть Garden в эмоциональных моментах»), но один должен быть ведущим. Можно ткнуть пальцем — расскажу, во&nbsp;что это превратится на дашборде, lesson player и&nbsp;админке.</p>
+    </div>
+    <div class="verdict-options">
+      <button class="vbtn">
+        <span class="vbtn-num">01</span>
+        Garden — botanical, тёплый
+      </button>
+      <button class="vbtn">
+        <span class="vbtn-num">02</span>
+        Studio — editorial, type-driven
+      </button>
+      <button class="vbtn">
+        <span class="vbtn-num">03</span>
+        Lively — friendly, иллюстративный
+      </button>
+      <button class="vbtn">
+        <span class="vbtn-num">04</span>
+        Grounded — paper, calm
+      </button>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

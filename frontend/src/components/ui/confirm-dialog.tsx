@@ -84,12 +84,12 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
 
   const variantStyles = {
     danger: {
-      icon: "bg-red-100 text-red-600",
-      button: "bg-red-600 hover:bg-red-700 text-white",
+      icon: "bg-coral-50 text-coral-500",
+      button: "bg-coral-500 hover:bg-coral-700 text-white",
     },
     warning: {
-      icon: "bg-amber-100 text-amber-600",
-      button: "bg-amber-600 hover:bg-amber-700 text-white",
+      icon: "bg-sun-100 text-sun-500",
+      button: "bg-sun-500 hover:bg-sun-700 text-white",
     },
     default: {
       icon: "bg-green-100 text-green-600",
@@ -123,7 +123,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           >
             <button
               onClick={() => handleClose(false)}
-              className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              className="absolute right-4 top-4 rounded-lg p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -134,10 +134,10 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                 <AlertTriangle className="h-5 w-5" aria-hidden="true" />
               </div>
               <div className="flex-1">
-                <h3 id={titleId} className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                <h3 id={titleId} className="text-base font-semibold text-ink-900 dark:text-ink-100">
                   {state.options.title || "Confirm Action"}
                 </h3>
-                <p id={descId} className="mt-1 text-sm text-slate-500 dark:text-slate-400">{state.options.message}</p>
+                <p id={descId} className="mt-1 text-sm text-ink-500 dark:text-ink-400">{state.options.message}</p>
               </div>
             </div>
 

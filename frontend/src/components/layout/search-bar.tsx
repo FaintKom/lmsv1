@@ -113,12 +113,12 @@ export function SearchBar() {
             setOpen(true);
             setTimeout(() => inputRef.current?.focus(), 50);
           }}
-          className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500 transition-colors hover:border-slate-300 hover:bg-white"
+          className="flex w-full items-center gap-2 rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-xs text-ink-500 transition-colors hover:border-ink-300 hover:bg-white"
           aria-label="Search courses and lessons"
         >
           <Search className="h-3.5 w-3.5" aria-hidden="true" />
           <span className="flex-1 text-left">{t("search.placeholder") === "search.placeholder" ? "Search..." : t("search.placeholder")}</span>
-          <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs font-medium text-slate-500 sm:inline-block">
+          <kbd className="hidden rounded border border-ink-200 bg-white px-1.5 py-0.5 text-xs font-medium text-ink-500 sm:inline-block">
             Ctrl+K
           </kbd>
         </button>
@@ -135,7 +135,7 @@ export function SearchBar() {
               value={query}
               onChange={(e) => handleChange(e.target.value)}
               placeholder={t("search.placeholder") === "search.placeholder" ? "Search courses and lessons..." : t("search.placeholder")}
-              className="flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+              className="flex-1 bg-transparent text-xs text-ink-700 outline-none placeholder:text-ink-400"
             />
             {query && (
               <button
@@ -144,7 +144,7 @@ export function SearchBar() {
                   setResults(null);
                   inputRef.current?.focus();
                 }}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-ink-400 hover:text-ink-700"
                 aria-label="Clear search"
               >
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -154,15 +154,15 @@ export function SearchBar() {
 
           {/* Dropdown results */}
           {(hasResults || noResults || loading) && (
-            <div role="listbox" aria-label="Search results" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+            <div role="listbox" aria-label="Search results" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-ink-200 bg-white py-1 shadow-lg">
               {loading && (
-                <div className="px-3 py-4 text-center text-xs text-slate-500">
+                <div className="px-3 py-4 text-center text-xs text-ink-500">
                   Searching...
                 </div>
               )}
 
               {!loading && noResults && (
-                <div className="px-3 py-4 text-center text-xs text-slate-500">
+                <div className="px-3 py-4 text-center text-xs text-ink-500">
                   No results found
                 </div>
               )}
@@ -171,20 +171,20 @@ export function SearchBar() {
                 <>
                   {results!.courses.length > 0 && (
                     <div>
-                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-500">
                         Courses
                       </p>
                       {results!.courses.map((course) => (
                         <button
                           key={course.id}
                           onClick={() => handleSelect("course", course)}
-                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-50"
+                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors hover:bg-ink-50"
                         >
                           <BookOpen className="h-4 w-4 shrink-0 text-green-500" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium text-slate-700">{course.title}</p>
+                            <p className="truncate font-medium text-ink-700">{course.title}</p>
                             {course.description && (
-                              <p className="truncate text-xs text-slate-500">{course.description}</p>
+                              <p className="truncate text-xs text-ink-500">{course.description}</p>
                             )}
                           </div>
                         </button>
@@ -194,20 +194,20 @@ export function SearchBar() {
 
                   {results!.lessons.length > 0 && (
                     <div>
-                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-ink-500">
                         Lessons
                       </p>
                       {results!.lessons.map((lesson) => (
                         <button
                           key={lesson.id}
                           onClick={() => handleSelect("lesson", lesson)}
-                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors hover:bg-slate-50"
+                          className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors hover:bg-ink-50"
                         >
-                          <FileText className="h-4 w-4 shrink-0 text-emerald-500" />
+                          <FileText className="h-4 w-4 shrink-0 text-green-500" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium text-slate-700">{lesson.title}</p>
+                            <p className="truncate font-medium text-ink-700">{lesson.title}</p>
                             {lesson.course_title && (
-                              <p className="truncate text-xs text-slate-500">
+                              <p className="truncate text-xs text-ink-500">
                                 in {lesson.course_title}
                               </p>
                             )}

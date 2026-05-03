@@ -118,31 +118,31 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
 
   if (!quiz) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center">
-        <p className="text-sm text-slate-500">No quiz available for this lesson.</p>
+      <div className="rounded-xl border border-ink-200 bg-ink-50 p-6 text-center">
+        <p className="text-sm text-ink-500">No quiz available for this lesson.</p>
       </div>
     );
   }
 
   if (result) {
     return (
-      <Card className={result.passed ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}>
+      <Card className={result.passed ? "border-green-200 bg-green-50" : "border-coral-300 bg-coral-50"}>
         <CardContent className="p-8 text-center">
           {result.passed ? (
-            <Trophy className="mx-auto mb-3 h-12 w-12 text-emerald-500" />
+            <Trophy className="mx-auto mb-3 h-12 w-12 text-green-500" />
           ) : (
-            <XCircle className="mx-auto mb-3 h-12 w-12 text-red-500" />
+            <XCircle className="mx-auto mb-3 h-12 w-12 text-coral-500" />
           )}
-          <h3 className="mb-2 text-xl font-bold text-slate-900">
+          <h3 className="mb-2 text-xl font-bold text-ink-900">
             {result.passed ? "Congratulations!" : "Not Passed"}
           </h3>
           <p className="mb-4 text-lg">
             Score:{" "}
-            <span className={`font-bold ${result.passed ? "text-emerald-600" : "text-red-600"}`}>
+            <span className={`font-bold ${result.passed ? "text-green-600" : "text-coral-500"}`}>
               {Math.round(result.score)}%
             </span>
           </p>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-500">
             {result.passed
               ? "You have successfully passed this quiz."
               : `You need ${quiz.passing_score}% to pass. Try again!`}
@@ -174,7 +174,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
       {/* Quiz header */}
       <div className="flex items-center justify-between rounded-xl bg-green-50 px-4 py-3">
         <div>
-          <h3 className="font-semibold text-indigo-900">{quiz.title}</h3>
+          <h3 className="font-semibold text-green-900">{quiz.title}</h3>
           <p className="text-xs text-green-600">
             {answeredCount}/{totalQuestions} answered · Pass: {quiz.passing_score}%
           </p>
@@ -182,7 +182,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
         {timeLeft !== null && (
           <div
             className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-mono font-bold ${
-              timeLeft < 60 ? "bg-red-100 text-red-600" : "bg-white text-slate-700"
+              timeLeft < 60 ? "bg-coral-50 text-coral-500" : "bg-white text-ink-700"
             }`}
           >
             <Clock className="h-4 w-4" />
@@ -193,15 +193,15 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
 
       {/* Questions */}
       {quiz.questions.map((q, i) => (
-        <Card key={q.id} className="border-slate-200">
+        <Card key={q.id} className="border-ink-200">
           <CardContent className="p-4">
             <div className="mb-3 flex items-start gap-2">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-50 text-xs font-bold text-green-600">
                 {i + 1}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-800">{q.question_text}</p>
-                <span className="text-[10px] text-slate-400">{q.points} point{q.points > 1 ? "s" : ""}</span>
+                <p className="text-sm font-medium text-ink-900">{q.question_text}</p>
+                <span className="text-[10px] text-ink-400">{q.points} point{q.points > 1 ? "s" : ""}</span>
               </div>
             </div>
 
@@ -214,14 +214,14 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                     className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
                       answers[q.id] === opt.id
                         ? "border-green-300 bg-green-50 text-green-700"
-                        : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                        : "border-ink-200 text-ink-700 hover:border-ink-300 hover:bg-ink-50"
                     }`}
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold ${
                         answers[q.id] === opt.id
                           ? "border-green-500 bg-green-500 text-white"
-                          : "border-slate-300 text-slate-400"
+                          : "border-ink-300 text-ink-400"
                       }`}
                     >
                       {String.fromCharCode(65 + optIndex)}
@@ -239,7 +239,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
                   value={answers[q.id] || ""}
                   onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
                   placeholder="Type your answer..."
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             )}

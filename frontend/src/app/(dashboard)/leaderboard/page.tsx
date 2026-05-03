@@ -30,21 +30,21 @@ interface LeaderboardEntry {
 
 const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string; icon: string }> = {
   bronze: {
-    bg: "bg-amber-100 dark:bg-amber-500/20",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-300 dark:border-amber-500/40",
+    bg: "bg-sun-100 dark:bg-sun-500/20",
+    text: "text-sun-700 dark:text-sun-400",
+    border: "border-sun-300 dark:border-sun-500/40",
     icon: "\uD83E\uDD49",
   },
   silver: {
-    bg: "bg-slate-100 dark:bg-slate-500/20",
-    text: "text-slate-600 dark:text-slate-300",
-    border: "border-slate-300 dark:border-slate-500/40",
+    bg: "bg-ink-100 dark:bg-ink-500/20",
+    text: "text-ink-700 dark:text-ink-300",
+    border: "border-ink-300 dark:border-ink-500/40",
     icon: "\uD83E\uDD48",
   },
   gold: {
-    bg: "bg-yellow-100 dark:bg-yellow-500/20",
-    text: "text-yellow-700 dark:text-yellow-400",
-    border: "border-yellow-300 dark:border-yellow-500/40",
+    bg: "bg-sun-100 dark:bg-sun-500/20",
+    text: "text-sun-700 dark:text-sun-400",
+    border: "border-sun-300 dark:border-sun-500/40",
     icon: "\uD83E\uDD47",
   },
   platinum: {
@@ -54,9 +54,9 @@ const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string; 
     icon: "\uD83D\uDC8E",
   },
   diamond: {
-    bg: "bg-violet-100 dark:bg-violet-500/20",
-    text: "text-violet-700 dark:text-violet-400",
-    border: "border-violet-300 dark:border-violet-500/40",
+    bg: "bg-green-100 dark:bg-green-500/20",
+    text: "text-green-700 dark:text-green-400",
+    border: "border-green-300 dark:border-green-500/40",
     icon: "\u2B50",
   },
 };
@@ -68,10 +68,10 @@ function getLeagueStyle(league: LeagueInfo | null) {
 }
 
 function getRankStyle(rank: number) {
-  if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-200/50 dark:shadow-yellow-500/20";
-  if (rank === 2) return "bg-gradient-to-r from-slate-300 to-slate-400 text-white shadow-lg shadow-slate-200/50 dark:shadow-slate-500/20";
-  if (rank === 3) return "bg-gradient-to-r from-amber-600 to-orange-700 text-white shadow-lg shadow-orange-200/50 dark:shadow-orange-500/20";
-  return "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400";
+  if (rank === 1) return "bg-gradient-to-r from-sun-400 to-sun-500 text-white shadow-lg shadow-sun-100/50 dark:shadow-sun-500/20";
+  if (rank === 2) return "bg-gradient-to-r from-ink-300 to-ink-400 text-white shadow-lg shadow-ink-200/50 dark:shadow-ink-500/20";
+  if (rank === 3) return "bg-gradient-to-r from-sun-500 to-sun-700 text-white shadow-lg shadow-sun-100/50 dark:shadow-sun-500/20";
+  return "bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-400";
 }
 
 function getRankIcon(rank: number) {
@@ -105,8 +105,8 @@ export default function LeaderboardPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Leaderboard</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Leaderboard</h1>
+        <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
           See how you rank among your classmates
         </p>
       </div>
@@ -127,17 +127,17 @@ export default function LeaderboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Star className="h-4 w-4 text-yellow-500" />
+            <Star className="h-4 w-4 text-sun-500" />
             Rankings
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {entries.length === 0 ? (
-            <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+            <div className="p-8 text-center text-sm text-ink-500 dark:text-ink-400">
               No leaderboard data yet. Complete lessons to earn XP!
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-white/5">
+            <div className="divide-y divide-ink-100 dark:divide-white/5">
               {entries.map((entry, i) => {
                 const rank = i + 1;
                 const isCurrentUser = user?.id === entry.user_id;
@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
                     className={`flex items-center gap-4 px-4 py-3 transition-colors ${
                       isCurrentUser
                         ? "bg-green-50 dark:bg-green-500/10"
-                        : "hover:bg-slate-50 dark:hover:bg-white/5"
+                        : "hover:bg-ink-50 dark:hover:bg-white/5"
                     }`}
                   >
                     {/* Rank */}
@@ -160,14 +160,14 @@ export default function LeaderboardPage() {
                     </div>
 
                     {/* Avatar */}
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-semibold text-white shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-sm font-semibold text-white shadow-sm">
                       {entry.user_name?.charAt(0)?.toUpperCase() || "?"}
                     </div>
 
                     {/* Name + league */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className={`truncate text-sm font-semibold ${isCurrentUser ? "text-green-700 dark:text-green-300" : "text-slate-900 dark:text-slate-100"}`}>
+                        <p className={`truncate text-sm font-semibold ${isCurrentUser ? "text-green-700 dark:text-green-300" : "text-ink-900 dark:text-ink-100"}`}>
                           {entry.user_name}
                           {isCurrentUser && (
                             <span className="ml-1.5 text-xs font-normal text-green-600 dark:text-green-400">(You)</span>
@@ -183,7 +183,7 @@ export default function LeaderboardPage() {
                           </span>
                         )}
                         {entry.current_streak > 0 && (
-                          <span className="inline-flex items-center gap-0.5 text-[10px] text-orange-500">
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-sun-500">
                             <Flame className="h-3 w-3" />
                             {entry.current_streak}d
                           </span>
@@ -193,11 +193,11 @@ export default function LeaderboardPage() {
 
                     {/* XP */}
                     <div className="text-right">
-                      <p className="flex items-center gap-1 text-sm font-bold text-slate-900 dark:text-slate-100">
-                        <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                      <p className="flex items-center gap-1 text-sm font-bold text-ink-900 dark:text-ink-100">
+                        <Zap className="h-3.5 w-3.5 text-sun-500" />
                         {entry.total_xp.toLocaleString()}
                       </p>
-                      <p className="text-[10px] text-slate-400">XP</p>
+                      <p className="text-[10px] text-ink-400">XP</p>
                     </div>
                   </div>
                 );
@@ -227,7 +227,7 @@ function PodiumCard({
     <div className={`flex flex-col items-center ${isFirst ? "mb-4" : ""}`}>
       <div className="relative mb-2">
         <div
-          className={`flex items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white font-bold shadow-lg ${
+          className={`flex items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-white font-bold shadow-lg ${
             isFirst ? "h-16 w-16 text-xl" : "h-12 w-12 text-base"
           }`}
         >
@@ -235,7 +235,7 @@ function PodiumCard({
         </div>
         <span className="absolute -bottom-1 -right-1 text-lg">{medalEmoji}</span>
       </div>
-      <p className="max-w-[100px] truncate text-center text-xs font-semibold text-slate-900 dark:text-slate-100">
+      <p className="max-w-[100px] truncate text-center text-xs font-semibold text-ink-900 dark:text-ink-100">
         {entry.user_name}
       </p>
       {entry.league && (
@@ -245,17 +245,17 @@ function PodiumCard({
           {leagueStyle.icon} {entry.league.name}
         </span>
       )}
-      <div className="mt-1 flex items-center gap-0.5 text-xs font-bold text-yellow-600 dark:text-yellow-400">
+      <div className="mt-1 flex items-center gap-0.5 text-xs font-bold text-sun-500 dark:text-sun-400">
         <Zap className="h-3 w-3" />
         {entry.total_xp.toLocaleString()}
       </div>
       <div
         className={`mt-2 w-20 rounded-t-lg ${
           rank === 1
-            ? "bg-yellow-400 dark:bg-yellow-500"
+            ? "bg-sun-400 dark:bg-sun-500"
             : rank === 2
-            ? "bg-slate-300 dark:bg-slate-500"
-            : "bg-amber-600 dark:bg-amber-700"
+            ? "bg-ink-300 dark:bg-ink-500"
+            : "bg-sun-500 dark:bg-sun-700"
         } ${heights[rank as 1 | 2 | 3]}`}
       />
     </div>

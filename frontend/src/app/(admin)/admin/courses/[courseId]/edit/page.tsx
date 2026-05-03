@@ -59,7 +59,7 @@ import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 
 const BlockEditor = dynamic(
   () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
-  { ssr: false, loading: () => <div className="flex h-[300px] items-center justify-center rounded-lg border border-slate-200 dark:border-white/10"><p className="text-sm text-slate-400">Loading editor...</p></div> }
+  { ssr: false, loading: () => <div className="flex h-[300px] items-center justify-center rounded-lg border border-ink-200 dark:border-white/10"><p className="text-sm text-ink-400">Loading editor...</p></div> }
 );
 
 function SortableLessonItem({
@@ -89,7 +89,7 @@ function SortableLessonItem({
       <div className="flex items-start">
         <button
           type="button"
-          className="mt-2.5 cursor-grab touch-none p-1 text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+          className="mt-2.5 cursor-grab touch-none p-1 text-ink-300 hover:text-ink-500 active:cursor-grabbing"
           {...listeners}
         >
           <GripVertical className="h-4 w-4" />
@@ -127,7 +127,7 @@ function SortableBlockItem({
       <div className="flex items-start gap-1">
         <button
           type="button"
-          className="mt-2.5 cursor-grab touch-none p-1 text-slate-300 hover:text-slate-500 active:cursor-grabbing"
+          className="mt-2.5 cursor-grab touch-none p-1 text-ink-300 hover:text-ink-500 active:cursor-grabbing"
           {...listeners}
         >
           <GripVertical className="h-4 w-4" />
@@ -151,10 +151,10 @@ const BLOCK_TYPE_ICONS: Record<string, typeof FileText> = {
 };
 
 const BLOCK_TYPE_COLORS: Record<string, string> = {
-  text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400",
-  html: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400",
-  video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400",
-  exercise: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+  text: "bg-ink-100 dark:bg-white/10 text-ink-700 dark:text-ink-400",
+  html: "bg-sun-50 dark:bg-sun-500/20 text-sun-500 dark:text-sun-400",
+  video: "bg-coral-50 dark:bg-coral-500/20 text-coral-500 dark:text-coral-300",
+  exercise: "bg-green-50 dark:bg-green-500/20 text-green-600 dark:text-green-400",
 };
 
 function getBlockPreview(block: LessonBlock): string {
@@ -231,21 +231,21 @@ const CONTENT_TYPE_OPTIONS = [
 ];
 
 const TYPE_COLORS: Record<string, string> = {
-  text: "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10",
-  video: "bg-rose-50 dark:bg-rose-500/20 text-rose-600 border-rose-200 dark:border-white/10",
+  text: "bg-ink-100 dark:bg-white/10 text-ink-700 dark:text-ink-400 border-ink-200 dark:border-white/10",
+  video: "bg-coral-50 dark:bg-coral-500/20 text-coral-500 border-coral-300 dark:border-white/10",
   quiz: "bg-green-50 dark:bg-green-500/20 text-green-600 border-green-200 dark:border-white/10",
-  code_challenge: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
-  file_upload: "bg-amber-50 dark:bg-amber-500/20 text-amber-600 border-amber-200 dark:border-white/10",
-  interactive: "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 border-emerald-200 dark:border-white/10",
+  code_challenge: "bg-green-50 dark:bg-green-500/20 text-green-600 border-green-200 dark:border-white/10",
+  file_upload: "bg-sun-50 dark:bg-sun-500/20 text-sun-500 border-sun-100 dark:border-white/10",
+  interactive: "bg-green-50 dark:bg-green-500/20 text-green-600 border-green-200 dark:border-white/10",
 };
 
 const TYPE_EXPANDED_BG: Record<string, string> = {
-  text: "border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5",
-  video: "border-rose-200 dark:border-white/10 bg-rose-50/30 dark:bg-rose-500/20",
+  text: "border-ink-200 dark:border-white/10 bg-ink-50/50 dark:bg-white/5",
+  video: "border-coral-300 dark:border-white/10 bg-coral-50/30 dark:bg-coral-500/20",
   quiz: "border-green-200 dark:border-white/10 bg-green-50/30 dark:bg-green-500/20",
-  code_challenge: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
-  file_upload: "border-amber-200 dark:border-white/10 bg-amber-50/30 dark:bg-amber-500/20",
-  interactive: "border-emerald-200 dark:border-white/10 bg-emerald-50/30 dark:bg-emerald-500/20",
+  code_challenge: "border-green-200 dark:border-white/10 bg-green-50/30 dark:bg-green-500/20",
+  file_upload: "border-sun-100 dark:border-white/10 bg-sun-50/30 dark:bg-sun-500/20",
+  interactive: "border-green-200 dark:border-white/10 bg-green-50/30 dark:bg-green-500/20",
 };
 
 export default function CourseEditorPage() {
@@ -775,7 +775,7 @@ export default function CourseEditorPage() {
   }
 
   if (!course) {
-    return <div className="text-center text-slate-500 dark:text-slate-400">Course not found</div>;
+    return <div className="text-center text-ink-500 dark:text-ink-400">Course not found</div>;
   }
 
   return (
@@ -784,7 +784,7 @@ export default function CourseEditorPage() {
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={() => router.push("/admin/courses")}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 dark:text-ink-400 hover:text-ink-700 dark:hover:text-ink-300"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Courses
@@ -816,31 +816,31 @@ export default function CourseEditorPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Title</label>
+            <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+            <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+            <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Category</label>
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., programming, math, languages"
-              className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <Button onClick={handleSaveMeta} disabled={saving}>
@@ -852,21 +852,21 @@ export default function CourseEditorPage() {
 
       {/* Modules */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Modules & Lessons</h2>
+        <h2 className="text-lg font-semibold text-ink-900 dark:text-ink-100">Modules & Lessons</h2>
       </div>
 
       <div className="space-y-3">
         {course.modules?.map((module, mi) => (
           <Card key={module.id}>
             <div
-              className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-slate-50 dark:hover:bg-white/5"
+              className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-ink-50 dark:hover:bg-white/5"
               onClick={() => toggleModule(module.id)}
             >
-              <GripVertical className="h-4 w-4 text-slate-300" />
+              <GripVertical className="h-4 w-4 text-ink-300" />
               {expandedModules.has(module.id) ? (
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+                <ChevronDown className="h-4 w-4 text-ink-400" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-slate-400" />
+                <ChevronRight className="h-4 w-4 text-ink-400" />
               )}
               <span className="flex h-6 w-6 items-center justify-center rounded bg-green-50 dark:bg-green-500/20 text-xs font-bold text-green-600">
                 {mi + 1}
@@ -879,7 +879,7 @@ export default function CourseEditorPage() {
                     value={editingModuleTitle}
                     onChange={(e) => setEditingModuleTitle(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleUpdateModule(module.id)}
-                    className="flex-1 rounded border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
+                    className="flex-1 rounded border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
                     autoFocus
                   />
                   <Button size="sm" onClick={() => handleUpdateModule(module.id)}>
@@ -891,15 +891,15 @@ export default function CourseEditorPage() {
                 </div>
               ) : (
                 <>
-                  <span className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-200">{module.title}</span>
-                  <span className="text-xs text-slate-400">{module.lessons?.length || 0} lessons</span>
+                  <span className="flex-1 text-sm font-medium text-ink-900 dark:text-ink-200">{module.title}</span>
+                  <span className="text-xs text-ink-400">{module.lessons?.length || 0} lessons</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingModuleId(module.id);
                       setEditingModuleTitle(module.title);
                     }}
-                    className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600 dark:hover:text-slate-300"
+                    className="rounded p-1 text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10 hover:text-ink-700 dark:hover:text-ink-300"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -908,7 +908,7 @@ export default function CourseEditorPage() {
                       e.stopPropagation();
                       handleDeleteModule(module.id);
                     }}
-                    className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                    className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -942,7 +942,7 @@ export default function CourseEditorPage() {
                           className={`rounded-lg border transition-all ${
                             isExpanded
                               ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
-                              : "border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5"
+                              : "border-ink-200 dark:border-white/10 hover:border-ink-300 dark:hover:border-white/20 hover:bg-ink-50 dark:hover:bg-white/5"
                           }`}
                         >
                           {/* Lesson header — always visible */}
@@ -950,16 +950,16 @@ export default function CourseEditorPage() {
                             className="flex cursor-pointer items-center gap-2.5 px-3 py-2.5"
                             onClick={() => handleExpandLesson(lesson)}
                           >
-                            <Icon className="h-4 w-4 shrink-0 text-slate-400" />
+                            <Icon className="h-4 w-4 shrink-0 text-ink-400" />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{lesson.title}</span>
+                                <span className="text-sm font-medium text-ink-900 dark:text-ink-200">{lesson.title}</span>
                                 {lesson.duration_minutes && (
-                                  <span className="text-xs text-slate-400">{lesson.duration_minutes} min</span>
+                                  <span className="text-xs text-ink-400">{lesson.duration_minutes} min</span>
                                 )}
                               </div>
                               {!isExpanded && (
-                                <p className="mt-0.5 truncate text-xs text-slate-400">
+                                <p className="mt-0.5 truncate text-xs text-ink-400">
                                   {getContentSummary(lesson)}
                                 </p>
                               )}
@@ -968,16 +968,16 @@ export default function CourseEditorPage() {
                               {typeOption?.label || lesson.content_type}
                             </span>
                             {isExpanded ? (
-                              <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />
+                              <ChevronDown className="h-4 w-4 shrink-0 text-ink-400" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                              <ChevronRight className="h-4 w-4 shrink-0 text-ink-400" />
                             )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteLesson(module.id, lesson.id);
                               }}
-                              className="shrink-0 rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                              className="shrink-0 rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -992,8 +992,8 @@ export default function CourseEditorPage() {
                                   onClick={() => setLessonTab("content")}
                                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                                     lessonTab === "content"
-                                      ? "bg-white dark:bg-[#2C2C2C] text-slate-800 dark:text-slate-200 shadow-sm"
-                                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                                      ? "bg-white dark:bg-[#2C2C2C] text-ink-900 dark:text-ink-200 shadow-sm"
+                                      : "text-ink-500 dark:text-ink-400 hover:text-ink-700 dark:hover:text-ink-300"
                                   }`}
                                 >
                                   <FileText className="h-3.5 w-3.5" />
@@ -1003,8 +1003,8 @@ export default function CourseEditorPage() {
                                   onClick={() => setLessonTab("settings")}
                                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                                     lessonTab === "settings"
-                                      ? "bg-white dark:bg-[#2C2C2C] text-slate-800 dark:text-slate-200 shadow-sm"
-                                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                                      ? "bg-white dark:bg-[#2C2C2C] text-ink-900 dark:text-ink-200 shadow-sm"
+                                      : "text-ink-500 dark:text-ink-400 hover:text-ink-700 dark:hover:text-ink-300"
                                   }`}
                                 >
                                   <Settings2 className="h-3.5 w-3.5" />
@@ -1015,22 +1015,22 @@ export default function CourseEditorPage() {
                               {lessonTab === "settings" && (
                                 <div className="space-y-3">
                                   <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Lesson Title</label>
+                                    <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">Lesson Title</label>
                                     <input
                                       type="text"
                                       value={editLessonForm.title}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
-                                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                                      className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                     />
                                   </div>
                                   <div>
-                                    <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">Duration (minutes)</label>
+                                    <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">Duration (minutes)</label>
                                     <input
                                       type="number"
                                       value={editLessonForm.duration_minutes}
                                       onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
                                       placeholder="Optional"
-                                      className="w-32 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                                      className="w-32 rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                     />
                                   </div>
                                   <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
@@ -1043,7 +1043,7 @@ export default function CourseEditorPage() {
                                 <div className="space-y-3">
                                   {/* ─── Block-based editor ───────────────── */}
                                   <div>
-                                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-ink-400">
                                       Blocks ({getBlocks(lesson.id).length})
                                     </p>
 
@@ -1062,23 +1062,23 @@ export default function CourseEditorPage() {
                                             const isEditing = editingBlockId === block.id;
                                             return (
                                               <SortableBlockItem key={block.id} id={block.id}>
-                                                <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E]">
+                                                <div className="rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E]">
                                                   {/* Block header */}
                                                   <div className="flex items-center gap-2 px-3 py-2">
                                                     <span className={`flex h-6 w-6 items-center justify-center rounded ${BLOCK_TYPE_COLORS[block.type] || ""}`}>
                                                       <BlockIcon className="h-3.5 w-3.5" />
                                                     </span>
-                                                    <span className="text-xs font-medium capitalize text-slate-700 dark:text-slate-300">
+                                                    <span className="text-xs font-medium capitalize text-ink-700 dark:text-ink-300">
                                                       {block.type} Block
                                                     </span>
                                                     {!isEditing && (
-                                                      <span className="flex-1 truncate text-xs text-slate-400 ml-1">
+                                                      <span className="flex-1 truncate text-xs text-ink-400 ml-1">
                                                         {getBlockPreview(block)}
                                                       </span>
                                                     )}
                                                     {isEditing && <span className="flex-1" />}
                                                     {/* Page number */}
-                                                    <label className="flex items-center gap-1 text-[10px] text-slate-400">
+                                                    <label className="flex items-center gap-1 text-[10px] text-ink-400">
                                                       p.
                                                       <input
                                                         type="number"
@@ -1089,19 +1089,19 @@ export default function CourseEditorPage() {
                                                             page: parseInt(e.target.value) || 1,
                                                           })
                                                         }
-                                                        className="w-10 rounded border border-slate-200 dark:border-white/10 bg-transparent px-1 py-0.5 text-center text-[10px] dark:text-slate-300 focus:outline-none focus:border-green-400"
+                                                        className="w-10 rounded border border-ink-200 dark:border-white/10 bg-transparent px-1 py-0.5 text-center text-[10px] dark:text-ink-300 focus:outline-none focus:border-green-400"
                                                       />
                                                     </label>
                                                     <button
                                                       onClick={() => setEditingBlockId(isEditing ? null : block.id)}
-                                                      className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-green-600"
+                                                      className="rounded p-1 text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10 hover:text-green-600"
                                                       title={isEditing ? "Collapse" : "Edit"}
                                                     >
                                                       {isEditing ? <ChevronDown className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
                                                     </button>
                                                     <button
                                                       onClick={() => handleDeleteBlock(lesson.id, block.id)}
-                                                      className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                                                      className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10"
                                                       title="Remove block"
                                                     >
                                                       <Trash2 className="h-3.5 w-3.5" />
@@ -1110,7 +1110,7 @@ export default function CourseEditorPage() {
 
                                                   {/* Block inline editor */}
                                                   {isEditing && (
-                                                    <div className="border-t border-slate-100 dark:border-white/5 px-3 py-3">
+                                                    <div className="border-t border-ink-100 dark:border-white/5 px-3 py-3">
                                                       {/* TEXT block editor */}
                                                       {block.type === "text" && (
                                                         <>
@@ -1136,8 +1136,8 @@ export default function CourseEditorPage() {
                                                       {block.type === "html" && (
                                                         <div className="space-y-2">
                                                           <div className="flex items-center justify-between">
-                                                            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Raw HTML</label>
-                                                            <span className="text-[10px] text-amber-500">Supports scripts, iframes, SVG, inline styles</span>
+                                                            <label className="text-xs font-medium text-ink-700 dark:text-ink-400">Raw HTML</label>
+                                                            <span className="text-[10px] text-sun-500">Supports scripts, iframes, SVG, inline styles</span>
                                                           </div>
                                                           <textarea
                                                             value={typeof block.body === "string" ? block.body : ""}
@@ -1149,13 +1149,13 @@ export default function CourseEditorPage() {
                                                             }
                                                             rows={12}
                                                             spellCheck={false}
-                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 bg-slate-900 text-slate-100 px-4 py-3 font-mono text-xs leading-relaxed focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                                            className="w-full rounded-lg border border-ink-300 dark:border-white/20 bg-ink-900 text-ink-100 px-4 py-3 font-mono text-xs leading-relaxed focus:border-sun-500 focus:outline-none focus:ring-1 focus:ring-sun-500"
                                                             placeholder="<div>\n  <h2>Your HTML here</h2>\n  <p>Supports scripts, iframes, SVGs...</p>\n</div>"
                                                           />
                                                           {typeof block.body === "string" && block.body.trim() && (
                                                             <div>
-                                                              <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
-                                                              <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1e1e1e] p-4 overflow-auto max-h-[300px]">
+                                                              <p className="mb-1 text-[10px] font-medium uppercase text-ink-400">Preview</p>
+                                                              <div className="rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1e1e1e] p-4 overflow-auto max-h-[300px]">
                                                                 <div dangerouslySetInnerHTML={{ __html: block.body }} />
                                                               </div>
                                                             </div>
@@ -1166,7 +1166,7 @@ export default function CourseEditorPage() {
                                                       {/* VIDEO block editor */}
                                                       {block.type === "video" && (
                                                         <>
-                                                          <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                                                          <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
                                                             Video URL (YouTube, Vimeo, etc.)
                                                           </label>
                                                           <input
@@ -1176,11 +1176,11 @@ export default function CourseEditorPage() {
                                                               handleUpdateBlock(lesson.id, block.id, { url: e.target.value })
                                                             }
                                                             placeholder="https://www.youtube.com/watch?v=..."
-                                                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                                                            className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                                                           />
                                                           {block.url && (
-                                                            <div className="mt-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
-                                                              <p className="mb-1 text-[10px] font-medium uppercase text-slate-400">Preview</p>
+                                                            <div className="mt-2 rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-2">
+                                                              <p className="mb-1 text-[10px] font-medium uppercase text-ink-400">Preview</p>
                                                               <a
                                                                 href={block.url}
                                                                 target="_blank"
@@ -1199,7 +1199,7 @@ export default function CourseEditorPage() {
                                                         <div className="space-y-2">
                                                           {block.exercise_id ? (
                                                             <div className="flex items-center gap-2">
-                                                              <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                                                              <span className="rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
                                                                 {block.exercise_id.slice(0, 8)}...
                                                               </span>
                                                               <a
@@ -1215,7 +1215,7 @@ export default function CourseEditorPage() {
                                                                 onClick={() =>
                                                                   handleUpdateBlock(lesson.id, block.id, { exercise_id: "" })
                                                                 }
-                                                                className="ml-auto text-xs text-slate-400 hover:text-red-500"
+                                                                className="ml-auto text-xs text-ink-400 hover:text-coral-500"
                                                               >
                                                                 Unlink
                                                               </button>
@@ -1242,7 +1242,7 @@ export default function CourseEditorPage() {
                                     </DndContext>
 
                                     {getBlocks(lesson.id).length === 0 && (
-                                      <p className="py-4 text-center text-xs text-slate-400">
+                                      <p className="py-4 text-center text-xs text-ink-400">
                                         No blocks yet. Add a text, video, or exercise block below.
                                       </p>
                                     )}
@@ -1252,25 +1252,25 @@ export default function CourseEditorPage() {
                                   <div className="flex flex-wrap items-center gap-2">
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "text")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-green-300 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-ink-500 hover:border-green-300 hover:text-green-600 dark:text-ink-400 dark:hover:text-green-400 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> Text
                                     </button>
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "html")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-amber-300 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-ink-500 hover:border-sun-300 hover:text-sun-500 dark:text-ink-400 dark:hover:text-sun-400 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> HTML
                                     </button>
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "video")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-rose-300 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-ink-500 hover:border-coral-300 hover:text-coral-500 dark:text-ink-400 dark:hover:text-coral-300 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> Video
                                     </button>
                                     <button
                                       onClick={() => handleAddBlock(lesson.id, "exercise")}
-                                      className="flex items-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-emerald-300 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors"
+                                      className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 px-3 py-1.5 text-xs font-medium text-ink-500 hover:border-green-300 hover:text-green-600 dark:text-ink-400 dark:hover:text-green-400 transition-colors"
                                     >
                                       <Plus className="h-3 w-3" /> Exercise
                                     </button>
@@ -1337,19 +1337,19 @@ export default function CourseEditorPage() {
 
                 {/* Add lesson form */}
                 {addingLessonToModule === module.id ? (
-                  <div className="mt-3 rounded-lg border border-dashed border-slate-300 dark:border-white/20 p-4">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">New Lesson</p>
+                  <div className="mt-3 rounded-lg border border-dashed border-ink-300 dark:border-white/20 p-4">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-400">New Lesson</p>
                     <div className="space-y-3">
                       <input
                         type="text"
                         value={lessonForm.title}
                         onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
                         placeholder="Lesson title"
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
+                        className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
                         autoFocus
                       />
                       <div>
-                        <label className="mb-1.5 block text-xs font-medium text-slate-600 dark:text-slate-400">Content Type</label>
+                        <label className="mb-1.5 block text-xs font-medium text-ink-700 dark:text-ink-400">Content Type</label>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                           {CONTENT_TYPE_OPTIONS.map((opt) => {
                             const selected = lessonForm.content_type === opt.value;
@@ -1360,7 +1360,7 @@ export default function CourseEditorPage() {
                                 className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition-all ${
                                   selected
                                     ? `${TYPE_COLORS[opt.value]} border-current`
-                                    : "border-transparent bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
+                                    : "border-transparent bg-ink-50 dark:bg-white/5 text-ink-500 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10"
                                 }`}
                               >
                                 <opt.icon className="h-4 w-4" />
@@ -1375,7 +1375,7 @@ export default function CourseEditorPage() {
                         <>
                           {lessonForm.content_type === "text" && (
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Format:</span>
+                              <span className="text-xs font-medium text-ink-500 dark:text-ink-400">Format:</span>
                               {(["markdown", "html"] as const).map((fmt) => (
                                 <button
                                   key={fmt}
@@ -1386,7 +1386,7 @@ export default function CourseEditorPage() {
                                   className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                                     (lessonForm.content.format || "markdown") === fmt
                                       ? "border-green-300 bg-green-50 dark:bg-green-500/20 text-green-700 dark:text-green-400"
-                                      : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-white/20"
+                                      : "border-ink-200 dark:border-white/10 text-ink-500 dark:text-ink-400 hover:border-ink-300 dark:hover:border-white/20"
                                   }`}
                                 >
                                   {fmt === "markdown" ? "Markdown" : "HTML"}
@@ -1404,14 +1404,14 @@ export default function CourseEditorPage() {
                             }
                             placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
                             rows={6}
-                            className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm font-mono focus:border-green-500 focus:outline-none"
+                            className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm font-mono focus:border-green-500 focus:outline-none"
                           />
                         </>
                       )}
                       {/* Info for complex types */}
                       {!["text", "video"].includes(lessonForm.content_type) && (
-                        <div className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-3">
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-3">
+                          <p className="text-xs text-ink-500 dark:text-ink-400">
                             Create the lesson first, then click on it to configure the {lessonForm.content_type === "quiz" ? "quiz questions" : lessonForm.content_type === "code_challenge" ? "challenge & test cases" : lessonForm.content_type === "file_upload" ? "upload settings" : "exercise"}.
                           </p>
                         </div>
@@ -1421,7 +1421,7 @@ export default function CourseEditorPage() {
                         value={lessonForm.duration_minutes}
                         onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
                         placeholder="Duration (minutes, optional)"
-                        className="w-48 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                        className="w-48 rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <Button size="sm" onClick={() => handleAddLesson(module.id)}>
@@ -1443,7 +1443,7 @@ export default function CourseEditorPage() {
                 ) : (
                   <button
                     onClick={() => setAddingLessonToModule(module.id)}
-                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-green-300 hover:text-green-500"
+                    className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 py-2.5 text-xs font-medium text-ink-400 transition-colors hover:border-green-300 hover:text-green-500"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Lesson
@@ -1463,7 +1463,7 @@ export default function CourseEditorPage() {
           onChange={(e) => setNewModuleTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
           placeholder="New module title..."
-          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          className="flex-1 rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         />
         <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
           <Plus className="mr-1 h-4 w-4" />
@@ -1481,9 +1481,9 @@ export default function CourseEditorPage() {
             <Users className="h-5 w-5 text-green-500" />
             Enrolled Students
             {showStudents ? (
-              <ChevronDown className="ml-auto h-4 w-4 text-slate-400" />
+              <ChevronDown className="ml-auto h-4 w-4 text-ink-400" />
             ) : (
-              <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
+              <ChevronRight className="ml-auto h-4 w-4 text-ink-400" />
             )}
             <span className="ml-1 rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600">
               {students.length}
@@ -1497,7 +1497,7 @@ export default function CourseEditorPage() {
               <select
                 value={enrollingUser}
                 onChange={(e) => setEnrollingUser(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="flex-1 rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 <option value="">Select a user to enroll...</option>
                 {allUsers
@@ -1516,7 +1516,7 @@ export default function CourseEditorPage() {
 
             {/* Students list */}
             {students.length === 0 ? (
-              <p className="py-4 text-center text-sm text-slate-400">
+              <p className="py-4 text-center text-sm text-ink-400">
                 No students enrolled yet. Use the dropdown above to add students.
               </p>
             ) : (
@@ -1524,7 +1524,7 @@ export default function CourseEditorPage() {
                 {students.map((student) => (
                   <div
                     key={student.enrollment_id}
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50 dark:hover:bg-white/5"
+                    className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-ink-50 dark:hover:bg-white/5"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-50 dark:bg-green-500/20 text-xs font-bold text-green-600">
                       {student.full_name
@@ -1535,13 +1535,13 @@ export default function CourseEditorPage() {
                         .toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{student.full_name}</p>
-                      <p className="text-xs text-slate-400">{student.email}</p>
+                      <p className="text-sm font-medium text-ink-700 dark:text-ink-300">{student.full_name}</p>
+                      <p className="text-xs text-ink-400">{student.email}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{student.progress_percent}%</p>
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                        <p className="text-xs font-medium text-ink-700 dark:text-ink-400">{student.progress_percent}%</p>
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-ink-100 dark:bg-white/10">
                           <div
                             className="h-full rounded-full bg-green-500 transition-all"
                             style={{ width: `${student.progress_percent}%` }}
@@ -1550,7 +1550,7 @@ export default function CourseEditorPage() {
                       </div>
                       <button
                         onClick={() => handleUnenroll(student.enrollment_id)}
-                        className="invisible rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 group-hover:visible"
+                        className="invisible rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500 group-hover:visible"
                         title="Remove from course"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -1574,9 +1574,9 @@ export default function CourseEditorPage() {
             <ClipboardList className="h-5 w-5 text-green-500" />
             Assignments
             {showAssignments ? (
-              <ChevronDown className="ml-auto h-4 w-4 text-slate-400" />
+              <ChevronDown className="ml-auto h-4 w-4 text-ink-400" />
             ) : (
-              <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
+              <ChevronRight className="ml-auto h-4 w-4 text-ink-400" />
             )}
             <span className="ml-1 rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600">
               {assignments.length}
@@ -1587,7 +1587,7 @@ export default function CourseEditorPage() {
           <CardContent className="border-t pt-4">
             {/* Assignment cards */}
             {assignments.length === 0 && !showAddAssignment && (
-              <p className="py-4 text-center text-sm text-slate-400">
+              <p className="py-4 text-center text-sm text-ink-400">
                 No assignments yet. Click below to add the first one.
               </p>
             )}
@@ -1597,20 +1597,20 @@ export default function CourseEditorPage() {
                 {assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="group rounded-lg border border-slate-200 dark:border-white/10 p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                    className="group rounded-lg border border-ink-200 dark:border-white/10 p-4 hover:bg-ink-50 dark:hover:bg-white/5 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                        <h4 className="text-sm font-medium text-ink-900 dark:text-ink-200">
                           {assignment.title}
                         </h4>
                         {assignment.description && (
-                          <p className="mt-0.5 text-xs text-slate-400 line-clamp-2">
+                          <p className="mt-0.5 text-xs text-ink-400 line-clamp-2">
                             {assignment.description}
                           </p>
                         )}
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-medium text-ink-700 dark:text-ink-400">
                             <Clock className="h-3 w-3" />
                             {new Date(assignment.due_date).toLocaleDateString(undefined, {
                               year: "numeric",
@@ -1624,12 +1624,12 @@ export default function CourseEditorPage() {
                             Max: {assignment.max_score} pts
                           </span>
                           {assignment.allow_late && (
-                            <span className="rounded-full bg-amber-50 dark:bg-amber-500/20 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                            <span className="rounded-full bg-sun-50 dark:bg-sun-500/20 px-2 py-0.5 text-[10px] font-medium text-sun-500 dark:text-sun-400">
                               Late OK
                             </span>
                           )}
                           {assignment.submission_count !== undefined && (
-                            <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                            <span className="rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
                               {assignment.submission_count} submissions
                             </span>
                           )}
@@ -1638,21 +1638,21 @@ export default function CourseEditorPage() {
                       <div className="flex shrink-0 items-center gap-1">
                         <button
                           onClick={() => window.open(`/admin/assignments/${assignment.id}/edit`, "_blank")}
-                          className="rounded p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/10 dark:hover:text-green-400"
+                          className="rounded p-1.5 text-ink-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/10 dark:hover:text-green-400"
                           title="Edit assignment"
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => window.open(`/admin/assignments/${assignment.id}/review`, "_blank")}
-                          className="rounded p-1.5 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-400"
+                          className="rounded p-1.5 text-ink-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-500/10 dark:hover:text-green-400"
                           title="Review submissions"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteAssignment(assignment.id, assignment.title)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                          className="rounded p-1.5 text-ink-400 hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10"
                           title="Delete assignment"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -1666,58 +1666,58 @@ export default function CourseEditorPage() {
 
             {/* Add Assignment toggle */}
             {showAddAssignment ? (
-              <div className="rounded-lg border border-dashed border-slate-300 dark:border-white/20 p-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">New Assignment</p>
+              <div className="rounded-lg border border-dashed border-ink-300 dark:border-white/20 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-400">New Assignment</p>
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Title *</label>
+                    <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Title *</label>
                     <input
                       type="text"
                       value={assignmentForm.title}
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
                       placeholder="Assignment title"
-                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       autoFocus
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+                    <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Description</label>
                     <textarea
                       value={assignmentForm.description}
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
                       placeholder="Optional description..."
                       rows={3}
-                      className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Due Date *</label>
+                      <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Due Date *</label>
                       <input
                         type="datetime-local"
                         value={assignmentForm.due_date}
                         onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Max Score</label>
+                      <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">Max Score</label>
                       <input
                         type="number"
                         value={assignmentForm.max_score}
                         onChange={(e) => setAssignmentForm({ ...assignmentForm, max_score: e.target.value })}
                         placeholder="100"
                         min={0}
-                        className="w-full rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="w-full rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                       />
                     </div>
                   </div>
-                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <label className="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-300">
                     <input
                       type="checkbox"
                       checked={assignmentForm.allow_late}
                       onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
-                      className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                      className="h-4 w-4 rounded border-ink-300 text-green-600 focus:ring-green-500"
                     />
                     Allow late submissions
                   </label>
@@ -1742,7 +1742,7 @@ export default function CourseEditorPage() {
             ) : (
               <button
                 onClick={() => setShowAddAssignment(true)}
-                className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-slate-300 dark:border-white/20 py-2.5 text-xs font-medium text-slate-400 transition-colors hover:border-green-300 hover:text-green-500"
+                className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 dark:border-white/20 py-2.5 text-xs font-medium text-ink-400 transition-colors hover:border-green-300 hover:text-green-500"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Add Assignment
@@ -1825,7 +1825,7 @@ function ExerciseBlockCreator({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-400">Create a new exercise for this block:</p>
+      <p className="text-xs text-ink-400">Create a new exercise for this block:</p>
       <div className="flex flex-wrap gap-1.5">
         {EXERCISE_TYPES_LIST.map((t) => (
           <button
@@ -1834,7 +1834,7 @@ function ExerciseBlockCreator({
             className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
               selectedType === t.value
                 ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
             }`}
           >
             {t.icon} {t.label}
@@ -1847,7 +1847,7 @@ function ExerciseBlockCreator({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Exercise title..."
-          className="flex-1 rounded-lg border border-slate-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-slate-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+          className="flex-1 rounded-lg border border-ink-300 dark:border-white/20 dark:bg-[#2C2C2C] dark:text-ink-200 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           onKeyDown={(e) => e.key === "Enter" && handleCreate()}
         />
         <Button size="sm" onClick={handleCreate} disabled={creating || !title.trim()}>
@@ -1925,9 +1925,9 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
   if (loading) return null;
 
   return (
-    <div className="mt-4 rounded-lg border border-slate-200 dark:border-white/10">
-      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5 dark:border-white/5">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+    <div className="mt-4 rounded-lg border border-ink-200 dark:border-white/10">
+      <div className="flex items-center justify-between border-b border-ink-100 px-4 py-2.5 dark:border-white/5">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-500">
           Exercises ({exercises.length})
         </h4>
         <button
@@ -1940,12 +1940,12 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
       </div>
 
       {showAdd && (
-        <div className="border-b border-slate-100 p-3 dark:border-white/5">
+        <div className="border-b border-ink-100 p-3 dark:border-white/5">
           <div className="flex gap-2">
             <select
               value={newType}
               onChange={(e) => setNewType(e.target.value)}
-              className="rounded border border-slate-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-200"
+              className="rounded border border-ink-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-200"
             >
               {Object.entries(EXERCISE_TYPE_LABELS).map(([val, label]) => (
                 <option key={val} value={val}>{label}</option>
@@ -1955,7 +1955,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Exercise title..."
-              className="flex-1 rounded border border-slate-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-200"
+              className="flex-1 rounded border border-ink-200 px-2 py-1.5 text-xs dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-200"
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
             />
             <Button size="sm" onClick={handleAdd} disabled={adding || !newTitle.trim()}>
@@ -1966,17 +1966,17 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
       )}
 
       {exercises.length === 0 && !showAdd && (
-        <p className="px-4 py-3 text-xs text-slate-400">No exercises attached to this lesson.</p>
+        <p className="px-4 py-3 text-xs text-ink-400">No exercises attached to this lesson.</p>
       )}
 
       {exercises.length > 0 && (
-        <ul className="divide-y divide-slate-100 dark:divide-white/5">
+        <ul className="divide-y divide-ink-100 dark:divide-white/5">
           {exercises.map((ex) => (
             <li key={ex.id} className="group flex items-center gap-3 px-4 py-2.5">
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+              <span className="rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-medium text-ink-500 dark:bg-white/10 dark:text-ink-400">
                 {ex.display_id}
               </span>
-              <span className="flex-1 text-xs font-medium text-slate-700 dark:text-slate-300">
+              <span className="flex-1 text-xs font-medium text-ink-700 dark:text-ink-300">
                 {ex.title}
               </span>
               <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:bg-green-500/10 dark:text-green-400">
@@ -1993,7 +1993,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
               </a>
               <button
                 onClick={() => handleDelete(ex.id, ex.title)}
-                className="rounded p-1 text-slate-300 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-500/10"
+                className="rounded p-1 text-ink-300 hover:bg-coral-50 hover:text-coral-500 dark:text-ink-500 dark:hover:bg-coral-500/10"
                 title="Delete exercise"
               >
                 <Trash2 className="h-3.5 w-3.5" />

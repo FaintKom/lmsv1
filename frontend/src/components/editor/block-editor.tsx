@@ -64,7 +64,7 @@ function ToolbarButton({
       className={`rounded p-1.5 transition-colors ${
         active
           ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
-          : "text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200"
+          : "text-ink-500 hover:bg-ink-100 hover:text-ink-700 dark:text-ink-400 dark:hover:bg-white/10 dark:hover:text-ink-200"
       }`}
     >
       {children}
@@ -73,7 +73,7 @@ function ToolbarButton({
 }
 
 function ToolbarSeparator() {
-  return <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-white/10" />;
+  return <div className="mx-1 h-5 w-px bg-ink-200 dark:bg-white/10" />;
 }
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ function EditorToolbar({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-2 py-1.5">
+    <div className="flex flex-wrap items-center gap-0.5 border-b border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-white/5 px-2 py-1.5">
       {/* Text formatting */}
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -385,15 +385,15 @@ export function BlockEditor({
 
   if (!editor) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-lg border border-slate-200 dark:border-white/10">
-        <p className="text-sm text-slate-400">Loading editor...</p>
+      <div className="flex h-[300px] items-center justify-center rounded-lg border border-ink-200 dark:border-white/10">
+        <p className="text-sm text-ink-400">Loading editor...</p>
       </div>
     );
   }
 
   return (
     <div
-      className={`block-editor rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] overflow-hidden ${
+      className={`block-editor rounded-xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] overflow-hidden ${
         editable ? "shadow-sm" : ""
       }`}
     >

@@ -145,8 +145,8 @@ export default function InteractiveBuilder({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-        <Puzzle className="h-4 w-4 text-emerald-500" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-ink-700">
+        <Puzzle className="h-4 w-4 text-green-500" />
         Interactive Exercise Builder
       </div>
 
@@ -158,8 +158,8 @@ export default function InteractiveBuilder({
             onClick={() => handleTypeChange(et.value)}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
               exerciseType === et.value
-                ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                : "border-slate-200 text-slate-500 hover:border-slate-300"
+                ? "border-green-300 bg-green-50 text-green-700"
+                : "border-ink-200 text-ink-500 hover:border-ink-300"
             }`}
           >
             {et.label}
@@ -169,20 +169,20 @@ export default function InteractiveBuilder({
 
       {/* Instruction */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Instruction</label>
+        <label className="mb-1 block text-xs font-medium text-ink-700">Instruction</label>
         <input
           type="text"
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
           placeholder="Instructions for the student..."
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
       {/* ── MATCHING ── */}
       {exerciseType === "matching" && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-600">Pairs</label>
+          <label className="text-xs font-medium text-ink-700">Pairs</label>
           {pairs.map((pair, i) => (
             <div key={i} className="flex items-center gap-2">
               <input
@@ -194,9 +194,9 @@ export default function InteractiveBuilder({
                   setPairs(p);
                 }}
                 placeholder="Term"
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
-              <span className="text-slate-400">↔</span>
+              <span className="text-ink-400">↔</span>
               <input
                 type="text"
                 value={pair.right}
@@ -206,11 +206,11 @@ export default function InteractiveBuilder({
                   setPairs(p);
                 }}
                 placeholder="Definition"
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
               <button
                 onClick={() => setPairs(pairs.filter((_, j) => j !== i))}
-                className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -225,12 +225,12 @@ export default function InteractiveBuilder({
       {/* ── ORDERING ── */}
       {exerciseType === "ordering" && (
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-600">
+          <label className="text-xs font-medium text-ink-700">
             Items (enter in CORRECT order — they will be shuffled for students)
           </label>
           {items.map((item, i) => (
             <div key={i} className="flex items-center gap-2">
-              <span className="w-6 text-center text-xs font-bold text-slate-400">{i + 1}</span>
+              <span className="w-6 text-center text-xs font-bold text-ink-400">{i + 1}</span>
               <input
                 type="text"
                 value={item}
@@ -241,7 +241,7 @@ export default function InteractiveBuilder({
                   setCorrectOrder(it.filter(Boolean));
                 }}
                 placeholder={`Item ${i + 1}`}
-                className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
               />
               <button
                 onClick={() => {
@@ -249,7 +249,7 @@ export default function InteractiveBuilder({
                   setItems(it);
                   setCorrectOrder(it.filter(Boolean));
                 }}
-                className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -265,7 +265,7 @@ export default function InteractiveBuilder({
       {exerciseType === "fill_blanks" && (
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">
+            <label className="mb-1 block text-xs font-medium text-ink-700">
               {"Text template (use {{blank}} for blanks)"}
             </label>
             <textarea
@@ -273,18 +273,18 @@ export default function InteractiveBuilder({
               onChange={(e) => setTextTemplate(e.target.value)}
               placeholder={"A {{blank}} is a named storage location."}
               rows={4}
-              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+              className="w-full rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
             />
           </div>
           {blankCount > 0 && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">
+              <label className="mb-1 block text-xs font-medium text-ink-700">
                 Correct answers ({blankCount} blanks)
               </label>
               <div className="space-y-1.5">
                 {blanks.map((b, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400">Blank {i + 1}:</span>
+                    <span className="text-xs text-ink-400">Blank {i + 1}:</span>
                     <input
                       type="text"
                       value={b}
@@ -293,7 +293,7 @@ export default function InteractiveBuilder({
                         nb[i] = e.target.value;
                         setBlanks(nb);
                       }}
-                      className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+                      className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
                     />
                   </div>
                 ))}
@@ -307,24 +307,24 @@ export default function InteractiveBuilder({
       {exerciseType === "true_false" && (
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Statement</label>
+            <label className="mb-1 block text-xs font-medium text-ink-700">Statement</label>
             <textarea
               value={statement}
               onChange={(e) => setStatement(e.target.value)}
               placeholder="JavaScript is a statically typed language."
               rows={2}
-              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+              className="w-full rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-green-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Correct Answer</label>
+            <label className="mb-1 block text-xs font-medium text-ink-700">Correct Answer</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setCorrectAnswer(true)}
                 className={`rounded-lg border px-4 py-2 text-sm font-medium ${
                   correctAnswer
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                    : "border-slate-200 text-slate-500"
+                    ? "border-green-300 bg-green-50 text-green-700"
+                    : "border-ink-200 text-ink-500"
                 }`}
               >
                 True
@@ -333,8 +333,8 @@ export default function InteractiveBuilder({
                 onClick={() => setCorrectAnswer(false)}
                 className={`rounded-lg border px-4 py-2 text-sm font-medium ${
                   !correctAnswer
-                    ? "border-red-300 bg-red-50 text-red-700"
-                    : "border-slate-200 text-slate-500"
+                    ? "border-coral-300 bg-coral-50 text-coral-700"
+                    : "border-ink-200 text-ink-500"
                 }`}
               >
                 False
@@ -347,9 +347,9 @@ export default function InteractiveBuilder({
       {/* ── CATEGORIZE ── */}
       {exerciseType === "categorize" && (
         <div className="space-y-3">
-          <label className="text-xs font-medium text-slate-600">Categories & Items</label>
+          <label className="text-xs font-medium text-ink-700">Categories & Items</label>
           {categories.map((cat, ci) => (
-            <div key={ci} className="rounded-lg border border-slate-200 p-3">
+            <div key={ci} className="rounded-lg border border-ink-200 p-3">
               <div className="mb-2 flex items-center gap-2">
                 <input
                   type="text"
@@ -360,11 +360,11 @@ export default function InteractiveBuilder({
                     setCategories(c);
                   }}
                   placeholder="Category name"
-                  className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm font-medium focus:border-green-500 focus:outline-none"
+                  className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm font-medium focus:border-green-500 focus:outline-none"
                 />
                 <button
                   onClick={() => setCategories(categories.filter((_, j) => j !== ci))}
-                  className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                  className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -382,7 +382,7 @@ export default function InteractiveBuilder({
                       setCategories(c);
                     }}
                     placeholder="Item"
-                    className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
+                    className="flex-1 rounded border border-ink-300 px-2 py-1 text-sm focus:border-green-500 focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -390,7 +390,7 @@ export default function InteractiveBuilder({
                       c[ci] = { ...c[ci], items: c[ci].items.filter((_, j) => j !== ii) };
                       setCategories(c);
                     }}
-                    className="rounded p-0.5 text-slate-400 hover:text-red-500"
+                    className="rounded p-0.5 text-ink-400 hover:text-coral-500"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
@@ -402,7 +402,7 @@ export default function InteractiveBuilder({
                   c[ci] = { ...c[ci], items: [...c[ci].items, ""] };
                   setCategories(c);
                 }}
-                className="ml-4 mt-1 text-xs font-medium text-green-600 hover:text-indigo-800"
+                className="ml-4 mt-1 text-xs font-medium text-green-600 hover:text-green-800"
               >
                 + Add item
               </button>
@@ -419,13 +419,13 @@ export default function InteractiveBuilder({
       )}
 
       {/* Save */}
-      <div className="flex items-center gap-3 border-t border-slate-200 pt-3">
+      <div className="flex items-center gap-3 border-t border-ink-200 pt-3">
         <Button size="sm" onClick={handleSave} disabled={saving}>
           <Save className="mr-1 h-3 w-3" />
           {saving ? "Saving..." : "Save Exercise"}
         </Button>
         {saved && (
-          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
             <CheckCircle className="h-3 w-3" />
             Saved!
           </span>

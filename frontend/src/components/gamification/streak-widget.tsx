@@ -24,18 +24,18 @@ export function StreakWidget() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className={`rounded-xl p-3 ${streak > 0 ? "bg-orange-50 dark:bg-orange-500/20" : "bg-slate-50 dark:bg-white/5"}`}>
-        <Flame className={`h-5 w-5 ${streak > 0 ? "text-orange-500" : "text-slate-400"}`} />
+      <div className={`rounded-xl p-3 ${streak > 0 ? "bg-sun-50 dark:bg-sun-500/20" : "bg-ink-50 dark:bg-white/5"}`}>
+        <Flame className={`h-5 w-5 ${streak > 0 ? "text-sun-500" : "text-ink-400"}`} />
       </div>
       <div className="flex-1">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Streak</p>
-        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{streak} days</p>
+        <p className="text-xs font-medium text-ink-500 dark:text-ink-400">Streak</p>
+        <p className="text-2xl font-bold text-ink-900 dark:text-ink-100">{streak} days</p>
         <div className="flex items-center gap-2">
           {longest > streak && (
-            <span className="text-xs text-slate-500">Best: {longest} days</span>
+            <span className="text-xs text-ink-500">Best: {longest} days</span>
           )}
           {xp > 0 && (
-            <span className="flex items-center gap-0.5 text-xs font-medium text-yellow-600">
+            <span className="flex items-center gap-0.5 text-xs font-medium text-sun-500">
               <Star className="h-2.5 w-2.5" /> {xp} XP
               {league && <span className="ml-0.5">{league.icon}</span>}
             </span>

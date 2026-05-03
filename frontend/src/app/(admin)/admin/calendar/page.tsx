@@ -8,8 +8,8 @@ export default function AdminCalendarPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("cal.title")}</h1>
-        <p className="text-base text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">{t("cal.title")}</h1>
+        <p className="text-base text-ink-500 dark:text-ink-400">
           {t("cal.adminSubtitle")}
         </p>
       </div>

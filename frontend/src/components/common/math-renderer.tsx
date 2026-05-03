@@ -36,7 +36,7 @@ function renderMath(text: string): string {
         trust: false,
       });
     } catch {
-      return `<span class="text-red-500">[Math Error]</span>`;
+      return `<span class="text-coral-500">[Math Error]</span>`;
     }
   });
 
@@ -49,7 +49,7 @@ function renderMath(text: string): string {
         trust: false,
       });
     } catch {
-      return `<span class="text-red-500">[Math Error]</span>`;
+      return `<span class="text-coral-500">[Math Error]</span>`;
     }
   });
 

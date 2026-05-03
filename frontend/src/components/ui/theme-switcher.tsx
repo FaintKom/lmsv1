@@ -47,7 +47,7 @@ export function ThemeSwitcher() {
   ];
 
   return (
-    <div className="inline-flex items-center gap-0.5 rounded-lg bg-slate-100 p-0.5 dark:bg-white/10">
+    <div className="inline-flex items-center gap-0.5 rounded-lg bg-ink-100 p-0.5 dark:bg-white/10">
       {options.map(({ value, icon: Icon, label }) => (
         <button
           key={value}
@@ -56,8 +56,8 @@ export function ThemeSwitcher() {
           className={cn(
             "inline-flex items-center justify-center rounded-md p-1.5 transition-colors",
             theme === value
-              ? "bg-white text-slate-900 shadow-sm dark:bg-white/20 dark:text-slate-100"
-              : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              ? "bg-white text-ink-900 shadow-sm dark:bg-white/20 dark:text-ink-100"
+              : "text-ink-400 hover:text-ink-700 dark:text-ink-500 dark:hover:text-ink-300"
           )}
         >
           <Icon className="h-3.5 w-3.5" />

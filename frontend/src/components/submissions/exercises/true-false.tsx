@@ -16,8 +16,8 @@ export default function TrueFalseExercise({
 
   return (
     <div>
-      <div className="mb-6 rounded-lg border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-white/5">
-        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">{statement}</p>
+      <div className="mb-6 rounded-lg border border-ink-200 bg-white p-6 dark:border-white/10 dark:bg-white/5">
+        <p className="text-lg font-medium text-ink-900 dark:text-ink-200">{statement}</p>
       </div>
 
       <div className="flex gap-4">
@@ -26,8 +26,8 @@ export default function TrueFalseExercise({
           aria-pressed={selected === true}
           className={`flex flex-1 items-center justify-center gap-2 rounded-xl border-2 py-4 text-lg font-semibold transition-colors ${
             selected === true
-              ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/20 dark:text-emerald-300"
-              : "border-slate-200 text-slate-600 hover:border-emerald-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-emerald-500/50"
+              ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300"
+              : "border-ink-200 text-ink-700 hover:border-green-300 dark:border-white/10 dark:text-ink-400 dark:hover:border-green-500/50"
           }`}
         >
           <Check className="h-5 w-5" />
@@ -38,8 +38,8 @@ export default function TrueFalseExercise({
           aria-pressed={selected === false}
           className={`flex flex-1 items-center justify-center gap-2 rounded-xl border-2 py-4 text-lg font-semibold transition-colors ${
             selected === false
-              ? "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/20 dark:text-red-300"
-              : "border-slate-200 text-slate-600 hover:border-red-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-red-500/50"
+              ? "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/20 dark:text-coral-300"
+              : "border-ink-200 text-ink-700 hover:border-coral-300 dark:border-white/10 dark:text-ink-400 dark:hover:border-coral-500/50"
           }`}
         >
           <X className="h-5 w-5" />

@@ -34,6 +34,29 @@ _(пусто)_
 
 ## Идеи на потом
 
+- [ ] **DS-finish.** Подсказать дизайнеру — список ⚠️-страниц / компонентов
+      см. в `docs/design/AUDIT.md` секцию «Pending design work».
+      Главное: 9 из 15 типов exercises имеют визуальные edge cases
+      (Quiz container, Translation hero, Sentence Builder бар,
+      Dialogue layout) — нужны дизайн-проходы.
+- [ ] **FrameBox lesson type.** В рабочей папке Minecraft (нужно найти —
+      на F:\ нет директории `Minecraft`, проверить другие диски / OneDrive)
+      есть готовая фича FrameBox. Перенести как новый `ContentType`
+      и/или `ExerciseType`. Шаги: (1) найти исходники, (2) описать
+      контракт (что хранится в config), (3) зарегистрировать тип в
+      backend `app/exercises/models.ExerciseType`, (4) добавить
+      `FrameBoxConfig` в `schemas.py` + entry в `CONFIG_SCHEMAS`,
+      (5) сделать React-компонент-рендер в `frontend/src/components/`,
+      (6) тулзу `create_framebox(...)` в `mcp-grasslms/server.py`.
+- [ ] **MCP security model.** Сейчас MCP server использует один JWT из
+      env (`LMS_TOKEN`). Backend enforce-ит роли (`require_role`,
+      `_check_permission`) — учитель видит/правит только свои курсы,
+      super_admin — всё. Это уже secure by design. Паттерн использования:
+      одна .env-конфигурация Claude Desktop на одного пользователя
+      (учитель / админ / super_admin), их JWT никогда не пересекаются.
+      Если в будущем нужен multi-user MCP бот — добавить login-tool +
+      token rotation в server.py.
+
 _(добавляй сюда фичи/улучшения, до которых пока не дошли руки)_
 
 ---

@@ -31,7 +31,7 @@ const BlocklyWorkspace = dynamic(
 const SceneRenderer = dynamic(() => import("./scene-renderer"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center bg-[#1a1a2e] text-slate-400 text-sm">
+    <div className="flex h-full items-center justify-center bg-[#1a1a2e] text-ink-400 text-sm">
       Loading 3D scene...
     </div>
   ),
@@ -180,28 +180,28 @@ export default function World3DExercise({
   return (
     <div className="flex h-full flex-col gap-0">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
+      <div className="flex items-center justify-between border-b border-ink-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="flex items-center gap-2">
           {allowPython && (
-            <div className="flex rounded-lg border border-slate-200 dark:border-white/10">
+            <div className="flex rounded-lg border border-ink-200 dark:border-white/10">
               <button onClick={() => setMode("blocks")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "text-slate-500"}`}>
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-ink-500"}`}>
                 <Blocks className="h-3.5 w-3.5" /> Blocks
               </button>
               <button onClick={() => setMode("python")}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "text-slate-500"}`}>
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "text-ink-500"}`}>
                 <Code className="h-3.5 w-3.5" /> Python
               </button>
             </div>
           )}
-          <span className="text-xs text-slate-400">Steps: {stepsUsed}</span>
+          <span className="text-xs text-ink-400">Steps: {stepsUsed}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <Gauge className="h-3.5 w-3.5 text-slate-400" />
+          <Gauge className="h-3.5 w-3.5 text-ink-400" />
           <input type="range" min={50} max={800} step={50} value={850 - speed}
             onChange={(e) => setSpeed(850 - parseInt(e.target.value))}
-            className="h-1.5 w-16 accent-emerald-500" title="Speed" />
+            className="h-1.5 w-16 accent-green-500" title="Speed" />
 
           {isRunning ? (
             <Button size="sm" onClick={handlePause}>
@@ -223,7 +223,7 @@ export default function World3DExercise({
       {/* Main: Blockly + 3D Scene */}
       <div className="flex flex-1" style={{ minHeight: 520 }}>
         {/* Blockly */}
-        <div className="w-[380px] border-r border-slate-200 dark:border-white/10">
+        <div className="w-[380px] border-r border-ink-200 dark:border-white/10">
           <BlocklyWorkspace
             toolbox={DIFFICULTY_3D_TOOLBOXES[difficulty]}
             mode={mode}
@@ -240,19 +240,19 @@ export default function World3DExercise({
           </div>
 
           {/* Status */}
-          <div className="border-t border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-[#1E1E1E]">
+          <div className="border-t border-ink-200 bg-white p-3 dark:border-white/10 dark:bg-[#1E1E1E]">
             {completed ? (
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                   <Trophy className="h-5 w-5" />
                   <span className="text-sm font-semibold">Level Complete!</span>
-                  <span className="text-xs text-slate-400">{stepsUsed} steps</span>
+                  <span className="text-xs text-ink-400">{stepsUsed} steps</span>
                 </div>
                 <Button size="sm" onClick={handleSubmit}>Submit</Button>
               </div>
             ) : failed ? (
               <div className="space-y-2">
-                <p className="text-sm text-red-500 dark:text-red-400">{failed}</p>
+                <p className="text-sm text-coral-500 dark:text-coral-300">{failed}</p>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={handleReset}>Try Again</Button>
                   {hints.length > 0 && (
@@ -263,14 +263,14 @@ export default function World3DExercise({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between text-xs text-slate-400">
+              <div className="flex items-center justify-between text-xs text-ink-400">
                 <span>
                   {winCondition === "reach_goal" ? "Navigate to the green goal" :
                     winCondition === "collect_all" ? `Collect all items (${worldState.player.collected}/${worldState.cells.filter(o => o.type === "collectible").length})` :
                       "Complete the objective"}
                 </span>
                 {hints.length > 0 && (
-                  <button onClick={() => setShowHint(!showHint)} className="flex items-center gap-1 text-amber-500 hover:text-amber-600">
+                  <button onClick={() => setShowHint(!showHint)} className="flex items-center gap-1 text-sun-500 hover:text-sun-500">
                     <Lightbulb className="h-3 w-3" /> Hint
                   </button>
                 )}
@@ -278,10 +278,10 @@ export default function World3DExercise({
             )}
 
             {showHint && hints.length > 0 && (
-              <div className="mt-2 rounded-lg bg-amber-50 p-2.5 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+              <div className="mt-2 rounded-lg bg-sun-50 p-2.5 text-xs text-sun-700 dark:bg-sun-500/10 dark:text-sun-300">
                 <p>{hints[hintIndex]}</p>
                 {hintIndex < hints.length - 1 && (
-                  <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-amber-600 underline dark:text-amber-400">Next hint</button>
+                  <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-sun-500 underline dark:text-sun-400">Next hint</button>
                 )}
               </div>
             )}

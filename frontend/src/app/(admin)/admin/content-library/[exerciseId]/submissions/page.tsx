@@ -80,7 +80,7 @@ export default function SubmissionsViewerPage() {
 
   if (!exercise && !loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+      <div className="flex flex-col items-center justify-center py-24 text-ink-400">
         <p>Exercise not found</p>
       </div>
     );
@@ -101,7 +101,7 @@ export default function SubmissionsViewerPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <h1 className="text-xl font-bold text-ink-900 dark:text-ink-100">
                 Submissions
               </h1>
               {exercise && (
@@ -112,7 +112,7 @@ export default function SubmissionsViewerPage() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-ink-500 dark:text-ink-400">
               {exercise?.title} · {total} submission{total !== 1 ? "s" : ""}
             </p>
           </div>
@@ -129,12 +129,12 @@ export default function SubmissionsViewerPage() {
               ))}
             </div>
           ) : submissions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+            <div className="flex flex-col items-center justify-center py-16 text-ink-400 dark:text-ink-500">
               <FileText className="mb-3 h-10 w-10" />
               <p className="text-sm font-medium">No submissions yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-50 dark:divide-white/5">
+            <div className="divide-y divide-ink-50 dark:divide-white/5">
               {submissions.map((sub) => (
                 <SubmissionRow
                   key={sub.id}
@@ -149,8 +149,8 @@ export default function SubmissionsViewerPage() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3 dark:border-white/10">
-              <p className="text-xs text-slate-500">
+            <div className="flex items-center justify-between border-t border-ink-100 px-6 py-3 dark:border-white/10">
+              <p className="text-xs text-ink-500">
                 Page {page} of {totalPages}
               </p>
               <div className="flex gap-2">
@@ -186,28 +186,28 @@ function SubmissionRow({
 }) {
   const sub = submission;
   const passedIcon = sub.passed === true ? (
-    <Check className="h-4 w-4 text-emerald-500" />
+    <Check className="h-4 w-4 text-green-500" />
   ) : sub.passed === false ? (
-    <X className="h-4 w-4 text-red-500" />
+    <X className="h-4 w-4 text-coral-500" />
   ) : (
-    <Clock className="h-4 w-4 text-amber-500" />
+    <Clock className="h-4 w-4 text-sun-500" />
   );
 
   return (
     <div>
       <div
-        className="flex cursor-pointer items-center gap-4 px-6 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+        className="flex cursor-pointer items-center gap-4 px-6 py-3 transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
         onClick={onToggle}
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-slate-400" />
+          <ChevronDown className="h-4 w-4 text-ink-400" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-slate-400" />
+          <ChevronRight className="h-4 w-4 text-ink-400" />
         )}
 
         <div className="flex items-center gap-2">
-          <User className="h-4 w-4 text-slate-400" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <User className="h-4 w-4 text-ink-400" />
+          <span className="text-sm font-medium text-ink-700 dark:text-ink-300">
             {studentName}
           </span>
         </div>
@@ -215,7 +215,7 @@ function SubmissionRow({
         <div className="flex items-center gap-1.5">{passedIcon}</div>
 
         {sub.score !== null && (
-          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300">
+          <span className="rounded bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-700 dark:bg-white/10 dark:text-ink-300">
             {typeof sub.score === "number" ? sub.score.toFixed(1) : sub.score}%
           </span>
         )}
@@ -223,10 +223,10 @@ function SubmissionRow({
         {sub.status && (
           <span className={`rounded px-2 py-0.5 text-xs font-medium ${
             sub.status === "passed" || sub.status === "graded"
-              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
               : sub.status === "failed"
-              ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-              : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
+              ? "bg-coral-50 text-coral-700 dark:bg-coral-700/30 dark:text-coral-300"
+              : "bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-400"
           }`}>
             {sub.status}
           </span>
@@ -234,26 +234,26 @@ function SubmissionRow({
 
         {/* Code-specific: tests passed */}
         {sub.total_tests !== null && sub.total_tests > 0 && (
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-ink-500 dark:text-ink-400">
             {sub.total_passed}/{sub.total_tests} tests
           </span>
         )}
 
         {/* File-specific */}
         {sub.original_filename && (
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-ink-500 dark:text-ink-400">
             {sub.original_filename}
           </span>
         )}
 
-        <span className="ml-auto text-xs text-slate-400">
+        <span className="ml-auto text-xs text-ink-400">
           {new Date(sub.submitted_at).toLocaleString()}
         </span>
       </div>
 
       {/* Expanded details */}
       {isExpanded && (
-        <div className="border-t border-slate-50 bg-slate-25 px-14 py-4 dark:border-white/5 dark:bg-white/[0.02]">
+        <div className="border-t border-ink-50 bg-ink-25 px-14 py-4 dark:border-white/5 dark:bg-white/[0.02]">
           {/* Quiz answers */}
           {exerciseType === "quiz" && sub.answers && (
             <QuizAnswersDetail answers={sub.answers} />
@@ -272,8 +272,8 @@ function SubmissionRow({
           {/* Interactive answers */}
           {!["quiz", "code_challenge", "file_upload"].includes(exerciseType) && sub.answers && (
             <div>
-              <p className="mb-2 text-xs font-medium uppercase text-slate-400">Student Answers</p>
-              <pre className="rounded-lg bg-slate-100 p-3 font-mono text-xs text-slate-700 dark:bg-white/5 dark:text-slate-300">
+              <p className="mb-2 text-xs font-medium uppercase text-ink-400">Student Answers</p>
+              <pre className="rounded-lg bg-ink-100 p-3 font-mono text-xs text-ink-700 dark:bg-white/5 dark:text-ink-300">
                 {JSON.stringify(sub.answers, null, 2)}
               </pre>
             </div>
@@ -291,7 +291,7 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 
   if (!Array.isArray(quizAnswers)) {
     return (
-      <pre className="rounded-lg bg-slate-100 p-3 font-mono text-xs text-slate-700 dark:bg-white/5 dark:text-slate-300">
+      <pre className="rounded-lg bg-ink-100 p-3 font-mono text-xs text-ink-700 dark:bg-white/5 dark:text-ink-300">
         {JSON.stringify(answers, null, 2)}
       </pre>
     );
@@ -299,10 +299,10 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium uppercase text-slate-400">Answers</p>
+      <p className="text-xs font-medium uppercase text-ink-400">Answers</p>
       {quizAnswers.map((a, i) => (
-        <div key={i} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-          <span className="text-slate-400">Q{i + 1}:</span>
+        <div key={i} className="flex items-center gap-2 text-xs text-ink-700 dark:text-ink-400">
+          <span className="text-ink-400">Q{i + 1}:</span>
           <span>{String(a.selected_option ?? a.text ?? JSON.stringify(a))}</span>
         </div>
       ))}
@@ -318,14 +318,14 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
       {submission.source_code && (
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <p className="text-xs font-medium uppercase text-slate-400">
+            <p className="text-xs font-medium uppercase text-ink-400">
               Source Code ({submission.language})
             </p>
             {submission.execution_time_ms !== null && (
-              <span className="text-xs text-slate-500">{submission.execution_time_ms}ms</span>
+              <span className="text-xs text-ink-500">{submission.execution_time_ms}ms</span>
             )}
           </div>
-          <pre className="max-h-64 overflow-auto rounded-lg bg-slate-900 p-3 font-mono text-xs text-slate-100">
+          <pre className="max-h-64 overflow-auto rounded-lg bg-ink-900 p-3 font-mono text-xs text-ink-100">
             {submission.source_code}
           </pre>
         </div>
@@ -333,7 +333,7 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
 
       {submission.results && (
         <div>
-          <p className="mb-2 text-xs font-medium uppercase text-slate-400">Test Results</p>
+          <p className="mb-2 text-xs font-medium uppercase text-ink-400">Test Results</p>
           <div className="space-y-1">
             {((submission.results as Record<string, unknown>).test_results as Array<Record<string, unknown>> || []).map(
               (r, i) => (
@@ -341,15 +341,15 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
                   key={i}
                   className={`flex items-center gap-2 rounded px-2 py-1 text-xs ${
                     r.passed
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
-                      : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                      ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300"
+                      : "bg-coral-50 text-coral-700 dark:bg-coral-700/20 dark:text-coral-300"
                   }`}
                 >
                   {r.passed ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                   <span>Test #{i + 1}</span>
                   {!r.is_hidden && (
                     <>
-                      <span className="text-slate-400">|</span>
+                      <span className="text-ink-400">|</span>
                       <span>Expected: {String(r.expected)}</span>
                       <span>Got: {String(r.actual)}</span>
                     </>
@@ -369,19 +369,19 @@ function CodeSubmissionDetail({ submission }: { submission: ExerciseSubmission }
 function FileSubmissionDetail({ submission }: { submission: ExerciseSubmission }) {
   return (
     <div className="flex items-center gap-4">
-      <FileText className="h-8 w-8 text-slate-400" />
+      <FileText className="h-8 w-8 text-ink-400" />
       <div>
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <p className="text-sm font-medium text-ink-700 dark:text-ink-300">
           {submission.original_filename}
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-500">
           {submission.file_size ? `${(submission.file_size / 1024).toFixed(1)} KB` : ""}{" "}
           {submission.mime_type ? `· ${submission.mime_type}` : ""}
         </p>
       </div>
       <a
         href={`/api/v1/exercises/submissions/${submission.id}/download`}
-        className="ml-auto flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-100 dark:bg-indigo-900/20 dark:text-green-400 dark:hover:bg-indigo-900/30"
+        className="ml-auto flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30"
         download
       >
         <Download className="h-3.5 w-3.5" />

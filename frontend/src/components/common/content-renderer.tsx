@@ -11,7 +11,7 @@ import { MathRenderer, containsMath } from "./math-renderer";
 
 const BlockEditor = dynamic(
   () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
-  { ssr: false, loading: () => <div className="animate-pulse h-20 rounded bg-slate-100 dark:bg-white/5" /> }
+  { ssr: false, loading: () => <div className="animate-pulse h-20 rounded bg-ink-100 dark:bg-white/5" /> }
 );
 
 interface ContentRendererProps {
@@ -21,7 +21,7 @@ interface ContentRendererProps {
 
 export function ContentRenderer({ body, format = "markdown" }: ContentRendererProps) {
   if (!body) {
-    return <p className="text-slate-400">No content yet.</p>;
+    return <p className="text-ink-400">No content yet.</p>;
   }
 
   // TipTap JSON — render with read-only BlockEditor
@@ -33,7 +33,7 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
   const text = typeof body === "string" ? body : "";
 
   if (!text) {
-    return <p className="text-slate-400">No content yet.</p>;
+    return <p className="text-ink-400">No content yet.</p>;
   }
 
   // HTML mode — use iframe if content has scripts (for interactive widgets)
@@ -297,7 +297,7 @@ function SandboxedIframe({ html }: { html: string }) {
     document.addEventListener('click', send, true);
   })();</script>`;
 
-  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;color:#1e293b;line-height:1.6;padding:12px;touch-action:manipulation}*{box-sizing:border-box}canvas{max-width:100%}input[type=range]{min-height:44px}@media(prefers-color-scheme:dark){body{color:#e2e8f0;background:#1e1e1e}}</style></head><body>${cleaned}${resizeScript}</body></html>`;
+  const srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0}body{font-family:system-ui,-apple-system,sans-serif;color:#1a2a1f;line-height:1.6;padding:12px;touch-action:manipulation}*{box-sizing:border-box}canvas{max-width:100%}input[type=range]{min-height:44px}@media(prefers-color-scheme:dark){body{color:#e6e8e4;background:#1e1e1e}}</style></head><body>${cleaned}${resizeScript}</body></html>`;
 
   const handleRef = (iframe: HTMLIFrameElement | null) => {
     if (!iframe) return;

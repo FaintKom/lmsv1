@@ -54,10 +54,10 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  Free: "border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C]",
+  Free: "border-ink-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C]",
   Starter: "border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/20",
   Professional: "border-green-300 dark:border-green-500/30 bg-green-50 dark:bg-green-500/20 ring-2 ring-green-500",
-  Enterprise: "border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/20",
+  Enterprise: "border-sun-100 dark:border-sun-500/30 bg-sun-50 dark:bg-sun-500/20",
 };
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -137,7 +137,7 @@ export default function AdminBillingPage() {
         <Skeleton className="mb-8 h-8 w-52" />
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 dark:border-white/10 p-5">
+            <div key={i} className="rounded-xl border border-ink-200 dark:border-white/10 p-5">
               <Skeleton className="h-12 w-full" />
             </div>
           ))}
@@ -145,7 +145,7 @@ export default function AdminBillingPage() {
         <Skeleton className="mb-4 h-6 w-36" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 dark:border-white/10 p-5">
+            <div key={i} className="rounded-xl border border-ink-200 dark:border-white/10 p-5">
               <Skeleton className="mb-4 h-10 w-10 rounded-xl" />
               <Skeleton className="mb-2 h-6 w-24" />
               <Skeleton className="mb-4 h-10 w-20" />
@@ -165,24 +165,24 @@ export default function AdminBillingPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Billing & Plans</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Billing & Plans</h1>
+        <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
           Manage your subscription and billing
         </p>
       </div>
 
       {/* Billing-disabled placeholder — no Stripe keys configured */}
       {billingEnabled === false && (
-        <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-400/30 dark:bg-amber-500/10">
+        <div className="mb-8 rounded-xl border border-sun-100 bg-sun-50 p-5 dark:border-sun-400/30 dark:bg-sun-500/10">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
-              <CreditCard className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sun-100 dark:bg-sun-500/20">
+              <CreditCard className="h-4 w-4 text-sun-700 dark:text-sun-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              <p className="text-sm font-semibold text-sun-700 dark:text-sun-100">
                 Billing is not enabled yet
               </p>
-              <p className="mt-1 text-xs text-amber-800 dark:text-amber-300/80">
+              <p className="mt-1 text-xs text-sun-700 dark:text-sun-300/80">
                 Stripe has not been connected on this deployment. Plan listings below are informational only — subscriptions cannot be purchased until an administrator configures <code className="font-mono">STRIPE_SECRET_KEY</code> and <code className="font-mono">STRIPE_WEBHOOK_SECRET</code>.
               </p>
             </div>
@@ -192,14 +192,14 @@ export default function AdminBillingPage() {
 
       {/* Current subscription info */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-emerald-400">
+        <Card className="border-l-4 border-l-green-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
-              <DollarSign className="h-5 w-5 text-emerald-500" />
+            <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-3">
+              <DollarSign className="h-5 w-5 text-green-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Current Plan</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-medium text-ink-400 dark:text-ink-400">Current Plan</p>
+              <p className="text-xl font-bold text-ink-900 dark:text-ink-100">
                 {currentPlan?.name || "Free"}
               </p>
             </div>
@@ -212,10 +212,10 @@ export default function AdminBillingPage() {
               <CreditCard className="h-5 w-5 text-blue-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Status</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-medium text-ink-400 dark:text-ink-400">Status</p>
+              <p className="text-xl font-bold text-ink-900 dark:text-ink-100">
                 {subscription ? (
-                  <span className={subscription.status === "active" ? "text-emerald-600" : "text-amber-600"}>
+                  <span className={subscription.status === "active" ? "text-green-600" : "text-sun-500"}>
                     {subscription.status}
                   </span>
                 ) : (
@@ -226,14 +226,14 @@ export default function AdminBillingPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-emerald-400">
+        <Card className="border-l-4 border-l-green-400">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-emerald-100 dark:bg-emerald-500/20 p-3">
-              <Receipt className="h-5 w-5 text-emerald-500" />
+            <div className="rounded-xl bg-green-100 dark:bg-green-500/20 p-3">
+              <Receipt className="h-5 w-5 text-green-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-400 dark:text-slate-400">Monthly Cost</p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-xs font-medium text-ink-400 dark:text-ink-400">Monthly Cost</p>
+              <p className="text-xl font-bold text-ink-900 dark:text-ink-100">
                 ${currentPlan?.price_monthly || 0}/mo
               </p>
             </div>
@@ -247,7 +247,7 @@ export default function AdminBillingPage() {
       </div>
 
       {/* Plans grid */}
-      <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Available Plans</h2>
+      <h2 className="mb-4 text-lg font-semibold text-ink-900 dark:text-ink-100">Available Plans</h2>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => {
           const isCurrent = plan.id === subscription?.plan_id;
@@ -256,7 +256,7 @@ export default function AdminBillingPage() {
           return (
             <Card
               key={plan.id}
-              className={`relative overflow-hidden transition-shadow hover:shadow-lg ${PLAN_COLORS[plan.name] || "border-slate-200 dark:border-white/10"}`}
+              className={`relative overflow-hidden transition-shadow hover:shadow-lg ${PLAN_COLORS[plan.name] || "border-ink-200 dark:border-white/10"}`}
             >
               {recommended && (
                 <div className="absolute right-0 top-0 bg-green-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
@@ -265,37 +265,37 @@ export default function AdminBillingPage() {
               )}
               <CardContent className="p-5">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className={`rounded-xl p-2 ${recommended ? "bg-green-100 dark:bg-green-500/20 text-green-600" : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400"}`}>
+                  <div className={`rounded-xl p-2 ${recommended ? "bg-green-100 dark:bg-green-500/20 text-green-600" : "bg-ink-100 dark:bg-white/10 text-ink-700 dark:text-ink-400"}`}>
                     {PLAN_ICONS[plan.name] || <Zap className="h-6 w-6" />}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">{plan.name}</h3>
+                    <h3 className="font-semibold text-ink-900 dark:text-ink-100">{plan.name}</h3>
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">${plan.price_monthly}</span>
-                  <span className="text-sm text-slate-400 dark:text-slate-400">/month</span>
+                  <span className="text-3xl font-bold text-ink-900 dark:text-ink-100">${plan.price_monthly}</span>
+                  <span className="text-sm text-ink-400 dark:text-ink-400">/month</span>
                 </div>
 
                 <div className="mb-4 space-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                  <div className="flex items-center gap-2 text-ink-700 dark:text-ink-400">
+                    <Check className="h-4 w-4 text-green-500" />
                     {plan.max_students === -1 ? "Unlimited" : plan.max_students} students
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                  <div className="flex items-center gap-2 text-ink-700 dark:text-ink-400">
+                    <Check className="h-4 w-4 text-green-500" />
                     {plan.max_courses === -1 ? "Unlimited" : plan.max_courses} courses
                   </div>
                   {Object.entries(plan.features).map(([key, enabled]) => (
                     <div
                       key={key}
-                      className={`flex items-center gap-2 ${enabled ? "text-slate-600 dark:text-slate-400" : "text-slate-300 dark:text-slate-600 line-through"}`}
+                      className={`flex items-center gap-2 ${enabled ? "text-ink-700 dark:text-ink-400" : "text-ink-300 dark:text-ink-700 line-through"}`}
                     >
                       {enabled ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
+                        <Check className="h-4 w-4 text-green-500" />
                       ) : (
-                        <span className="inline-block h-4 w-4 text-center text-slate-300 dark:text-slate-600">-</span>
+                        <span className="inline-block h-4 w-4 text-center text-ink-300 dark:text-ink-700">-</span>
                       )}
                       {FEATURE_LABELS[key] || key}
                     </div>
@@ -340,7 +340,7 @@ export default function AdminBillingPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b dark:border-white/10 text-left text-slate-400 dark:text-slate-400">
+                  <tr className="border-b dark:border-white/10 text-left text-ink-400 dark:text-ink-400">
                     <th className="pb-2 font-medium">Date</th>
                     <th className="pb-2 font-medium">Amount</th>
                     <th className="pb-2 font-medium">Status</th>
@@ -351,20 +351,20 @@ export default function AdminBillingPage() {
                 <tbody>
                   {invoices.map((inv) => (
                     <tr key={inv.id} className="border-b dark:border-white/10 last:border-0">
-                      <td className="py-3 text-slate-700 dark:text-slate-300">
+                      <td className="py-3 text-ink-700 dark:text-ink-300">
                         {new Date(inv.created_at).toLocaleDateString()}
                       </td>
-                      <td className="py-3 font-medium text-slate-900 dark:text-slate-100">
+                      <td className="py-3 font-medium text-ink-900 dark:text-ink-100">
                         ${(inv.amount_cents / 100).toFixed(2)}
                       </td>
                       <td className="py-3">
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          inv.status === "paid" ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700" : "bg-amber-100 dark:bg-amber-500/20 text-amber-700"
+                          inv.status === "paid" ? "bg-green-100 dark:bg-green-500/20 text-green-700" : "bg-sun-100 dark:bg-sun-500/20 text-sun-700"
                         }`}>
                           {inv.status}
                         </span>
                       </td>
-                      <td className="py-3 text-slate-500 dark:text-slate-400">
+                      <td className="py-3 text-ink-500 dark:text-ink-400">
                         {new Date(inv.period_start).toLocaleDateString()} - {new Date(inv.period_end).toLocaleDateString()}
                       </td>
                       <td className="py-3">
@@ -373,7 +373,7 @@ export default function AdminBillingPage() {
                             href={inv.invoice_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-green-600 hover:text-indigo-800"
+                            className="text-green-600 hover:text-green-800"
                           >
                             View <ExternalLink className="ml-0.5 inline h-3 w-3" />
                           </a>

@@ -90,8 +90,8 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
     <div className="space-y-4">
       {/* Instructions */}
       {instructions && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">{instructions}</p>
+        <div className="rounded-lg border border-ink-200 bg-white p-4">
+          <p className="text-sm text-ink-700">{instructions}</p>
         </div>
       )}
 
@@ -106,15 +106,15 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
         className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
           dragOver
             ? "border-green-400 bg-green-50"
-            : "border-slate-300 hover:border-green-300 hover:bg-slate-50"
+            : "border-ink-300 hover:border-green-300 hover:bg-ink-50"
         }`}
         onClick={() => inputRef.current?.click()}
       >
-        <Upload className={`mx-auto mb-3 h-10 w-10 ${dragOver ? "text-green-500" : "text-slate-400"}`} />
-        <p className="text-sm font-medium text-slate-600">
+        <Upload className={`mx-auto mb-3 h-10 w-10 ${dragOver ? "text-green-500" : "text-ink-400"}`} />
+        <p className="text-sm font-medium text-ink-700">
           {uploading ? "Uploading..." : "Drop file here or click to browse"}
         </p>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-ink-400">
           Allowed: {allowedTypes.join(", ") || "All"} · Max {maxFileMb} MB
         </p>
         <input
@@ -128,7 +128,7 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+        <div className="flex items-center gap-2 rounded-lg bg-coral-50 px-4 py-2 text-sm text-coral-500">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
@@ -137,24 +137,24 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
       {/* Uploaded files */}
       {files.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-slate-700">Uploaded Files</h4>
+          <h4 className="text-sm font-semibold text-ink-700">Uploaded Files</h4>
           {files.map((f) => (
             <div
               key={f.id}
-              className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-ink-200 bg-white px-4 py-3"
             >
-              <FileText className="h-5 w-5 text-slate-400" />
+              <FileText className="h-5 w-5 text-ink-400" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-slate-700">
+                <p className="truncate text-sm font-medium text-ink-700">
                   {f.original_filename}
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-ink-400">
                   {formatSize(f.file_size)} · {new Date(f.created_at).toLocaleString()}
                 </p>
               </div>
               <a
                 href={`/api/v1/submissions/files/${f.id}/download/`}
-                className="rounded p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600"
+                className="rounded p-1.5 text-ink-400 hover:bg-green-50 hover:text-green-600"
                 title="Download"
               >
                 <Download className="h-4 w-4" />

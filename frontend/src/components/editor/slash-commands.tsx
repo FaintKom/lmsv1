@@ -165,8 +165,8 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
 
   if (items.length === 0) {
     return (
-      <div className="slash-menu rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]">
-        <p className="text-sm text-slate-400">No results</p>
+      <div className="slash-menu rounded-lg border border-ink-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]">
+        <p className="text-sm text-ink-400">No results</p>
       </div>
     );
   }
@@ -174,7 +174,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
   return (
     <div
       ref={containerRef}
-      className="slash-menu max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]"
+      className="slash-menu max-h-72 overflow-y-auto rounded-lg border border-ink-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]"
     >
       {items.map((item, index) => {
         const Icon = item.icon;
@@ -185,15 +185,15 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
             className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
               index === selectedIndex
                 ? "bg-green-50 text-green-700 dark:bg-green-500/20 dark:text-green-300"
-                : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
+                : "text-ink-700 hover:bg-ink-50 dark:text-ink-300 dark:hover:bg-white/5"
             }`}
           >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-ink-200 bg-white dark:border-white/10 dark:bg-white/5">
               <Icon className="h-4 w-4" />
             </div>
             <div>
               <p className="text-sm font-medium">{item.title}</p>
-              <p className="text-xs text-slate-400">{item.description}</p>
+              <p className="text-xs text-ink-400">{item.description}</p>
             </div>
           </button>
         );

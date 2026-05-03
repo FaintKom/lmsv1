@@ -8,9 +8,12 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from pydantic import ValidationError
+
 from app.assessments.models import Question
 from app.auth.models import Organization, User, UserRole
 from app.common.exceptions import BadRequestError, ForbiddenError, NotFoundError
+from app.exercises.schemas import validate_exercise_config
 from app.common.file_validation import (
     SUBMISSION_EXTENSIONS,
     UploadValidationError,
@@ -109,13 +112,18 @@ async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
 
     display_id = await generate_display_id(db, org_id, exercise_type)
 
+    try:
+        validated_config = validate_exercise_config(exercise_type, data.get("config", {}))
+    except ValidationError as ve:
+        raise BadRequestError(f"Invalid exercise config: {ve.errors()}")
+
     exercise = Exercise(
         lesson_id=lesson_id,
         org_id=org_id,
         display_id=display_id,
         exercise_type=exercise_type,
         title=data.get("title", "Untitled"),
-        config=data.get("config", {}),
+        config=validated_config,
         sort_order=data.get("sort_order", 0),
         max_attempts=data.get("max_attempts"),
     )
@@ -193,8 +201,14 @@ async def update_exercise(
     exercise = await _get_exercise_with_relations(db, exercise_id)
 
     for key, value in data.items():
-        if value is not None and hasattr(exercise, key):
-            setattr(exercise, key, value)
+        if value is None or not hasattr(exercise, key):
+            continue
+        if key == "config":
+            try:
+                value = validate_exercise_config(exercise.exercise_type, value)
+            except ValidationError as ve:
+                raise BadRequestError(f"Invalid exercise config: {ve.errors()}")
+        setattr(exercise, key, value)
 
     await db.flush()
     return await _get_exercise_with_relations(db, exercise_id)

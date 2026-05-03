@@ -1,0 +1,20 @@
+[project]
+name = "mcp-grasslms"
+version = "0.1.0"
+description = "MCP server for seeding GrassLMS courses, lessons, and exercises via the LMS API."
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.0.0",
+]
+
+[project.scripts]
+mcp-grasslms = "mcp_grasslms.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_grasslms"]

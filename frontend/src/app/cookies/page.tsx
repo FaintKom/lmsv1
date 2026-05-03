@@ -12,17 +12,17 @@ export default function CookiePolicyPage() {
         Back to Login
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-3xl font-bold text-ink-900 dark:text-ink-100">
         Cookie Policy
       </h1>
-      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-500 dark:text-ink-400">
         Effective Date: March 31, 2026
       </p>
 
-      <div className="space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <div className="space-y-8 text-sm leading-relaxed text-ink-700 dark:text-ink-400">
         {/* 1. What Are Cookies */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             1. What Are Cookies
           </h2>
           <p>
@@ -39,11 +39,11 @@ export default function CookiePolicyPage() {
 
         {/* 2. Cookies We Use */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             2. Cookies We Use
           </h2>
 
-          <h3 className="mb-2 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-2 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             2.1 Essential Cookies (Required)
           </h3>
           <p>
@@ -53,19 +53,19 @@ export default function CookiePolicyPage() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10">
-                  <th className="pb-2 pr-4 font-semibold text-slate-700 dark:text-slate-300">
+                <tr className="border-b border-ink-200 dark:border-white/10">
+                  <th className="pb-2 pr-4 font-semibold text-ink-700 dark:text-ink-300">
                     Cookie
                   </th>
-                  <th className="pb-2 pr-4 font-semibold text-slate-700 dark:text-slate-300">
+                  <th className="pb-2 pr-4 font-semibold text-ink-700 dark:text-ink-300">
                     Purpose
                   </th>
-                  <th className="pb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <th className="pb-2 font-semibold text-ink-700 dark:text-ink-300">
                     Duration
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              <tbody className="divide-y divide-ink-100 dark:divide-white/5">
                 <tr>
                   <td className="py-2 pr-4 font-mono text-xs">auth_token</td>
                   <td className="py-2 pr-4">
@@ -91,7 +91,7 @@ export default function CookiePolicyPage() {
             </table>
           </div>
 
-          <h3 className="mb-2 mt-6 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-2 mt-6 font-semibold text-ink-700 dark:text-ink-300">
             2.2 Functional Cookies (Preferences)
           </h3>
           <p>
@@ -102,19 +102,19 @@ export default function CookiePolicyPage() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10">
-                  <th className="pb-2 pr-4 font-semibold text-slate-700 dark:text-slate-300">
+                <tr className="border-b border-ink-200 dark:border-white/10">
+                  <th className="pb-2 pr-4 font-semibold text-ink-700 dark:text-ink-300">
                     Item
                   </th>
-                  <th className="pb-2 pr-4 font-semibold text-slate-700 dark:text-slate-300">
+                  <th className="pb-2 pr-4 font-semibold text-ink-700 dark:text-ink-300">
                     Purpose
                   </th>
-                  <th className="pb-2 font-semibold text-slate-700 dark:text-slate-300">
+                  <th className="pb-2 font-semibold text-ink-700 dark:text-ink-300">
                     Storage
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              <tbody className="divide-y divide-ink-100 dark:divide-white/5">
                 <tr>
                   <td className="py-2 pr-4 font-mono text-xs">theme</td>
                   <td className="py-2 pr-4">
@@ -140,7 +140,7 @@ export default function CookiePolicyPage() {
             </table>
           </div>
 
-          <h3 className="mb-2 mt-6 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-2 mt-6 font-semibold text-ink-700 dark:text-ink-300">
             2.3 What We Do Not Use
           </h3>
           <p>GrassLMS does not use:</p>
@@ -162,7 +162,7 @@ export default function CookiePolicyPage() {
 
         {/* 3. How to Manage Cookies */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             3. How to Manage Cookies
           </h2>
           <p>
@@ -195,7 +195,7 @@ export default function CookiePolicyPage() {
 
         {/* 4. Changes */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             4. Changes to This Policy
           </h2>
           <p>
@@ -207,7 +207,7 @@ export default function CookiePolicyPage() {
 
         {/* 5. Contact */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             5. Contact Us
           </h2>
           <p>

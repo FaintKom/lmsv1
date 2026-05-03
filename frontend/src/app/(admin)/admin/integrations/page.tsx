@@ -48,8 +48,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     name: "YouTube",
     description: "Rich video embeds with titles, thumbnails, and duration. Search and insert videos directly.",
     icon: <Youtube className="h-6 w-6" />,
-    color: "text-red-600",
-    bgColor: "bg-red-50",
+    color: "text-coral-500",
+    bgColor: "bg-coral-50",
     features: ["Rich video embeds", "Auto metadata", "Playlist support"],
     docsUrl: "https://developers.google.com/youtube",
     status: "available",
@@ -92,8 +92,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     name: "Google Classroom",
     description: "Import students and classes. Sync grades back to Google Classroom automatically.",
     icon: <Users className="h-6 w-6" />,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
     features: ["Import roster", "Grade sync", "Assignment sync"],
     docsUrl: "https://developers.google.com/classroom",
     status: "available",
@@ -103,8 +103,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     name: "Microsoft Teams",
     description: "Create Teams meetings for live lessons. Import classes from Microsoft 365 Education.",
     icon: <FileText className="h-6 w-6" />,
-    color: "text-indigo-600",
-    bgColor: "bg-indigo-50",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
     features: ["Teams meetings", "Class import", "Education API"],
     docsUrl: "https://learn.microsoft.com/graph",
     status: "coming_soon",
@@ -114,8 +114,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     name: "Stripe",
     description: "Accept payments for courses and subscriptions. Cards, Apple Pay, Google Pay, and more.",
     icon: <CreditCard className="h-6 w-6" />,
-    color: "text-violet-600",
-    bgColor: "bg-violet-50",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
     features: ["Subscriptions", "One-time payments", "Invoices"],
     docsUrl: "https://stripe.com/docs",
     status: "coming_soon",
@@ -184,8 +184,8 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Integrations</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Integrations</h1>
+        <p className="text-sm text-ink-500 dark:text-ink-400">
           Connect external services to enhance your learning platform
         </p>
       </div>
@@ -211,7 +211,7 @@ export default function IntegrationsPage() {
                       {intg.icon}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-slate-100">{intg.name}</h3>
+                      <h3 className="font-semibold text-ink-900 dark:text-ink-100">{intg.name}</h3>
                       <div className="flex items-center gap-1 mt-0.5">
                         {isConnected ? (
                           <>
@@ -220,13 +220,13 @@ export default function IntegrationsPage() {
                           </>
                         ) : isComingSoon ? (
                           <>
-                            <Circle className="h-3 w-3 text-amber-400" />
-                            <span className="text-[10px] font-medium text-amber-500">Coming soon</span>
+                            <Circle className="h-3 w-3 text-sun-400" />
+                            <span className="text-[10px] font-medium text-sun-500">Coming soon</span>
                           </>
                         ) : (
                           <>
-                            <Circle className="h-3 w-3 text-slate-300" />
-                            <span className="text-[10px] font-medium text-slate-400">Not connected</span>
+                            <Circle className="h-3 w-3 text-ink-300" />
+                            <span className="text-[10px] font-medium text-ink-400">Not connected</span>
                           </>
                         )}
                       </div>
@@ -235,7 +235,7 @@ export default function IntegrationsPage() {
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                <p className="text-xs text-ink-500 dark:text-ink-400 mb-3 leading-relaxed">
                   {intg.description}
                 </p>
 
@@ -244,7 +244,7 @@ export default function IntegrationsPage() {
                   {intg.features.map((f) => (
                     <span
                       key={f}
-                      className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                      className="rounded-full bg-ink-100 px-2 py-0.5 text-[10px] font-medium text-ink-500 dark:bg-white/10 dark:text-ink-400"
                     >
                       {f}
                     </span>
@@ -254,13 +254,13 @@ export default function IntegrationsPage() {
                 {/* Actions */}
                 {isConnected ? (
                   <div className="flex items-center gap-2">
-                    <span className="flex-1 truncate text-xs text-slate-400">
+                    <span className="flex-1 truncate text-xs text-ink-400">
                       {conn.account_email || conn.account_name || "Connected"}
                     </span>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      className="text-coral-500 hover:text-coral-500 hover:bg-coral-50"
                       onClick={() => handleDisconnect(intg.provider)}
                     >
                       <Unplug className="h-3.5 w-3.5 mr-1" />
@@ -286,10 +286,10 @@ export default function IntegrationsPage() {
       {/* Info box */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
+          <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200 mb-2">
             How integrations work
           </h3>
-          <ul className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+          <ul className="space-y-1.5 text-xs text-ink-500 dark:text-ink-400">
             <li>Each integration connects to your organization's external account via secure OAuth</li>
             <li>Only admins and teachers can connect/disconnect integrations</li>
             <li>Student data is never shared with third-party services without explicit action</li>

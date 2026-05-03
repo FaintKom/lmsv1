@@ -110,20 +110,20 @@ export function TeacherOnboarding() {
   const allDone = completedCount === steps.length;
 
   return (
-    <div className="rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 dark:border-green-500/20 dark:from-green-500/5 dark:to-emerald-500/5">
+    <div className="rounded-2xl border border-green-200 bg-gradient-to-br from-green-50 to-green-50 p-6 dark:border-green-500/20 dark:from-green-500/5 dark:to-green-500/5">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/20">
             <Sparkles className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 dark:text-slate-100">Welcome to GrassLMS!</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <h3 className="font-bold text-ink-900 dark:text-ink-100">Welcome to GrassLMS!</h3>
+            <p className="text-xs text-ink-500 dark:text-ink-400">
               Complete these steps to get your school up and running
             </p>
           </div>
         </div>
-        <button onClick={handleDismiss} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+        <button onClick={handleDismiss} className="text-ink-400 hover:text-ink-700 dark:hover:text-ink-300">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -151,19 +151,19 @@ export function TeacherOnboarding() {
               className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all ${
                 isDone
                   ? "border-green-200 bg-green-50/50 dark:border-green-500/20 dark:bg-green-500/5"
-                  : "border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]"
+                  : "border-ink-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]"
               }`}
             >
               <div className={`rounded-lg p-2 ${
-                isDone ? "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400" : "bg-slate-100 text-slate-400 dark:bg-white/10"
+                isDone ? "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400" : "bg-ink-100 text-ink-400 dark:bg-white/10"
               }`}>
                 {isDone ? <CheckCircle className="h-5 w-5" /> : step.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold ${isDone ? "text-green-700 line-through dark:text-green-400" : "text-slate-800 dark:text-slate-200"}`}>
+                <p className={`text-sm font-semibold ${isDone ? "text-green-700 line-through dark:text-green-400" : "text-ink-900 dark:text-ink-200"}`}>
                   {step.title}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{step.description}</p>
+                <p className="text-xs text-ink-500 dark:text-ink-400">{step.description}</p>
               </div>
               {!isDone && (
                 <Link href={step.href}>

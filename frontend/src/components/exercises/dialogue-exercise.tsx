@@ -27,9 +27,9 @@ function getSpeakerColor(speaker: string): string {
   const colors = [
     "bg-blue-500",
     "bg-green-500",
-    "bg-teal-500",
-    "bg-orange-500",
-    "bg-pink-500",
+    "bg-green-500",
+    "bg-sun-500",
+    "bg-coral-500",
     "bg-cyan-500",
   ];
   let hash = 0;
@@ -123,8 +123,8 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
     <div className="space-y-4">
       {/* Context */}
       {config.context && (
-        <div className="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 px-5 py-3">
-          <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">
+        <div className="rounded-2xl bg-sun-50 dark:bg-sun-500/10 border border-sun-100 dark:border-sun-500/20 px-5 py-3">
+          <p className="text-sm text-sun-700 dark:text-sun-300 font-medium">
             {"\uD83C\uDFAD"} {config.context}
           </p>
         </div>
@@ -141,25 +141,25 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                   key={i}
                   className={`h-2 w-2 rounded-full transition-all duration-300 ${
                     result === true
-                      ? "bg-emerald-400 w-3"
+                      ? "bg-green-400 w-3"
                       : result === false
-                      ? "bg-red-400 w-3"
+                      ? "bg-coral-300 w-3"
                       : selections[String(ci)]
                       ? "bg-green-400"
-                      : "bg-slate-200 dark:bg-white/15"
+                      : "bg-ink-200 dark:bg-white/15"
                   }`}
                 />
               );
             })}
           </div>
-          <span className="text-xs font-medium text-slate-400">
+          <span className="text-xs font-medium text-ink-400">
             {madeChoices}/{totalChoices} responses
           </span>
         </div>
       )}
 
       {/* Chat area */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1A1A1A] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-[#1A1A1A] shadow-sm overflow-hidden">
         <div className="p-4 space-y-3 max-h-[450px] overflow-y-auto">
           {messages.map((msg, idx) => {
             if (idx > visibleUpTo) return null;
@@ -195,7 +195,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                 <div className={`max-w-[78%] ${isUser ? "items-end" : "items-start"}`}>
                   {/* Speaker name */}
                   {!isUser && (
-                    <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-1 ml-1">
+                    <p className="text-[10px] font-semibold text-ink-400 dark:text-ink-500 mb-1 ml-1">
                       {msg.speaker}
                     </p>
                   )}
@@ -205,11 +205,11 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
                     className={`rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                       isUser
                         ? choiceResult === true
-                          ? "bg-emerald-500 text-white"
+                          ? "bg-green-500 text-white"
                           : choiceResult === false
-                          ? "bg-red-400 text-white"
+                          ? "bg-coral-300 text-white"
                           : "bg-green-600 text-white"
-                        : "bg-white dark:bg-[#2A2A2A] border border-slate-100 dark:border-white/10 text-slate-700 dark:text-slate-200"
+                        : "bg-white dark:bg-[#2A2A2A] border border-ink-100 dark:border-white/10 text-ink-700 dark:text-ink-200"
                     }`}
                   >
                     {displayText}
@@ -217,7 +217,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
 
                   {/* Show correct answer if user was wrong */}
                   {choiceResult === false && (
-                    <p className="text-[11px] text-red-500 dark:text-red-400 font-medium mt-1 ml-1">
+                    <p className="text-[11px] text-coral-500 dark:text-coral-300 font-medium mt-1 ml-1">
                       Correct: {msg.options?.find((o) => o.is_correct)?.text}
                     </p>
                   )}
@@ -229,14 +229,14 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
           {/* Choice buttons for current blocking choice */}
           {!submitted && currentChoiceIndex !== undefined && (
             <div className="space-y-2 pl-11 pt-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400 dark:text-ink-500">
                 Choose your response
               </p>
               {messages[currentChoiceIndex].options?.map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => handleChoice(currentChoiceIndex, opt.id)}
-                  className="w-full text-left rounded-2xl border-2 border-green-200 dark:border-green-500/30 bg-white dark:bg-[#2A2A2A] px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 active:scale-[0.98]"
+                  className="w-full text-left rounded-2xl border-2 border-green-200 dark:border-green-500/30 bg-white dark:bg-[#2A2A2A] px-4 py-3 text-sm font-medium text-ink-700 dark:text-ink-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 active:scale-[0.98]"
                 >
                   {opt.text}
                 </button>
@@ -253,8 +253,8 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
         <div
           className={`rounded-2xl px-5 py-3 text-sm font-semibold ${
             correctCount === totalChoices
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-              : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+              ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+              : "bg-sun-50 text-sun-700 dark:bg-sun-500/10 dark:text-sun-400"
           }`}
         >
           {correctCount === totalChoices

@@ -160,7 +160,7 @@ export default function AdminCoursesPage() {
         <Skeleton className="mb-6 h-8 w-56" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-white/10 p-4">
+            <div key={i} className="flex items-center gap-4 rounded-xl border border-ink-200 dark:border-white/10 p-4">
               <Skeleton className="h-10 w-10 rounded-lg" />
               <div className="flex-1">
                 <Skeleton className="mb-1 h-5 w-48" />
@@ -177,12 +177,12 @@ export default function AdminCoursesPage() {
 
   const statusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      draft: "bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+      draft: "bg-sun-100 dark:bg-sun-500/20 text-sun-700 dark:text-sun-300",
       published: "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300",
-      archived: "bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400",
+      archived: "bg-ink-100 dark:bg-ink-500/20 text-ink-700 dark:text-ink-400",
     };
     return (
-      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400"}`}>
+      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-ink-100 dark:bg-ink-500/20 text-ink-700 dark:text-ink-400"}`}>
         {status}
       </span>
     );
@@ -191,9 +191,9 @@ export default function AdminCoursesPage() {
   const canCreateTemplate = isAdmin || isMethodist;
 
   const CATEGORY_GRADIENTS: Record<string, string> = {
-    programming: "from-green-500 to-emerald-600",
-    math: "from-emerald-500 to-teal-600",
-    languages: "from-amber-500 to-orange-600",
+    programming: "from-green-500 to-green-600",
+    math: "from-green-500 to-green-600",
+    languages: "from-sun-500 to-sun-500",
   };
 
   const renderCourseCard = (course: AdminCourse | Course, opts: { showCopy?: boolean; showEdit?: boolean; showDelete?: boolean } = {}) => {
@@ -201,7 +201,7 @@ export default function AdminCoursesPage() {
     const isTemplate = 'is_template' in course && course.is_template;
     const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
     const category = 'category' in course ? course.category : null;
-    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-emerald-500 to-green-600" : "from-green-500 to-emerald-600");
+    const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-green-500 to-green-600" : "from-green-500 to-green-600");
 
     return (
       <Card key={course.id} className="group overflow-hidden transition-all hover:shadow-lg dark:hover:shadow-none">
@@ -216,7 +216,7 @@ export default function AdminCoursesPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             <div className="absolute right-2 top-2 flex items-center gap-1.5">
               {isTemplate && (
-                <span className="rounded-full bg-emerald-500/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                <span className="rounded-full bg-green-500/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
                   Template
                 </span>
               )}
@@ -250,14 +250,14 @@ export default function AdminCoursesPage() {
               </span>
             )}
             {'source_course_id' in course && course.source_course_id && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-600 dark:bg-green-500/10 dark:text-green-400">
                 From template{('template_version' in course && course.template_version) ? ` v${course.template_version}` : ""}
               </span>
             )}
           </div>
 
-          <h3 className="mb-1 font-semibold text-slate-900 dark:text-slate-100">{course.title}</h3>
-          <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+          <h3 className="mb-1 font-semibold text-ink-900 dark:text-ink-100">{course.title}</h3>
+          <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-ink-500 dark:text-ink-400">
             {course.description || "No description"}
           </p>
 
@@ -267,7 +267,7 @@ export default function AdminCoursesPage() {
               <select
                 value={course.org_id}
                 onChange={(e) => handleOrgChange(course.id, e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-600 focus:border-green-300 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+                className="w-full rounded-lg border border-ink-200 bg-ink-50 px-2 py-1.5 text-xs text-ink-700 focus:border-green-300 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-ink-400"
               >
                 {orgs.map((o) => (
                   <option key={o.id} value={o.id}>
@@ -321,7 +321,7 @@ export default function AdminCoursesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
+                className="text-coral-500 hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10"
                 onClick={() => handleDelete(course.id)}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -337,9 +337,9 @@ export default function AdminCoursesPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Courses</h1>
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Courses</h1>
           {isSuperAdmin && (
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{courses.length} courses across all organizations</p>
+            <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">{courses.length} courses across all organizations</p>
           )}
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
@@ -360,7 +360,7 @@ export default function AdminCoursesPage() {
                 placeholder="Course Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-ink-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-ink-900 dark:text-ink-100 focus:border-blue-500 focus:outline-none"
                 required
                 autoFocus
               />
@@ -368,7 +368,7 @@ export default function AdminCoursesPage() {
                 placeholder="Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-ink-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-ink-900 dark:text-ink-100 focus:border-blue-500 focus:outline-none"
                 rows={3}
               />
               <input
@@ -376,18 +376,18 @@ export default function AdminCoursesPage() {
                 placeholder="Category (e.g., programming, math)"
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-ink-300 dark:border-white/10 bg-white dark:bg-[#1E1E1E] px-3 py-2 text-sm text-ink-900 dark:text-ink-100 focus:border-blue-500 focus:outline-none"
               />
               {canCreateTemplate && (
-                <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                <label className="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-400">
                   <input
                     type="checkbox"
                     checked={form.is_template}
                     onChange={(e) => setForm({ ...form, is_template: e.target.checked })}
-                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    className="rounded border-ink-300 text-green-600 focus:ring-green-500"
                   />
                   Create as organization template
-                  <span className="text-xs text-slate-400">(visible to all teachers for copying)</span>
+                  <span className="text-xs text-ink-400">(visible to all teachers for copying)</span>
                 </label>
               )}
               <Button type="submit" disabled={submitting}>
@@ -402,12 +402,12 @@ export default function AdminCoursesPage() {
       {templates.length > 0 && (
         <div className="mb-8">
           <div className="mb-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-              <FileStack className="h-5 w-5 text-emerald-500" />
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-ink-900 dark:text-ink-100">
+              <FileStack className="h-5 w-5 text-green-500" />
               Organization Templates
-              <span className="text-sm font-normal text-slate-400 dark:text-slate-500">({templates.length})</span>
+              <span className="text-sm font-normal text-ink-400 dark:text-ink-500">({templates.length})</span>
             </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
               Ready-made courses you can copy and customize for your students
             </p>
           </div>
@@ -425,18 +425,18 @@ export default function AdminCoursesPage() {
 
       {/* My Courses / All Courses */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h2 className="text-lg font-semibold text-ink-900 dark:text-ink-100">
           {isTeacher ? "My Courses" : "All Courses"}
         </h2>
       </div>
       {courses.filter((c) => !c.is_template).length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <BookOpen className="h-8 w-8 text-slate-400" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <BookOpen className="h-8 w-8 text-ink-400" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">No courses yet</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">No courses yet</h3>
+            <p className="text-sm text-ink-500 dark:text-ink-400">
               {templates.length > 0
                 ? "Create your first course or copy a template above to get started!"
                 : "Create your first course to get started!"}

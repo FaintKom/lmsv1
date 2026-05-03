@@ -66,30 +66,30 @@ export default function InteractiveTaker({
         <div
           className={`rounded-xl border-2 p-6 text-center ${
             result.passed
-              ? "border-emerald-200 bg-emerald-50"
-              : "border-red-200 bg-red-50"
+              ? "border-green-200 bg-green-50"
+              : "border-coral-300 bg-coral-50"
           }`}
         >
           {result.passed ? (
-            <CheckCircle className="mx-auto mb-3 h-12 w-12 text-emerald-500" />
+            <CheckCircle className="mx-auto mb-3 h-12 w-12 text-green-500" />
           ) : (
-            <XCircle className="mx-auto mb-3 h-12 w-12 text-red-500" />
+            <XCircle className="mx-auto mb-3 h-12 w-12 text-coral-500" />
           )}
           <h3
             className={`text-xl font-bold ${
-              result.passed ? "text-emerald-700" : "text-red-700"
+              result.passed ? "text-green-700" : "text-coral-700"
             }`}
           >
             {result.passed ? "Correct!" : "Not quite right"}
           </h3>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-ink-700">
             Score: {score}%
           </p>
         </div>
 
         <button
           onClick={handleRetry}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-4 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50"
         >
           <RotateCcw className="h-4 w-4" />
           Try Again
@@ -101,8 +101,8 @@ export default function InteractiveTaker({
   return (
     <div className="space-y-4">
       {instruction && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-sm font-medium text-slate-700">{instruction}</p>
+        <div className="rounded-lg border border-ink-200 bg-white p-4">
+          <p className="text-sm font-medium text-ink-700">{instruction}</p>
         </div>
       )}
 

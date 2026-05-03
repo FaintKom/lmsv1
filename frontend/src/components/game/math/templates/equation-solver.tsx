@@ -113,7 +113,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-ink-700 dark:text-ink-300">
         Solve the equation step by step. Choose the correct operation at each step.
       </p>
 
@@ -129,11 +129,11 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
         {/* Completed steps */}
         {selectedActions.map((action, i) => (
           <div key={i} className="space-y-2">
-            <div className="text-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <div className="text-center text-xs font-medium text-green-600 dark:text-green-400">
               ↓ {action}
             </div>
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-6 py-3 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
-              <span className="font-mono text-xl font-bold text-emerald-700 dark:text-emerald-300">
+            <div className="rounded-xl border border-green-200 bg-green-50 px-6 py-3 text-center dark:border-green-500/30 dark:bg-green-500/10">
+              <span className="font-mono text-xl font-bold text-green-700 dark:text-green-300">
                 {cfg.steps[i].resultLeft} = {cfg.steps[i].resultRight}
               </span>
             </div>
@@ -143,7 +143,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
         {/* Current step — choose action */}
         {!completed && (
           <div className="space-y-2 pt-2">
-            <p className="text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-center text-xs font-medium text-ink-500 dark:text-ink-400">
               Step {currentStep + 1} of {totalSteps}: What should you do next?
             </p>
             <div className="flex flex-col gap-2">
@@ -153,8 +153,8 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
                   onClick={() => handleChoice(choice.id, choice.correct)}
                   className={`rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${
                     wrongChoice === choice.id
-                      ? "border-red-400 bg-red-50 text-red-700 animate-pulse dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-green-500 dark:hover:bg-green-500/10"
+                      ? "border-coral-300 bg-coral-50 text-coral-700 animate-pulse dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
+                      : "border-ink-200 bg-white text-ink-700 hover:border-green-300 hover:bg-green-50 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 dark:hover:border-green-500 dark:hover:bg-green-500/10"
                   }`}
                 >
                   {choice.label}
@@ -166,9 +166,9 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
 
         {/* Final answer */}
         {completed && (
-          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 px-6 py-4 text-center dark:border-amber-500/30 dark:bg-amber-500/10">
-            <p className="text-xs font-medium text-amber-600 dark:text-amber-400 mb-1">Answer</p>
-            <span className="font-mono text-2xl font-bold text-amber-700 dark:text-amber-300">
+          <div className="rounded-xl border-2 border-sun-300 bg-sun-50 px-6 py-4 text-center dark:border-sun-500/30 dark:bg-sun-500/10">
+            <p className="text-xs font-medium text-sun-500 dark:text-sun-400 mb-1">Answer</p>
+            <span className="font-mono text-2xl font-bold text-sun-700 dark:text-sun-300">
               {cfg.final_answer}
             </span>
           </div>
@@ -182,10 +182,10 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
             key={i}
             className={`h-2 w-8 rounded-full transition-colors ${
               i < currentStep
-                ? "bg-emerald-400"
+                ? "bg-green-400"
                 : i === currentStep
                   ? "bg-green-400"
-                  : "bg-slate-200 dark:bg-slate-700"
+                  : "bg-ink-200 dark:bg-ink-700"
             }`}
           />
         ))}

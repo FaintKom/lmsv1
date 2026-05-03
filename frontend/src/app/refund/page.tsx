@@ -12,17 +12,17 @@ export default function RefundPolicyPage() {
         Back to Login
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-3xl font-bold text-ink-900 dark:text-ink-100">
         Refund &amp; Cancellation Policy
       </h1>
-      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-500 dark:text-ink-400">
         Effective Date: March 31, 2026
       </p>
 
-      <div className="space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <div className="space-y-8 text-sm leading-relaxed text-ink-700 dark:text-ink-400">
         {/* 1. Overview */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             1. Overview
           </h2>
           <p>
@@ -42,7 +42,7 @@ export default function RefundPolicyPage() {
 
         {/* 2. Free Tier */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             2. Free Tier
           </h2>
           <p>
@@ -53,7 +53,7 @@ export default function RefundPolicyPage() {
 
         {/* 3. Monthly Subscriptions */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             3. Monthly Subscriptions
           </h2>
           <p>If you are on a monthly subscription plan:</p>
@@ -71,11 +71,11 @@ export default function RefundPolicyPage() {
 
         {/* 4. Annual Subscriptions */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             4. Annual Subscriptions
           </h2>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             14-Day Money-Back Guarantee
           </h3>
           <p>
@@ -91,7 +91,7 @@ export default function RefundPolicyPage() {
             to request your refund.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             After 14 Days
           </h3>
           <p>
@@ -103,7 +103,7 @@ export default function RefundPolicyPage() {
 
         {/* 5. How to Cancel */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             5. How to Cancel
           </h2>
           <p>You can cancel your subscription using either of the following methods:</p>
@@ -130,11 +130,11 @@ export default function RefundPolicyPage() {
 
         {/* 6. Plan Changes */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             6. Plan Changes
           </h2>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Upgrades
           </h3>
           <p>
@@ -142,7 +142,7 @@ export default function RefundPolicyPage() {
             remainder of your current billing period.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Downgrades
           </h3>
           <p>
@@ -154,7 +154,7 @@ export default function RefundPolicyPage() {
 
         {/* 7. Data After Cancellation */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             7. Data After Cancellation
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -179,7 +179,7 @@ export default function RefundPolicyPage() {
 
         {/* 8. Exceptions */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             8. Exceptions
           </h2>
           <p>
@@ -210,15 +210,15 @@ export default function RefundPolicyPage() {
 
         {/* 9. Contact */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             9. Contact Us
           </h2>
           <p>
             For questions about billing, cancellations, refunds, or any other subscription-related
             matters, please contact us:
           </p>
-          <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="font-medium text-slate-700 dark:text-slate-300">
+          <div className="mt-2 rounded-lg border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <p className="font-medium text-ink-700 dark:text-ink-300">
               GrassLMS Billing Support
             </p>
             <p className="mt-1">

@@ -26,7 +26,15 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(python -c \"import ast; ast.parse\\(open\\(''app/main.py''\\).read\\(\\)\\); print\\(''Syntax OK''\\)\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(gh api *)",
+      "Bash(gh search *)",
+      "Bash(gh repo *)",
+      "Bash(cp \"/c/Users/mrbec/Downloads/Design System.html\" \"docs/design/design-system.html\")",
+      "Bash(cp \"/c/Users/mrbec/Downloads/Student Dashboard.html\" \"docs/design/mockups/student-dashboard.html\")",
+      "Bash(cp \"/c/Users/mrbec/Downloads/Course Catalog.html\" \"docs/design/mockups/course-catalog.html\")",
+      "Bash(cp \"/c/Users/mrbec/Downloads/Course Builder.html\" \"docs/design/mockups/course-builder.html\")",
+      "Bash(cp \"/c/Users/mrbec/Downloads/Lesson Player.html\" \"docs/design/mockups/lesson-player.html\")"
     ]
   }
 }

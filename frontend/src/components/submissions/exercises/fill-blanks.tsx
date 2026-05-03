@@ -57,7 +57,7 @@ function DroppableBlank({
     return (
       <button
         onClick={onRemove}
-        className="mx-1 inline-flex items-center gap-1 rounded-lg border-2 border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+        className="mx-1 inline-flex items-center gap-1 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-1 text-sm font-medium text-green-700 transition-colors hover:border-coral-300 hover:bg-coral-50 hover:text-coral-500 dark:border-green-500/40 dark:bg-green-500/10 dark:text-green-300 dark:hover:border-coral-500/40 dark:hover:bg-coral-500/10 dark:hover:text-coral-300"
         title="Click to remove"
       >
         {placedWord}
@@ -72,7 +72,7 @@ function DroppableBlank({
       className={`mx-1 inline-block min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 text-center text-sm transition-colors ${
         isOver
           ? "border-green-400 bg-green-50 text-green-500 dark:border-green-400 dark:bg-green-500/20"
-          : "border-slate-300 bg-slate-50 text-slate-400 dark:border-white/20 dark:bg-white/5 dark:text-slate-500"
+          : "border-ink-300 bg-ink-50 text-ink-400 dark:border-white/20 dark:bg-white/5 dark:text-ink-500"
       }`}
     >
       {isOver ? "Drop here" : "___"}
@@ -157,7 +157,7 @@ export default function FillBlanksExercise({
     >
       <div className="space-y-6">
         {/* Text with drop zones */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 text-base leading-loose text-slate-700 dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-300">
+        <div className="rounded-xl border border-ink-200 bg-white p-6 text-base leading-loose text-ink-700 dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-300">
           {parts.map((part, i) => {
             const currentBlankIndex = blankIndex;
             if (i < parts.length - 1) blankIndex++;
@@ -177,8 +177,8 @@ export default function FillBlanksExercise({
         </div>
 
         {/* Word bank */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <div className="rounded-xl border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-400">
             Word Bank — drag words to fill the blanks
           </p>
           <div className="flex flex-wrap gap-2">
@@ -191,7 +191,7 @@ export default function FillBlanksExercise({
               />
             ))}
             {shuffledWords.every((item) => placedWordIds.has(item.id)) && (
-              <p className="text-sm text-slate-400">All words placed!</p>
+              <p className="text-sm text-ink-400">All words placed!</p>
             )}
           </div>
         </div>

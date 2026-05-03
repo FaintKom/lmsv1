@@ -170,16 +170,16 @@ export default function WebEditorExercise({
     <div className="space-y-4">
       {/* Description + requirements */}
       {config.description && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-          <p className="text-sm text-slate-700 dark:text-slate-300">{config.description}</p>
+        <div className="rounded-lg border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+          <p className="text-sm text-ink-700 dark:text-ink-300">{config.description}</p>
           {config.requirements && config.requirements.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-ink-500 dark:text-ink-400 uppercase tracking-wide mb-1">
                 Requirements
               </p>
               <ul className="space-y-1">
                 {config.requirements.map((req, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
+                  <li key={i} className="flex items-start gap-2 text-sm text-ink-700 dark:text-ink-400">
                     <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-green-500 shrink-0" />
                     {req}
                   </li>
@@ -192,12 +192,12 @@ export default function WebEditorExercise({
 
       {/* Main editor area */}
       <div
-        className={`rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-[#1e1e1e] ${
+        className={`rounded-xl border border-ink-200 dark:border-white/10 overflow-hidden bg-white dark:bg-[#1e1e1e] ${
           isExpanded ? "fixed inset-4 z-50 flex flex-col" : ""
         }`}
       >
         {/* Toolbar */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252526] px-2">
+        <div className="flex items-center justify-between border-b border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-[#252526] px-2">
           {/* Tabs */}
           <div className="flex">
             {(Object.keys(TAB_LABELS) as EditorTab[]).map((tab) => (
@@ -206,8 +206,8 @@ export default function WebEditorExercise({
                 onClick={() => setActiveTab(tab)}
                 className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition-colors relative ${
                   activeTab === tab
-                    ? "text-slate-900 dark:text-white"
-                    : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"
+                    ? "text-ink-900 dark:text-white"
+                    : "text-ink-400 dark:text-ink-500 hover:text-ink-700 dark:hover:text-ink-400"
                 }`}
               >
                 <span>{TAB_LABELS[tab].icon}</span>
@@ -231,14 +231,14 @@ export default function WebEditorExercise({
             </button>
             <button
               onClick={handleReset}
-              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10 transition-colors"
               title="Reset to starter code"
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10 transition-colors"
               title={isExpanded ? "Exit fullscreen" : "Fullscreen"}
             >
               {isExpanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
@@ -249,7 +249,7 @@ export default function WebEditorExercise({
         {/* Editor + Preview split */}
         <div className={`${isExpanded ? "flex flex-1 overflow-hidden" : "md:flex"}`}>
           {/* Editor pane */}
-          <div className={`${isExpanded ? "w-1/2" : "md:w-1/2"} border-r border-slate-200 dark:border-white/10`}>
+          <div className={`${isExpanded ? "w-1/2" : "md:w-1/2"} border-r border-ink-200 dark:border-white/10`}>
             {MonacoEditor ? (
               <MonacoEditor
                 height={editorHeight}
@@ -272,7 +272,7 @@ export default function WebEditorExercise({
               />
             ) : (
               <div
-                className="flex items-center justify-center text-sm text-slate-400"
+                className="flex items-center justify-center text-sm text-ink-400"
                 style={{ height: editorHeight }}
               >
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-600 border-t-transparent mr-2" />
@@ -283,9 +283,9 @@ export default function WebEditorExercise({
 
           {/* Preview pane */}
           <div className={`${isExpanded ? "w-1/2 flex flex-col" : "md:w-1/2"}`}>
-            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#252526] px-4 py-2">
-              <Eye className="h-3.5 w-3.5 text-slate-400" />
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Preview</span>
+            <div className="flex items-center gap-2 border-b border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-[#252526] px-4 py-2">
+              <Eye className="h-3.5 w-3.5 text-ink-400" />
+              <span className="text-xs font-semibold text-ink-500 dark:text-ink-400">Preview</span>
             </div>
             <div className={`bg-white ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
               <iframe
@@ -310,7 +310,7 @@ export default function WebEditorExercise({
 
       {/* Submit button */}
       <div className="flex items-center justify-between">
-        <p className="text-xs text-slate-400 dark:text-slate-500">
+        <p className="text-xs text-ink-400 dark:text-ink-500">
           Your code runs entirely in the browser preview — safe and sandboxed.
         </p>
         <button

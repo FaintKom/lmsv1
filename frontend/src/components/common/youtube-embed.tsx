@@ -120,7 +120,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
   if (!metadata) {
     return (
       <div
-        className={`relative w-full animate-pulse overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-800 ${className ?? ""}`}
+        className={`relative w-full animate-pulse overflow-hidden rounded-lg bg-ink-200 dark:bg-ink-900 ${className ?? ""}`}
         style={{ aspectRatio: "16 / 9" }}
       />
     );
@@ -155,7 +155,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
 
       {/* Play button */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg transition-transform group-hover:scale-110 sm:h-20 sm:w-20">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-coral-500 shadow-lg transition-transform group-hover:scale-110 sm:h-20 sm:w-20">
           <svg
             viewBox="0 0 24 24"
             fill="white"
@@ -175,7 +175,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
         )}
         <div className="mt-1 flex items-center gap-2">
           {metadata.channel && (
-            <span className="truncate text-xs text-gray-300 sm:text-sm">
+            <span className="truncate text-xs text-ink-300 sm:text-sm">
               {metadata.channel}
             </span>
           )}

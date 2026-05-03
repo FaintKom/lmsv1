@@ -35,7 +35,7 @@ export function MobileTabBar() {
       ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/60 bg-white pb-[env(safe-area-inset-bottom)] md:hidden dark:border-white/10 dark:bg-[#1E1E1E]">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-ink-200/60 bg-white pb-[env(safe-area-inset-bottom)] md:hidden dark:border-white/10 dark:bg-[#1E1E1E]">
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
           const isActive =
@@ -52,7 +52,7 @@ export function MobileTabBar() {
                 "flex min-h-[48px] min-w-[48px] flex-1 flex-col items-center justify-center gap-1 px-1 text-xs font-medium transition-colors active:scale-[0.95] active:opacity-80",
                 isActive
                   ? "text-green-600 dark:text-green-400"
-                  : "text-slate-400 dark:text-slate-500"
+                  : "text-ink-400 dark:text-ink-500"
               )}
             >
               <tab.icon className="h-5 w-5" aria-hidden="true" />

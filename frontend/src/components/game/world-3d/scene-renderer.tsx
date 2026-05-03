@@ -13,13 +13,13 @@ interface SceneRendererProps {
 }
 
 const CELL_COLORS: Record<string, string> = {
-  empty: "#334155",
-  wall: "#475569",
-  collectible: "#f59e0b",
-  button: "#ef4444",
+  empty: "#1a2a1f",
+  wall: "#4d5a51",
+  collectible: "#f5b800",
+  button: "#ff7a5c",
   door: "#8b5cf6",
-  platform: "#64748b",
-  goal: "#22c55e",
+  platform: "#4d5a51",
+  goal: "#3fb04b",
 };
 
 export default function SceneRenderer({ state, isRunning }: SceneRendererProps) {
@@ -30,7 +30,7 @@ export default function SceneRenderer({ state, isRunning }: SceneRendererProps) 
     <Canvas
       camera={{ position: [centerX + 5, 8, centerZ + 5], fov: 50 }}
       shadows
-      style={{ background: "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)" }}
+      style={{ background: "linear-gradient(180deg, #0a1a10 0%, #1a2a1f 100%)" }}
     >
       <ambientLight intensity={0.5} />
       <directionalLight position={[8, 15, 5]} intensity={1.5} castShadow
@@ -60,7 +60,7 @@ export default function SceneRenderer({ state, isRunning }: SceneRendererProps) 
         target={[state.player.x, state.player.y * 0.5 + 0.5, state.player.z]}
       />
 
-      <fog attach="fog" args={["#0f172a", 15, 30]} />
+      <fog attach="fog" args={["#0a1a10", 15, 30]} />
     </Canvas>
   );
 }
@@ -72,7 +72,7 @@ function GridFloor({ width, depth }: { width: number; depth: number }) {
       {/* Base plane */}
       <mesh rotation-x={-Math.PI / 2} position={[(width - 1) / 2, -0.01, (depth - 1) / 2]} receiveShadow>
         <planeGeometry args={[width + 0.5, depth + 0.5]} />
-        <meshStandardMaterial color="#1e293b" />
+        <meshStandardMaterial color="#1a2a1f" />
       </mesh>
 
       {/* Individual grid cells */}
@@ -89,13 +89,13 @@ function GridFloor({ width, depth }: { width: number; depth: number }) {
       {Array.from({ length: width + 1 }, (_, i) => (
         <mesh key={`gx-${i}`} position={[i - 0.5, 0.001, (depth - 1) / 2]}>
           <boxGeometry args={[0.02, 0.001, depth]} />
-          <meshBasicMaterial color="#334155" />
+          <meshBasicMaterial color="#1a2a1f" />
         </mesh>
       ))}
       {Array.from({ length: depth + 1 }, (_, i) => (
         <mesh key={`gz-${i}`} position={[(width - 1) / 2, 0.001, i - 0.5]}>
           <boxGeometry args={[width, 0.001, 0.02]} />
-          <meshBasicMaterial color="#334155" />
+          <meshBasicMaterial color="#1a2a1f" />
         </mesh>
       ))}
     </group>
@@ -104,7 +104,7 @@ function GridFloor({ width, depth }: { width: number; depth: number }) {
 
 /** Render a single grid cell */
 function CellMesh({ cell }: { cell: GridCell3D }) {
-  const color = cell.color || CELL_COLORS[cell.type] || "#94a3b8";
+  const color = cell.color || CELL_COLORS[cell.type] || "#9aa39d";
   const baseY = cell.y * 0.5; // Each elevation level is 0.5 units
 
   if (cell.collected || (cell.type === "door" && cell.activated)) return null;
@@ -146,7 +146,7 @@ function CellMesh({ cell }: { cell: GridCell3D }) {
           </mesh>
           <mesh position={[0.15, 0.25, 0]}>
             <cylinderGeometry args={[0.02, 0.02, 0.7, 8]} />
-            <meshStandardMaterial color="#f8fafc" />
+            <meshStandardMaterial color="#fafbf6" />
           </mesh>
         </group>
       );
@@ -157,15 +157,15 @@ function CellMesh({ cell }: { cell: GridCell3D }) {
           <mesh position={[0, 0.08, 0]} castShadow>
             <cylinderGeometry args={[0.2, 0.25, 0.16, 16]} />
             <meshStandardMaterial
-              color={cell.activated ? "#22c55e" : color}
-              emissive={cell.activated ? "#22c55e" : color}
+              color={cell.activated ? "#3fb04b" : color}
+              emissive={cell.activated ? "#3fb04b" : color}
               emissiveIntensity={0.4}
             />
           </mesh>
           {/* Base plate */}
           <mesh position={[0, 0.01, 0]}>
             <cylinderGeometry args={[0.35, 0.35, 0.02, 16]} />
-            <meshStandardMaterial color="#334155" />
+            <meshStandardMaterial color="#1a2a1f" />
           </mesh>
         </group>
       );
@@ -225,7 +225,7 @@ function PlayerMesh({ player }: { player: WorldState["player"] }) {
       {/* Body */}
       <mesh position={[0, 0.45, 0]} castShadow>
         <capsuleGeometry args={[0.18, 0.35, 8, 16]} />
-        <meshStandardMaterial color="#6366f1" metalness={0.3} roughness={0.4} />
+        <meshStandardMaterial color="#0a8754" metalness={0.3} roughness={0.4} />
       </mesh>
       {/* Head */}
       <mesh position={[0, 0.85, 0]} castShadow>

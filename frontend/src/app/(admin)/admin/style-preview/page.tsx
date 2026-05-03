@@ -17,10 +17,10 @@ const EXTRA_STATS = [
 
 const colorMap: Record<string, { bg: string; iconBg: string; text: string; border: string; gradient: string; ring: string }> = {
   indigo: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
-  emerald: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
-  violet: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
-  amber: { bg: "bg-amber-50", iconBg: "bg-amber-100", text: "text-amber-600", border: "border-amber-400", gradient: "from-amber-50/80 to-white", ring: "ring-amber-200" },
-  orange: { bg: "bg-orange-50", iconBg: "bg-orange-100", text: "text-orange-600", border: "border-orange-400", gradient: "from-orange-50/80 to-white", ring: "ring-orange-200" },
+  emerald: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
+  violet: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
+  amber: { bg: "bg-sun-50", iconBg: "bg-sun-100", text: "text-sun-500", border: "border-sun-400", gradient: "from-sun-50/80 to-white", ring: "ring-sun-100" },
+  orange: { bg: "bg-sun-50", iconBg: "bg-sun-100", text: "text-sun-500", border: "border-sun-400", gradient: "from-sun-50/80 to-white", ring: "ring-sun-100" },
 };
 
 const STYLES = [
@@ -45,8 +45,8 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
             <Icon className={`h-5 w-5 ${c.text}`} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+            <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
           </div>
         </div>
       </div>
@@ -61,8 +61,8 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
           <Icon className={`h-5 w-5 ${c.text}`} />
         </div>
         <div>
-          <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-          <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+          <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+          <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
         </div>
       </div>
     );
@@ -75,8 +75,8 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
         <div className={`mb-4 inline-flex rounded-xl ${c.iconBg} p-3`}>
           <Icon className={`h-5 w-5 ${c.text}`} />
         </div>
-        <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-        <p className="mt-1 text-2xl font-bold text-slate-900">{stat.value}</p>
+        <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+        <p className="mt-1 text-2xl font-bold text-ink-900">{stat.value}</p>
       </div>
     );
   }
@@ -91,8 +91,8 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
             <Icon className={`h-5 w-5 ${c.text}`} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+            <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
           </div>
         </div>
       </div>
@@ -102,14 +102,14 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
   // Style 5: Neumorphism
   if (style === "neumorphism") {
     return (
-      <div className="rounded-2xl bg-slate-50 p-6 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all duration-200 hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
+      <div className="rounded-2xl bg-ink-50 p-6 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all duration-200 hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
         <div className="flex items-center gap-4">
           <div className={`rounded-xl ${c.iconBg} p-3 shadow-inner`}>
             <Icon className={`h-5 w-5 ${c.text}`} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+            <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
           </div>
         </div>
       </div>
@@ -125,8 +125,8 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
             <Icon className={`h-5 w-5 ${c.text}`} />
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-            <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+            <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
           </div>
         </div>
       </div>
@@ -142,8 +142,8 @@ export default function StylePreviewPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Style Preview</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-ink-900">Style Preview</h1>
+        <p className="mt-1 text-sm text-ink-500">
           Переключайте стили, чтобы выбрать лучший вариант
         </p>
       </div>
@@ -157,20 +157,20 @@ export default function StylePreviewPage() {
             className={`rounded-xl border-2 px-4 py-3 text-left transition-all duration-200 ${
               activeStyle === s.id
                 ? "border-green-500 bg-green-50 shadow-md"
-                : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
+                : "border-ink-200 bg-white hover:border-ink-300 hover:shadow-sm"
             }`}
           >
-            <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-green-700" : "text-slate-700"}`}>
+            <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-green-700" : "text-ink-700"}`}>
               {s.name}
             </p>
-            <p className="mt-0.5 text-[11px] text-slate-400">{s.desc}</p>
+            <p className="mt-0.5 text-[11px] text-ink-400">{s.desc}</p>
           </button>
         ))}
       </div>
 
       {/* Preview: Stats Grid (4 columns) */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-400">
           Stats Grid (4 columns) — как на Dashboard
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -182,7 +182,7 @@ export default function StylePreviewPage() {
 
       {/* Preview: Stats Grid (3 columns) */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-400">
           Stats Grid (3 columns) — как на Analytics
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -194,7 +194,7 @@ export default function StylePreviewPage() {
 
       {/* Preview: Quick Links style */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-400">
           Quick Links — как на Admin Dashboard
         </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -211,9 +211,9 @@ export default function StylePreviewPage() {
                 <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-2xl bg-gradient-to-br ${c.gradient} p-5 shadow-sm transition-all hover:shadow-md`}>
                   <div className="flex items-center gap-3">
                     <Icon className={`h-5 w-5 ${c.text}`} />
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
@@ -222,9 +222,9 @@ export default function StylePreviewPage() {
                 <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-2xl border-l-4 ${c.border} bg-white p-5 shadow-sm transition-all hover:shadow-md`}>
                   <div className="flex items-center gap-3">
                     <Icon className={`h-5 w-5 ${c.text}`} />
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
@@ -235,9 +235,9 @@ export default function StylePreviewPage() {
                     <div className={`rounded-lg ${c.iconBg} p-2`}>
                       <Icon className={`h-4 w-4 ${c.text}`} />
                     </div>
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
@@ -247,20 +247,20 @@ export default function StylePreviewPage() {
                   <div className={`absolute inset-x-0 top-0 h-1 ${c.bg}`} />
                   <div className="flex items-center gap-3">
                     <Icon className={`h-5 w-5 ${c.text}`} />
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
             if (activeStyle === "neumorphism") {
               return (
-                <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-2xl bg-slate-50 p-5 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
+                <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-2xl bg-ink-50 p-5 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
                   <div className="flex items-center gap-3">
                     <Icon className={`h-5 w-5 ${c.text}`} />
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
@@ -271,9 +271,9 @@ export default function StylePreviewPage() {
                     <div className={`rounded-lg ${c.bg} p-2 ring-2 ${c.ring}`}>
                       <Icon className={`h-4 w-4 ${c.text}`} />
                     </div>
-                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    <span className="text-sm font-medium text-ink-700">{item.label}</span>
                   </div>
-                  <span className="text-slate-300">&rarr;</span>
+                  <span className="text-ink-300">&rarr;</span>
                 </div>
               );
             }
@@ -284,7 +284,7 @@ export default function StylePreviewPage() {
 
       {/* Side-by-side comparison */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-400">
           Текущий стиль (для сравнения)
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -292,14 +292,14 @@ export default function StylePreviewPage() {
             const Icon = stat.icon;
             const c = colorMap[stat.color];
             return (
-              <div key={stat.label} className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div key={stat.label} className="rounded-2xl border border-ink-200/60 bg-white p-5 shadow-sm transition-all hover:shadow-md">
                 <div className="flex items-center gap-4">
                   <div className={`rounded-xl ${c.bg} p-3`}>
                     <Icon className={`h-5 w-5 ${c.text}`} />
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-slate-400">{stat.label}</p>
-                    <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                    <p className="text-xs font-medium text-ink-400">{stat.label}</p>
+                    <p className="text-2xl font-bold text-ink-900">{stat.value}</p>
                   </div>
                 </div>
               </div>

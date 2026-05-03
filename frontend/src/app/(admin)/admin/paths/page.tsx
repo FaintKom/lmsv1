@@ -122,8 +122,8 @@ export default function AdminPathsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Learning Paths</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Learning Paths</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
             Create structured course sequences for students
           </p>
         </div>
@@ -145,7 +145,7 @@ export default function AdminPathsPage() {
                 placeholder="Path Title"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
                 required
                 autoFocus
               />
@@ -153,12 +153,12 @@ export default function AdminPathsPage() {
                 placeholder="Description"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
                 rows={2}
               />
               {/* Course selector */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
                   Add courses (in order)
                 </label>
                 <select
@@ -166,7 +166,7 @@ export default function AdminPathsPage() {
                     if (e.target.value) addCourse(e.target.value);
                     e.target.value = "";
                   }}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                  className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
                 >
                   <option value="">Select a course to add...</option>
                   {courses
@@ -184,26 +184,26 @@ export default function AdminPathsPage() {
                     return (
                       <div
                         key={s.course_id}
-                        className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 dark:border-white/10"
+                        className="flex items-center gap-3 rounded-lg border border-ink-200 p-3 dark:border-white/10"
                       >
-                        <GripVertical className="h-4 w-4 text-slate-300 dark:text-slate-600" />
-                        <span className="text-xs font-bold text-slate-400">{idx + 1}</span>
-                        <span className="flex-1 text-sm text-slate-900 dark:text-slate-100">
+                        <GripVertical className="h-4 w-4 text-ink-300 dark:text-ink-700" />
+                        <span className="text-xs font-bold text-ink-400">{idx + 1}</span>
+                        <span className="flex-1 text-sm text-ink-900 dark:text-ink-100">
                           {course?.title || "Unknown"}
                         </span>
-                        <label className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                        <label className="flex items-center gap-1 text-xs text-ink-500 dark:text-ink-400">
                           <input
                             type="checkbox"
                             checked={s.is_required}
                             onChange={() => toggleRequired(s.course_id)}
-                            className="rounded border-slate-300 text-green-600 focus:ring-green-500"
+                            className="rounded border-ink-300 text-green-600 focus:ring-green-500"
                           />
                           Required
                         </label>
                         <button
                           type="button"
                           onClick={() => removeCourse(s.course_id)}
-                          className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                          className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10"
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -223,13 +223,13 @@ export default function AdminPathsPage() {
       {paths.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <Route className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <Route className="h-8 w-8 text-ink-400 dark:text-ink-500" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               No learning paths yet
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="text-base text-ink-500 dark:text-ink-400">
               Create a structured course sequence for your students.
             </p>
           </CardContent>
@@ -245,15 +245,15 @@ export default function AdminPathsPage() {
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  <h3 className="truncate text-sm font-semibold text-ink-900 dark:text-ink-100">
                     {p.title}
                   </h3>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="mt-1 flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
                     <span>{p.step_count} courses</span>
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                       p.is_published
-                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
-                        : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                        ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+                        : "bg-ink-100 text-ink-500 dark:bg-white/10 dark:text-ink-400"
                     }`}>
                       {p.is_published ? "Published" : "Draft"}
                     </span>
@@ -266,14 +266,14 @@ export default function AdminPathsPage() {
                   title={p.is_published ? "Unpublish" : "Publish"}
                 >
                   {p.is_published ? (
-                    <EyeOff className="h-4 w-4 text-slate-400" />
+                    <EyeOff className="h-4 w-4 text-ink-400" />
                   ) : (
-                    <Eye className="h-4 w-4 text-emerald-500" />
+                    <Eye className="h-4 w-4 text-green-500" />
                   )}
                 </Button>
                 <button
                   onClick={() => handleDelete(p.id)}
-                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                  className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

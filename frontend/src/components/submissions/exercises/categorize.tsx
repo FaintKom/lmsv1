@@ -58,7 +58,7 @@ export default function CategorizeExercise({
     <div>
       {/* Available items */}
       <div className="mb-4">
-        <h4 className="mb-2 text-sm font-semibold text-slate-600 dark:text-slate-400">Items to categorize</h4>
+        <h4 className="mb-2 text-sm font-semibold text-ink-700 dark:text-ink-400">Items to categorize</h4>
         <div className="flex flex-wrap gap-2">
           {availableItems.map((item) => (
             <button
@@ -72,7 +72,7 @@ export default function CategorizeExercise({
             </button>
           ))}
           {availableItems.length === 0 && (
-            <p className="text-sm text-slate-400">All items assigned!</p>
+            <p className="text-sm text-ink-400">All items assigned!</p>
           )}
         </div>
       </div>
@@ -90,20 +90,20 @@ export default function CategorizeExercise({
                 setDraggedItem(null);
               }
             }}
-            className="min-h-[120px] rounded-xl border-2 border-dashed border-slate-300 p-4 transition-colors hover:border-green-300 dark:border-white/20 dark:hover:border-green-500/50"
+            className="min-h-[120px] rounded-xl border-2 border-dashed border-ink-300 p-4 transition-colors hover:border-green-300 dark:border-white/20 dark:hover:border-green-500/50"
           >
-            <h4 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">{cat.name}</h4>
+            <h4 className="mb-3 text-sm font-semibold text-ink-700 dark:text-ink-300">{cat.name}</h4>
             <div className="flex flex-wrap gap-1.5">
               {assignments[cat.name]?.map((item) => (
                 <span
                   key={item}
-                  className="flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  className="flex items-center gap-1 rounded-lg bg-green-50 px-2.5 py-1 text-sm font-medium text-green-700 dark:bg-green-500/10 dark:text-green-300"
                 >
                   {item}
                   <button
                     onClick={() => removeItem(item, cat.name)}
                     aria-label={`Remove ${item}`}
-                    className="rounded-full p-1 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-500/20"
+                    className="rounded-full p-1 transition-colors hover:bg-green-100 dark:hover:bg-green-500/20"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -111,7 +111,7 @@ export default function CategorizeExercise({
               ))}
             </div>
             {!assignments[cat.name]?.length && (
-              <p className="text-sm text-slate-400 dark:text-slate-500">Drop items here</p>
+              <p className="text-sm text-ink-400 dark:text-ink-500">Drop items here</p>
             )}
             {/* Click-to-assign buttons for mobile */}
             {availableItems.length > 0 && (
@@ -120,7 +120,7 @@ export default function CategorizeExercise({
                   <button
                     key={item}
                     onClick={() => assignItem(item, cat.name)}
-                    className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-500 dark:border-white/10 dark:text-slate-400"
+                    className="rounded-lg border border-ink-200 px-2.5 py-1 text-xs text-ink-500 dark:border-white/10 dark:text-ink-400"
                   >
                     + {item}
                   </button>
