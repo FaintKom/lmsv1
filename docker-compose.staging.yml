@@ -1,0 +1,143 @@
+# GrassLMS — Staging environment.
+# Runs alongside prod on the same Hetzner VPS. Uses a separate Postgres
+# volume, separate Redis, separate uploads. Containers attach to the
+# external `lms_internal` network so the prod nginx can route
+# staging.grasslms.online traffic to them.
+#
+# Deploy:
+#   docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --build
+#
+# Logs:
+#   docker compose -f docker-compose.staging.yml logs -f backend
+#
+# Rebuild a single service:
+#   docker compose -f docker-compose.staging.yml build backend
+#   docker compose -f docker-compose.staging.yml up -d backend
+
+name: lms-staging
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lms_staging}
+      POSTGRES_USER: ${POSTGRES_USER:-lms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.staging}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # Service name is `staging-backend` (NOT `backend`) on purpose. Docker
+  # always registers the service name as a network alias on every network
+  # the container joins, and `aliases:` only ADDS extra ones — it cannot
+  # remove the default. If this service were named `backend`, it would
+  # register as `backend` on the shared `lms_internal` network alongside
+  # the prod backend with the same alias, and Docker's round-robin DNS
+  # would send ~50 % of prod /auth/login traffic into the staging DB
+  # (returning 400 "Invalid email or password"). Renaming the service is
+  # the only way to fully prevent the collision.
+  staging-backend:
+    build: ./backend
+    image: lms-staging-backend
+    container_name: lms-staging-backend-1
+    env_file:
+      - .env.staging
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lms_staging}
+      SANDBOX_URL: http://sandbox:8001
+      OLLAMA_URL: http://172.18.0.1:11434
+      RATE_LIMIT_STORAGE_URI: ${RATE_LIMIT_STORAGE_URI:-redis://redis:6379/0}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      ENVIRONMENT: staging
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/data/uploads
+    networks:
+      # On the staging-private network, keep `backend` available so
+      # staging-frontend and sandbox can reach this container by its
+      # historic short name without code changes.
+      internal:
+        aliases:
+          - backend
+      # On the shared prod network, the default alias is `staging-backend`
+      # which does not collide with prod's `backend`.
+      shared: {}
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+
+  staging-frontend:
+    build: ./frontend
+    image: lms-staging-frontend
+    container_name: lms-staging-frontend-1
+    networks:
+      internal:
+        aliases:
+          - frontend
+      shared: {}
+    environment:
+      BACKEND_URL: http://backend:8000
+    restart: unless-stopped
+
+  sandbox:
+    build: ./sandbox
+    command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
+    security_opt:
+      - "no-new-privileges:true"
+    restart: unless-stopped
+
+# Volumes are namespaced under the `lms-staging` project name automatically
+# (e.g. lms-staging_pgdata) so they never collide with prod volumes.
+volumes:
+  pgdata:
+  uploads:
+  redisdata:
+
+networks:
+  # Private network for staging-only service-to-service traffic. Inside
+  # this network the staging containers also expose the historic short
+  # aliases `backend` / `frontend` (see service.networks.internal.aliases).
+  internal:
+  # External network shared with prod. Staging containers register here
+  # under their service names `staging-backend` / `staging-frontend`
+  # (plus the explicit container_names `lms-staging-backend-1` /
+  # `lms-staging-frontend-1`) — never as bare `backend` / `frontend`,
+  # so prod nginx can't accidentally round-robin into them.
+  shared:
+    name: lms_internal
+    external: true
