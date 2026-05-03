@@ -6,7 +6,7 @@ import sys
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
-API = "https://204-168-165-41.nip.io/api/v1"
+API = "https://grasslms.online/api/v1"
 
 # Login
 r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
@@ -49,7 +49,7 @@ def publish(cid):
     print("  Published!")
 
 def enroll_students(cid):
-    for email, pwd in [("student@learnhub.app", "Student2026!"), ("alex@learnhub.app", "Alex2026!")]:
+    for email, pwd in [("student@grasslms.online", "Student2026!"), ("alex@grasslms.online", "Alex2026!")]:
         r = requests.post(f"{API}/auth/login", json={"email": email, "password": pwd})
         if r.status_code == 200:
             sh = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}

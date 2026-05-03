@@ -912,7 +912,7 @@ async def create_organization_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     """Super admin only: create a new organization."""
-    from python_slugify import slugify
+    from slugify import slugify
 
     name = data.get("name", "").strip()
     if not name:

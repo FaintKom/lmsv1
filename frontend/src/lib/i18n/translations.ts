@@ -301,7 +301,7 @@ const en: TranslationMap = {
   "landing.readyStart": "Ready to get started?",
   "landing.readyStartSub": "Create your free account and start building courses in minutes.",
   "landing.signUpFree": "Sign Up Free",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
 
   // Game / Exercise
   "game.run": "Run",
@@ -670,7 +670,7 @@ const es: TranslationMap = {
   "landing.readyStart": "Listo para comenzar?",
   "landing.readyStartSub": "Crea tu cuenta gratuita y comienza a construir cursos en minutos.",
   "landing.signUpFree": "Registrate Gratis",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
   "game.run": "Ejecutar",
   "game.pause": "Pausa",
   "game.resume": "Continuar",
@@ -990,7 +990,7 @@ const ru: TranslationMap = {
   "landing.readyStart": "Готовы начать?",
   "landing.readyStartSub": "Создайте бесплатный аккаунт и начните создавать курсы за минуты.",
   "landing.signUpFree": "Зарегистрироваться бесплатно",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
   "game.run": "Запуск",
   "game.pause": "Пауза",
   "game.resume": "Продолжить",
@@ -1358,7 +1358,7 @@ const tr: TranslationMap = {
   "landing.readyStart": "Baslamaya hazir misiniz?",
   "landing.readyStartSub": "Ucretsiz hesabinizi olusturun ve dakikalar icinde kurs olusturmaya baslayin.",
   "landing.signUpFree": "Ucretsiz Kaydol",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
   "game.run": "Calistir",
   "game.pause": "Duraklat",
   "game.resume": "Devam",
@@ -1723,7 +1723,7 @@ const de: TranslationMap = {
   "landing.readyStart": "Bereit loszulegen?",
   "landing.readyStartSub": "Erstellen Sie Ihr kostenloses Konto und beginnen Sie in Minuten mit der Kurserstellung.",
   "landing.signUpFree": "Kostenlos registrieren",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
 
   // Game / Exercise
   "game.run": "Ausfuehren",
@@ -2137,7 +2137,7 @@ const uk: TranslationMap = {
   "landing.readyStart": "Готові почати?",
   "landing.readyStartSub": "Створіть безкоштовний обліковий запис і починайте створювати курси за лічені хвилини.",
   "landing.signUpFree": "Зареєструватися безкоштовно",
-  "landing.footer": "GrassLMS LMS",
+  "landing.footer": "GrassLMS",
 
   // Game / Exercise
   "game.run": "Запуск",

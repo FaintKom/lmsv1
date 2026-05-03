@@ -1,7 +1,7 @@
 # E2E Tests (Playwright)
 
 Browser-level end-to-end tests. These run a real Chromium against a
-running LearnHub deployment and exercise the actual UI.
+running GrassLMS deployment and exercise the actual UI.
 
 ## Run locally
 
@@ -16,7 +16,7 @@ npm run test:e2e
 Or run against prod:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://204-168-165-41.nip.io npm run test:e2e
+PLAYWRIGHT_BASE_URL=https://grasslms.online npm run test:e2e
 ```
 
 ## Run unit / component tests instead

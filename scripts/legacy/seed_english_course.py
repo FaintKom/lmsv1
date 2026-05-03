@@ -2,7 +2,7 @@
 import requests, json, uuid
 import os
 
-API = "https://204-168-165-41.nip.io/api/v1"
+API = "https://grasslms.online/api/v1"
 r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 token = r.json()["access_token"]
 H = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
@@ -208,7 +208,7 @@ mk_lesson(cid, m4, "My Daily Routine", 0,
 # Publish + enroll
 requests.post(f"{API}/courses/{cid}/publish", headers=H)
 print("Published!")
-for email, pwd in [("student@learnhub.app","Student2026!"),("alex@learnhub.app","Alex2026!")]:
+for email, pwd in [("student@grasslms.online","Student2026!"),("alex@grasslms.online","Alex2026!")]:
     r2 = requests.post(f"{API}/auth/login", json={"email":email,"password":pwd})
     if r2.status_code == 200:
         sh = {"Authorization":f"Bearer {r2.json()['access_token']}","Content-Type":"application/json"}

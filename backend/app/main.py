@@ -68,6 +68,7 @@ from app.sandbox.router import router as sandbox_router
 from app.scorm.router import router as scorm_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
+from app.knowledge.router import router as knowledge_router
 from app.team_projects.router import router as team_projects_router
 from app.waitlist.router import router as waitlist_router
 from app.webhooks.router import router as webhooks_router
@@ -154,6 +155,19 @@ async def _run_setup():
                    SELECT 1 FROM organization_memberships m
                    WHERE m.user_id = u.id AND m.org_id = u.org_id
                )""",
+            # Lemon Squeezy provider columns (mirror of alembic
+            # l1m2n3o4p5q6 — kept inline because startup doesn't run
+            # alembic; see note further down). All IF NOT EXISTS so
+            # re-runs are safe.
+            "ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS provider VARCHAR(20) NOT NULL DEFAULT 'stripe'",
+            "ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS ls_subscription_id VARCHAR(255)",
+            "ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS ls_variant_id VARCHAR(64)",
+            "ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS ls_customer_id VARCHAR(64)",
+            "ALTER TABLE subscriptions ALTER COLUMN stripe_subscription_id DROP NOT NULL",
+            "CREATE UNIQUE INDEX IF NOT EXISTS ix_subscriptions_ls_subscription_id ON subscriptions(ls_subscription_id) WHERE ls_subscription_id IS NOT NULL",
+            "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS provider VARCHAR(20) NOT NULL DEFAULT 'stripe'",
+            "ALTER TABLE invoices ADD COLUMN IF NOT EXISTS ls_invoice_id VARCHAR(255)",
+            "ALTER TABLE invoices ALTER COLUMN stripe_invoice_id DROP NOT NULL",
         ]
         for stmt in alter_statements:
             try:
@@ -469,6 +483,7 @@ def create_app() -> FastAPI:
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
     app.include_router(recording_router, prefix="/api/v1/recordings", tags=["Recordings"])
     app.include_router(metered_billing_router, prefix="/api/v1/billing", tags=["Metered Billing"])
+    app.include_router(knowledge_router, prefix="/api/v1/knowledge", tags=["Knowledge"])
 
     @app.get("/health")
     async def health():

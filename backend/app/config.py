@@ -29,6 +29,22 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
 
+    # Lemon Squeezy (MoR alternative to Stripe). When both api_key and
+    # store_id are set, the /billing/* endpoints expose Lemon Squeezy
+    # checkout alongside Stripe. Variant IDs are per-tier (monthly +
+    # yearly); leave unset until the products are created in the LS
+    # dashboard (or via the API). Webhook secret is HMAC-SHA256 shared
+    # secret configured on the webhook in LS Settings → Webhooks.
+    lemonsqueezy_api_key: str = ""
+    lemonsqueezy_store_id: str = ""
+    lemonsqueezy_webhook_secret: str = ""
+    lemonsqueezy_starter_monthly_variant_id: str = ""
+    lemonsqueezy_starter_yearly_variant_id: str = ""
+    lemonsqueezy_professional_monthly_variant_id: str = ""
+    lemonsqueezy_professional_yearly_variant_id: str = ""
+    lemonsqueezy_enterprise_monthly_variant_id: str = ""
+    lemonsqueezy_enterprise_yearly_variant_id: str = ""
+
     # CORS
     cors_origins: str = "http://localhost:3000"
 
@@ -42,7 +58,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    email_from: str = "noreply@learnhub.io"
+    email_from: str = "noreply@grasslms.io"
     email_from_name: str = "GrassLMS"
     app_url: str = "http://localhost:3000"
 
@@ -69,8 +85,9 @@ class Settings(BaseSettings):
     # default. When on, also set the demo account emails below; the
     # endpoint will authenticate into whichever one the caller asks for.
     demo_mode_enabled: bool = False
-    demo_student_email: str = "student@learnhub.app"
-    demo_teacher_email: str = "teacher@learnhub.app"
+    # Test accounts on @grasslms.online (renamed from @learnhub.app on 2026-04-25)
+    demo_student_email: str = "student@grasslms.online"
+    demo_teacher_email: str = "teacher@grasslms.online"
 
     # File storage backend: "local" (default) or "s3" (S3-compatible).
     # When "s3", the S3_* settings below must be filled in. Switching

@@ -76,16 +76,22 @@ export default function AdminBillingPage() {
   const [loading, setLoading] = useState(true);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const [billingEnabled, setBillingEnabled] = useState<boolean | null>(null);
+  // Which checkout provider to use when the user clicks Subscribe. We prefer
+  // Lemon Squeezy when configured because it's MoR (handles VAT/sales tax
+  // globally) and works without a Stripe account. Stripe remains a fallback.
+  const [provider, setProvider] = useState<"stripe" | "lemonsqueezy" | null>(null);
 
   useEffect(() => {
     Promise.all([
-      apiClient.get("/billing/status").then(({ data }) => data).catch(() => ({ enabled: false })),
+      apiClient.get("/billing/status").then(({ data }) => data).catch(() => ({ enabled: false, providers: {} })),
       apiClient.get("/billing/plans").then(({ data }) => data).catch(() => []),
       apiClient.get("/billing/subscription").then(({ data }) => data).catch(() => null),
       apiClient.get("/billing/invoices").then(({ data }) => data).catch(() => []),
     ])
       .then(([statusData, plansData, subData, invoicesData]) => {
         setBillingEnabled(Boolean(statusData?.enabled));
+        const p = statusData?.providers || {};
+        setProvider(p.lemonsqueezy ? "lemonsqueezy" : p.stripe ? "stripe" : null);
         // Deduplicate plans by name (keep first occurrence)
         const seen = new Set<string>();
         const unique = (plansData as Plan[]).filter((p) => {
@@ -103,14 +109,18 @@ export default function AdminBillingPage() {
   const handleCheckout = async (planId: string) => {
     setCheckingOut(planId);
     try {
-      const { data } = await apiClient.post("/billing/checkout", {
-        plan_id: planId,
-      });
+      // Route to whichever provider is configured. The response shape is
+      // identical (``{ checkout_url }``) so the frontend doesn't care.
+      const endpoint =
+        provider === "lemonsqueezy" ? "/billing/lemonsqueezy/checkout" : "/billing/checkout";
+      const body: Record<string, string> =
+        provider === "lemonsqueezy" ? { plan_id: planId, interval: "month" } : { plan_id: planId };
+      const { data } = await apiClient.post(endpoint, body);
       window.location.href = data.checkout_url;
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "";
-      if (detail.includes("Stripe is not configured")) {
-        toast.error("Payments are not available yet. Stripe is not configured.");
+      if (detail.includes("not configured")) {
+        toast.error("Payments are not available yet. No payment provider is configured.");
       } else {
         toast.error(detail || "Could not start checkout. Please try again.");
       }
@@ -183,7 +193,7 @@ export default function AdminBillingPage() {
                 Billing is not enabled yet
               </p>
               <p className="mt-1 text-xs text-amber-800 dark:text-amber-300/80">
-                Stripe has not been connected on this deployment. Plan listings below are informational only — subscriptions cannot be purchased until an administrator configures <code className="font-mono">STRIPE_SECRET_KEY</code> and <code className="font-mono">STRIPE_WEBHOOK_SECRET</code>.
+                No payment provider is connected on this deployment. Plan listings below are informational only — subscriptions cannot be purchased until an administrator configures Stripe or Lemon Squeezy credentials.
               </p>
             </div>
           </div>

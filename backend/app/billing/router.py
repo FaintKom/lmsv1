@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import require_role
 from app.auth.models import User, UserRole
+from app.billing import lemonsqueezy as ls
+from app.billing import ls_service
 from app.billing.schemas import (
     CheckoutResponse,
     InvoiceResponse,
@@ -61,12 +63,20 @@ class CheckoutBody(BaseModel):
 
 @router.get("/status")
 async def billing_status_endpoint():
-    """Public — tells the frontend whether Stripe is configured.
+    """Public — tells the frontend which billing providers are wired up.
 
-    The frontend uses this to decide whether to render billing UI or
-    show a "billing not enabled" placeholder. Does NOT leak the secret.
+    Never leaks secrets. Frontend decides which checkout button(s) to show.
+    ``enabled`` stays for backwards compatibility with older clients.
     """
-    return {"enabled": bool(settings.stripe_secret_key)}
+    stripe_enabled = bool(settings.stripe_secret_key)
+    ls_enabled = ls.is_enabled()
+    return {
+        "enabled": stripe_enabled or ls_enabled,
+        "providers": {
+            "stripe": stripe_enabled,
+            "lemonsqueezy": ls_enabled,
+        },
+    }
 
 
 @router.post("/checkout", response_model=CheckoutResponse)
@@ -156,5 +166,87 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         await db.commit()
     except Exception as e:
         logger.error(f"Webhook error: {e}")
+
+    return {"status": "ok"}
+
+
+# ---------------- Lemon Squeezy ----------------
+
+
+class LSCheckoutBody(BaseModel):
+    plan_id: str
+    interval: str = "month"  # 'month' or 'year'
+    success_url: str = ""
+
+
+@router.post("/lemonsqueezy/checkout", response_model=CheckoutResponse)
+async def ls_checkout_endpoint(
+    data: LSCheckoutBody,
+    user: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a Lemon Squeezy hosted-checkout URL.
+
+    Returns a ``checkout_url`` identical in shape to the Stripe endpoint so
+    the frontend can swap providers without a form change.
+    """
+    if not ls.is_enabled():
+        raise HTTPException(
+            400,
+            "Lemon Squeezy is not configured. Set LEMONSQUEEZY_API_KEY + LEMONSQUEEZY_STORE_ID.",
+        )
+    base = settings.app_url.rstrip("/")
+    try:
+        import uuid as _uuid
+        url = await ls_service.create_checkout_url(
+            db,
+            _uuid.UUID(data.plan_id),
+            user,
+            interval=data.interval,
+            success_url=data.success_url or f"{base}/admin/billing?success=true&provider=lemonsqueezy",
+        )
+        return CheckoutResponse(checkout_url=url)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except ls.LemonSqueezyError as e:
+        logger.error("ls.checkout.api_error status=%s body=%s", e.status_code, e.body[:200])
+        raise HTTPException(502, "Payment provider error — please try again")
+
+
+@router.post("/lemonsqueezy/webhook")
+async def lemonsqueezy_webhook(request: Request, db: AsyncSession = Depends(get_db)):
+    """Handle Lemon Squeezy webhook events.
+
+    Same security posture as the Stripe webhook: in production we require
+    the HMAC-SHA256 signature (``X-Signature`` header) to match the shared
+    secret. In dev we accept raw JSON for curl-based testing when no
+    secret is set.
+    """
+    payload = await request.body()
+    sig_header = request.headers.get("x-signature") or request.headers.get("X-Signature")
+
+    if settings.lemonsqueezy_webhook_secret:
+        if not sig_header:
+            raise HTTPException(400, "Missing X-Signature header")
+        if not ls.verify_webhook_signature(payload, sig_header):
+            logger.warning("ls.webhook.signature_invalid")
+            raise HTTPException(400, "Invalid signature")
+    elif settings.is_production():
+        logger.error(
+            "ls.webhook.misconfigured LEMONSQUEEZY_WEBHOOK_SECRET is unset in production"
+        )
+        raise HTTPException(503, "Webhook endpoint not configured")
+
+    try:
+        event = json.loads(payload)
+    except Exception:
+        raise HTTPException(400, "Invalid JSON")
+
+    try:
+        await ls_service.handle_event(db, event)
+        await db.commit()
+    except Exception as e:
+        # Handler already logs — return 200 so LS doesn't retry-storm.
+        logger.error("ls.webhook.unhandled error=%s", e)
 
     return {"status": "ok"}

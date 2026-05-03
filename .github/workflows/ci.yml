@@ -18,7 +18,9 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        # pgvector image (drop-in for postgres:16) so the knowledge module's
+        # `vector` column type and HNSW index resolve in alembic migrations.
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: lms
           POSTGRES_PASSWORD: lms_ci_password

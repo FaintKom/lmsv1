@@ -3,7 +3,7 @@ import requests, os
 import os
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
-API = "https://204-168-165-41.nip.io/api/v1"
+API = "https://grasslms.online/api/v1"
 r = requests.post(f"{API}/auth/login", json={"email": os.environ.get("LMS_ADMIN_EMAIL",""), "password": os.environ.get("LMS_ADMIN_PASSWORD","")})
 H = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}
 print("Logged in")
@@ -45,7 +45,7 @@ requests.post(f"{API}/courses/{cid}/publish", headers=H)
 print("Published!")
 
 # Enroll student
-r = requests.post(f"{API}/auth/login", json={"email":"student@learnhub.app","password":"Student2026!"})
+r = requests.post(f"{API}/auth/login", json={"email":"student@grasslms.online","password":"Student2026!"})
 sh = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}
 requests.post(f"{API}/progress/enroll", json={"course_id": cid}, headers=sh)
 print("Student enrolled!")

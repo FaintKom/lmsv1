@@ -101,10 +101,10 @@ export default function TermsOfServicePage() {
             responsible for maintaining the confidentiality of your account credentials and for all
             activity that occurs under your account. You must notify us immediately at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>{" "}
             if you suspect unauthorized access to your account.
           </p>
@@ -347,10 +347,10 @@ export default function TermsOfServicePage() {
             other party. You may cancel your subscription at any time through your account settings
             or by contacting us at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>
             .
           </p>
@@ -484,10 +484,10 @@ export default function TermsOfServicePage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>
             </p>
           </div>

@@ -11,6 +11,8 @@ import { GraduationCap, Menu } from "lucide-react";
 // including admin/teacher/super_admin. Without this whitelist, admins hitting
 // /profile get bounced to /admin before they can see their profile settings.
 const ROUTES_AVAILABLE_TO_ALL_ROLES = new Set(["/profile"]);
+// Path prefixes (covers dynamic routes like /knowledge/<uuid>) that all roles can access.
+const PATH_PREFIXES_AVAILABLE_TO_ALL_ROLES = ["/knowledge"];
 
 export default function DashboardLayout({
   children,
@@ -62,7 +64,11 @@ export default function DashboardLayout({
     const isPreview = params.get("preview") === "true";
     const isStaffRole =
       user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
-    const isSharedRoute = ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname);
+    const isSharedRoute =
+      ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname) ||
+      PATH_PREFIXES_AVAILABLE_TO_ALL_ROLES.some(
+        (p) => pathname === p || pathname.startsWith(p + "/"),
+      );
     if (!isLoading && user && !isPreview && isStaffRole && !isSharedRoute) {
       router.push("/admin");
     }
@@ -84,7 +90,12 @@ export default function DashboardLayout({
   if (!isAuthenticated) return null;
   const isStaffRole =
     user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
-  if (isStaffRole && !ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname)) return null;
+  const isSharedRouteRender =
+    ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname) ||
+    PATH_PREFIXES_AVAILABLE_TO_ALL_ROLES.some(
+      (p) => pathname === p || pathname.startsWith(p + "/"),
+    );
+  if (isStaffRole && !isSharedRouteRender) return null;
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#1E1E1E]">

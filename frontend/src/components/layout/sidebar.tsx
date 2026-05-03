@@ -29,6 +29,7 @@ import {
   Library,
   Calculator,
   Plug,
+  Sparkles,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -90,6 +91,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
     { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
     { href: "/meetings", label: t("nav.meetings"), icon: Video },
+    { href: "/knowledge", label: "Knowledge", icon: Sparkles },
   ];
 
   const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
@@ -105,16 +107,17 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
     ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
     ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
     ...(isAdminOnly && isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
-    // Billing hidden until payment providers connected (Prodamus/iyzico)
-    // ...(isAdminOnly && isMenuVisible("billing") ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
+    ...(isAdminOnly && isMenuVisible("billing") ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
     ...(isSuperAdmin ? [{ href: "/admin/organizations", label: "Organizations", icon: Building2 }] : []),
     ...(isAdminOnly ? [{ href: "/admin/integrations", label: "Integrations", icon: Plug }] : []),
     ...(isAdminOnly ? [{ href: "/admin/settings", label: "Settings", icon: Settings }] : []),
+    { href: "/knowledge", label: "Knowledge", icon: Sparkles },
   ];
 
   const parentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
     { href: "/parent", label: t("nav.dashboard") || "Dashboard", icon: LayoutDashboard },
     { href: "/parent/children", label: t("nav.children") || "My Children", icon: Users },
+    { href: "/knowledge", label: "Knowledge", icon: Sparkles },
   ];
 
   const nav = isParent ? parentNav : isAdminOrTeacher ? adminNav : studentNav;

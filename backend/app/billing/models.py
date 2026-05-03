@@ -35,6 +35,16 @@ class Plan(Base, IDMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
+class BillingProvider(str, enum.Enum):
+    """Where this subscription/invoice lives — Stripe or Lemon Squeezy.
+
+    Stored as a plain string column (not a PG enum) so adding a third
+    provider is a no-op migration.
+    """
+    stripe = "stripe"
+    lemonsqueezy = "lemonsqueezy"
+
+
 class Subscription(Base, IDMixin, TimestampMixin):
     __tablename__ = "subscriptions"
 
@@ -44,7 +54,15 @@ class Subscription(Base, IDMixin, TimestampMixin):
     plan_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("plans.id"), nullable=False
     )
-    stripe_subscription_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Which payment processor owns this subscription. Exactly one of
+    # stripe_subscription_id / ls_subscription_id is populated per row.
+    provider: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=BillingProvider.stripe.value
+    )
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ls_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ls_variant_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    ls_customer_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     status: Mapped[SubscriptionStatus] = mapped_column(
         Enum(SubscriptionStatus), default=SubscriptionStatus.active
     )
@@ -59,7 +77,11 @@ class Invoice(Base, IDMixin):
     org_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
     )
-    stripe_invoice_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    provider: Mapped[str] = mapped_column(
+        String(20), nullable=False, default=BillingProvider.stripe.value
+    )
+    stripe_invoice_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ls_invoice_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     amount_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[InvoiceStatus] = mapped_column(Enum(InvoiceStatus), nullable=False)
     invoice_url: Mapped[str | None] = mapped_column(String(500))
