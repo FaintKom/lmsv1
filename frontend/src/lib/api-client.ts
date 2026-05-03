@@ -34,6 +34,34 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Concurrent 401 responses must share one in-flight refresh: the server
+// rotates the refresh token and revokes the old one, so a parallel second
+// refresh with the stale token returns 400 and bounces the user to /login.
+let refreshPromise: Promise<string> | null = null;
+
+async function performRefresh(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) throw new Error("No refresh token");
+    const { data } = await axios.post("/api/v1/auth/refresh/", {
+      refresh_token: refreshToken,
+    });
+    localStorage.setItem("access_token", data.access_token);
+    if (data.refresh_token) {
+      localStorage.setItem("refresh_token", data.refresh_token);
+    }
+    return data.access_token as string;
+  })();
+
+  try {
+    return await refreshPromise;
+  } finally {
+    refreshPromise = null;
+  }
+}
+
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("access_token");
@@ -78,15 +106,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      const refreshToken = localStorage.getItem("refresh_token");
-      if (refreshToken) {
+      if (localStorage.getItem("refresh_token")) {
         try {
-          const { data } = await axios.post("/api/v1/auth/refresh/", {
-            refresh_token: refreshToken,
-          });
-
-          localStorage.setItem("access_token", data.access_token);
-          originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+          const newAccessToken = await performRefresh();
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return apiClient(originalRequest);
         } catch {
           localStorage.removeItem("access_token");
