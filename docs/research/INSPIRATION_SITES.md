@@ -1,480 +1,684 @@
-# Сайты-источники механик для GrassLMS
+# Сайты-источники механик для GrassLMS — v2 (deep review)
 
-Сводка по 20 сайтам, которые можно адаптировать как новые exercise
-types или фичи. Для каждого: что это, как работает, что взять.
+Подробная сводка по 20 сайтам после прямого осмотра в Playwright
+браузере. v1 (WebFetch only) перезаписан.
 
 **Дата:** 2026-05-03.
-
-**Условные обозначения:**
-- ✅ — содержание получено напрямую с сайта.
-- ⚠️ — сайт SPA / SSR пустой; описание дополнено публично известным
-  материалом + флаг «нужна более глубокая разведка».
+**Скриншоты:** `workspace/.playwright-mcp/site-NN-*.png` (NN = номер).
 
 ---
 
-## 1. GeoChamp (geochamp.app) ⚠️
+## 1. GeoChamp — geochamp.app
 
-**Что это:** браузерная гео-викторина (Sporcle/GeoGuessr-стиль).
-Игрок ставит точку на карте мира — определяет страну/город/флаг.
+**Скриншоты:** `site-01-geochamp.png`, `site-01-geochamp-courses.png`,
+`site-01-geochamp-topics.png`.
 
-**Как работает:** raw-карта Mapbox/Leaflet, поверх — pin-drop ответ,
-сравнение с эталонной точкой, скоринг по дистанции (haversine) + время.
-Турнирные таблицы.
+**Что увидел:**
+- 3 mode-карточки на старте: **Training-Mode**, **Quiz-Mode**,
+  **Multiplayer**.
+- Каталог курсов: «The Whole World» (World Countries / Cities / Nature
+  / Sights) + «Continent Courses» (Asia, …).
+- Topic-selection внутри World Sights: «Most Famous Sights», «Most
+  Famous Sights Pictures», «Skyscrapers», и далее.
+- UI dark-themed, зелёный glob-маскот, эмодзи иконки, mobile-first.
+- 100+ console errors при загрузке (видимо tracking/analytics).
 
-**Как взять:**
-- Новый ExerciseType `map_pin_drop`. Config: `target: {lat, lng}`,
-  `tolerance_km: 50`, `time_limit_seconds: 30`.
-- Рендер: Leaflet + OpenStreetMap, клик по карте → ответ. Score =
-  100 × max(0, 1 - distance / tolerance).
-- Хорошо для географии, истории (где это случилось), биологии (ареал
-  обитания).
+**Mechanic core:** игра-викторина с заданиями типа «найди столицу на
+карте / сопоставь страну → флаг / опознай знаменитую достопримечательность
+по картинке».
 
-**Глубже:** нужно открыть live-страницу + посмотреть question types
-(только flag-to-country? country-shapes? capital-on-map?).
+**Технически:** SPA (Vue/React), Mapbox/Leaflet под капотом — ассеты
+не успели догрузиться даже за 5 сек, видимо много lazy-loaded карт.
 
----
-
-## 2. Stanford STORM (storm.genie.stanford.edu) ⚠️
-
-**Что это:** open-source Stanford-проект — генератор Wikipedia-style
-статей через multi-agent LLM «беседу» (Conversation, Outline, Article).
-
-**Как работает:** пользователь даёт topic → LLM-агенты спорят между
-собой, создают outline, потом разворачивают каждый раздел со
-ссылками. Финальный результат — long-form article с цитатами.
-
-**Как взять:**
-- Research-style ExerciseType `guided_research`. Студент даёт topic,
-  система генерирует outline, студент дописывает каждый раздел руками
-  (не AI), система проверяет покрытие источников.
-- Важно: для образования отключить full-AI write — иначе студент не
-  учится. AI помогает только с outline + поиском источников.
-
-**Глубже:** прочитать paper «STORM: Synthesizing Topic Outlines through
-Retrieval and Multi-perspective Question Asking» (Stanford 2024).
+**Что взять:**
+- ExerciseType `map_pin_drop` — клик на карте → расстояние от target
+  определяет score.
+- ExerciseType `picture_identification` — фото памятника, варианты
+  ответа.
+- ExerciseType `country_flag_match` — drag-drop флагов к странам.
+- Mascot pattern (цветной globe-character с речевым облаком) даёт
+  тёплый onboarding-tone — можно перенять для GrassLMS dashboard.
+- Mode separation Training vs Quiz — у нас есть «practice/test» мысль,
+  но не оформлена в UI; стоит явно разделить.
 
 ---
 
-## 3. Anxiety Aid Tools (anxietyaidtools.com) ✅
+## 2. Stanford Co-STORM — storm.genie.stanford.edu
 
-**Что это:** бесплатный набор техник от тревожности на русском —
-дыхание, заземление, медитации, прогрессивная релаксация, тесты.
+**Скриншот:** `site-02-storm.png`.
 
-**Как работает:** библиотека упражнений (1-60 мин каждое). Активирует
-парасимпатическую нервную систему. Мультимодальные форматы:
-аудиоинструкции, визуализация, write-it-out worksheets.
+**Что увидел:**
+- Hero: «Co-STORM. Get a Wikipedia-like report on your topic with AI».
+- Main button «Get Started» (требует Sign In).
+- Архитектура multi-agent (схема на странице): «Wikipedia writer with
+  Perspective A» + «Expert» обмениваются вопросами/ответами →
+  «Observe the Conversation» → «Request Report Generation» → «Cited
+  Report».
+- В Co-STORM пользователь *участвует* в multi-perspective дискуссии
+  между LLM-агентами.
 
-**Как взять (для GrassLMS):**
-- ExerciseType `wellbeing_break`. Студент проходит таймер-сессию
-  (2-минутное дыхание, 5-4-3-2-1 заземление). Не оценивается, но
-  вписывается в gamification (XP за completion).
-- Полезно как pause-action между интенсивными уроками SAT/code.
-- Вариант: `mood_check_in` — короткий self-test перед/после урока,
-  с трекингом тревоги в профиле.
+**Mechanic core:**
+- LLM-агенты разных «perspectives» спорят, генерируя outline.
+- Пользователь наблюдает / участвует.
+- Финал — long-form Wikipedia-style article с цитатами.
 
----
-
-## 4. MyLens.ai (mylens.ai) ✅
-
-**Что это:** AI-инструмент для превращения raw-контента (PDF, текст,
-URL, видео) в интерактивные визуализации — mind maps, timelines,
-quadrants, flowcharts.
-
-**Как работает:**
-1. Юзер кидает source (документ, ссылку).
-2. AI парсит, строит graph структуры.
-3. Пользователь кликает узлы — drill-down + ссылка на оригинал.
-
-**Как взять:**
-- ExerciseType `comprehension_visualization` — студент кидает свою
-  заметку/конспект, система строит mind map. Студент валидирует/
-  правит (доказывает, что понял структуру).
-- Альтернативно — `timeline_builder` где студент сам собирает события
-  в timeline (drag chronology).
-
-**Глубже:** какой engine у MyLens (D3? Cytoscape?) — для inspiration.
+**Что взять:**
+- ExerciseType `guided_research` для сильных student-cohorts (университет,
+  олимпиады). Студент задаёт topic → видит outline → дописывает разделы
+  *вручную*.
+- Не использовать «full AI write» — это убивает обучение. AI помогает
+  с decomposition + поиском sources.
+- Open-source paper Stanford 2024 — можно реализовать урезанный
+  retrieve-and-outline pipeline без полной generation.
 
 ---
 
-## 5. Falstad Circuit Simulator (falstad.com/circuit) ⚠️
+## 3. Anxiety Aid Tools — anxietyaidtools.com/ru
 
-**Что это:** легендарный браузерный симулятор электрических цепей
-(Java-applet → перенесли на JS). Видишь ток как анимацию частиц.
+**Скриншот:** `site-03-anxiety.png`.
 
-**Как работает:** drag-drop резисторов, конденсаторов, источников;
-real-time вычисление токов и напряжений. Импорт/экспорт схемы как
-текст-формат.
+**Что увидел:**
+- 5 категорий-кнопок: Дыхание / Сенсорика / Осознанность / Аудио /
+  Ресурсы. + «Все».
+- Карточки упражнений с цветными иконками, длительностью (2-3 мин,
+  5-10 мин и т.д.) и Tag «Новый».
+- Каждая карточка — отдельное упражнение (Дыхание за 2 минуты,
+  Направляемое дыхание, Якорение 5-4-3-2-1, Прогрессивная мышечная
+  релаксация).
+- Top-nav: Тесты / Рабочие листы / Блог / Мобильное приложение.
 
-**Как взять:**
-- ExerciseType `circuit_lab` для физики/EE. Config: `target_state`
-  (e.g., «лампочка горит при S1 закрыт»). Студент собирает схему,
-  система вычисляет — соответствует ли target.
-- Уже всё open-source (https://github.com/sharpie7/circuitjs1) —
-  можно встроить как iframe или fork.
+**Mechanic core:** библиотека timer-guided упражнений + downloadable
+worksheets + assessment quizzes.
 
-**Глубже:** проверить лицензию (GPL?), API для проверки решений.
-
----
-
-## 6. Aurora-OS / Mental-OS (mental-os.github.io) ⚠️
-
-**Что это:** экспериментальная браузерная «ОС-метафора» для
-психологических состояний. Названия процессов = эмоции, окна = режимы.
-
-**Как работает:** desktop-environment в браузере где пользователь
-«запускает приложения» = выполняет упражнения для эмоциональной
-саморегуляции.
-
-**Как взять:**
-- Возможно — `metaphor_environment` — игровая обёртка для
-  сухих self-regulation упражнений (см. п.3 Anxiety Aid).
-- Очень нишевое; вероятно best-fit для psychology / SEL курсов.
-
-**Глубже:** открыть live + понять конкретные mechanics (это похоже
-на art-проект, не production tool).
+**Что взять:**
+- ExerciseType `wellbeing_break` — таймер + audio guide, не оценивается,
+  но даёт XP (gamification).
+- Категория-структура (Breathing / Grounding / Mindfulness / Audio /
+  Resources) — модель тегирования упражнений в LMS-методике.
+- Worksheet PDF download — фича для печати + оффлайн-домашка.
+- Mood self-test → результат сохраняется в профиль студента (тренд по
+  тревожности).
 
 ---
 
-## 7. Qwen Slides (chat.qwen.ai/?inputFeature=slides) ⚠️
+## 4. MyLens.ai — mylens.ai
 
-**Что это:** AI-генератор слайд-деков от Alibaba (Qwen). Promt →
-готовая презентация с layout + графикой.
+**Скриншот:** `site-04-mylens.png`.
 
-**Как работает:** юзер пишет topic + outline (или просто topic) →
-LLM строит N слайдов с автоматическим layout. Экспорт в PPTX/PDF.
+**Что увидел:**
+- Hero: «Complex Content? Let AI Visualize it».
+- Главный input: **«+ Source» button + «Ask anything…» prompt** + dropdown
+  «Auto Visual» (тип визуализации) + «Fast/Deep» (mode) + send button.
+- Просто как ChatGPT, но output — interactive диаграмма.
+- «Add to Chrome — It's free» (extension).
 
-**Как взять:**
-- Учительская фича: AI-черновик урока. Учитель вводит тему + lesson
-  goals → AI-выдаёт draft из 5-8 слайдов (text + structure). Учитель
-  правит, публикует студентам.
-- Внутри LMS — TeacherUtilities панель: «Generate lesson skeleton».
-- Connect к существующему AI tutor flow.
+**Mechanic core:**
+- Принимает PDF/text/URL/video/image.
+- LLM строит mind map / timeline / quadrant / flowchart.
+- Click on nodes → drill-down + ссылка на исходник.
 
-**Глубже:** API доступ к Qwen-3 (или использовать наш Voyage/OpenAI
-для подобной фичи).
-
----
-
-## 8. Random Topic Generator (vercel.app) ✅
-
-**Что это:** простой импровизационный speech-prompt генератор.
-«Pull lever» → topic + 1-минутный таймер. Категории: General, Tech,
-Finance.
-
-**Как работает:**
-- Random Topics: тяни рычаг, говори.
-- Interview Prep: даёт vocab, надо встроить в речь за 30 сек.
-- Frameworks (STAR, PREP, PPF, MECE) для структуры ответа.
-
-**Как взять:**
-- ExerciseType `impromptu_speech` для языковых курсов. Студент
-  записывает аудио, AI оценивает беглость / corectness структуры.
-- ExerciseType `random_writing_prompt` для эссе.
-- Готовый каталог frameworks (STAR/PREP) — можно использовать в
-  rubrics для writing assignments.
+**Что взять:**
+- ExerciseType `visualization_check` — student paste конспект →
+  получает draft mindmap → правит в редакторе → submit. Учитель
+  оценивает organization.
+- Интересный UI-паттерн: «Auto Visual» dropdown — сам определяет
+  лучший тип визуализации. Можно повторить с rule-based logic
+  (длинный список → list, события с датами → timeline, иерархия →
+  tree).
+- Browser extension → пастит контент с любой страницы. Полезный
+  паттерн для нашего AI-tutor (selection → ask).
 
 ---
 
-## 9. Native English (native-english.ru) ✅
+## 5. Falstad Circuit Simulator — falstad.com/circuit/
 
-**Что это:** русский портал для изучения английского — теория,
-практика, игры. 20+ лет на рынке.
+**Скриншот:** `site-05-falstad.png`.
 
-**Как работает:**
-- Audiobooks с parallel text (clickable перевод слов).
-- Грамматические уроки + irregular verb tables.
-- Vocab по темам (фонетика, transcription) + flashcards.
-- Multiple-choice tests + community forum.
+**Что увидел:**
+- Прямой запуск симулятора без логина.
+- LRC circuit на canvas: резистор 10Ω + инд 1H + капа 15μF.
+- Зелёные точки = ток, жёлтые анимированные точки тоже = ток (направление).
+- Sliders: Simulation Speed, Current Speed, Power Brightness,
+  Capacitance, Inductance, Resistance — real-time изменяют значения.
+- Bottom: 3 oscilloscope-окна показывают V/I на компонентах,
+  Max=9.872V, time step = 5μs, res.f = 41.094 Hz.
+- Top menu: File/Edit/Draw/Scopes/Options/Tools/Circuits — десятки
+  готовых схем (LRC, AC, Diode, Transistor, …).
 
-**Как взять:**
-- `parallel_text_reader` — двухколоночный текст с per-word translation
-  on hover. Для language learners.
-- `audiobook_with_subtitles` — синхронизированные subtitles + audio +
-  pop-up translation.
-- Vocab card structure (transcription / audio / topic-tag) — взять
-  схему из их БД, у них классическая система.
-- Forum-based peer learning — у нас уже discussions module есть.
+**Mechanic core:** spice-симулятор в браузере. Нумерический solver
+бежит continuous, рисует ток как анимацию частиц.
+
+**Что взять:**
+- Open-source: https://github.com/sharpie7/circuitjs1 (GPL).
+- ExerciseType `circuit_lab`. Config: `target_state` (lamp on /
+  current > X / voltage = Y) + `allowed_components` (только эти можно
+  использовать). Студент собирает → симулятор runs → проверка
+  условия.
+- Mechanic «scopes снизу» отлично подходит для физики/EE — реально
+  обучает читать осциллограмму.
 
 ---
 
-## 10. Memozora (memozora.com) ✅
+## 6. Aurora-OS / Mental-OS — mental-os.github.io/Aurora-OS.js/
 
-**Что это:** SRS-flashcard платформа с adaptive scheduling.
+**Скриншоты:** `site-06-aurora.png`, `site-06-aurora-3.png`,
+`site-06-aurora-4.png`.
 
-**Как работает:**
-- Spaced repetition (SM-2 / Anki-стиль).
-- Standard / reverse flashcards / typing quiz.
+**Что увидел:**
+- **Resolution-gate**: при viewport <1366px — «SYSTEM HALT,
+  DISPLAY_OUTPUT_INVALID, RESOLUTION_WIDTH_LOW». Заставляет ресайзить
+  окно.
+- INITIALIZE SYSTEM → CLICK TO START.
+- Главный экран: AURORA OS huge logo, NOVA REPUBLIKA tagline, левая
+  панель «BUILD_STATUS: EXPERIMENTAL · DEVELOPER BUILD · v0.8.5 ·
+  Join Discord / Contribute».
+- Меню: Continue / NEW LOOP / BIOS / SHUTDOWN. ORIGINAL DISTRIBUTION.
+  CRVN 905MS (latency-tag).
+- AGPL-3.0 open-source.
+
+**Mechanic core:** game-style **OS-метафора как narrative wrapper для
+self-help/emotional-regulation experience**. «New Loop» = начать
+сессию, BIOS = настройки, SHUTDOWN = выход. Как Hypnospace Outlaw,
+только для mental health.
+
+**Что взять:**
+- Очень нишевое — для psychology/SEL курсов.
+- Идея сильная: **рабочий процесс как «компьютерная сессия»**. Можно
+  сделать «Focus Mode» в LMS со стилизованным UI (CRT-effect,
+  monospace font, status-bar) — студент чувствует себя в трюме
+  космического корабля во время self-study.
+- AGPL-3.0 — нельзя copy-paste код, но можно перенять design language.
+
+---
+
+## 7. Qwen Studio (Slides) — chat.qwen.ai/?inputFeature=slides
+
+**Скриншот:** `site-07-qwen.png`.
+
+**Что увидел:**
+- **Slides feature НЕ авто-открылась** через query-параметр
+  `inputFeature=slides`. Показал стандартный chat-UI «Ready when you
+  are. How can I help you today?».
+- Нижний banner предлагает «Choose a style to create your first
+  image» (image generation, не slides).
+- Без Sign In — лимитированный chat.
+
+**Mechanic core (по описанию Qwen3.6-Plus):**
+- Введи topic → Qwen генерит slide deck (text + layout + figure).
+- Экспорт в PPTX/PDF.
+
+**Что взять:**
+- AI-generate slides — будет **expensive on API** (User flagged
+  бюджет на AI-API ограничен). Без бюджета — не приоритет.
+- Когда деньги будут: TeacherUtility «AI-draft lesson skeleton».
+- На прямую slides-feature мы не имеем доступа без Sign In; нужен
+  fresh look после регистрации.
+
+---
+
+## 8. Random Topic Generator — vercel.app
+
+**Скриншот:** `site-08-random.png`.
+
+**Что увидел:**
+- **Beautiful hand-drawn brand** "Off the Cuff" + «Baby steps to the
+  Mic».
+- 3 tabs: **Random Topics / Interview Prep / Learn Vocab**.
+- Main UI:
+  - Language selector 🇺🇸 EN
+  - Category dropdown (🎯 Random / 🎲 Random)
+  - Center: текущий topic — `The lucky charm` + 2 фоновых suggestions.
+  - Кнопки: **Spin!** + **Start Timer →**.
+
+**Mechanic core:**
+1. Pull lever / spin → topic.
+2. Start timer (1 min).
+3. Record & speak.
+
+**Что взять:**
+- ExerciseType `impromptu_speech` — для языковых курсов / public
+  speaking.
+- UX-pattern «hand-drawn lever / spin» — отличный engagement-driver.
+  Можно использовать в наших dashboard-blok'ах (например, рандомный
+  daily challenge через визуальный «pull lever»).
+- Frameworks STAR/PREP/PPF/MECE как rubric для speaking writing.
+
+---
+
+## 9. Native English — native-english.ru
+
+**Скриншот:** `site-09-native-english.png`.
+
+**Что увидел:**
+- Hero: «Изучайте английский легко».
+- 4 quick-link chips: Аудиокниги / Тренировки / Словарь / Грамматика.
+- 2 main CTA: Выбрать тренировку / Слушать аудиокнигу.
+- Top nav: Словарь / Тренировки / Аудиокниги / Игры / Грамматика /
+  Фонетика / Ещё.
+- Cards «Выберите, с чего начать»:
+  - **Аудиокниги** — Красная шапочка (parallel text + диктор)
+  - **Тренировки** — Present Simple
+  - **Словарь** — Чувства и эмоции (transcription/audio/cards)
+
+**Mechanic core (наблюдаемое + известное):**
+- Audiobook player с per-word translation popup.
+- Vocabulary cards на тематические наборы.
+- Grammar drills (multiple choice).
+- Games (mini-games для словарного запаса).
+- Phonetics-page с IPA.
+
+**Что взять:**
+- ExerciseType `parallel_audiobook` — дешёво, мощно: audio + sync
+  субтитры + click-translate-on-word. Open-source players есть
+  (видеоплейеры с .vtt subs).
+- ExerciseType `vocab_card_set` — наш предметный flashcard
+  (transcription + audio + image) с category tagging.
+- Минимализм design — скопировать структуру: hero + 4 chips + 2 CTA.
+  Чисто, не перегружено.
+
+---
+
+## 10. Memozora — memozora.com
+
+**Скриншот:** `site-10-memozora.png`.
+
+**Что увидел:**
+- Dark hero: «Memorize Anything, Never Forget».
+- 1 CTA «Start Learning (for free)».
+- Big mockup: laptop dashboard + phone app.
+- Phone shows flashcard: «aprender» (Spanish) + кнопка «Guess the
+  answer».
+- Laptop dashboard — Weekly Report graph + декорированы decks (天才,
+  Thai, Spanish, Japanese) + «Learn All» button.
+
+**Mechanic core:**
+- SRS (Spaced Repetition System) с adaptive scheduling.
+- Decks по языкам / темам.
+- Mobile + web sync.
 - Built-in dictionary + TTS.
-- Progress chart по 3 категориям retention.
 
-**Как взять:**
-- ExerciseType `srs_flashcard` — то же что Anki, но интегрировано в
-  курс. Особенно для languages, vocab.
-- Algorithm: SM-2 (открытая, легко реализовать).
-- Variants: `flashcard_typing` (студент печатает ответ, не просто
-  flips), `flashcard_reverse` (front/back swap для retrieval).
-
-**Полезно:** уже есть код-ссылки на open-source SM-2 имплементации.
+**Что взять:**
+- ExerciseType `srs_flashcard` — must-have. SM-2 алгоритм open-source,
+  легко портируется.
+- Weekly retention chart — отличный stat для нашей gamification
+  (визуализация streaks).
+- Mobile-first вид (карта по центру + кнопка снизу) — паттерн для
+  PWA.
 
 ---
 
-## 11. WordMint (wordmint.com) ✅
+## 11. WordMint — wordmint.com
 
-**Что это:** генератор печатных учительских материалов — кроссворды,
-word search, bingo, bubble tests, matching, scrambles, multiple
-choice.
+**Скриншот:** `site-11-wordmint.png`.
 
-**Как работает:**
-- Учитель вводит свой word list / questions, либо берёт из 300k+
-  pre-made puzzles + 100k images.
-- Выходит PDF / Word doc.
-- **Уникально:** scan-grade multiple-choice bubble tests смартфоном.
+**Что увидел:**
+- Hero: «Tomorrow's lesson in minutes».
+- Список форматов: word searches, crosswords, worksheets, bingo
+  cards, bubble tests.
+- Top nav: Home / Support / Browse.
+- 3 sample puzzles (cards под hero) — bubble test, crossword, word
+  search.
+- Section «Used by the world's smartest teachers» + grid sample.
 
-**Как взять:**
-- ExerciseType `crossword` — на фронте rendering grid + clue list.
-  Учитель пишет clue+answer, генератор укладывает crossword.
-- `word_search` — сетка букв со словами для поиска.
-- `bingo_card` — печатная сетка для класс-игры (offline).
-- Большая часть — это offline-tools для печати; в digital LMS можно
-  адаптировать как interactive (drag letter, type letter).
+**Mechanic core:**
+- Учитель: ввести вопросы / word list → получить готовый puzzle.
+- 7 puzzle types: word search, crossword, bingo, bubble test, matching,
+  scrambles, multiple choice.
+- Output: PDF.
+- **Bubble test scan** через смартфон → авто-grading.
 
----
-
-## 12. Code Basics (code-basics.com/ru) ✅
-
-**Что это:** русский бесплатный портал по программированию (от
-команды Hexlet). 14+ языков.
-
-**Как работает:**
-- Theory text + interactive code editor + auto-grading в браузере.
-- AI-assistant Tota для подсказок.
-- Open-source, contributions from community.
-
-**Как взять:**
-- У нас уже есть code_challenge ExerciseType с Monaco + sandbox. Можно
-  улучшить:
-  - Добавить detailed test output (объяснение почему упало).
-  - Внедрить AI-tutor inline (дать explain-button у упавшего теста).
-- Изучить их курсовую структуру (как они дробят темы).
-- Их open-source — посмотреть как реализована тестирующая прослойка.
+**Что взять:**
+- ExerciseType `crossword` — interactive (не только print): сетка с
+  навигацией стрелками, типизация букв в клетки, мгновенная
+  валидация.
+- ExerciseType `word_search` — grid + drag-to-select слова.
+- `bingo_card` — printable, для классных игр.
+- Bubble-sheet OMR scan (см. п.18 Validated Learning).
 
 ---
 
-## 13. Yandex Boards (boards.yandex.ru) ⚠️
+## 12. Code Basics — code-basics.com/ru
 
-**Что это:** Yandex-аналог Miro — collaborative whiteboard. Личное
-пространство + рабочее (для организаций).
+**Скриншот:** `site-12-codebasics.png`.
 
-**Как работает (известно):** sticky notes, drawing, shapes,
-real-time multi-cursor, WebSockets sync, frame templates.
+**Что увидел:**
+- Hero: «Бесплатные курсы по программированию с нуля».
+- «С практикой в тренажере и ассистентом на базе ChatGPT».
+- 2 CTA: К курсам → / Регистрация.
+- Top nav: Курсы (dropdown) / Решения (dropdown) / Книга для
+  начинающих.
+- 3 цветных info-карточек: Текстовые курсы / Сообщество / ИИ-
+  ассистент.
+- Banner о скидке -30% на курсы с наставником.
 
-**Как взять:**
-- ExerciseType `whiteboard_collab` — ученики/группа решают задачу
-  на общей доске. Учитель видит финал + replay действий.
-- Use-case: brainstorm, mind-map по теме, draw-and-explain (математика
-  / биология).
-- Технически: TLDraw open-source (https://tldraw.dev) — embed как
-  готовый whiteboard-engine.
+**Mechanic core:**
+- Theory-text → in-browser editor → auto-graded tests → AI tutor
+  Tota.
+- 14+ языков (Python, JS, Java, …).
+- Open-source: github.com/hexlet-basics.
 
-**Глубже:** API Yandex Boards (если есть) для embed.
-
----
-
-## 14. Twisty Noodle (twistynoodle.com) ✅
-
-**Что это:** генератор печатных раскрасок и worksheets для детей.
-
-**Как работает:** пик template → выбор шрифта → ввод текста → print
-PDF. Темы: животные, праздники, цифры, буквы, сезоны.
-
-**Как взять:**
-- ExerciseType `handwriting_practice` — генерация листа с dotted
-  буквами/словами для прописей.
-- Customization per ученика (имя, дата) — дифференцированная нагрузка.
-- Целевая ниша: K-2, начальная школа. У нас сейчас этого нет.
-- Простая фича — очень мало кода (font + dotted-rendering + PDF).
+**Что взять:**
+- У нас уже есть `code_challenge` — улучшить:
+  - Detailed test output с объяснениями (что не так / в чём ошибка).
+  - Inline AI-tutor «Why did this fail?» (когда бюджет позволит).
+  - Курсовая структура: 14+ языков организованы по уровням
+    (новичок/середина/продвинутый).
+- Их open-source — взять structure тестирующей прослойки.
 
 ---
 
-## 15. Marquiz (marquiz.ru) ✅
+## 13. Yandex Boards — boards.yandex.ru
 
-**Что это:** конструктор маркетинговых quiz-форм (lead-gen).
-4-step dialog: greeting → branching questions → recommendation →
-contact form.
+**Скриншот:** `site-13-yandex-boards.png`.
 
-**Как работает:** 13 типов вопросов, branching logic, conditional
-paths, scoring, A/B testing, integrations через Zapier.
+**Что увидел:**
+- Account-выбор: **Личное пространство** (любой пользователь Яндекса)
+  + **Рабочее пространство** (сотрудники организации).
+- Минималистичный UI на сером фоне.
+- Yandex SSO required → не дошёл до самой доски.
 
-**Как взять:**
-- ExerciseType `branching_quiz` — non-linear questions с conditional
-  paths. Идеально для simulation/scenario-training (медицинский case,
-  ethics dilemma, sales role-play).
-- Reuse: их 13 типов вопросов как ref для UI.
-- Scoring + feedback paths — для adaptive learning (пройти неверно →
-  redirect на корректирующий контент).
+**Mechanic core (известное):**
+- Realtime collaborative whiteboard (Miro-аналог).
+- Sticky notes, drawing, shapes, frames, multi-cursor.
+- WebSocket sync.
 
-**Глубже:** их UI builder для конструирования branching tree —
-inspiration для teacher tool.
-
----
-
-## 16. BioRender (biorender.com) ✅
-
-**Что это:** drag-drop конструктор научных иллюстраций (4M+ scientists).
-Большая библиотека editable scientific icons.
-
-**Как работает:** canvas-style editor + library левая панель + AI-
-styling. Real-time collaboration. Export в PPTX/PDF/PNG.
-
-**Как взять:**
-- ExerciseType `diagram_assembly` — студент собирает schema из
-  библиотеки (cell parts, organs, molecular shapes). Учитель задаёт
-  «target» — система проверяет наличие требуемых элементов и
-  правильность связей.
-- Альтернатива: `concept_map_builder` — общая нодовая модель для
-  любого предмета (history connections, literary themes).
-- Технически: рисовая канва + JSON model графа + matching.
-
-**Полезно:** their icon library доступна (платно). Можно генерить
-своё или использовать noun-project / lucide для базовых.
+**Что взять:**
+- ExerciseType `whiteboard_collab` — общая доска для группы. Учитель
+  смотрит финал + replay действий.
+- Use-cases: brainstorm, mind-map, draw-and-explain.
+- **TLDraw** (open-source, https://tldraw.dev) — embed готовый engine,
+  не нужно строить с нуля. MIT license.
 
 ---
 
-## 17. Repetico (repetico.com) ✅
+## 14. Twisty Noodle — twistynoodle.com
 
-**Что это:** SRS-платформа с upgrades относительно Memozora —
-коллаборативные cardsets, обсуждение каждой карты, AI-create.
+**Скриншот:** `site-14-twisty.png`.
 
-**Как работает:**
-- Standard flashcards + multiple choice.
-- AI-генерация карт от текста (paste material → выходят карты).
-- Cross-device sync (iOS/Android/Web).
-- Detailed stats + study targets.
-- Friend invites + shared cardsets + per-card discussion.
+**Что увидел:**
+- Top nav: Coloring Pages / Worksheets / Math / Printable Books / Blog
+  / Your Favorites.
+- Под Coloring Pages: subcategories (Animals, Buildings, Colors, Food,
+  Holiday, Letters, Months, Music, Nature, Numbers, People, Religious,
+  School, Sports, Toys, Transportation).
+- Sections: Spring Activities, Letter Coloring Pages, Number
+  Activities + Teacher Appreciation Week.
+- GDPR cookie modal сверху.
+- Каждая card = preview + кастомизация (можно ввести name, выбрать
+  font, печатать).
 
-**Как взять:**
-- Дополнить наш `srs_flashcard` (см. п.10) features:
-  - **AI-generate from text** — kill killer feature. Учитель вставляет
-    конспект → AI создаёт N карт. Учитель валидирует.
-  - **Per-card discussions** (мы уже имеем threads, можно подвязать).
-  - **Shared cardsets** — публичная библиотека вопросов (Anki Shared
-    Decks модель).
+**Mechanic core:** генератор печатных PDF для K-2:
+- Coloring pages
+- Worksheets (handwriting practice, tracing letters/numbers)
+- Math worksheets
+- Spring/Holiday seasonal активности
+
+**Что взять:**
+- ExerciseType `printable_worksheet` для младшей школы.
+- Шаблон: dotted letters + image + name field. Generate PDF on demand.
+- Очень узкая ниша (K-2), но низкая стоимость разработки. Жирная
+  ниша — учителя начальной школы.
 
 ---
 
-## 18. Validated Learning / Quick Key (validatedlearning.co) ✅
+## 15. Marquiz — marquiz.ru
 
-**Что это:** платформа быстрых формативных оценок. Фокус — на
-fast feedback loop teacher↔class.
+**Скриншот:** `site-15-marquiz.png`.
 
-**Как работает:**
-- Цифровые quizzes на student devices (без логина).
-- Bumblebee bubble-sheets — учитель печатает листы, ученики ставят
-  крестики, телефон сканирует и оценивает мгновенно (offline-friendly).
-- Question Xchange — 200k+ shared questions tagged по subject/standard.
+**Что увидел:**
+- Розовый бренд, hero: «Конструктор квизов».
+- Tagline: «помогаем предпринимателям и маркетологам решить проблемы
+  низких конверсий и дорогих лидов».
+- 1 CTA «Попробуйте — это бесплатно».
+- Top nav: Продукт / Медиа / Функционал / Шаблоны / Тарифы.
+- Mockup внизу: phone-style preview квиза («Джаз, блюз, классику /
+  Электронную музыку, металл, рок / Разную»).
+
+**Mechanic core:**
+- 13 типов вопросов (single, multi, image-pick, range, text input,
+  contact-form, …).
+- Branching logic между вопросами.
+- Scoring + А/В testing.
+- Zapier integrations.
+- Embed в любой сайт.
+
+**Что взять:**
+- ExerciseType `branching_scenario` — non-linear quiz для simulation:
+  medical case, ethics dilemma, sales role-play, soft-skill training.
+- 13 question types — referenced для UI builder в нашем admin.
+- A/B testing на разных вариантах урока — продвинутая фича для
+  методистов.
+
+---
+
+## 16. BioRender — biorender.com
+
+**Скриншот:** `site-16-biorender.png`.
+
+**Что увидел:**
+- Hero: «Create professional science figures in seconds».
+- «No design skills needed». «No download required».
+- Top nav: Products / Events / Icon Library / Learning Hub / Pricing.
+- Right side mockup: scientific figure-builder.
+  - Левая панель — поиск «antigen» с outline иконок (icons / templates).
+  - Главное полотно — illustration immune attack: T-cell, MHC,
+    Activated T-cell, Tumor cell, PD-1, PD-L1/2 — реалистичные
+    biomedical иллюстрации.
+- Trust-pillars: Princeton, University of …, Harvard, Stanford.
+- Cookie modal внизу.
+
+**Mechanic core:**
+- Drag-drop canvas + scientifically-accurate icon library (10000+).
+- Search-bar для поиска компонентов.
+- Templates (готовые scaffolds — например, immune attack scenario).
+- Real-time collaboration.
+- Export в PPTX/PDF/PNG.
+
+**Что взять:**
+- ExerciseType `diagram_assembly` — учитель задаёт target иллюстрации,
+  студент собирает из icon-library, система проверяет наличие
+  required elements (по name) + правильность connections.
+- Library structure: search + categorized + templates — UX-pattern
+  для нашего content library (для exercises).
+- Ниша: биология, химия, медицина, анатомия. У нас сейчас слабая.
+
+---
+
+## 17. Repetico — repetico.com
+
+**Скриншот:** `site-17-repetico.png`.
+
+**Что увидел:**
+- Hero на зелёном фоне: «Study flashcards online & mobile!».
+- «With Repetico, you can easily prepare yourself for your tests —
+  using an automated study schedule, study target dates and AI».
+- 1 CTA «Sign up for free» (оранжевый).
+- Mockup: laptop dashboard «Study schedule / 1647 / Active sets /
+  Schedule entries» + 2 phones.
+- Google Play + App Store badges.
+- Section ниже: «Create and study your flashcards» —
+  «Create flashcards or multiple choice questions - even using AI!».
+
+**Mechanic core:**
+- Flashcards + multiple-choice cards.
+- Automated SRS schedule.
+- AI-create from text (paste material → AI генерит карты).
+- Cross-device sync (web + iOS + Android).
+- Stats + study targets.
+
+**Что взять:**
+- Сравнить с Memozora (п.10) — Repetico **умеет AI-creation**,
+  Memozora — только manual. Это ключевая фича.
+- При AI-budget: добавить feature `srs_ai_generate` (будущее).
+- Без AI: ручной импорт CSV / TSV — minimum viable.
+- Multi-platform — для нас уже работает PWA, Repetico показывает что
+  native apps добавляют conversion.
+
+---
+
+## 18. Validated Learning / QuickKey — validatedlearning.co
+
+**Скриншот:** `site-18-validated.png`.
+
+**Что увидел:**
+- Hero на photo с улыбающимся учителем: «REAL TIME DATA from fast
+  quizzes and tests» (большой text-on-photo).
+- Logo: QuickKey (rabbit + name).
+- 1 CTA «Sign up for a free account».
+- Top nav: Xchange Community / Teachers / Schools / The Teach Big
+  Blog / Pricing / About / Support.
+- Tagline: «Easy online quizzes and tests for remote learning».
+- Sub-tagline: «Plus: scan paper bubble sheets with your mobile
+  device. 1-minute setup with Google Classroom».
+
+**Mechanic core:**
+- Online quizzes на student devices (без login).
+- **Bubble-sheet scan** — учитель печатает листы → ученики ставят
+  крестики → телефон сканирует.
+- Question Xchange (200k+ questions, tagged по subject/standard).
 - Google Classroom integration.
 
-**Как взять:**
-- ExerciseType `bubble_sheet_scan` — главная инновация. Преподавателю
-  печатается уникальный лист на класс. Студенты заполняют, учитель
-  фотографирует — AI распознаёт + проставляет оценки.
-- Полезно для классов без 1:1 устройств.
-- Технически: OMR (Optical Mark Recognition) — open-source
-  библиотеки есть (omr-tools, opencv).
+**Что взять:**
+- ExerciseType `bubble_sheet_scan` — главная фича. OMR open-source
+  библиотеки: opencv-python, omr-tools.
+- Question Xchange Community — модель **публичной библиотеки
+  заданий** (как Anki Shared Decks). Учителя делятся, рейтят.
+- Google Classroom integration — у нас уже есть google_classroom
+  endpoint, но без credentials (см. credentials task в todo).
 
 ---
 
-## 19. Text Adventures / Quest (textadventures.co.uk) ⚠️
+## 19. Text Adventures — textadventures.co.uk
 
-**Что это:** платформа для interactive fiction — Quest (full IDE),
-Squiffy (markdown-стиль), Squashed (web).
+**Скриншот:** `site-19-textadv.png`.
 
-**Как работает (известно):** автор пишет branching story в DSL/
-visual editor; player выбирает варианты, story меняется. Conditions,
-inventory, characters.
+**Что увидел:**
+- **Cloudflare anti-bot** — «Performing security verification».
+  Playwright не прошёл challenge.
+- Доступ заблокирован для headless-сессий.
 
-**Как взять:**
+**Mechanic core (известное):**
+- Quest — WYSIWYG editor для interactive fiction (точки, conditions,
+  inventory, NPC dialogues). Open-source.
+- Squiffy — markdown-style branching DSL (.squiffy → .html).
+- Squashed — web-based player.
+
+**Что взять:**
 - ExerciseType `interactive_fiction` для:
-  - **Languages** — диалоги с NPC, лексика в контексте.
-  - **Ethics / case studies** — branching choices с разной развязкой.
-  - **History** — «исторический симулятор» (что бы вы сделали будучи
-    Наполеоном на Бородинском поле?).
-- Технически: открытый формат Squiffy (markdown-extension), уже есть
-  player.js — embed готов.
-
-**Глубже:** проверить open-source player + editor.
-
----
-
-## 20. Anytype (anytype.io) ⚠️
-
-**Что это:** local-first p2p база знаний (Notion-альтернатива).
-Объекты + relations + sets (queries).
-
-**Как работает (известно):**
-- Object types (page, book, person, task) с свойствами.
-- Relations (связь между объектами).
-- Sets (filter view: all books, all tasks).
-- Encrypted, p2p sync без сервера.
-
-**Как взять:**
-- ExerciseType `knowledge_graph_build` — студент строит свою базу
-  knowledge: ловит карточки concepts, тегирует, связывает. Учитель
-  оценивает organization.
-- Альтернатива: research-style assignment где student создаёт
-  «персональную энциклопедию» по теме курса.
-- У нас уже есть Knowledge module (RAG). Можно дать студенту
-  WRITE-доступ создавать свои entries.
-
-**Полезно:** изучить их object/relation schema — модель для нашего
-будущего student-knowledge-graph.
+  - Languages — диалоги с NPC, лексика в контексте.
+  - Ethics — branching choices с разной развязкой.
+  - History — what-if симулятор.
+- Squiffy DSL открытый, легко парсится. Player.js (~50kb) можно
+  embed.
+- **Большой content authoring effort** — учитель должен научиться DSL.
+  Visual editor (как Quest) — heavy дев.
 
 ---
 
-## Сводный приоритет (мой)
+## 20. Anytype — anytype.io
 
-**🔥 Сделать в первую очередь** (быстро + большой impact):
+**Скриншот:** `site-20-anytype.png`.
 
-1. **SRS Flashcards** (Memozora + Repetico) — must-have для languages
-   + vocab. Open-source SM-2 готов.
-2. **AI-generate flashcards from text** (Repetico-style) — killer
-   feature. Reuses existing AI infra.
-3. **Crossword + Word Search** (WordMint) — дешёвые, востребованы
-   для K-12.
-4. **Bubble-sheet scan** (Validated Learning) — для классов без
-   1:1 устройств. OMR open-source.
+**Что увидел:**
+- Hero: «A safe haven for digital collaboration» (pink-coloured «for
+  digital collaboration» fancy serif).
+- Красивая монохромная пиксел-арт illustration: компьютеры, кадрики,
+  smiley лицо на экране, календарь 31.
+- Bottom nav: WHAT / WHY / WHO.
+- 4 pillar блока:
+  - Private & Secure (data privacy)
+  - Offline & Online (no Wi-Fi needed)
+  - Work & Play (less organising, more creating)
+  - Watch Chat Introduction (video link)
 
-**🟡 Среднее (требует UX-работы):**
+**Mechanic core (известное):**
+- Local-first p2p база знаний (Notion-альтернатива).
+- Object types (page, book, person, task) с relations.
+- Sets (filter views: «all books I read», «tasks for May»).
+- E2E encrypted sync без сервера.
 
-5. **Branching Quiz / Scenario** (Marquiz / Quest) — для simulations.
-6. **Whiteboard collab** (Yandex Boards / TLDraw) — для group work.
-7. **Map pin-drop** (GeoChamp) — для географии/истории.
-8. **Diagram-assembly** (BioRender-стиль) — для биологии/химии.
+**Что взять:**
+- ExerciseType `knowledge_object_build` — студент создаёт «карточку
+  концепта» (e.g., биологический процесс) с типизированными
+  relations (causes, parts, examples). Учитель оценивает graph.
+- Pixel-art aesthetic — потенциально для нашей gamification (badges,
+  illustrations).
+- Их object/relation schema — модель для будущего student-knowledge-
+  graph. Сейчас наш Knowledge module — read-only RAG. Это даст
+  студентам *write*-доступ создавать свои entries.
 
-**🟢 На потом (нишевые / R&D):**
+---
 
-9. **Circuit lab** (Falstad) — фокус-группа узкая (физика).
-10. **Interactive fiction** (Quest) — нужен content authoring effort.
-11. **AI-slide-generator** (Qwen) — teacher utility, отдельный flow.
-12. **Wellbeing breaks** (Anxiety Aid) — wellbeing track, отдельная
-    история.
-13. **Knowledge graph** (Anytype) — большая R&D затея.
-14. **Visualization on-demand** (MyLens) — UI-heavy.
+# Сводный приоритет (после deep review)
+
+## 🔥 Сделать в первую очередь
+
+1. **SRS Flashcards** (Memozora + Repetico). MVP без AI: manual cards
+   + SM-2 schedule + progress chart.
+2. **Crossword + Word Search** (WordMint). Interactive в браузере, не
+   только print.
+3. **Bubble-sheet scan** (Validated Learning). Дифференциатор для
+   школ без 1:1 устройств. opencv OMR.
+4. **Map pin-drop** (GeoChamp). Простой ExerciseType с Leaflet.
+
+## 🟡 Среднее (требует дев-капасити)
+
+5. **Branching Scenario** (Marquiz / Quest). Конструктор non-linear
+   квестов.
+6. **Whiteboard collab** (Yandex Boards / TLDraw embed).
+7. **Diagram-assembly** (BioRender-стиль). Для биологии/химии.
+8. **Parallel audiobook + vocab cards** (Native English) для
+   languages.
+9. **Circuit lab** (Falstad). Ниша физика/EE.
+
+## 🟢 На потом
+
+10. **Interactive fiction** (Quest) — heavy authoring tooling.
+11. **Knowledge graph** (Anytype) — research-level, нужна schema.
+12. **Visualization on-demand** (MyLens) — нужен AI-budget.
+13. **Wellbeing breaks** (Anxiety Aid) — отдельный wellness-track.
+14. **Aurora-OS Focus Mode** — design language для self-study.
 15. **Handwriting worksheets** (Twisty Noodle) — узкая ниша K-2.
-16. **Mental-OS gamified env** — slot для psychology курсов.
-17. **STORM-style guided research** — для университетов / olympiad.
-18. **Random speech prompts** — нишевое для language tutoring.
-19. **Native-English mechanics** — мы уже многое делаем; reference.
-20. **Code Basics structure** — мы уже делаем; refresh inspiration.
+16. **Random speech prompts** (Off the Cuff) — language tutoring.
+17. **STORM-style guided research** — академический сегмент.
+18. **AI-slide-generator** (Qwen) — отложено по AI-budget.
+19. **Native English mechanics** — мы делаем, refresh inspiration.
+20. **Code Basics structure** — refresh inspiration.
 
 ---
 
-## Что нужно от тебя для следующего шага
+# Что отметить дополнительно (cross-cutting наблюдения)
 
-- Подтвердить топ-приоритет (1-4).
-- Открыть live-страницы помеченных ⚠️ (особенно GeoChamp, Yandex
-  Boards, Anytype, textadventures, Qwen slides) под видеозвонок —
-  посмотреть UX вместе. Многие SPA-сайты не давали SSR-контента, и
-  нужна прямая разведка.
-- Решить: каждое из этих делать как новый ExerciseType (config-схема
-  + React-компонент + MCP tool) или как отдельный "Lab" модуль.
+- **AI-mention везде:** 13 из 20 сайтов уже имеют AI-features
+  (Memozora, Repetico, MyLens, Qwen, Anytype, STORM, Code Basics —
+  Tota, …). Для GrassLMS без AI-budget — мы отстаём. Когда появится
+  budget, AI features станут must-have (AI-flashcards, AI-tutor
+  inline, AI-outline для writing).
+- **Public sharing/community library** — у Repetico, WordMint,
+  Validated Learning, Native English. Идея: **Question Xchange-style
+  community** в нашей Knowledge module + отдельный Exercise Library
+  где учителя публикуют свои задания. Может быть отдельный sellability
+  driver.
+- **Bubble-sheet OMR (Validated Learning)** — недо-explored ниша.
+  Школы со слабым cell-coverage / ноутбук-парком найдут это
+  «магией».
+- **Mobile-first patterns:** Memozora и Repetico — flashcards
+  показывают one-card-per-screen на phone. Наш PWA сейчас mostly
+  desktop-first; стоит сделать mobile-mode для exercises.
+- **Hand-drawn brand (Off the Cuff)** vs **scientific brand
+  (BioRender)** vs **kitch fun (GeoChamp)** vs **minimalist (Native
+  English, Memozora, Anytype)** — для нашей DS warm green/sun близок
+  к Off the Cuff и Memozora; стоит выдержать tone-of-voice
+  consistent.
+
+---
+
+# Что нужно от тебя для следующего шага
+
+1. Подтвердить топ-4 приоритет (SRS, crossword, bubble-scan,
+   pin-drop).
+2. Решить: каждое — ExerciseType (config-схема + React-компонент +
+   MCP tool) ИЛИ отдельный Lab-модуль с своим UX?
+3. Открыть live-страницы (особенно GeoChamp Quiz-Mode, Yandex Boards
+   реальная доска, textadventures Quest editor) под звонок —
+   playwright не дошёл до содержимого за их auth/Cloudflare gates.
