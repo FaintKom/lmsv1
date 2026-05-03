@@ -4,13 +4,14 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
+from app.auth.security import decode_token
 from app.config import settings
 from app.db.session import get_db
 from app.integrations.models import IntegrationProvider, OAuthConnection
@@ -20,6 +21,47 @@ from app.integrations.schemas import (
 )
 
 router = APIRouter()
+
+
+async def _get_user_for_oauth_init(
+    request: Request,
+    token: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """OAuth-init runs as a top-level browser navigation, so the
+    Authorization header is dropped on cross-origin redirect. The frontend
+    appends `?token=<jwt>` to the authorize URL; this dep reads either the
+    Authorization header (preferred) or the `?token=` query param.
+    """
+    raw: str | None = None
+    auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    if auth_header and auth_header.lower().startswith("bearer "):
+        raw = auth_header.split(" ", 1)[1].strip()
+    if not raw and token:
+        raw = token.strip()
+
+    if not raw:
+        raise HTTPException(401, "Authentication required")
+
+    payload = decode_token(raw)
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(401, "Invalid or expired token")
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(401, "Invalid token payload")
+
+    try:
+        uid = uuid.UUID(user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(401, "Invalid token payload")
+
+    result = await db.execute(select(User).where(User.id == uid))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        raise HTTPException(401, "User not found or inactive")
+
+    return user
 
 
 @router.get("/status", response_model=IntegrationStatusResponse)
@@ -134,7 +176,7 @@ async def get_youtube_video_metadata(video_id: str):
 
 
 @router.get("/zoom/authorize")
-async def zoom_authorize(user: User = Depends(get_current_user)):
+async def zoom_authorize(user: User = Depends(_get_user_for_oauth_init)):
     """Redirect to Zoom OAuth consent screen."""
     if not settings.zoom_client_id:
         raise HTTPException(400, "Zoom integration not configured")
@@ -349,7 +391,7 @@ async def _refresh_google_token(conn: OAuthConnection, db: AsyncSession) -> str:
 @router.get("/google/authorize")
 async def google_authorize(
     provider: str = Query("google_meet"),
-    user: User = Depends(get_current_user),
+    user: User = Depends(_get_user_for_oauth_init),
 ):
     """Redirect to Google OAuth consent screen."""
     if not settings.google_client_id:

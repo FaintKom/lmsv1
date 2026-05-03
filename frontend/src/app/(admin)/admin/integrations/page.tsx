@@ -160,9 +160,27 @@ export default function IntegrationsPage() {
   }, [searchParams]);
 
   const handleConnect = useCallback((provider: string) => {
+    if (provider === "youtube") {
+      // YouTube uses an org-wide API key, not OAuth. The key lives in the
+      // backend env (YOUTUBE_API_KEY) and falls back to public oEmbed
+      // metadata if missing.
+      toast.info(
+        "YouTube videos work out of the box — no connection needed. " +
+          "For richer metadata, set YOUTUBE_API_KEY on the backend."
+      );
+      return;
+    }
     const authUrl = OAUTH_PROVIDERS[provider];
     if (authUrl) {
-      window.location.href = authUrl;
+      // Browsers strip Authorization on cross-origin redirects, so pass JWT
+      // explicitly so the OAuth callback can associate the connection with
+      // the right user/org.
+      const token = typeof window !== "undefined"
+        ? localStorage.getItem("access_token")
+        : null;
+      const sep = authUrl.includes("?") ? "&" : "?";
+      const fullUrl = token ? `${authUrl}${sep}token=${encodeURIComponent(token)}` : authUrl;
+      window.location.href = fullUrl;
     } else {
       toast.info("This integration is coming soon");
     }
@@ -272,7 +290,11 @@ export default function IntegrationsPage() {
                     Coming Soon
                   </Button>
                 ) : (
-                  <Button size="sm" className="w-full">
+                  <Button
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleConnect(intg.provider)}
+                  >
                     <Settings className="h-3.5 w-3.5 mr-1" />
                     Connect {intg.name}
                   </Button>
