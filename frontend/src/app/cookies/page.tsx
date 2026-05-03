@@ -213,10 +213,10 @@ export default function CookiePolicyPage() {
           <p>
             If you have questions about our use of cookies, please contact us at{" "}
             <a
-              href="mailto:privacy@learnhub.app"
+              href="mailto:privacy@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              privacy@learnhub.app
+              privacy@grasslms.online
             </a>
             .
           </p>

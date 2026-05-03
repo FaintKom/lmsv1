@@ -101,10 +101,10 @@ export default function TermsOfServicePage() {
             responsible for maintaining the confidentiality of your account credentials and for all
             activity that occurs under your account. You must notify us immediately at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>{" "}
             if you suspect unauthorized access to your account.
           </p>
@@ -347,10 +347,10 @@ export default function TermsOfServicePage() {
             other party. You may cancel your subscription at any time through your account settings
             or by contacting us at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>
             .
           </p>
@@ -407,13 +407,13 @@ export default function TermsOfServicePage() {
             14. Limitation of Liability
           </h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, LEARNHUB&rsquo;S AGGREGATE LIABILITY ARISING OUT
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, GRASSLMS&rsquo;S AGGREGATE LIABILITY ARISING OUT
             OF OR RELATED TO THESE TERMS OR THE USE OF THE PLATFORM SHALL NOT EXCEED THE TOTAL FEES
-            PAID BY YOU TO LEARNHUB DURING THE TWELVE (12) MONTHS IMMEDIATELY PRECEDING THE EVENT
+            PAID BY YOU TO GRASSLMS DURING THE TWELVE (12) MONTHS IMMEDIATELY PRECEDING THE EVENT
             GIVING RISE TO THE CLAIM.
           </p>
           <p className="mt-2">
-            IN NO EVENT SHALL LEARNHUB BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+            IN NO EVENT SHALL GRASSLMS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
             CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA,
             USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, REGARDLESS OF WHETHER WE HAVE BEEN ADVISED OF
             THE POSSIBILITY OF SUCH DAMAGES.
@@ -484,10 +484,10 @@ export default function TermsOfServicePage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>
             </p>
           </div>

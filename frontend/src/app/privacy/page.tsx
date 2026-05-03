@@ -37,10 +37,10 @@ export default function PrivacyPolicyPage() {
             it with, and what rights you have regarding your data. If you have any questions, you can
             reach our privacy team at{" "}
             <a
-              href="mailto:privacy@learnhub.app"
+              href="mailto:privacy@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              privacy@learnhub.app
+              privacy@grasslms.online
             </a>
             .
           </p>
@@ -251,10 +251,10 @@ export default function PrivacyPolicyPage() {
               personal data, request corrections, and request deletion. To exercise these rights,
               contact us at{" "}
               <a
-                href="mailto:privacy@learnhub.app"
+                href="mailto:privacy@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                privacy@learnhub.app
+                privacy@grasslms.online
               </a>{" "}
               or contact your child&rsquo;s school.
             </li>
@@ -323,10 +323,10 @@ export default function PrivacyPolicyPage() {
             While no system is 100% secure, we continuously work to improve our security posture. If
             you discover a security vulnerability, please report it to{" "}
             <a
-              href="mailto:privacy@learnhub.app"
+              href="mailto:privacy@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              privacy@learnhub.app
+              privacy@grasslms.online
             </a>
             .
           </p>
@@ -412,10 +412,10 @@ export default function PrivacyPolicyPage() {
           <p className="mt-3">
             To exercise any of these rights, contact us at{" "}
             <a
-              href="mailto:privacy@learnhub.app"
+              href="mailto:privacy@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              privacy@learnhub.app
+              privacy@grasslms.online
             </a>
             . We will respond within 30 days. For school-managed student accounts, requests may need
             to be submitted through the school.
@@ -471,10 +471,10 @@ export default function PrivacyPolicyPage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:privacy@learnhub.app"
+                href="mailto:privacy@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                privacy@learnhub.app
+                privacy@grasslms.online
               </a>
             </p>
           </div>

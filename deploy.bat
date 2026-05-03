@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
-title LearnHub — Production Deploy
+title GrassLMS — Production Deploy
 echo.
 echo  ============================================
-echo   LearnHub LMS — Production Deployment
+echo   GrassLMS — Production Deployment
 echo  ============================================
 echo.
 
@@ -44,7 +44,7 @@ if not exist .env (
     for /f "tokens=*" %%a in ('powershell -Command "[System.Guid]::NewGuid().ToString('N') + [System.Guid]::NewGuid().ToString('N')"') do set JWT_SEC=%%a
 
     (
-        echo # === LearnHub LMS — Auto-generated Production Config ===
+        echo # === GrassLMS — Auto-generated Production Config ===
         echo.
         echo # Database
         echo POSTGRES_DB=lms
@@ -69,7 +69,7 @@ if not exist .env (
         echo STRIPE_WEBHOOK_SECRET=
         echo.
         echo # App
-        echo APP_NAME=LearnHub
+        echo APP_NAME=GrassLMS
         echo DEBUG=true
     ) > .env
 
@@ -105,7 +105,7 @@ timeout /t 15 /nobreak >nul
 
 echo.
 echo  ============================================
-echo   LearnHub is running!
+echo   GrassLMS is running!
 echo  ============================================
 echo.
 echo   Local access:     http://localhost

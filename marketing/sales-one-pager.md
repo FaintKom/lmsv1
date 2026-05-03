@@ -1,8 +1,8 @@
-# LearnHub — Sales One-Pager
+# GrassLMS — Sales One-Pager
 
 **Interactive learning platform for schools that actually teach programming, math, and languages.**
 
-Most LMS platforms are either too simple (Google Classroom) or too bloated (Moodle). LearnHub is built from the ground up for schools where students write real code, solve real math, and learn real skills — not just check boxes on a quiz.
+Most LMS platforms are either too simple (Google Classroom) or too bloated (Moodle). GrassLMS is built from the ground up for schools where students write real code, solve real math, and learn real skills — not just check boxes on a quiz.
 
 ---
 
@@ -30,7 +30,7 @@ Badges, streaks, XP, and league tables — but they're tied to real learning out
 
 ## What makes us different
 
-| | LearnHub | Moodle | Google Classroom | Teachable |
+| | GrassLMS | Moodle | Google Classroom | Teachable |
 |---|---|---|---|---|
 | Built-in code sandbox | ✅ 37 languages | ❌ Plugin only | ❌ | ❌ |
 | Interactive math | ✅ Widgets + Desmos | ❌ | ❌ | ❌ |
@@ -103,4 +103,4 @@ Try Free forever. No credit card required. Upgrade any time.
 - **Live SAT Math demo** — (coming — P1-17)
 - **Email for a demo call** — TBD
 
-*LearnHub is currently in pre-launch. Ask about founding-school pricing: 3 months free for the first 10 schools.*
+*GrassLMS is currently in pre-launch. Ask about founding-school pricing: 3 months free for the first 10 schools.*

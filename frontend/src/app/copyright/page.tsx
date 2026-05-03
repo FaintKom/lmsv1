@@ -77,10 +77,10 @@ export default function CopyrightPolicyPage() {
             If you believe that content on the GrassLMS platform infringes your copyright, you may
             submit a written notification to our designated copyright agent at{" "}
             <a
-              href="mailto:copyright@learnhub.app"
+              href="mailto:copyright@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              copyright@learnhub.app
+              copyright@grasslms.online
             </a>
             . Your notice must include:
           </p>
@@ -118,10 +118,10 @@ export default function CopyrightPolicyPage() {
             If you believe your content was wrongly removed due to a DMCA takedown notice, you may
             submit a counter-notification to{" "}
             <a
-              href="mailto:copyright@learnhub.app"
+              href="mailto:copyright@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              copyright@learnhub.app
+              copyright@grasslms.online
             </a>
             . Your counter-notification must include:
           </p>
@@ -205,10 +205,10 @@ export default function CopyrightPolicyPage() {
             own license terms. A full list of open-source licenses and attributions is available upon
             request. To request this information, contact us at{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>
             .
           </p>
@@ -230,10 +230,10 @@ export default function CopyrightPolicyPage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:copyright@learnhub.app"
+                href="mailto:copyright@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                copyright@learnhub.app
+                copyright@grasslms.online
               </a>
             </p>
           </div>

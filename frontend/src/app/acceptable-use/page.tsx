@@ -131,10 +131,10 @@ export default function AcceptableUsePolicyPage() {
             <li>
               Notify us immediately at{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>{" "}
               if you believe your account is compromised
             </li>
@@ -154,10 +154,10 @@ export default function AcceptableUsePolicyPage() {
             <li>
               Report any concerns about a minor&rsquo;s safety to{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>{" "}
               immediately
             </li>
@@ -177,10 +177,10 @@ export default function AcceptableUsePolicyPage() {
             <li>
               Email{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>{" "}
               with details
             </li>
@@ -228,10 +228,10 @@ export default function AcceptableUsePolicyPage() {
           <p className="mt-3">
             Appeals can be submitted to{" "}
             <a
-              href="mailto:support@learnhub.app"
+              href="mailto:support@grasslms.online"
               className="font-medium text-green-600 hover:text-green-700"
             >
-              support@learnhub.app
+              support@grasslms.online
             </a>{" "}
             within 14 days of the enforcement action.
           </p>
@@ -253,10 +253,10 @@ export default function AcceptableUsePolicyPage() {
             <p className="mt-1">
               Email:{" "}
               <a
-                href="mailto:support@learnhub.app"
+                href="mailto:support@grasslms.online"
                 className="font-medium text-green-600 hover:text-green-700"
               >
-                support@learnhub.app
+                support@grasslms.online
               </a>
             </p>
           </div>
