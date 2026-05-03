@@ -1,81 +1,43 @@
 /**
- * LearnHub Service Worker — P2-6 Offline/PWA support.
+ * Service Worker — KILL SWITCH (2026-05-04).
  *
- * Strategy: Network-First for API requests, Cache-First for static
- * assets. This lets the app work offline for previously visited
- * pages while always fetching fresh data when online.
+ * Old SW used cache-first for static assets, so after a frontend rebuild
+ * the chunk hashes changed and the browser kept serving stale HTML
+ * pointing at chunks that 404. Result: "Failed to load chunk ..." +
+ * users bounced back to /login.
+ *
+ * This file replaces the old SW. On activate it deletes every cache and
+ * unregisters itself, then forces all open tabs to reload so the page
+ * comes back without an SW in the way. Caching is now handled at the
+ * nginx layer (no-store for HTML, immutable for /_next/static).
+ *
+ * Once we are confident every active client has run this kill switch
+ * (give it ~1–2 weeks), we can remove the registration block from
+ * `app/layout.tsx` and delete this file.
  */
-const CACHE_NAME = "learnhub-v1";
-const STATIC_ASSETS = [
-  "/",
-  "/dashboard",
-  "/offline",
-  "/manifest.json",
-  "/favicon.ico",
-];
-
-// Install — pre-cache shell assets
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-// Activate — clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
-});
+    (async () => {
+      // Wipe every cache this origin owns.
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
 
-// Fetch — network-first for API, cache-first for static
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
+      // Stop intercepting future requests in this scope.
+      await self.registration.unregister();
 
-  // Skip non-GET requests
-  if (request.method !== "GET") return;
-
-  // API calls: network-first, fallback to cache
-  if (url.pathname.startsWith("/api/")) {
-    event.respondWith(
-      fetch(request)
-        .then((resp) => {
-          const clone = resp.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return resp;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Static assets and pages: cache-first, fallback to network
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request)
-        .then((resp) => {
-          // Cache successful responses for next time
-          if (resp.ok) {
-            const clone = resp.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return resp;
-        })
-        .catch(() => {
-          // Offline fallback for navigation requests
-          if (request.mode === "navigate") {
-            return caches.match("/offline");
-          }
-          return new Response("Offline", { status: 503 });
-        });
-    })
+      // Force every open tab to reload so they leave the SW behind.
+      const clients = await self.clients.matchAll({ type: "window" });
+      for (const client of clients) {
+        client.navigate(client.url);
+      }
+    })()
   );
 });
+
+// Pass-through for any in-flight fetches during activation. No caching,
+// no interception — just go to network.
+self.addEventListener("fetch", () => {});
