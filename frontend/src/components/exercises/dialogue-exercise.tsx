@@ -24,10 +24,12 @@ interface Props {
 }
 
 function getSpeakerColor(speaker: string): string {
+  // Avatars contain `text-white` inside; every bg here must keep ≥4.5:1 contrast.
+  // sun-500 (#f5b800) fails on white, so use sun-700 (#7a5500).
   const colors = [
     "bg-green-500",
     "bg-green-700",
-    "bg-sun-500",
+    "bg-sun-700",
     "bg-coral-500",
     "bg-ink-500",
     "bg-ink-700",

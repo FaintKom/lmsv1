@@ -89,7 +89,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     },
     warning: {
       icon: "bg-sun-100 text-sun-500",
-      button: "bg-sun-500 hover:bg-sun-700 text-white",
+      button: "bg-sun-500 hover:bg-sun-700 text-ink-900 hover:text-white",
     },
     default: {
       icon: "bg-green-100 text-green-600",

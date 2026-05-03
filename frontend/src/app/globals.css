@@ -491,9 +491,11 @@ select:focus-visible,
    Cartoon "press" button + signature highlight from DS mockups.
    ============================================================ */
 
-/* Sun-300 highlight on words (h1 em). */
+/* Sun-300 highlight on words (h1 em). Force dark ink so it reads on
+   yellow regardless of parent text color (e.g. white h1 on dark hero). */
 .gl-highlight {
   background: var(--sun-300);
+  color: var(--ink-900);
   padding: 0 8px;
   border-radius: 8px;
   display: inline-block;
