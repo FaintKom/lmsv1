@@ -34,7 +34,6 @@ import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
 import { SearchBar } from "./search-bar";
 import LocaleSwitcher from "./locale-switcher";
-import { ThemeSwitcher } from "../ui/theme-switcher";
 
 interface SidebarProps {
   open?: boolean;
@@ -242,7 +241,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
         <OrgSwitcher />
         <div className="mb-1 flex items-center justify-between px-1">
           <LocaleSwitcher />
-          <ThemeSwitcher />
         </div>
         <Link
           href="/profile"

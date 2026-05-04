@@ -1,9 +1,15 @@
 /* =================================================================
-   GrassLMS — Lively · v1.0.0 · 2026-05-04
-   Token layer is sourced from frontend/design/tokens.css.
-   When tokens.css changes, copy the :root + @theme blocks into this
-   file (or run the design-export sync). Light only.
+   GrassLMS — Lively · tokens.css · v1.0.0 · 2026-05-04
+   GENERATED FROM tokens.json — DO NOT EDIT BY HAND.
+   To regenerate: update tokens.json in the design project, then re-export.
+
+   Drop-in replacement for the @theme block in `frontend/src/app/globals.css`.
+   Tailwind 4: tokens are exposed as CSS variables (under :root) and as
+   Tailwind utilities (under @theme inline).
+
+   Light only. v1 has no dark theme.
    ================================================================= */
+
 @import "tailwindcss";
 
 :root {
@@ -15,7 +21,7 @@
   --green-300: #8fd770;
   --green-400: #6bc44d;
   --green-500: #3fb04b;
-  --green-600: #0a8754;
+  --green-600: #0a8754;   /* ★ primary action */
   --green-700: #07683f;
   --green-800: #054d2f;
   --green-900: #0a3d24;
@@ -24,13 +30,13 @@
   --sun-50:    #fffbe5;
   --sun-100:   #fff2b3;
   --sun-300:   #ffe066;
-  --sun-400:   #ffd84d;
+  --sun-400:   #ffd84d;   /* ★ highlight marker */
   --sun-500:   #f5b800;
   --sun-700:   #7a5500;
 
   --coral-50:  #fff0eb;
   --coral-300: #ffae9a;
-  --coral-500: #ff7a5c;
+  --coral-500: #ff7a5c;   /* ★ streak / urgency */
   --coral-700: #c33d22;
 
   /* ---- NEUTRALS — warm, never pure --------------------- */
@@ -41,10 +47,10 @@
   --ink-400: #6b7a70;
   --ink-500: #4d5a51;
   --ink-700: #1a2a1f;
-  --ink-900: #0a1a10;
+  --ink-900: #0a1a10;     /* ★ near-black with green undertone */
 
-  --paper:   #fafbf6;
-  --paper-2: #ffffff;
+  --paper:   #fafbf6;     /* ★ default page bg */
+  --paper-2: #ffffff;     /* card surface */
 
   --info:    #2b91ff;
 
@@ -88,7 +94,7 @@
   --shadow-sm:  0 2px 6px -1px rgba(10, 26, 16, 0.07);
   --shadow-md:  0 8px 24px -8px rgba(10, 26, 16, 0.12);
   --shadow-lg:  0 18px 50px -20px rgba(10, 26, 16, 0.18);
-  --shadow-pop:       0 4px 0 0 var(--green-700);
+  --shadow-pop:       0 4px 0 0 var(--green-700);   /* ★ signature button */
   --shadow-pop-coral: 0 4px 0 0 var(--coral-700);
   --shadow-pop-sun:   0 4px 0 0 var(--sun-500);
   --shadow-pop-ink:   0 4px 0 0 var(--ink-700);
@@ -115,8 +121,8 @@
   --s-20: 80px;
 
   /* ---- TYPOGRAPHY -------------------------------------- */
-  --font-sans: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 
   --t-xs:   12px;
   --t-sm:   13px;
@@ -136,7 +142,14 @@
   --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* =================================================================
+   Tailwind 4 — expose tokens as utilities.
+   `@theme inline` proxies to existing CSS vars (no copy of values).
+   Use semantic utilities in components, not raw scale (e.g.
+   `bg-primary` not `bg-green-600`).
+   ================================================================= */
 @theme inline {
+  /* fonts */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
@@ -205,6 +218,7 @@
   --color-info-soft:     var(--color-info-soft);
   --color-info-fg:       var(--color-info-fg);
 
+  /* radii */
   --radius-xs:   var(--radius-xs);
   --radius-sm:   var(--radius-sm);
   --radius-md:   var(--radius-md);
@@ -212,6 +226,7 @@
   --radius-xl:   var(--radius-xl);
   --radius-pill: var(--radius-pill);
 
+  /* spacing extensions */
   --spacing-1:  var(--s-1);
   --spacing-2:  var(--s-2);
   --spacing-3:  var(--s-3);
@@ -224,6 +239,7 @@
   --spacing-16: var(--s-16);
   --spacing-20: var(--s-20);
 
+  /* shadows */
   --shadow-xs:        var(--shadow-xs);
   --shadow-sm:        var(--shadow-sm);
   --shadow-md:        var(--shadow-md);
@@ -233,6 +249,7 @@
   --shadow-pop-sun:   var(--shadow-pop-sun);
   --shadow-pop-ink:   var(--shadow-pop-ink);
 
+  /* font sizes (named) — keeps Tailwind text-{size} aligned with our scale */
   --text-xs:   var(--t-xs);
   --text-sm:   var(--t-sm);
   --text-base: var(--t-base);
@@ -246,7 +263,7 @@
 }
 
 /* =================================================================
-   Base styles
+   Base styles — apply once globally.
    ================================================================= */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -258,7 +275,6 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: 'ss01';
-  line-height: 1.6;
 }
 
 button { font-family: inherit; }
@@ -273,7 +289,6 @@ button { font-family: inherit; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
@@ -290,179 +305,3 @@ button { font-family: inherit; }
 
 .font-mono     { font-family: var(--font-mono); }
 .tabular-nums  { font-variant-numeric: tabular-nums; }
-
-@media (hover: none) and (pointer: coarse) {
-  button, a, [role="button"], input, select, textarea {
-    touch-action: manipulation;
-  }
-}
-
-/* =================================================================
-   Lesson content typography — authored HTML by methodists.
-   Tailwind preflight strips defaults; restore them ONLY inside
-   .lms-lesson-content so the design system isn't affected.
-   Tokenized in v1 — colors from CSS vars, never raw hex.
-   ================================================================= */
-.lms-lesson-content {
-  color: inherit;
-  line-height: 1.7;
-}
-.lms-lesson-content h1 { font-size: var(--t-3xl); font-weight: 800; margin: 1.5rem 0 0.75rem; }
-.lms-lesson-content h2 { font-size: var(--t-2xl); font-weight: 700; margin: 1.25rem 0 0.6rem; }
-.lms-lesson-content h3 { font-size: var(--t-xl);  font-weight: 700; margin: 1rem 0 0.5rem; }
-.lms-lesson-content h4 { font-size: var(--t-md);  font-weight: 700; margin: 0.875rem 0 0.4rem; }
-.lms-lesson-content p { margin: 0.75rem 0; }
-.lms-lesson-content ul,
-.lms-lesson-content ol { margin: 0.75rem 0; padding-left: 1.6rem; }
-.lms-lesson-content ul { list-style: disc outside; }
-.lms-lesson-content ol { list-style: decimal outside; }
-.lms-lesson-content ul ul { list-style: circle outside; }
-.lms-lesson-content ol ol { list-style: lower-alpha outside; }
-.lms-lesson-content li { margin: 0.25rem 0; padding-left: 0.25rem; }
-.lms-lesson-content li::marker { color: var(--green-700); font-weight: 600; }
-.lms-lesson-content strong { font-weight: 700; }
-.lms-lesson-content em { font-style: italic; }
-.lms-lesson-content a { color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; }
-.lms-lesson-content a:hover { color: var(--green-800); }
-.lms-lesson-content code:not(pre code) {
-  background: var(--ink-50);
-  padding: 0.1rem 0.35rem;
-  border-radius: var(--radius-xs);
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-}
-.lms-lesson-content pre {
-  background: var(--ink-900);
-  color: var(--paper);
-  padding: 1rem;
-  border-radius: var(--radius-sm);
-  overflow-x: auto;
-  margin: 1rem 0;
-  font-family: var(--font-mono);
-}
-.lms-lesson-content blockquote {
-  border-left: 4px solid var(--green-300);
-  padding: 0.5rem 0 0.5rem 1rem;
-  color: var(--ink-500);
-  font-style: italic;
-  margin: 1rem 0;
-}
-.lms-lesson-content table {
-  border-collapse: collapse;
-  margin: 1rem 0;
-  width: 100%;
-}
-.lms-lesson-content th,
-.lms-lesson-content td {
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 0.75rem;
-  text-align: left;
-}
-.lms-lesson-content th { background: var(--color-surface-2); font-weight: 700; }
-.lms-lesson-content hr { border: none; border-top: 1px solid var(--color-border); margin: 1.5rem 0; }
-
-/* Section header bar */
-.lms-lesson-content .lms-section-h {
-  color: var(--green-700);
-  font-size: var(--t-lg);
-  font-weight: 700;
-  margin: 1.5rem 0 0.5rem;
-  border-bottom: 2px solid var(--green-200);
-  padding-bottom: 0.4rem;
-}
-
-/* Generic callout container */
-.lms-lesson-content .lms-callout {
-  border-left: 4px solid var(--callout-border, var(--green-500));
-  background: var(--callout-bg, var(--green-50));
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 16px 20px;
-  margin: 18px 0;
-  color: var(--callout-text, inherit);
-}
-.lms-lesson-content .lms-callout__title {
-  color: var(--callout-accent, var(--green-700));
-  margin: 0 0 10px;
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-.lms-lesson-content .lms-callout__body { margin: 0; }
-.lms-lesson-content .lms-callout__body > *:first-child { margin-top: 0; }
-.lms-lesson-content .lms-callout__body > *:last-child { margin-bottom: 0; }
-
-.lms-lesson-content .lms-callout--info {
-  --callout-bg: var(--color-info-soft);
-  --callout-border: var(--color-info);
-  --callout-accent: var(--color-info-fg);
-}
-.lms-lesson-content .lms-callout--concept {
-  --callout-bg: var(--color-primary-soft);
-  --callout-border: var(--green-500);
-  --callout-accent: var(--green-800);
-}
-.lms-lesson-content .lms-callout--example {
-  --callout-bg: var(--sun-50);
-  --callout-border: var(--sun-400);
-  --callout-accent: var(--sun-700);
-}
-.lms-lesson-content .lms-callout--pitfall {
-  --callout-bg: var(--coral-50);
-  --callout-border: var(--coral-500);
-  --callout-accent: var(--coral-700);
-}
-.lms-lesson-content .lms-callout--tactic {
-  --callout-bg: var(--green-50);
-  --callout-border: var(--green-600);
-  --callout-accent: var(--green-800);
-}
-.lms-lesson-content .lms-callout--recap {
-  --callout-bg: var(--ink-50);
-  --callout-border: var(--ink-300);
-  --callout-accent: var(--ink-700);
-}
-
-/* Worked example card */
-.lms-lesson-content .lms-example {
-  background: var(--sun-50);
-  border: 1px solid var(--sun-400);
-  border-radius: var(--radius-md);
-  padding: 18px 22px;
-  margin: 16px 0;
-}
-.lms-lesson-content .lms-example__label {
-  display: inline-block;
-  background: var(--sun-400);
-  color: var(--sun-700);
-  padding: 2px 10px;
-  border-radius: var(--radius-pill);
-  font-size: var(--t-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
-  font-family: var(--font-mono);
-}
-.lms-lesson-content .lms-example__problem { margin: 0 0 12px; font-size: var(--t-md); }
-.lms-lesson-content .lms-example__steps { margin: 0 0 12px; padding-left: 1.4rem; }
-.lms-lesson-content .lms-example__steps li { margin: 0.4rem 0; }
-.lms-lesson-content .lms-example__answer {
-  margin: 0;
-  padding: 10px 14px;
-  background: var(--sun-100);
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  color: var(--sun-700);
-}
-
-/* Pitfall list */
-.lms-lesson-content .lms-pitfall-list { margin: 0; padding-left: 1.4rem; }
-.lms-lesson-content .lms-pitfall-list li { margin: 0.5rem 0; }
-.lms-lesson-content .lms-pitfall-name { color: var(--coral-700); }
-
-/* Mobile responsive lesson typography */
-@media (max-width: 640px) {
-  .lms-lesson-content { font-size: clamp(0.88rem, 2.5vw, 1rem); }
-  .lms-lesson-content h1 { font-size: clamp(1.5rem, 5vw, 1.875rem); }
-  .lms-lesson-content h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
-  .lms-lesson-content h3 { font-size: clamp(1.05rem, 3.5vw, 1.25rem); }
-}

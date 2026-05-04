@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>Course Catalog — GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green-25:#f4fbef; --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e;
+    --green-300:#8fd770; --green-400:#6bc44d; --green-500:#3fb04b; --green-600:#0a8754;
+    --green-700:#07683f; --green-800:#054d2f; --green-900:#0a3d24;
+    --sun-100:#fff2b3; --sun-300:#ffe066; --sun-400:#ffd84d; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-300:#ffae9a; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-900:#0a1a10; --ink-700:#1a2a1f; --ink-500:#4d5a51; --ink-400:#6b7a70;
+    --ink-300:#9aa39d; --ink-200:#c9cec9; --ink-100:#e6e8e4; --ink-50:#f4f5f1;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --shadow-md:0 8px 24px -8px rgba(10,26,16,0.12);
+    --shadow-pop:0 4px 0 0 var(--green-700);
+    --font-sans:'Manrope',system-ui,sans-serif;
+    --font-mono:'Geist Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:var(--font-sans);background:var(--ink-50);color:var(--ink-900);-webkit-font-smoothing:antialiased}
+  body{padding:48px 0 96px}
+
+  .doc{max-width:1440px;margin:0 auto;padding:0 48px}
+  .doc-head{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;padding-bottom:28px;border-bottom:1px solid var(--ink-100);margin-bottom:48px}
+  .doc-head h1{font-size:40px;font-weight:800;letter-spacing:-0.025em;line-height:1.05;margin:0 0 10px;max-width:780px}
+  .doc-head h1 em{font-style:normal;background:var(--sun-300);padding:0 8px;border-radius:8px;display:inline-block;transform:rotate(-1deg)}
+  .doc-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green-700);margin:0 0 12px}
+  .doc-head .lede{font-size:16px;line-height:1.55;color:var(--ink-500);max-width:620px;margin:0}
+  .doc-head .meta{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.04em;line-height:1.7;text-align:right}
+  .doc-head .meta strong{display:block;font-family:var(--font-sans);font-size:13px;font-weight:700;color:var(--ink-900);text-transform:none;letter-spacing:0;margin-bottom:2px}
+
+  .section-label{display:flex;align-items:baseline;gap:16px;justify-content:space-between;border-bottom:2px solid var(--ink-900);padding-bottom:14px;margin-bottom:24px}
+  .section-label h2{font-size:24px;font-weight:800;letter-spacing:-0.02em;margin:0}
+  .section-label .num{font-family:var(--font-mono);font-size:11px;color:var(--green-700);letter-spacing:0.1em}
+  .section-label .desc{font-size:13px;color:var(--ink-500);text-align:right;max-width:440px;line-height:1.5;margin:0}
+
+  .browser{background:#fff;border-radius:18px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--ink-100);margin-bottom:64px}
+  .browser-bar{background:var(--ink-50);border-bottom:1px solid var(--ink-100);padding:10px 16px;display:flex;align-items:center;gap:10px}
+  .browser-dots{display:flex;gap:6px}
+  .browser-dot{width:11px;height:11px;border-radius:50%}
+  .browser-url{flex:1;background:#fff;border:1px solid var(--ink-100);border-radius:8px;padding:5px 12px;font-family:var(--font-mono);font-size:11px;color:var(--ink-500);max-width:520px;margin:0 auto;text-align:center}
+
+  .app{display:grid;grid-template-columns:240px 1fr;background:var(--paper);min-height:1100px}
+
+  /* Rail */
+  .rail{background:var(--ink-900);color:#fff;padding:18px 16px;display:flex;flex-direction:column;gap:6px}
+  .rail-logo{display:flex;align-items:center;gap:10px;padding:6px 8px 18px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px}
+  .rail-logo .mark{width:32px;height:32px;background:var(--green-500);border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;font-size:18px;letter-spacing:-0.03em;position:relative}
+  .rail-logo .mark::after{content:'';position:absolute;bottom:4px;right:5px;width:5px;height:5px;background:var(--sun-400);border-radius:50%}
+  .rail-logo .name{font-weight:800;font-size:15px;letter-spacing:-0.01em}
+  .rail-logo .name small{display:block;font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;margin-top:1px;font-weight:500;text-transform:uppercase}
+  .rail-section{font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;padding:14px 8px 6px}
+  .rail-item{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+  .rail-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+  .rail-item.active{background:var(--green-600);color:#fff}
+  .rail-item .badge{margin-left:auto;background:var(--coral-500);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:800;font-family:var(--font-mono)}
+  .rail-foot{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px}
+  .rail-foot .av{width:30px;height:30px;border-radius:50%;background:var(--green-400);display:grid;place-items:center;font-weight:800;color:var(--green-900);font-size:13px}
+  .rail-foot .who .nm{font-size:13px;font-weight:700;color:#fff}
+  .rail-foot .who .ml{font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--font-mono);letter-spacing:0.04em}
+
+  .main{padding:36px 40px;display:grid;grid-template-columns:240px 1fr;gap:32px;align-items:flex-start}
+
+  /* Page header */
+  .page-head{grid-column:1 / -1;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;margin-bottom:28px}
+  .page-head .crumbs{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;margin:0 0 8px}
+  .page-head .crumbs a{color:var(--green-700);text-decoration:none;font-weight:700}
+  .page-head h1{font-size:36px;font-weight:800;letter-spacing:-0.025em;margin:0 0 10px;line-height:1.05}
+  .page-head h1 em{font-style:normal;background:var(--sun-300);padding:0 8px;border-radius:8px;display:inline-block;transform:rotate(-1deg)}
+  .page-head .sub{font-size:15px;color:var(--ink-500);margin:0;line-height:1.5;max-width:540px}
+  .page-head .right{text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;line-height:1.7}
+  .page-head .right strong{display:block;font-family:var(--font-sans);font-size:24px;font-weight:800;color:var(--ink-900);text-transform:none;letter-spacing:-0.02em}
+
+  /* Search bar */
+  .search-row{grid-column:1 / -1;display:grid;grid-template-columns:1fr auto auto;gap:10px;margin-bottom:28px}
+  .search{position:relative;background:#fff;border:2px solid var(--ink-100);border-radius:14px;display:flex;align-items:center;padding:0 16px}
+  .search:focus-within{border-color:var(--green-500);box-shadow:0 0 0 4px var(--green-100)}
+  .search svg{color:var(--ink-400);flex-shrink:0}
+  .search input{flex:1;border:none;outline:none;background:transparent;padding:14px 12px;font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--ink-900)}
+  .search .kbd{font-family:var(--font-mono);font-size:10px;color:var(--ink-400);background:var(--ink-50);border:1px solid var(--ink-100);border-radius:6px;padding:3px 6px;letter-spacing:0.04em}
+  .seg{display:flex;background:#fff;border:2px solid var(--ink-100);border-radius:14px;overflow:hidden}
+  .seg button{font-family:var(--font-sans);font-size:13px;font-weight:700;padding:0 16px;border:none;background:transparent;color:var(--ink-500);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .seg button.on{background:var(--ink-900);color:#fff}
+  .seg button:not(.on):hover{background:var(--ink-50)}
+  .sort-btn{background:#fff;border:2px solid var(--ink-100);border-radius:14px;padding:0 16px;font-family:var(--font-sans);font-weight:700;font-size:13px;color:var(--ink-700);display:flex;align-items:center;gap:8px;cursor:pointer}
+  .sort-btn:hover{border-color:var(--green-300)}
+
+  /* Filters sidebar */
+  .filters{background:var(--paper-2);border:1px solid var(--ink-100);border-radius:18px;padding:20px;position:sticky;top:24px;align-self:start}
+  .filters h3{font-size:13px;font-weight:800;letter-spacing:-0.005em;margin:0 0 4px}
+  .filters .clr{font-family:var(--font-mono);font-size:11px;color:var(--coral-700);font-weight:700;cursor:pointer;text-decoration:none}
+  .filters .ftop{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--ink-100)}
+  .fgroup{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--ink-100)}
+  .fgroup:last-child{border:none;margin:0;padding:0}
+  .fgroup h4{font-family:var(--font-mono);font-size:10px;color:var(--ink-400);letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin:0 0 12px}
+  .chk{display:flex;align-items:center;gap:10px;padding:5px 0;cursor:pointer}
+  .chk input{appearance:none;width:18px;height:18px;border:2px solid var(--ink-200);border-radius:5px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;background:#fff}
+  .chk input:checked{background:var(--green-600);border-color:var(--green-600)}
+  .chk input:checked::after{content:'✓';color:#fff;font-size:12px;font-weight:800}
+  .chk label{flex:1;font-size:13px;color:var(--ink-700);cursor:pointer;font-weight:600}
+  .chk .cnt{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);font-weight:600}
+  .chk:hover label{color:var(--ink-900)}
+  .pills{display:flex;flex-wrap:wrap;gap:6px}
+  .fpill{padding:6px 11px;font-size:12px;font-weight:700;border-radius:999px;border:1.5px solid var(--ink-200);background:#fff;cursor:pointer;color:var(--ink-700)}
+  .fpill:hover{border-color:var(--green-400)}
+  .fpill.on{background:var(--green-600);border-color:var(--green-600);color:#fff}
+  .price-range{display:flex;align-items:center;gap:8px;margin-top:10px}
+  .price-range input{flex:1;width:100%}
+  .price-range .v{font-family:var(--font-mono);font-size:11px;color:var(--ink-500);letter-spacing:0.04em}
+  .slider-track{height:6px;background:var(--ink-100);border-radius:999px;position:relative;margin:14px 0 8px}
+  .slider-track i{position:absolute;left:10%;right:25%;top:0;bottom:0;background:var(--green-500);border-radius:999px}
+  .slider-track .h{position:absolute;top:50%;width:18px;height:18px;background:#fff;border:3px solid var(--green-600);border-radius:50%;transform:translate(-50%,-50%)}
+  .slider-track .h.l{left:10%}
+  .slider-track .h.r{left:75%}
+  .slider-vals{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--ink-500);letter-spacing:0.04em}
+
+  /* Active filter chips */
+  .active-chips{grid-column:1 / -1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .active-chips .lbl{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em;text-transform:uppercase;font-weight:700;margin-right:4px}
+  .achip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px 5px 14px;background:var(--green-100);color:var(--green-800);border-radius:999px;font-size:12px;font-weight:700}
+  .achip button{background:transparent;border:none;color:var(--green-700);cursor:pointer;padding:0;font-size:14px;line-height:1;font-weight:800;margin-left:2px}
+  .achip button:hover{color:var(--coral-700)}
+  .clr-all{font-family:var(--font-sans);font-size:12px;color:var(--coral-700);font-weight:700;cursor:pointer;text-decoration:underline;margin-left:4px}
+
+  /* Featured strip */
+  .featured{margin-bottom:36px}
+  .featured-card{background:linear-gradient(135deg,var(--green-700) 0%,var(--green-900) 100%);color:#fff;border-radius:24px;padding:36px 36px;display:grid;grid-template-columns:1fr 1.4fr;gap:24px;align-items:stretch;overflow:hidden;position:relative;min-height:280px}
+  .featured-card::before{content:'';position:absolute;top:-40px;right:30%;width:280px;height:280px;background:radial-gradient(circle,rgba(255,216,77,0.18),transparent 70%);pointer-events:none}
+  .featured-card .left{position:relative;display:flex;flex-direction:column;justify-content:space-between}
+  .featured-card .badge{display:inline-flex;align-items:center;gap:6px;background:var(--sun-400);color:var(--ink-900);padding:5px 11px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:0.04em;align-self:start;margin-bottom:14px}
+  .featured-card .eb{font-family:var(--font-mono);font-size:11px;color:var(--green-200);letter-spacing:0.1em;text-transform:uppercase;margin:0 0 8px;font-weight:700}
+  .featured-card h2{font-size:30px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;margin:0 0 12px}
+  .featured-card .desc{font-size:14px;color:rgba(255,255,255,0.8);margin:0;line-height:1.5;max-width:420px}
+  .featured-card .meta-row{display:flex;gap:18px;margin:18px 0 18px;flex-wrap:wrap}
+  .featured-card .meta-row .mi{display:flex;flex-direction:column}
+  .featured-card .meta-row .mi .v{font-family:var(--font-mono);font-size:18px;font-weight:800;letter-spacing:-0.02em;color:#fff}
+  .featured-card .meta-row .mi .l{font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase;font-weight:600;margin-top:2px}
+  .featured-card .actions{display:flex;gap:10px}
+  .featured-card .btn{font-family:var(--font-sans);font-weight:700;font-size:13px;padding:12px 22px;border-radius:14px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .featured-card .btn-sun{background:var(--sun-400);color:var(--ink-900);box-shadow:0 4px 0 0 var(--sun-500)}
+  .featured-card .btn-ghost{background:rgba(255,255,255,0.12);color:#fff}
+
+  .featured-card .right{position:relative;display:grid;grid-template-rows:auto 1fr;gap:14px}
+  .featured-card .lessons-prev{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px}
+  .featured-card .lessons-prev h5{font-size:11px;font-family:var(--font-mono);letter-spacing:0.08em;color:rgba(255,255,255,0.6);text-transform:uppercase;font-weight:700;margin:0 0 10px}
+  .featured-card .lp{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid rgba(255,255,255,0.08);font-size:13px}
+  .featured-card .lp:first-of-type{border:none}
+  .featured-card .lp .n{font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.4);width:18px;font-weight:700;letter-spacing:0.04em}
+  .featured-card .lp .ttl{flex:1;font-weight:600;color:rgba(255,255,255,0.95)}
+  .featured-card .lp .dur{font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:0.04em}
+
+  /* Results header */
+  .results-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+  .results-head .ttl{font-size:18px;font-weight:800;letter-spacing:-0.015em;margin:0}
+  .results-head .ttl .cnt{color:var(--green-700);font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:0.04em;margin-left:8px}
+  .results-head .ord{font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.06em}
+  .results-head .ord b{color:var(--ink-900);font-family:var(--font-sans);font-weight:700;font-size:13px;letter-spacing:0;margin-left:6px}
+
+  /* Course grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .course{background:#fff;border:2px solid var(--ink-100);border-radius:18px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;transition:transform 0.12s,box-shadow 0.12s,border-color 0.12s;position:relative}
+  .course:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--green-300)}
+  .course .cover{aspect-ratio:16/10;display:flex;align-items:flex-end;justify-content:space-between;padding:14px;color:#fff;position:relative;overflow:hidden}
+  .course .cover::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.45))}
+  .course .cover .glyph{position:absolute;top:14px;left:18px;font-size:48px;font-weight:800;font-family:var(--font-mono);color:rgba(255,255,255,0.22);letter-spacing:-0.04em;line-height:1}
+  .course .cover .badge{position:relative;background:rgba(255,255,255,0.95);color:var(--ink-900);padding:4px 10px;border-radius:999px;font-size:10px;font-weight:800;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase}
+  .course .cover .badge.coral{background:var(--coral-500);color:#fff}
+  .course .cover .badge.sun{background:var(--sun-400);color:var(--ink-900)}
+  .course .cover .lvl{position:relative;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:700}
+
+  .course .cover.algebra{background:radial-gradient(circle at 75% 25%,#3fb04b,#054d2f)}
+  .course .cover.geom{background:radial-gradient(circle at 25% 75%,#0a8754,#0a3d24)}
+  .course .cover.js{background:radial-gradient(circle at 75% 25%,#0a8754,#0a1a10)}
+  .course .cover.py{background:radial-gradient(circle at 25% 25%,#3fb04b,#0a3d24)}
+  .course .cover.spa{background:radial-gradient(circle at 75% 25%,#ff7a5c,#7a2e15)}
+  .course .cover.eng{background:radial-gradient(circle at 25% 75%,#ffd84d,#7a5500)}
+  .course .cover.bio{background:radial-gradient(circle at 75% 25%,#6bc44d,#054d2f)}
+  .course .cover.chem{background:radial-gradient(circle at 75% 25%,#ffae9a,#c33d22)}
+  .course .cover.sat{background:radial-gradient(circle at 25% 25%,#ffd84d,#7a5500)}
+
+  .course .body{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column}
+  .course .meta-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-family:var(--font-mono);font-size:10px;color:var(--ink-400);letter-spacing:0.06em;text-transform:uppercase;font-weight:700}
+  .course .meta-top .dot{width:3px;height:3px;background:var(--ink-300);border-radius:50%}
+  .course .meta-top .grade{color:var(--green-700)}
+  .course h4{font-size:16px;font-weight:800;letter-spacing:-0.015em;margin:0 0 6px;line-height:1.25;color:var(--ink-900)}
+  .course p{font-size:13px;color:var(--ink-500);margin:0 0 14px;line-height:1.45}
+  .course .auth{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .course .auth .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0}
+  .course .auth .nm{font-size:12px;color:var(--ink-700);font-weight:600}
+  .course .auth .nm small{color:var(--ink-400);font-weight:500}
+  .course .stats{display:flex;align-items:center;gap:14px;padding-top:12px;border-top:1px dashed var(--ink-100);font-family:var(--font-mono);font-size:11px;color:var(--ink-500);letter-spacing:0.04em;margin-top:auto}
+  .course .stats .si{display:flex;align-items:center;gap:5px;font-weight:600}
+  .course .stats .si svg{color:var(--ink-400)}
+  .course .stats .si.rate{color:var(--sun-700)}
+  .course .stats .si.rate svg{color:var(--sun-500)}
+  .course .price{position:absolute;bottom:18px;right:18px;font-size:14px;font-weight:800;color:var(--green-800);letter-spacing:-0.01em}
+  .course .price.free{color:var(--green-600)}
+  .course .progress-bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--ink-100)}
+  .course .progress-bar i{display:block;height:100%;background:var(--green-500)}
+
+  /* List item style */
+  .list-item{display:grid;grid-template-columns:160px 1fr 220px;gap:20px;background:#fff;border:2px solid var(--ink-100);border-radius:18px;padding:0;overflow:hidden;cursor:pointer;align-items:stretch;transition:all 0.12s}
+  .list-item:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--green-300)}
+  .list-item .cover{aspect-ratio:auto;height:100%;min-height:140px}
+  .list-item .body{padding:18px 0 18px 0;display:flex;flex-direction:column}
+
+  /* Pagination */
+  .pager{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:32px}
+  .pager button{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--ink-100);background:#fff;font-family:var(--font-mono);font-weight:700;font-size:13px;color:var(--ink-700);cursor:pointer;display:grid;place-items:center}
+  .pager button:hover{border-color:var(--green-400);color:var(--green-700)}
+  .pager button.on{background:var(--ink-900);color:#fff;border-color:var(--ink-900)}
+  .pager button.disabled{color:var(--ink-300);cursor:not-allowed}
+  .pager .gap{font-family:var(--font-mono);color:var(--ink-300);padding:0 6px}
+  .pager-info{text-align:center;margin-top:12px;font-family:var(--font-mono);font-size:11px;color:var(--ink-400);letter-spacing:0.04em}
+</style>
+</head>
+<body>
+
+<div class="doc">
+  <header class="doc-head">
+    <div>
+      <p class="eyebrow">Screen 03 · Course catalog · Lively system</p>
+      <h1>Курсы — это <em>магазин с книгами</em>, а не таблица.</h1>
+      <p class="lede">Слева — фильтры, как в e-commerce. Сверху — фичеринг (то, что школа продвигает прямо сейчас). Дальше — карточки с обложкой, автором, рейтингом и явной ценой / прогрессом. Без AI-арта, без эмодзи, без «Generic Subject Cover #4».</p>
+    </div>
+    <div class="meta">
+      <strong>Course catalog</strong>
+      desktop · 1440 · student view<br/>
+      <br/>
+      <strong>9 courses shown</strong>
+      from 47 in catalog<br/>
+      filters · sort · grid/list toggle
+    </div>
+  </header>
+
+  <div class="section-label">
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <span class="num">DESKTOP · 1440</span>
+      <h2>Browse with intent</h2>
+    </div>
+    <p class="desc">Поиск + фильтры + featured + сетка карточек. Карточка отвечает на вопросы «что это / для кого / кто ведёт / насколько хорошо / сколько стоит» с одного взгляда.</p>
+  </div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#ff6157"></div>
+        <div class="browser-dot" style="background:#ffbd2e"></div>
+        <div class="browser-dot" style="background:#28c941"></div>
+      </div>
+      <div class="browser-url">grasslms.online/catalog</div>
+    </div>
+
+    <div class="app">
+      <!-- Rail -->
+      <aside class="rail">
+        <div class="rail-logo">
+          <div class="mark">g</div>
+          <div class="name">GrassLMS<small>v1.0 · Lively</small></div>
+        </div>
+        <div class="rail-section">Learn</div>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Dashboard
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Courses
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Assignments
+          <span class="badge">3</span>
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/></svg>
+          Progress
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+          Calendar
+        </a>
+        <div class="rail-section">Discover</div>
+        <a class="rail-item active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Catalog
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          Achievements
+        </a>
+        <a class="rail-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          Leaderboard
+        </a>
+        <div class="rail-foot">
+          <div class="av">A</div>
+          <div class="who">
+            <div class="nm">Anna P.</div>
+            <div class="ml">9th · 2,840 XP</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <!-- Page header -->
+        <div class="page-head">
+          <div>
+            <p class="crumbs"><a>Home</a> · CATALOG · 47 COURSES</p>
+            <h1>Find your next <em>thing to learn</em>.</h1>
+            <p class="sub">Programmes from your school, plus self-paced electives. Mix required tracks with whatever sparks curiosity.</p>
+          </div>
+          <div class="right">
+            ENROLLED<strong>6</strong>
+            of 47 in catalog
+          </div>
+        </div>
+
+        <!-- Search row -->
+        <div class="search-row">
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input value="discriminant" placeholder="Search courses, topics, instructors..."/>
+            <span class="kbd">⌘ K</span>
+          </div>
+          <div class="seg">
+            <button class="on">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Grid
+            </button>
+            <button>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              List
+            </button>
+          </div>
+          <button class="sort-btn">
+            Most popular
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+
+        <!-- Active chips -->
+        <div class="active-chips">
+          <span class="lbl">Active</span>
+          <span class="achip">Math <button>×</button></span>
+          <span class="achip">9th grade <button>×</button></span>
+          <span class="achip">Russian <button>×</button></span>
+          <span class="achip">Beginner-friendly <button>×</button></span>
+          <span class="clr-all">Clear all</span>
+        </div>
+
+        <!-- Filters sidebar -->
+        <aside class="filters">
+          <div class="ftop">
+            <h3>Filters</h3>
+            <a class="clr">Reset</a>
+          </div>
+          <div class="fgroup">
+            <h4>Subject</h4>
+            <label class="chk"><input type="checkbox" checked/><label>Math</label><span class="cnt">12</span></label>
+            <label class="chk"><input type="checkbox"/><label>Programming</label><span class="cnt">9</span></label>
+            <label class="chk"><input type="checkbox"/><label>Languages</label><span class="cnt">8</span></label>
+            <label class="chk"><input type="checkbox"/><label>Sciences</label><span class="cnt">10</span></label>
+            <label class="chk"><input type="checkbox"/><label>Humanities</label><span class="cnt">5</span></label>
+            <label class="chk"><input type="checkbox"/><label>Test prep</label><span class="cnt">3</span></label>
+          </div>
+          <div class="fgroup">
+            <h4>Grade level</h4>
+            <div class="pills">
+              <button class="fpill">7</button>
+              <button class="fpill">8</button>
+              <button class="fpill on">9</button>
+              <button class="fpill">10</button>
+              <button class="fpill">11</button>
+              <button class="fpill">12</button>
+              <button class="fpill">All</button>
+            </div>
+          </div>
+          <div class="fgroup">
+            <h4>Difficulty</h4>
+            <label class="chk"><input type="checkbox" checked/><label>Beginner</label><span class="cnt">18</span></label>
+            <label class="chk"><input type="checkbox"/><label>Intermediate</label><span class="cnt">21</span></label>
+            <label class="chk"><input type="checkbox"/><label>Advanced</label><span class="cnt">8</span></label>
+          </div>
+          <div class="fgroup">
+            <h4>Language</h4>
+            <label class="chk"><input type="checkbox" checked/><label>Russian</label><span class="cnt">32</span></label>
+            <label class="chk"><input type="checkbox"/><label>English</label><span class="cnt">12</span></label>
+            <label class="chk"><input type="checkbox"/><label>Spanish</label><span class="cnt">3</span></label>
+          </div>
+          <div class="fgroup">
+            <h4>Format</h4>
+            <label class="chk"><input type="checkbox"/><label>Self-paced</label><span class="cnt">28</span></label>
+            <label class="chk"><input type="checkbox"/><label>Cohort-based</label><span class="cnt">14</span></label>
+            <label class="chk"><input type="checkbox"/><label>Live classes</label><span class="cnt">5</span></label>
+          </div>
+          <div class="fgroup">
+            <h4>Price</h4>
+            <div class="slider-track">
+              <i></i>
+              <span class="h l"></span>
+              <span class="h r"></span>
+            </div>
+            <div class="slider-vals">
+              <span>$0</span>
+              <span>$200+</span>
+            </div>
+          </div>
+          <div class="fgroup">
+            <h4>Duration</h4>
+            <label class="chk"><input type="checkbox"/><label>Under 2 hrs</label><span class="cnt">7</span></label>
+            <label class="chk"><input type="checkbox"/><label>2–10 hrs</label><span class="cnt">19</span></label>
+            <label class="chk"><input type="checkbox"/><label>10–30 hrs</label><span class="cnt">15</span></label>
+            <label class="chk"><input type="checkbox"/><label>30+ hrs</label><span class="cnt">6</span></label>
+          </div>
+        </aside>
+
+        <!-- Results column -->
+        <section>
+          <!-- Featured -->
+          <div class="featured">
+            <div class="featured-card">
+              <div class="left">
+                <div>
+                  <span class="badge">★ FEATURED THIS WEEK</span>
+                  <p class="eb">SAT prep · 9 lessons · cohort starts may 5</p>
+                  <h2>SAT Math · the no-panic edition</h2>
+                  <p class="desc">Девять разборов реальных задач, две практик-сессии в неделю с тренером и доступ к Sprout AI для ночных тупиков. Подойдёт, если ты в SAT первый раз и не знаешь, с чего вообще начинать.</p>
+                </div>
+                <div class="meta-row">
+                  <div class="mi"><span class="v">9 weeks</span><span class="l">duration</span></div>
+                  <div class="mi"><span class="v">$149</span><span class="l">cohort fee</span></div>
+                  <div class="mi"><span class="v">4.9 ★</span><span class="l">426 reviews</span></div>
+                  <div class="mi"><span class="v">216</span><span class="l">enrolled</span></div>
+                </div>
+                <div class="actions">
+                  <button class="btn btn-sun">Join cohort →</button>
+                  <button class="btn btn-ghost">Preview lesson 1</button>
+                </div>
+              </div>
+              <div class="right">
+                <div class="lessons-prev">
+                  <h5>What's inside · 9 lessons</h5>
+                  <div class="lp"><span class="n">01</span><span class="ttl">Reading the question (and not falling for traps)</span><span class="dur">14 min</span></div>
+                  <div class="lp"><span class="n">02</span><span class="ttl">Algebra refresher: the 6 patterns that actually appear</span><span class="dur">22 min</span></div>
+                  <div class="lp"><span class="n">03</span><span class="ttl">Geometry without panic — angles, circles, similarity</span><span class="dur">18 min</span></div>
+                  <div class="lp"><span class="n">04</span><span class="ttl">Statistics: mean, median, and the 2 charts they love</span><span class="dur">16 min</span></div>
+                  <div class="lp"><span class="n">05</span><span class="ttl">Word problems: extracting equations from English</span><span class="dur">20 min</span></div>
+                  <div class="lp"><span class="n">06</span><span class="ttl">Functions and tables — when to plug in numbers</span><span class="dur">15 min</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Results header -->
+          <div class="results-head">
+            <h3 class="ttl">Math courses<span class="cnt">12 results</span></h3>
+            <span class="ord">Sorted by<b>Most popular</b></span>
+          </div>
+
+          <!-- Course grid -->
+          <div class="grid">
+
+            <article class="course">
+              <div class="cover algebra">
+                <span class="glyph">x²</span>
+                <span class="badge sun">★ Top rated</span>
+                <span class="lvl">9th · Beginner</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">ALGEBRA</span>
+                  <span class="dot"></span>
+                  <span>14 lessons</span>
+                  <span class="dot"></span>
+                  <span>3.5h</span>
+                </div>
+                <h4>Quadratic equations · the discriminant way</h4>
+                <p>From basic factoring to the full formula. With visual proofs and 60+ practice problems.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--green-600)">M</div>
+                  <span class="nm">Maria Volkova<br/><small>Lyceum 1535 · Math dept.</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.9 (218)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 1,420</span>
+                </div>
+                <div class="price free">Free</div>
+              </div>
+              <div class="progress-bar"><i style="width:32%"></i></div>
+            </article>
+
+            <article class="course">
+              <div class="cover geom">
+                <span class="glyph">△</span>
+                <span class="badge">ENROLLED</span>
+                <span class="lvl">9th · Intermediate</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">GEOMETRY</span>
+                  <span class="dot"></span>
+                  <span>22 lessons</span>
+                  <span class="dot"></span>
+                  <span>6h</span>
+                </div>
+                <h4>Triangles, circles & the things they hide</h4>
+                <p>Similar triangles, inscribed angles, and the geometry that quietly runs SAT and Olympiad problems.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--coral-500)">D</div>
+                  <span class="nm">Dmitry Petrov<br/><small>School 57 · Math methodist</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.8 (94)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 612</span>
+                </div>
+                <div class="price free">Enrolled</div>
+              </div>
+              <div class="progress-bar"><i style="width:78%"></i></div>
+            </article>
+
+            <article class="course">
+              <div class="cover sat">
+                <span class="glyph" style="color:rgba(0,0,0,0.22)">SAT</span>
+                <span class="badge coral">DUE TOMORROW</span>
+                <span class="lvl" style="color:rgba(0,0,0,0.7)">Test prep · Hard</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">TEST PREP</span>
+                  <span class="dot"></span>
+                  <span>9 weeks · cohort</span>
+                </div>
+                <h4>SAT Math · the no-panic edition</h4>
+                <p>Featured cohort. Live problem-solving sessions twice a week with Sprout AI on standby.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--sun-500);color:var(--sun-700)">A</div>
+                  <span class="nm">Alex K. + 2 coaches<br/><small>Cohort starts May 5</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.9 (426)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 216 / 280</span>
+                </div>
+                <div class="price">$149</div>
+              </div>
+            </article>
+
+            <article class="course">
+              <div class="cover js">
+                <span class="glyph">JS</span>
+                <span class="badge">IN PROGRESS</span>
+                <span class="lvl">All grades · Beginner</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">PROGRAMMING</span>
+                  <span class="dot"></span>
+                  <span>28 lessons</span>
+                  <span class="dot"></span>
+                  <span>8h</span>
+                </div>
+                <h4>JavaScript Basics · functions to fetch</h4>
+                <p>Self-paced. From your first <code style="font-family:var(--font-mono);font-size:11px;color:var(--green-700)">console.log</code> to building a small fetch app.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--ink-700)">J</div>
+                  <span class="nm">Jacek Nowak<br/><small>Independent · Krakow</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.7 (153)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 890</span>
+                </div>
+                <div class="price">$29</div>
+              </div>
+              <div class="progress-bar"><i style="width:48%"></i></div>
+            </article>
+
+            <article class="course">
+              <div class="cover py">
+                <span class="glyph">Py</span>
+                <span class="lvl">All grades · Beginner</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">PROGRAMMING</span>
+                  <span class="dot"></span>
+                  <span>32 lessons</span>
+                  <span class="dot"></span>
+                  <span>10h</span>
+                </div>
+                <h4>Python for everyone · data &amp; logic</h4>
+                <p>Print, lists, loops, dicts, files. Practical project at the end: parse a CSV and chart it.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--green-700)">L</div>
+                  <span class="nm">Lena Morozova<br/><small>HSE · CS dept.</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.8 (321)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 1,840</span>
+                </div>
+                <div class="price free">Free</div>
+              </div>
+            </article>
+
+            <article class="course">
+              <div class="cover spa">
+                <span class="glyph">¡!</span>
+                <span class="badge">ENROLLED</span>
+                <span class="lvl">Elective · A2</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">LANGUAGE</span>
+                  <span class="dot"></span>
+                  <span>40 lessons</span>
+                  <span class="dot"></span>
+                  <span>14h</span>
+                </div>
+                <h4>Spanish A2 · everyday Spain</h4>
+                <p>Conversational Spanish for travel and chats. Family, food, directions, small talk that actually works.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--coral-500)">C</div>
+                  <span class="nm">Carmen Ruiz<br/><small>Native · Madrid</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.9 (180)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 540</span>
+                </div>
+                <div class="price">$59</div>
+              </div>
+              <div class="progress-bar"><i style="width:12%"></i></div>
+            </article>
+
+            <article class="course">
+              <div class="cover bio">
+                <span class="glyph">∽</span>
+                <span class="lvl">9-10th · Intermediate</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">SCIENCE</span>
+                  <span class="dot"></span>
+                  <span>18 lessons</span>
+                  <span class="dot"></span>
+                  <span>5h</span>
+                </div>
+                <h4>Genetics · from peas to genomes</h4>
+                <p>Mendelian genetics, then DNA, then where current research is going. Visual, hands-on, no jargon walls.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--green-500)">N</div>
+                  <span class="nm">Nataliya Iv.<br/><small>Lyceum 1535 · Bio dept.</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.7 (88)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 320</span>
+                </div>
+                <div class="price free">Free</div>
+              </div>
+            </article>
+
+            <article class="course">
+              <div class="cover chem">
+                <span class="glyph">⚗</span>
+                <span class="lvl">10-11th · Advanced</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">SCIENCE</span>
+                  <span class="dot"></span>
+                  <span>24 lessons</span>
+                  <span class="dot"></span>
+                  <span>7h</span>
+                </div>
+                <h4>Organic chemistry · the friendly intro</h4>
+                <p>Carbon's rules, functional groups, reactions you can actually predict. No memorisation marathons.</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--coral-700)">T</div>
+                  <span class="nm">Tamara Beck<br/><small>School 179 · Chem</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 4.6 (42)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 156</span>
+                </div>
+                <div class="price">$39</div>
+              </div>
+            </article>
+
+            <article class="course">
+              <div class="cover eng">
+                <span class="glyph" style="color:rgba(0,0,0,0.2)">A</span>
+                <span class="badge sun">NEW</span>
+                <span class="lvl" style="color:rgba(0,0,0,0.7)">Elective · B1</span>
+              </div>
+              <div class="body">
+                <div class="meta-top">
+                  <span class="grade">LANGUAGE</span>
+                  <span class="dot"></span>
+                  <span>30 lessons</span>
+                  <span class="dot"></span>
+                  <span>11h</span>
+                </div>
+                <h4>English B1 · writing that doesn't sound translated</h4>
+                <p>Письма, эссе, посты. Учимся писать так, чтобы читалось как «английский», а не как «русский с английскими словами».</p>
+                <div class="auth">
+                  <div class="av" style="background:var(--ink-700)">P</div>
+                  <span class="nm">Pavel S.<br/><small>Cambridge CELTA · 8 yrs</small></span>
+                </div>
+                <div class="stats">
+                  <span class="si rate"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> 5.0 (12)</span>
+                  <span class="si"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> 48</span>
+                </div>
+                <div class="price">$45</div>
+              </div>
+            </article>
+
+          </div>
+
+          <!-- Pagination -->
+          <div class="pager">
+            <button class="disabled">←</button>
+            <button class="on">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <span class="gap">…</span>
+            <button>9</button>
+            <button>→</button>
+          </div>
+          <div class="pager-info">Showing 1–9 of 47 · Page 1 of 9</div>
+
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Reasoning -->
+  <div class="section-label" style="margin-top:32px">
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <span class="num">DESIGN NOTES</span>
+      <h2>Что заложено и почему</h2>
+    </div>
+    <p class="desc"></p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">01 · E-comm логика</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Фильтры слева, сетка справа</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Знакомый паттерн как в Amazon/Booking. Чекбоксы со счётчиками, диапазон цены, сегмент grid/list. Нулевая когнитивная нагрузка для студента.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">02 · Featured ≠ реклама</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Школа продвигает то, что важно сейчас</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Heroпол с превью 6 уроков. Видишь не «купи курс», а «вот что внутри» и «у нас есть тренер». Доверие выше.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">03 · Узнаваемые обложки</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Глиф + radial-градиент</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">x², △, JS, Py, ¡!, ⚗ — большой моно-глиф на цветном фоне. Узнаваемо, без AI-арта, без эмодзи, бесконечно масштабируется.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">04 · Карточка отвечает</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Что · кто · сколько · насколько</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Описание + автор с регалиями + рейтинг + кол-во студентов + цена/прогресс. Всё, что нужно для решения «нажать или нет».</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">05 · Состояние = бэйдж</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Enrolled / In progress / Due</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Полоска прогресса внизу карточки + бэйдж в обложке. Студент видит «своё» сразу, не нужен отдельный фильтр.</p>
+    </div>
+    <div style="background:var(--paper-2); border:1px solid var(--ink-100); border-radius:14px; padding:18px">
+      <div style="font-family:var(--font-mono); font-size:10px; color:var(--green-700); letter-spacing:0.08em; text-transform:uppercase; font-weight:700; margin-bottom:6px">06 · Active chips</div>
+      <h4 style="font-size:14px;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em">Видно, что отфильтровано</h4>
+      <p style="margin:0;font-size:13px;color:var(--ink-500);line-height:1.5">Активные фильтры — чипсами вверху. Снять можно одним кликом, без копаний в сайдбаре. Сильно недооценённый паттерн.</p>
+    </div>
+  </div>
+
+  <footer style="margin-top:48px; padding-top:24px; border-top:1px solid var(--ink-100); display:flex; justify-content:space-between; align-items:baseline; font-family:var(--font-mono); font-size:11px; color:var(--ink-400); letter-spacing:0.06em">
+    <span>GRASSLMS · COURSE CATALOG · LIVELY · v1</span>
+    <span>Next: Course builder → Admin → Speaker deck</span>
+  </footer>
+</div>
+
+</body>
+</html>
