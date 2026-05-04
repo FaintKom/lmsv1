@@ -18,7 +18,10 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        # pgvector/pgvector:pg16 = postgres:16 + vector extension. Drop-in
+        # replacement so the knowledge module's CREATE TABLE ... VECTOR(...)
+        # works in CI (matches prod's pgvector/pgvector:pg16 image).
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: lms
           POSTGRES_PASSWORD: lms_ci_password

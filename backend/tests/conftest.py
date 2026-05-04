@@ -86,6 +86,10 @@ async def db():
 
     if not _tables_created:
         async with engine.begin() as conn:
+            # pgvector extension required for knowledge_entries.embedding (VECTOR(1024)).
+            # CI uses pgvector/pgvector:pg16; this is a no-op when already installed.
+            from sqlalchemy import text as _text
+            await conn.execute(_text("CREATE EXTENSION IF NOT EXISTS vector"))
             await conn.run_sync(Base.metadata.create_all)
         _tables_created = True
 
