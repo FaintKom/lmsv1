@@ -16,38 +16,38 @@ import { DEFAULT_LOCALE, LOCALES, translations } from "./translations";
  */
 
 describe("translations", () => {
-  it("declares a default locale that exists in the map", () => {
-    expect(translations).toHaveProperty(DEFAULT_LOCALE);
-  });
+ it("declares a default locale that exists in the map", () => {
+ expect(translations).toHaveProperty(DEFAULT_LOCALE);
+ });
 
-  it("advertises the same locales in LOCALES as in translations", () => {
-    const declared = new Set(LOCALES.map((l) => l.code));
-    const available = new Set(Object.keys(translations));
-    expect(declared).toEqual(available);
-  });
+ it("advertises the same locales in LOCALES as in translations", () => {
+ const declared = new Set(LOCALES.map((l) => l.code));
+ const available = new Set(Object.keys(translations));
+ expect(declared).toEqual(available);
+ });
 
-  it("has the same keys in en and ru (P0-13 parity)", () => {
-    const en = new Set(Object.keys(translations.en));
-    const ru = new Set(Object.keys(translations.ru));
+ it("has the same keys in en and ru (P0-13 parity)", () => {
+ const en = new Set(Object.keys(translations.en));
+ const ru = new Set(Object.keys(translations.ru));
 
-    const missingFromRu = [...en].filter((k) => !ru.has(k));
-    const extraInRu = [...ru].filter((k) => !en.has(k));
+ const missingFromRu = [...en].filter((k) => !ru.has(k));
+ const extraInRu = [...ru].filter((k) => !en.has(k));
 
-    expect(missingFromRu).toEqual([]);
-    expect(extraInRu).toEqual([]);
-  });
+ expect(missingFromRu).toEqual([]);
+ expect(extraInRu).toEqual([]);
+ });
 
-  it("has no empty-string values in en (missing translation)", () => {
-    const empty = Object.entries(translations.en)
-      .filter(([, v]) => !v || v.trim() === "")
-      .map(([k]) => k);
-    expect(empty).toEqual([]);
-  });
+ it("has no empty-string values in en (missing translation)", () => {
+ const empty = Object.entries(translations.en)
+ .filter(([, v]) => !v || v.trim() === "")
+ .map(([k]) => k);
+ expect(empty).toEqual([]);
+ });
 
-  it("has no empty-string values in ru", () => {
-    const empty = Object.entries(translations.ru)
-      .filter(([, v]) => !v || v.trim() === "")
-      .map(([k]) => k);
-    expect(empty).toEqual([]);
-  });
+ it("has no empty-string values in ru", () => {
+ const empty = Object.entries(translations.ru)
+ .filter(([, v]) => !v || v.trim() === "")
+ .map(([k]) => k);
+ expect(empty).toEqual([]);
+ });
 });

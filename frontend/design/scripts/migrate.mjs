@@ -53,9 +53,7 @@ const REPLACES_COLORS = [
   // Backgrounds
   [/\bbg-white\b/g, "bg-paper-2"],
   [/\bbg-black\b/g, "bg-ink-900"],
-  [/\bbg-gray-50\b/g, "bg-surface-2"],
-  [/\bbg-gray-100\b/g, "bg-ink-100"],
-  [/\bbg-gray-200\b/g, "bg-ink-200"],
+  [/\bbg-(?:gray|zinc|slate)-200\b/g, "bg-ink-200"],
   [/\bbg-(?:gray|zinc|slate)-900\b/g, "bg-ink-900"],
   [/\bbg-(?:gray|zinc|slate)-800\b/g, "bg-ink-700"],
   [/\bbg-(?:gray|zinc|slate)-700\b/g, "bg-ink-700"],
@@ -153,13 +151,25 @@ const REPLACES_COLORS = [
   [/\bborder-orange-\d+\b/g, "border-coral-500"],
 
   // Hover/focus/active variants
-  [/\b(hover|focus|active|focus-visible|group-hover):bg-(?:green|emerald)-(?:500|600)\b/g, "$1:bg-primary-hover"],
+  [/\b(hover|focus|active|focus-visible|group-hover):bg-(?:green|emerald)-(?:500|600|700)\b/g, "$1:bg-primary-hover"],
   [/\b(hover|focus|active):bg-(?:green|emerald)-(?:50|100)\b/g, "$1:bg-primary-soft"],
   [/\b(hover|focus|active):bg-(?:gray|zinc|slate)-50\b/g, "$1:bg-surface-2"],
   [/\b(hover|focus|active):bg-(?:gray|zinc|slate)-100\b/g, "$1:bg-ink-100"],
   [/\b(hover|focus|active):bg-(?:red|rose)-(?:500|600|700)\b/g, "$1:bg-danger"],
+  [/\b(hover|focus|active):text-(?:green|emerald)-(?:500|600|700)\b/g, "$1:text-primary"],
+  [/\b(hover|focus|active):border-(?:green|emerald)-(?:300|400|500|600)\b/g, "$1:border-primary"],
 
+  // Placeholder color (dash form, not colon)
+  [/\bplaceholder-(?:gray|zinc|slate)-(?:300|400)\b/g, "placeholder-ink-300"],
   [/\bplaceholder:text-(?:gray|zinc|slate)-(?:300|400)\b/g, "placeholder:text-ink-300"],
+
+  // Focus ring with opacity modifier
+  [/\bfocus:ring-(?:green|emerald)-400\/\d+\b/g, "focus:ring-primary-soft"],
+  [/\bring-(?:green|emerald)-(?:50|100)\b/g, "ring-primary-soft"],
+
+  // Shadow color utilities
+  [/\bshadow-(?:green|emerald)-(?:200|300)\b/g, "shadow-primary-soft"],
+  [/\bshadow-(?:red|rose)-(?:200|300)\b/g, "shadow-danger-soft"],
 ];
 
 const REPLACES_RADII = [
