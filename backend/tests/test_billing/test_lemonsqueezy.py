@@ -13,9 +13,6 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
-import uuid
-from datetime import datetime, timezone
 from unittest.mock import patch
 
 import pytest
@@ -23,13 +20,8 @@ import pytest
 from app.billing import lemonsqueezy as ls
 from app.billing import ls_service
 from app.billing.models import (
-    BillingProvider,
-    Invoice,
-    InvoiceStatus,
-    Subscription,
     SubscriptionStatus,
 )
-
 
 # ------------------------------------------------------------------------
 # signature verification

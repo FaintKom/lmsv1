@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 
 import httpx
-from sqlalchemy import and_, or_, select, text
+from sqlalchemy import and_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
