@@ -1,103 +1,373 @@
+/* =================================================================
+ GrassLMS — Lively · v1.0.0 · 2026-05-04
+ Token layer is sourced from frontend/design/tokens.css.
+ When tokens.css changes, copy the :root + @theme blocks into this
+ file (or run the design-export sync). Light only.
+ ================================================================= */
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #22c55e;
-  --primary-dark: #16a34a;
-  --primary-light: #dcfce7;
-  --accent: #4ade80;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
+ /* ---- BRAND GREEN (the hero) -------------------------- */
+ --green-25: #f4fbef;
+ --green-50: #ecf9e7;
+ --green-100: #d4f1c4;
+ --green-200: #b6e69e;
+ --green-300: #8fd770;
+ --green-400: #6bc44d;
+ --green-500: #3fb04b;
+ --green-600: #0a8754;
+ --green-700: #07683f;
+ --green-800: #054d2f;
+ --green-900: #0a3d24;
+
+ /* ---- SECONDARY accents ------------------------------- */
+ --sun-50: #fffbe5;
+ --sun-100: #fff2b3;
+ --sun-300: #ffe066;
+ --sun-400: #ffd84d;
+ --sun-500: #f5b800;
+ --sun-700: #7a5500;
+
+ --coral-50: #fff0eb;
+ --coral-300: #ffae9a;
+ --coral-500: #ff7a5c;
+ --coral-700: #c33d22;
+
+ /* ---- NEUTRALS — warm, never pure --------------------- */
+ --ink-50: #f4f5f1;
+ --ink-100: #e6e8e4;
+ --ink-200: #c9cec9;
+ --ink-300: #9aa39d;
+ --ink-400: #6b7a70;
+ --ink-500: #4d5a51;
+ --ink-700: #1a2a1f;
+ --ink-900: #0a1a10;
+
+ --paper: #fafbf6;
+ --paper-2: #ffffff;
+
+ --info: #2b91ff;
+
+ /* ---- SEMANTIC aliases (use these in components) ------ */
+ --color-bg: var(--paper);
+ --color-surface: var(--paper-2);
+ --color-surface-2: var(--ink-50);
+
+ --color-text: var(--ink-900);
+ --color-text-muted: var(--ink-500);
+ --color-text-subtle: var(--ink-400);
+ --color-text-inverse: #ffffff;
+
+ --color-border: var(--ink-100);
+ --color-border-strong: var(--ink-200);
+ --color-border-focus: var(--green-500);
+
+ --color-primary: var(--green-600);
+ --color-primary-hover: var(--green-700);
+ --color-primary-soft: var(--green-100);
+ --color-primary-fg: #ffffff;
+
+ --color-success: var(--green-600);
+ --color-success-soft: var(--green-50);
+ --color-success-fg: var(--green-800);
+
+ --color-warning: var(--sun-500);
+ --color-warning-soft: var(--sun-50);
+ --color-warning-fg: var(--sun-700);
+
+ --color-danger: var(--coral-500);
+ --color-danger-soft: var(--coral-50);
+ --color-danger-fg: var(--coral-700);
+
+ --color-info: var(--info);
+ --color-info-soft: #e6f2ff;
+ --color-info-fg: #0a3a7a;
+
+ /* ---- ELEVATION --------------------------------------- */
+ --shadow-xs: 0 1px 2px rgba(10, 26, 16, 0.05);
+ --shadow-sm: 0 2px 6px -1px rgba(10, 26, 16, 0.07);
+ --shadow-md: 0 8px 24px -8px rgba(10, 26, 16, 0.12);
+ --shadow-lg: 0 18px 50px -20px rgba(10, 26, 16, 0.18);
+ --shadow-pop: 0 4px 0 0 var(--green-700);
+ --shadow-pop-coral: 0 4px 0 0 var(--coral-700);
+ --shadow-pop-sun: 0 4px 0 0 var(--sun-500);
+ --shadow-pop-ink: 0 4px 0 0 var(--ink-700);
+
+ /* ---- RADII ------------------------------------------- */
+ --radius-xs: 6px;
+ --radius-sm: 10px;
+ --radius-md: 14px;
+ --radius-lg: 18px;
+ --radius-xl: 24px;
+ --radius-pill: 999px;
+
+ /* ---- SPACING (4px base) ------------------------------ */
+ --s-1: 4px;
+ --s-2: 8px;
+ --s-3: 12px;
+ --s-4: 16px;
+ --s-5: 20px;
+ --s-6: 24px;
+ --s-8: 32px;
+ --s-10: 40px;
+ --s-12: 48px;
+ --s-16: 64px;
+ --s-20: 80px;
+
+ /* ---- TYPOGRAPHY -------------------------------------- */
+ --font-sans: var(--font-manrope), 'Manrope', system-ui, -apple-system, sans-serif;
+ --font-mono: var(--font-geist-mono), 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+ --t-xs: 12px;
+ --t-sm: 13px;
+ --t-base: 15px;
+ --t-md: 17px;
+ --t-lg: 20px;
+ --t-xl: 24px;
+ --t-2xl: 32px;
+ --t-3xl: 44px;
+ --t-4xl: 60px;
+ --t-5xl: 80px;
+
+ /* ---- MOTION ------------------------------------------ */
+ --motion-fast: 120ms;
+ --motion-base: 200ms;
+ --motion-slow: 400ms;
+ --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+ --font-sans: var(--font-sans);
+ --font-mono: var(--font-mono);
+
+ /* full color scale — for design-system pages, charts, illustrations */
+ --color-green-25: var(--green-25);
+ --color-green-50: var(--green-50);
+ --color-green-100: var(--green-100);
+ --color-green-200: var(--green-200);
+ --color-green-300: var(--green-300);
+ --color-green-400: var(--green-400);
+ --color-green-500: var(--green-500);
+ --color-green-600: var(--green-600);
+ --color-green-700: var(--green-700);
+ --color-green-800: var(--green-800);
+ --color-green-900: var(--green-900);
+
+ --color-sun-50: var(--sun-50);
+ --color-sun-100: var(--sun-100);
+ --color-sun-300: var(--sun-300);
+ --color-sun-400: var(--sun-400);
+ --color-sun-500: var(--sun-500);
+ --color-sun-700: var(--sun-700);
+
+ --color-coral-50: var(--coral-50);
+ --color-coral-300: var(--coral-300);
+ --color-coral-500: var(--coral-500);
+ --color-coral-700: var(--coral-700);
+
+ --color-ink-50: var(--ink-50);
+ --color-ink-100: var(--ink-100);
+ --color-ink-200: var(--ink-200);
+ --color-ink-300: var(--ink-300);
+ --color-ink-400: var(--ink-400);
+ --color-ink-500: var(--ink-500);
+ --color-ink-700: var(--ink-700);
+ --color-ink-900: var(--ink-900);
+
+ --color-paper: var(--paper);
+ --color-paper-2: var(--paper-2);
+
+ /* semantic — preferred in components */
+ --color-bg: var(--color-bg);
+ --color-surface: var(--color-surface);
+ --color-surface-2: var(--color-surface-2);
+ --color-text: var(--color-text);
+ --color-text-muted: var(--color-text-muted);
+ --color-text-subtle: var(--color-text-subtle);
+ --color-text-inverse: var(--color-text-inverse);
+ --color-border: var(--color-border);
+ --color-border-strong: var(--color-border-strong);
+ --color-border-focus: var(--color-border-focus);
+ --color-primary: var(--color-primary);
+ --color-primary-hover: var(--color-primary-hover);
+ --color-primary-soft: var(--color-primary-soft);
+ --color-primary-fg: var(--color-primary-fg);
+ --color-success: var(--color-success);
+ --color-success-soft: var(--color-success-soft);
+ --color-success-fg: var(--color-success-fg);
+ --color-warning: var(--color-warning);
+ --color-warning-soft: var(--color-warning-soft);
+ --color-warning-fg: var(--color-warning-fg);
+ --color-danger: var(--color-danger);
+ --color-danger-soft: var(--color-danger-soft);
+ --color-danger-fg: var(--color-danger-fg);
+ --color-info: var(--color-info);
+ --color-info-soft: var(--color-info-soft);
+ --color-info-fg: var(--color-info-fg);
+
+ --radius-xs: var(--radius-xs);
+ --radius-sm: var(--radius-sm);
+ --radius-md: var(--radius-md);
+ --radius-lg: var(--radius-lg);
+ --radius-xl: var(--radius-xl);
+ --radius-pill: var(--radius-pill);
+
+ --spacing-1: var(--s-1);
+ --spacing-2: var(--s-2);
+ --spacing-3: var(--s-3);
+ --spacing-4: var(--s-4);
+ --spacing-5: var(--s-5);
+ --spacing-6: var(--s-6);
+ --spacing-8: var(--s-8);
+ --spacing-10: var(--s-10);
+ --spacing-12: var(--s-12);
+ --spacing-16: var(--s-16);
+ --spacing-20: var(--s-20);
+
+ --shadow-xs: var(--shadow-xs);
+ --shadow-sm: var(--shadow-sm);
+ --shadow-md: var(--shadow-md);
+ --shadow-lg: var(--shadow-lg);
+ --shadow-pop: var(--shadow-pop);
+ --shadow-pop-coral: var(--shadow-pop-coral);
+ --shadow-pop-sun: var(--shadow-pop-sun);
+ --shadow-pop-ink: var(--shadow-pop-ink);
+
+ --text-xs: var(--t-xs);
+ --text-sm: var(--t-sm);
+ --text-base: var(--t-base);
+ --text-md: var(--t-md);
+ --text-lg: var(--t-lg);
+ --text-xl: var(--t-xl);
+ --text-2xl: var(--t-2xl);
+ --text-3xl: var(--t-3xl);
+ --text-4xl: var(--t-4xl);
+ --text-5xl: var(--t-5xl);
 }
+
+/* =================================================================
+ Base styles
+ ================================================================= */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
+ font-family: var(--font-sans);
+ background: var(--color-bg);
+ color: var(--color-text);
+ -webkit-font-smoothing: antialiased;
+ text-rendering: optimizeLegibility;
+ font-feature-settings: 'ss01';
+ line-height: 1.6;
 }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+button { font-family: inherit; }
+
+:focus-visible {
+ outline: 2px solid var(--color-border-focus);
+ outline-offset: 2px;
+ border-radius: 6px;
 }
 
-/* Dark theme */
-.dark {
-  --background: #1E1E1E;
-  --foreground: #E0E0E0;
-  --primary: #4ade80;
-  --primary-dark: #86efac;
-  --primary-light: #14532d;
-  --accent: #86efac;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --error: #f87171;
-}
-
-/* Selection */
-::selection {
-  background: #bbf7d0;
-  color: #312e81;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #4b5563;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-.dark ::selection {
-  background: #4338ca;
-  color: #e0e7ff;
-}
-
-/* Accessibility: respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+ *, *::before, *::after {
+ animation-duration: 0.01ms !important;
+ transition-duration: 0.01ms !important;
+ scroll-behavior: auto !important;
+ }
 }
 
-/* Lesson content typography. Tailwind preflight strips all default
-   list markers, heading sizes, and spacing. Lesson HTML is authored
-   in plain HTML by methodists/the AI, so we restore sensible defaults
-   ONLY inside .lms-lesson-content (not globally) so the rest of the
-   app's design system isn't affected. */
-.lms-lesson-content {
-  color: inherit;
-  line-height: 1.7;
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+ background: var(--ink-200);
+ border-radius: 999px;
+ border: 2px solid var(--color-bg);
 }
-.lms-lesson-content h1 { font-size: 1.875rem; font-weight: 800; margin: 1.5rem 0 0.75rem; }
-.lms-lesson-content h2 { font-size: 1.5rem;   font-weight: 700; margin: 1.25rem 0 0.6rem; }
-.lms-lesson-content h3 { font-size: 1.25rem;  font-weight: 700; margin: 1rem 0 0.5rem; }
-.lms-lesson-content h4 { font-size: 1.1rem;   font-weight: 700; margin: 0.875rem 0 0.4rem; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-300); }
+
+::selection { background: var(--sun-300); color: var(--ink-900); }
+
+.font-mono { font-family: var(--font-mono); }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* =================================================================
+   Button physics — signature shadow-pop with translate state machine.
+   ================================================================= */
+.btn-pop {
+  --pop: var(--green-700);
+  box-shadow: 0 4px 0 0 var(--pop);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+}
+.btn-pop:hover:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--pop);
+}
+.btn-pop:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 var(--pop);
+}
+.btn-pop:disabled {
+  opacity: 0.4;
+  transform: none !important;
+  cursor: not-allowed;
+}
+.btn-pop--coral { --pop: var(--coral-700); }
+.btn-pop--sun   { --pop: var(--sun-500); }
+.btn-pop--ink   { --pop: var(--ink-700); }
+.btn-pop--secondary { --pop: var(--ink-100); }
+
+/* Skeleton shimmer */
+@keyframes lms-skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.lms-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ink-100) 0%,
+    var(--ink-50) 50%,
+    var(--ink-100) 100%
+  );
+  background-size: 200% 100%;
+  animation: lms-skeleton-shimmer 1.5s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Sun marker — typographic accent on hero headings */
+.sun-mark {
+  background: var(--sun-300);
+  color: var(--ink-900);
+  padding: 0 8px;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+  transform: rotate(-1deg);
+  font-style: normal;
+}
+
+@media (hover: none) and (pointer: coarse) {
+ button, a, [role="button"], input, select, textarea {
+ touch-action: manipulation;
+ }
+}
+
+/* =================================================================
+ Lesson content typography — authored HTML by methodists.
+ Tailwind preflight strips defaults; restore them ONLY inside
+ .lms-lesson-content so the design system isn't affected.
+ Tokenized in v1 — colors from CSS vars, never raw hex.
+ ================================================================= */
+.lms-lesson-content {
+ color: inherit;
+ line-height: 1.7;
+}
+.lms-lesson-content h1 { font-size: var(--t-3xl); font-weight: 800; margin: 1.5rem 0 0.75rem; }
+.lms-lesson-content h2 { font-size: var(--t-2xl); font-weight: 700; margin: 1.25rem 0 0.6rem; }
+.lms-lesson-content h3 { font-size: var(--t-xl); font-weight: 700; margin: 1rem 0 0.5rem; }
+.lms-lesson-content h4 { font-size: var(--t-md); font-weight: 700; margin: 0.875rem 0 0.4rem; }
 .lms-lesson-content p { margin: 0.75rem 0; }
 .lms-lesson-content ul,
 .lms-lesson-content ol { margin: 0.75rem 0; padding-left: 1.6rem; }
@@ -106,241 +376,150 @@ body {
 .lms-lesson-content ul ul { list-style: circle outside; }
 .lms-lesson-content ol ol { list-style: lower-alpha outside; }
 .lms-lesson-content li { margin: 0.25rem 0; padding-left: 0.25rem; }
-.lms-lesson-content li::marker { color: #6366f1; font-weight: 600; }
+.lms-lesson-content li::marker { color: var(--green-700); font-weight: 600; }
 .lms-lesson-content strong { font-weight: 700; }
 .lms-lesson-content em { font-style: italic; }
-.lms-lesson-content a { color: #4f46e5; text-decoration: underline; text-underline-offset: 2px; }
-.lms-lesson-content a:hover { color: #4338ca; }
+.lms-lesson-content a { color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; }
+.lms-lesson-content a:hover { color: var(--green-800); }
 .lms-lesson-content code:not(pre code) {
-  background: #f1f5f9;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.25rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.875em;
+ background: var(--ink-50);
+ padding: 0.1rem 0.35rem;
+ border-radius: var(--radius-xs);
+ font-family: var(--font-mono);
+ font-size: 0.875em;
 }
 .lms-lesson-content pre {
-  background: #0f172a;
-  color: #e2e8f0;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  margin: 1rem 0;
+ background: var(--ink-900);
+ color: var(--paper);
+ padding: 1rem;
+ border-radius: var(--radius-sm);
+ overflow-x: auto;
+ margin: 1rem 0;
+ font-family: var(--font-mono);
 }
 .lms-lesson-content blockquote {
-  border-left: 4px solid #c7d2fe;
-  padding: 0.5rem 0 0.5rem 1rem;
-  color: #475569;
-  font-style: italic;
-  margin: 1rem 0;
+ border-left: 4px solid var(--green-300);
+ padding: 0.5rem 0 0.5rem 1rem;
+ color: var(--ink-500);
+ font-style: italic;
+ margin: 1rem 0;
 }
 .lms-lesson-content table {
-  border-collapse: collapse;
-  margin: 1rem 0;
-  width: 100%;
+ border-collapse: collapse;
+ margin: 1rem 0;
+ width: 100%;
 }
 .lms-lesson-content th,
 .lms-lesson-content td {
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 0.75rem;
-  text-align: left;
+ border: 1px solid var(--color-border);
+ padding: 0.5rem 0.75rem;
+ text-align: left;
 }
-.lms-lesson-content th { background: #f8fafc; font-weight: 700; }
-.lms-lesson-content hr { border: none; border-top: 1px solid #e2e8f0; margin: 1.5rem 0; }
-.dark .lms-lesson-content code:not(pre code) { background: rgba(255,255,255,0.08); }
-.dark .lms-lesson-content blockquote { border-color: #4338ca; color: #cbd5e1; }
-.dark .lms-lesson-content th { background: rgba(255,255,255,0.04); }
-.dark .lms-lesson-content th,
-.dark .lms-lesson-content td { border-color: rgba(255,255,255,0.1); }
-.dark .lms-lesson-content hr { border-top-color: rgba(255,255,255,0.1); }
-.dark .lms-lesson-content li::marker { color: #818cf8; }
+.lms-lesson-content th { background: var(--color-surface-2); font-weight: 700; }
+.lms-lesson-content hr { border: none; border-top: 1px solid var(--color-border); margin: 1.5rem 0; }
 
-/* ---------- Theme-aware lesson components (SAT rework helpers) ---------- */
-/* Section header bar (used between major content blocks). */
+/* Section header bar */
 .lms-lesson-content .lms-section-h {
-  color: #4338ca;
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 1.5rem 0 0.5rem;
-  border-bottom: 2px solid rgba(67, 56, 202, 0.13);
-  padding-bottom: 0.4rem;
-}
-.dark .lms-lesson-content .lms-section-h {
-  color: #a5b4fc;
-  border-bottom-color: rgba(165, 180, 252, 0.18);
+ color: var(--green-700);
+ font-size: var(--t-lg);
+ font-weight: 700;
+ margin: 1.5rem 0 0.5rem;
+ border-bottom: 2px solid var(--green-200);
+ padding-bottom: 0.4rem;
 }
 
-/* Generic callout container — kind-specific colors override below. */
+/* Generic callout container */
 .lms-lesson-content .lms-callout {
-  border-left: 4px solid var(--callout-border, #6366f1);
-  background: var(--callout-bg, #eef2ff);
-  border-radius: 0 12px 12px 0;
-  padding: 16px 20px;
-  margin: 18px 0;
-  color: var(--callout-text, inherit);
+ border-left: 4px solid var(--callout-border, var(--green-500));
+ background: var(--callout-bg, var(--green-50));
+ border-radius: 0 var(--radius-md) var(--radius-md) 0;
+ padding: 16px 20px;
+ margin: 18px 0;
+ color: var(--callout-text, inherit);
 }
 .lms-lesson-content .lms-callout__title {
-  color: var(--callout-accent, #4338ca);
-  margin: 0 0 10px;
-  font-size: 1.05rem;
-  font-weight: 700;
+ color: var(--callout-accent, var(--green-700));
+ margin: 0 0 10px;
+ font-size: 1.05rem;
+ font-weight: 700;
 }
 .lms-lesson-content .lms-callout__body { margin: 0; }
 .lms-lesson-content .lms-callout__body > *:first-child { margin-top: 0; }
 .lms-lesson-content .lms-callout__body > *:last-child { margin-bottom: 0; }
 
 .lms-lesson-content .lms-callout--info {
-  --callout-bg: #eff6ff;
-  --callout-border: #3b82f6;
-  --callout-accent: #1d4ed8;
+ --callout-bg: var(--color-info-soft);
+ --callout-border: var(--color-info);
+ --callout-accent: var(--color-info-fg);
 }
 .lms-lesson-content .lms-callout--concept {
-  --callout-bg: #eef2ff;
-  --callout-border: #6366f1;
-  --callout-accent: #4338ca;
+ --callout-bg: var(--color-primary-soft);
+ --callout-border: var(--green-500);
+ --callout-accent: var(--green-800);
 }
 .lms-lesson-content .lms-callout--example {
-  --callout-bg: #fffbeb;
-  --callout-border: #fbbf24;
-  --callout-accent: #92400e;
+ --callout-bg: var(--sun-50);
+ --callout-border: var(--sun-400);
+ --callout-accent: var(--sun-700);
 }
 .lms-lesson-content .lms-callout--pitfall {
-  --callout-bg: #fef2f2;
-  --callout-border: #f87171;
-  --callout-accent: #991b1b;
+ --callout-bg: var(--coral-50);
+ --callout-border: var(--coral-500);
+ --callout-accent: var(--coral-700);
 }
 .lms-lesson-content .lms-callout--tactic {
-  --callout-bg: #ecfdf5;
-  --callout-border: #10b981;
-  --callout-accent: #065f46;
+ --callout-bg: var(--green-50);
+ --callout-border: var(--green-600);
+ --callout-accent: var(--green-800);
 }
 .lms-lesson-content .lms-callout--recap {
-  --callout-bg: #f5f3ff;
-  --callout-border: #a78bfa;
-  --callout-accent: #5b21b6;
+ --callout-bg: var(--ink-50);
+ --callout-border: var(--ink-300);
+ --callout-accent: var(--ink-700);
 }
 
-.dark .lms-lesson-content .lms-callout--info {
-  --callout-bg: rgba(59, 130, 246, 0.10);
-  --callout-border: #60a5fa;
-  --callout-accent: #93c5fd;
-}
-.dark .lms-lesson-content .lms-callout--concept {
-  --callout-bg: rgba(99, 102, 241, 0.12);
-  --callout-border: #818cf8;
-  --callout-accent: #a5b4fc;
-}
-.dark .lms-lesson-content .lms-callout--example {
-  --callout-bg: rgba(251, 191, 36, 0.10);
-  --callout-border: #fbbf24;
-  --callout-accent: #fcd34d;
-}
-.dark .lms-lesson-content .lms-callout--pitfall {
-  --callout-bg: rgba(248, 113, 113, 0.12);
-  --callout-border: #f87171;
-  --callout-accent: #fca5a5;
-}
-.dark .lms-lesson-content .lms-callout--tactic {
-  --callout-bg: rgba(16, 185, 129, 0.12);
-  --callout-border: #34d399;
-  --callout-accent: #6ee7b7;
-}
-.dark .lms-lesson-content .lms-callout--recap {
-  --callout-bg: rgba(167, 139, 250, 0.12);
-  --callout-border: #a78bfa;
-  --callout-accent: #c4b5fd;
-}
-
-/* Worked example card (basic / medium / SAT-style). */
+/* Worked example card */
 .lms-lesson-content .lms-example {
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
-  border-radius: 12px;
-  padding: 18px 22px;
-  margin: 16px 0;
-  color: inherit;
+ background: var(--sun-50);
+ border: 1px solid var(--sun-400);
+ border-radius: var(--radius-md);
+ padding: 18px 22px;
+ margin: 16px 0;
 }
 .lms-lesson-content .lms-example__label {
-  display: inline-block;
-  background: #fbbf24;
-  color: #78350f;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+ display: inline-block;
+ background: var(--sun-400);
+ color: var(--sun-700);
+ padding: 2px 10px;
+ border-radius: var(--radius-pill);
+ font-size: var(--t-xs);
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
+ margin-bottom: 8px;
+ font-family: var(--font-mono);
 }
-.lms-lesson-content .lms-example__problem { margin: 0 0 12px; font-size: 1.02rem; }
+.lms-lesson-content .lms-example__problem { margin: 0 0 12px; font-size: var(--t-md); }
 .lms-lesson-content .lms-example__steps { margin: 0 0 12px; padding-left: 1.4rem; }
 .lms-lesson-content .lms-example__steps li { margin: 0.4rem 0; }
 .lms-lesson-content .lms-example__answer {
-  margin: 0;
-  padding: 10px 14px;
-  background: #fef3c7;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #78350f;
-}
-.dark .lms-lesson-content .lms-example {
-  background: rgba(251, 191, 36, 0.08);
-  border-color: rgba(251, 191, 36, 0.35);
-}
-.dark .lms-lesson-content .lms-example__label {
-  background: rgba(251, 191, 36, 0.85);
-  color: #1c1917;
-}
-.dark .lms-lesson-content .lms-example__answer {
-  background: rgba(251, 191, 36, 0.18);
-  color: #fcd34d;
+ margin: 0;
+ padding: 10px 14px;
+ background: var(--sun-100);
+ border-radius: var(--radius-sm);
+ font-weight: 600;
+ color: var(--sun-700);
 }
 
-/* Pitfall list inside .lms-callout--pitfall */
+/* Pitfall list */
 .lms-lesson-content .lms-pitfall-list { margin: 0; padding-left: 1.4rem; }
 .lms-lesson-content .lms-pitfall-list li { margin: 0.5rem 0; }
-.lms-lesson-content .lms-pitfall-name { color: #991b1b; }
-.dark .lms-lesson-content .lms-pitfall-name { color: #fca5a5; }
+.lms-lesson-content .lms-pitfall-name { color: var(--coral-700); }
 
-/* Mobile: touch utilities and responsive sizing */
-@media (hover: none) and (pointer: coarse) {
-  /* Touch devices: ensure minimum tap targets */
-  button, a, [role="button"], input, select, textarea {
-    touch-action: manipulation;
-  }
-}
-
-/* Responsive lesson typography — fluid scaling so text is readable
-   on phones but doesn't shrink excessively on tiny screens. */
+/* Mobile responsive lesson typography */
 @media (max-width: 640px) {
-  .lms-lesson-content { font-size: clamp(0.88rem, 2.5vw, 1rem); }
-  .lms-lesson-content h1 { font-size: clamp(1.5rem, 5vw, 1.875rem); }
-  .lms-lesson-content h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
-  .lms-lesson-content h3 { font-size: clamp(1.05rem, 3.5vw, 1.25rem); }
-}
-
-/* Accessibility: visible focus indicator for keyboard navigation.
-   WCAG 2.1 SC 2.4.7 "Focus Visible". We use :focus-visible so the
-   ring only appears for keyboard users, not on every mouse click. */
-*:focus-visible {
-  outline: 2px solid #4f46e5; /* indigo-600 */
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Buttons and links that already have their own focus ring should
-   keep it; this rule adds one ONLY for elements that don't. */
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
-[role="button"]:focus-visible,
-[role="link"]:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid #4f46e5;
-  outline-offset: 2px;
-}
-
-.dark *:focus-visible {
-  outline-color: #818cf8; /* indigo-400 — brighter on dark bg */
+ .lms-lesson-content { font-size: clamp(0.88rem, 2.5vw, 1rem); }
+ .lms-lesson-content h1 { font-size: clamp(1.5rem, 5vw, 1.875rem); }
+ .lms-lesson-content h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
+ .lms-lesson-content h3 { font-size: clamp(1.05rem, 3.5vw, 1.25rem); }
 }

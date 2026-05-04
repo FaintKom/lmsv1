@@ -1,12 +1,21 @@
 import { cn } from "@/lib/utils";
 import { HTMLAttributes, forwardRef, ElementType } from "react";
 
-const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "elevated" | "flat";
+}
+
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant = "default", ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "rounded-2xl border border-slate-200/60 bg-white shadow-sm transition-all duration-200 dark:border-white/10 dark:bg-[#2C2C2C] dark:shadow-none",
+        "rounded-lg transition-all duration-200",
+        {
+          "bg-paper-2 border border-border shadow-sm": variant === "default",
+          "bg-paper-2 shadow-md": variant === "elevated",
+          "bg-surface-2": variant === "flat",
+        },
         className
       )}
       {...props}
@@ -27,12 +36,12 @@ interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 }
 
 const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, as: Tag = "h3", ...props }, ref) => {
+  ({ className, as: Tag = "h4", ...props }, ref) => {
     const Comp = Tag as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     return (
       <Comp
         ref={ref}
-        className={cn("text-lg font-semibold text-slate-900 dark:text-slate-100", className)}
+        className={cn("text-md font-bold text-text mb-1.5", className)}
         {...props}
       />
     );
@@ -42,7 +51,7 @@ CardTitle.displayName = "CardTitle";
 
 const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("px-6 pb-6 pt-4", className)} {...props} />
+    <div ref={ref} className={cn("px-6 pb-6 pt-4 text-sm text-text-muted", className)} {...props} />
   )
 );
 CardContent.displayName = "CardContent";

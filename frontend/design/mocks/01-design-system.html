@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440"/>
+<title>GrassLMS — Design System (Lively)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   GRASSLMS — DESIGN SYSTEM (Lively)
+   Tokens & primitive components.
+   ============================================================ */
+
+:root {
+  /* ---- BRAND GREEN (the hero) ---------------------------- */
+  --green-25:  #f4fbef;
+  --green-50:  #ecf9e7;
+  --green-100: #d4f1c4;
+  --green-200: #b6e69e;
+  --green-300: #8fd770;
+  --green-400: #6bc44d;
+  --green-500: #3fb04b;   /* main brand */
+  --green-600: #0a8754;   /* primary action */
+  --green-700: #07683f;
+  --green-800: #054d2f;
+  --green-900: #0a3d24;
+
+  /* ---- SECONDARY accents --------------------------------- */
+  --sun-50:    #fffbe5;
+  --sun-100:   #fff2b3;
+  --sun-300:   #ffe066;
+  --sun-400:   #ffd84d;     /* sunny accent */
+  --sun-500:   #f5b800;
+  --sun-700:   #7a5500;
+
+  --coral-50:  #fff0eb;
+  --coral-300: #ffae9a;
+  --coral-500: #ff7a5c;     /* coral / streak */
+  --coral-700: #c33d22;
+
+  /* ---- NEUTRALS (warm, never pure) ----------------------- */
+  --ink-900: #0a1a10;       /* near-black, with a green undertone */
+  --ink-700: #1a2a1f;
+  --ink-500: #4d5a51;
+  --ink-400: #6b7a70;
+  --ink-300: #9aa39d;
+  --ink-200: #c9cec9;
+  --ink-100: #e6e8e4;
+  --ink-50:  #f4f5f1;
+
+  --paper:    #fafbf6;       /* default page bg */
+  --paper-2:  #ffffff;       /* card surface */
+
+  /* ---- SEMANTIC ------------------------------------------ */
+  --success:    var(--green-600);
+  --warning:    var(--sun-500);
+  --danger:     var(--coral-500);
+  --info:       #2b91ff;
+
+  /* ---- ELEVATION ----------------------------------------- */
+  --shadow-xs:  0 1px 2px rgba(10, 26, 16, 0.05);
+  --shadow-sm:  0 2px 6px -1px rgba(10, 26, 16, 0.07);
+  --shadow-md:  0 8px 24px -8px rgba(10, 26, 16, 0.12);
+  --shadow-lg:  0 18px 50px -20px rgba(10, 26, 16, 0.18);
+  --shadow-pop: 0 4px 0 0 var(--green-700);  /* signature: cartoon "press" */
+
+  /* ---- RADII --------------------------------------------- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* ---- SPACING (4-base) ---------------------------------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+
+  /* ---- TYPE ---------------------------------------------- */
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --t-xs:   12px;
+  --t-sm:   13px;
+  --t-base: 15px;
+  --t-md:   17px;
+  --t-lg:   20px;
+  --t-xl:   24px;
+  --t-2xl:  32px;
+  --t-3xl:  44px;
+  --t-4xl:  60px;
+  --t-5xl:  80px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--paper);
+  color: var(--ink-900);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01';
+}
+
+/* ============================================================
+   PAGE / DOC LAYOUT
+   ============================================================ */
+.doc {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 56px 64px 120px;
+}
+
+.doc-head {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 32px;
+  align-items: end;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--ink-100);
+  margin-bottom: 64px;
+}
+.logo-mark {
+  width: 64px; height: 64px;
+  border-radius: 20px;
+  background: var(--green-600);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.04em;
+  box-shadow: var(--shadow-pop);
+  position: relative;
+}
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  bottom: 8px; right: 10px;
+  width: 8px; height: 8px;
+  background: var(--sun-400);
+  border-radius: 50%;
+}
+.doc-head .h-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green-700);
+  margin: 0 0 10px;
+}
+.doc-head h1 {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+  max-width: 720px;
+}
+.doc-head h1 em {
+  font-style: normal;
+  background: var(--sun-300);
+  padding: 0 10px;
+  border-radius: 12px;
+  display: inline-block;
+  transform: rotate(-1.5deg);
+  margin: 0 4px;
+}
+.doc-head .lede {
+  font-size: var(--t-md);
+  line-height: 1.55;
+  color: var(--ink-500);
+  max-width: 560px;
+  margin: 0;
+}
+.doc-head-meta {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-400);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+.doc-head-meta strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  color: var(--ink-900);
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 2px;
+  text-transform: none;
+}
+
+/* Section */
+.section {
+  margin-bottom: 88px;
+  scroll-margin-top: 40px;
+}
+.section-head {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: baseline;
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: var(--t-sm);
+  color: var(--green-700);
+  letter-spacing: 0.1em;
+  padding-top: 6px;
+}
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 2px solid var(--ink-900);
+  padding-bottom: 16px;
+}
+.section-title h2 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.section-title .desc {
+  font-size: var(--t-sm);
+  color: var(--ink-500);
+  max-width: 460px;
+  text-align: right;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Sub-section */
+.sub {
+  margin-top: 40px;
+}
+.sub-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.sub-title {
+  font-size: var(--t-md);
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-900);
+}
+.sub-meta {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-400);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   TOKENS — COLOR
+   ============================================================ */
+.color-rail {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--ink-100);
+}
+.color-rail .swatch {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: rgba(0,0,0,0.5);
+}
+.color-rail .swatch.on-dark {
+  color: rgba(255,255,255,0.7);
+}
+.color-rail .swatch .step {
+  font-weight: 600;
+  font-size: 11px;
+}
+.color-rail .swatch .hex {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.color-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ink-100);
+  align-items: center;
+}
+.color-row:last-child { border-bottom: none; }
+.color-row .name {
+  font-weight: 700;
+  font-size: var(--t-sm);
+}
+.color-row .name small {
+  display: block;
+  color: var(--ink-400);
+  font-weight: 400;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.semantic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.semantic {
+  border-radius: var(--r-md);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.semantic .lbl {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+  opacity: 0.7;
+}
+.semantic .val {
+  font-family: var(--font-mono);
+  font-size: var(--t-sm);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.type-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 160px;
+  gap: 32px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--ink-100);
+  align-items: center;
+}
+.type-grid:last-child { border-bottom: none; }
+.type-grid .lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-400);
+  text-transform: uppercase;
+}
+.type-grid .lbl strong {
+  display: block;
+  color: var(--ink-900);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--t-sm);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-bottom: 4px;
+}
+.type-grid .spec {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-400);
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+.type-grid .sample.display {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+}
+.type-grid .sample.h1 {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+.type-grid .sample.h2 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.type-grid .sample.h3 {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.type-grid .sample.body-lg {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.type-grid .sample.body {
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+.type-grid .sample.body-sm {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-500);
+}
+.type-grid .sample.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green-700);
+}
+
+/* ============================================================
+   SPACING / RADII / SHADOWS
+   ============================================================ */
+.spacing-row {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  padding: 24px;
+  background: var(--paper-2);
+  border: 1px solid var(--ink-100);
+  border-radius: var(--r-md);
+}
+.spacing-step {
+  text-align: center;
+  flex: 1;
+}
+.spacing-bar {
+  background: var(--green-200);
+  border-radius: var(--r-xs);
+  height: 32px;
+  margin: 0 auto 8px;
+  border: 1px solid var(--green-300);
+}
+.spacing-step .lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-500);
+}
+.spacing-step .lbl strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 2px;
+}
+
+.radii-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+.radii {
+  background: var(--paper-2);
+  border: 1px solid var(--ink-100);
+  padding: 24px;
+  text-align: center;
+}
+.radii .shape {
+  width: 64px; height: 64px;
+  background: var(--green-100);
+  border: 2px solid var(--green-500);
+  margin: 0 auto 12px;
+}
+.radii .lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-500);
+}
+.radii .lbl strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 2px;
+}
+
+.shadow-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+.shadow-card {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 24px 20px;
+  text-align: center;
+}
+.shadow-card .box {
+  width: 80px; height: 80px;
+  background: #fff;
+  border-radius: var(--r-md);
+  margin: 0 auto 16px;
+  border: 1px solid var(--ink-100);
+}
+.shadow-card.pop .box {
+  background: var(--green-600);
+  border: none;
+  box-shadow: var(--shadow-pop);
+}
+.shadow-card .lbl {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-500);
+}
+.shadow-card .lbl strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-bottom: 2px;
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+.comp-frame {
+  background: var(--paper-2);
+  border: 1px solid var(--ink-100);
+  border-radius: var(--r-lg);
+  padding: 36px;
+  position: relative;
+}
+.comp-frame.dark {
+  background: var(--ink-900);
+  border-color: var(--ink-700);
+}
+.comp-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.comp-row + .comp-row { margin-top: 16px; }
+
+.comp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.comp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.comp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* ----- BUTTONS ------------------------------------------ */
+.btn {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--t-sm);
+  padding: 12px 20px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--green-600);
+  color: #fff;
+  box-shadow: var(--shadow-pop);
+}
+.btn-primary:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--green-700);
+}
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 var(--green-700);
+}
+.btn-secondary {
+  background: #fff;
+  color: var(--ink-900);
+  box-shadow: 0 4px 0 0 var(--ink-100);
+}
+.btn-secondary:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--ink-100);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-700);
+}
+.btn-ghost:hover {
+  background: var(--ink-50);
+}
+.btn-danger {
+  background: var(--coral-500);
+  color: #fff;
+  box-shadow: 0 4px 0 0 var(--coral-700);
+}
+.btn-danger:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 var(--coral-700);
+}
+
+.btn-sm { padding: 8px 14px; font-size: var(--t-xs); border-radius: var(--r-sm); }
+.btn-lg { padding: 16px 26px; font-size: var(--t-base); border-radius: var(--r-lg); }
+
+.btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+.btn-icon {
+  width: 40px; height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* ----- CHIPS / BADGES --------------------------------- */
+.chip {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--t-xs);
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip-green { background: var(--green-100); color: var(--green-800); }
+.chip-sun   { background: var(--sun-100);   color: var(--sun-700); }
+.chip-coral { background: var(--coral-50);  color: var(--coral-700); }
+.chip-ink   { background: var(--ink-100);   color: var(--ink-700); }
+.chip-solid-green { background: var(--green-600); color: #fff; }
+.chip-dot::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ----- INPUT ------------------------------------------ */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 320px;
+}
+.input-label {
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-700);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+.input {
+  font-family: var(--font-sans);
+  font-size: var(--t-base);
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  border: 2px solid var(--ink-100);
+  background: var(--paper-2);
+  color: var(--ink-900);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 4px var(--green-100);
+}
+.input.error {
+  border-color: var(--coral-500);
+}
+.input::placeholder {
+  color: var(--ink-300);
+}
+.input-help {
+  font-size: var(--t-xs);
+  color: var(--ink-400);
+}
+.input-help.error { color: var(--coral-700); }
+
+/* ----- CARD ------------------------------------------- */
+.card {
+  background: var(--paper-2);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  border: 1px solid var(--ink-100);
+  box-shadow: var(--shadow-sm);
+}
+.card-elevated {
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+.card-flat {
+  background: var(--ink-50);
+  border: none;
+  box-shadow: none;
+}
+.card h4 {
+  font-size: var(--t-md);
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.card p {
+  font-size: var(--t-sm);
+  color: var(--ink-500);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ----- AVATAR / BLOB --------------------------------- */
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  border: 3px solid var(--paper-2);
+}
+.avatar-lg { width: 64px; height: 64px; font-size: 24px; border-width: 4px; }
+.avatar-sm { width: 28px; height: 28px; font-size: 11px; border-width: 2px; }
+.avatar-stack {
+  display: flex;
+}
+.avatar-stack .avatar + .avatar {
+  margin-left: -10px;
+}
+
+/* ----- PROGRESS -------------------------------------- */
+.progress {
+  width: 100%;
+  height: 10px;
+  background: var(--ink-100);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-400), var(--green-600));
+  border-radius: var(--r-pill);
+  transition: width 0.4s ease;
+}
+.progress-bar.sun {
+  background: linear-gradient(90deg, var(--sun-400), var(--sun-500));
+}
+.progress-bar.coral {
+  background: var(--coral-500);
+}
+
+.streak {
+  background: var(--coral-500);
+  color: #fff;
+  border-radius: var(--r-pill);
+  padding: 8px 14px 8px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: var(--t-sm);
+  box-shadow: 0 6px 18px -8px rgba(255, 122, 92, 0.7);
+}
+.streak-flame {
+  width: 22px; height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--coral-500);
+  font-size: 13px;
+}
+
+/* ----- XP TOKEN -------------------------------------- */
+.xp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sun-300);
+  color: var(--sun-700);
+  padding: 5px 12px 5px 8px;
+  border-radius: var(--r-pill);
+  font-weight: 800;
+  font-size: var(--t-xs);
+}
+.xp-star {
+  width: 16px; height: 16px;
+  background: var(--sun-700);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--sun-300);
+  font-size: 10px;
+}
+
+/* ----- TOAST / ALERT --------------------------------- */
+.alert {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  align-items: start;
+}
+.alert .icon {
+  width: 36px; height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+}
+.alert h5 {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  margin: 0;
+}
+.alert p {
+  font-size: var(--t-sm);
+  margin: 4px 0 0;
+  color: var(--ink-500);
+}
+.alert-success { background: var(--green-50); }
+.alert-success .icon { background: var(--green-600); }
+.alert-warning { background: var(--sun-50); }
+.alert-warning .icon { background: var(--sun-500); }
+.alert-error   { background: var(--coral-50); }
+.alert-error .icon { background: var(--coral-500); }
+.alert-info    { background: #e6f2ff; }
+.alert-info .icon { background: var(--info); }
+
+/* ----- NAV ITEM -------------------------------------- */
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 240px;
+  background: var(--paper-2);
+  padding: 12px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--ink-100);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--t-sm);
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.nav-item:hover {
+  background: var(--ink-50);
+  color: var(--ink-900);
+}
+.nav-item.active {
+  background: var(--green-100);
+  color: var(--green-800);
+}
+.nav-item .ico {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+}
+.nav-item .badge-count {
+  margin-left: auto;
+  background: var(--coral-500);
+  color: #fff;
+  border-radius: var(--r-pill);
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+/* ----- TABLE ROW ------------------------------------ */
+.table {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1px solid var(--ink-100);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table thead th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  font-weight: 600;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--ink-100);
+  background: var(--ink-50);
+}
+.table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--ink-100);
+  font-size: var(--t-sm);
+  color: var(--ink-700);
+}
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: var(--green-25); }
+
+/* ----- ICON tile ------------------------------------- */
+.itile {
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  background: var(--green-100);
+  color: var(--green-700);
+  flex-shrink: 0;
+}
+.itile-sun   { background: var(--sun-100); color: var(--sun-700); }
+.itile-coral { background: var(--coral-50); color: var(--coral-700); }
+.itile-ink   { background: var(--ink-100); color: var(--ink-700); }
+
+/* SVG icon helpers (lucide-style strokes) */
+.ico { display: inline-block; vertical-align: middle; }
+
+/* ============================================================
+   PRINCIPLES STRIP
+   ============================================================ */
+.principles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: var(--ink-900);
+  color: var(--paper);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-bottom: 64px;
+}
+.principle {
+  padding: 32px 28px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.principle:last-child { border-right: none; }
+.principle .num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green-400);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.principle h4 {
+  font-size: var(--t-md);
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.principle p {
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: rgba(255,255,255,0.65);
+  margin: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="doc">
+
+  <!-- ===================================================== -->
+  <!-- HEADER                                                -->
+  <!-- ===================================================== -->
+  <header class="doc-head">
+    <div class="logo-mark">g</div>
+    <div>
+      <p class="h-eyebrow">GrassLMS · Design system v1 · "Lively"</p>
+      <h1>Дружелюбная&nbsp;и <em>живая</em> система, в которой вырастет всё.</h1>
+      <p class="lede">Один зелёный, два акцента, понятный шрифт — и пара запоминающихся приёмов: «нажимающиеся» кнопки с тенью-опорой, жёлтый highlight как маркер момента, скруглённые формы. Этого хватает на 5+ продуктов.</p>
+    </div>
+    <div class="doc-head-meta">
+      <strong>v1.0</strong>
+      29 апр 2026<br/>
+      Lively direction<br/>
+      <br/>
+      <strong>Tokens</strong>
+      89 colors / 11 type / 7 radii<br/>
+      24 components
+    </div>
+  </header>
+
+  <!-- ===================================================== -->
+  <!-- PRINCIPLES                                            -->
+  <!-- ===================================================== -->
+  <section class="principles">
+    <div class="principle">
+      <div class="num">PRINCIPLE 01</div>
+      <h4>Один зелёный — характер</h4>
+      <p>Брендовый <code style="font-family:var(--font-mono);font-size:11px;color:var(--green-400)">#0A8754</code>. Никаких «ещё одного оттенка зелёного» рядом. Только солнечный жёлтый и коралл — и только когда они что-то значат.</p>
+    </div>
+    <div class="principle">
+      <div class="num">PRINCIPLE 02</div>
+      <h4>Кнопки нажимаются</h4>
+      <p>Сигнатурная тень-«опора» 4px снизу. На hover кнопка опускается на 2px, на active — на 4. Визуальная физика без анимации.</p>
+    </div>
+    <div class="principle">
+      <div class="num">PRINCIPLE 03</div>
+      <h4>Highlight как маркер</h4>
+      <p>Жёлтый `marker` — единственный способ выделить ключевое слово в заголовке. Не используем для UI-плашек.</p>
+    </div>
+    <div class="principle">
+      <div class="num">PRINCIPLE 04</div>
+      <h4>Тёплая нейтраль</h4>
+      <p>Никакого `#FFFFFF`. Бумажный <code style="font-family:var(--font-mono);font-size:11px;color:var(--green-400)">#FAFBF6</code> + ink с зелёным подтоном. Глаза не устают.</p>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 01 — COLOR                                            -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">01 · TOKENS</div>
+      <div class="section-title">
+        <h2>Color</h2>
+        <p class="desc">Зелёный — 11 ступеней от mint до forest. Sun и Coral — 5 ступеней каждый, узкая роль. Нейтрали — 9 тёплых тонов с зелёным подтоном.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Brand Green — основной</h3><span class="sub-meta">--green-25 → --green-900</span></div>
+      <div class="color-rail">
+        <div class="swatch" style="background:#f4fbef"><span class="step">25</span><span class="hex">F4FBEF</span></div>
+        <div class="swatch" style="background:#ecf9e7"><span class="step">50</span><span class="hex">ECF9E7</span></div>
+        <div class="swatch" style="background:#d4f1c4"><span class="step">100</span><span class="hex">D4F1C4</span></div>
+        <div class="swatch" style="background:#b6e69e"><span class="step">200</span><span class="hex">B6E69E</span></div>
+        <div class="swatch" style="background:#8fd770"><span class="step">300</span><span class="hex">8FD770</span></div>
+        <div class="swatch on-dark" style="background:#6bc44d"><span class="step">400</span><span class="hex">6BC44D</span></div>
+        <div class="swatch on-dark" style="background:#3fb04b"><span class="step">500</span><span class="hex">3FB04B</span></div>
+        <div class="swatch on-dark" style="background:#0a8754"><span class="step">600 ★</span><span class="hex">0A8754</span></div>
+        <div class="swatch on-dark" style="background:#07683f"><span class="step">700</span><span class="hex">07683F</span></div>
+        <div class="swatch on-dark" style="background:#054d2f"><span class="step">800</span><span class="hex">054D2F</span></div>
+        <div class="swatch on-dark" style="background:#0a3d24"><span class="step">900</span><span class="hex">0A3D24</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Sun — accent: highlight, achievements, XP</h3><span class="sub-meta">--sun-50 → --sun-700</span></div>
+      <div class="color-rail">
+        <div class="swatch" style="background:#fffbe5"><span class="step">50</span><span class="hex">FFFBE5</span></div>
+        <div class="swatch" style="background:#fff2b3"><span class="step">100</span><span class="hex">FFF2B3</span></div>
+        <div class="swatch" style="background:#ffe066"><span class="step">300</span><span class="hex">FFE066</span></div>
+        <div class="swatch" style="background:#ffd84d"><span class="step">400 ★</span><span class="hex">FFD84D</span></div>
+        <div class="swatch on-dark" style="background:#f5b800"><span class="step">500</span><span class="hex">F5B800</span></div>
+        <div class="swatch on-dark" style="background:#7a5500"><span class="step">700</span><span class="hex">7A5500</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Coral — accent: streaks, alerts, urgency</h3><span class="sub-meta">--coral-50 → --coral-700</span></div>
+      <div class="color-rail">
+        <div class="swatch" style="background:#fff0eb"><span class="step">50</span><span class="hex">FFF0EB</span></div>
+        <div class="swatch" style="background:#ffae9a"><span class="step">300</span><span class="hex">FFAE9A</span></div>
+        <div class="swatch on-dark" style="background:#ff7a5c"><span class="step">500 ★</span><span class="hex">FF7A5C</span></div>
+        <div class="swatch on-dark" style="background:#c33d22"><span class="step">700</span><span class="hex">C33D22</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Ink — нейтрали с зелёным подтоном</h3><span class="sub-meta">--ink-50 → --ink-900</span></div>
+      <div class="color-rail">
+        <div class="swatch" style="background:#fafbf6"><span class="step">paper</span><span class="hex">FAFBF6</span></div>
+        <div class="swatch" style="background:#f4f5f1"><span class="step">50</span><span class="hex">F4F5F1</span></div>
+        <div class="swatch" style="background:#e6e8e4"><span class="step">100</span><span class="hex">E6E8E4</span></div>
+        <div class="swatch" style="background:#c9cec9"><span class="step">200</span><span class="hex">C9CEC9</span></div>
+        <div class="swatch" style="background:#9aa39d"><span class="step">300</span><span class="hex">9AA39D</span></div>
+        <div class="swatch on-dark" style="background:#6b7a70"><span class="step">400</span><span class="hex">6B7A70</span></div>
+        <div class="swatch on-dark" style="background:#4d5a51"><span class="step">500</span><span class="hex">4D5A51</span></div>
+        <div class="swatch on-dark" style="background:#1a2a1f"><span class="step">700</span><span class="hex">1A2A1F</span></div>
+        <div class="swatch on-dark" style="background:#0a1a10"><span class="step">900 ★</span><span class="hex">0A1A10</span></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Semantic — роли</h3><span class="sub-meta">всегда ссылаемся через alias, не на hex</span></div>
+      <div class="semantic-grid">
+        <div class="semantic" style="background:var(--green-50); color:var(--green-800)">
+          <p class="lbl">Success</p>
+          <p class="val">--green-600 / 0A8754</p>
+        </div>
+        <div class="semantic" style="background:var(--sun-50); color:var(--sun-700)">
+          <p class="lbl">Warning</p>
+          <p class="val">--sun-500 / F5B800</p>
+        </div>
+        <div class="semantic" style="background:var(--coral-50); color:var(--coral-700)">
+          <p class="lbl">Danger</p>
+          <p class="val">--coral-500 / FF7A5C</p>
+        </div>
+        <div class="semantic" style="background:#e6f2ff; color:#0a3a7a">
+          <p class="lbl">Info</p>
+          <p class="val">--info / 2B91FF</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 02 — TYPOGRAPHY                                       -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">02 · TOKENS</div>
+      <div class="section-title">
+        <h2>Typography</h2>
+        <p class="desc">Один шрифт для всего: Manrope. Geist Mono — только для меток, кодов, цифр в таблицах. Иерархия через размер и вес, не через цвет.</p>
+      </div>
+    </div>
+
+    <div class="type-grid">
+      <div class="lbl"><strong>Display</strong>marketing, hero</div>
+      <div class="sample display">Build the school you want.</div>
+      <div class="spec">Manrope 800<br/>64-80 / 0.95 / −3.5%</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>H1</strong>page title</div>
+      <div class="sample h1">Today's lesson is ready</div>
+      <div class="spec">Manrope 800<br/>40 / 1.05 / −2.5%</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>H2</strong>section</div>
+      <div class="sample h2">Algebra · Lesson 6</div>
+      <div class="spec">Manrope 700<br/>28 / 1.15 / −2%</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>H3</strong>card title</div>
+      <div class="sample h3">Solve quadratic equations</div>
+      <div class="spec">Manrope 700<br/>22 / 1.25</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>Body L</strong>lede, intro</div>
+      <div class="sample body-lg">A friendly tap-along walkthrough you'll actually finish — even on a Monday morning.</div>
+      <div class="spec">Manrope 500<br/>18 / 1.5</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>Body</strong>default</div>
+      <div class="sample body">Each lesson takes 8–12 minutes. Stop and resume anywhere. We'll save your spot.</div>
+      <div class="spec">Manrope 500<br/>15 / 1.55</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>Body S</strong>caption, helper</div>
+      <div class="sample body-sm">Last updated 4 minutes ago by Anna · Methodist</div>
+      <div class="spec">Manrope 400<br/>13 / 1.5 / ink-500</div>
+    </div>
+    <div class="type-grid">
+      <div class="lbl"><strong>Mono</strong>labels, IDs</div>
+      <div class="sample mono">SECTION 04 · ACTIVE · 14 / 28</div>
+      <div class="spec">Geist Mono 500<br/>12 / +6% / uppercase</div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 03 — SPACING / RADII / SHADOW                         -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">03 · TOKENS</div>
+      <div class="section-title">
+        <h2>Spacing, Radii, Elevation</h2>
+        <p class="desc">База 4px. Радиусы — крупные, дружелюбные. Тень-«опора» как сигнатура.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Spacing scale (4px base)</h3><span class="sub-meta">--s-1 → --s-20</span></div>
+      <div class="spacing-row">
+        <div class="spacing-step"><div class="spacing-bar" style="width:4px"></div><div class="lbl"><strong>s-1</strong>4px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:8px"></div><div class="lbl"><strong>s-2</strong>8px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:12px"></div><div class="lbl"><strong>s-3</strong>12px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:16px"></div><div class="lbl"><strong>s-4</strong>16px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:20px"></div><div class="lbl"><strong>s-5</strong>20px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:24px"></div><div class="lbl"><strong>s-6</strong>24px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:32px"></div><div class="lbl"><strong>s-8</strong>32px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:40px"></div><div class="lbl"><strong>s-10</strong>40px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:48px"></div><div class="lbl"><strong>s-12</strong>48px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:64px"></div><div class="lbl"><strong>s-16</strong>64px</div></div>
+        <div class="spacing-step"><div class="spacing-bar" style="width:80px"></div><div class="lbl"><strong>s-20</strong>80px</div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Radii</h3><span class="sub-meta">от тонких до полных</span></div>
+      <div class="radii-row">
+        <div class="radii"><div class="shape" style="border-radius:6px"></div><div class="lbl"><strong>r-xs</strong>6px · inputs</div></div>
+        <div class="radii"><div class="shape" style="border-radius:10px"></div><div class="lbl"><strong>r-sm</strong>10px · chips</div></div>
+        <div class="radii"><div class="shape" style="border-radius:14px"></div><div class="lbl"><strong>r-md</strong>14px · buttons</div></div>
+        <div class="radii"><div class="shape" style="border-radius:18px"></div><div class="lbl"><strong>r-lg</strong>18px · cards</div></div>
+        <div class="radii"><div class="shape" style="border-radius:24px"></div><div class="lbl"><strong>r-xl</strong>24px · modals</div></div>
+        <div class="radii"><div class="shape" style="border-radius:999px"></div><div class="lbl"><strong>r-pill</strong>full · badges</div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Elevation</h3><span class="sub-meta">тёплая тень с зелёным undertone</span></div>
+      <div class="shadow-row">
+        <div class="shadow-card" style="box-shadow: var(--shadow-xs)"><div class="box" style="box-shadow: var(--shadow-xs)"></div><div class="lbl"><strong>shadow-xs</strong>hairline</div></div>
+        <div class="shadow-card"><div class="box" style="box-shadow: var(--shadow-sm)"></div><div class="lbl"><strong>shadow-sm</strong>card resting</div></div>
+        <div class="shadow-card"><div class="box" style="box-shadow: var(--shadow-md)"></div><div class="lbl"><strong>shadow-md</strong>card hover</div></div>
+        <div class="shadow-card"><div class="box" style="box-shadow: var(--shadow-lg)"></div><div class="lbl"><strong>shadow-lg</strong>modal</div></div>
+        <div class="shadow-card pop"><div class="box"></div><div class="lbl"><strong>shadow-pop ★</strong>buttons (signature)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 04 — BUTTONS                                          -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">04 · COMPONENTS</div>
+      <div class="section-title">
+        <h2>Buttons</h2>
+        <p class="desc">Сигнатурный приём — тень-«опора». На hover кнопка визуально нажимается, и тень схлопывается. Это даёт всем CTA ощущение «настоящей» вещи.</p>
+      </div>
+    </div>
+
+    <div class="comp-frame">
+      <div class="sub-head" style="margin-top:0"><h3 class="sub-title">Variants</h3><span class="sub-meta">Primary · Secondary · Ghost · Danger</span></div>
+      <div class="comp-row">
+        <button class="btn btn-primary">Continue lesson →</button>
+        <button class="btn btn-secondary">Save for later</button>
+        <button class="btn btn-ghost">Skip</button>
+        <button class="btn btn-danger">Reset progress</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+      </div>
+
+      <div class="sub-head" style="margin-top:32px"><h3 class="sub-title">Sizes</h3><span class="sub-meta">sm · default · lg · icon</span></div>
+      <div class="comp-row">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large CTA</button>
+        <button class="btn btn-secondary btn-icon" aria-label="Settings">
+          <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+
+      <div class="sub-head" style="margin-top:32px"><h3 class="sub-title">Try the press</h3><span class="sub-meta">Hover and click to see the &laquo;press&raquo; physics</span></div>
+      <div class="comp-row">
+        <button class="btn btn-primary btn-lg">Hover me ↗</button>
+        <button class="btn btn-secondary btn-lg">Hover me</button>
+        <button class="btn btn-danger btn-lg">Hover me</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 05 — CHIPS, INPUTS                                    -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">05 · COMPONENTS</div>
+      <div class="section-title">
+        <h2>Chips, Badges, Inputs</h2>
+        <p class="desc">Чипы — для статусов и тегов. Inputs — крупные, тёплые, с зелёным focus-ring.</p>
+      </div>
+    </div>
+
+    <div class="comp-grid-2">
+      <div class="comp-frame">
+        <div class="sub-head" style="margin-top:0"><h3 class="sub-title">Chips & Badges</h3><span class="sub-meta">flat / tonal / solid</span></div>
+        <div class="comp-row">
+          <span class="chip chip-green chip-dot">In progress</span>
+          <span class="chip chip-sun chip-dot">New</span>
+          <span class="chip chip-coral chip-dot">Overdue</span>
+          <span class="chip chip-ink chip-dot">Draft</span>
+        </div>
+        <div class="comp-row">
+          <span class="chip chip-solid-green">PRO</span>
+          <span class="chip" style="background:var(--ink-900); color:#fff">FEATURED</span>
+          <span class="chip chip-green">+6 lessons</span>
+          <span class="chip chip-ink">Algebra · 9th grade</span>
+        </div>
+        <div class="comp-row">
+          <span class="xp"><span class="xp-star">★</span>+50 XP</span>
+          <span class="streak"><span class="streak-flame">🔥</span>7 days</span>
+        </div>
+      </div>
+
+      <div class="comp-frame">
+        <div class="sub-head" style="margin-top:0"><h3 class="sub-title">Inputs</h3><span class="sub-meta">label / focus / error / placeholder</span></div>
+        <div style="display:flex; flex-direction:column; gap:20px">
+          <div class="input-group">
+            <label class="input-label">Email</label>
+            <input class="input" value="alex@grasslms.online"/>
+            <span class="input-help">We'll send a magic link.</span>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Course title</label>
+            <input class="input" placeholder="e.g. Algebra 9th grade"/>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <input class="input error" type="password" value="xxx"/>
+            <span class="input-help error">Must be at least 8 characters.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 06 — CARDS, AVATARS, PROGRESS                         -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">06 · COMPONENTS</div>
+      <div class="section-title">
+        <h2>Cards · Avatars · Progress</h2>
+        <p class="desc">Карты — три уровня: flat (внутри секций), default (resting), elevated (взаимодействие). Аватары — три размера, всегда с белой обводкой.</p>
+      </div>
+    </div>
+
+    <div class="comp-grid-3">
+      <div class="card">
+        <div class="itile" style="margin-bottom:12px">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h4>Algebra · Lesson 6</h4>
+        <p>Solve quadratic equations using the discriminant formula.</p>
+        <div class="progress" style="margin-top:14px"><div class="progress-bar" style="width:68%"></div></div>
+        <p style="margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--green-700); font-weight:600">68% complete</p>
+      </div>
+
+      <div class="card card-elevated">
+        <div class="comp-row" style="justify-content: space-between; margin-bottom:12px">
+          <span class="chip chip-sun chip-dot">New</span>
+          <span class="xp"><span class="xp-star">★</span>+120 XP</span>
+        </div>
+        <h4>SAT Math · Practice Test 4</h4>
+        <p>22 questions · adaptive difficulty · 35 min.</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:14px">Start practice →</button>
+      </div>
+
+      <div class="card card-flat">
+        <p style="margin:0 0 10px; font-family:var(--font-mono); font-size:11px; color:var(--ink-400); letter-spacing:0.08em; text-transform:uppercase">Today's class</p>
+        <h4>JavaScript Basics</h4>
+        <p>10:30 with Anna · 12 students enrolled</p>
+        <div class="comp-row" style="margin-top:14px">
+          <div class="avatar-stack">
+            <div class="avatar avatar-sm" style="background:#0a8754">A</div>
+            <div class="avatar avatar-sm" style="background:#3fb04b">M</div>
+            <div class="avatar avatar-sm" style="background:#ffd84d; color:#7a5500">K</div>
+            <div class="avatar avatar-sm" style="background:#ff7a5c">+9</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Avatars</h3><span class="sub-meta">3 sizes · stacked</span></div>
+      <div class="comp-frame">
+        <div class="comp-row">
+          <div class="avatar avatar-lg" style="background:#0a8754">A</div>
+          <div class="avatar" style="background:#3fb04b">M</div>
+          <div class="avatar avatar-sm" style="background:#ff7a5c">K</div>
+          <div style="width:24px"></div>
+          <div class="avatar-stack">
+            <div class="avatar" style="background:#0a8754">A</div>
+            <div class="avatar" style="background:#3fb04b">M</div>
+            <div class="avatar" style="background:#ffd84d; color:#7a5500">K</div>
+            <div class="avatar" style="background:var(--ink-100); color:var(--ink-500); font-size:13px">+12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Progress</h3><span class="sub-meta">linear · gradient · alt colors</span></div>
+      <div class="comp-frame">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:32px">
+          <div>
+            <p style="margin:0 0 8px; display:flex; justify-content:space-between; font-size:13px; font-weight:600"><span>Algebra</span><span style="color:var(--green-700)">68%</span></p>
+            <div class="progress"><div class="progress-bar" style="width:68%"></div></div>
+          </div>
+          <div>
+            <p style="margin:0 0 8px; display:flex; justify-content:space-between; font-size:13px; font-weight:600"><span>JavaScript</span><span style="color:var(--sun-700)">42%</span></p>
+            <div class="progress"><div class="progress-bar sun" style="width:42%"></div></div>
+          </div>
+          <div>
+            <p style="margin:0 0 8px; display:flex; justify-content:space-between; font-size:13px; font-weight:600"><span>Spanish</span><span style="color:var(--coral-700)">12%</span></p>
+            <div class="progress"><div class="progress-bar coral" style="width:12%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 07 — ALERTS, NAV, TABLE                              -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">07 · COMPONENTS</div>
+      <div class="section-title">
+        <h2>Alerts · Nav · Table</h2>
+        <p class="desc">Тосты в 4 семантических варианта. Боковая навигация — активный пункт зелёным «капсулой». Таблицы — мягкие, без жирных линий.</p>
+      </div>
+    </div>
+
+    <div class="comp-grid-2">
+      <div>
+        <div class="comp-frame" style="display:flex; flex-direction:column; gap:12px">
+          <div class="alert alert-success">
+            <div class="icon">✓</div>
+            <div>
+              <h5>Lesson saved.</h5>
+              <p>Your progress is synced — you can continue on mobile.</p>
+            </div>
+          </div>
+          <div class="alert alert-warning">
+            <div class="icon">!</div>
+            <div>
+              <h5>5 students haven't started yet.</h5>
+              <p>Send a reminder, or extend the deadline.</p>
+            </div>
+          </div>
+          <div class="alert alert-error">
+            <div class="icon">!</div>
+            <div>
+              <h5>We couldn't sync your draft.</h5>
+              <p>Check your internet connection and try again.</p>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <div class="icon">i</div>
+            <div>
+              <h5>New: AI lesson generator.</h5>
+              <p>Generate first drafts in seconds. Beta feature.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-list">
+          <a class="nav-item active">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Dashboard
+          </a>
+          <a class="nav-item">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Courses
+          </a>
+          <a class="nav-item">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M16 8 8 16"/><path d="m16 16-8-8"/></svg>
+            Assignments
+            <span class="badge-count">3</span>
+          </a>
+          <a class="nav-item">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/></svg>
+            Progress
+          </a>
+          <a class="nav-item">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            Achievements
+          </a>
+          <a class="nav-item">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+            Calendar
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-head"><h3 class="sub-title">Table</h3><span class="sub-meta">student gradebook view</span></div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:40%">Student</th>
+            <th>Course</th>
+            <th>Progress</th>
+            <th>Last seen</th>
+            <th style="width:12%">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div style="display:flex; gap:12px; align-items:center"><div class="avatar avatar-sm" style="background:#0a8754">A</div><span style="font-weight:700; color:var(--ink-900)">Anna Petrov</span></div></td>
+            <td>Algebra · 9th grade</td>
+            <td><div style="display:flex; gap:10px; align-items:center; max-width:180px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:78%"></div></div><span style="font-family:var(--font-mono); font-size:11px; font-weight:600">78%</span></div></td>
+            <td>2 min ago</td>
+            <td><span class="chip chip-green chip-dot">Active</span></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex; gap:12px; align-items:center"><div class="avatar avatar-sm" style="background:#3fb04b">M</div><span style="font-weight:700; color:var(--ink-900)">Marko Janev</span></div></td>
+            <td>JavaScript Basics</td>
+            <td><div style="display:flex; gap:10px; align-items:center; max-width:180px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:42%"></div></div><span style="font-family:var(--font-mono); font-size:11px; font-weight:600">42%</span></div></td>
+            <td>1 hour ago</td>
+            <td><span class="chip chip-sun chip-dot">Slow</span></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex; gap:12px; align-items:center"><div class="avatar avatar-sm" style="background:#ffd84d; color:#7a5500">K</div><span style="font-weight:700; color:var(--ink-900)">Katja Smirnova</span></div></td>
+            <td>SAT Math</td>
+            <td><div style="display:flex; gap:10px; align-items:center; max-width:180px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:12%"></div></div><span style="font-family:var(--font-mono); font-size:11px; font-weight:600">12%</span></div></td>
+            <td>3 days ago</td>
+            <td><span class="chip chip-coral chip-dot">Stuck</span></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex; gap:12px; align-items:center"><div class="avatar avatar-sm" style="background:#ff7a5c">D</div><span style="font-weight:700; color:var(--ink-900)">Dmitry Volkov</span></div></td>
+            <td>Spanish · A2</td>
+            <td><div style="display:flex; gap:10px; align-items:center; max-width:180px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:96%"></div></div><span style="font-family:var(--font-mono); font-size:11px; font-weight:600">96%</span></div></td>
+            <td>just now</td>
+            <td><span class="chip chip-solid-green">Done</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <!-- 08 — ICONS                                            -->
+  <!-- ===================================================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-num">08 · COMPONENTS</div>
+      <div class="section-title">
+        <h2>Icon tiles</h2>
+        <p class="desc">Иконка живёт в цветной плитке 44×44 (lucide stroke 2). 4 семантических цвета. Используем для фич, навигации, пустых состояний.</p>
+      </div>
+    </div>
+
+    <div class="comp-frame">
+      <div class="comp-grid-4">
+        <div class="card" style="display:flex; gap:14px; align-items:center">
+          <div class="itile">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:14px">Courses</h4>
+            <p style="margin:0; font-size:12px">14 active</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex; gap:14px; align-items:center">
+          <div class="itile itile-sun">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:14px">Achievements</h4>
+            <p style="margin:0; font-size:12px">3 new</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex; gap:14px; align-items:center">
+          <div class="itile itile-coral">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2-3 7H2l5.5 4-2 7L12 16l6.5 4-2-7L22 9h-7z"/></svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:14px">Streak</h4>
+            <p style="margin:0; font-size:12px">7 days</p>
+          </div>
+        </div>
+        <div class="card" style="display:flex; gap:14px; align-items:center">
+          <div class="itile itile-ink">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <h4 style="margin:0; font-size:14px">Time</h4>
+            <p style="margin:0; font-size:12px">2h 14m</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="margin-top:120px; padding-top:32px; border-top:1px solid var(--ink-100); display:flex; justify-content:space-between; align-items:baseline; font-family:var(--font-mono); font-size:11px; color:var(--ink-400); letter-spacing:0.06em">
+    <span>GRASSLMS · DESIGN SYSTEM v1.0 · LIVELY</span>
+    <span>Next up: Lesson player → Student dashboard → Catalog → Course builder → Admin</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
