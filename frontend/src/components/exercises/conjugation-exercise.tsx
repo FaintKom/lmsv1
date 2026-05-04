@@ -77,23 +77,23 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
       </div>
 
       {/* Conjugation rows */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm overflow-hidden">
         {pronouns.map((pronoun, i) => {
           const isCorrect = submitted ? results[pronoun] : undefined;
           const rowBg =
             isCorrect === true
-              ? "bg-emerald-50 dark:bg-emerald-500/10"
+              ? "bg-green-50 dark:bg-green-500/10"
               : isCorrect === false
-              ? "bg-red-50 dark:bg-red-500/10"
+              ? "bg-coral-50 dark:bg-coral-500/10"
               : i % 2 === 0
               ? "bg-white dark:bg-[#1E1E1E]"
-              : "bg-slate-50/60 dark:bg-white/[0.02]";
+              : "bg-ink-50/60 dark:bg-white/[0.02]";
 
           return (
             <div
               key={pronoun}
               className={`flex items-center gap-4 px-4 py-3 transition-colors duration-200 ${rowBg} ${
-                i > 0 ? "border-t border-slate-100 dark:border-white/5" : ""
+                i > 0 ? "border-t border-ink-100 dark:border-white/5" : ""
               }`}
             >
               {/* Pronoun badge */}
@@ -114,22 +114,22 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
                   className={`w-full rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 outline-none
                     ${
                       submitted && isCorrect === true
-                        ? "border-2 border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
+                        ? "border-2 border-green-400 bg-green-50 text-green-800 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
                         : submitted && isCorrect === false
-                        ? "border-2 border-red-400 bg-red-50 text-red-800 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
-                        : "border-2 border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#2A2A2A] text-slate-800 dark:text-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+                        ? "border-2 border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
+                        : "border-2 border-ink-200 dark:border-white/15 bg-ink-50 dark:bg-[#2A2A2A] text-ink-900 dark:text-ink-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
                     }
                     disabled:cursor-not-allowed
                   `}
                 />
                 {/* Feedback icon */}
                 {submitted && isCorrect === true && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 text-lg">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-lg">
                     {"\u2713"}
                   </span>
                 )}
                 {submitted && isCorrect === false && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-lg">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-coral-500 text-lg">
                     {"\u2717"}
                   </span>
                 )}
@@ -137,7 +137,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
 
               {/* Show correct answer after wrong */}
               {submitted && isCorrect === false && (
-                <div className="flex-shrink-0 text-xs text-red-500 dark:text-red-400 font-medium">
+                <div className="flex-shrink-0 text-xs text-coral-500 dark:text-coral-300 font-medium">
                   {table.find((r) => r.pronoun === pronoun)?.correct}
                 </div>
               )}
@@ -151,8 +151,8 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
         <div
           className={`rounded-2xl px-5 py-3 text-sm font-semibold ${
             correctCount === pronouns.length
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-              : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+              ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+              : "bg-sun-50 text-sun-700 dark:bg-sun-500/10 dark:text-sun-400"
           }`}
         >
           {correctCount === pronouns.length

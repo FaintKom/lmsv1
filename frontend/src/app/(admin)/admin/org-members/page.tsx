@@ -114,10 +114,10 @@ export default function OrgMembersPage() {
           <Users className="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-ink-900">
             Organization members
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-500">
             Add existing users to this organization or remove their access.
             Users must have already registered a GrassLMS account.
           </p>
@@ -127,7 +127,7 @@ export default function OrgMembersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <UserPlus className="h-5 w-5 text-slate-400" aria-hidden="true" />
+            <UserPlus className="h-5 w-5 text-ink-400" aria-hidden="true" />
             Add member
           </CardTitle>
         </CardHeader>
@@ -139,7 +139,7 @@ export default function OrgMembersPage() {
             <div className="flex-1">
               <label
                 htmlFor="member-email"
-                className="mb-1 block text-xs font-medium text-slate-600"
+                className="mb-1 block text-xs font-medium text-ink-700"
               >
                 Email
               </label>
@@ -150,14 +150,14 @@ export default function OrgMembersPage() {
                 placeholder="teacher@school.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 disabled={submitting}
               />
             </div>
             <div className="sm:w-40">
               <label
                 htmlFor="member-role"
-                className="mb-1 block text-xs font-medium text-slate-600"
+                className="mb-1 block text-xs font-medium text-ink-700"
               >
                 Role
               </label>
@@ -165,7 +165,7 @@ export default function OrgMembersPage() {
                 id="member-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm capitalize focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm capitalize focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 disabled={submitting}
               >
                 {ROLES.map((r) => (
@@ -190,28 +190,28 @@ export default function OrgMembersPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-slate-500">Loading...</p>
+            <p className="text-sm text-ink-500">Loading...</p>
           ) : members.length === 0 ? (
-            <p className="text-sm text-slate-500">No members yet.</p>
+            <p className="text-sm text-ink-500">No members yet.</p>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-ink-100">
               {members.map((m) => (
                 <li
                   key={m.user_id}
                   className="flex items-center justify-between gap-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-900">
+                    <p className="truncate text-sm font-medium text-ink-900">
                       {m.full_name}
                     </p>
-                    <p className="truncate text-xs text-slate-500">{m.email}</p>
+                    <p className="truncate text-xs text-ink-500">{m.email}</p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium capitalize text-slate-600">
+                  <span className="rounded-full bg-ink-100 px-2 py-0.5 text-xs font-medium capitalize text-ink-700">
                     {m.role}
                   </span>
                   {!m.is_primary_org && (
                     <span
-                      className="text-xs text-slate-400"
+                      className="text-xs text-ink-400"
                       title="This org is not the user's primary/active org"
                     >
                       (secondary)
@@ -220,7 +220,7 @@ export default function OrgMembersPage() {
                   <button
                     type="button"
                     onClick={() => handleRemove(m)}
-                    className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                    className="rounded-lg p-2 text-ink-400 transition-colors hover:bg-coral-50 hover:text-coral-500"
                     aria-label={`Remove ${m.full_name}`}
                     title="Remove from org"
                   >

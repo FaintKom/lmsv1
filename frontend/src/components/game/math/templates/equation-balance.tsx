@@ -62,31 +62,31 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-ink-700 dark:text-ink-300">
         Add terms to the right side to balance the equation
       </p>
 
       {/* Balance beam visualization */}
       <svg viewBox="0 0 400 180" width="100%" style={{ maxWidth: 400 }} className="overflow-visible">
         {/* Pivot */}
-        <polygon points="200,170 190,145 210,145" fill="#64748b" />
+        <polygon points="200,170 190,145 210,145" fill="#4d5a51" />
 
         {/* Beam */}
         <g style={{ transform: `rotate(${tiltAngle}deg)`, transformOrigin: "200px 140px", transition: "transform 0.3s" }}>
           <rect x={40} y={136} width={320} height={8} rx={4}
-            fill={checked ? (isBalanced ? "#22c55e" : "#ef4444") : "#94a3b8"} className="transition-colors" />
+            fill={checked ? (isBalanced ? "#3fb04b" : "#ff7a5c") : "#9aa39d"} className="transition-colors" />
 
           {/* Left pan */}
           <rect x={50} y={105} width={120} height={30} rx={8}
-            fill="#f1f5f9" stroke="#cbd5e1" strokeWidth={1.5} className="dark:fill-slate-700 dark:stroke-slate-600" />
-          <text x={110} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#334155" className="dark:fill-slate-200">
+            fill="#f4f5f1" stroke="#c9cec9" strokeWidth={1.5} className="dark:fill-ink-700 dark:stroke-ink-700" />
+          <text x={110} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#1a2a1f" className="dark:fill-ink-200">
             {leftFixed.join(" + ")} = {leftSum}
           </text>
 
           {/* Right pan */}
           <rect x={230} y={105} width={120} height={30} rx={8}
-            fill="#f1f5f9" stroke="#cbd5e1" strokeWidth={1.5} className="dark:fill-slate-700 dark:stroke-slate-600" />
-          <text x={290} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#334155" className="dark:fill-slate-200">
+            fill="#f4f5f1" stroke="#c9cec9" strokeWidth={1.5} className="dark:fill-ink-700 dark:stroke-ink-700" />
+          <text x={290} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#1a2a1f" className="dark:fill-ink-200">
             {[...rightFixed, ...rightAdded.map((t) => t.value)].join(" + ") || "?"} = {rightSum}
           </text>
         </g>
@@ -95,13 +95,13 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
       {/* Terms on right side (removable) */}
       {rightAdded.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-slate-400 self-center">Added:</span>
+          <span className="text-xs text-ink-400 self-center">Added:</span>
           {rightAdded.map((term) => (
             <button
               key={term.id}
               onClick={() => removeFromRight(term)}
               disabled={checked}
-              className="rounded-lg bg-green-100 px-3 py-1.5 text-sm font-semibold text-green-700 transition-colors hover:bg-red-100 hover:text-red-700 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-red-500/20 dark:hover:text-red-300"
+              className="rounded-lg bg-green-100 px-3 py-1.5 text-sm font-semibold text-green-700 transition-colors hover:bg-coral-50 hover:text-coral-700 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-coral-500/20 dark:hover:text-coral-300"
             >
               {term.label} &times;
             </button>
@@ -111,19 +111,19 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
 
       {/* Term bank */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-slate-400">Available:</span>
+        <span className="text-xs text-ink-400">Available:</span>
         {bank.map((term) => (
           <button
             key={term.id}
             onClick={() => addToRight(term)}
             disabled={checked}
-            className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-green-100 hover:text-green-700 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-green-500/20 dark:hover:text-green-300"
+            className="rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-semibold text-ink-700 transition-colors hover:bg-green-100 hover:text-green-700 dark:bg-white/10 dark:text-ink-300 dark:hover:bg-green-500/20 dark:hover:text-green-300"
           >
             +{term.label}
           </button>
         ))}
         {bank.length === 0 && !checked && (
-          <span className="text-xs text-slate-400 italic">All terms placed</span>
+          <span className="text-xs text-ink-400 italic">All terms placed</span>
         )}
       </div>
 
@@ -137,7 +137,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
       </div>
 
       {checked && !isBalanced && (
-        <p className="text-xs text-red-500">
+        <p className="text-xs text-coral-500">
           Not balanced yet. Left = {leftSum}, Right = {rightSum}. Difference: {Math.abs(diff)}
         </p>
       )}

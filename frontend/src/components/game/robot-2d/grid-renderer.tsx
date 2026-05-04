@@ -52,7 +52,7 @@ export default function GridRenderer({
           <feGaussianBlur stdDeviation="4" result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
-        <radialGradient id="starGlow"><stop offset="0%" stopColor="#fbbf24" stopOpacity="0.5" /><stop offset="100%" stopColor="#fbbf24" stopOpacity="0" /></radialGradient>
+        <radialGradient id="starGlow"><stop offset="0%" stopColor="#ffd84d" stopOpacity="0.5" /><stop offset="100%" stopColor="#ffd84d" stopOpacity="0" /></radialGradient>
         <radialGradient id="goalGlow"><stop offset="0%" stopColor="#34d399" stopOpacity="0.5" /><stop offset="100%" stopColor="#34d399" stopOpacity="0" /></radialGradient>
         {/* Parchment-style grid background */}
         <pattern id="gridDots" width={cs} height={cs} patternUnits="userSpaceOnUse" x={pad} y={pad}>
@@ -120,19 +120,19 @@ export default function GridRenderer({
                   {/* Flag pole */}
                   <line x1={center_x - cs * 0.1} y1={center_y - cs * 0.28}
                     x2={center_x - cs * 0.1} y2={center_y + cs * 0.25}
-                    stroke="#059669" strokeWidth={2.5} strokeLinecap="round" />
+                    stroke="#0a8754" strokeWidth={2.5} strokeLinecap="round" />
                   {/* Flag */}
                   <path d={`M ${center_x - cs * 0.1} ${center_y - cs * 0.28}
                     L ${center_x + cs * 0.22} ${center_y - cs * 0.16}
                     L ${center_x - cs * 0.1} ${center_y - cs * 0.04} Z`}
-                    fill="#10b981" />
+                    fill="#3fb04b" />
                 </g>
               )}
 
               {/* Start marker (edit mode only) */}
               {type === "start" && editMode && (
                 <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
-                  fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">START</text>
+                  fontSize={cs * 0.22} fill="#0a8754" fontWeight="bold" className="select-none">START</text>
               )}
 
               {/* Edit hover */}
@@ -151,7 +151,7 @@ export default function GridRenderer({
           points={state.trail.map((t) =>
             `${pad + t.x * cs + cs / 2},${pad + t.y * cs + cs / 2}`).join(" ")}
           fill="none"
-          stroke={state.goalReached ? "#34d399" : "#fbbf24"}
+          stroke={state.goalReached ? "#34d399" : "#ffd84d"}
           strokeWidth={4}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -165,7 +165,7 @@ export default function GridRenderer({
         i > 0 && (
           <circle key={`trail-${i}`}
             cx={pad + t.x * cs + cs / 2} cy={pad + t.y * cs + cs / 2} r={3}
-            fill={state.goalReached ? "#34d399" : "#fbbf24"} opacity={0.7} />
+            fill={state.goalReached ? "#34d399" : "#ffd84d"} opacity={0.7} />
         )
       ))}
 
@@ -187,7 +187,7 @@ export default function GridRenderer({
 
             {/* Body outer ring */}
             <circle r={cs * 0.34}
-              fill={state.lastCollision ? "#ef4444" : "#4C97FF"}
+              fill={state.lastCollision ? "#ff7a5c" : "#4C97FF"}
               filter="url(#robotGlow)"
               style={{ transition: "fill 0.3s" }} />
 

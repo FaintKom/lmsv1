@@ -84,8 +84,8 @@ export default function ReviewQueuePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Review Queue</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Review Queue</h1>
+        <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
           {items.length} submission{items.length !== 1 ? "s" : ""} waiting for review
         </p>
       </div>
@@ -93,13 +93,13 @@ export default function ReviewQueuePage() {
       {items.length === 0 && !selected ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <InboxIcon className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <InboxIcon className="h-8 w-8 text-ink-400 dark:text-ink-500" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               All caught up!
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="text-base text-ink-500 dark:text-ink-400">
               No submissions waiting for review.
             </p>
           </CardContent>
@@ -115,26 +115,26 @@ export default function ReviewQueuePage() {
                 className={`w-full text-left rounded-xl border p-4 transition-all ${
                   selected?.id === item.id
                     ? "border-green-400 bg-green-50 shadow-sm dark:border-green-500/40 dark:bg-green-500/10"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm dark:border-white/10 dark:bg-[#2C2C2C] dark:hover:border-white/20"
+                    : "border-ink-200 bg-white hover:border-ink-300 hover:shadow-sm dark:border-white/10 dark:bg-[#2C2C2C] dark:hover:border-white/20"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`rounded-lg p-2 ${
                     item.status === "late"
-                      ? "bg-orange-100 dark:bg-orange-500/20"
+                      ? "bg-sun-100 dark:bg-sun-500/20"
                       : "bg-blue-100 dark:bg-blue-500/20"
                   }`}>
                     <FileText className={`h-4 w-4 ${
                       item.status === "late"
-                        ? "text-orange-600 dark:text-orange-400"
+                        ? "text-sun-500 dark:text-sun-400"
                         : "text-blue-600 dark:text-blue-400"
                     }`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <h4 className="truncate text-sm font-semibold text-ink-900 dark:text-ink-100">
                       {item.assignment_title}
                     </h4>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
                       <span className="flex items-center gap-1">
                         <User className="h-3 w-3" />
                         {item.student_name}
@@ -144,13 +144,13 @@ export default function ReviewQueuePage() {
                         {new Date(item.submitted_at).toLocaleDateString()}
                       </span>
                       {item.status === "late" && (
-                        <span className="rounded-full bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-700 dark:bg-orange-500/20 dark:text-orange-400">
+                        <span className="rounded-full bg-sun-100 px-1.5 py-0.5 text-[10px] font-medium text-sun-700 dark:bg-sun-500/20 dark:text-sun-400">
                           Late
                         </span>
                       )}
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
+                  <ChevronRight className="h-4 w-4 text-ink-300 dark:text-ink-700" />
                 </div>
               </button>
             ))}
@@ -162,7 +162,7 @@ export default function ReviewQueuePage() {
               <Card className="border-l-4 border-l-green-400">
                 <CardHeader>
                   <CardTitle className="text-base">{selected.assignment_title}</CardTitle>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-sm text-ink-500 dark:text-ink-400">
                     {selected.student_name} &middot; {selected.student_email}
                   </p>
                 </CardHeader>
@@ -170,10 +170,10 @@ export default function ReviewQueuePage() {
                   {/* Student answer */}
                   {selected.content && (
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
+                      <label className="mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400">
                         Student Answer
                       </label>
-                      <div className="max-h-64 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm whitespace-pre-wrap text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                      <div className="max-h-64 overflow-y-auto rounded-lg border border-ink-200 bg-ink-50 p-3 text-sm whitespace-pre-wrap text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-200">
                         {selected.content}
                       </div>
                     </div>
@@ -182,14 +182,14 @@ export default function ReviewQueuePage() {
                   {/* File attachment */}
                   {selected.original_filename && (
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
+                      <label className="mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400">
                         Attached File
                       </label>
                       <a
                         href={`${apiClient.defaults.baseURL?.replace("/api/v1", "")}/uploads/${selected.file_path}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-green-600 transition-colors hover:bg-green-50 dark:border-white/10 dark:text-green-400 dark:hover:bg-green-500/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-ink-200 px-3 py-2 text-sm text-green-600 transition-colors hover:bg-green-50 dark:border-white/10 dark:text-green-400 dark:hover:bg-green-500/10"
                       >
                         <Download className="h-4 w-4" />
                         {selected.original_filename}
@@ -198,17 +198,17 @@ export default function ReviewQueuePage() {
                   )}
 
                   {!selected.content && !selected.original_filename && (
-                    <p className="text-sm text-slate-400 italic">No content submitted.</p>
+                    <p className="text-sm text-ink-400 italic">No content submitted.</p>
                   )}
 
                   {/* Grade form */}
-                  <div className="border-t border-slate-200 pt-4 dark:border-white/10">
-                    <h4 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <div className="border-t border-ink-200 pt-4 dark:border-white/10">
+                    <h4 className="mb-3 text-sm font-semibold text-ink-700 dark:text-ink-300">
                       Grade Submission
                     </h4>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
+                        <label className="mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400">
                           Score (0–{selected.max_score})
                         </label>
                         <input
@@ -217,20 +217,20 @@ export default function ReviewQueuePage() {
                           max={selected.max_score}
                           value={score}
                           onChange={(e) => setScore(e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                          className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
                           placeholder="Score"
                         />
                       </div>
                     </div>
                     <div className="mt-3">
-                      <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
+                      <label className="mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400">
                         Feedback (optional)
                       </label>
                       <textarea
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         rows={3}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+                        className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
                         placeholder="Write feedback for the student..."
                       />
                     </div>
@@ -247,7 +247,7 @@ export default function ReviewQueuePage() {
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-                  <p className="text-sm text-slate-400 dark:text-slate-500">
+                  <p className="text-sm text-ink-400 dark:text-ink-500">
                     Select a submission from the list to review it.
                   </p>
                 </CardContent>

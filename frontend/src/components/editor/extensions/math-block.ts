@@ -37,14 +37,14 @@ export const MathBlock = Node.create({
         throwOnError: false,
       });
     } catch {
-      rendered = `<span class="text-red-500">[Math Error]</span>`;
+      rendered = `<span class="text-coral-500">[Math Error]</span>`;
     }
 
     return [
       "div",
       mergeAttributes(HTMLAttributes, {
         "data-type": "math-block",
-        class: "math-block my-4 flex items-center justify-center rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4 cursor-pointer",
+        class: "math-block my-4 flex items-center justify-center rounded-lg border border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-white/5 p-4 cursor-pointer",
       }),
       ["div", { class: "math-display", contenteditable: "false" }, ""],
     ];
@@ -54,18 +54,18 @@ export const MathBlock = Node.create({
     return ({ node, getPos, editor }) => {
       const dom = document.createElement("div");
       dom.setAttribute("data-type", "math-block");
-      dom.className = "math-block my-4 rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4";
+      dom.className = "math-block my-4 rounded-lg border border-ink-200 dark:border-white/10 bg-ink-50 dark:bg-white/5 p-4";
 
       const renderPreview = () => {
         const latex = node.attrs.latex || "";
         if (!latex) {
-          dom.innerHTML = `<p class="text-center text-sm text-slate-400 cursor-pointer">Click to add math formula</p>`;
+          dom.innerHTML = `<p class="text-center text-sm text-ink-400 cursor-pointer">Click to add math formula</p>`;
         } else {
           try {
             const html = katex.renderToString(latex, { displayMode: true, throwOnError: false });
             dom.innerHTML = `<div class="flex justify-center cursor-pointer">${html}</div>`;
           } catch {
-            dom.innerHTML = `<p class="text-center text-red-500">Invalid LaTeX</p>`;
+            dom.innerHTML = `<p class="text-center text-coral-500">Invalid LaTeX</p>`;
           }
         }
       };
@@ -73,12 +73,12 @@ export const MathBlock = Node.create({
       const showEditor = () => {
         const latex = node.attrs.latex || "";
         dom.innerHTML = "";
-        dom.className = "math-block my-4 rounded-lg border-2 border-green-300 dark:border-green-500/50 bg-slate-50 dark:bg-white/5 p-4 space-y-3";
+        dom.className = "math-block my-4 rounded-lg border-2 border-green-300 dark:border-green-500/50 bg-ink-50 dark:bg-white/5 p-4 space-y-3";
 
         const textarea = document.createElement("textarea");
         textarea.value = latex;
         textarea.placeholder = "Enter LaTeX formula... e.g. \\int_0^1 f(x)dx";
-        textarea.className = "w-full rounded-md border border-slate-300 dark:border-white/20 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm font-mono text-slate-800 dark:text-slate-200 focus:border-green-500 focus:outline-none resize-none";
+        textarea.className = "w-full rounded-md border border-ink-300 dark:border-white/20 bg-white dark:bg-[#2C2C2C] px-3 py-2 text-sm font-mono text-ink-900 dark:text-ink-200 focus:border-green-500 focus:outline-none resize-none";
         textarea.rows = 3;
         textarea.addEventListener("input", () => {
           // Update preview
@@ -86,7 +86,7 @@ export const MathBlock = Node.create({
             const html = katex.renderToString(textarea.value, { displayMode: true, throwOnError: false });
             preview.innerHTML = html;
           } catch {
-            preview.innerHTML = `<span class="text-red-500 text-sm">Invalid LaTeX</span>`;
+            preview.innerHTML = `<span class="text-coral-500 text-sm">Invalid LaTeX</span>`;
           }
         });
         textarea.addEventListener("keydown", (e) => {
@@ -104,19 +104,19 @@ export const MathBlock = Node.create({
         });
 
         const preview = document.createElement("div");
-        preview.className = "flex justify-center min-h-[2rem] py-2 border-t border-slate-200 dark:border-white/10";
+        preview.className = "flex justify-center min-h-[2rem] py-2 border-t border-ink-200 dark:border-white/10";
         if (latex) {
           try {
             preview.innerHTML = katex.renderToString(latex, { displayMode: true, throwOnError: false });
           } catch {
-            preview.innerHTML = `<span class="text-red-500 text-sm">Invalid LaTeX</span>`;
+            preview.innerHTML = `<span class="text-coral-500 text-sm">Invalid LaTeX</span>`;
           }
         } else {
-          preview.innerHTML = `<span class="text-slate-400 text-sm">Preview appears here</span>`;
+          preview.innerHTML = `<span class="text-ink-400 text-sm">Preview appears here</span>`;
         }
 
         const hint = document.createElement("p");
-        hint.className = "text-[10px] text-slate-400 text-center";
+        hint.className = "text-[10px] text-ink-400 text-center";
         hint.textContent = "Press Enter to save, Escape to cancel";
 
         dom.appendChild(textarea);

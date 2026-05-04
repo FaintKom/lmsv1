@@ -136,12 +136,12 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
       )}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex h-screen w-[260px] flex-col border-r border-slate-200/60 bg-white transition-transform duration-200 ease-in-out md:static md:translate-x-0 dark:border-white/10 dark:bg-[#1E1E1E]",
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-[260px] flex-col border-r border-ink-200/60 bg-white transition-transform duration-200 ease-in-out md:static md:translate-x-0 dark:border-white/10 dark:bg-[#1E1E1E]",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
       {/* Logo — dynamic per-org branding (P2-2) */}
-      <div className="flex h-16 items-center justify-between border-b border-slate-100 px-6 dark:border-white/10">
+      <div className="flex h-16 items-center justify-between border-b border-ink-100 px-6 dark:border-white/10">
         <div className="flex items-center gap-2.5">
           {branding.logo_url ? (
             <img
@@ -152,12 +152,12 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
           ) : (
             <div
               className="flex h-8 w-8 items-center justify-center rounded-lg"
-              style={{ background: branding.primary_color || "#6366f1" }}
+              style={{ background: branding.primary_color || "#0a8754" }}
             >
               <GraduationCap className="h-4.5 w-4.5 text-white" />
             </div>
           )}
-          <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <span className="text-lg font-bold text-ink-900 dark:text-ink-100">
             {branding.display_name}
           </span>
         </div>
@@ -165,7 +165,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
           <NotificationBell />
           <button
             onClick={() => { onCollapse?.(); onClose?.(); }}
-            className="hidden md:flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+            className="hidden md:flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-white/10 dark:hover:text-ink-300"
             title="Collapse sidebar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
@@ -175,14 +175,14 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 
       {/* Search — admin only */}
       {isAdminOnly && (
-        <div className="border-b border-slate-100 py-3 dark:border-white/10">
+        <div className="border-b border-ink-100 py-3 dark:border-white/10">
           <SearchBar />
         </div>
       )}
 
       {/* Navigation */}
       <nav aria-label="Main navigation" className="flex-1 px-3 py-4">
-        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-400 dark:text-ink-500">
           {t("nav.menu")}
         </p>
         <ul className="space-y-1" role="list">
@@ -214,19 +214,19 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
                     isActive
                       ? "bg-green-50 text-green-700 shadow-sm dark:bg-green-500/20 dark:text-green-300"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200"
+                      : "text-ink-500 hover:bg-ink-50 hover:text-ink-900 dark:text-ink-400 dark:hover:bg-white/5 dark:hover:text-ink-200"
                   )}
                 >
                   <item.icon
                     className={cn(
                       "h-[18px] w-[18px]",
-                      isActive ? "text-green-600" : "text-slate-400"
+                      isActive ? "text-green-600" : "text-ink-400"
                     )}
                     aria-hidden="true"
                   />
                   {item.label}
                   {item.badge ? (
-                    <span className="ml-auto rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                    <span className="ml-auto rounded-full bg-coral-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   ) : null}
@@ -238,7 +238,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
       </nav>
 
       {/* User */}
-      <div className="border-t border-slate-100 p-3 dark:border-white/10">
+      <div className="border-t border-ink-100 p-3 dark:border-white/10">
         <OrgSwitcher />
         <div className="mb-1 flex items-center justify-between px-1">
           <LocaleSwitcher />
@@ -246,23 +246,23 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
         </div>
         <Link
           href="/profile"
-          className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+          className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-semibold text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-sm font-semibold text-white shadow-sm">
             {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <p className="truncate text-sm font-semibold text-ink-900 dark:text-ink-200">
               {user?.full_name}
             </p>
-            <p className="truncate text-xs capitalize text-slate-400 dark:text-slate-500">
+            <p className="truncate text-xs capitalize text-ink-400 dark:text-ink-500">
               {user?.role}
             </p>
           </div>
         </Link>
         <button
           onClick={handleLogout}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-ink-400 transition-colors hover:bg-coral-50 hover:text-coral-500 dark:text-ink-500 dark:hover:bg-coral-500/10 dark:hover:text-coral-300"
         >
           <LogOut className="h-[18px] w-[18px]" />
           {t("nav.signOut")}

@@ -70,14 +70,14 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
     for (let i = -gridRange; i <= gridRange; i++) {
       lines.push(
         <line key={`v${i}`} x1={toX(i)} y1={pad} x2={toX(i)} y2={svgSize - pad}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-slate-700" />,
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-ink-700" />,
         <line key={`h${i}`} x1={pad} y1={toY(i)} x2={svgSize - pad} y2={toY(i)}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-slate-700" />
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-ink-700" />
       );
       if (i !== 0 && i % 2 === 0) {
         lines.push(
-          <text key={`xl${i}`} x={toX(i)} y={toY(0) + 14} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>,
-          <text key={`yl${i}`} x={toX(0) - 10} y={toY(i) + 3} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+          <text key={`xl${i}`} x={toX(i)} y={toY(0) + 14} textAnchor="middle" fontSize={9} fill="#9aa39d">{i}</text>,
+          <text key={`yl${i}`} x={toX(0) - 10} y={toY(i) + 3} textAnchor="middle" fontSize={9} fill="#9aa39d">{i}</text>
         );
       }
     }
@@ -87,19 +87,19 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
   return (
     <div className="flex flex-col items-center gap-4">
       <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}
-        className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
+        className="rounded-xl border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
         {gridLines}
 
         {/* Shaded region */}
         {shadedSide && (
           <polygon points={shadingPath}
-            fill={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+            fill={checked ? (isCorrect ? "#3fb04b" : "#ff7a5c") : "#0a8754"}
             opacity={0.15} />
         )}
 
         {/* Boundary line */}
         <line x1={toX(-gridRange)} y1={toY(lineY1)} x2={toX(gridRange)} y2={toY(lineY2)}
-          stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+          stroke={checked ? (isCorrect ? "#3fb04b" : "#ff7a5c") : "#0a8754"}
           strokeWidth={2.5}
           strokeDasharray={isDashed ? "8 5" : "none"} />
 
@@ -116,22 +116,22 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
         )}
 
         {/* Axis labels */}
-        <text x={svgSize - pad + 8} y={toY(0) + 4} fontSize={12} fill="#64748b" fontWeight="bold">x</text>
-        <text x={toX(0) + 6} y={pad - 6} fontSize={12} fill="#64748b" fontWeight="bold">y</text>
+        <text x={svgSize - pad + 8} y={toY(0) + 4} fontSize={12} fill="#4d5a51" fontWeight="bold">x</text>
+        <text x={toX(0) + 6} y={pad - 6} fontSize={12} fill="#4d5a51" fontWeight="bold">y</text>
       </svg>
 
       {/* Controls */}
       <div className="w-full max-w-md space-y-3">
         {/* Operator selector */}
         <div className="flex items-center gap-3 justify-center">
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-400">y</span>
-          <div className="flex rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
+          <span className="text-sm font-medium text-ink-700 dark:text-ink-400">y</span>
+          <div className="flex rounded-xl border border-ink-200 dark:border-white/10 overflow-hidden">
             {[">", ">=", "<", "<="].map((op) => (
               <button key={op} onClick={() => { setUserOperator(op); setChecked(false); }}
                 className={`px-4 py-2 text-sm font-bold transition-colors ${
                   userOperator === op
                     ? "bg-green-500 text-white"
-                    : "bg-white text-slate-600 hover:bg-slate-50 dark:bg-[#1E1E1E] dark:text-slate-400"
+                    : "bg-white text-ink-700 hover:bg-ink-50 dark:bg-[#1E1E1E] dark:text-ink-400"
                 }`}>
                 {op.replace(">=", "\u2265").replace("<=", "\u2264")}
               </button>
@@ -144,7 +144,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
 
         {/* Slope slider */}
         <div className="flex items-center gap-3">
-          <label className="w-28 text-right text-xs font-medium text-slate-500">
+          <label className="w-28 text-right text-xs font-medium text-ink-500">
             slope = <span className="font-mono text-green-600 dark:text-green-400">{userSlope}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={userSlope}
@@ -154,7 +154,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
 
         {/* Intercept slider */}
         <div className="flex items-center gap-3">
-          <label className="w-28 text-right text-xs font-medium text-slate-500">
+          <label className="w-28 text-right text-xs font-medium text-ink-500">
             intercept = <span className="font-mono text-green-600 dark:text-green-400">{userIntercept}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={userIntercept}
@@ -163,7 +163,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
         </div>
 
         {/* Shade instruction */}
-        <p className="text-center text-xs text-slate-400">
+        <p className="text-center text-xs text-ink-400">
           {shadedSide ? `Shaded: ${shadedSide} the line` : "Click above or below the line to shade the solution region"}
           {isDashed ? " (dashed = strict inequality)" : " (solid = includes boundary)"}
         </p>
@@ -174,7 +174,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
       </Button>
 
       {checked && !isCorrect && (
-        <p className="text-xs text-red-500">
+        <p className="text-xs text-coral-500">
           Target: y {targetOperator} {targetSlope}x {targetIntercept >= 0 ? "+" : ""} {targetIntercept}
         </p>
       )}

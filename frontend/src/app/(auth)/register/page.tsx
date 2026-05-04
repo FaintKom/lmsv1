@@ -108,10 +108,10 @@ function RegisterForm() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-center text-2xl font-bold text-ink-900 dark:text-ink-100">
         {inviteOrg ? `Join ${inviteOrg.name}` : "Create your account"}
       </h1>
-      <p className="mb-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-6 text-center text-sm text-ink-500 dark:text-ink-400">
         {inviteOrg
           ? "Create your student account to start learning"
           : "Set up your organization and start teaching"}
@@ -119,7 +119,7 @@ function RegisterForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div role="alert" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div role="alert" aria-live="polite" className="rounded-xl border border-coral-300 bg-coral-50 px-4 py-3 text-sm text-coral-500">
             {error}
           </div>
         )}
@@ -139,7 +139,7 @@ function RegisterForm() {
         {/* Organization name — for teacher registration only, hidden if invited student */}
         {!inviteOrg && form.role === "teacher" && (
           <div>
-            <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
               School / Organization Name
             </label>
             <Input
@@ -153,7 +153,7 @@ function RegisterForm() {
         )}
 
         <div>
-          <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Full Name
           </label>
           <Input
@@ -166,7 +166,7 @@ function RegisterForm() {
           />
         </div>
         <div>
-          <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Email
           </label>
           <Input
@@ -180,7 +180,7 @@ function RegisterForm() {
           />
         </div>
         <div>
-          <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Password
           </label>
           <Input
@@ -200,9 +200,9 @@ function RegisterForm() {
             type="checkbox"
             checked={form.consent}
             onChange={(e) => setForm((prev) => ({ ...prev, consent: e.target.checked }))}
-            className="mt-1 rounded border-slate-300 text-green-600 focus:ring-green-500"
+            className="mt-1 rounded border-ink-300 text-green-600 focus:ring-green-500"
           />
-          <label htmlFor="reg-consent" className="text-sm text-slate-600 dark:text-slate-400">
+          <label htmlFor="reg-consent" className="text-sm text-ink-700 dark:text-ink-400">
             I agree to the{" "}
             <Link href="/privacy" className="font-medium text-green-600 hover:text-green-700">Privacy Policy</Link>
             {" "}and{" "}
@@ -216,7 +216,7 @@ function RegisterForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-6 text-center text-sm text-ink-500 dark:text-ink-400">
         Already have an account?{" "}
         <Link
           href="/login"

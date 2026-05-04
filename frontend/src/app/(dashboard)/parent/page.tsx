@@ -56,10 +56,10 @@ export default function ParentDashboard() {
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">
           {t("parent.welcome")} {user?.full_name}
         </h1>
-        <p className="text-base text-slate-500 dark:text-slate-400">
+        <p className="text-base text-ink-500 dark:text-ink-400">
           {t("parent.subtitle")}
         </p>
       </div>
@@ -77,7 +77,7 @@ export default function ParentDashboard() {
               value={linkEmail}
               onChange={(e) => setLinkEmail(e.target.value)}
               required
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="flex-1 rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
             />
             <button
               type="submit"
@@ -97,11 +97,11 @@ export default function ParentDashboard() {
       ) : children.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
-            <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
-              <Users className="h-6 w-6 text-slate-400" />
+            <div className="mb-3 rounded-full bg-ink-100 p-3 dark:bg-white/10">
+              <Users className="h-6 w-6 text-ink-400" />
             </div>
-            <p className="text-sm font-medium text-slate-500">{t("parent.noChildren")}</p>
-            <p className="mt-1 text-xs text-slate-400">{t("parent.noChildrenHint")}</p>
+            <p className="text-sm font-medium text-ink-500">{t("parent.noChildren")}</p>
+            <p className="mt-1 text-xs text-ink-400">{t("parent.noChildrenHint")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -110,14 +110,14 @@ export default function ParentDashboard() {
             <Link key={child.id} href={`/parent/children/${child.id}`}>
               <Card className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
                 <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-lg font-bold text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-lg font-bold text-white">
                     {child.full_name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{child.full_name}</p>
-                    <p className="text-xs text-slate-400">{child.email}</p>
+                    <p className="font-semibold text-ink-900 dark:text-ink-200">{child.full_name}</p>
+                    <p className="text-xs text-ink-400">{child.email}</p>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300" />
+                  <ArrowRight className="h-4 w-4 text-ink-300" />
                 </CardContent>
               </Card>
             </Link>

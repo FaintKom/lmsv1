@@ -26,9 +26,9 @@ const PROBLEM_TYPES = [
 ];
 
 const DIFFICULTIES = [
-  { value: "easy", label: "Easy", color: "text-emerald-600 bg-emerald-50" },
-  { value: "medium", label: "Medium", color: "text-amber-600 bg-amber-50" },
-  { value: "hard", label: "Hard", color: "text-red-600 bg-red-50" },
+  { value: "easy", label: "Easy", color: "text-green-600 bg-green-50" },
+  { value: "medium", label: "Medium", color: "text-sun-500 bg-sun-50" },
+  { value: "hard", label: "Hard", color: "text-coral-500 bg-coral-50" },
 ];
 
 export function ProblemGenerator() {
@@ -100,11 +100,11 @@ export function ProblemGenerator() {
           <div className="flex flex-wrap items-end gap-4">
             {/* Type selector */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-500">Type</label>
+              <label className="text-xs font-medium text-ink-500">Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="block w-40 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="block w-40 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 {PROBLEM_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -116,11 +116,11 @@ export function ProblemGenerator() {
 
             {/* Difficulty selector */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-500">Difficulty</label>
+              <label className="text-xs font-medium text-ink-500">Difficulty</label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="block w-32 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="block w-32 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 {DIFFICULTIES.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -132,14 +132,14 @@ export function ProblemGenerator() {
 
             {/* Count input */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-500">Count</label>
+              <label className="text-xs font-medium text-ink-500">Count</label>
               <input
                 type="number"
                 min={1}
                 max={20}
                 value={count}
                 onChange={(e) => setCount(Math.max(1, Math.min(20, Number(e.target.value))))}
-                className="block w-20 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="block w-20 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
             </div>
 
@@ -158,24 +158,24 @@ export function ProblemGenerator() {
 
       {/* Score card */}
       {score && (
-        <Card className={score.percent >= 70 ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}>
+        <Card className={score.percent >= 70 ? "border-green-200 bg-green-50" : "border-coral-300 bg-coral-50"}>
           <CardContent className="flex items-center gap-4 p-5">
             {score.percent >= 70 ? (
-              <Trophy className="h-8 w-8 text-emerald-500" />
+              <Trophy className="h-8 w-8 text-green-500" />
             ) : (
-              <XCircle className="h-8 w-8 text-red-500" />
+              <XCircle className="h-8 w-8 text-coral-500" />
             )}
             <div>
-              <p className={`text-xl font-bold ${score.percent >= 70 ? "text-emerald-700" : "text-red-700"}`}>
+              <p className={`text-xl font-bold ${score.percent >= 70 ? "text-green-700" : "text-coral-700"}`}>
                 {score.correct} / {score.total} correct ({score.percent}%)
               </p>
-              <p className={`text-sm ${score.percent >= 70 ? "text-emerald-600" : "text-red-600"}`}>
+              <p className={`text-sm ${score.percent >= 70 ? "text-green-600" : "text-coral-500"}`}>
                 {score.percent === 100 ? "Perfect score!" : score.percent >= 70 ? "Great job!" : "Keep practicing!"}
               </p>
             </div>
             <button
               onClick={handleGenerate}
-              className="ml-auto rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              className="ml-auto rounded-lg bg-white px-4 py-2 text-sm font-medium text-ink-700 shadow-sm hover:bg-ink-50"
             >
               Try Again
             </button>
@@ -197,8 +197,8 @@ export function ProblemGenerator() {
                 className={
                   isChecked
                     ? isCorrect
-                      ? "border-emerald-200"
-                      : "border-red-200"
+                      ? "border-green-200"
+                      : "border-coral-300"
                     : ""
                 }
               >
@@ -208,8 +208,8 @@ export function ProblemGenerator() {
                       <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                         isChecked
                           ? isCorrect
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-coral-50 text-coral-700"
                           : "bg-green-100 text-green-700"
                       }`}>
                         {isChecked ? (
@@ -218,19 +218,19 @@ export function ProblemGenerator() {
                           index + 1
                         )}
                       </span>
-                      <span className="text-sm font-medium text-slate-700">
+                      <span className="text-sm font-medium text-ink-700">
                         {problem.question}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mb-4 rounded-lg bg-slate-50 p-3">
+                  <div className="mb-4 rounded-lg bg-ink-50 p-3">
                     <MathRenderer content={problem.latex} />
                   </div>
 
                   {/* Answer input */}
                   <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium text-slate-600">Answer:</label>
+                    <label className="text-sm font-medium text-ink-700">Answer:</label>
                     <input
                       type="text"
                       value={userAnswers[index] || ""}
@@ -245,13 +245,13 @@ export function ProblemGenerator() {
                       className={`w-48 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
                         isChecked
                           ? isCorrect
-                            ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                            : "border-red-300 bg-red-50 text-red-700"
-                          : "border-slate-200 bg-white focus:border-green-500 focus:ring-green-500"
+                            ? "border-green-300 bg-green-50 text-green-700"
+                            : "border-coral-300 bg-coral-50 text-coral-700"
+                          : "border-ink-200 bg-white focus:border-green-500 focus:ring-green-500"
                       }`}
                     />
                     {isChecked && !isCorrect && (
-                      <span className="text-sm text-red-600">
+                      <span className="text-sm text-coral-500">
                         Correct: <strong>{problem.answer}</strong>
                       </span>
                     )}
@@ -264,7 +264,7 @@ export function ProblemGenerator() {
                         onClick={() =>
                           setShowExplanations((prev) => ({ ...prev, [index]: !prev[index] }))
                         }
-                        className="text-xs font-medium text-green-600 hover:text-indigo-800"
+                        className="text-xs font-medium text-green-600 hover:text-green-800"
                       >
                         {showExplanations[index] ? "Hide Explanation" : "Show Explanation"}
                       </button>
@@ -286,7 +286,7 @@ export function ProblemGenerator() {
               <button
                 onClick={handleCheck}
                 disabled={!allAnswered || checking}
-                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-8 py-3 text-sm font-medium text-white hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-green-600 px-8 py-3 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50"
               >
                 {checking && <Loader2 className="h-4 w-4 animate-spin" />}
                 Check Answers ({Object.keys(userAnswers).filter(k => (userAnswers[Number(k)] || "").trim()).length}/{problems.length})

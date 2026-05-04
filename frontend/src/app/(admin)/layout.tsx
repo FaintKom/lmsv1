@@ -53,11 +53,11 @@ export default function AdminLayout({
 
   if (isLoading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-slate-50 dark:bg-[#1E1E1E]">
+      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-ink-50 dark:bg-[#1E1E1E]">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-600">
           <GraduationCap className="h-6 w-6 text-white" />
         </div>
-        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200">
+        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-200">
           <div className="h-full w-1/2 animate-pulse rounded-full bg-green-500" />
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function AdminLayout({
   if (!isAuthenticated || user?.role === "student") return null;
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-[#1E1E1E]">
+    <div className="flex h-screen bg-ink-50 dark:bg-[#1E1E1E]">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-green-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
@@ -77,10 +77,10 @@ export default function AdminLayout({
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile top bar */}
-        <div className="flex h-14 items-center border-b border-slate-200/60 bg-white px-4 md:hidden dark:border-white/10 dark:bg-[#2C2C2C]">
+        <div className="flex h-14 items-center border-b border-ink-200/60 bg-white px-4 md:hidden dark:border-white/10 dark:bg-[#2C2C2C]">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+            className="rounded-lg p-2 text-ink-700 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-white/10"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
@@ -89,7 +89,7 @@ export default function AdminLayout({
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-600">
               <GraduationCap className="h-4 w-4 text-white" aria-hidden="true" />
             </div>
-            <span className="text-sm font-bold text-slate-900 dark:text-slate-100">GrassLMS</span>
+            <span className="text-sm font-bold text-ink-900 dark:text-ink-100">GrassLMS</span>
           </div>
         </div>
         <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12">{children}</main>

@@ -12,17 +12,17 @@ export default function AcceptableUsePolicyPage() {
         Back to Login
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-3xl font-bold text-ink-900 dark:text-ink-100">
         Acceptable Use Policy
       </h1>
-      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-500 dark:text-ink-400">
         Effective Date: March 31, 2026
       </p>
 
-      <div className="space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <div className="space-y-8 text-sm leading-relaxed text-ink-700 dark:text-ink-400">
         {/* 1. Purpose */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             1. Purpose
           </h2>
           <p>
@@ -35,7 +35,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 2. Prohibited Content */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             2. Prohibited Content
           </h2>
           <p>You may not upload, share, or create any of the following on GrassLMS:</p>
@@ -53,7 +53,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 3. Prohibited Activities */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             3. Prohibited Activities
           </h2>
           <p>You may not engage in any of the following activities:</p>
@@ -71,7 +71,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 4. Code Execution Rules */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             4. Code Execution Rules
           </h2>
           <p>
@@ -90,7 +90,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 5. Academic Integrity */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             5. Academic Integrity
           </h2>
           <p>To maintain the value of your learning, you may not:</p>
@@ -105,7 +105,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 6. Communication Standards */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             6. Communication Standards
           </h2>
           <p>In discussions and comments:</p>
@@ -122,7 +122,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 7. Account Security */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             7. Account Security
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -145,7 +145,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 8. Protection of Minors */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             8. Protection of Minors
           </h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -167,7 +167,7 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 9. Reporting Violations */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             9. Reporting Violations
           </h2>
           <p>
@@ -194,12 +194,12 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 10. Enforcement */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             10. Enforcement
           </h2>
           <p>Violations are handled with a graduated response:</p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Standard Violations
           </h3>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -217,7 +217,7 @@ export default function AcceptableUsePolicyPage() {
             </li>
           </ul>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Severe Violations
           </h3>
           <p>
@@ -239,15 +239,15 @@ export default function AcceptableUsePolicyPage() {
 
         {/* 11. Contact */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             11. Contact Us
           </h2>
           <p>
             If you have any questions or concerns about this Acceptable Use Policy, please contact
             us:
           </p>
-          <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="font-medium text-slate-700 dark:text-slate-300">
+          <div className="mt-2 rounded-lg border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <p className="font-medium text-ink-700 dark:text-ink-300">
               GrassLMS Support Team
             </p>
             <p className="mt-1">

@@ -133,8 +133,8 @@ export default function AdminUsersPage() {
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Users</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Users</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
             {users.length} users{isSuperAdmin ? " across all organizations" : " in your organization"}
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
                 placeholder="Full Name"
                 value={form.full_name}
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="rounded-lg border border-ink-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <input
@@ -164,7 +164,7 @@ export default function AdminUsersPage() {
                 placeholder="Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="rounded-lg border border-ink-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <input
@@ -172,13 +172,13 @@ export default function AdminUsersPage() {
                 placeholder="Password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="rounded-lg border border-ink-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="rounded-lg border border-slate-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="rounded-lg border border-ink-300 dark:border-white/10 bg-transparent px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               >
                 <option value="student">Student</option>
                 <option value="teacher">Teacher</option>
@@ -202,7 +202,7 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
+                <tr className="border-b border-ink-200 dark:border-white/10 text-left text-xs font-medium uppercase tracking-wider text-ink-400">
                   <th className="px-5 py-3">Name</th>
                   <th className="px-5 py-3">Email</th>
                   <th className="px-5 py-3">Role</th>
@@ -215,16 +215,16 @@ export default function AdminUsersPage() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-50 dark:border-white/5 text-sm hover:bg-slate-50/50 dark:hover:bg-white/5">
+                  <tr key={u.id} className="border-b border-ink-50 dark:border-white/5 text-sm hover:bg-ink-50/50 dark:hover:bg-white/5">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-xs font-semibold text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-500 text-xs font-semibold text-white">
                           {u.full_name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="font-medium text-slate-900 dark:text-slate-100">{u.full_name}</span>
+                        <span className="font-medium text-ink-900 dark:text-ink-100">{u.full_name}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-slate-500 dark:text-slate-400">{u.email}</td>
+                    <td className="px-5 py-4 text-ink-500 dark:text-ink-400">{u.email}</td>
                     <td className="px-5 py-4">
                       <select
                         value={u.role}
@@ -243,14 +243,14 @@ export default function AdminUsersPage() {
                           onClick={() => handleToggleMethodist(u.id, !!u.is_methodist)}
                           className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                             u.is_methodist
-                              ? "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600"
-                              : "bg-slate-50 dark:bg-white/5 text-slate-400"
+                              ? "bg-green-50 dark:bg-green-500/20 text-green-600"
+                              : "bg-ink-50 dark:bg-white/5 text-ink-400"
                           }`}
                         >
                           {u.is_methodist ? "Methodist" : "Regular"}
                         </button>
                       ) : (
-                        <span className="text-xs text-slate-300">—</span>
+                        <span className="text-xs text-ink-300">—</span>
                       )}
                     </td>
                     {isSuperAdmin && (
@@ -273,20 +273,20 @@ export default function AdminUsersPage() {
                         onClick={() => handleToggleActive(u.id, u.is_active)}
                         className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                           u.is_active
-                            ? "bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600"
-                            : "bg-red-50 dark:bg-red-500/20 text-red-600"
+                            ? "bg-green-50 dark:bg-green-500/20 text-green-600"
+                            : "bg-coral-50 dark:bg-coral-500/20 text-coral-500"
                         }`}
                       >
                         {u.is_active ? "Active" : "Inactive"}
                       </button>
                     </td>
-                    <td className="px-5 py-4 text-xs text-slate-400">
+                    <td className="px-5 py-4 text-xs text-ink-400">
                       {new Date(u.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-4">
                       <button
                         onClick={() => handleDelete(u.id)}
-                        className="rounded p-1 text-slate-300 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500"
+                        className="rounded p-1 text-ink-300 hover:bg-coral-50 dark:hover:bg-coral-500/10 hover:text-coral-500"
                         title="Delete user"
                       >
                         <Trash2 className="h-4 w-4" />

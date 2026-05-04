@@ -177,7 +177,7 @@ export default function LessonViewerPage() {
   if (loading) {
     return (
       <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
-        <div className="w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
+        <div className="w-80 border-r border-ink-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
           <Skeleton className="mb-4 h-4 w-24" />
           <Skeleton className="mb-6 h-5 w-48" />
           <div className="space-y-2">
@@ -206,7 +206,7 @@ export default function LessonViewerPage() {
   if (!course || !lesson) {
     return (
       <div className="text-center">
-        <p className="text-slate-500">Lesson not found</p>
+        <p className="text-ink-500">Lesson not found</p>
         <Link href={`/courses/${courseId}`} className="text-green-600 hover:underline">
           Back to course
         </Link>
@@ -227,31 +227,31 @@ export default function LessonViewerPage() {
       )}
       {/* Sidebar — overlay on mobile, static on desktop */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full w-[min(288px,85vw)] md:w-80 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-transform duration-200 ease-in-out overscroll-contain md:relative md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-[min(288px,85vw)] md:w-80 border-r border-ink-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] transition-transform duration-200 ease-in-out overscroll-contain md:relative md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden"
         }`}
       >
         <div className="sticky top-0 h-full overflow-y-auto p-4">
           <Link
             href={`/courses/${courseId}`}
-            className="mb-4 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            className="mb-4 inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-200"
           >
             <ArrowLeft className="h-3 w-3" />
             Back to course
           </Link>
-          <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{course.title}</h3>
+          <h3 className="mb-3 text-sm font-semibold text-ink-900 dark:text-ink-100">{course.title}</h3>
 
           <div className="space-y-1">
             {course.modules?.map((module, mi) => (
               <div key={module.id}>
                 <button
                   onClick={() => toggleModule(module.id)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
+                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm font-medium text-ink-700 hover:bg-ink-50 dark:text-ink-300 dark:hover:bg-white/5"
                 >
                   {expandedModules.has(module.id) ? (
-                    <ChevronDown className="h-3 w-3 text-slate-400" />
+                    <ChevronDown className="h-3 w-3 text-ink-400" />
                   ) : (
-                    <ChevronRight className="h-3 w-3 text-slate-400" />
+                    <ChevronRight className="h-3 w-3 text-ink-400" />
                   )}
                   <span className="flex h-5 w-5 items-center justify-center rounded bg-green-50 text-[10px] font-bold text-green-600 dark:bg-green-500/20 dark:text-green-400">
                     {mi + 1}
@@ -260,7 +260,7 @@ export default function LessonViewerPage() {
                 </button>
 
                 {expandedModules.has(module.id) && (
-                  <ul className="ml-5 space-y-0.5 border-l border-slate-100 dark:border-white/10 pl-3">
+                  <ul className="ml-5 space-y-0.5 border-l border-ink-100 dark:border-white/10 pl-3">
                     {module.lessons?.map((l) => {
                       const isActive = l.id === lessonId;
                       const isDone = completedLessons.has(l.id);
@@ -273,15 +273,15 @@ export default function LessonViewerPage() {
                             className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors ${
                               isActive
                                 ? "bg-green-50 font-semibold text-green-700 dark:bg-green-500/20 dark:text-green-300"
-                                : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
+                                : "text-ink-700 hover:bg-ink-50 dark:text-ink-400 dark:hover:bg-white/5"
                             }`}
                           >
                             {isDone ? (
-                              <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                              <CheckCircle className="h-3.5 w-3.5 shrink-0 text-green-500" />
                             ) : (
-                              <Circle className="h-3.5 w-3.5 shrink-0 text-slate-300" />
+                              <Circle className="h-3.5 w-3.5 shrink-0 text-ink-300" />
                             )}
-                            <Icon className="h-3 w-3 shrink-0 text-slate-400" />
+                            <Icon className="h-3 w-3 shrink-0 text-ink-400" />
                             <span className="flex-1 truncate">{l.title}</span>
                           </Link>
                         </li>
@@ -301,7 +301,7 @@ export default function LessonViewerPage() {
         {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
-            className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-slate-200 text-slate-500 hover:text-slate-700 md:hidden dark:bg-[#2C2C2C] dark:border-white/10 dark:text-slate-400"
+            className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg border border-ink-200 text-ink-500 hover:text-ink-700 md:hidden dark:bg-[#2C2C2C] dark:border-white/10 dark:text-ink-400"
           >
             <ArrowRight className="h-4 w-4" />
           </button>
@@ -315,19 +315,19 @@ export default function LessonViewerPage() {
                 {lesson.content_type.replace("_", " ")}
               </span>
               {lesson.duration_minutes && (
-                <span className="flex items-center gap-1 text-xs text-slate-400">
+                <span className="flex items-center gap-1 text-xs text-ink-400">
                   <Clock className="h-3 w-3" />
                   {lesson.duration_minutes} min
                 </span>
               )}
               {isCompleted && (
-                <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600">
+                <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-600">
                   <CheckCircle className="h-3 w-3" />
                   Completed
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{lesson.title}</h1>
+            <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">{lesson.title}</h1>
           </div>
 
           {/* Content rendering — v2 block-based or legacy fallback */}
@@ -355,7 +355,7 @@ export default function LessonViewerPage() {
         {/* Exercises — full-width section (legacy v1 only; v2 renders exercises inline via blocks) */}
         {lesson.content?.version !== 2 && exercises.length > 0 && (
           <div className="mb-8 space-y-6 px-2 sm:px-6">
-            <h2 className="mx-auto max-w-3xl text-lg font-semibold text-slate-800 dark:text-slate-200">
+            <h2 className="mx-auto max-w-3xl text-lg font-semibold text-ink-900 dark:text-ink-200">
               Exercises
             </h2>
             {exercises.map((ex) => (
@@ -382,15 +382,15 @@ export default function LessonViewerPage() {
           )}
 
           {/* Prev/Next navigation */}
-          <div className="flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-6">
+          <div className="flex items-center justify-between border-t border-ink-200 dark:border-white/10 pt-6">
             {prevLesson ? (
               <Link
                 href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/5"
+                className="flex items-center gap-2 rounded-lg border border-ink-200 px-4 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50 dark:border-white/10 dark:text-ink-400 dark:hover:bg-white/5"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <div className="text-left">
-                  <div className="text-xs uppercase text-slate-400">Previous</div>
+                  <div className="text-xs uppercase text-ink-400">Previous</div>
                   <div className="max-w-[200px] truncate">{prevLesson.lesson.title}</div>
                 </div>
               </Link>
@@ -412,7 +412,7 @@ export default function LessonViewerPage() {
             ) : (
               <Link
                 href={`/courses/${courseId}`}
-                className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-300 dark:hover:bg-emerald-500/30"
+                className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700 hover:bg-green-100 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-300 dark:hover:bg-green-500/30"
               >
                 <CheckCircle className="h-4 w-4" />
                 Back to Course
@@ -488,7 +488,7 @@ function BlockContent({
       ))}
 
       {currentBlocks.length === 0 && (
-        <div className="text-sm text-slate-500 dark:text-slate-400">No content on this page.</div>
+        <div className="text-sm text-ink-500 dark:text-ink-400">No content on this page.</div>
       )}
 
       {hasMultiplePages && (
@@ -593,7 +593,7 @@ function PageNav({
             className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
               p === currentPage
                 ? "bg-green-600 text-white dark:bg-green-500"
-                : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+                : "text-ink-500 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-white/10"
             }`}
           >
             {p}
@@ -644,7 +644,7 @@ function LegacyContent({
       {/* Type-specific content */}
       <div className="mb-8">
         {lesson.content_type === "text" && !lesson.content?.body && (
-          <div className="text-sm text-slate-500 dark:text-slate-400">No content yet.</div>
+          <div className="text-sm text-ink-500 dark:text-ink-400">No content yet.</div>
         )}
 
         {lesson.content_type === "video" && (
@@ -660,16 +660,16 @@ function LegacyContent({
         {lesson.content_type === "code_challenge" && challenge && (
           <div>
             {challenge.description && (
-              <div className="mb-4 rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
-                <h3 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <div className="mb-4 rounded-lg border border-ink-200 bg-white dark:border-white/10 dark:bg-[#2C2C2C] p-4">
+                <h3 className="mb-2 text-sm font-semibold text-ink-700 dark:text-ink-300">
                   {challenge.title}
                 </h3>
-                <div className="prose prose-sm prose-slate max-w-none text-slate-600 dark:text-slate-400">
+                <div className="prose prose-sm prose-slate max-w-none text-ink-700 dark:text-ink-400">
                   <p>{challenge.description}</p>
                 </div>
               </div>
             )}
-            <div className="h-[500px] overflow-hidden rounded-xl border border-slate-200">
+            <div className="h-[500px] overflow-hidden rounded-xl border border-ink-200">
               <EditorLayout
                 challengeId={challenge.id}
                 language={challenge.language}
@@ -681,9 +681,9 @@ function LegacyContent({
         )}
 
         {lesson.content_type === "code_challenge" && !challenge && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 text-center">
-            <Code className="mx-auto mb-2 h-10 w-10 text-slate-400" />
-            <p className="text-sm text-slate-500">
+          <div className="rounded-xl border border-ink-200 bg-ink-50 dark:border-white/10 dark:bg-white/5 p-6 text-center">
+            <Code className="mx-auto mb-2 h-10 w-10 text-ink-400" />
+            <p className="text-sm text-ink-500">
               No challenge has been configured for this lesson yet.
             </p>
           </div>

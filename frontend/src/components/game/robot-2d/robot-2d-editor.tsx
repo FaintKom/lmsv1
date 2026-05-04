@@ -143,7 +143,7 @@ export default function Robot2DEditor({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {/* Grid size */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="mb-1.5 block text-xs font-medium text-ink-500 dark:text-ink-400">
             Grid Size
           </label>
           <select
@@ -152,7 +152,7 @@ export default function Robot2DEditor({
               const size = GRID_SIZES.find((s) => `${s.w}x${s.h}` === e.target.value);
               if (size) handleGridResize(size.w, size.h);
             }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
           >
             {GRID_SIZES.map((s) => (
               <option key={s.label} value={`${s.w}x${s.h}`}>
@@ -164,7 +164,7 @@ export default function Robot2DEditor({
 
         {/* Difficulty */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="mb-1.5 block text-xs font-medium text-ink-500 dark:text-ink-400">
             Difficulty
           </label>
           <select
@@ -175,7 +175,7 @@ export default function Robot2DEditor({
                 available_blocks: DIFFICULTY_BLOCKS[e.target.value as Difficulty],
               })
             }
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
           >
             {DIFFICULTIES.map((d) => (
               <option key={d.value} value={d.value}>
@@ -187,13 +187,13 @@ export default function Robot2DEditor({
 
         {/* Win condition */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="mb-1.5 block text-xs font-medium text-ink-500 dark:text-ink-400">
             Win Condition
           </label>
           <select
             value={winCondition}
             onChange={(e) => updateConfig({ win_condition: e.target.value })}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
           >
             {WIN_CONDITIONS.map((wc) => (
               <option key={wc.value} value={wc.value}>
@@ -205,7 +205,7 @@ export default function Robot2DEditor({
 
         {/* Max blocks */}
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="mb-1.5 block text-xs font-medium text-ink-500 dark:text-ink-400">
             Max Blocks
           </label>
           <input
@@ -218,18 +218,18 @@ export default function Robot2DEditor({
               })
             }
             placeholder="Unlimited"
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
           />
         </div>
       </div>
 
       {/* Allow Python toggle */}
-      <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+      <label className="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-400">
         <input
           type="checkbox"
           checked={allowPython}
           onChange={(e) => updateConfig({ allow_python: e.target.checked })}
-          className="h-4 w-4 rounded border-slate-300 text-green-600"
+          className="h-4 w-4 rounded border-ink-300 text-green-600"
         />
         Allow Python mode (for advanced students)
       </label>
@@ -238,7 +238,7 @@ export default function Robot2DEditor({
       <div className="flex gap-4">
         {/* Tool palette */}
         <div className="flex flex-col gap-1.5">
-          <span className="mb-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <span className="mb-1 text-xs font-medium text-ink-500 dark:text-ink-400">
             Paint Tool
           </span>
           {CELL_TOOLS.map((tool) => {
@@ -250,7 +250,7 @@ export default function Robot2DEditor({
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                   activeTool === tool.type
                     ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                    : "bg-ink-50 text-ink-700 hover:bg-ink-100 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -262,7 +262,7 @@ export default function Robot2DEditor({
 
         {/* Grid canvas */}
         <div
-          className="flex-1 rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#1E1E1E]"
+          className="flex-1 rounded-xl border border-ink-200 bg-white p-4 dark:border-white/10 dark:bg-[#1E1E1E]"
           style={{ maxWidth: gridWidth * 52 + 32 }}
         >
           <GridRenderer
@@ -278,7 +278,7 @@ export default function Robot2DEditor({
       {/* Hints */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="text-xs font-medium text-ink-500 dark:text-ink-400">
             Hints
           </label>
           <Button
@@ -295,7 +295,7 @@ export default function Robot2DEditor({
               value={hint}
               onChange={(e) => handleHintChange(i, e.target.value)}
               placeholder={`Hint ${i + 1}`}
-              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+              className="flex-1 rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
             />
             <Button
               variant="ghost"
@@ -313,17 +313,17 @@ export default function Robot2DEditor({
 
       {/* Validation warnings */}
       {!cells.some((c) => c.type === "start") && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
+        <p className="text-xs text-sun-500 dark:text-sun-400">
           Place a start position on the grid.
         </p>
       )}
       {winCondition === "reach_goal" && !cells.some((c) => c.type === "goal") && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
+        <p className="text-xs text-sun-500 dark:text-sun-400">
           Place a goal on the grid.
         </p>
       )}
       {winCondition === "collect_all" && !cells.some((c) => c.type === "item") && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
+        <p className="text-xs text-sun-500 dark:text-sun-400">
           Place some items on the grid.
         </p>
       )}

@@ -64,8 +64,8 @@ export default function AdminMeetingsPage() {
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("meet.adminTitle")}</h1>
-          <p className="text-base text-slate-500 dark:text-slate-400">{t("meet.adminSubtitle")}</p>
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">{t("meet.adminTitle")}</h1>
+          <p className="text-base text-ink-500 dark:text-ink-400">{t("meet.adminSubtitle")}</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -80,8 +80,8 @@ export default function AdminMeetingsPage() {
           <CardContent className="p-4">
             <form onSubmit={handleCreate} className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">New Meeting</h3>
-                <button type="button" onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600">
+                <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">New Meeting</h3>
+                <button type="button" onClick={() => setShowForm(false)} className="text-ink-400 hover:text-ink-700">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -91,20 +91,20 @@ export default function AdminMeetingsPage() {
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   required
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+                  className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
                 />
                 <input
                   type="number"
                   placeholder="Duration (min)"
                   value={form.duration_minutes}
                   onChange={(e) => setForm({ ...form, duration_minutes: parseInt(e.target.value) || 60 })}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+                  className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
                 />
                 <textarea
                   placeholder="Description (optional)"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm sm:col-span-2 dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+                  className="rounded-lg border border-ink-200 px-3 py-2 text-sm sm:col-span-2 dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
                   rows={2}
                 />
               </div>
@@ -123,7 +123,7 @@ export default function AdminMeetingsPage() {
       {/* Active meetings */}
       {activeMeetings.length > 0 && (
         <div>
-          <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-100">
             {t("meet.liveNow")} ({activeMeetings.length})
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -132,9 +132,9 @@ export default function AdminMeetingsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200">{m.title}</h3>
-                      {m.description && <p className="mt-1 text-xs text-slate-500">{m.description}</p>}
-                      <p className="mt-2 text-xs text-slate-400">
+                      <h3 className="font-semibold text-ink-900 dark:text-ink-200">{m.title}</h3>
+                      {m.description && <p className="mt-1 text-xs text-ink-500">{m.description}</p>}
+                      <p className="mt-2 text-xs text-ink-400">
                         Started {new Date(m.created_at).toLocaleTimeString()} &middot; {m.duration_minutes} min
                       </p>
                     </div>
@@ -154,7 +154,7 @@ export default function AdminMeetingsPage() {
                     </a>
                     <button
                       onClick={() => handleEnd(m.id)}
-                      className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
+                      className="flex items-center gap-1.5 rounded-lg bg-coral-50 px-3 py-1.5 text-sm font-medium text-coral-500 hover:bg-coral-50 dark:bg-coral-500/10 dark:text-coral-300"
                     >
                       <StopCircle className="h-3.5 w-3.5" /> {t("meet.end")}
                     </button>
@@ -168,24 +168,24 @@ export default function AdminMeetingsPage() {
 
       {/* Past meetings */}
       <div>
-        <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">{t("meet.pastMeetings")}</h2>
+        <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-100">{t("meet.pastMeetings")}</h2>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-green-500" /></div>
         ) : pastMeetings.length === 0 ? (
-          <Card><CardContent className="py-8 text-center text-sm text-slate-400">{t("meet.noMeetings")}</CardContent></Card>
+          <Card><CardContent className="py-8 text-center text-sm text-ink-400">{t("meet.noMeetings")}</CardContent></Card>
         ) : (
           <div className="space-y-2">
             {pastMeetings.map((m) => (
               <Card key={m.id}>
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.title}</h3>
-                    <p className="text-xs text-slate-400">
+                    <h3 className="text-sm font-medium text-ink-700 dark:text-ink-300">{m.title}</h3>
+                    <p className="text-xs text-ink-400">
                       {new Date(m.created_at).toLocaleDateString()} &middot; {m.duration_minutes} min
                       {m.ended_at && ` · Ended ${new Date(m.ended_at).toLocaleTimeString()}`}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-white/10">Ended</span>
+                  <span className="rounded-full bg-ink-100 px-2 py-0.5 text-xs text-ink-500 dark:bg-white/10">Ended</span>
                 </CardContent>
               </Card>
             ))}

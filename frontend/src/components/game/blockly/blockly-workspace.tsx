@@ -295,7 +295,7 @@ function PythonCodeView({
       className={`h-full overflow-auto rounded-lg p-4 font-mono text-sm ${
         isDark
           ? "bg-[#1e1e2e] text-[#cdd6f4]"
-          : "bg-slate-50 text-slate-800"
+          : "bg-ink-50 text-ink-900"
       }`}
     >
       {code || "# Build blocks to see Python code here"}

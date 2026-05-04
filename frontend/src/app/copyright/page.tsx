@@ -12,17 +12,17 @@ export default function CopyrightPolicyPage() {
         Back to Login
       </Link>
 
-      <h1 className="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-3xl font-bold text-ink-900 dark:text-ink-100">
         Copyright &amp; DMCA Policy
       </h1>
-      <p className="mb-8 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-500 dark:text-ink-400">
         Effective Date: March 31, 2026
       </p>
 
-      <div className="space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+      <div className="space-y-8 text-sm leading-relaxed text-ink-700 dark:text-ink-400">
         {/* 1. Intellectual Property Overview */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             1. Intellectual Property Overview
           </h2>
           <p>
@@ -31,7 +31,7 @@ export default function CopyrightPolicyPage() {
             Copyright Act (DMCA).
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Platform Content
           </h3>
           <p>
@@ -40,7 +40,7 @@ export default function CopyrightPolicyPage() {
             property laws.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Course Content
           </h3>
           <p>
@@ -49,7 +49,7 @@ export default function CopyrightPolicyPage() {
             by their agreement with each other. GrassLMS does not claim ownership of course content.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             Student Content
           </h3>
           <p>
@@ -57,7 +57,7 @@ export default function CopyrightPolicyPage() {
             are owned by the student. GrassLMS does not claim ownership of student content.
           </p>
 
-          <h3 className="mb-1 mt-4 font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="mb-1 mt-4 font-semibold text-ink-700 dark:text-ink-300">
             License to GrassLMS
           </h3>
           <p>
@@ -70,7 +70,7 @@ export default function CopyrightPolicyPage() {
 
         {/* 2. DMCA Takedown Process */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             2. DMCA Takedown Process
           </h2>
           <p>
@@ -111,7 +111,7 @@ export default function CopyrightPolicyPage() {
 
         {/* 3. Counter-Notification */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             3. Counter-Notification
           </h2>
           <p>
@@ -148,7 +148,7 @@ export default function CopyrightPolicyPage() {
 
         {/* 4. Repeat Infringers */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             4. Repeat Infringers
           </h2>
           <p>
@@ -175,7 +175,7 @@ export default function CopyrightPolicyPage() {
 
         {/* 5. Fair Use */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             5. Fair Use
           </h2>
           <p>
@@ -197,7 +197,7 @@ export default function CopyrightPolicyPage() {
 
         {/* 6. Open Source */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             6. Open Source
           </h2>
           <p>
@@ -216,15 +216,15 @@ export default function CopyrightPolicyPage() {
 
         {/* 7. Contact */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-3 text-lg font-semibold text-ink-900 dark:text-ink-200">
             7. Contact Us
           </h2>
           <p>
             For copyright-related inquiries, DMCA notices, or counter-notifications, please contact
             us:
           </p>
-          <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-            <p className="font-medium text-slate-700 dark:text-slate-300">
+          <div className="mt-2 rounded-lg border border-ink-200 bg-ink-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <p className="font-medium text-ink-700 dark:text-ink-300">
               GrassLMS Copyright Agent
             </p>
             <p className="mt-1">

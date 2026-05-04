@@ -70,9 +70,9 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
     for (let i = -gridRange; i <= gridRange; i++) {
       lines.push(
         <line key={`v${i}`} x1={toX(i)} y1={pad} x2={toX(i)} y2={svgSize - pad}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-slate-700" />,
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-ink-700" />,
         <line key={`h${i}`} x1={pad} y1={toY(i)} x2={svgSize - pad} y2={toY(i)}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-slate-700" />
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} className="dark:stroke-ink-700" />
       );
     }
     return lines;
@@ -85,10 +85,10 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
       {/* Legend */}
       <div className="flex items-center gap-4 text-xs">
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-5 bg-slate-400" /> Parent: y = {fnLabel}
+          <span className="inline-block h-0.5 w-5 bg-ink-400" /> Parent: y = {fnLabel}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-5 bg-emerald-400" style={{ borderBottom: "2px dashed #22c55e" }} /> Target
+          <span className="inline-block h-0.5 w-5 bg-green-400" style={{ borderBottom: "2px dashed #3fb04b" }} /> Target
         </span>
         <span className="flex items-center gap-1.5">
           <span className="inline-block h-0.5 w-5 bg-green-500" /> Your graph
@@ -96,23 +96,23 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
       </div>
 
       <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}
-        className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
+        className="rounded-xl border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
         {gridLines}
 
         {/* Parent function (gray, thin) */}
-        <polyline points={parentPath} fill="none" stroke="#94a3b8" strokeWidth={1.5} opacity={0.5} />
+        <polyline points={parentPath} fill="none" stroke="#9aa39d" strokeWidth={1.5} opacity={0.5} />
 
         {/* Target function (green dashed) */}
-        <polyline points={targetPath} fill="none" stroke="#22c55e" strokeWidth={2.5} strokeDasharray="8 4" opacity={0.7} />
+        <polyline points={targetPath} fill="none" stroke="#3fb04b" strokeWidth={2.5} strokeDasharray="8 4" opacity={0.7} />
 
         {/* User function (indigo solid) */}
         <polyline points={userPath} fill="none"
-          stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+          stroke={checked ? (isCorrect ? "#3fb04b" : "#ff7a5c") : "#0a8754"}
           strokeWidth={2.5} />
       </svg>
 
       {/* Transformation equation */}
-      <div className="rounded-lg bg-slate-50 px-4 py-2 text-center dark:bg-white/5">
+      <div className="rounded-lg bg-ink-50 px-4 py-2 text-center dark:bg-white/5">
         <span className="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
           y = {a !== 1 ? `${a}` : ""}({fnLabel.replace("x", `(x${h >= 0 ? " - " + h : " + " + Math.abs(h)})`)}) {v >= 0 ? "+" : "-"} {Math.abs(v)}
         </span>
@@ -121,7 +121,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
       {/* Sliders */}
       <div className="w-full max-w-sm space-y-3">
         <div className="flex items-center gap-3">
-          <label className="w-32 text-right text-xs font-medium text-slate-500">
+          <label className="w-32 text-right text-xs font-medium text-ink-500">
             ↔ Horizontal = <span className="font-mono text-green-600 dark:text-green-400">{h}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={h}
@@ -129,7 +129,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
             className="flex-1 accent-green-500" />
         </div>
         <div className="flex items-center gap-3">
-          <label className="w-32 text-right text-xs font-medium text-slate-500">
+          <label className="w-32 text-right text-xs font-medium text-ink-500">
             ↕ Vertical = <span className="font-mono text-green-600 dark:text-green-400">{v}</span>
           </label>
           <input type="range" min={-5} max={5} step={0.5} value={v}
@@ -137,7 +137,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
             className="flex-1 accent-green-500" />
         </div>
         <div className="flex items-center gap-3">
-          <label className="w-32 text-right text-xs font-medium text-slate-500">
+          <label className="w-32 text-right text-xs font-medium text-ink-500">
             ↕ Stretch = <span className="font-mono text-green-600 dark:text-green-400">{a}</span>
           </label>
           <input type="range" min={-3} max={3} step={0.25} value={a}

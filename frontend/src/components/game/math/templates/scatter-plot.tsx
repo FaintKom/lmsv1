@@ -103,7 +103,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
         viewBox={`0 0 ${svgW} ${svgH}`}
         width="100%"
         style={{ maxWidth: svgW, touchAction: "none" }}
-        className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]"
+        className="rounded-xl border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]"
         onPointerMove={handlePointerMove}
         onPointerUp={() => setDragging(null)}
         onPointerLeave={() => setDragging(null)}
@@ -112,27 +112,27 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
         {xTicks.map((v) => (
           <g key={`x${v}`}>
             <line x1={toSvgX(v)} y1={pad.top} x2={toSvgX(v)} y2={pad.top + plotH}
-              stroke={v === 0 ? "#475569" : "#e2e8f0"} strokeWidth={v === 0 ? 1.5 : 0.5} className="dark:stroke-slate-700" />
-            <text x={toSvgX(v)} y={svgH - pad.bottom + 18} textAnchor="middle" fontSize={11} fill="#64748b">{v}</text>
+              stroke={v === 0 ? "#4d5a51" : "#e6e8e4"} strokeWidth={v === 0 ? 1.5 : 0.5} className="dark:stroke-ink-700" />
+            <text x={toSvgX(v)} y={svgH - pad.bottom + 18} textAnchor="middle" fontSize={11} fill="#4d5a51">{v}</text>
           </g>
         ))}
         {yTicks.map((v) => (
           <g key={`y${v}`}>
             <line x1={pad.left} y1={toSvgY(v)} x2={pad.left + plotW} y2={toSvgY(v)}
-              stroke={v === 0 ? "#475569" : "#e2e8f0"} strokeWidth={v === 0 ? 1.5 : 0.5} className="dark:stroke-slate-700" />
-            <text x={pad.left - 8} y={toSvgY(v) + 4} textAnchor="end" fontSize={11} fill="#64748b">{v}</text>
+              stroke={v === 0 ? "#4d5a51" : "#e6e8e4"} strokeWidth={v === 0 ? 1.5 : 0.5} className="dark:stroke-ink-700" />
+            <text x={pad.left - 8} y={toSvgY(v) + 4} textAnchor="end" fontSize={11} fill="#4d5a51">{v}</text>
           </g>
         ))}
 
         {/* Axis labels */}
-        <text x={pad.left + plotW / 2} y={svgH - 6} textAnchor="middle" fontSize={13} fill="#334155" fontWeight="600" className="dark:fill-slate-300">{xLabel}</text>
-        <text x={14} y={pad.top + plotH / 2} textAnchor="middle" fontSize={13} fill="#334155" fontWeight="600" className="dark:fill-slate-300"
+        <text x={pad.left + plotW / 2} y={svgH - 6} textAnchor="middle" fontSize={13} fill="#1a2a1f" fontWeight="600" className="dark:fill-ink-300">{xLabel}</text>
+        <text x={14} y={pad.top + plotH / 2} textAnchor="middle" fontSize={13} fill="#1a2a1f" fontWeight="600" className="dark:fill-ink-300"
           transform={`rotate(-90, 14, ${pad.top + plotH / 2})`}>{yLabel}</text>
 
         {/* Data points */}
         {points.map((p, i) => (
           <circle key={i} cx={toSvgX(p.x)} cy={toSvgY(p.y)} r={5}
-            fill="#6366f1" stroke="white" strokeWidth={1.5} />
+            fill="#0a8754" stroke="white" strokeWidth={1.5} />
         ))}
 
         {/* Best-fit line (user-drawn) */}
@@ -141,15 +141,15 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
             <line
               x1={toSvgX(xRange[0])} y1={toSvgY(userIntercept + userSlope * xRange[0])}
               x2={toSvgX(xRange[1])} y2={toSvgY(userIntercept + userSlope * xRange[1])}
-              stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#f59e0b"}
+              stroke={checked ? (isCorrect ? "#3fb04b" : "#ff7a5c") : "#f5b800"}
               strokeWidth={2.5} strokeDasharray={checked ? "none" : "6 4"}
             />
             {/* Draggable endpoints */}
             <circle cx={toSvgX(lineStart.x)} cy={toSvgY(lineStart.y)} r={8}
-              fill={checked ? "#94a3b8" : "#f59e0b"} stroke="white" strokeWidth={2}
+              fill={checked ? "#9aa39d" : "#f5b800"} stroke="white" strokeWidth={2}
               style={{ cursor: "grab" }} onPointerDown={() => !checked && setDragging("start")} />
             <circle cx={toSvgX(lineEnd.x)} cy={toSvgY(lineEnd.y)} r={8}
-              fill={checked ? "#94a3b8" : "#f59e0b"} stroke="white" strokeWidth={2}
+              fill={checked ? "#9aa39d" : "#f5b800"} stroke="white" strokeWidth={2}
               style={{ cursor: "grab" }} onPointerDown={() => !checked && setDragging("end")} />
           </>
         )}
@@ -159,14 +159,14 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
           <line
             x1={toSvgX(xRange[0])} y1={toSvgY(targetIntercept + targetSlope * xRange[0])}
             x2={toSvgX(xRange[1])} y2={toSvgY(targetIntercept + targetSlope * xRange[1])}
-            stroke="#22c55e" strokeWidth={2} strokeDasharray="8 4" opacity={0.7}
+            stroke="#3fb04b" strokeWidth={2} strokeDasharray="8 4" opacity={0.7}
           />
         )}
       </svg>
 
       {/* Info bar */}
       {mode === "best_fit" && !checked && (
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-ink-500 dark:text-ink-400">
           Drag the orange dots to draw a line of best fit. Slope: <b className="text-green-600 dark:text-green-400">{userSlope === Infinity ? "∞" : userSlope.toFixed(2)}</b>, y-intercept: <b className="text-green-600 dark:text-green-400">{userIntercept.toFixed(2)}</b>
         </p>
       )}
@@ -174,12 +174,12 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
       {/* Correlation / Read-value input */}
       {(mode === "correlation" || mode === "read_value") && !checked && (
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <label className="text-sm font-medium text-ink-700 dark:text-ink-400">
             {mode === "correlation" ? "Correlation:" : "Answer:"}
           </label>
           {mode === "correlation" ? (
             <select value={answer} onChange={(e) => setAnswer(e.target.value)}
-              className="rounded-xl border-2 border-green-300 bg-white px-4 py-2 text-sm font-semibold dark:border-green-500 dark:bg-[#1E1E1E] dark:text-slate-200">
+              className="rounded-xl border-2 border-green-300 bg-white px-4 py-2 text-sm font-semibold dark:border-green-500 dark:bg-[#1E1E1E] dark:text-ink-200">
               <option value="">Select...</option>
               <option value="positive">Positive</option>
               <option value="negative">Negative</option>
@@ -199,7 +199,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
       </Button>
 
       {checked && !isCorrect && (
-        <p className="text-xs text-red-500">
+        <p className="text-xs text-coral-500">
           {mode === "best_fit" ? `Target: slope ≈ ${targetSlope}, intercept ≈ ${targetIntercept}` :
             `Correct answer: ${config.correct_answer}`}
         </p>

@@ -105,8 +105,8 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
     <div className="flex flex-col gap-5">
       {/* Unsorted cards */}
       {unsorted.length > 0 && (
-        <div className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 dark:border-white/20 dark:bg-white/5">
-          <span className="w-full text-xs font-medium text-slate-400 mb-1">
+        <div className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-ink-300 bg-ink-50 p-4 dark:border-white/20 dark:bg-white/5">
+          <span className="w-full text-xs font-medium text-ink-400 mb-1">
             Drag cards to the correct category ({unsorted.length} remaining)
           </span>
           {unsorted.map((card) => (
@@ -119,8 +119,8 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
                 tappedCard?.id === card.id
                   ? "border-green-400 ring-2 ring-green-300 text-green-700 dark:border-green-500 dark:text-green-300"
                   : checked && results[card.id] === false
-                    ? "border-red-300 text-red-700 dark:border-red-500 dark:text-red-300"
-                    : "border-slate-200 text-slate-700 hover:border-green-300 dark:border-white/10 dark:text-slate-300"
+                    ? "border-coral-300 text-coral-700 dark:border-coral-500 dark:text-coral-300"
+                    : "border-ink-200 text-ink-700 hover:border-green-300 dark:border-white/10 dark:text-ink-300"
               }`}
             >
               {card.text}
@@ -151,7 +151,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
             <div className="mb-2 flex items-center gap-2">
               <div className="h-3 w-3 rounded-full" style={{ backgroundColor: cat.color }} />
               <span className="text-sm font-bold" style={{ color: cat.color }}>{cat.label}</span>
-              <span className="ml-auto text-[10px] text-slate-400">{(sorted[cat.id] || []).length}</span>
+              <span className="ml-auto text-[10px] text-ink-400">{(sorted[cat.id] || []).length}</span>
             </div>
 
             {/* Cards in this category */}
@@ -162,14 +162,14 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
                   className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
                     checked
                       ? results[card.id]
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
-                        : "border-red-300 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
-                      : "border-slate-200 bg-white text-slate-700 dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-300"
+                        ? "border-green-300 bg-green-50 text-green-700 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-300"
+                        : "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500/30 dark:bg-coral-500/10 dark:text-coral-300"
+                      : "border-ink-200 bg-white text-ink-700 dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-300"
                   }`}
                 >
                   <span>{card.text}</span>
                   {!checked && (
-                    <button onClick={() => moveBack(card)} className="ml-2 text-slate-400 hover:text-red-500 text-xs">✕</button>
+                    <button onClick={() => moveBack(card)} className="ml-2 text-ink-400 hover:text-coral-500 text-xs">✕</button>
                   )}
                 </div>
               ))}
@@ -177,7 +177,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
 
             {/* Drop hint */}
             {(sorted[cat.id] || []).length === 0 && (
-              <div className="flex flex-1 items-center justify-center text-xs text-slate-400 italic">
+              <div className="flex flex-1 items-center justify-center text-xs text-ink-400 italic">
                 Drop cards here
               </div>
             )}
@@ -194,7 +194,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
       </div>
 
       {checked && !Object.values(results).every(Boolean) && (
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-ink-500">
           {Object.values(results).filter(Boolean).length}/{initialCards.length} correct. Check the red cards.
         </p>
       )}

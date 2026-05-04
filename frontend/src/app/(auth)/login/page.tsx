@@ -37,21 +37,21 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-center text-2xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="mb-2 text-center text-2xl font-bold text-ink-900 dark:text-ink-100">
         Welcome back
       </h1>
-      <p className="mb-8 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-center text-sm text-ink-500 dark:text-ink-400">
         Sign in to your account to continue
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
-          <div role="alert" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div role="alert" aria-live="polite" className="rounded-xl border border-coral-300 bg-coral-50 px-4 py-3 text-sm text-coral-500">
             {error}
           </div>
         )}
         <div>
-          <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Email
           </label>
           <Input
@@ -65,7 +65,7 @@ export default function LoginPage() {
           />
         </div>
         <div>
-          <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-ink-700 dark:text-ink-300">
             Password
           </label>
           <Input
@@ -87,13 +87,13 @@ export default function LoginPage() {
       <div className="mt-3 text-center">
         <Link
           href="/forgot-password"
-          className="text-sm text-slate-500 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400"
+          className="text-sm text-ink-500 hover:text-green-600 dark:text-ink-400 dark:hover:text-green-400"
         >
           Forgot your password?
         </Link>
       </div>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-6 text-center text-sm text-ink-500 dark:text-ink-400">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

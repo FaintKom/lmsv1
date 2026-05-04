@@ -50,12 +50,12 @@ export function NewcomerChecklist({
   }
 
   return (
-    <div className="mb-8 rounded-2xl border border-slate-200/60 dark:border-white/10 border-l-4 border-l-green-500 bg-white dark:bg-[#2C2C2C] shadow-sm">
+    <div className="mb-8 rounded-2xl border border-ink-200/60 dark:border-white/10 border-l-4 border-l-green-500 bg-white dark:bg-[#2C2C2C] shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-5 pb-3">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-green-500" />
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-100">
             Getting Started
           </h3>
           <span className="rounded-full bg-green-50 dark:bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
@@ -64,7 +64,7 @@ export function NewcomerChecklist({
         </div>
         <button
           onClick={handleDismiss}
-          className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600"
+          className="rounded-lg p-1 text-ink-400 transition-colors hover:bg-ink-100 dark:hover:bg-white/10 hover:text-ink-700"
           aria-label="Dismiss checklist"
         >
           <X className="h-4 w-4" />
@@ -72,7 +72,7 @@ export function NewcomerChecklist({
       </div>
 
       {/* Progress bar */}
-      <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
+      <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-full bg-ink-100 dark:bg-white/10" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
         <div
           className="h-full rounded-full bg-green-500 transition-all duration-500"
           style={{ width: `${pct}%` }}
@@ -85,18 +85,18 @@ export function NewcomerChecklist({
           <Link
             key={item.label}
             href={item.href}
-            className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+            className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
           >
             {item.done ? (
-              <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-500" />
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-500" />
             ) : (
-              <Circle className="h-5 w-5 flex-shrink-0 text-slate-400" />
+              <Circle className="h-5 w-5 flex-shrink-0 text-ink-400" />
             )}
             <span
               className={
                 item.done
-                  ? "text-sm text-slate-400 dark:text-slate-500 line-through"
-                  : "text-sm font-medium text-slate-700 dark:text-slate-300"
+                  ? "text-sm text-ink-400 dark:text-ink-500 line-through"
+                  : "text-sm font-medium text-ink-700 dark:text-ink-300"
               }
             >
               {item.label}

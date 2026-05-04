@@ -49,8 +49,8 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
   return (
     <div className="flex flex-col gap-5">
       {/* Question */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-white/5">
-        <div className="text-base font-medium text-slate-800 dark:text-slate-200">
+      <div className="rounded-xl border border-ink-200 bg-ink-50 px-5 py-4 dark:border-white/10 dark:bg-white/5">
+        <div className="text-base font-medium text-ink-900 dark:text-ink-200">
           {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
         </div>
         {false && cfg.standard && (
@@ -64,16 +64,16 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
       <div className="space-y-2">
         {cfg.choices.map((choice, i) => {
           const isThis = selected === i;
-          let borderClass = "border-slate-200 dark:border-white/10";
+          let borderClass = "border-ink-200 dark:border-white/10";
           let bgClass = "bg-white dark:bg-white/5";
 
           if (submitted) {
             if (choice.correct) {
-              borderClass = "border-emerald-400 dark:border-emerald-500";
-              bgClass = "bg-emerald-50 dark:bg-emerald-500/10";
+              borderClass = "border-green-400 dark:border-green-500";
+              bgClass = "bg-green-50 dark:bg-green-500/10";
             } else if (isThis && !choice.correct) {
-              borderClass = "border-red-400 dark:border-red-500";
-              bgClass = "bg-red-50 dark:bg-red-500/10";
+              borderClass = "border-coral-300 dark:border-coral-500";
+              bgClass = "bg-coral-50 dark:bg-coral-500/10";
             }
           } else if (isThis) {
             borderClass = "border-green-400 dark:border-green-500";
@@ -92,21 +92,21 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
                   submitted && choice.correct
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-green-500 text-white"
                     : submitted && isThis && !choice.correct
-                      ? "bg-red-500 text-white"
+                      ? "bg-coral-500 text-white"
                       : isThis
                         ? "bg-green-500 text-white"
-                        : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
+                        : "bg-ink-100 text-ink-700 dark:bg-white/10 dark:text-ink-400"
                 }`}
               >
                 {labels[i]}
               </span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <span className="text-sm font-medium text-ink-700 dark:text-ink-300">
                 {containsMath(choice.text) ? <MathRenderer content={choice.text} /> : choice.text}
               </span>
               {submitted && choice.correct && (
-                <span className="ml-auto text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="ml-auto text-xs font-semibold text-green-600 dark:text-green-400">
                   Correct
                 </span>
               )}
@@ -123,13 +123,13 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
       ) : (
         <div className={`rounded-xl border p-4 ${
           isCorrect
-            ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10"
-            : "border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10"
+            ? "border-green-200 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10"
+            : "border-sun-100 bg-sun-50 dark:border-sun-500/30 dark:bg-sun-500/10"
         }`}>
-          <p className={`text-xs font-semibold mb-1 ${isCorrect ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+          <p className={`text-xs font-semibold mb-1 ${isCorrect ? "text-green-600 dark:text-green-400" : "text-sun-500 dark:text-sun-400"}`}>
             {isCorrect ? "Correct!" : "Not quite"}
           </p>
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+          <p className="text-sm text-ink-700 dark:text-ink-300">
             {cfg.explanation}
           </p>
         </div>

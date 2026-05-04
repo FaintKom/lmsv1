@@ -71,8 +71,8 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
   return (
     <div className="flex flex-col items-center gap-5">
       {/* Question */}
-      <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-white/5">
-        <div className="text-base font-medium text-slate-800 dark:text-slate-200">
+      <div className="w-full max-w-lg rounded-xl border border-ink-200 bg-ink-50 px-5 py-4 dark:border-white/10 dark:bg-white/5">
+        <div className="text-base font-medium text-ink-900 dark:text-ink-200">
           {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
         </div>
         {false && cfg.standard && (
@@ -84,7 +84,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
 
       {/* Answer input */}
       <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
-        <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+        <label className="text-sm font-medium text-ink-700 dark:text-ink-400">
           Answer:
         </label>
         <input
@@ -99,8 +99,8 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
           className={`w-full max-w-[200px] rounded-xl border-2 px-4 py-3 text-center text-xl font-bold outline-none transition-colors ${
             submitted
               ? isCorrect
-                ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
-                : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
+                ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
+                : "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
               : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
           }`}
           autoFocus
@@ -109,7 +109,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
 
       {/* Format hint */}
       {!submitted && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-ink-400">
           {cfg.allow_fraction && cfg.allow_decimal
             ? "Enter a number, decimal, or fraction (e.g., 3/4)"
             : cfg.allow_fraction
@@ -136,7 +136,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
 
       {/* Hint */}
       {showHint && !submitted && cfg.hint && (
-        <div className="w-full max-w-lg rounded-lg bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+        <div className="w-full max-w-lg rounded-lg bg-sun-50 p-3 text-xs text-sun-700 dark:bg-sun-500/10 dark:text-sun-300">
           {cfg.hint}
         </div>
       )}
@@ -145,13 +145,13 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
       {submitted && (
         <div className={`w-full max-w-lg rounded-xl border p-4 ${
           isCorrect
-            ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10"
-            : "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10"
+            ? "border-green-200 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10"
+            : "border-coral-300 bg-coral-50 dark:border-coral-500/30 dark:bg-coral-500/10"
         }`}>
-          <p className={`text-sm font-semibold mb-1 ${isCorrect ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+          <p className={`text-sm font-semibold mb-1 ${isCorrect ? "text-green-600 dark:text-green-400" : "text-coral-500 dark:text-coral-300"}`}>
             {isCorrect ? "Correct!" : `Incorrect. The answer is ${cfg.correct_answers[0]}`}
           </p>
-          <p className="text-sm text-slate-700 dark:text-slate-300">
+          <p className="text-sm text-ink-700 dark:text-ink-300">
             {cfg.explanation}
           </p>
         </div>

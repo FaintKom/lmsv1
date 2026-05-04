@@ -145,13 +145,13 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header — matches landing page */}
-      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-50 border-b border-ink-100 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-600">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">GrassLMS</span>
+            <span className="text-xl font-bold text-ink-900">GrassLMS</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -172,10 +172,10 @@ export default function PricingPage() {
       <main className="mx-auto max-w-6xl px-6 py-16 md:py-20">
         {/* Hero */}
         <div className="mb-14 text-center">
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
-            Simple, transparent pricing
+          <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-ink-900 md:text-5xl">
+            Simple, <span className="gl-highlight">transparent</span> pricing
           </h1>
-          <p className="mx-auto max-w-2xl text-lg text-slate-500">
+          <p className="mx-auto max-w-2xl text-lg text-ink-500">
             Pick a plan that matches your school. Upgrade any time. Every plan
             includes the interactive code sandbox, 4C/ID course builder, and
             AI tutor on the student side.
@@ -192,7 +192,7 @@ export default function PricingPage() {
                 className={`relative flex flex-col rounded-2xl border p-6 shadow-sm ${
                   isPopular
                     ? "border-green-400 bg-green-50 ring-2 ring-green-500/30"
-                    : "border-slate-200 bg-white"
+                    : "border-ink-200 bg-white"
                 }`}
               >
                 {isPopular && (
@@ -200,28 +200,28 @@ export default function PricingPage() {
                     MOST POPULAR
                   </div>
                 )}
-                <div className="mb-4 flex items-center gap-2 text-slate-700">
+                <div className="mb-4 flex items-center gap-2 text-ink-700">
                   {PLAN_ICON[plan.name]}
                   <h3 className="text-lg font-bold">{plan.name}</h3>
                 </div>
-                <p className="mb-6 min-h-[40px] text-sm text-slate-500">
+                <p className="mb-6 min-h-[40px] text-sm text-ink-500">
                   {PLAN_TAGLINE[plan.name] || ""}
                 </p>
                 <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-slate-900">
+                  <span className="text-4xl font-extrabold text-ink-900">
                     ${plan.price_monthly}
                   </span>
-                  <span className="ml-1 text-sm text-slate-500">/ month</span>
+                  <span className="ml-1 text-sm text-ink-500">/ month</span>
                 </div>
-                <ul className="mb-6 space-y-2.5 text-sm text-slate-700">
+                <ul className="mb-6 space-y-2.5 text-sm text-ink-700">
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                     {plan.max_students === null
                       ? "Unlimited students"
                       : `Up to ${plan.max_students} students`}
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                     {plan.max_courses === null
                       ? "Unlimited courses"
                       : `Up to ${plan.max_courses} courses`}
@@ -229,7 +229,7 @@ export default function PricingPage() {
                   {FEATURE_ROWS.filter((r) => plan.features?.[r.key]).map(
                     (r) => (
                       <li key={r.key} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-emerald-500" />
+                        <Check className="h-4 w-4 text-green-500" />
                         {r.label}
                       </li>
                     )
@@ -252,18 +252,18 @@ export default function PricingPage() {
 
         {/* Feature comparison */}
         <div className="mb-20">
-          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900">
+          <h2 className="mb-8 text-center text-2xl font-bold text-ink-900">
             Full feature comparison
           </h2>
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
+          <div className="overflow-x-auto rounded-2xl border border-ink-200">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-left">
-                  <th className="p-4 font-semibold text-slate-600">Feature</th>
+                <tr className="border-b border-ink-200 bg-ink-50 text-left">
+                  <th className="p-4 font-semibold text-ink-700">Feature</th>
                   {plans.map((p) => (
                     <th
                       key={p.id}
-                      className="p-4 text-center font-semibold text-slate-900"
+                      className="p-4 text-center font-semibold text-ink-900"
                     >
                       {p.name}
                     </th>
@@ -271,18 +271,18 @@ export default function PricingPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-slate-100">
-                  <td className="p-4 text-slate-700">Students</td>
+                <tr className="border-b border-ink-100">
+                  <td className="p-4 text-ink-700">Students</td>
                   {plans.map((p) => (
-                    <td key={p.id} className="p-4 text-center text-slate-700">
+                    <td key={p.id} className="p-4 text-center text-ink-700">
                       {p.max_students === null ? "Unlimited" : p.max_students}
                     </td>
                   ))}
                 </tr>
-                <tr className="border-b border-slate-100">
-                  <td className="p-4 text-slate-700">Courses</td>
+                <tr className="border-b border-ink-100">
+                  <td className="p-4 text-ink-700">Courses</td>
                   {plans.map((p) => (
-                    <td key={p.id} className="p-4 text-center text-slate-700">
+                    <td key={p.id} className="p-4 text-center text-ink-700">
                       {p.max_courses === null ? "Unlimited" : p.max_courses}
                     </td>
                   ))}
@@ -290,15 +290,15 @@ export default function PricingPage() {
                 {FEATURE_ROWS.map((row) => (
                   <tr
                     key={row.key}
-                    className="border-b border-slate-100 last:border-0"
+                    className="border-b border-ink-100 last:border-0"
                   >
-                    <td className="p-4 text-slate-700">{row.label}</td>
+                    <td className="p-4 text-ink-700">{row.label}</td>
                     {plans.map((p) => (
                       <td key={p.id} className="p-4 text-center">
                         {p.features?.[row.key] ? (
-                          <Check className="mx-auto h-4 w-4 text-emerald-500" />
+                          <Check className="mx-auto h-4 w-4 text-green-500" />
                         ) : (
-                          <Minus className="mx-auto h-4 w-4 text-slate-300" />
+                          <Minus className="mx-auto h-4 w-4 text-ink-300" />
                         )}
                       </td>
                     ))}
@@ -311,22 +311,22 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="mb-20">
-          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900">
+          <h2 className="mb-8 text-center text-2xl font-bold text-ink-900">
             Frequently asked questions
           </h2>
           <div className="mx-auto max-w-3xl space-y-4">
             {FAQ.map((item) => (
               <details
                 key={item.q}
-                className="group rounded-xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-sm"
+                className="group rounded-xl border border-ink-200 bg-white p-5 transition-shadow hover:shadow-sm"
               >
-                <summary className="flex cursor-pointer items-start justify-between gap-3 text-base font-semibold text-slate-900">
+                <summary className="flex cursor-pointer items-start justify-between gap-3 text-base font-semibold text-ink-900">
                   <span>{item.q}</span>
-                  <span className="text-slate-400 transition-transform group-open:rotate-45">
+                  <span className="text-ink-400 transition-transform group-open:rotate-45">
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                <p className="mt-3 text-sm leading-relaxed text-ink-700">
                   {item.a}
                 </p>
               </details>
@@ -335,7 +335,7 @@ export default function PricingPage() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 px-8 py-12 text-center text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-green-600 to-green-700 px-8 py-12 text-center text-white">
           <h2 className="mb-3 text-3xl font-extrabold">
             Not sure which plan fits?
           </h2>
@@ -356,7 +356,7 @@ export default function PricingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 py-10 text-center text-sm text-slate-400">
+      <footer className="border-t border-ink-100 py-10 text-center text-sm text-ink-400">
         <div className="mx-auto max-w-6xl px-6">
           <p>&copy; {new Date().getFullYear()} GrassLMS. All rights reserved.</p>
         </div>

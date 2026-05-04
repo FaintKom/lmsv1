@@ -83,8 +83,8 @@ interface RadarPoint {
 
 const CATEGORY_COLORS: Record<string, string> = {
   programming: "text-blue-600 bg-blue-100 dark:bg-blue-500/20 dark:text-blue-400",
-  math: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
-  language: "text-emerald-600 bg-emerald-100 dark:bg-emerald-500/20 dark:text-emerald-400",
+  math: "text-green-600 bg-green-100 dark:bg-green-500/20 dark:text-green-400",
+  language: "text-green-600 bg-green-100 dark:bg-green-500/20 dark:text-green-400",
 };
 
 type Tab = "achievements" | "certificates" | "skills";
@@ -145,16 +145,16 @@ export default function AchievementsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">
           {t("nav.achievements") || "Achievements"}
         </h1>
-        <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-base text-ink-500 dark:text-ink-400">
           Track your progress, earn XP, and climb the leagues
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/5" role="tablist">
+      <div className="mb-6 flex gap-1 rounded-xl bg-ink-100 p-1 dark:bg-white/5" role="tablist">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -165,7 +165,7 @@ export default function AchievementsPage() {
               "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
               tab === t.key
                 ? "bg-white text-green-700 shadow-sm dark:bg-white/10 dark:text-green-300"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                : "text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-200"
             )}
           >
             {t.icon}
@@ -211,7 +211,7 @@ function AchievementsTab({
               <div className="flex items-center gap-4 p-6" style={{ background: `${league.color}15` }}>
                 <span className="text-5xl">{league.icon}</span>
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Current League</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-ink-500 dark:text-ink-400">Current League</p>
                   <p className="text-2xl font-bold" style={{ color: league.color === "#FFD700" ? "#B8860B" : league.color === "#C0C0C0" ? "#6B7280" : league.color }}>
                     {league.name}
                   </p>
@@ -219,19 +219,19 @@ function AchievementsTab({
               </div>
               <div className="flex flex-1 items-center gap-6 p-6">
                 <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
+                  <Star className="h-5 w-5 text-sun-500" />
                   <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Total XP</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{streak?.total_xp || 0}</p>
+                    <p className="text-xs text-ink-500 dark:text-ink-400">Total XP</p>
+                    <p className="text-xl font-bold text-ink-900 dark:text-ink-100">{streak?.total_xp || 0}</p>
                   </div>
                 </div>
                 {league.next_league && (
                   <div className="flex-1">
-                    <div className="mb-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mb-1 flex items-center justify-between text-xs text-ink-500 dark:text-ink-400">
                       <span>Progress to {league.next_league}</span>
                       <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
                     </div>
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-ink-100 dark:bg-white/10" role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -250,38 +250,38 @@ function AchievementsTab({
 
       {/* Stats row */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-sun-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-yellow-100 p-3 dark:bg-yellow-500/20">
-              <Zap className="h-5 w-5 text-yellow-500" />
+            <div className="rounded-xl bg-sun-100 p-3 dark:bg-sun-500/20">
+              <Zap className="h-5 w-5 text-sun-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Total XP</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{streak?.total_xp || 0}</p>
+              <p className="text-xs font-medium text-ink-500 dark:text-ink-400">Total XP</p>
+              <p className="text-2xl font-bold text-ink-900 dark:text-ink-100">{streak?.total_xp || 0}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-orange-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-sun-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-orange-100 p-3 dark:bg-orange-500/20">
-              <Flame className="h-5 w-5 text-orange-500" />
+            <div className="rounded-xl bg-sun-100 p-3 dark:bg-sun-500/20">
+              <Flame className="h-5 w-5 text-sun-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Current Streak</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{streak?.current_streak || 0} days</p>
+              <p className="text-xs font-medium text-ink-500 dark:text-ink-400">Current Streak</p>
+              <p className="text-2xl font-bold text-ink-900 dark:text-ink-100">{streak?.current_streak || 0} days</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
+        <Card className="border-l-4 border-l-sun-400 hover:shadow-md">
           <CardContent className="flex items-center gap-4 p-6">
-            <div className="rounded-xl bg-amber-100 p-3 dark:bg-amber-500/20">
-              <Trophy className="h-5 w-5 text-amber-500" />
+            <div className="rounded-xl bg-sun-100 p-3 dark:bg-sun-500/20">
+              <Trophy className="h-5 w-5 text-sun-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Badges Earned</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{earnedCount} / {badges.length}</p>
+              <p className="text-xs font-medium text-ink-500 dark:text-ink-400">Badges Earned</p>
+              <p className="text-2xl font-bold text-ink-900 dark:text-ink-100">{earnedCount} / {badges.length}</p>
             </div>
           </CardContent>
         </Card>
@@ -292,8 +292,8 @@ function AchievementsTab({
               <TrendingUp className="h-5 w-5 text-green-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Longest Streak</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{streak?.longest_streak || 0} days</p>
+              <p className="text-xs font-medium text-ink-500 dark:text-ink-400">Longest Streak</p>
+              <p className="text-2xl font-bold text-ink-900 dark:text-ink-100">{streak?.longest_streak || 0} days</p>
             </div>
           </CardContent>
         </Card>
@@ -305,7 +305,7 @@ function AchievementsTab({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Trophy className="h-4 w-4 text-amber-500" />
+                <Trophy className="h-4 w-4 text-sun-500" />
                 All Badges
               </CardTitle>
             </CardHeader>
@@ -323,7 +323,7 @@ function AchievementsTab({
                 ))}
               </div>
               {badges.length === 0 && (
-                <p className="py-8 text-center text-sm text-slate-500">No badges available yet</p>
+                <p className="py-8 text-center text-sm text-ink-500">No badges available yet</p>
               )}
             </CardContent>
           </Card>
@@ -340,30 +340,30 @@ function AchievementsTab({
             </CardHeader>
             <CardContent>
               {leaderboard.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-500">No students yet</p>
+                <p className="py-8 text-center text-sm text-ink-500">No students yet</p>
               ) : (
                 <div className="space-y-2">
                   {leaderboard.map((entry, i) => (
-                    <div key={entry.user_id} className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2 dark:bg-white/5">
+                    <div key={entry.user_id} className="flex items-center gap-3 rounded-lg bg-ink-50 px-3 py-2 dark:bg-white/5">
                       <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                        i === 0 ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20"
-                          : i === 1 ? "bg-slate-200 text-slate-600 dark:bg-white/10"
-                          : i === 2 ? "bg-orange-100 text-orange-600 dark:bg-orange-500/20"
-                          : "bg-slate-100 text-slate-400 dark:bg-white/10"
+                        i === 0 ? "bg-sun-100 text-sun-700 dark:bg-sun-500/20"
+                          : i === 1 ? "bg-ink-200 text-ink-700 dark:bg-white/10"
+                          : i === 2 ? "bg-sun-100 text-sun-500 dark:bg-sun-500/20"
+                          : "bg-ink-100 text-ink-400 dark:bg-white/10"
                       }`}>
                         {i + 1}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">{entry.user_name}</p>
+                          <p className="truncate text-sm font-medium text-ink-700 dark:text-ink-300">{entry.user_name}</p>
                           {entry.league && <span className="text-xs" title={entry.league.name}>{entry.league.icon}</span>}
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-ink-500 dark:text-ink-400">
                           {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges
                         </p>
                       </div>
                       {entry.current_streak > 0 && (
-                        <span className="flex items-center gap-0.5 text-xs font-medium text-orange-500">
+                        <span className="flex items-center gap-0.5 text-xs font-medium text-sun-500">
                           <Flame className="h-3 w-3" />
                           {entry.current_streak}
                         </span>
@@ -381,7 +381,7 @@ function AchievementsTab({
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Star className="h-4 w-4 text-yellow-500" />
+            <Star className="h-4 w-4 text-sun-500" />
             How to Earn XP
           </CardTitle>
         </CardHeader>
@@ -391,17 +391,17 @@ function AchievementsTab({
               <p className="text-2xl font-bold text-blue-600">+10</p>
               <p className="mt-1 text-xs text-blue-500">Complete a lesson</p>
             </div>
-            <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-500/10">
-              <p className="text-2xl font-bold text-emerald-600">+25</p>
-              <p className="mt-1 text-xs text-emerald-500">Pass a quiz</p>
+            <div className="rounded-lg bg-green-50 p-4 text-center dark:bg-green-500/10">
+              <p className="text-2xl font-bold text-green-600">+25</p>
+              <p className="mt-1 text-xs text-green-500">Pass a quiz</p>
             </div>
-            <div className="rounded-lg bg-emerald-50 p-4 text-center dark:bg-emerald-500/10">
-              <p className="text-2xl font-bold text-emerald-600">+50</p>
-              <p className="mt-1 text-xs text-emerald-500">Pass a code challenge</p>
+            <div className="rounded-lg bg-green-50 p-4 text-center dark:bg-green-500/10">
+              <p className="text-2xl font-bold text-green-600">+50</p>
+              <p className="mt-1 text-xs text-green-500">Pass a code challenge</p>
             </div>
-            <div className="rounded-lg bg-orange-50 p-4 text-center dark:bg-orange-500/10">
-              <p className="text-2xl font-bold text-orange-600">+5</p>
-              <p className="mt-1 text-xs text-orange-500">Daily streak bonus</p>
+            <div className="rounded-lg bg-sun-50 p-4 text-center dark:bg-sun-500/10">
+              <p className="text-2xl font-bold text-sun-500">+5</p>
+              <p className="mt-1 text-xs text-sun-500">Daily streak bonus</p>
             </div>
           </div>
         </CardContent>
@@ -417,11 +417,11 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
       {certificates.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <Award className="h-8 w-8 text-slate-400" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <Award className="h-8 w-8 text-ink-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-300">No certificates yet</h3>
-            <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+            <h3 className="text-lg font-semibold text-ink-700 dark:text-ink-300">No certificates yet</h3>
+            <p className="mt-1 text-sm text-ink-400 dark:text-ink-500">
               Complete a course to earn your first certificate!
             </p>
           </CardContent>
@@ -431,14 +431,14 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
           {certificates.map((cert) => (
             <Card key={cert.id} className="hover:shadow-md">
               <CardContent className="flex items-center gap-4 p-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-amber-50">
-                  <Award className="h-6 w-6 text-amber-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sun-100 to-sun-50">
+                  <Award className="h-6 w-6 text-sun-500" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">
                     {cert.course_title}
                   </h3>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                  <p className="text-xs text-ink-400 dark:text-ink-500">
                     Certificate #{cert.certificate_number} · Issued{" "}
                     {new Date(cert.issued_at).toLocaleDateString()}
                   </p>
@@ -471,11 +471,11 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
       {skills.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
-            <div className="mb-3 rounded-full bg-slate-100 p-3 dark:bg-white/10">
-              <Zap className="h-6 w-6 text-slate-400" />
+            <div className="mb-3 rounded-full bg-ink-100 p-3 dark:bg-white/10">
+              <Zap className="h-6 w-6 text-ink-400" />
             </div>
-            <p className="text-sm font-medium text-slate-500">{t("skills.noSkills") || "No skills earned yet"}</p>
-            <p className="mt-1 text-xs text-slate-400">{t("skills.noSkillsHint") || "Complete lessons to start earning skills"}</p>
+            <p className="text-sm font-medium text-ink-500">{t("skills.noSkills") || "No skills earned yet"}</p>
+            <p className="mt-1 text-xs text-ink-400">{t("skills.noSkillsHint") || "Complete lessons to start earning skills"}</p>
           </CardContent>
         </Card>
       ) : (
@@ -489,10 +489,10 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <RadarChart data={radarData}>
-                    <PolarGrid stroke="#e2e8f0" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#64748b" }} />
-                    <PolarRadiusAxis tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                    <Radar name="XP" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} />
+                    <PolarGrid stroke="#e6e8e4" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: "#4d5a51" }} />
+                    <PolarRadiusAxis tick={{ fontSize: 10, fill: "#9aa39d" }} />
+                    <Radar name="XP" dataKey="value" stroke="#0a8754" fill="#0a8754" fillOpacity={0.3} />
                   </RadarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -502,7 +502,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
           {/* Skills by category */}
           {categories.map((cat) => (
             <div key={cat}>
-              <h2 className="mb-3 text-lg font-semibold capitalize text-slate-900 dark:text-slate-100">{cat}</h2>
+              <h2 className="mb-3 text-lg font-semibold capitalize text-ink-900 dark:text-ink-100">{cat}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {skills
                   .filter((s) => s.category === cat)
@@ -513,21 +513,21 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-slate-100 text-slate-600"}`}>
+                              <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-ink-100 text-ink-700"}`}>
                                 {s.skill_icon || "⚡"}
                               </span>
-                              <span className="font-medium text-slate-800 dark:text-slate-200">{s.skill_name}</span>
+                              <span className="font-medium text-ink-900 dark:text-ink-200">{s.skill_name}</span>
                             </div>
                             <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-500/20 dark:text-green-300">
                               {t("skills.level") || "Lv."}{s.level}
                             </span>
                           </div>
                           <div className="mt-3">
-                            <div className="mb-1 flex justify-between text-xs text-slate-400">
+                            <div className="mb-1 flex justify-between text-xs text-ink-400">
                               <span>{s.total_xp} XP</span>
                               <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
                             </div>
-                            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10" role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
+                            <div className="h-1.5 overflow-hidden rounded-full bg-ink-100 dark:bg-white/10" role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
                               <div className="h-full rounded-full bg-green-500" style={{ width: `${progressToNext}%` }} />
                             </div>
                           </div>

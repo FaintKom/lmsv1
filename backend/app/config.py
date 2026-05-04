@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    email_from: str = "noreply@learnhub.io"
+    email_from: str = "noreply@grasslms.online"
     email_from_name: str = "GrassLMS"
     app_url: str = "http://localhost:3000"
 
@@ -69,8 +69,8 @@ class Settings(BaseSettings):
     # default. When on, also set the demo account emails below; the
     # endpoint will authenticate into whichever one the caller asks for.
     demo_mode_enabled: bool = False
-    demo_student_email: str = "student@learnhub.app"
-    demo_teacher_email: str = "teacher@learnhub.app"
+    demo_student_email: str = "student@grasslms.online"
+    demo_teacher_email: str = "teacher@grasslms.online"
 
     # File storage backend: "local" (default) or "s3" (S3-compatible).
     # When "s3", the S3_* settings below must be filled in. Switching

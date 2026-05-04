@@ -76,17 +76,17 @@ export function OrgSwitcher() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         disabled={switching}
-        className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-white/10 dark:bg-transparent dark:hover:bg-white/5"
+        className="flex w-full items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2 text-left text-sm transition-colors hover:bg-ink-50 disabled:opacity-60 dark:border-white/10 dark:bg-transparent dark:hover:bg-white/5"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <Building2 className="h-4 w-4 flex-shrink-0 text-slate-400" aria-hidden="true" />
-        <span className="min-w-0 flex-1 truncate font-medium text-slate-700 dark:text-slate-200">
+        <Building2 className="h-4 w-4 flex-shrink-0 text-ink-400" aria-hidden="true" />
+        <span className="min-w-0 flex-1 truncate font-medium text-ink-700 dark:text-ink-200">
           {active?.org_name ?? "Organization"}
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 flex-shrink-0 text-slate-400 transition-transform",
+            "h-4 w-4 flex-shrink-0 text-ink-400 transition-transform",
             open && "rotate-180"
           )}
           aria-hidden="true"
@@ -95,7 +95,7 @@ export function OrgSwitcher() {
       {open && (
         <ul
           role="listbox"
-          className="absolute bottom-full left-0 right-0 z-50 mb-1 max-h-64 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-[#2a2a2a]"
+          className="absolute bottom-full left-0 right-0 z-50 mb-1 max-h-64 overflow-y-auto rounded-xl border border-ink-200 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-[#2a2a2a]"
         >
           {data.memberships.map((m) => {
             const isActive = m.org_id === data.active_org_id;
@@ -104,16 +104,16 @@ export function OrgSwitcher() {
                 <button
                   type="button"
                   onClick={() => handleSwitch(m.org_id)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
                 >
                   <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
                     {isActive && <Check className="h-4 w-4 text-green-600" aria-hidden="true" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium text-slate-800 dark:text-slate-200">
+                    <span className="block truncate font-medium text-ink-900 dark:text-ink-200">
                       {m.org_name}
                     </span>
-                    <span className="block truncate text-xs capitalize text-slate-400">
+                    <span className="block truncate text-xs capitalize text-ink-400">
                       {m.role.replace("_", " ")}
                     </span>
                   </span>

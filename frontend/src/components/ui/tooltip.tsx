@@ -14,10 +14,10 @@ export function Tooltip({ content, children, position = "top" }: TooltipProps) {
       {children}
       <div
         role="tooltip"
-        className={`pointer-events-none absolute z-50 max-w-xs rounded-lg bg-[#1e293b] px-2.5 py-1.5 text-xs text-white opacity-0 transition-opacity duration-200 delay-150 group-hover/tooltip:opacity-100 ${positionClasses[position]}`}
+        className={`pointer-events-none absolute z-50 max-w-xs rounded-lg bg-[#1a2a1f] px-2.5 py-1.5 text-xs text-white opacity-0 transition-opacity duration-200 delay-150 group-hover/tooltip:opacity-100 ${positionClasses[position]}`}
       >
         {content}
-        <div className={`absolute h-2 w-2 rotate-45 bg-[#1e293b] ${arrowClasses[position]}`} />
+        <div className={`absolute h-2 w-2 rotate-45 bg-[#1a2a1f] ${arrowClasses[position]}`} />
       </div>
     </div>
   );

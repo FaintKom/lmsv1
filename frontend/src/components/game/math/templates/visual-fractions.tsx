@@ -44,14 +44,14 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-ink-700 dark:text-ink-300">
         Shade <strong>{targetNumerator}/{targetDenominator}</strong> of the shape
       </p>
 
       {displayType === "pie" ? (
         <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}>
           {/* Background circle */}
-          <circle cx={center} cy={center} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={2} className="dark:stroke-slate-600" />
+          <circle cx={center} cy={center} r={radius} fill="none" stroke="#e6e8e4" strokeWidth={2} className="dark:stroke-ink-700" />
 
           {/* Pie slices */}
           {Array.from({ length: targetDenominator }, (_, i) => {
@@ -64,9 +64,9 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
             const largeArc = 1 / targetDenominator > 0.5 ? 1 : 0;
 
             const isSelected = selected.has(i);
-            let fillColor = isSelected ? "#6366f1" : "#f8fafc";
+            let fillColor = isSelected ? "#0a8754" : "#fafbf6";
             if (checked && isSelected) {
-              fillColor = isCorrect ? "#22c55e" : "#ef4444";
+              fillColor = isCorrect ? "#3fb04b" : "#ff7a5c";
             }
 
             return (
@@ -74,7 +74,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
                 <path
                   d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`}
                   fill={fillColor}
-                  stroke="#cbd5e1"
+                  stroke="#c9cec9"
                   strokeWidth={1.5}
                   className={`transition-colors ${!checked && !isSelected ? "hover:fill-green-100 dark:hover:fill-green-500/20" : ""}`}
                 />
@@ -83,7 +83,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
           })}
 
           {/* Center label */}
-          <text x={center} y={center + 5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#334155" className="dark:fill-slate-200">
+          <text x={center} y={center + 5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#1a2a1f" className="dark:fill-ink-200">
             {selected.size}/{targetDenominator}
           </text>
         </svg>
@@ -94,9 +94,9 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
             const w = 360 / targetDenominator;
             const x = 20 + i * w;
             const isSelected = selected.has(i);
-            let fillColor = isSelected ? "#6366f1" : "#f8fafc";
+            let fillColor = isSelected ? "#0a8754" : "#fafbf6";
             if (checked && isSelected) {
-              fillColor = isCorrect ? "#22c55e" : "#ef4444";
+              fillColor = isCorrect ? "#3fb04b" : "#ff7a5c";
             }
 
             return (
@@ -108,7 +108,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
                 height={50}
                 rx={4}
                 fill={fillColor}
-                stroke="#cbd5e1"
+                stroke="#c9cec9"
                 strokeWidth={1.5}
                 onClick={() => togglePart(i)}
                 style={{ cursor: checked ? "default" : "pointer" }}
@@ -116,7 +116,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
               />
             );
           })}
-          <text x={200} y={78} textAnchor="middle" fontSize={14} fill="#64748b">
+          <text x={200} y={78} textAnchor="middle" fontSize={14} fill="#4d5a51">
             {selected.size}/{targetDenominator}
           </text>
         </svg>
@@ -133,7 +133,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
             </Button>
           </>
         ) : (
-          <p className="text-sm font-medium text-emerald-600">Correct!</p>
+          <p className="text-sm font-medium text-green-600">Correct!</p>
         )}
       </div>
     </div>

@@ -111,8 +111,8 @@ export default function OrganizationsPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Organizations</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Organizations</h1>
+          <p className="text-sm text-ink-500 dark:text-ink-400">
             {isSuperAdmin ? "Manage all organizations" : "Your organization settings"}
           </p>
         </div>
@@ -125,11 +125,11 @@ export default function OrganizationsPage() {
       </div>
 
       {showCreate && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]">
-          <h3 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">Create organization</h3>
+        <div className="rounded-xl border border-ink-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]">
+          <h3 className="mb-3 font-semibold text-ink-900 dark:text-ink-100">Create organization</h3>
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label htmlFor="newOrgName" className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+              <label htmlFor="newOrgName" className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
                 Organization name
               </label>
               <input
@@ -138,7 +138,7 @@ export default function OrganizationsPage() {
                 value={newOrgName}
                 onChange={(e) => setNewOrgName(e.target.value)}
                 placeholder="Acme School"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
                 onKeyDown={(e) => e.key === "Enter" && createOrg()}
                 disabled={creating}
               />
@@ -157,7 +157,7 @@ export default function OrganizationsPage() {
         {orgs.map((org) => (
           <div
             key={org.id}
-            className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]"
+            className="flex items-center gap-4 rounded-xl border border-ink-200 bg-white p-4 dark:border-white/10 dark:bg-[#2C2C2C]"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 dark:bg-green-500/20">
               <Building2 className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -173,17 +173,17 @@ export default function OrganizationsPage() {
                     onKeyDown={(e) => e.key === "Enter" && saveEdit()}
                     autoFocus
                   />
-                  <button onClick={saveEdit} className="rounded p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
+                  <button onClick={saveEdit} className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10">
                     <Check className="h-4 w-4" />
                   </button>
-                  <button onClick={() => setEditingId(null)} className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10">
+                  <button onClick={() => setEditingId(null)} className="rounded p-1 text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               ) : (
                 <>
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">{org.name}</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                  <p className="font-semibold text-ink-900 dark:text-ink-100">{org.name}</p>
+                  <p className="text-xs text-ink-400 dark:text-ink-500">
                     {org.slug} • {org.is_active ? "Active" : "Inactive"}
                     {org.created_at && ` • Created ${new Date(org.created_at).toLocaleDateString()}`}
                   </p>
@@ -194,7 +194,7 @@ export default function OrganizationsPage() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => startEdit(org)}
-                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+                className="rounded-lg p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-white/10 dark:hover:text-ink-300"
                 title="Edit name"
               >
                 <Pencil className="h-4 w-4" />
@@ -205,8 +205,8 @@ export default function OrganizationsPage() {
                     onClick={() => toggleActive(org)}
                     className={`rounded-lg p-2 text-sm font-medium ${
                       org.is_active
-                        ? "text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                        : "text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+                        ? "text-sun-500 hover:bg-sun-50 dark:hover:bg-sun-500/10"
+                        : "text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10"
                     }`}
                     title={org.is_active ? "Deactivate" : "Activate"}
                   >
@@ -214,7 +214,7 @@ export default function OrganizationsPage() {
                   </button>
                   <button
                     onClick={() => deleteOrg(org)}
-                    className="rounded-lg p-2 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                    className="rounded-lg p-2 text-coral-300 hover:bg-coral-50 hover:text-coral-500 dark:hover:bg-coral-500/10 dark:hover:text-coral-300"
                     title="Delete organization"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -226,7 +226,7 @@ export default function OrganizationsPage() {
         ))}
 
         {orgs.length === 0 && (
-          <div className="py-12 text-center text-slate-400">No organizations found</div>
+          <div className="py-12 text-center text-ink-400">No organizations found</div>
         )}
       </div>
     </div>

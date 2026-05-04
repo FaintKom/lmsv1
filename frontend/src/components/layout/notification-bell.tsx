@@ -94,23 +94,23 @@ export function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={handleOpen}
-        className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        className="relative rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700"
         aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
         aria-expanded={open}
         aria-haspopup="true"
       >
         <Bell className="h-5 w-5" aria-hidden="true" />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white" aria-hidden="true">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-coral-500 px-1 text-[10px] font-bold text-white" aria-hidden="true">
             {unread > 99 ? "99+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-            <h3 className="text-sm font-semibold text-slate-800">Notifications</h3>
+        <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-ink-200 bg-white shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
+          <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
+            <h3 className="text-sm font-semibold text-ink-900">Notifications</h3>
             {unread > 0 && (
               <button
                 onClick={handleMarkAllRead}
@@ -124,7 +124,7 @@ export function NotificationBell() {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-slate-500">
+              <div className="px-4 py-8 text-center text-sm text-ink-500">
                 No notifications yet
               </div>
             ) : (
@@ -132,28 +132,28 @@ export function NotificationBell() {
                 <button
                   key={notif.id}
                   onClick={() => handleClick(notif)}
-                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
+                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-ink-50 ${
                     !notif.is_read ? "bg-green-50/50" : ""
                   }`}
                 >
                   <div className="mt-0.5 shrink-0">
                     {notif.is_read ? (
-                      <Check className="h-4 w-4 text-slate-400" />
+                      <Check className="h-4 w-4 text-ink-400" />
                     ) : (
                       <div className="h-2 w-2 rounded-full bg-green-500" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className={`text-sm ${notif.is_read ? "text-slate-500" : "font-medium text-slate-700"}`}>
+                    <p className={`text-sm ${notif.is_read ? "text-ink-500" : "font-medium text-ink-700"}`}>
                       {notif.title}
                     </p>
                     {notif.body && (
-                      <p className="mt-0.5 truncate text-sm text-slate-500">
+                      <p className="mt-0.5 truncate text-sm text-ink-500">
                         {notif.body}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 text-xs text-slate-500">
+                  <span className="shrink-0 text-xs text-ink-500">
                     {timeAgo(notif.created_at)}
                   </span>
                 </button>

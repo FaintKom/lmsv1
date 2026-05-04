@@ -12,9 +12,9 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Plus, X, Loader2 } from "lucide-react";
 
 const EVENT_COLORS: Record<string, string> = {
-  deadline: "#ef4444",
+  deadline: "#ff7a5c",
   lesson: "#3b82f6",
-  meeting: "#22c55e",
+  meeting: "#3fb04b",
   custom: "#8b5cf6",
 };
 
@@ -136,7 +136,7 @@ export function CalendarView({ canCreate = false }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap gap-3">
           {Object.entries(EVENT_COLORS).map(([type, color]) => (
-            <span key={type} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+            <span key={type} className="flex items-center gap-1.5 text-xs text-ink-700 dark:text-ink-400">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
               {type.charAt(0).toUpperCase() + type.slice(1)}
             </span>
@@ -154,10 +154,10 @@ export function CalendarView({ canCreate = false }: Props) {
 
       {/* Create Form */}
       {showForm && canCreate && (
-        <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#232323]">
+        <form onSubmit={handleSubmit} className="rounded-xl border border-ink-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#232323]">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">New Event</h3>
-            <button type="button" onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600">
+            <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">New Event</h3>
+            <button type="button" onClick={() => setShowForm(false)} className="text-ink-400 hover:text-ink-700">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -167,12 +167,12 @@ export function CalendarView({ canCreate = false }: Props) {
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
             />
             <select
               value={form.event_type}
               onChange={(e) => setForm({ ...form, event_type: e.target.value })}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
             >
               <option value="custom">Custom</option>
               <option value="lesson">Lesson</option>
@@ -184,19 +184,19 @@ export function CalendarView({ canCreate = false }: Props) {
               value={form.start_time}
               onChange={(e) => setForm({ ...form, start_time: e.target.value })}
               required
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
             />
             <input
               type="datetime-local"
               value={form.end_time}
               onChange={(e) => setForm({ ...form, end_time: e.target.value })}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="rounded-lg border border-ink-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
             />
             <textarea
               placeholder="Description (optional)"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm sm:col-span-2 dark:border-white/10 dark:bg-[#181818] dark:text-slate-200"
+              className="rounded-lg border border-ink-200 px-3 py-2 text-sm sm:col-span-2 dark:border-white/10 dark:bg-[#181818] dark:text-ink-200"
               rows={2}
             />
           </div>
@@ -215,11 +215,11 @@ export function CalendarView({ canCreate = false }: Props) {
 
       {/* Event Detail Popup */}
       {selectedEvent && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#232323]">
+        <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#232323]">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{selectedEvent.title}</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">{selectedEvent.title}</h3>
+              <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
                 <span
                   className="mr-2 inline-block h-2 w-2 rounded-full"
                   style={{ backgroundColor: EVENT_COLORS[selectedEvent.event_type] }}
@@ -228,21 +228,21 @@ export function CalendarView({ canCreate = false }: Props) {
                 {selectedEvent.end_time && ` — ${new Date(selectedEvent.end_time).toLocaleString()}`}
               </p>
               {selectedEvent.description && (
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{selectedEvent.description}</p>
+                <p className="mt-2 text-sm text-ink-700 dark:text-ink-300">{selectedEvent.description}</p>
               )}
             </div>
             <div className="flex gap-2">
               {canCreate && selectedEvent.source !== "assignment" && selectedEvent.created_by === user?.id && (
                 <button
                   onClick={() => handleDelete(selectedEvent.id)}
-                  className="rounded-lg bg-red-50 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400"
+                  className="rounded-lg bg-coral-50 px-3 py-1 text-xs font-medium text-coral-500 hover:bg-coral-50 dark:bg-coral-500/10 dark:text-coral-300"
                 >
                   Delete
                 </button>
               )}
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-ink-400 hover:text-ink-700"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -252,7 +252,7 @@ export function CalendarView({ canCreate = false }: Props) {
       )}
 
       {/* Calendar */}
-      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm dark:border-white/10 dark:bg-[#232323] [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-green-600 [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-green-700 [&_.fc-button:hover]:!bg-green-700 [&_.fc-daygrid-day]:dark:!bg-[#1a1a1a] [&_.fc-day-today]:!bg-green-50 [&_.fc-day-today]:dark:!bg-green-500/10 [&_.fc-theme-standard_td]:!border-slate-100 [&_.fc-theme-standard_td]:dark:!border-white/5 [&_.fc-theme-standard_th]:!border-slate-100 [&_.fc-theme-standard_th]:dark:!border-white/5 [&_.fc-col-header-cell-cushion]:!text-slate-500 [&_.fc-col-header-cell-cushion]:dark:!text-slate-400 [&_.fc-daygrid-day-number]:!text-slate-600 [&_.fc-daygrid-day-number]:dark:!text-slate-300 [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-slate-800 [&_.fc-toolbar-title]:dark:!text-slate-100">
+      <div className="rounded-xl border border-ink-200 bg-white p-2 shadow-sm dark:border-white/10 dark:bg-[#232323] [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-green-600 [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-green-700 [&_.fc-button:hover]:!bg-green-700 [&_.fc-daygrid-day]:dark:!bg-[#1a1a1a] [&_.fc-day-today]:!bg-green-50 [&_.fc-day-today]:dark:!bg-green-500/10 [&_.fc-theme-standard_td]:!border-ink-100 [&_.fc-theme-standard_td]:dark:!border-white/5 [&_.fc-theme-standard_th]:!border-ink-100 [&_.fc-theme-standard_th]:dark:!border-white/5 [&_.fc-col-header-cell-cushion]:!text-ink-500 [&_.fc-col-header-cell-cushion]:dark:!text-ink-400 [&_.fc-daygrid-day-number]:!text-ink-700 [&_.fc-daygrid-day-number]:dark:!text-ink-300 [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-ink-900 [&_.fc-toolbar-title]:dark:!text-ink-100">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"

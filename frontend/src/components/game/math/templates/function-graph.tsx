@@ -133,18 +133,18 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
     for (let i = -grid_range; i <= grid_range; i++) {
       lines.push(
         <line key={`v${i}`} x1={toSvgX(i)} y1={padding} x2={toSvgX(i)} y2={svgSize - padding}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} />
       );
       lines.push(
         <line key={`h${i}`} x1={padding} y1={toSvgY(i)} x2={svgSize - padding} y2={toSvgY(i)}
-          stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
+          stroke={i === 0 ? "#4d5a51" : "#c9cec9"} strokeWidth={i === 0 ? 2 : 0.5} />
       );
       if (i !== 0 && i % 2 === 0) {
         lines.push(
-          <text key={`xl${i}`} x={toSvgX(i)} y={toSvgY(0) + 14} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+          <text key={`xl${i}`} x={toSvgX(i)} y={toSvgY(0) + 14} textAnchor="middle" fontSize={9} fill="#9aa39d">{i}</text>
         );
         lines.push(
-          <text key={`yl${i}`} x={toSvgX(0) - 10} y={toSvgY(i) + 3} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+          <text key={`yl${i}`} x={toSvgX(0) - 10} y={toSvgY(i) + 3} textAnchor="middle" fontSize={9} fill="#9aa39d">{i}</text>
         );
       }
     }
@@ -153,7 +153,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-ink-700 dark:text-ink-300">
         {mode === "match_graph"
           ? "Adjust the sliders to match the target graph (dashed line)"
           : `Find the parameters for: ${getFnString(function_type, target_params)}`}
@@ -161,27 +161,27 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
       {/* Graph */}
       <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}
-        className="rounded-lg border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
+        className="rounded-lg border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1a1a2e]">
         {gridLines}
 
         {/* Target function (dashed) */}
         {show_target && (
-          <polyline points={targetPath} fill="none" stroke="#22c55e" strokeWidth={2.5}
+          <polyline points={targetPath} fill="none" stroke="#3fb04b" strokeWidth={2.5}
             strokeDasharray="8 4" opacity={0.7} />
         )}
 
         {/* User function (solid) */}
         <polyline points={userPath} fill="none"
-          stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+          stroke={checked ? (isCorrect ? "#3fb04b" : "#ff7a5c") : "#0a8754"}
           strokeWidth={2.5} />
 
         {/* Labels */}
-        <text x={svgSize - padding + 8} y={toSvgY(0) + 4} fontSize={12} fill="#64748b" fontWeight="bold">x</text>
-        <text x={toSvgX(0) + 6} y={padding - 6} fontSize={12} fill="#64748b" fontWeight="bold">y</text>
+        <text x={svgSize - padding + 8} y={toSvgY(0) + 4} fontSize={12} fill="#4d5a51" fontWeight="bold">x</text>
+        <text x={toSvgX(0) + 6} y={padding - 6} fontSize={12} fill="#4d5a51" fontWeight="bold">y</text>
       </svg>
 
       {/* Current equation display */}
-      <div className="rounded-lg bg-slate-50 px-4 py-2 text-center dark:bg-white/5">
+      <div className="rounded-lg bg-ink-50 px-4 py-2 text-center dark:bg-white/5">
         <span className="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
           {getFnString(function_type, userParams)}
         </span>
@@ -191,7 +191,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
       <div className="w-full max-w-sm space-y-3">
         {paramDefs.map((p) => (
           <div key={p.key} className="flex items-center gap-3">
-            <label className="w-24 text-right text-xs font-medium text-slate-500">
+            <label className="w-24 text-right text-xs font-medium text-ink-500">
               {p.label} = <span className="font-mono text-green-600 dark:text-green-400">{userParams[p.key]}</span>
             </label>
             <input
@@ -215,7 +215,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
       </Button>
 
       {checked && !isCorrect && (
-        <p className="text-xs text-red-500">
+        <p className="text-xs text-coral-500">
           Not quite. Adjust the sliders to better match the target graph.
         </p>
       )}

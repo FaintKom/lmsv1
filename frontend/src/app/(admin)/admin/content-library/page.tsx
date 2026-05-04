@@ -108,20 +108,20 @@ export default function ContentLibraryPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-indigo-900/30">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/30">
           <Library className="h-5 w-5 text-green-600 dark:text-green-400" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Content Library</h1>
+        <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Content Library</h1>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-white/5">
+      <div className="flex gap-1 rounded-lg bg-ink-100 p-1 dark:bg-white/5">
         <button
           onClick={() => setActiveTab("templates")}
           className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "templates"
-              ? "bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-slate-100"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+              ? "bg-white text-ink-900 shadow-sm dark:bg-white/10 dark:text-ink-100"
+              : "text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300"
           }`}
         >
           <FileStack className="h-4 w-4" />
@@ -131,8 +131,8 @@ export default function ContentLibraryPage() {
           onClick={() => setActiveTab("exercises")}
           className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "exercises"
-              ? "bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-slate-100"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+              ? "bg-white text-ink-900 shadow-sm dark:bg-white/10 dark:text-ink-100"
+              : "text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300"
           }`}
         >
           <ClipboardList className="h-4 w-4" />
@@ -142,8 +142,8 @@ export default function ContentLibraryPage() {
           onClick={() => setActiveTab("assignments")}
           className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "assignments"
-              ? "bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-slate-100"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+              ? "bg-white text-ink-900 shadow-sm dark:bg-white/10 dark:text-ink-100"
+              : "text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300"
           }`}
         >
           <ClipboardList className="h-4 w-4" />
@@ -282,7 +282,7 @@ function TemplatesTab() {
         </div>
       ) : templates.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-ink-400 dark:text-ink-500">
             <FileStack className="mb-3 h-10 w-10" />
             <p className="text-sm font-medium">No course templates yet</p>
             {isMethodistOrAdmin && (
@@ -295,37 +295,37 @@ function TemplatesTab() {
           {templates.map((course) => (
             <Card
               key={course.id}
-              className="border-l-4 border-l-emerald-400 transition-shadow hover:shadow-md"
+              className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md"
             >
               <CardContent className="p-5">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <FileStack className="h-5 w-5 text-emerald-500" />
+                    <FileStack className="h-5 w-5 text-green-500" />
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                         course.status === "published"
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                          : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400"
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-ink-100 text-ink-500 dark:bg-white/10 dark:text-ink-400"
                       }`}
                     >
                       {course.status}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-400">v{course.template_version}</span>
+                  <span className="text-[10px] text-ink-400">v{course.template_version}</span>
                 </div>
 
-                <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                <h3 className="mb-1 text-sm font-semibold text-ink-900 dark:text-ink-100">
                   {course.title}
                 </h3>
                 {course.description && (
-                  <p className="mb-3 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mb-3 line-clamp-2 text-xs text-ink-500 dark:text-ink-400">
                     {course.description}
                   </p>
                 )}
 
-                <div className="mb-3 flex items-center gap-3 text-xs text-slate-400">
+                <div className="mb-3 flex items-center gap-3 text-xs text-ink-400">
                   {course.category && (
-                    <span className="rounded bg-slate-100 px-1.5 py-0.5 dark:bg-white/10">
+                    <span className="rounded bg-ink-100 px-1.5 py-0.5 dark:bg-white/10">
                       {course.category}
                     </span>
                   )}
@@ -351,7 +351,7 @@ function TemplatesTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(course)}
-                        className="text-red-500 hover:text-red-700"
+                        className="text-coral-500 hover:text-coral-700"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -382,28 +382,28 @@ function TemplatesTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-[#2C2C2C]">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h2 className="text-lg font-semibold text-ink-900 dark:text-ink-100">
                 Use Template
               </h2>
               <button
                 onClick={() => setCopyModal(null)}
-                className="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
+                className="rounded-md p-1 text-ink-400 hover:bg-ink-100 dark:hover:bg-white/10"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <p className="mb-1 text-sm text-slate-600 dark:text-slate-300">
+            <p className="mb-1 text-sm text-ink-700 dark:text-ink-300">
               Copy <strong>&quot;{copyModal.title}&quot;</strong> to your courses.
             </p>
-            <p className="mb-4 text-xs text-slate-400">
+            <p className="mb-4 text-xs text-ink-400">
               Select groups to auto-enroll their students (optional).
             </p>
 
             {/* Group selection */}
             <div className="mb-4 max-h-48 space-y-2 overflow-y-auto">
               {groups.length === 0 ? (
-                <p className="py-4 text-center text-xs text-slate-400">
+                <p className="py-4 text-center text-xs text-ink-400">
                   No groups available. You can enroll groups later.
                 </p>
               ) : (
@@ -414,14 +414,14 @@ function TemplatesTab() {
                     className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
                       selectedGroups.includes(group.id)
                         ? "border-green-300 bg-green-50 dark:border-green-500/50 dark:bg-green-500/10"
-                        : "border-slate-200 hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/5"
+                        : "border-ink-200 hover:bg-ink-50 dark:border-white/10 dark:hover:bg-white/5"
                     }`}
                   >
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded border ${
                         selectedGroups.includes(group.id)
                           ? "border-green-500 bg-green-500"
-                          : "border-slate-300 dark:border-white/20"
+                          : "border-ink-300 dark:border-white/20"
                       }`}
                     >
                       {selectedGroups.includes(group.id) && (
@@ -429,11 +429,11 @@ function TemplatesTab() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      <p className="text-sm font-medium text-ink-900 dark:text-ink-200">
                         {group.name}
                       </p>
                       {group.member_count != null && (
-                        <p className="flex items-center gap-1 text-xs text-slate-400">
+                        <p className="flex items-center gap-1 text-xs text-ink-400">
                           <Users className="h-3 w-3" />
                           {group.member_count} members
                         </p>
@@ -533,13 +533,13 @@ function ExercisesTab() {
         <CardContent className="p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="text"
                 placeholder="Search by title or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
+                className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-10 pr-4 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-ink-200 dark:placeholder-ink-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
               />
             </div>
           </div>
@@ -549,8 +549,8 @@ function ExercisesTab() {
               onClick={() => { setActiveType("all"); setPage(1); }}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                 activeType === "all"
-                  ? "bg-green-100 text-green-700 dark:bg-indigo-900/30 dark:text-green-300"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                  : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
               }`}
             >
               All ({total})
@@ -564,7 +564,7 @@ function ExercisesTab() {
                   className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                     activeType === type
                       ? EXERCISE_TYPE_COLORS[type]
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                      : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/5 dark:text-ink-400 dark:hover:bg-white/10"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -586,7 +586,7 @@ function ExercisesTab() {
               ))}
             </div>
           ) : exercises.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+            <div className="flex flex-col items-center justify-center py-16 text-ink-400 dark:text-ink-500">
               <Library className="mb-3 h-10 w-10" />
               <p className="text-sm font-medium">No exercises found</p>
               <p className="text-xs">Exercises are created inside course lessons</p>
@@ -595,29 +595,29 @@ function ExercisesTab() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-white/10">
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">ID</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Title</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Type</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Created</th>
-                    <th className="px-6 py-3 text-right font-semibold text-slate-500 dark:text-slate-400">Actions</th>
+                  <tr className="border-b border-ink-100 dark:border-white/10">
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">ID</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Title</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Type</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Created</th>
+                    <th className="px-6 py-3 text-right font-semibold text-ink-500 dark:text-ink-400">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                <tbody className="divide-y divide-ink-50 dark:divide-white/5">
                   {exercises.map((ex) => {
                     const Icon = TYPE_ICONS[ex.exercise_type];
                     return (
                       <tr
                         key={ex.id}
-                        className="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                        className="cursor-pointer transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
                         onClick={() => router.push(`/admin/content-library/${ex.id}`)}
                       >
                         <td className="px-6 py-3">
-                          <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                          <span className="rounded bg-ink-100 px-2 py-0.5 font-mono text-xs font-medium text-ink-700 dark:bg-white/10 dark:text-ink-300">
                             {ex.display_id}
                           </span>
                         </td>
-                        <td className="px-6 py-3 font-medium text-slate-800 dark:text-slate-200">
+                        <td className="px-6 py-3 font-medium text-ink-900 dark:text-ink-200">
                           {ex.title}
                         </td>
                         <td className="px-6 py-3">
@@ -626,7 +626,7 @@ function ExercisesTab() {
                             {EXERCISE_TYPE_LABELS[ex.exercise_type]}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                        <td className="px-6 py-3 text-ink-500 dark:text-ink-400">
                           {new Date(ex.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-3">
@@ -652,7 +652,7 @@ function ExercisesTab() {
                               size="sm"
                               onClick={() => handleDelete(ex)}
                               title="Delete"
-                              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                              className="text-coral-500 hover:text-coral-700 dark:text-coral-300 dark:hover:text-coral-300"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -667,8 +667,8 @@ function ExercisesTab() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between border-t border-ink-100 px-6 py-3 dark:border-white/10">
+              <p className="text-xs text-ink-500 dark:text-ink-400">
                 Page {page} of {totalPages} ({total} total)
               </p>
               <div className="flex gap-2">
@@ -690,8 +690,8 @@ function ExercisesTab() {
 // ─── Assignments Tab ───
 
 const STATUS_BADGE: Record<string, string> = {
-  overdue: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  overdue: "bg-coral-50 text-coral-700 dark:bg-coral-700/30 dark:text-coral-300",
+  active: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
   graded: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
 };
 
@@ -801,7 +801,7 @@ function AssignmentsTab() {
   );
 
   const inputClass =
-    "w-full rounded-lg border border-slate-200 bg-white py-2 px-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20";
+    "w-full rounded-lg border border-ink-200 bg-white py-2 px-3 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-ink-200 dark:placeholder-ink-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20";
 
   return (
     <>
@@ -810,13 +810,13 @@ function AssignmentsTab() {
         <CardContent className="p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="text"
                 placeholder="Search assignments by title..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:placeholder-slate-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
+                className="w-full rounded-lg border border-ink-200 bg-white py-2 pl-10 pr-4 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 dark:border-white/10 dark:bg-white/5 dark:text-ink-200 dark:placeholder-ink-500 dark:focus:border-green-500/50 dark:focus:ring-green-500/20"
               />
             </div>
             <Button onClick={() => setShowForm((v) => !v)}>
@@ -840,15 +840,15 @@ function AssignmentsTab() {
       {showForm && (
         <Card>
           <CardContent className="p-6">
-            <h3 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <h3 className="mb-4 text-sm font-semibold text-ink-900 dark:text-ink-100">
               New Assignment
             </h3>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Course */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Course <span className="text-red-500">*</span>
+                  <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
+                    Course <span className="text-coral-500">*</span>
                   </label>
                   <select
                     value={formCourseId}
@@ -867,8 +867,8 @@ function AssignmentsTab() {
 
                 {/* Title */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Title <span className="text-red-500">*</span>
+                  <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
+                    Title <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -882,8 +882,8 @@ function AssignmentsTab() {
 
                 {/* Due Date */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-                    Due Date <span className="text-red-500">*</span>
+                  <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
+                    Due Date <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -896,7 +896,7 @@ function AssignmentsTab() {
 
                 {/* Max Score */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
                     Max Score
                   </label>
                   <input
@@ -911,7 +911,7 @@ function AssignmentsTab() {
 
               {/* Description */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+                <label className="mb-1 block text-xs font-medium text-ink-700 dark:text-ink-400">
                   Description
                 </label>
                 <textarea
@@ -924,12 +924,12 @@ function AssignmentsTab() {
               </div>
 
               {/* Allow Late */}
-              <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <label className="flex items-center gap-2 text-sm text-ink-700 dark:text-ink-300">
                 <input
                   type="checkbox"
                   checked={formAllowLate}
                   onChange={(e) => setFormAllowLate(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500 dark:border-white/20"
+                  className="h-4 w-4 rounded border-ink-300 text-green-600 focus:ring-green-500 dark:border-white/20"
                 />
                 Allow late submissions
               </label>
@@ -954,7 +954,7 @@ function AssignmentsTab() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-500">
+            <div className="flex flex-col items-center justify-center py-16 text-ink-400 dark:text-ink-500">
               <ClipboardList className="mb-3 h-10 w-10" />
               <p className="text-sm font-medium">No assignments found</p>
               <p className="text-xs">Create your first assignment to get started</p>
@@ -963,17 +963,17 @@ function AssignmentsTab() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-white/10">
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Title</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Course</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Due Date</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Max Score</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Submissions</th>
-                    <th className="px-6 py-3 text-left font-semibold text-slate-500 dark:text-slate-400">Status</th>
-                    <th className="px-6 py-3 text-right font-semibold text-slate-500 dark:text-slate-400">Actions</th>
+                  <tr className="border-b border-ink-100 dark:border-white/10">
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Title</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Course</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Due Date</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Max Score</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Submissions</th>
+                    <th className="px-6 py-3 text-left font-semibold text-ink-500 dark:text-ink-400">Status</th>
+                    <th className="px-6 py-3 text-right font-semibold text-ink-500 dark:text-ink-400">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                <tbody className="divide-y divide-ink-50 dark:divide-white/5">
                   {filtered.map((a) => {
                     const status = deriveStatus(a);
                     const courseName =
@@ -983,21 +983,21 @@ function AssignmentsTab() {
                     return (
                       <tr
                         key={a.id}
-                        className="transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                        className="transition-colors hover:bg-ink-50 dark:hover:bg-white/5"
                       >
-                        <td className="px-6 py-3 font-medium text-slate-800 dark:text-slate-200">
+                        <td className="px-6 py-3 font-medium text-ink-900 dark:text-ink-200">
                           {a.title}
                         </td>
-                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                        <td className="px-6 py-3 text-ink-500 dark:text-ink-400">
                           {courseName}
                         </td>
-                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                        <td className="px-6 py-3 text-ink-500 dark:text-ink-400">
                           {new Date(a.due_date).toLocaleString()}
                         </td>
-                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                        <td className="px-6 py-3 text-ink-500 dark:text-ink-400">
                           {a.max_score}
                         </td>
-                        <td className="px-6 py-3 text-slate-500 dark:text-slate-400">
+                        <td className="px-6 py-3 text-ink-500 dark:text-ink-400">
                           {a.submissions_count ?? 0}
                         </td>
                         <td className="px-6 py-3">
@@ -1036,7 +1036,7 @@ function AssignmentsTab() {
                               size="sm"
                               onClick={() => handleDelete(a)}
                               title="Delete"
-                              className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                              className="text-coral-500 hover:text-coral-700 dark:text-coral-300 dark:hover:text-coral-300"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

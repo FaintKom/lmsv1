@@ -14,6 +14,7 @@ import MatchingExercise from "@/components/submissions/exercises/matching";
 import OrderingExercise from "@/components/submissions/exercises/ordering";
 import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
 import TrueFalseExercise from "@/components/submissions/exercises/true-false";
+import SrsFlashcardExercise from "@/components/submissions/exercises/srs-flashcard";
 import CategorizeExercise from "@/components/submissions/exercises/categorize";
 import TranslationExercise from "@/components/exercises/translation-exercise";
 import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exercise";
@@ -24,22 +25,22 @@ import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 2D Robot...</div>,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-ink-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 2D Robot...</div>,
 });
 
 const MathExercise = dynamic(() => import("@/components/game/math/math-exercise"), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Math Exercise...</div>,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-ink-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Math Exercise...</div>,
 });
 
 const World3DExercise = dynamic(() => import("@/components/game/world-3d/world-3d-exercise"), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 3D World...</div>,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-ink-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading 3D World...</div>,
 });
 
 const WebEditorExercise = dynamic(() => import("@/components/exercises/web-editor-exercise"), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center py-12 text-sm text-slate-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Web Editor...</div>,
+  loading: () => <div className="flex items-center justify-center py-12 text-sm text-ink-500"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading Web Editor...</div>,
 });
 
 interface Question {
@@ -79,7 +80,12 @@ interface Exercise {
     | "dialogue"
     | "conjugation"
     | "reading"
-    | "web_editor";
+    | "web_editor"
+    | "srs_flashcard"
+    | "crossword"
+    | "word_search"
+    | "map_pin_drop"
+    | "bubble_sheet";
   title: string;
   config: Record<string, unknown>;
   questions?: Question[];
@@ -208,7 +214,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
     <>
       {/* Attempt counter */}
       {maxAttempts < 1000 && attemptCount > 0 && !maxReached && (
-        <div className="mb-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:bg-white/5">
+        <div className="mb-3 flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2 text-xs text-ink-500 dark:bg-white/5">
           <span>Attempt {attemptCount} / {maxAttempts}</span>
           <span>{Math.max(0, maxAttempts - attemptCount)} remaining</span>
         </div>
@@ -226,7 +232,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
           revealedAnswer={revealedAnswer}
         />
       ) : submitting ? (
-        <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-500">
+        <div className="flex items-center justify-center gap-2 py-8 text-sm text-ink-500">
           <Loader2 className="h-4 w-4 animate-spin" />
           Submitting...
         </div>
@@ -245,11 +251,11 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
     return (
       <>
         {/* Placeholder in the page flow */}
-        <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-white/5">
+        <div className="rounded-xl border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
+          <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3 dark:border-white/5">
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
-              <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
+              <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">{exercise.title}</h3>
+              <span className="text-xs capitalize text-ink-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
             </div>
             <span className="text-xs text-green-500">{t("game.fullscreen")}</span>
           </div>
@@ -259,25 +265,25 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
         {createPortal(
           <div className="fixed inset-0 z-[100] flex flex-col bg-white dark:bg-[#1E1E1E]">
             {/* Fullscreen header */}
-            <div className="flex h-11 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 sm:px-4 dark:border-white/10 dark:bg-[#1E1E1E]">
+            <div className="flex h-11 shrink-0 items-center justify-between border-b border-ink-200 bg-white px-3 sm:px-4 dark:border-white/10 dark:bg-[#1E1E1E]">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 {/* Prev lesson */}
                 {prevLesson && courseId && (
                   <button
                     onClick={() => { closeFullscreen(); router.push(`/courses/${courseId}/lessons/${prevLesson.id}`); }}
-                    className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10"
+                    className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-white/10"
                     title={prevLesson.title}
                   >
                     <ChevronLeft className="h-4 w-4" />
                     <span className="hidden sm:inline max-w-[100px] truncate">{prevLesson.title}</span>
                   </button>
                 )}
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{exercise.title}</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-ink-900 dark:text-ink-200 truncate">{exercise.title}</h3>
                 {/* Next lesson */}
                 {nextLesson && courseId && (
                   <button
                     onClick={() => { closeFullscreen(); router.push(`/courses/${courseId}/lessons/${nextLesson.id}`); }}
-                    className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10"
+                    className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700 dark:hover:bg-white/10"
                     title={nextLesson.title}
                   >
                     <span className="hidden sm:inline max-w-[100px] truncate">{nextLesson.title}</span>
@@ -287,7 +293,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
               </div>
               <button
                 onClick={closeFullscreen}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-700 dark:text-ink-400 dark:hover:bg-white/10 dark:hover:text-ink-200"
                 title="Exit fullscreen (Esc)"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -317,12 +323,12 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
   // Normal card view
   return (
-    <div className="rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
+    <div className="rounded-xl border border-ink-200 bg-white dark:border-white/10 dark:bg-[#1E1E1E]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 dark:border-white/5">
+      <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3 dark:border-white/5">
         <div>
-          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{exercise.title}</h3>
-          <span className="text-xs capitalize text-slate-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
+          <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-200">{exercise.title}</h3>
+          <span className="text-xs capitalize text-ink-400">{exercise.exercise_type.replace(/_/g, " ")}</span>
         </div>
         {isGameType && (
           <button
@@ -349,20 +355,20 @@ function AnswerReveal({ answer }: { answer: Record<string, unknown> }) {
   const answerValue = answer.answer;
 
   return (
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
-      <CheckCircle className="mx-auto mb-2 h-10 w-10 text-emerald-500" />
-      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+    <div className="rounded-xl border border-green-200 bg-green-50 p-5 text-center dark:border-green-500/30 dark:bg-green-500/10">
+      <CheckCircle className="mx-auto mb-2 h-10 w-10 text-green-500" />
+      <p className="text-lg font-semibold text-ink-900 dark:text-ink-200">
         Answer Revealed
       </p>
-      <p className="mt-1 text-xs text-slate-500">Max attempts reached — exercise marked as complete</p>
+      <p className="mt-1 text-xs text-ink-500">Max attempts reached — exercise marked as complete</p>
       {answerValue != null && (
-        <div className="mt-3 rounded-lg bg-white p-3 text-left text-sm text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">
-          <p className="font-semibold text-emerald-700 dark:text-emerald-400">Correct answer:</p>
+        <div className="mt-3 rounded-lg bg-white p-3 text-left text-sm text-ink-700 dark:bg-[#1E1E1E] dark:text-ink-300">
+          <p className="font-semibold text-green-700 dark:text-green-400">Correct answer:</p>
           <p className="mt-1">{typeof answerValue === "object" ? JSON.stringify(answerValue, null, 2) : String(answerValue)}</p>
         </div>
       )}
       {explanation && (
-        <div className="mt-2 rounded-lg bg-white p-3 text-left text-sm text-slate-600 dark:bg-[#1E1E1E] dark:text-slate-400">
+        <div className="mt-2 rounded-lg bg-white p-3 text-left text-sm text-ink-700 dark:bg-[#1E1E1E] dark:text-ink-400">
           <p className="font-semibold">Explanation:</p>
           <p className="mt-1">{explanation}</p>
         </div>
@@ -395,21 +401,21 @@ function ResultDisplay({
   return (
     <div className="text-center py-6">
       {passed ? (
-        <CheckCircle className="mx-auto mb-2 h-10 w-10 text-emerald-500" />
+        <CheckCircle className="mx-auto mb-2 h-10 w-10 text-green-500" />
       ) : (
-        <XCircle className="mx-auto mb-2 h-10 w-10 text-amber-500" />
+        <XCircle className="mx-auto mb-2 h-10 w-10 text-sun-500" />
       )}
-      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+      <p className="text-lg font-semibold text-ink-900 dark:text-ink-200">
         {passed ? "Passed!" : "Not quite"}
       </p>
-      <p className="text-sm text-slate-500">Score: {scorePercent}%</p>
+      <p className="text-sm text-ink-500">Score: {scorePercent}%</p>
       {result.total_tests != null && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-ink-400">
           Tests: {result.total_passed}/{result.total_tests} passed
         </p>
       )}
       {!passed && attemptsRemaining != null && attemptsRemaining > 0 && (
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-ink-400">
           {attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining
         </p>
       )}
@@ -419,7 +425,7 @@ function ResultDisplay({
         </Button>
       )}
       {passed && (
-        <p className="mt-2 text-xs text-emerald-500">Exercise complete!</p>
+        <p className="mt-2 text-xs text-green-500">Exercise complete!</p>
       )}
     </div>
   );
@@ -481,6 +487,25 @@ function ExerciseBody({
           onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
         />
       );
+
+    case "srs_flashcard": {
+      const cfg = exercise.config as {
+        cards?: { id?: string; front: string; back: string; hint?: string; audio_url?: string; image_url?: string }[];
+        instructions?: string;
+        daily_new_cards?: number;
+        daily_review_cap?: number;
+      };
+      return (
+        <SrsFlashcardExercise
+          exerciseId={exercise.id}
+          cards={cfg.cards || []}
+          instructions={cfg.instructions}
+          dailyNewCards={cfg.daily_new_cards}
+          dailyReviewCap={cfg.daily_review_cap}
+          onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
+        />
+      );
+    }
 
     case "categorize": {
       const catCfg = exercise.config as {
@@ -579,9 +604,21 @@ function ExerciseBody({
         />
       );
 
+    case "crossword":
+    case "word_search":
+    case "map_pin_drop":
+    case "bubble_sheet":
+      return (
+        <div className="rounded-xl border border-sun-300 bg-sun-50 p-6 text-sm text-sun-700 dark:border-sun-300/30 dark:bg-sun-300/10 dark:text-sun-300">
+          <p className="font-semibold mb-1 capitalize">{exercise.exercise_type.replace(/_/g, " ")}</p>
+          <p className="text-ink-700 dark:text-ink-300">
+            Backend schema and MCP tool ready. The student-facing renderer ships in the next sprint.
+          </p>
+        </div>
+      );
     default:
       return (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-ink-500">
           Unsupported exercise type: {exercise.exercise_type}
         </p>
       );
@@ -617,7 +654,7 @@ function QuizExercise({
     <div className="space-y-6">
       {questions.map((q, qi) => (
         <div key={q.id}>
-          <p className="mb-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+          <p className="mb-3 text-sm font-medium text-ink-700 dark:text-ink-300">
             {qi + 1}. {q.question_text}
           </p>
           <div className="space-y-2">
@@ -627,7 +664,7 @@ function QuizExercise({
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                   selected[q.id] === opt.text
                     ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/20 dark:text-green-300"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20"
+                    : "border-ink-200 text-ink-700 hover:border-ink-300 dark:border-white/10 dark:text-ink-400 dark:hover:border-white/20"
                 }`}
               >
                 <input
@@ -771,7 +808,7 @@ function CodeChallengeExercise({
       {/* Task description */}
       {config.description && (
         <div className="px-5 pb-4">
-          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-line">
+          <p className="text-sm leading-relaxed text-ink-700 dark:text-ink-300 whitespace-pre-line">
             {config.description}
           </p>
         </div>
@@ -779,23 +816,23 @@ function CodeChallengeExercise({
       {/* Visible test cases */}
       {visibleTests.length > 0 && (
         <div className="px-5 pb-3 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">
             Test Cases
           </p>
           {visibleTests.map((tc, i) => (
             <div
               key={tc.id}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-white/10 dark:bg-white/5"
+              className="rounded-lg border border-ink-200 bg-ink-50 p-3 text-xs dark:border-white/10 dark:bg-white/5"
             >
-              <span className="font-semibold text-slate-600 dark:text-slate-300">Test {i + 1}</span>
+              <span className="font-semibold text-ink-700 dark:text-ink-300">Test {i + 1}</span>
               <div className="mt-1 grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-slate-400">Input:</span>
-                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">{tc.input}</pre>
+                  <span className="text-ink-400">Input:</span>
+                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-ink-700 dark:bg-[#1E1E1E] dark:text-ink-300">{tc.input}</pre>
                 </div>
                 <div>
-                  <span className="text-slate-400">Expected:</span>
-                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">{tc.expected_output}</pre>
+                  <span className="text-ink-400">Expected:</span>
+                  <pre className="mt-0.5 rounded bg-white p-1.5 font-mono text-ink-700 dark:bg-[#1E1E1E] dark:text-ink-300">{tc.expected_output}</pre>
                 </div>
               </div>
             </div>
@@ -804,18 +841,18 @@ function CodeChallengeExercise({
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-y border-slate-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
+      <div className="flex items-center justify-between border-y border-ink-200 bg-white px-4 py-2 dark:border-white/10 dark:bg-[#1E1E1E]">
         <div className="relative">
           <select
             value={selectedLang}
             onChange={(e) => setSelectedLang(e.target.value)}
-            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-green-400 focus:outline-none dark:border-white/10 dark:bg-[#1E1E1E] dark:text-slate-200"
+            className="appearance-none rounded-lg border border-ink-200 bg-ink-50 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 focus:border-green-400 focus:outline-none dark:border-white/10 dark:bg-[#1E1E1E] dark:text-ink-200"
           >
             {langs.map((l) => (
               <option key={l.key} value={l.key}>{l.name}</option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
         </div>
 
         <div className="flex gap-2">
@@ -833,7 +870,7 @@ function CodeChallengeExercise({
       {/* Editor + Output split */}
       <div className="flex" style={{ height: 400 }}>
         {/* Code Editor */}
-        <div className="flex-1 border-r border-slate-200 dark:border-white/10">
+        <div className="flex-1 border-r border-ink-200 dark:border-white/10">
           <Editor
             height="100%"
             language={monacoLang}
@@ -855,7 +892,7 @@ function CodeChallengeExercise({
 
         {/* Output Panel */}
         <div className="flex w-[340px] flex-col bg-white dark:bg-[#1E1E1E]">
-          <div className="flex border-b border-slate-200 dark:border-white/10" role="tablist" aria-label="Code output tabs">
+          <div className="flex border-b border-ink-200 dark:border-white/10" role="tablist" aria-label="Code output tabs">
             <button
               role="tab"
               aria-selected={activeTab === "output"}
@@ -864,7 +901,7 @@ function CodeChallengeExercise({
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "output"
                   ? "border-b-2 border-green-600 text-green-600 dark:border-green-400 dark:text-green-400"
-                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  : "text-ink-400 hover:text-ink-700 dark:hover:text-ink-300"
               }`}
             >
               Output
@@ -877,13 +914,13 @@ function CodeChallengeExercise({
               className={`cursor-pointer px-4 py-2.5 text-sm font-medium transition-colors ${
                 activeTab === "tests"
                   ? "border-b-2 border-green-600 text-green-600 dark:border-green-400 dark:text-green-400"
-                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  : "text-ink-400 hover:text-ink-700 dark:hover:text-ink-300"
               }`}
             >
               Tests
               {results.length > 0 && (
                 <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold ${
-                  totalPassed === totalTests ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300"
+                  totalPassed === totalTests ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300" : "bg-coral-50 text-coral-700 dark:bg-coral-500/20 dark:text-coral-300"
                 }`}>
                   {totalPassed}/{totalTests}
                 </span>
@@ -891,42 +928,42 @@ function CodeChallengeExercise({
             </button>
           </div>
 
-          <div id={`panel-${activeTab}`} role="tabpanel" className="flex-1 overflow-auto bg-slate-50 p-4 dark:bg-[#1E1E1E]">
+          <div id={`panel-${activeTab}`} role="tabpanel" className="flex-1 overflow-auto bg-ink-50 p-4 dark:bg-[#1E1E1E]">
             {activeTab === "output" ? (
-              <pre className="whitespace-pre-wrap font-mono text-sm text-slate-700 dark:text-slate-300">
-                {output || <span className="text-slate-400">Click Run to execute your code</span>}
+              <pre className="whitespace-pre-wrap font-mono text-sm text-ink-700 dark:text-ink-300">
+                {output || <span className="text-ink-400">Click Run to execute your code</span>}
               </pre>
             ) : (
               <div className="space-y-2.5">
                 {results.length === 0 ? (
-                  <p className="text-sm text-slate-400">Click Submit to run tests</p>
+                  <p className="text-sm text-ink-400">Click Submit to run tests</p>
                 ) : (
                   results.map((r, i) => (
                     <div
                       key={r.test_case_id || i}
                       className={`rounded-xl border p-3 ${
                         r.passed
-                          ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10"
-                          : "border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10"
+                          ? "border-green-200 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10"
+                          : "border-coral-300 bg-coral-50 dark:border-coral-500/30 dark:bg-coral-500/10"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1.5 text-sm font-semibold">
                           {r.passed ? (
-                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                            <CheckCircle className="h-4 w-4 text-green-500" />
                           ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
+                            <XCircle className="h-4 w-4 text-coral-500" />
                           )}
                           Test {i + 1}
                         </span>
                         {r.time_ms > 0 && (
-                          <span className="text-xs text-slate-400">{r.time_ms}ms</span>
+                          <span className="text-xs text-ink-400">{r.time_ms}ms</span>
                         )}
                       </div>
                       {!r.passed && r.actual_output && (
                         <div className="mt-2">
-                          <p className="text-xs font-medium uppercase text-slate-400">Output:</p>
-                          <pre className="mt-1 rounded-lg bg-white p-2 font-mono text-sm text-slate-700 dark:bg-[#1E1E1E] dark:text-slate-300">
+                          <p className="text-xs font-medium uppercase text-ink-400">Output:</p>
+                          <pre className="mt-1 rounded-lg bg-white p-2 font-mono text-sm text-ink-700 dark:bg-[#1E1E1E] dark:text-ink-300">
                             {r.actual_output}
                           </pre>
                         </div>
@@ -959,7 +996,7 @@ function FileUploadExercise({
   return (
     <div className="space-y-4">
       <div
-        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center transition-colors hover:border-green-300 dark:border-white/20 dark:bg-white/5 dark:hover:border-green-500"
+        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-ink-300 bg-ink-50 px-6 py-10 text-center transition-colors hover:border-green-300 dark:border-white/20 dark:bg-white/5 dark:hover:border-green-500"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -967,12 +1004,12 @@ function FileUploadExercise({
           if (dropped) setFile(dropped);
         }}
       >
-        <Upload className="mb-2 h-8 w-8 text-slate-400" />
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <Upload className="mb-2 h-8 w-8 text-ink-400" />
+        <p className="text-sm text-ink-700 dark:text-ink-400">
           {file ? file.name : "Drag & drop a file here, or click to browse"}
         </p>
         {allowedTypes.length > 0 && (
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-ink-400">
             Allowed: {allowedTypes.join(", ")} (max {maxMb}MB)
           </p>
         )}

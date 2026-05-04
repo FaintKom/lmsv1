@@ -67,11 +67,11 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
       >
         {/* Drag handle (mobile) */}
         <div className="flex justify-center py-3 md:hidden">
-          <div className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
+          <div className="h-1 w-10 rounded-full bg-ink-300 dark:bg-ink-700" />
         </div>
         {title && (
-          <div className="border-b border-slate-100 px-6 pb-3 pt-1 dark:border-white/10 md:pt-5">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{title}</h2>
+          <div className="border-b border-ink-100 px-6 pb-3 pt-1 dark:border-white/10 md:pt-5">
+            <h2 className="text-lg font-bold text-ink-900 dark:text-ink-100">{title}</h2>
           </div>
         )}
         <div className="p-6">{children}</div>

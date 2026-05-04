@@ -205,7 +205,7 @@ export default function ChallengeBuilder({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+      <div className="flex items-center gap-2 text-sm font-semibold text-ink-700">
         <Code className="h-4 w-4 text-green-500" />
         {challenge ? "Edit Challenge" : "Create Challenge"}
       </div>
@@ -213,21 +213,21 @@ export default function ChallengeBuilder({
       {/* Title & Language */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Title</label>
+          <label className="mb-1 block text-xs font-medium text-ink-700">Title</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Challenge title"
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Language</label>
+          <label className="mb-1 block text-xs font-medium text-ink-700">Language</label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           >
             {languages.map((l) => (
               <option key={l.value} value={l.value}>
@@ -240,62 +240,62 @@ export default function ChallengeBuilder({
 
       {/* Description */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Description</label>
+        <label className="mb-1 block text-xs font-medium text-ink-700">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the challenge requirements..."
           rows={3}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
       {/* Starter Code */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Starter Code</label>
+        <label className="mb-1 block text-xs font-medium text-ink-700">Starter Code</label>
         <textarea
           value={starterCode}
           onChange={(e) => setStarterCode(e.target.value)}
           placeholder="def solution():\n    pass"
           rows={5}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
       {/* Solution Code */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-slate-600">Solution Code (hidden from students)</label>
+        <label className="mb-1 block text-xs font-medium text-ink-700">Solution Code (hidden from students)</label>
         <textarea
           value={solutionCode}
           onChange={(e) => setSolutionCode(e.target.value)}
           placeholder="def solution():\n    return 42"
           rows={5}
-          className="w-full rounded-lg border border-slate-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
+          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
         />
       </div>
 
       {/* Limits */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Time Limit (seconds)</label>
+          <label className="mb-1 block text-xs font-medium text-ink-700">Time Limit (seconds)</label>
           <input
             type="number"
             value={timeLimit}
             onChange={(e) => setTimeLimit(parseInt(e.target.value) || 10)}
             min={1}
             max={60}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-slate-600">Memory Limit (MB)</label>
+          <label className="mb-1 block text-xs font-medium text-ink-700">Memory Limit (MB)</label>
           <input
             type="number"
             value={memoryLimit}
             onChange={(e) => setMemoryLimit(parseInt(e.target.value) || 256)}
             min={32}
             max={1024}
-            className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
+            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-green-500 focus:outline-none"
           />
         </div>
       </div>
@@ -307,7 +307,7 @@ export default function ChallengeBuilder({
           {saving ? "Saving..." : challenge ? "Update Challenge" : "Create Challenge"}
         </Button>
         {saved && (
-          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
             <CheckCircle className="h-3 w-3" />
             Saved!
           </span>
@@ -316,9 +316,9 @@ export default function ChallengeBuilder({
 
       {/* Test Cases */}
       {challenge && (
-        <div className="mt-4 border-t border-slate-200 pt-4">
+        <div className="mt-4 border-t border-ink-200 pt-4">
           <div className="mb-3 flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-slate-700">
+            <h4 className="text-sm font-semibold text-ink-700">
               Test Cases ({testCases.length})
             </h4>
             <Button
@@ -336,20 +336,20 @@ export default function ChallengeBuilder({
             {testCases.map((tc, i) => (
               <div
                 key={tc.id || i}
-                className="rounded-lg border border-slate-200 bg-white p-3"
+                className="rounded-lg border border-ink-200 bg-white p-3"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-600">
+                  <span className="text-xs font-semibold text-ink-700">
                     Test #{i + 1}
                   </span>
                   <div className="flex items-center gap-2">
                     {tc.is_hidden ? (
-                      <span className="flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
+                      <span className="flex items-center gap-1 rounded bg-sun-50 px-1.5 py-0.5 text-[10px] font-medium text-sun-500">
                         <EyeOff className="h-3 w-3" />
                         Hidden
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600">
+                      <span className="flex items-center gap-1 rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
                         <Eye className="h-3 w-3" />
                         Visible
                       </span>
@@ -357,7 +357,7 @@ export default function ChallengeBuilder({
                     {tc.id && (
                       <button
                         onClick={() => handleDeleteTestCase(tc.id!)}
-                        className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                        className="rounded p-1 text-ink-400 hover:bg-coral-50 hover:text-coral-500"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -366,14 +366,14 @@ export default function ChallengeBuilder({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="font-medium text-slate-500">Input:</span>
-                    <pre className="mt-0.5 rounded bg-slate-50 p-1.5 font-mono text-slate-700">
+                    <span className="font-medium text-ink-500">Input:</span>
+                    <pre className="mt-0.5 rounded bg-ink-50 p-1.5 font-mono text-ink-700">
                       {tc.input || "(empty)"}
                     </pre>
                   </div>
                   <div>
-                    <span className="font-medium text-slate-500">Expected Output:</span>
-                    <pre className="mt-0.5 rounded bg-slate-50 p-1.5 font-mono text-slate-700">
+                    <span className="font-medium text-ink-500">Expected Output:</span>
+                    <pre className="mt-0.5 rounded bg-ink-50 p-1.5 font-mono text-ink-700">
                       {tc.expected_output}
                     </pre>
                   </div>
@@ -387,7 +387,7 @@ export default function ChallengeBuilder({
             <div className="mt-3 rounded-lg border border-dashed border-green-300 bg-green-50/30 p-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-ink-700">
                     Input (stdin)
                   </label>
                   <textarea
@@ -397,11 +397,11 @@ export default function ChallengeBuilder({
                     }
                     placeholder="5&#10;3 1 4 1 5"
                     rows={3}
-                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
+                    className="w-full rounded border border-ink-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
+                  <label className="mb-1 block text-xs font-medium text-ink-700">
                     Expected Output
                   </label>
                   <textarea
@@ -411,19 +411,19 @@ export default function ChallengeBuilder({
                     }
                     placeholder="1 1 3 4 5"
                     rows={3}
-                    className="w-full rounded border border-slate-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
+                    className="w-full rounded border border-ink-300 px-2 py-1.5 font-mono text-sm focus:border-green-500 focus:outline-none"
                   />
                 </div>
               </div>
               <div className="mt-2 flex items-center gap-3">
-                <label className="flex items-center gap-1.5 text-xs text-slate-600">
+                <label className="flex items-center gap-1.5 text-xs text-ink-700">
                   <input
                     type="checkbox"
                     checked={newTestCase.is_hidden}
                     onChange={(e) =>
                       setNewTestCase({ ...newTestCase, is_hidden: e.target.checked })
                     }
-                    className="rounded border-slate-300"
+                    className="rounded border-ink-300"
                   />
                   Hidden (not visible to students)
                 </label>

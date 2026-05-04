@@ -9,6 +9,7 @@ from app.auth.models import User, UserRole
 from app.db.session import get_db
 from app.exercises.models import ExerciseType
 from app.exercises.schemas import (
+    CONFIG_SCHEMAS,
     ExerciseCreate,
     ExerciseListResponse,
     ExerciseResponse,
@@ -41,6 +42,26 @@ from app.exercises.service import (
 )
 
 router = APIRouter()
+
+
+# ─── Schema discovery ───────────────────────────────────────────────
+
+@router.get("/config-schemas")
+async def get_config_schemas(_user: User = Depends(get_current_user)):
+    """Return JSON Schema for every exercise type's `config` field.
+
+    Clients (admin UI, MCP server, integration scripts) use this to know
+    exactly which keys belong in `Exercise.config` per type. Each entry is a
+    standard JSON Schema produced by Pydantic's `model_json_schema()`.
+
+    Example response shape:
+        {
+          "matching": {"properties": {"pairs": {...}, "shuffle": {...}}, ...},
+          "fill_blanks": {"properties": {"text": ..., "blanks": ...}, ...},
+          ...
+        }
+    """
+    return {etype.value: schema_cls.model_json_schema() for etype, schema_cls in CONFIG_SCHEMAS.items()}
 
 
 # ─── Exercise CRUD ───────────────────────────────────────────────────

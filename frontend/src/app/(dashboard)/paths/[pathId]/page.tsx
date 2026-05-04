@@ -64,7 +64,7 @@ export default function PathDetailPage() {
   if (!path) {
     return (
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-slate-500 dark:text-slate-400">Learning path not found.</p>
+        <p className="text-ink-500 dark:text-ink-400">Learning path not found.</p>
         <Link href="/paths" className="mt-2 inline-flex items-center gap-1 text-sm text-green-600 hover:text-green-700">
           <ArrowLeft className="h-3 w-3" /> Back to paths
         </Link>
@@ -79,7 +79,7 @@ export default function PathDetailPage() {
     <div className="mx-auto max-w-3xl">
       <Link
         href="/paths"
-        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300"
       >
         <ArrowLeft className="h-4 w-4" /> Back to learning paths
       </Link>
@@ -88,20 +88,20 @@ export default function PathDetailPage() {
         <CardHeader>
           <CardTitle as="h1" className="text-xl">{path.title}</CardTitle>
           {path.description && (
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{path.description}</p>
+            <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">{path.description}</p>
           )}
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <div className="h-3 rounded-full bg-slate-200 dark:bg-white/10">
+              <div className="h-3 rounded-full bg-ink-200 dark:bg-white/10">
                 <div
                   className="h-3 rounded-full bg-green-500 transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-medium text-ink-700 dark:text-ink-400">
               {completedCount}/{path.steps.length} completed
             </span>
           </div>
@@ -125,22 +125,22 @@ export default function PathDetailPage() {
               <div className="flex flex-col items-center">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
                   step.completed
-                    ? "border-emerald-500 bg-emerald-100 dark:bg-emerald-500/20"
+                    ? "border-green-500 bg-green-100 dark:bg-green-500/20"
                     : isCurrent
                     ? "border-green-500 bg-green-100 dark:bg-green-500/20"
-                    : "border-slate-300 bg-slate-100 dark:border-white/20 dark:bg-white/5"
+                    : "border-ink-300 bg-ink-100 dark:border-white/20 dark:bg-white/5"
                 }`}>
                   {step.completed ? (
-                    <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                   ) : isUnlocked ? (
-                    <BookOpen className={`h-5 w-5 ${isCurrent ? "text-green-600 dark:text-green-400" : "text-slate-400"}`} />
+                    <BookOpen className={`h-5 w-5 ${isCurrent ? "text-green-600 dark:text-green-400" : "text-ink-400"}`} />
                   ) : (
-                    <Lock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                    <Lock className="h-4 w-4 text-ink-400 dark:text-ink-500" />
                   )}
                 </div>
                 {idx < path.steps.length - 1 && (
                   <div className={`w-0.5 flex-1 min-h-[24px] ${
-                    step.completed ? "bg-emerald-300 dark:bg-emerald-500/40" : "bg-slate-200 dark:bg-white/10"
+                    step.completed ? "bg-green-300 dark:bg-green-500/40" : "bg-ink-200 dark:bg-white/10"
                   }`} />
                 )}
               </div>
@@ -153,16 +153,16 @@ export default function PathDetailPage() {
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <h3 className="text-sm font-semibold text-ink-900 dark:text-ink-100">
                           {step.course_title}
                         </h3>
                         {!step.is_required && (
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                          <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[10px] text-ink-500 dark:bg-white/10 dark:text-ink-400">
                             Optional
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-ink-500 dark:text-ink-400">
                         Step {idx + 1}
                         {step.completed && " — Completed"}
                       </p>

@@ -36,9 +36,9 @@ interface GradebookData {
 function scoreColor(score: number | null | undefined, max: number) {
   if (score == null) return "";
   const pct = max > 0 ? (score / max) * 100 : 0;
-  if (pct >= 80) return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300";
-  if (pct >= 60) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300";
-  return "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300";
+  if (pct >= 80) return "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300";
+  if (pct >= 60) return "bg-sun-100 text-sun-700 dark:bg-sun-500/20 dark:text-sun-300";
+  return "bg-coral-50 text-coral-700 dark:bg-coral-500/20 dark:text-coral-300";
 }
 
 function typeLabel(type: string) {
@@ -149,8 +149,8 @@ export default function GradebookPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Gradebook</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Gradebook</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
             View and export student grades by course
           </p>
         </div>
@@ -173,7 +173,7 @@ export default function GradebookPage() {
         <select
           value={courseId}
           onChange={(e) => setCourseId(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100"
+          className="rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm text-ink-900 focus:border-green-500 focus:outline-none dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100"
         >
           <option value="">Select a course...</option>
           {courses.map((c) => (
@@ -185,13 +185,13 @@ export default function GradebookPage() {
       {!courseId && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <Table2 className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <Table2 className="h-8 w-8 text-ink-400 dark:text-ink-500" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               Select a course
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="text-base text-ink-500 dark:text-ink-400">
               Choose a course above to view the gradebook matrix.
             </p>
           </CardContent>
@@ -209,10 +209,10 @@ export default function GradebookPage() {
       {data && !loading && data.students.length === 0 && courseId && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               No students enrolled
             </h3>
-            <p className="text-base text-slate-500 dark:text-slate-400">
+            <p className="text-base text-ink-500 dark:text-ink-400">
               This course has no enrolled students yet.
             </p>
           </CardContent>
@@ -224,22 +224,22 @@ export default function GradebookPage() {
           <CardContent className="overflow-x-auto p-0">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-white/10">
-                  <th className="sticky left-0 z-10 bg-white px-4 py-3 text-left font-semibold text-slate-700 dark:bg-[#2C2C2C] dark:text-slate-300">
+                <tr className="border-b border-ink-200 dark:border-white/10">
+                  <th className="sticky left-0 z-10 bg-white px-4 py-3 text-left font-semibold text-ink-700 dark:bg-[#2C2C2C] dark:text-ink-300">
                     Student
                   </th>
                   {data.columns.map((col) => (
                     <th
                       key={col.id}
-                      className="min-w-[100px] px-3 py-3 text-center font-medium text-slate-600 dark:text-slate-400"
+                      className="min-w-[100px] px-3 py-3 text-center font-medium text-ink-700 dark:text-ink-400"
                     >
                       <div className="text-xs">{typeLabel(col.type)}</div>
-                      <div className="truncate text-[11px] font-normal text-slate-400 dark:text-slate-500" title={col.title}>
+                      <div className="truncate text-[11px] font-normal text-ink-400 dark:text-ink-500" title={col.title}>
                         {col.title}
                       </div>
                     </th>
                   ))}
-                  <th className="px-3 py-3 text-center font-semibold text-slate-700 dark:text-slate-300">
+                  <th className="px-3 py-3 text-center font-semibold text-ink-700 dark:text-ink-300">
                     Avg %
                   </th>
                 </tr>
@@ -250,11 +250,11 @@ export default function GradebookPage() {
                   return (
                     <tr
                       key={s.id}
-                      className={idx % 2 === 0 ? "bg-white dark:bg-[#1E1E1E]" : "bg-slate-50/50 dark:bg-white/[0.02]"}
+                      className={idx % 2 === 0 ? "bg-white dark:bg-[#1E1E1E]" : "bg-ink-50/50 dark:bg-white/[0.02]"}
                     >
-                      <td className="sticky left-0 z-10 bg-inherit px-4 py-2.5 font-medium text-slate-900 dark:text-slate-100">
+                      <td className="sticky left-0 z-10 bg-inherit px-4 py-2.5 font-medium text-ink-900 dark:text-ink-100">
                         <div className="truncate max-w-[200px]">{s.full_name}</div>
-                        <div className="truncate text-[11px] text-slate-400 dark:text-slate-500">{s.email}</div>
+                        <div className="truncate text-[11px] text-ink-400 dark:text-ink-500">{s.email}</div>
                       </td>
                       {data.columns.map((col) => {
                         const val = data.rows[s.id]?.[col.id];
@@ -265,7 +265,7 @@ export default function GradebookPage() {
                                 {val}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
                               </span>
                             ) : (
-                              <span className="text-xs text-slate-300 dark:text-slate-600">&mdash;</span>
+                              <span className="text-xs text-ink-300 dark:text-ink-700">&mdash;</span>
                             )}
                           </td>
                         );
@@ -276,15 +276,15 @@ export default function GradebookPage() {
                             {avg}%
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-300 dark:text-slate-600">&mdash;</span>
+                          <span className="text-xs text-ink-300 dark:text-ink-700">&mdash;</span>
                         )}
                       </td>
                     </tr>
                   );
                 })}
                 {/* Averages row */}
-                <tr className="border-t-2 border-slate-300 bg-slate-50 font-semibold dark:border-white/20 dark:bg-white/5">
-                  <td className="sticky left-0 z-10 bg-slate-50 px-4 py-2.5 text-slate-700 dark:bg-white/5 dark:text-slate-300">
+                <tr className="border-t-2 border-ink-300 bg-ink-50 font-semibold dark:border-white/20 dark:bg-white/5">
+                  <td className="sticky left-0 z-10 bg-ink-50 px-4 py-2.5 text-ink-700 dark:bg-white/5 dark:text-ink-300">
                     Average
                   </td>
                   {data.columns.map((col) => {
@@ -296,7 +296,7 @@ export default function GradebookPage() {
                             {avg}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-300 dark:text-slate-600">&mdash;</span>
+                          <span className="text-xs text-ink-300 dark:text-ink-700">&mdash;</span>
                         )}
                       </td>
                     );

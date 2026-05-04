@@ -61,14 +61,14 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
   return (
     <div className="flex flex-col items-center gap-5">
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-ink-200 dark:border-white/10">
         <table className="border-collapse">
           <thead>
             <tr>
-              <th className="border-b border-r border-slate-200 bg-slate-50 px-5 py-3 text-left text-xs font-semibold text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"></th>
+              <th className="border-b border-r border-ink-200 bg-ink-50 px-5 py-3 text-left text-xs font-semibold text-ink-500 dark:border-white/10 dark:bg-white/5 dark:text-ink-400"></th>
               {colHeaders.map((h, i) => (
-                <th key={i} className={`border-b border-slate-200 px-5 py-3 text-center text-sm font-bold dark:border-white/10 ${
-                  i === colHeaders.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
+                <th key={i} className={`border-b border-ink-200 px-5 py-3 text-center text-sm font-bold dark:border-white/10 ${
+                  i === colHeaders.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-ink-50 text-ink-700 dark:bg-white/5 dark:text-ink-300"
                 }`}>
                   {h}
                 </th>
@@ -78,8 +78,8 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
           <tbody>
             {cells.map((row, r) => (
               <tr key={r}>
-                <td className={`border-r border-b border-slate-200 px-5 py-3 text-sm font-bold dark:border-white/10 ${
-                  r === cells.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300"
+                <td className={`border-r border-b border-ink-200 px-5 py-3 text-sm font-bold dark:border-white/10 ${
+                  r === cells.length - 1 ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300" : "bg-ink-50 text-ink-700 dark:bg-white/5 dark:text-ink-300"
                 }`}>
                   {rowHeaders[r]}
                 </td>
@@ -90,8 +90,8 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
 
                   if (!isBlank) {
                     return (
-                      <td key={c} className={`border-b border-slate-200 px-5 py-3 text-center text-sm font-semibold dark:border-white/10 ${
-                        isTotal ? "bg-slate-50 text-slate-700 dark:bg-white/5 dark:text-slate-300" : "text-slate-600 dark:text-slate-400"
+                      <td key={c} className={`border-b border-ink-200 px-5 py-3 text-center text-sm font-semibold dark:border-white/10 ${
+                        isTotal ? "bg-ink-50 text-ink-700 dark:bg-white/5 dark:text-ink-300" : "text-ink-700 dark:text-ink-400"
                       }`}>
                         {cell}
                       </td>
@@ -99,7 +99,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
                   }
 
                   return (
-                    <td key={c} className="border-b border-slate-200 px-2 py-2 dark:border-white/10">
+                    <td key={c} className="border-b border-ink-200 px-2 py-2 dark:border-white/10">
                       <input
                         type="number"
                         value={userValues[key] || ""}
@@ -108,8 +108,8 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
                         className={`w-16 rounded-lg border-2 px-2 py-2 text-center text-sm font-bold outline-none transition-colors ${
                           checked
                             ? results[key]
-                              ? "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300"
-                              : "border-red-400 bg-red-50 text-red-700 dark:border-red-500 dark:bg-red-500/10 dark:text-red-300"
+                              ? "border-green-400 bg-green-50 text-green-700 dark:border-green-500 dark:bg-green-500/10 dark:text-green-300"
+                              : "border-coral-300 bg-coral-50 text-coral-700 dark:border-coral-500 dark:bg-coral-500/10 dark:text-coral-300"
                             : "border-green-300 bg-white text-green-700 focus:border-green-500 dark:border-green-500 dark:bg-[#1E1E1E] dark:text-green-300"
                         }`}
                         placeholder="?"
@@ -128,7 +128,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
       </Button>
 
       {checked && !Object.values(results).every(Boolean) && (
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-ink-500 dark:text-ink-400">
           {Object.values(results).filter(Boolean).length}/{Object.values(results).length} correct.
           Hint: rows and columns must add up to the totals.
         </p>

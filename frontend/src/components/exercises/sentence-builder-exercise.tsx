@@ -79,26 +79,26 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
       <div
         className={`min-h-[80px] rounded-2xl border-2 border-dashed p-5 transition-all duration-200 ${
           submitted && isCorrect === true
-            ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-500/40 dark:bg-emerald-500/5"
+            ? "border-green-300 bg-green-50/50 dark:border-green-500/40 dark:bg-green-500/5"
             : submitted && isCorrect === false
-            ? "border-red-300 bg-red-50/50 dark:border-red-500/40 dark:bg-red-500/5"
+            ? "border-coral-300 bg-coral-50/50 dark:border-coral-500/40 dark:bg-coral-500/5"
             : "border-green-200 dark:border-green-500/30 bg-green-50/30 dark:bg-green-500/5"
         }`}
       >
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink-400">
             Your sentence
           </span>
           {submitted && isCorrect === true && (
-            <span className="text-emerald-500 font-bold text-sm">{"\u2713"} Correct!</span>
+            <span className="text-green-500 font-bold text-sm">{"\u2713"} Correct!</span>
           )}
           {submitted && isCorrect === false && (
-            <span className="text-red-500 font-bold text-sm">{"\u2717"} Not quite</span>
+            <span className="text-coral-500 font-bold text-sm">{"\u2717"} Not quite</span>
           )}
         </div>
         <div className="flex flex-wrap gap-2 min-h-[44px] items-center">
           {sentence.length === 0 ? (
-            <span className="text-sm text-slate-400 dark:text-slate-500 italic">
+            <span className="text-sm text-ink-400 dark:text-ink-500 italic">
               Tap words below to build your sentence...
             </span>
           ) : (
@@ -124,29 +124,29 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
 
       {/* Correct answer reveal */}
       {submitted && isCorrect === false && config.correct_order && (
-        <div className="rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-3">
-          <p className="text-xs font-semibold text-slate-400 mb-2">Correct order:</p>
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        <div className="rounded-2xl bg-ink-50 dark:bg-white/5 border border-ink-200 dark:border-white/10 px-5 py-3">
+          <p className="text-xs font-semibold text-ink-400 mb-2">Correct order:</p>
+          <p className="text-sm font-medium text-ink-700 dark:text-ink-200">
             {config.correct_order.join(" ")}
           </p>
         </div>
       )}
 
       {/* Word pool */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+      <div className="rounded-2xl border border-ink-200 dark:border-white/10 bg-white dark:bg-[#1E1E1E] shadow-sm p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-400 mb-3">
           Available words
         </p>
         <div className="flex flex-wrap gap-2 min-h-[44px] items-center">
           {pool.length === 0 ? (
-            <span className="text-sm text-slate-400 italic">All words used</span>
+            <span className="text-sm text-ink-400 italic">All words used</span>
           ) : (
             pool.map((word, i) => (
               <button
                 key={`p-${i}`}
                 onClick={() => addWord(word, i)}
                 disabled={submitted}
-                className="rounded-xl border-2 border-slate-200 dark:border-white/15 bg-white dark:bg-[#2A2A2A] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:text-green-700 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 dark:hover:text-green-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="rounded-xl border-2 border-ink-200 dark:border-white/15 bg-white dark:bg-[#2A2A2A] px-4 py-2.5 text-sm font-semibold text-ink-700 dark:text-ink-200 transition-all duration-200 hover:border-green-400 hover:bg-green-50 hover:text-green-700 hover:shadow-sm dark:hover:border-green-500 dark:hover:bg-green-500/10 dark:hover:text-green-300 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {word}
               </button>
@@ -168,7 +168,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
           <button
             onClick={handleReset}
             disabled={sentence.length === 0}
-            className="rounded-2xl border-2 border-slate-200 dark:border-white/15 px-5 py-3.5 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-all duration-200 hover:bg-slate-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-2xl border-2 border-ink-200 dark:border-white/15 px-5 py-3.5 text-sm font-semibold text-ink-700 dark:text-ink-300 transition-all duration-200 hover:bg-ink-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Reset
           </button>

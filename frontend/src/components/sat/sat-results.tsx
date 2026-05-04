@@ -98,7 +98,7 @@ export default function SATResults({
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       {/* Hero score */}
-      <div className="rounded-2xl bg-gradient-to-br from-green-600 to-emerald-600 p-8 text-center text-white">
+      <div className="rounded-2xl bg-gradient-to-br from-green-600 to-green-600 p-8 text-center text-white">
         <p className="text-sm font-medium opacity-80">Estimated SAT Math Score</p>
         <p className="mt-2 text-6xl font-black">{scaledScore}</p>
         <p className="mt-1 text-sm opacity-70">out of 800</p>
@@ -123,28 +123,28 @@ export default function SATResults({
 
       {/* Module breakdown (adaptive tests only) */}
       {isAdaptive && (
-        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
-          <h3 className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+        <div className="rounded-xl border border-ink-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
+          <h3 className="mb-4 text-sm font-semibold text-ink-900 dark:text-ink-200 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-green-600" />
             Adaptive Module Breakdown
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-xl bg-slate-50 p-4 text-center dark:bg-white/5">
-              <p className="text-xs text-slate-400 dark:text-slate-500">Module 1</p>
-              <p className="mt-1 text-2xl font-bold text-slate-800 dark:text-slate-200">
+            <div className="rounded-xl bg-ink-50 p-4 text-center dark:bg-white/5">
+              <p className="text-xs text-ink-400 dark:text-ink-500">Module 1</p>
+              <p className="mt-1 text-2xl font-bold text-ink-900 dark:text-ink-200">
                 {m1Correct}/{m1Results.length}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-400">
                 {Math.round((m1Correct / m1Results.length) * 100)}% correct
               </p>
             </div>
 
             <div className="flex items-center justify-center">
               <div className="text-center">
-                <ArrowRight className="mx-auto h-5 w-5 text-slate-300 dark:text-slate-600" />
+                <ArrowRight className="mx-auto h-5 w-5 text-ink-300 dark:text-ink-700" />
                 <p className={`mt-1 text-xs font-bold ${
                   module2Difficulty === "hard"
-                    ? "text-red-500"
+                    ? "text-coral-500"
                     : "text-blue-500"
                 }`}>
                   Routed to {module2Difficulty === "hard" ? "Hard" : "Standard"}
@@ -152,21 +152,21 @@ export default function SATResults({
               </div>
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-4 text-center dark:bg-white/5">
-              <p className="text-xs text-slate-400 dark:text-slate-500">
+            <div className="rounded-xl bg-ink-50 p-4 text-center dark:bg-white/5">
+              <p className="text-xs text-ink-400 dark:text-ink-500">
                 Module 2
                 <span className={`ml-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold ${
                   module2Difficulty === "hard"
-                    ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400"
+                    ? "bg-coral-50 text-coral-500 dark:bg-coral-500/20 dark:text-coral-300"
                     : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
                 }`}>
                   {module2Difficulty === "hard" ? "HARD" : "STD"}
                 </span>
               </p>
-              <p className="mt-1 text-2xl font-bold text-slate-800 dark:text-slate-200">
+              <p className="mt-1 text-2xl font-bold text-ink-900 dark:text-ink-200">
                 {m2Correct}/{m2Results.length}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-ink-400">
                 {Math.round((m2Correct / m2Results.length) * 100)}% correct
               </p>
             </div>
@@ -175,8 +175,8 @@ export default function SATResults({
       )}
 
       {/* Domain breakdown */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
-        <h3 className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200">Score by Domain</h3>
+      <div className="rounded-xl border border-ink-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
+        <h3 className="mb-4 text-sm font-semibold text-ink-900 dark:text-ink-200">Score by Domain</h3>
         <div className="space-y-3">
           {(Object.keys(domainStats) as SATDomain[]).map((domain) => {
             const { correct, total } = domainStats[domain];
@@ -185,12 +185,12 @@ export default function SATResults({
             return (
               <div key={domain}>
                 <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="font-medium text-slate-600 dark:text-slate-400">{DOMAIN_LABELS[domain]}</span>
+                  <span className="font-medium text-ink-700 dark:text-ink-400">{DOMAIN_LABELS[domain]}</span>
                   <span className="font-bold" style={{ color: DOMAIN_COLORS[domain] }}>
                     {correct}/{total} ({pct}%)
                   </span>
                 </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                <div className="h-2.5 overflow-hidden rounded-full bg-ink-100 dark:bg-white/10">
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{ width: `${pct}%`, backgroundColor: DOMAIN_COLORS[domain] }}
@@ -203,45 +203,45 @@ export default function SATResults({
       </div>
 
       {/* Question review */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
-        <h3 className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-200">Question Review</h3>
+      <div className="rounded-xl border border-ink-200 bg-white p-5 dark:border-white/10 dark:bg-[#1E1E1E]">
+        <h3 className="mb-4 text-sm font-semibold text-ink-900 dark:text-ink-200">Question Review</h3>
         <div className="space-y-2">
           {results.map((r, i) => (
             <details key={r.question.id + "-" + i} className="group">
               <summary className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${
                 r.correct
-                  ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/5"
-                  : "border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/5"
+                  ? "border-green-200 bg-green-50 dark:border-green-500/20 dark:bg-green-500/5"
+                  : "border-coral-300 bg-coral-50 dark:border-coral-500/20 dark:bg-coral-500/5"
               }`}>
                 <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white ${
-                  r.correct ? "bg-emerald-500" : "bg-red-500"
+                  r.correct ? "bg-green-500" : "bg-coral-500"
                 }`}>
                   {i + 1}
                 </span>
                 {r.module && (
-                  <span className="rounded bg-slate-200 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                  <span className="rounded bg-ink-200 px-1.5 py-0.5 text-[9px] font-bold text-ink-500 dark:bg-white/10 dark:text-ink-400">
                     M{r.module}
                   </span>
                 )}
-                <span className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
+                <span className="flex-1 text-sm font-medium text-ink-700 dark:text-ink-300 truncate">
                   {(r.question.config.question as string)?.slice(0, 60)}...
                 </span>
-                <span className="text-xs text-slate-400 shrink-0">{Math.round(r.timeSeconds)}s</span>
-                {r.correct ? <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" /> : <XCircle className="h-4 w-4 text-red-500 shrink-0" />}
-                <ChevronDown className="h-3 w-3 text-slate-400 transition-transform group-open:rotate-180 shrink-0" />
+                <span className="text-xs text-ink-400 shrink-0">{Math.round(r.timeSeconds)}s</span>
+                {r.correct ? <CheckCircle className="h-4 w-4 text-green-500 shrink-0" /> : <XCircle className="h-4 w-4 text-coral-500 shrink-0" />}
+                <ChevronDown className="h-3 w-3 text-ink-400 transition-transform group-open:rotate-180 shrink-0" />
               </summary>
-              <div className="mt-2 rounded-lg bg-slate-50 p-4 text-sm dark:bg-white/5">
-                <p className="font-medium text-slate-700 dark:text-slate-300">{r.question.config.question as string}</p>
+              <div className="mt-2 rounded-lg bg-ink-50 p-4 text-sm dark:bg-white/5">
+                <p className="font-medium text-ink-700 dark:text-ink-300">{r.question.config.question as string}</p>
                 {r.question.config.explanation ? (
-                  <p className={`mt-2 text-xs ${r.correct ? "text-slate-500" : "text-emerald-600 dark:text-emerald-400"}`}>
+                  <p className={`mt-2 text-xs ${r.correct ? "text-ink-500" : "text-green-600 dark:text-green-400"}`}>
                     <span className="font-semibold">Explanation:</span> {String(r.question.config.explanation)}
                   </p>
                 ) : null}
                 <div className="mt-2 flex gap-2">
-                  <span className="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-white/10 dark:text-slate-400">
+                  <span className="rounded bg-ink-200 px-2 py-0.5 text-[10px] font-medium text-ink-700 dark:bg-white/10 dark:text-ink-400">
                     {DOMAIN_LABELS[r.question.domain]}
                   </span>
-                  <span className="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-white/10 dark:text-slate-400">
+                  <span className="rounded bg-ink-200 px-2 py-0.5 text-[10px] font-medium text-ink-700 dark:bg-white/10 dark:text-ink-400">
                     Difficulty {r.question.difficulty}/3
                   </span>
                 </div>

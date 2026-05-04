@@ -195,8 +195,8 @@ export default function GroupsPage() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Student Groups</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl font-bold text-ink-900 dark:text-ink-100">Student Groups</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">
             Organize students into groups and enroll them in courses
           </p>
         </div>
@@ -210,14 +210,14 @@ export default function GroupsPage() {
       {showCreate && (
         <Card className="mb-6">
           <CardContent className="p-5">
-            <h3 className="mb-3 font-semibold text-slate-800 dark:text-slate-100">Create Group</h3>
+            <h3 className="mb-3 font-semibold text-ink-900 dark:text-ink-100">Create Group</h3>
             <div className="space-y-3">
               <input
                 type="text"
                 placeholder="Group name (e.g. Class 10-A)"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
+                className="w-full rounded-lg border border-ink-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-ink-100 focus:border-green-500 focus:outline-none"
                 autoFocus
               />
               <input
@@ -225,7 +225,7 @@ export default function GroupsPage() {
                 placeholder="Description (optional)"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
+                className="w-full rounded-lg border border-ink-300 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-ink-100 focus:border-green-500 focus:outline-none"
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={createGroup} disabled={!newName.trim()}>
@@ -247,10 +247,10 @@ export default function GroupsPage() {
       {/* Groups List */}
       {groups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="mb-4 rounded-full bg-slate-100 dark:bg-white/10 p-4">
-            <UsersRound className="h-8 w-8 text-slate-400" />
+          <div className="mb-4 rounded-full bg-ink-100 dark:bg-white/10 p-4">
+            <UsersRound className="h-8 w-8 text-ink-400" />
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-ink-500 dark:text-ink-400">
             No groups yet. Create one to organize your students.
           </p>
         </div>
@@ -259,7 +259,7 @@ export default function GroupsPage() {
           {groups.map((g) => (
             <Card key={g.id} className="overflow-hidden">
               <div
-                className="flex cursor-pointer items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5"
+                className="flex cursor-pointer items-center justify-between p-5 hover:bg-ink-50 dark:hover:bg-white/5"
                 onClick={() => toggleExpand(g.id)}
               >
                 <div className="flex items-center gap-3">
@@ -267,26 +267,26 @@ export default function GroupsPage() {
                     <UsersRound className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">{g.name}</h3>
+                    <h3 className="font-semibold text-ink-900 dark:text-ink-100">{g.name}</h3>
                     {g.description && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{g.description}</p>
+                      <p className="text-xs text-ink-500 dark:text-ink-400">{g.description}</p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-slate-100 dark:bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <span className="rounded-full bg-ink-100 dark:bg-white/10 px-2.5 py-1 text-xs font-medium text-ink-700 dark:text-ink-400">
                     {g.member_count} members
                   </span>
                   {expandedGroup === g.id ? (
-                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                    <ChevronUp className="h-4 w-4 text-ink-400" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                    <ChevronDown className="h-4 w-4 text-ink-400" />
                   )}
                 </div>
               </div>
 
               {expandedGroup === g.id && (
-                <div className="border-t border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 p-5">
+                <div className="border-t border-ink-100 dark:border-white/10 bg-ink-50/50 dark:bg-white/5 p-5">
                   {/* Action Buttons */}
                   <div className="mb-4 flex flex-wrap gap-2">
                     <Button
@@ -316,7 +316,7 @@ export default function GroupsPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="ml-auto text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700"
+                      className="ml-auto text-coral-500 hover:bg-coral-50 dark:hover:bg-coral-500/10 hover:text-coral-700"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteGroup(g);
@@ -329,25 +329,25 @@ export default function GroupsPage() {
 
                   {/* Add Members Panel */}
                   {addingMembers === g.id && (
-                    <div className="mb-4 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-4">
-                      <h4 className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <div className="mb-4 rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-4">
+                      <h4 className="mb-2 text-sm font-medium text-ink-700 dark:text-ink-300">
                         Select users to add:
                       </h4>
                       <div className="relative mb-2">
-                        <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                        <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-ink-400" />
                         <input
                           type="text"
                           placeholder="Search users..."
                           value={userSearch}
                           onChange={(e) => setUserSearch(e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 dark:border-white/10 py-2 pl-9 pr-3 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
+                          className="w-full rounded-lg border border-ink-200 dark:border-white/10 py-2 pl-9 pr-3 text-sm dark:bg-[#2C2C2C] dark:text-ink-100 focus:border-green-500 focus:outline-none"
                         />
                         {userSearch && (
                           <button
                             onClick={() => setUserSearch("")}
                             className="absolute right-3 top-2.5"
                           >
-                            <X className="h-3.5 w-3.5 text-slate-400" />
+                            <X className="h-3.5 w-3.5 text-ink-400" />
                           </button>
                         )}
                       </div>
@@ -359,7 +359,7 @@ export default function GroupsPage() {
                           return (
                             <label
                               key={u.id}
-                              className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 ${
+                              className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-ink-50 dark:hover:bg-white/5 ${
                                 isMember ? "opacity-40" : ""
                               }`}
                             >
@@ -376,16 +376,16 @@ export default function GroupsPage() {
                                     );
                                   }
                                 }}
-                                className="rounded border-slate-300"
+                                className="rounded border-ink-300"
                               />
-                              <span className="font-medium text-slate-700 dark:text-slate-300">
+                              <span className="font-medium text-ink-700 dark:text-ink-300">
                                 {u.full_name}
                               </span>
-                              <span className="text-xs text-slate-400">
+                              <span className="text-xs text-ink-400">
                                 {u.email}
                               </span>
                               {isMember && (
-                                <span className="ml-auto text-xs text-slate-400">
+                                <span className="ml-auto text-xs text-ink-400">
                                   already in group
                                 </span>
                               )}
@@ -417,14 +417,14 @@ export default function GroupsPage() {
 
                   {/* Enroll in Course Panel */}
                   {enrollingGroup === g.id && (
-                    <div className="mb-4 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-4">
-                      <h4 className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <div className="mb-4 rounded-lg border border-ink-200 dark:border-white/10 bg-white dark:bg-[#2C2C2C] p-4">
+                      <h4 className="mb-2 text-sm font-medium text-ink-700 dark:text-ink-300">
                         Select course to enroll all members:
                       </h4>
                       <select
                         value={selectedCourse}
                         onChange={(e) => setSelectedCourse(e.target.value)}
-                        className="mb-3 w-full rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-slate-100 focus:border-green-500 focus:outline-none"
+                        className="mb-3 w-full rounded-lg border border-ink-200 dark:border-white/10 px-3 py-2 text-sm dark:bg-[#2C2C2C] dark:text-ink-100 focus:border-green-500 focus:outline-none"
                       >
                         <option value="">Choose a course...</option>
                         {courses.map((c) => (
@@ -457,13 +457,13 @@ export default function GroupsPage() {
 
                   {/* Members List */}
                   <div>
-                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-400">
                       Members
                     </h4>
                     {!members[g.id] ? (
-                      <p className="text-sm text-slate-400">Loading...</p>
+                      <p className="text-sm text-ink-400">Loading...</p>
                     ) : members[g.id].length === 0 ? (
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-ink-400">
                         No members yet. Add students above.
                       </p>
                     ) : (
@@ -478,10 +478,10 @@ export default function GroupsPage() {
                                 {m.full_name.charAt(0).toUpperCase()}
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                                <p className="text-sm font-medium text-ink-900 dark:text-ink-100">
                                   {m.full_name}
                                 </p>
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-ink-400">
                                   {m.email}
                                 </p>
                               </div>
@@ -490,7 +490,7 @@ export default function GroupsPage() {
                               onClick={() =>
                                 removeMember(g.id, m.id, m.full_name)
                               }
-                              className="rounded p-1 text-slate-300 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500"
+                              className="rounded p-1 text-ink-300 hover:bg-coral-50 dark:hover:bg-coral-500/10 hover:text-coral-500"
                             >
                               <UserMinus className="h-4 w-4" />
                             </button>

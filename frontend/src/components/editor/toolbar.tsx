@@ -22,13 +22,13 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
     `rounded p-1.5 transition-colors ${
       active
         ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
-        : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+        : "text-ink-700 hover:bg-ink-100 dark:text-ink-400 dark:hover:bg-white/10"
     }`;
 
   return (
     <BubbleMenu
       editor={editor}
-      className="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]"
+      className="flex items-center gap-0.5 rounded-lg border border-ink-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#2C2C2C]"
     >
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -52,7 +52,7 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
         <Strikethrough className="h-4 w-4" />
       </button>
 
-      <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-white/10" />
+      <div className="mx-1 h-5 w-px bg-ink-200 dark:bg-white/10" />
 
       <button
         onClick={() => editor.chain().focus().toggleCode().run()}
@@ -77,7 +77,7 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
         <Sigma className="h-4 w-4" />
       </button>
 
-      <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-white/10" />
+      <div className="mx-1 h-5 w-px bg-ink-200 dark:bg-white/10" />
 
       <button
         onClick={() => {

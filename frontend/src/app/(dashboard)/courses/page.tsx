@@ -42,7 +42,7 @@ export default function CoursesPage() {
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 p-5 dark:border-white/10">
+            <div key={i} className="rounded-xl border border-ink-200 p-5 dark:border-white/10">
               <Skeleton className="mb-4 h-40 w-full rounded-lg" />
               <Skeleton className="mb-2 h-5 w-3/4" />
               <Skeleton className="mb-4 h-4 w-full" />
@@ -60,21 +60,23 @@ export default function CoursesPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Courses</h1>
-        <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 dark:text-ink-100">
+          <span className="gl-highlight">Courses</span>
+        </h1>
+        <p className="mt-2 text-base text-ink-500 dark:text-ink-400">
           Browse and enroll in available courses
         </p>
       </div>
       {courses.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 rounded-full bg-slate-100 p-4 dark:bg-white/10">
-              <BookOpen className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+            <div className="mb-4 rounded-full bg-ink-100 p-4 dark:bg-white/10">
+              <BookOpen className="h-8 w-8 text-ink-400 dark:text-ink-500" />
             </div>
-            <h3 className="mb-1 text-lg font-semibold text-slate-600 dark:text-slate-300">
+            <h3 className="mb-1 text-lg font-semibold text-ink-700 dark:text-ink-300">
               No courses available
             </h3>
-            <p className="mb-4 text-base text-slate-500 dark:text-slate-400">
+            <p className="mb-4 text-base text-ink-500 dark:text-ink-400">
               Courses will appear here once your admin publishes them.
             </p>
             <Link

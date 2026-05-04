@@ -80,7 +80,7 @@ export default function AssignmentDetailPage() {
   if (!assignment) {
     return (
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-slate-500 dark:text-slate-400">Assignment not found.</p>
+        <p className="text-ink-500 dark:text-ink-400">Assignment not found.</p>
         <Link href="/assignments" className="mt-2 inline-flex items-center gap-1 text-sm text-green-600 hover:text-green-700">
           <ArrowLeft className="h-3 w-3" /> Back to assignments
         </Link>
@@ -96,7 +96,7 @@ export default function AssignmentDetailPage() {
     <div className="mx-auto max-w-3xl">
       <Link
         href="/assignments"
-        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-ink-500 hover:text-ink-700 dark:text-ink-400 dark:hover:text-ink-300"
       >
         <ArrowLeft className="h-4 w-4" /> Back to assignments
       </Link>
@@ -108,12 +108,12 @@ export default function AssignmentDetailPage() {
             <div>
               <CardTitle as="h1" className="text-xl">{assignment.title}</CardTitle>
               {assignment.course_title && (
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{assignment.course_title}</p>
+                <p className="mt-1 text-sm text-ink-500 dark:text-ink-400">{assignment.course_title}</p>
               )}
             </div>
             <div className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium ${
               isPastDue
-                ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
+                ? "bg-coral-50 text-coral-700 dark:bg-coral-500/20 dark:text-coral-300"
                 : "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             }`}>
               <Clock className="h-3.5 w-3.5" />
@@ -123,33 +123,33 @@ export default function AssignmentDetailPage() {
         </CardHeader>
         <CardContent>
           {assignment.description && (
-            <div className="mb-4 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+            <div className="mb-4 whitespace-pre-wrap text-sm text-ink-700 dark:text-ink-300">
               {assignment.description}
             </div>
           )}
-          <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex flex-wrap gap-4 text-xs text-ink-500 dark:text-ink-400">
             <span>Due: {new Date(assignment.due_date).toLocaleString()}</span>
             <span>Max score: {assignment.max_score}</span>
-            {assignment.allow_late && <span className="text-orange-500">Late submissions allowed</span>}
+            {assignment.allow_late && <span className="text-sun-500">Late submissions allowed</span>}
           </div>
         </CardContent>
       </Card>
 
       {/* Graded result */}
       {isGraded && submission && (
-        <Card className="mb-6 border-l-4 border-l-emerald-400">
+        <Card className="mb-6 border-l-4 border-l-green-400">
           <CardContent className="flex items-center gap-4">
-            <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-500/20">
-              <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="rounded-xl bg-green-100 p-3 dark:bg-green-500/20">
+              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <p className="text-sm font-semibold text-ink-900 dark:text-ink-100">
                 Score: {submission.score} / {assignment.max_score}
               </p>
               {submission.feedback && (
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{submission.feedback}</p>
+                <p className="mt-1 text-sm text-ink-700 dark:text-ink-400">{submission.feedback}</p>
               )}
-              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              <p className="mt-1 text-xs text-ink-400 dark:text-ink-500">
                 Graded {submission.graded_at ? new Date(submission.graded_at).toLocaleString() : ""}
               </p>
             </div>
@@ -165,10 +165,10 @@ export default function AssignmentDetailPage() {
               <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <p className="text-sm font-semibold text-ink-900 dark:text-ink-100">
                 Submitted {submission.status === "late" ? "(Late)" : ""}
               </p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">
                 {new Date(submission.submitted_at).toLocaleString()}
                 {submission.original_filename && ` · File: ${submission.original_filename}`}
               </p>
@@ -187,22 +187,22 @@ export default function AssignmentDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">
                 Your answer
               </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={6}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-white/10 dark:bg-[#2C2C2C] dark:text-ink-100 dark:placeholder:text-ink-500"
                 placeholder="Type your answer here..."
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-sm font-medium text-ink-700 dark:text-ink-300">
                 Attach file (optional)
               </label>
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 transition-colors hover:border-green-400 hover:text-green-600 dark:border-white/20 dark:text-slate-400 dark:hover:border-green-500">
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-ink-300 p-4 text-sm text-ink-500 transition-colors hover:border-green-400 hover:text-green-600 dark:border-white/20 dark:text-ink-400 dark:hover:border-green-500">
                 <Upload className="h-4 w-4" />
                 {file ? file.name : "Click to choose a file"}
                 <input
@@ -213,7 +213,7 @@ export default function AssignmentDetailPage() {
               </label>
             </div>
             {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+              <div className="flex items-center gap-2 text-sm text-coral-500 dark:text-coral-300">
                 <AlertCircle className="h-4 w-4" />
                 {error}
               </div>
@@ -230,14 +230,14 @@ export default function AssignmentDetailPage() {
       )}
 
       {!canSubmit && !submission && (
-        <Card className="border-l-4 border-l-red-400">
+        <Card className="border-l-4 border-l-coral-300">
           <CardContent className="flex items-center gap-4">
-            <div className="rounded-xl bg-red-100 p-3 dark:bg-red-500/20">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <div className="rounded-xl bg-coral-50 p-3 dark:bg-coral-500/20">
+              <AlertCircle className="h-5 w-5 text-coral-500 dark:text-coral-300" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Deadline passed</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Late submissions are not allowed for this assignment.</p>
+              <p className="text-sm font-semibold text-ink-900 dark:text-ink-100">Deadline passed</p>
+              <p className="text-xs text-ink-500 dark:text-ink-400">Late submissions are not allowed for this assignment.</p>
             </div>
           </CardContent>
         </Card>

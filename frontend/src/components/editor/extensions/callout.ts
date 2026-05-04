@@ -33,9 +33,9 @@ export const Callout = Node.create({
     const variant = HTMLAttributes["data-variant"] || "info";
     const colors: Record<string, string> = {
       info: "border-blue-300 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10",
-      warning: "border-yellow-300 bg-yellow-50 dark:border-yellow-500/30 dark:bg-yellow-500/10",
+      warning: "border-sun-300 bg-sun-50 dark:border-sun-500/30 dark:bg-sun-500/10",
       success: "border-green-300 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10",
-      error: "border-red-300 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10",
+      error: "border-coral-300 bg-coral-50 dark:border-coral-500/30 dark:bg-coral-500/10",
     };
     const icons: Record<string, string> = {
       info: "ℹ️",

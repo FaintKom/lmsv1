@@ -125,6 +125,47 @@ class WebEditorConfig(BaseModel):
     requirements: list[str] = []
 
 
+# ─── Type → Config schema map ───────────────────────────────────────
+# Single source of truth: maps each ExerciseType to the Pydantic config
+# schema that validates `Exercise.config`. Used by:
+#   - service.create_exercise / update_exercise (enforced validation)
+#   - router /exercises/config-schemas (JSON Schema discovery for clients/MCP)
+CONFIG_SCHEMAS: dict[ExerciseType, type[BaseModel]] = {
+    ExerciseType.quiz: QuizConfig,
+    ExerciseType.code_challenge: CodeChallengeConfig,
+    ExerciseType.matching: MatchingConfig,
+    ExerciseType.ordering: OrderingConfig,
+    ExerciseType.fill_blanks: FillBlanksConfig,
+    ExerciseType.true_false: TrueFalseConfig,
+    ExerciseType.categorize: CategorizeConfig,
+    ExerciseType.file_upload: FileUploadConfig,
+    ExerciseType.math_interactive: MathInteractiveConfig,
+    ExerciseType.translation: TranslationConfig,
+    ExerciseType.sentence_builder: SentenceBuilderConfig,
+    ExerciseType.dialogue: DialogueConfig,
+    ExerciseType.conjugation: ConjugationConfig,
+    ExerciseType.reading: ReadingConfig,
+    ExerciseType.web_editor: WebEditorConfig,
+}
+
+
+def validate_exercise_config(
+    exercise_type: ExerciseType | str,
+    config: dict | None,
+) -> dict:
+    """Validate `config` against the schema for `exercise_type`.
+
+    Returns a sanitized dict (with defaults filled in). Raises pydantic
+    ValidationError on invalid input — caller should translate to HTTP 422.
+    """
+    if isinstance(exercise_type, str):
+        exercise_type = ExerciseType(exercise_type)
+    schema_cls = CONFIG_SCHEMAS.get(exercise_type)
+    if schema_cls is None:
+        return config or {}
+    return schema_cls.model_validate(config or {}).model_dump(mode="json")
+
+
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
 class ExerciseCreate(BaseModel):

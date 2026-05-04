@@ -10,7 +10,7 @@ from app.meetings.models import Meeting
 
 def generate_room_url(meeting_id: uuid.UUID) -> str:
     """Generate a Jitsi Meet room URL."""
-    room_name = f"learnhub-{meeting_id.hex[:12]}"
+    room_name = f"grasslms-{meeting_id.hex[:12]}"
     return f"https://meet.jit.si/{room_name}"
 
 
