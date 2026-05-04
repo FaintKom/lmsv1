@@ -1,0 +1,177 @@
+name: Deploy to Hetzner
+
+# SSH-based deploy to the prod VPS at 204.168.165.41 (/opt/lms).
+# Runs ONLY on push to main, AFTER CI passes. Does:
+#   1. SSH to prod, git pull origin main
+#   2. Rebuild affected containers (backend + frontend; nginx if its
+#      config changed)
+#   3. Restart containers
+#   4. Apply alembic migrations
+#   5. Smoke-check public URL
+#
+# Required repository secrets:
+#   PROD_SSH_PRIVATE_KEY  — ed25519 private key authorized in /root/.ssh/authorized_keys
+#   PROD_SSH_HOST         — 204.168.165.41
+#   PROD_SSH_USER         — root
+#   PROD_SSH_KNOWN_HOSTS  — output of `ssh-keyscan -t ed25519 204.168.165.41`
+#
+# Manual rollback: `gh workflow run deploy.yml -f sha=<previous-good-sha>`
+# or SSH and run `cd /opt/lms && git reset --hard <sha> && docker compose
+# -f docker-compose.prod.yml build backend frontend && docker compose ... up -d`.
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit SHA to deploy (default: HEAD of main)"
+        required: false
+        default: ""
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    # Only run after CI succeeded (workflow_run trigger), or on manual dispatch.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+
+    steps:
+      - name: Checkout (for diff detection)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Determine target SHA
+        id: sha
+        run: |
+          if [ -n "${{ github.event.inputs.sha }}" ]; then
+            echo "target=${{ github.event.inputs.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "target=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed services
+        id: changes
+        run: |
+          # Compare HEAD against the previous deploy marker. If marker
+          # missing (first run), assume everything changed.
+          PREV_FILE=".github/.last-deployed-sha"
+          if git cat-file -e "origin/main:${PREV_FILE}" 2>/dev/null; then
+            PREV_SHA=$(git show "origin/main:${PREV_FILE}" | tr -d '\n')
+          else
+            PREV_SHA=""
+          fi
+          TARGET="${{ steps.sha.outputs.target }}"
+          if [ -z "$PREV_SHA" ] || [ "$PREV_SHA" = "$TARGET" ]; then
+            CHANGED_FILES=""
+            FORCE=true
+          else
+            CHANGED_FILES=$(git diff --name-only "$PREV_SHA" "$TARGET" || true)
+            FORCE=false
+          fi
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          if $FORCE || echo "$CHANGED_FILES" | grep -qE '^backend/'; then
+            echo "rebuild_backend=true" >> $GITHUB_OUTPUT
+          fi
+          if $FORCE || echo "$CHANGED_FILES" | grep -qE '^frontend/'; then
+            echo "rebuild_frontend=true" >> $GITHUB_OUTPUT
+          fi
+          if $FORCE || echo "$CHANGED_FILES" | grep -qE '^nginx/'; then
+            echo "reload_nginx=true" >> $GITHUB_OUTPUT
+          fi
+          if $FORCE || echo "$CHANGED_FILES" | grep -qE '^backend/alembic/versions/'; then
+            echo "run_migrations=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pull latest on prod
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               git fetch origin main && \
+               git reset --hard ${{ steps.sha.outputs.target }} && \
+               git log --oneline -1"
+
+      - name: Rebuild backend
+        if: steps.changes.outputs.rebuild_backend == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               docker compose -f docker-compose.prod.yml build backend"
+
+      - name: Rebuild frontend
+        if: steps.changes.outputs.rebuild_frontend == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               docker compose -f docker-compose.prod.yml build frontend"
+
+      - name: Bring services up
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               docker compose -f docker-compose.prod.yml up -d"
+
+      - name: Apply migrations
+        if: steps.changes.outputs.run_migrations == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               sleep 8 && \
+               docker compose -f docker-compose.prod.yml exec -T -w /app backend python -m alembic upgrade head"
+
+      - name: Reload nginx
+        if: steps.changes.outputs.reload_nginx == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "docker exec lms-nginx-1 nginx -s reload"
+
+      - name: Smoke check
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' https://grasslms.online/login || echo 000)
+            if [ "$CODE" = "200" ]; then
+              echo "✓ /login returned 200"
+              break
+            fi
+            echo "attempt $i: /login returned $CODE; retrying..."
+            sleep 5
+          done
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Smoke check failed: /login returned $CODE"
+            exit 1
+          fi
+          BILLING=$(curl -s https://grasslms.online/api/v1/billing/status)
+          echo "billing/status: $BILLING"
+
+      - name: Stamp deploy marker
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               echo '${{ steps.sha.outputs.target }}' > .github/.last-deployed-sha"
