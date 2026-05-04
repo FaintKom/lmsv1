@@ -268,10 +268,8 @@ export default function BlocklyWorkspace({
 /** Read-only Python code view generated from current Blockly workspace */
 function PythonCodeView({
  workspaceRef,
- isDark,
 }: {
  workspaceRef: React.MutableRefObject<Blockly.WorkspaceSvg | null>;
- isDark: boolean;
 }) {
  const [code, setCode] = useState("");
 
