@@ -29,6 +29,19 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
 
+    # Lemon Squeezy — secondary payment provider (alongside Stripe).
+    # Empty defaults disable LS endpoints (`is_enabled()` returns False).
+    lemonsqueezy_api_key: str = ""
+    lemonsqueezy_store_id: str = ""
+    lemonsqueezy_webhook_secret: str = ""
+    # Per-plan variant IDs (set in LS dashboard, paste here as strings).
+    lemonsqueezy_starter_monthly_variant_id: str = ""
+    lemonsqueezy_starter_yearly_variant_id: str = ""
+    lemonsqueezy_professional_monthly_variant_id: str = ""
+    lemonsqueezy_professional_yearly_variant_id: str = ""
+    lemonsqueezy_enterprise_monthly_variant_id: str = ""
+    lemonsqueezy_enterprise_yearly_variant_id: str = ""
+
     # CORS
     cors_origins: str = "http://localhost:3000"
 
