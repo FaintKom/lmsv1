@@ -180,7 +180,7 @@ function SATDemo() {
  : showResult && isSelected && !isCorrect
  ? "border-danger bg-danger-soft "
  : showResult && isCorrect
- ? "border-green-300 bg-success-soft/50 "
+ ? "border-primary bg-success-soft/50 "
  : "border-border-strong bg-paper-2 $1:border-primary hover:shadow-sm "
  }`}
  >

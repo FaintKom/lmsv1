@@ -26,7 +26,7 @@ export default function TrueFalseExercise({
  aria-pressed={selected === true}
  className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-4 text-lg font-semibold transition-colors ${
  selected === true
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-text-muted $1:border-primary "
  }`}
  >

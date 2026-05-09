@@ -382,7 +382,7 @@ export default function BulkEnrollPage() {
  onClick={() => fileInputRef.current?.click()}
  className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
  isDragging
- ? "border-green-300 bg-success-soft "
+ ? "border-primary bg-success-soft "
  : "border-ink-300 bg-surface-2 hover:border-ink-400 "
  }`}
  >
@@ -470,7 +470,7 @@ export default function BulkEnrollPage() {
  <th className="px-3 py-2 font-semibold text-text-muted ">Password</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 ">
+ <tbody className="divide-y divide-border ">
  {parsed.map((row, i) => (
  <tr key={i} className="hover:bg-surface-2 ">
  <td className="px-3 py-1.5 text-text-subtle">{i + 1}</td>

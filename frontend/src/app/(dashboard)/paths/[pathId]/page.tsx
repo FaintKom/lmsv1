@@ -140,7 +140,7 @@ export default function PathDetailPage() {
  </div>
  {idx < path.steps.length - 1 && (
  <div className={`w-0.5 flex-1 min-h-[24px] ${
- step.completed ? "bg-green-300 " : "bg-ink-200 "
+ step.completed ? "bg-primary " : "bg-ink-200 "
  }`} />
  )}
  </div>
@@ -148,7 +148,7 @@ export default function PathDetailPage() {
  {/* Step card */}
  <div className="mb-4 flex-1 pb-2">
  <Card className={`${
- isCurrent ? "border-green-300 shadow-sm " : ""
+ isCurrent ? "border-primary shadow-sm " : ""
  } ${step.completed ? "opacity-75" : ""}`}>
  <CardContent className="flex items-center justify-between p-4">
  <div>

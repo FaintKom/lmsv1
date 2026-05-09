@@ -255,7 +255,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  onClick={() => setter({ ...q, question_type: type })}
  className={`rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
  q.question_type === type
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-text-muted "
  }`}
  >

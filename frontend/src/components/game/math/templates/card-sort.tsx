@@ -117,7 +117,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  onClick={() => setTappedCard(tappedCard?.id === card.id ? null : card)}
  className={`rounded-lg border-2 bg-paper-2 px-4 py-2.5 text-sm font-semibold shadow-sm transition-all hover:shadow-md active:scale-95 ${
  tappedCard?.id === card.id
- ? "border-green-300 ring-2 ring-green-300 text-success-fg "
+ ? "border-primary ring-2 ring-primary text-success-fg "
  : checked && results[card.id] === false
  ? "border-danger text-danger-fg "
  : "border-border-strong text-ink-700 $1:border-primary "
@@ -162,7 +162,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
  checked
  ? results[card.id]
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
  : "border-border-strong bg-paper-2 text-ink-700 "
  }`}

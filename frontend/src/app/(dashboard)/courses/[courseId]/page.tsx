@@ -117,7 +117,7 @@ export default function CourseDetailPage() {
  <p className="mb-4 max-w-xl text-success-soft">
  {course.description}
  </p>
- <div className="flex items-center gap-4 text-sm text-green-200">
+ <div className="flex items-center gap-4 text-sm text-white/70">
  <span className="flex items-center gap-1">
  <BookOpen className="h-4 w-4" />
  {course.modules?.length || 0} modules

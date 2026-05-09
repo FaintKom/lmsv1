@@ -52,9 +52,9 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
  aria-pressed={activeLeft === p.left}
  className={`w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors ${
  activeLeft === p.left
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : selected[p.left]
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-ink-700 $1:border-primary "
  }`}
  >

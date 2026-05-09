@@ -52,24 +52,25 @@ Coolify is outdated; ignore or delete it.
 
 ## Deploy workflow
 
-Changes go live via SSH file copy + container rebuild. There is no CI/CD.
-There is no staging (pending — see `project_staging_env.md`).
+**NEVER deploy via direct SCP or file copy.** All changes MUST go through GitHub:
 
 ```bash
-# 1. Copy a changed file
-cat backend/app/auth/router.py | ssh root@204.168.165.41 "cat > /opt/lms/backend/app/auth/router.py"
+# 1. Commit changes on a branch, push, create PR, merge to main
 
-# 2. Rebuild the affected service
+# 2. Pull on server
+ssh root@204.168.165.41 "cd /opt/lms && git pull origin main"
+
+# 3. Rebuild the affected service
 ssh root@204.168.165.41 "cd /opt/lms && docker compose -f docker-compose.prod.yml build backend"
 
-# 3. Restart it
+# 4. Restart it
 ssh root@204.168.165.41 "cd /opt/lms && docker compose -f docker-compose.prod.yml up -d backend"
 
-# 4. If nginx config changed
+# 5. If nginx config changed
 ssh root@204.168.165.41 "docker exec lms-nginx-1 nginx -s reload"
 ```
 
-For multiple files in the same service, batch the copies before the rebuild.
+Direct SCP creates undocumented state drift. The server must always match git main.
 
 ## Stack
 

@@ -293,7 +293,7 @@ export default function ProfilePage() {
  type="text"
  value={fullName}
  onChange={(e) => setFullName(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  required
  />
  </div>
@@ -323,7 +323,7 @@ export default function ProfilePage() {
  value={avatarUrl}
  onChange={(e) => setAvatarUrl(e.target.value)}
  placeholder="https://example.com/avatar.jpg"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  />
  </div>
 
@@ -337,7 +337,7 @@ export default function ProfilePage() {
  onChange={(e) => setBio(e.target.value)}
  placeholder="Tell us about yourself..."
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  />
  </div>
 
@@ -426,7 +426,7 @@ export default function ProfilePage() {
  type="checkbox"
  checked={emailPrefs[item.key]}
  onChange={(e) => setEmailPrefs({ ...emailPrefs, [item.key]: e.target.checked })}
- className="mt-1 rounded border-ink-300 text-primary focus:ring-green-500"
+ className="mt-1 rounded border-ink-300 text-primary focus:ring-primary"
  />
  <div>
  <p className="text-sm font-medium text-ink-700 ">{item.label}</p>
@@ -538,7 +538,7 @@ export default function ProfilePage() {
  onClick={() => setLocale(l.code as Locale)}
  className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
  locale === l.code
- ? "border-green-300 bg-success-soft text-success-fg ring-1 ring-primary-soft "
+ ? "border-primary bg-success-soft text-success-fg ring-1 ring-primary-soft "
  : "border-border-strong text-text-muted hover:border-ink-300 hover:bg-surface-2 "
  }`}
  >
