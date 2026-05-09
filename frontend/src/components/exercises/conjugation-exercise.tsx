@@ -58,7 +58,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  return (
  <div className="space-y-5">
  {/* Verb header */}
- <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg">
+ <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary to-primary-hover p-6 text-white shadow-lg">
  <div className="absolute -right-4 -top-4 text-[80px] opacity-10 select-none">
  {"\u270D\uFE0F"}
  </div>
@@ -114,10 +114,10 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  className={`w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 outline-none
  ${
  submitted && isCorrect === true
- ? "border-2 border-green-300 bg-success-soft text-success-fg "
+ ? "border-2 border-primary bg-success-soft text-success-fg "
  : submitted && isCorrect === false
  ? "border-2 border-danger bg-danger-soft text-danger-fg "
- : "border-2 border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-green-500/20"
+ : "border-2 border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}

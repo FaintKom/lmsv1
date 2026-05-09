@@ -34,7 +34,7 @@ export const Callout = Node.create({
  const colors: Record<string, string> = {
  info: "border-info bg-info-soft ",
  warning: "border-warning bg-sun-50 ",
- success: "border-green-300 bg-success-soft ",
+ success: "border-primary bg-success-soft ",
  error: "border-danger bg-danger-soft ",
  };
  const icons: Record<string, string> = {

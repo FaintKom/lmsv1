@@ -127,10 +127,10 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  className={`w-full rounded-lg border-2 px-5 py-4 text-[15px] font-medium transition-all duration-200 outline-none resize-none
  ${
  submitted && isCorrect === true
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : submitted && isCorrect === false
  ? "border-danger bg-danger-soft text-danger-fg "
- : "border-border-strong bg-paper-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-green-500/20"
+ : "border-border-strong bg-paper-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}

@@ -88,7 +88,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  <span className="inline-block h-0.5 w-5 bg-ink-400" /> Parent: y = {fnLabel}
  </span>
  <span className="flex items-center gap-1.5">
- <span className="inline-block h-0.5 w-5 bg-green-400" style={{ borderBottom: "2px dashed #22c55e" }} /> Target
+ <span className="inline-block h-0.5 w-5 bg-primary" style={{ borderBottom: "2px dashed #22c55e" }} /> Target
  </span>
  <span className="flex items-center gap-1.5">
  <span className="inline-block h-0.5 w-5 bg-primary" /> Your graph
@@ -126,7 +126,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  </label>
  <input type="range" min={-5} max={5} step={0.5} value={h}
  onChange={(e) => { setH(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-green-500" />
+ className="flex-1 accent-primary" />
  </div>
  <div className="flex items-center gap-3">
  <label className="w-32 text-right text-xs font-medium text-text-muted">
@@ -134,7 +134,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  </label>
  <input type="range" min={-5} max={5} step={0.5} value={v}
  onChange={(e) => { setV(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-green-500" />
+ className="flex-1 accent-primary" />
  </div>
  <div className="flex items-center gap-3">
  <label className="w-32 text-right text-xs font-medium text-text-muted">
@@ -142,7 +142,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  </label>
  <input type="range" min={-3} max={3} step={0.25} value={a}
  onChange={(e) => { setA(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-green-500" />
+ className="flex-1 accent-primary" />
  </div>
  </div>
 

@@ -99,9 +99,9 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  className={`w-full max-w-[200px] rounded-lg border-2 px-4 py-3 text-center text-xl font-bold outline-none transition-colors ${
  submitted
  ? isCorrect
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-green-300 bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-paper-2 text-success-fg focus:border-primary "
  }`}
  autoFocus
  />

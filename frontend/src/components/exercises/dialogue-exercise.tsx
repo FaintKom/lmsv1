@@ -141,11 +141,11 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  key={i}
  className={`h-2 w-2 rounded-pill transition-all duration-300 ${
  result === true
- ? "bg-green-400 w-3"
+ ? "bg-primary w-3"
  : result === false
  ? "bg-danger-soft w-3"
  : selections[String(ci)]
- ? "bg-green-400"
+ ? "bg-primary"
  : "bg-ink-200 "
  }`}
  />
@@ -207,7 +207,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  ? choiceResult === true
  ? "bg-primary text-white"
  : choiceResult === false
- ? "bg-danger-soft text-white"
+ ? "bg-danger text-white"
  : "bg-primary text-white"
  : "bg-paper-2 border border-border text-ink-700 "
  }`}

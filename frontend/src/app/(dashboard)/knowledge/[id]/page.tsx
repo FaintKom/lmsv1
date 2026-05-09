@@ -61,8 +61,8 @@ export default function KnowledgeDetailPage() {
   if (notFound || !entry) {
     return (
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-slate-500">Entry not found.</p>
-        <Link href="/knowledge" className="mt-4 inline-block text-blue-600 hover:underline">
+        <p className="text-text-muted">Entry not found.</p>
+        <Link href="/knowledge" className="mt-4 inline-block text-info-fg hover:underline">
           ← Back to knowledge
         </Link>
       </div>
@@ -90,17 +90,17 @@ export default function KnowledgeDetailPage() {
       </Button>
 
       <h1 className="text-3xl font-bold leading-tight">{entry.title}</h1>
-      <p className="mt-2 text-base text-slate-600 dark:text-slate-400">{entry.summary}</p>
+      <p className="mt-2 text-base text-text-muted">{entry.summary}</p>
 
       {/* Facets */}
       <div className="mt-4 flex flex-wrap gap-2">
         {facets.map((f) => (
           <div key={f.label} className="text-xs">
-            <span className="text-slate-400">{f.label}:</span>{" "}
+            <span className="text-text-subtle">{f.label}:</span>{" "}
             {f.values.map((v) => (
               <span
                 key={v}
-                className="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                className="ml-1 rounded bg-ink-100 px-1.5 py-0.5 text-ink-700"
               >
                 {v.replace(/_/g, " ")}
               </span>
@@ -112,11 +112,10 @@ export default function KnowledgeDetailPage() {
       {/* Content */}
       <Card className="mt-6">
         <CardContent className="p-6">
-          <div className="prose prose-slate max-w-none dark:prose-invert
+          <div className="prose prose-slate max-w-none
                           prose-headings:font-semibold
-                          prose-a:text-blue-600 dark:prose-a:text-blue-400
-                          prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-sm
-                          dark:prose-code:bg-slate-800
+                          prose-a:text-info-fg
+                          prose-code:rounded prose-code:bg-ink-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-sm
                           prose-li:my-1">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {entry.content}
@@ -124,11 +123,11 @@ export default function KnowledgeDetailPage() {
           </div>
 
           {entry.applicability && (
-            <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm dark:border-blue-900/40 dark:bg-blue-950/20">
-              <div className="font-semibold text-blue-900 dark:text-blue-300">
+            <div className="mt-5 rounded-lg border border-info bg-info-soft p-4 text-sm">
+              <div className="font-semibold text-info-fg">
                 When to apply
               </div>
-              <div className="mt-1 text-blue-800 dark:text-blue-200">
+              <div className="mt-1 text-info-fg">
                 {entry.applicability}
               </div>
             </div>
@@ -142,7 +141,7 @@ export default function KnowledgeDetailPage() {
           {entry.tags.map((t) => (
             <span
               key={t}
-              className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+              className="rounded-full bg-ink-100 px-2 py-0.5 text-xs text-text-muted"
             >
               #{t}
             </span>
@@ -153,7 +152,7 @@ export default function KnowledgeDetailPage() {
       {/* Sources */}
       {entry.sources.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-sm font-semibold uppercase text-slate-500">Sources</h3>
+          <h3 className="text-sm font-semibold uppercase text-text-muted">Sources</h3>
           <ul className="mt-2 space-y-1 text-sm">
             {entry.sources.map((s) => (
               <li key={s.id}>
@@ -162,14 +161,14 @@ export default function KnowledgeDetailPage() {
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                    className="flex items-center gap-1 text-info-fg hover:underline"
                   >
                     <ExternalLink className="h-3 w-3" />
                     {s.title || s.url}
-                    <span className="ml-1 text-xs text-slate-400">[{s.source_type}]</span>
+                    <span className="ml-1 text-xs text-text-subtle">[{s.source_type}]</span>
                   </a>
                 ) : (
-                  <span className="text-slate-500">
+                  <span className="text-text-muted">
                     {s.title} <span className="text-xs">[{s.source_type}]</span>
                   </span>
                 )}
@@ -181,7 +180,7 @@ export default function KnowledgeDetailPage() {
 
       {/* Quality scores (admin info, hidden style) */}
       {(entry.ai_quality !== null || entry.verifier_score !== null) && (
-        <div className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-white/10">
+        <div className="mt-6 border-t border-border pt-3 text-xs text-text-subtle">
           {entry.ai_quality !== null && (
             <span className="mr-3">AI quality: {entry.ai_quality.toFixed(2)}</span>
           )}

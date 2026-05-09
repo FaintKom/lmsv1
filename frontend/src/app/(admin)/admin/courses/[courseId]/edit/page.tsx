@@ -821,7 +821,7 @@ export default function CourseEditorPage() {
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
@@ -830,7 +830,7 @@ export default function CourseEditorPage() {
  value={description}
  onChange={(e) => setDescription(e.target.value)}
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
@@ -840,7 +840,7 @@ export default function CourseEditorPage() {
  value={category}
  onChange={(e) => setCategory(e.target.value)}
  placeholder="e.g., programming, math, languages"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <Button onClick={handleSaveMeta} disabled={saving}>
@@ -1149,7 +1149,7 @@ export default function CourseEditorPage() {
  }
  rows={12}
  spellCheck={false}
- className="w-full rounded-lg border border-ink-300 bg-ink-900 text-ink-100 px-4 py-3 font-mono text-xs leading-relaxed focus:border-warning focus:outline-none focus:ring-1 focus:ring-amber-500"
+ className="w-full rounded-lg border border-ink-300 bg-ink-900 text-ink-100 px-4 py-3 font-mono text-xs leading-relaxed focus:border-warning focus:outline-none focus:ring-1 focus:ring-warning"
  placeholder="<div>\n <h2>Your HTML here</h2>\n <p>Supports scripts, iframes, SVGs...</p>\n</div>"
  />
  {typeof block.body === "string" && block.body.trim() && (
@@ -1385,7 +1385,7 @@ export default function CourseEditorPage() {
  })}
  className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
  (lessonForm.content.format || "markdown") === fmt
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-text-muted hover:border-ink-300 "
  }`}
  >
@@ -1463,7 +1463,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setNewModuleTitle(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
  placeholder="New module title..."
- className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
  <Plus className="mr-1 h-4 w-4" />
@@ -1497,7 +1497,7 @@ export default function CourseEditorPage() {
  <select
  value={enrollingUser}
  onChange={(e) => setEnrollingUser(e.target.value)}
- className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  >
  <option value="">Select a user to enroll...</option>
  {allUsers
@@ -1676,7 +1676,7 @@ export default function CourseEditorPage() {
  value={assignmentForm.title}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
  placeholder="Assignment title"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  autoFocus
  />
  </div>
@@ -1687,7 +1687,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
  placeholder="Optional description..."
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div className="grid grid-cols-2 gap-3">
@@ -1697,7 +1697,7 @@ export default function CourseEditorPage() {
  type="datetime-local"
  value={assignmentForm.due_date}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
@@ -1708,7 +1708,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setAssignmentForm({ ...assignmentForm, max_score: e.target.value })}
  placeholder="100"
  min={0}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  </div>
@@ -1717,7 +1717,7 @@ export default function CourseEditorPage() {
  type="checkbox"
  checked={assignmentForm.allow_late}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
- className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-green-500"
+ className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary"
  />
  Allow late submissions
  </label>
@@ -1785,6 +1785,7 @@ const EXERCISE_TYPES_LIST = [
  { value: "dialogue", label: "Dialogue", icon: "💬" },
  { value: "conjugation", label: "Conjugation", icon: "📝" },
  { value: "reading", label: "Reading", icon: "📖" },
+ { value: "web_editor", label: "Web Editor", icon: "🌐" },
 ];
 
 function ExerciseBlockCreator({
@@ -1970,7 +1971,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  )}
 
  {exercises.length > 0 && (
- <ul className="divide-y divide-slate-100 ">
+ <ul className="divide-y divide-border ">
  {exercises.map((ex) => (
  <li key={ex.id} className="group flex items-center gap-3 px-4 py-2.5">
  <span className="rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-medium text-text-muted ">
@@ -1986,7 +1987,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  href={`/admin/content-library/${ex.id}`}
  target="_blank"
  rel="noopener noreferrer"
- className="rounded p-1 text-green-400 hover:bg-success-soft hover:text-primary "
+ className="rounded p-1 text-primary hover:bg-success-soft hover:text-primary "
  title="Edit exercise"
  >
  <Pencil className="h-3.5 w-3.5" />

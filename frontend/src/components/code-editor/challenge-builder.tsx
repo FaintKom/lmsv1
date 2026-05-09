@@ -384,7 +384,7 @@ export default function ChallengeBuilder({
 
  {/* Add test case form */}
  {addingTestCase && (
- <div className="mt-3 rounded-lg border border-dashed border-green-300 bg-success-soft/30 p-3">
+ <div className="mt-3 rounded-lg border border-dashed border-primary bg-success-soft/30 p-3">
  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted">

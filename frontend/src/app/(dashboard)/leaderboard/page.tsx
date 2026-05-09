@@ -50,7 +50,7 @@ const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string; 
  platinum: {
  bg: "bg-info-soft ",
  text: "text-info-fg ",
- border: "border-cyan-300 ",
+ border: "border-info ",
  icon: "\uD83D\uDC8E",
  },
  diamond: {
@@ -69,7 +69,7 @@ function getLeagueStyle(league: LeagueInfo | null) {
 
 function getRankStyle(rank: number) {
  if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-200/50 ";
- if (rank === 2) return "bg-gradient-to-r from-slate-300 to-slate-400 text-white shadow-lg shadow-slate-200/50 ";
+ if (rank === 2) return "bg-gradient-to-r from-slate-300 to-slate-400 text-white shadow-lg shadow-ink-200/50 ";
  if (rank === 3) return "bg-gradient-to-r from-amber-600 to-orange-700 text-white shadow-lg shadow-orange-200/50 ";
  return "bg-ink-100 text-text-muted ";
 }
@@ -137,7 +137,7 @@ export default function LeaderboardPage() {
  No leaderboard data yet. Complete lessons to earn XP!
  </div>
  ) : (
- <div className="divide-y divide-slate-100 ">
+ <div className="divide-y divide-border ">
  {entries.map((entry, i) => {
  const rank = i + 1;
  const isCurrentUser = user?.id === entry.user_id;

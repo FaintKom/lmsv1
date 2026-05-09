@@ -123,17 +123,17 @@ export default function KnowledgePage() {
     <div className="mx-auto max-w-7xl">
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <Sparkles className="h-6 w-6 text-blue-500" />
+          <Sparkles className="h-6 w-6 text-info-fg" />
           Knowledge
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-text-muted">
           Distilled edtech concepts, frameworks, tools and methods.
         </p>
       </div>
 
       <form onSubmit={onSubmit} className="mb-6 flex gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
           <Input
             ref={inputRef}
             value={query}
@@ -161,11 +161,11 @@ export default function KnowledgePage() {
         {/* Filters sidebar */}
         <aside className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase text-slate-500">Filters</h2>
+            <h2 className="text-sm font-semibold uppercase text-text-muted">Filters</h2>
             {activeFilterCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-info-fg hover:underline"
               >
                 Clear ({activeFilterCount})
               </button>
@@ -189,7 +189,7 @@ export default function KnowledgePage() {
 
         {/* Results */}
         <main>
-          <div className="mb-3 text-sm text-slate-500">
+          <div className="mb-3 text-sm text-text-muted">
             {loading ? "Searching…" : `${total} ${total === 1 ? "entry" : "entries"}`}
             {activeQuery && (
               <> for <span className="font-medium">&ldquo;{activeQuery}&rdquo;</span></>
@@ -210,7 +210,7 @@ export default function KnowledgePage() {
             </div>
           ) : items.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center text-slate-500">
+              <CardContent className="p-8 text-center text-text-muted">
                 No entries match. Try a different query or clear filters.
               </CardContent>
             </Card>
@@ -239,8 +239,8 @@ function FacetGroup({
   onToggle: (v: string) => void;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900/50">
-      <div className="mb-2 text-xs font-semibold uppercase text-slate-500">{label}</div>
+    <div className="rounded-lg border border-border bg-paper-2 p-3">
+      <div className="mb-2 text-xs font-semibold uppercase text-text-muted">{label}</div>
       <ul className="space-y-1.5 text-sm">
         {values.slice(0, 12).map((v) => (
           <li key={v.value}>
@@ -249,15 +249,15 @@ function FacetGroup({
                 type="checkbox"
                 checked={selected.has(v.value)}
                 onChange={() => onToggle(v.value)}
-                className="h-3.5 w-3.5 rounded border-slate-300"
+                className="h-3.5 w-3.5 rounded border-border-strong"
               />
               <span className="flex-1 capitalize">{v.value.replace(/_/g, " ")}</span>
-              <span className="text-xs text-slate-400">{v.count}</span>
+              <span className="text-xs text-text-subtle">{v.count}</span>
             </label>
           </li>
         ))}
         {values.length > 12 && (
-          <li className="pt-1 text-xs text-slate-400">+ {values.length - 12} more</li>
+          <li className="pt-1 text-xs text-text-subtle">+ {values.length - 12} more</li>
         )}
       </ul>
     </div>
@@ -268,20 +268,20 @@ function ResultCard({ item }: { item: EntryItem }) {
   const tags = [...item.stage, ...item.problems].slice(0, 5);
   return (
     <Link href={`/knowledge/${item.id}`} className="block">
-      <Card className="transition hover:border-blue-400 hover:shadow-sm dark:hover:border-blue-500">
+      <Card className="transition hover:border-info hover:shadow-sm">
         <CardContent className="p-4">
           <div className="mb-1 flex items-center gap-2">
-            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+            <span className="rounded bg-ink-100 px-1.5 py-0.5 text-xs font-medium uppercase text-text-muted">
               {item.type}
             </span>
             {item.score !== undefined && (
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-text-subtle">
                 {Math.round(item.score * 100)}% match
               </span>
             )}
           </div>
           <h3 className="font-semibold leading-snug">{item.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-text-muted">
             {item.summary}
           </p>
           {tags.length > 0 && (
@@ -289,7 +289,7 @@ function ResultCard({ item }: { item: EntryItem }) {
               {tags.map((t) => (
                 <span
                   key={t}
-                  className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                  className="rounded-full bg-info-soft px-2 py-0.5 text-[11px] text-info-fg"
                 >
                   {t.replace(/_/g, " ")}
                 </span>

@@ -83,7 +83,7 @@ export default function Home() {
  </p>
  </div>
  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-green-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Code className="h-6 w-6 text-primary" />
  </div>
@@ -96,7 +96,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-emerald-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Calculator className="h-6 w-6 text-primary" />
  </div>
@@ -109,7 +109,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-emerald-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Brain className="h-6 w-6 text-primary" />
  </div>
@@ -122,7 +122,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-warning hover:shadow-lg hover:shadow-amber-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-warning hover:shadow-lg hover:shadow-sun-50">
  <div className="mb-5 inline-flex rounded-lg bg-sun-50 p-3.5">
  <Gamepad2 className="h-6 w-6 text-warning-fg" />
  </div>
@@ -135,7 +135,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-danger hover:shadow-lg hover:shadow-rose-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-danger hover:shadow-lg hover:shadow-danger-soft">
  <div className="mb-5 inline-flex rounded-lg bg-danger-soft p-3.5">
  <Trophy className="h-6 w-6 text-danger-fg" />
  </div>
@@ -148,7 +148,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-sky-200 hover:shadow-lg hover:shadow-sky-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-info hover:shadow-lg hover:shadow-info-soft">
  <div className="mb-5 inline-flex rounded-lg bg-info-soft p-3.5">
  <BookOpen className="h-6 w-6 text-info-fg" />
  </div>
@@ -425,7 +425,7 @@ export default function Home() {
  </section>
 
  {/* CTA */}
- <section className="border-t border-border bg-gradient-to-b from-green-50/50 to-white py-20">
+ <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-paper-2 py-20">
  <div className="mx-auto max-w-2xl px-6 text-center">
  <h2 className="mb-4 text-3xl font-bold text-text">
  Ready to get started?
@@ -451,7 +451,7 @@ export default function Home() {
  Or join the waitlist for early access
  </h3>
  <p className="mb-6 text-sm text-text-muted">
- Get notified when new features launch and early-bird pricing opens.
+ Get notified when new features launch.
  </p>
  <WaitlistForm source="landing-cta" />
  </div>

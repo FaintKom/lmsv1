@@ -57,7 +57,7 @@ function DroppableBlank({
  return (
  <button
  onClick={onRemove}
- className="mx-1 inline-flex items-center gap-1 rounded-lg border-2 border-green-300 bg-success-soft px-3 py-1 text-sm font-medium text-success-fg transition-colors hover:border-danger hover:bg-danger-soft hover:text-danger-fg "
+ className="mx-1 inline-flex items-center gap-1 rounded-lg border-2 border-primary bg-success-soft px-3 py-1 text-sm font-medium text-success-fg transition-colors hover:border-danger hover:bg-danger-soft hover:text-danger-fg "
  title="Click to remove"
  >
  {placedWord}
@@ -71,7 +71,7 @@ function DroppableBlank({
  ref={setNodeRef}
  className={`mx-1 inline-block min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 text-center text-sm transition-colors ${
  isOver
- ? "border-green-300 bg-success-soft text-primary "
+ ? "border-primary bg-success-soft text-primary "
  : "border-ink-300 bg-surface-2 text-text-subtle "
  }`}
  >
@@ -209,7 +209,7 @@ export default function FillBlanksExercise({
  {/* Drag overlay */}
  <DragOverlay>
  {activeWord ? (
- <div className="rounded-lg border-2 border-green-300 bg-primary-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-lg ">
+ <div className="rounded-lg border-2 border-primary bg-primary-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-lg ">
  {activeWord}
  </div>
  ) : null}

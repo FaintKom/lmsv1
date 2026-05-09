@@ -69,14 +69,14 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
 
  if (submitted) {
  if (choice.correct) {
- borderClass = "border-green-300 ";
+ borderClass = "border-primary ";
  bgClass = "bg-success-soft ";
  } else if (isThis && !choice.correct) {
  borderClass = "border-danger ";
  bgClass = "bg-danger-soft ";
  }
  } else if (isThis) {
- borderClass = "border-green-300 ";
+ borderClass = "border-primary ";
  bgClass = "bg-success-soft ";
  }
 

@@ -182,9 +182,9 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  key={i}
  className={`h-2 w-8 rounded-pill transition-colors ${
  i < currentStep
- ? "bg-green-400"
+ ? "bg-primary"
  : i === currentStep
- ? "bg-green-400"
+ ? "bg-primary"
  : "bg-ink-200 "
  }`}
  />
