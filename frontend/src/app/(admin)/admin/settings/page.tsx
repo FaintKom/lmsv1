@@ -18,7 +18,6 @@ const MENU_ITEMS = [
  { key: "calendar", label: "Calendar", adminOnly: false },
  { key: "meetings", label: "Meetings", adminOnly: false },
  { key: "analytics", label: "Analytics", adminOnly: false },
- { key: "billing", label: "Billing", adminOnly: true },
 ];
 
 export default function SettingsPage() {
