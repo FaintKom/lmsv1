@@ -52,25 +52,13 @@ Coolify is outdated; ignore or delete it.
 
 ## Deploy workflow
 
-**NEVER deploy via direct SCP or file copy.** All changes MUST go through GitHub:
+**⚠️ Claude MUST NOT deploy via SSH. No `cat | ssh`, no `scp`, no direct file
+copy.** All changes go through GitHub: commit → push → owner pulls on server.
 
-```bash
-# 1. Commit changes on a branch, push, create PR, merge to main
-
-# 2. Pull on server
-ssh root@204.168.165.41 "cd /opt/lms && git pull origin main"
-
-# 3. Rebuild the affected service
-ssh root@204.168.165.41 "cd /opt/lms && docker compose -f docker-compose.prod.yml build backend"
-
-# 4. Restart it
-ssh root@204.168.165.41 "cd /opt/lms && docker compose -f docker-compose.prod.yml up -d backend"
-
-# 5. If nginx config changed
-ssh root@204.168.165.41 "docker exec lms-nginx-1 nginx -s reload"
-```
-
-Direct SCP creates undocumented state drift. The server must always match git main.
+To deploy:
+1. Commit changes locally
+2. Push to GitHub (`git push origin <branch>`)
+3. Owner pulls and rebuilds on server manually
 
 ## Stack
 

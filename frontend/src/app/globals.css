@@ -320,6 +320,22 @@ button { font-family: inherit; }
 .btn-pop--ink   { --pop: var(--ink-700); }
 .btn-pop--secondary { --pop: var(--ink-100); }
 
+/* Dark rail — override semantic tokens so child components auto-adapt */
+.rail-dark {
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255,255,255,0.65);
+  --color-text-subtle: rgba(255,255,255,0.4);
+  --color-border: rgba(255,255,255,0.08);
+  --color-border-strong: rgba(255,255,255,0.12);
+  --color-surface: var(--ink-900);
+  --color-surface-2: rgba(255,255,255,0.06);
+  --color-bg: var(--ink-900);
+  --ink-100: rgba(255,255,255,0.08);
+  --ink-300: rgba(255,255,255,0.2);
+  --ink-700: rgba(255,255,255,0.85);
+  --paper-2: rgba(255,255,255,0.06);
+}
+
 /* Skeleton shimmer */
 @keyframes lms-skeleton-shimmer {
   0%   { background-position: -200% 0; }

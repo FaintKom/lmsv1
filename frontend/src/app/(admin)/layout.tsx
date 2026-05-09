@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
-import { GraduationCap, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export default function AdminLayout({
  children,
@@ -54,8 +54,9 @@ export default function AdminLayout({
  if (isLoading) {
  return (
  <div className="flex h-screen flex-col items-center justify-center gap-3 bg-surface-2 ">
- <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
- <GraduationCap className="h-6 w-6 text-white" />
+ <div className="relative flex h-12 w-12 items-center justify-center rounded-[12px] bg-green-500 text-[24px] font-extrabold text-white">
+ g
+ <span className="absolute bottom-[5px] right-[6px] h-[6px] w-[6px] rounded-full bg-sun-400" />
  </div>
  <div className="h-1.5 w-24 overflow-hidden rounded-pill bg-ink-200">
  <div className="h-full w-1/2 animate-pulse rounded-pill bg-primary" />
@@ -86,8 +87,9 @@ export default function AdminLayout({
  <Menu className="h-5 w-5" />
  </button>
  <div className="ml-3 flex items-center gap-2">
- <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
- <GraduationCap className="h-4 w-4 text-white" aria-hidden="true" />
+ <div className="relative flex h-7 w-7 items-center justify-center rounded-[8px] bg-green-500 text-sm font-extrabold text-white">
+ g
+ <span className="absolute bottom-[3px] right-[3px] h-[4px] w-[4px] rounded-full bg-sun-400" />
  </div>
  <span className="text-sm font-bold text-text ">GrassLMS</span>
  </div>
