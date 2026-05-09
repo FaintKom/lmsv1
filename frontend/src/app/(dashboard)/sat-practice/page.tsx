@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { GraduationCap, Clock, BarChart3, Zap, BookOpen, Target, TrendingUp, ChevronRight } from "lucide-react";
+import { Clock, BarChart3, Zap, BookOpen, Target, TrendingUp, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SATTestRunner from "@/components/sat/sat-test-runner";
@@ -82,7 +82,7 @@ export default function SATPracticePage() {
  <div className="rounded-lg bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 p-8 text-white">
  <div className="flex items-center gap-3 mb-3">
  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-paper-2/20">
- <GraduationCap className="h-6 w-6" />
+ <BookOpen className="h-6 w-6" />
  </div>
  <div>
  <h1 className="text-2xl font-bold">SAT Math Practice</h1>
@@ -242,7 +242,7 @@ export default function SATPracticePage() {
  <span><b>Flag and move on:</b> If stuck for 45+ seconds, flag it and return later.</span>
  </li>
  <li className="flex items-start gap-2">
- <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+ <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
  <span><b>Never leave blanks:</b> No penalty for guessing. Always pick an answer.</span>
  </li>
  <li className="flex items-start gap-2">

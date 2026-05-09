@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Users, BookOpen, GraduationCap, DollarSign, TrendingUp, Flame } from "lucide-react";
+import { Users, BookOpen, DollarSign, TrendingUp, Flame } from "lucide-react";
 
 const STATS = [
  { label: "Total Users", value: "7", icon: Users, color: "indigo" },
  { label: "Courses", value: "3", icon: BookOpen, color: "emerald" },
- { label: "Enrollments", value: "6", icon: GraduationCap, color: "violet" },
+ { label: "Enrollments", value: "6", icon: BookOpen, color: "violet" },
  { label: "MRR", value: "$0", icon: DollarSign, color: "amber" },
 ];
 
@@ -201,7 +201,7 @@ export default function StylePreviewPage() {
  {[
  { label: "Manage Users", icon: Users, color: "indigo" },
  { label: "Manage Courses", icon: BookOpen, color: "emerald" },
- { label: "View Analytics", icon: GraduationCap, color: "violet" },
+ { label: "View Analytics", icon: BookOpen, color: "violet" },
  ].map((item) => {
  const Icon = item.icon;
  const c = colorMap[item.color];

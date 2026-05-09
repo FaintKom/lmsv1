@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GraduationCap, Loader2, Play, Users } from "lucide-react";
+import { BookOpen, Loader2, Play, Users } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
@@ -68,8 +68,9 @@ function DemoRunner() {
  <header className="border-b border-border bg-paper-2/60 backdrop-blur ">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <Link href="/" className="flex items-center gap-2.5">
- <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
- <GraduationCap className="h-5 w-5 text-white" />
+ <div className="relative flex h-9 w-9 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">
+ g
+ <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
  <span className="text-xl font-bold text-text ">GrassLMS</span>
  </Link>
@@ -139,7 +140,7 @@ function DemoRunner() {
  className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition-all $1:border-primary hover:shadow-md disabled:opacity-50 "
  >
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
- <GraduationCap className="h-7 w-7 text-primary " />
+ <BookOpen className="h-7 w-7 text-primary " />
  </div>
  <h2 className="text-xl font-bold text-text ">
  Try as a teacher

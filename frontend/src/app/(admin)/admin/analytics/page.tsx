@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
  Users,
  BookOpen,
- GraduationCap,
  TrendingUp,
  BarChart3,
  Target,
@@ -198,7 +197,7 @@ export default function AdminAnalyticsPage() {
  <Card className="border-l-4 border-l-emerald-400 hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-6">
  <div className="rounded-lg bg-primary-soft p-3">
- <GraduationCap className="h-5 w-5 text-primary" />
+ <BookOpen className="h-5 w-5 text-primary" />
  </div>
  <div>
  <p className="text-xs font-medium text-text-subtle ">Enrollments</p>
@@ -444,7 +443,7 @@ export default function AdminAnalyticsPage() {
  <Card>
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
- <GraduationCap className="h-4 w-4 text-warning-fg" />
+ <BookOpen className="h-4 w-4 text-warning-fg" />
  Recent Courses
  </CardTitle>
  </CardHeader>

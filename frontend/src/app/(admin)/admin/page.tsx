@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import {
   Users,
   BookOpen,
-  GraduationCap,
   DollarSign,
   ArrowRight,
   UserPlus,
@@ -511,7 +510,7 @@ export default function AdminDashboardPage() {
         <KpiCard
           label="Enrollments"
           value={stats?.total_enrollments || 0}
-          icon={GraduationCap}
+          icon={BookOpen}
           color="sun"
         />
         <KpiCard
