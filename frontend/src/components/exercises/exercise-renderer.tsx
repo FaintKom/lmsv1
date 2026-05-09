@@ -626,7 +626,7 @@ function QuizExercise({
  key={oi}
  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
  selected[q.id] === opt.text
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-border-strong text-text-muted hover:border-ink-300 "
  }`}
  >

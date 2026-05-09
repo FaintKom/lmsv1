@@ -295,7 +295,7 @@ function TemplatesTab() {
  {templates.map((course) => (
  <Card
  key={course.id}
- className="border-l-4 border-l-emerald-400 transition-shadow hover:shadow-md"
+ className="border-l-4 border-l-primary transition-shadow hover:shadow-md"
  >
  <CardContent className="p-5">
  <div className="mb-3 flex items-start justify-between">
@@ -413,7 +413,7 @@ function TemplatesTab() {
  onClick={() => toggleGroup(group.id)}
  className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
  selectedGroups.includes(group.id)
- ? "border-green-300 bg-success-soft "
+ ? "border-primary bg-success-soft "
  : "border-border-strong hover:bg-surface-2 "
  }`}
  >
@@ -603,7 +603,7 @@ function ExercisesTab() {
  <th className="px-6 py-3 text-right font-semibold text-text-muted ">Actions</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-50 ">
+ <tbody className="divide-y divide-border ">
  {exercises.map((ex) => {
  const Icon = TYPE_ICONS[ex.exercise_type];
  return (
@@ -929,7 +929,7 @@ function AssignmentsTab() {
  type="checkbox"
  checked={formAllowLate}
  onChange={(e) => setFormAllowLate(e.target.checked)}
- className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-green-500 "
+ className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary "
  />
  Allow late submissions
  </label>
@@ -973,7 +973,7 @@ function AssignmentsTab() {
  <th className="px-6 py-3 text-right font-semibold text-text-muted ">Actions</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-50 ">
+ <tbody className="divide-y divide-border ">
  {filtered.map((a) => {
  const status = deriveStatus(a);
  const courseName =

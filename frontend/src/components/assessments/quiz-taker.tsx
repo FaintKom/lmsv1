@@ -213,7 +213,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  onClick={() => setAnswers({ ...answers, [q.id]: opt.id })}
  className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
  answers[q.id] === opt.id
- ? "border-green-300 bg-success-soft text-success-fg"
+ ? "border-primary bg-success-soft text-success-fg"
  : "border-border-strong text-text-muted hover:border-ink-300 hover:bg-surface-2"
  }`}
  >
@@ -239,7 +239,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  value={answers[q.id] || ""}
  onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
  placeholder="Type your answer..."
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  )}

@@ -73,9 +73,9 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  className={`w-14 rounded-lg border-2 px-2 py-1.5 text-center text-lg font-bold outline-none ${
  checked
  ? results[key]
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-green-300 bg-paper-2 text-success-fg "
+ : "border-primary bg-paper-2 text-success-fg "
  }`}
  placeholder="?"
  />
@@ -126,9 +126,9 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  {regionKeys.map((key) => (
  <span key={key} className="flex items-center gap-1">
  <span className={`inline-block h-2.5 w-2.5 rounded-pill ${
- key === "a_only" ? "bg-green-400" :
+ key === "a_only" ? "bg-primary" :
  key === "b_only" ? "bg-sun-400" :
- key === "intersection" ? "bg-green-400" : "bg-ink-300"
+ key === "intersection" ? "bg-primary" : "bg-ink-300"
  }`} />
  {regionLabels[key]}
  </span>

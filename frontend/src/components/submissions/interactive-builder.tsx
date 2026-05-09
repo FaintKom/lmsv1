@@ -158,7 +158,7 @@ export default function InteractiveBuilder({
  onClick={() => handleTypeChange(et.value)}
  className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
  exerciseType === et.value
- ? "border-green-300 bg-success-soft text-success-fg"
+ ? "border-primary bg-success-soft text-success-fg"
  : "border-border-strong text-text-muted hover:border-ink-300"
  }`}
  >
@@ -323,7 +323,7 @@ export default function InteractiveBuilder({
  onClick={() => setCorrectAnswer(true)}
  className={`rounded-lg border px-4 py-2 text-sm font-medium ${
  correctAnswer
- ? "border-green-300 bg-success-soft text-success-fg"
+ ? "border-primary bg-success-soft text-success-fg"
  : "border-border-strong text-text-muted"
  }`}
  >

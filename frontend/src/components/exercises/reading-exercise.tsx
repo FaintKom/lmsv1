@@ -103,11 +103,11 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  i === currentQ
  ? "w-8 bg-primary"
  : submitted && results[String(i)] === true
- ? "w-2.5 bg-green-400"
+ ? "w-2.5 bg-primary"
  : submitted && results[String(i)] === false
  ? "w-2.5 bg-danger-soft"
  : answers[String(i)]?.trim()
- ? "w-2.5 bg-green-300"
+ ? "w-2.5 bg-primary-soft"
  : "w-2.5 bg-ink-200 "
  }`}
  />
@@ -152,7 +152,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  className={`w-full text-left rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all duration-200
  ${
  isCorrectOption
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : isWrongSelection
  ? "border-danger bg-danger-soft text-danger-fg "
  : isSelected
@@ -187,10 +187,10 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  className={`w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all duration-200 outline-none
  ${
  submitted && results[String(qi)] === true
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : submitted && results[String(qi)] === false
  ? "border-danger bg-danger-soft text-danger-fg "
- : "border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-green-500/20"
+ : "border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}

@@ -114,7 +114,7 @@ export default function ReviewQueuePage() {
  onClick={() => handleSelect(item)}
  className={`w-full text-left rounded-lg border p-4 transition-all ${
  selected?.id === item.id
- ? "border-green-300 bg-success-soft shadow-sm "
+ ? "border-primary bg-success-soft shadow-sm "
  : "border-border-strong bg-paper-2 hover:border-ink-300 hover:shadow-sm "
  }`}
  >
@@ -159,7 +159,7 @@ export default function ReviewQueuePage() {
  {/* Right: detail + grade form */}
  <div>
  {selected ? (
- <Card className="border-l-4 border-l-green-400">
+ <Card className="border-l-4 border-l-primary">
  <CardHeader>
  <CardTitle className="text-base">{selected.assignment_title}</CardTitle>
  <p className="text-sm text-text-muted ">

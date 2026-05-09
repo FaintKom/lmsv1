@@ -127,7 +127,7 @@ export function SearchBar() {
  {/* Search input */}
  {open && (
  <div className="relative">
- <div className="flex items-center gap-2 rounded-lg border border-green-300 bg-paper-2 px-3 py-2 shadow-sm ring-1 ring-primary-soft">
+ <div className="flex items-center gap-2 rounded-lg border border-primary bg-paper-2 px-3 py-2 shadow-sm ring-1 ring-primary-soft">
  <Search className="h-3.5 w-3.5 text-primary" />
  <input
  ref={inputRef}

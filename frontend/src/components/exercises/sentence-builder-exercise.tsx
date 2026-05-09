@@ -79,7 +79,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  <div
  className={`min-h-[80px] rounded-lg border-2 border-dashed p-5 transition-all duration-200 ${
  submitted && isCorrect === true
- ? "border-green-300 bg-success-soft/50 "
+ ? "border-primary bg-success-soft/50 "
  : submitted && isCorrect === false
  ? "border-danger bg-danger-soft/50 "
  : "border-primary-soft bg-success-soft/30 "

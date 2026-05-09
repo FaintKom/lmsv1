@@ -108,9 +108,9 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  className={`w-16 rounded-lg border-2 px-2 py-2 text-center text-sm font-bold outline-none transition-colors ${
  checked
  ? results[key]
- ? "border-green-300 bg-success-soft text-success-fg "
+ ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-green-300 bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-paper-2 text-success-fg focus:border-primary "
  }`}
  placeholder="?"
  />

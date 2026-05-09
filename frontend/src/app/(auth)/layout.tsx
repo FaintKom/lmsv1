@@ -16,7 +16,7 @@ export default function AuthLayout({
  <GraduationCap className="h-8 w-8 text-white" />
  </div>
  <h2 className="mb-3 text-3xl font-bold text-white">GrassLMS</h2>
- <p className="text-lg leading-relaxed text-green-200">
+ <p className="text-lg leading-relaxed text-white/70">
  The modern learning platform for schools and online courses.
  Programming, languages, and mathematics.
  </p>

@@ -98,7 +98,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
  value={answer || ""}
  onChange={(e) => onAnswer(e.target.value)}
  placeholder="e.g. 7 or 3/4"
- className="w-44 rounded-lg border-2 border-green-300 bg-paper-2 px-4 py-3 text-center text-xl font-bold text-success-fg outline-none focus:border-primary "
+ className="w-44 rounded-lg border-2 border-primary bg-paper-2 px-4 py-3 text-center text-xl font-bold text-success-fg outline-none focus:border-primary "
  autoFocus
  />
  </div>
@@ -583,11 +583,11 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  onClick={() => goTo(i)}
  className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
  isCurrent
- ? "bg-primary text-white ring-2 ring-green-300"
+ ? "bg-primary text-white ring-2 ring-primary"
  : isAnswered
  ? "bg-primary-soft text-success-fg "
  : "bg-ink-100 text-text-muted "
- } ${isFlagged ? "ring-2 ring-amber-400" : ""}`}
+ } ${isFlagged ? "ring-2 ring-warning" : ""}`}
  >
  {i + 1}
  </button>

@@ -73,7 +73,7 @@ export const MathBlock = Node.create({
  const showEditor = () => {
  const latex = node.attrs.latex || "";
  dom.innerHTML = "";
- dom.className = "math-block my-4 rounded-lg border-2 border-green-300 bg-surface-2 p-4 space-y-3";
+ dom.className = "math-block my-4 rounded-lg border-2 border-primary bg-surface-2 p-4 space-y-3";
 
  const textarea = document.createElement("textarea");
  textarea.value = latex;

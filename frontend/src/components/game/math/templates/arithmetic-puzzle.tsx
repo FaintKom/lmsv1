@@ -57,7 +57,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  className={`flex items-center gap-2 rounded-lg border p-3 transition-colors ${
  checked
  ? results[eqIdx]
- ? "border-green-300 bg-success-soft "
+ ? "border-primary bg-success-soft "
  : "border-danger bg-danger-soft "
  : "border-border-strong bg-surface-2 "
  }`}
@@ -75,9 +75,9 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  className={`w-14 rounded-lg border-2 bg-paper-2 px-2 py-1.5 text-center text-lg font-bold outline-none transition-colors ${
  checked
  ? results[eqIdx]
- ? "border-green-300 text-success-fg "
+ ? "border-primary text-success-fg "
  : "border-danger text-danger-fg "
- : "border-green-300 text-success-fg focus:border-primary "
+ : "border-primary text-success-fg focus:border-primary "
  }`}
  placeholder="?"
  />
