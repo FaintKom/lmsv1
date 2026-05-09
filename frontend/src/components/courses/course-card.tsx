@@ -1,13 +1,20 @@
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
 import type { Course } from "@/types/api";
 
-const CATEGORY_GRADIENTS: Record<string, string> = {
- programming: "from-green-500 to-emerald-600",
- math: "from-emerald-500 to-teal-600",
- languages: "from-amber-500 to-orange-600",
+const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
+ programming: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "</>" },
+ math: { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "Σ" },
+ algebra: { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "x²" },
+ geometry: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-700))", glyph: "△" },
+ languages: { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
+ spanish: { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
+ sat: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))", glyph: "★" },
+ science: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "⚗" },
+ python: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "Py" },
+ javascript: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--ink-900))", glyph: "JS" },
 };
+
+const DEFAULT_THEME = { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "📚" };
 
 interface CourseCardProps {
  course: Course;
@@ -15,56 +22,75 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, progress }: CourseCardProps) {
- const gradient =
- CATEGORY_GRADIENTS[course.category || ""] ||
- "from-green-500 to-emerald-600";
+ const theme = SUBJECT_THEMES[course.category || ""] || DEFAULT_THEME;
 
  return (
- <Link href={`/courses/${course.id}`}>
- <Card className="group overflow-hidden transition-all hover:shadow-lg hover:shadow-green-100 ">
+ <Link href={`/courses/${course.id}`} className="group">
+ <div className="overflow-hidden rounded-[18px] border border-border bg-paper-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
+ {/* Cover */}
  {course.thumbnail_url ? (
- <div className="h-36 overflow-hidden">
+ <div className="relative h-36 overflow-hidden">
  <img
  src={course.thumbnail_url}
  alt={course.title}
- className="h-full w-full object-cover transition-transform group-hover:scale-105"
+ className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
  />
+ <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
  </div>
  ) : (
  <div
- className={`flex h-36 items-center justify-center bg-gradient-to-br ${gradient}`}
+ className="relative flex h-36 items-end overflow-hidden p-4"
+ style={{ background: theme.gradient }}
  >
- <BookOpen className="h-10 w-10 text-white/80" />
- </div>
- )}
- <CardContent className="p-5">
+ <span className="absolute right-4 top-3 font-mono text-[32px] font-extrabold text-white/25">
+ {theme.glyph}
+ </span>
+ <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
  {course.category && (
- <span className="mb-2 inline-block rounded-pill bg-success-soft px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary ">
+ <span className="relative font-mono text-[10px] font-medium uppercase tracking-widest text-white/85">
  {course.category}
  </span>
  )}
- <h3 className="mb-1 font-semibold text-text ">{course.title}</h3>
- <p className="mb-3 line-clamp-2 text-base leading-relaxed text-text-muted ">
+ </div>
+ )}
+
+ {/* Body */}
+ <div className="p-5">
+ <h3 className="mb-1 text-[14px] font-extrabold leading-snug text-text">
+ {course.title}
+ </h3>
+ {course.description && (
+ <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-text-muted">
  {course.description}
  </p>
+ )}
  {progress !== undefined && (
  <div>
- <div className="mb-1 flex justify-between text-xs text-text-muted ">
- <span>Progress</span>
- <span className="font-semibold text-primary">
+ <div className="mb-1.5 flex justify-between">
+ <span className="font-mono text-[11px] font-bold text-primary">
  {Math.round(progress)}%
  </span>
  </div>
- <div className="h-1.5 overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100} aria-label={"Course progress: " + Math.round(progress) + "%"}>
  <div
- className="h-full rounded-pill bg-primary transition-all"
- style={{ width: `${progress}%` }}
+ className="h-[10px] overflow-hidden rounded-pill bg-ink-100"
+ role="progressbar"
+ aria-valuenow={Math.round(progress)}
+ aria-valuemin={0}
+ aria-valuemax={100}
+ aria-label={`Course progress: ${Math.round(progress)}%`}
+ >
+ <div
+ className="h-full rounded-pill transition-all duration-500"
+ style={{
+ width: `${progress}%`,
+ background: "linear-gradient(90deg, var(--green-400), var(--green-600))",
+ }}
  />
  </div>
  </div>
  )}
- </CardContent>
- </Card>
+ </div>
+ </div>
  </Link>
  );
 }

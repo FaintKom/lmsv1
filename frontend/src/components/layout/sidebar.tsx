@@ -29,6 +29,7 @@ import {
  Library,
  Calculator,
  Plug,
+ Sparkles,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -65,7 +66,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  return () => clearInterval(interval);
  }, [isAdminOrTeacher]);
 
- // Load menu visibility settings from org (admin-only endpoint)
  useEffect(() => {
  if (!isAdminOnly || !user?.org_id) return;
  apiClient
@@ -76,19 +76,20 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  .catch(() => {});
  }, [isAdminOnly, user?.org_id]);
 
- const isMenuVisible = (key: string) => menuVisibility[key] !== false; // default visible
+ const isMenuVisible = (key: string) => menuVisibility[key] !== false;
 
  const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
  { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
  { href: "/courses", label: t("nav.courses"), icon: BookOpen },
  { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
-{ href: "/paths", label: t("nav.paths"), icon: Route },
+ { href: "/paths", label: t("nav.paths"), icon: Route },
  { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
  { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
  { href: "/meetings", label: t("nav.meetings"), icon: Video },
+ { href: "/knowledge", label: "Knowledge", icon: Sparkles },
  ];
 
  const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
@@ -104,8 +105,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
  ...(isAdminOnly && isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
- // Billing hidden until payment providers connected (Prodamus/iyzico)
- // ...(isAdminOnly && isMenuVisible("billing") ? [{ href: "/admin/billing", label: t("nav.billing"), icon: CreditCard }] : []),
  ...(isSuperAdmin ? [{ href: "/admin/organizations", label: "Organizations", icon: Building2 }] : []),
  ...(isAdminOnly ? [{ href: "/admin/integrations", label: "Integrations", icon: Plug }] : []),
  ...(isAdminOnly ? [{ href: "/admin/settings", label: "Settings", icon: Settings }] : []),
@@ -125,73 +124,62 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 
  return (
  <>
- {/* Mobile backdrop */}
  {open && (
  <div
- className="fixed inset-0 z-40 bg-ink-900/40 md:hidden"
+ className="fixed inset-0 z-40 bg-ink-900/60 md:hidden"
  onClick={onClose}
  aria-hidden="true"
  />
  )}
  <aside
  className={cn(
- "fixed inset-y-0 left-0 z-50 flex h-screen w-[260px] flex-col border-r border-border-strong/60 bg-paper-2 transition-transform duration-200 ease-in-out md:static md:translate-x-0 ",
+ "rail-dark fixed inset-y-0 left-0 z-50 flex h-screen w-[240px] flex-col bg-ink-900 transition-transform duration-200 ease-in-out md:static md:translate-x-0",
  open ? "translate-x-0" : "-translate-x-full"
  )}
  >
- {/* Logo — dynamic per-org branding (P2-2) */}
- <div className="flex h-16 items-center justify-between border-b border-border px-6 ">
- <div className="flex items-center gap-2.5">
+ {/* Logo */}
+ <div className="flex items-center gap-2.5 border-b border-white/[0.08] px-4 pb-[18px] pt-[18px]">
  {branding.logo_url ? (
  <img
  src={branding.logo_url}
  alt={branding.display_name}
- className="h-8 w-8 rounded-lg object-cover"
+ className="h-8 w-8 rounded-[10px] object-cover"
  />
  ) : (
- <div
- className="flex h-8 w-8 items-center justify-center rounded-lg"
- style={{ background: branding.primary_color || "#6366f1" }}
- >
- <GraduationCap className="h-4.5 w-4.5 text-white" />
+ <div className="relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">
+ g
+ <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
  )}
- <span className="text-lg font-bold text-text ">
+ <div>
+ <span className="text-[15px] font-extrabold tracking-tight text-white">
  {branding.display_name}
  </span>
- </div>
- <div className="flex items-center gap-1">
- <NotificationBell />
- <button
- onClick={() => { onCollapse?.(); onClose?.(); }}
- className="hidden md:flex h-8 w-8 items-center justify-center rounded-lg text-text-subtle hover:bg-ink-100 hover:text-text-muted "
- title="Collapse sidebar"
- >
- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg>
- </button>
+ <span className="block font-mono text-[9px] font-medium uppercase tracking-widest text-white/50">
+ Learning Platform
+ </span>
  </div>
  </div>
 
  {/* Search — admin only */}
  {isAdminOnly && (
- <div className="border-b border-border py-3 ">
+ <div className="border-b border-white/[0.08] px-3 py-3">
  <SearchBar />
  </div>
  )}
 
  {/* Navigation */}
- <nav aria-label="Main navigation" className="flex-1 px-3 py-4">
- <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-text-subtle ">
+ <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-4 py-3">
+ <p className="mb-1.5 px-2.5 font-mono text-[10px] font-medium uppercase tracking-widest text-white/40">
  {t("nav.menu")}
  </p>
- <ul className="space-y-1" role="list">
+ <ul className="space-y-[2px]" role="list">
  {nav.map((item) => {
  const isActive =
  pathname === item.href ||
  (item.href !== "/admin" &&
  item.href !== "/dashboard" &&
  pathname.startsWith(item.href));
- // Map href -> onboarding-tour anchor so driver.js can find each link
  const tourAnchor = ({
  "/admin": "sidebar-dashboard",
  "/dashboard": "sidebar-dashboard",
@@ -210,22 +198,16 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  aria-current={isActive ? "page" : undefined}
  data-tour={tourAnchor}
  className={cn(
- "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150",
+ "flex items-center gap-[11px] rounded-[10px] px-[10px] py-[9px] text-[13px] font-semibold transition-colors duration-150",
  isActive
- ? "bg-success-soft text-success-fg shadow-sm "
- : "text-text-muted hover:bg-surface-2 hover:text-ink-700 "
+ ? "bg-primary text-white"
+ : "text-white/65 hover:bg-white/[0.05] hover:text-white"
  )}
  >
- <item.icon
- className={cn(
- "h-[18px] w-[18px]",
- isActive ? "text-primary" : "text-text-subtle"
- )}
- aria-hidden="true"
- />
+ <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
  {item.label}
  {item.badge ? (
- <span className="ml-auto rounded-pill bg-danger px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+ <span className="ml-auto rounded-pill bg-coral-500 px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-white">
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}
@@ -236,31 +218,32 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </ul>
  </nav>
 
- {/* User */}
- <div className="border-t border-border p-3 ">
+ {/* Footer */}
+ <div className="border-t border-white/[0.08] p-3">
  <OrgSwitcher />
  <div className="mb-1 flex items-center justify-between px-1">
  <LocaleSwitcher />
+ <NotificationBell />
  </div>
  <Link
  href="/profile"
- className="mb-2 flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-2 "
+ className="mb-1 flex items-center gap-[10px] rounded-[10px] px-2.5 py-2 transition-colors hover:bg-white/[0.05]"
  >
- <div className="flex h-9 w-9 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-semibold text-white shadow-sm">
+ <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-[13px] font-extrabold text-green-900">
  {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
  <div className="min-w-0 flex-1">
- <p className="truncate text-sm font-semibold text-ink-700 ">
+ <p className="truncate text-[13px] font-bold text-white">
  {user?.full_name}
  </p>
- <p className="truncate text-xs capitalize text-text-subtle ">
- {user?.role}
+ <p className="truncate font-mono text-[10px] tracking-wide text-white/50">
+ {user?.email}
  </p>
  </div>
  </Link>
  <button
  onClick={handleLogout}
- className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-text-subtle transition-colors hover:bg-danger-soft hover:text-danger-fg "
+ className="flex w-full cursor-pointer items-center gap-[11px] rounded-[10px] px-[10px] py-[9px] text-[13px] font-semibold text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/70"
  >
  <LogOut className="h-[18px] w-[18px]" />
  {t("nav.signOut")}

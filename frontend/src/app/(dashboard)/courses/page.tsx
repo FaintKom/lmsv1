@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { CourseCard } from "@/components/courses/course-card";
-import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, ArrowRight } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { Course } from "@/types/api";
 
 export default function CoursesPage() {
@@ -37,18 +35,17 @@ export default function CoursesPage() {
  return (
  <div className="mx-auto max-w-6xl">
  <div className="mb-8">
- <Skeleton className="h-8 w-40" />
- <Skeleton className="mt-2 h-4 w-64" />
+ <div className="lms-skeleton mb-2 h-8 w-40" />
+ <div className="lms-skeleton h-4 w-64" />
  </div>
  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
  {Array.from({ length: 6 }).map((_, i) => (
- <div key={i} className="rounded-lg border border-border-strong p-5 ">
- <Skeleton className="mb-4 h-40 w-full rounded-lg" />
- <Skeleton className="mb-2 h-5 w-3/4" />
- <Skeleton className="mb-4 h-4 w-full" />
- <div className="flex items-center gap-2">
- <Skeleton className="h-4 w-16" />
- <Skeleton className="h-4 w-16" />
+ <div key={i} className="overflow-hidden rounded-[18px] border border-border bg-paper-2 shadow-sm">
+ <div className="lms-skeleton h-36 w-full !rounded-none" />
+ <div className="p-5">
+ <div className="lms-skeleton mb-2 h-4 w-3/4" />
+ <div className="lms-skeleton mb-3 h-3 w-full" />
+ <div className="lms-skeleton h-[10px] w-full !rounded-pill" />
  </div>
  </div>
  ))}
@@ -60,31 +57,32 @@ export default function CoursesPage() {
  return (
  <div className="mx-auto max-w-6xl">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">Courses</h1>
- <p className="mt-1 text-base text-text-muted ">
+ <p className="mb-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-primary">
+ Catalog
+ </p>
+ <h1 className="text-[28px] font-extrabold tracking-tight text-text">Courses</h1>
+ <p className="mt-1 text-[15px] text-text-muted">
  Browse and enroll in available courses
  </p>
  </div>
  {courses.length === 0 ? (
- <Card>
- <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
- <BookOpen className="h-8 w-8 text-text-subtle " />
+ <div className="flex flex-col items-center justify-center rounded-[18px] border border-border bg-paper-2 p-16 text-center shadow-sm">
+ <div className="mb-4 rounded-full bg-ink-100 p-4">
+ <BookOpen className="h-8 w-8 text-text-subtle" />
  </div>
- <h3 className="mb-1 text-lg font-semibold text-text-muted ">
+ <h3 className="mb-1 text-lg font-bold text-text">
  No courses available
  </h3>
- <p className="mb-4 text-base text-text-muted ">
+ <p className="mb-4 text-sm text-text-muted">
  Courses will appear here once your admin publishes them.
  </p>
  <Link
  href="/dashboard"
- className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-success-fg"
+ className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover"
  >
  Back to dashboard <ArrowRight className="h-3 w-3" />
  </Link>
- </CardContent>
- </Card>
+ </div>
  ) : (
  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
  {courses.map((course) => (
