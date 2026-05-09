@@ -452,7 +452,7 @@ export default function Home() {
  Or join the waitlist for early access
  </h3>
  <p className="mb-6 text-sm text-text-muted">
- Get notified when new features launch and early-bird pricing opens.
+ Get notified when new features launch.
  </p>
  <WaitlistForm source="landing-cta" />
  </div>

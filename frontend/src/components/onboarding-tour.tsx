@@ -83,14 +83,6 @@ const STEPS = [
  },
  },
  {
- element: '[data-tour="sidebar-billing"]',
- popover: {
- title: "Billing",
- description:
- "Your current plan and invoices live here. Free for up to 10 students, upgrade when your class grows.",
- },
- },
- {
  popover: {
  title: "You're ready 🚀",
  description:

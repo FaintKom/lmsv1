@@ -1785,6 +1785,7 @@ const EXERCISE_TYPES_LIST = [
  { value: "dialogue", label: "Dialogue", icon: "💬" },
  { value: "conjugation", label: "Conjugation", icon: "📝" },
  { value: "reading", label: "Reading", icon: "📖" },
+ { value: "web_editor", label: "Web Editor", icon: "🌐" },
 ];
 
 function ExerciseBlockCreator({

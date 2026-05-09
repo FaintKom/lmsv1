@@ -73,11 +73,6 @@ export function LandingHeader() {
  </div>
  <div className="flex items-center gap-3">
  <HeaderLocaleSwitcher />
- <Link href="/pricing">
- <Button variant="ghost" size="sm">
- Pricing
- </Button>
- </Link>
  <Link href="/demo">
  <Button variant="ghost" size="sm">
  Try Demo

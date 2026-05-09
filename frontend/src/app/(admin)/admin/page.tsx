@@ -9,7 +9,6 @@ import {
  Users,
  BookOpen,
  GraduationCap,
- DollarSign,
  ArrowRight,
  UserPlus,
  Plus,
@@ -453,18 +452,6 @@ export default function AdminDashboardPage() {
  <p className="text-2xl font-bold text-text ">
  {stats?.total_enrollments || 0}
  </p>
- </div>
- </CardContent>
- </Card>
-
- <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
- <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-sun-100 p-3">
- <DollarSign className="h-5 w-5 text-warning-fg" />
- </div>
- <div>
- <p className="text-xs font-medium text-text-muted ">MRR</p>
- <p className="text-2xl font-bold text-text ">$0</p>
  </div>
  </CardContent>
  </Card>
