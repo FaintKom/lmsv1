@@ -623,33 +623,3 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
 
 // ─── Web Editor ──────────────────────────────────────────────────────
 
-export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
- const instructions = (config.instructions as string) || "";
- const starterHtml = (config.starter_html as string) || "";
- const starterCss = (config.starter_css as string) || "";
- const starterJs = (config.starter_js as string) || "";
-
- return (
-   <div className="space-y-4">
-     <div>
-       <label className={labelCls}>Instructions for Student</label>
-       <textarea value={instructions} onChange={(e) => onChange({ ...config, instructions: e.target.value })} placeholder="Describe what the student should build with HTML/CSS/JS..." rows={3} className={inputCls} />
-       <p className={hintCls}>This exercise is manually graded by the teacher after submission.</p>
-     </div>
-     <div>
-       <label className={labelCls}>Starter HTML (optional)</label>
-       <textarea value={starterHtml} onChange={(e) => onChange({ ...config, starter_html: e.target.value })} placeholder="<div>...</div>" rows={4} className={`${inputCls} font-mono text-xs`} />
-     </div>
-     <div className="grid grid-cols-2 gap-4">
-       <div>
-         <label className={labelCls}>Starter CSS (optional)</label>
-         <textarea value={starterCss} onChange={(e) => onChange({ ...config, starter_css: e.target.value })} placeholder="body { ... }" rows={4} className={`${inputCls} font-mono text-xs`} />
-       </div>
-       <div>
-         <label className={labelCls}>Starter JS (optional)</label>
-         <textarea value={starterJs} onChange={(e) => onChange({ ...config, starter_js: e.target.value })} placeholder="// starter code" rows={4} className={`${inputCls} font-mono text-xs`} />
-       </div>
-     </div>
-   </div>
- );
-}
