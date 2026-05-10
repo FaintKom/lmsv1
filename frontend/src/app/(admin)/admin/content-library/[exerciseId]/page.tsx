@@ -33,6 +33,19 @@ import {
 } from "@/lib/api/exercises";
 import { getApiError } from "@/lib/api-client";
 import dynamic from "next/dynamic";
+import {
+ TrueFalseConfigEditor,
+ FillBlanksConfigEditor,
+ MatchingConfigEditor,
+ OrderingConfigEditor,
+ CategorizeConfigEditor,
+ TranslationConfigEditor,
+ SentenceBuilderConfigEditor,
+ DialogueConfigEditor,
+ ConjugationConfigEditor,
+ ReadingConfigEditor,
+ WebEditorConfigEditor,
+} from "./exercise-config-editors";
 
 const Robot2DEditor = dynamic(
  () => import("@/components/game/robot-2d/robot-2d-editor"),
@@ -183,30 +196,50 @@ export default function ExerciseEditorPage() {
  <TestCasesEditor exerciseId={exerciseId} testCases={exercise.test_cases || []} onRefresh={fetchExercise} />
  )}
 
- {/* Interactive config (matching, ordering, etc.) */}
- {["matching", "ordering", "fill_blanks", "true_false", "categorize"].includes(exercise.exercise_type) && (
- <Card>
- <CardHeader>
- <CardTitle>Exercise Configuration</CardTitle>
- </CardHeader>
- <CardContent>
- <p className="mb-3 text-xs text-text-muted ">
- Edit the JSON configuration for this interactive exercise.
- </p>
- <textarea
- value={JSON.stringify(config, null, 2)}
- onChange={(e) => {
- try {
- setConfig(JSON.parse(e.target.value));
- } catch {
- // Allow invalid JSON while typing
- }
- }}
- rows={12}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs text-ink-700 outline-none $1:border-primary "
- />
- </CardContent>
- </Card>
+ {/* Interactive config — visual editors per type */}
+ {exercise.exercise_type === "true_false" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><TrueFalseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "fill_blanks" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><FillBlanksConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "matching" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><MatchingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "ordering" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><OrderingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "categorize" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><CategorizeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "translation" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><TranslationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "sentence_builder" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><SentenceBuilderConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "dialogue" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><DialogueConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "conjugation" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><ConjugationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "reading" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "web_editor" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
  )}
 
  {/* Game Level Editors */}
