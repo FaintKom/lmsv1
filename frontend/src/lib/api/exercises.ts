@@ -16,7 +16,8 @@ export type ExerciseType =
  | "sentence_builder"
  | "dialogue"
  | "conjugation"
- | "reading";
+ | "reading"
+ | "web_editor";
 
 export interface Exercise {
  id: string;
@@ -105,6 +106,7 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
  dialogue: "Dialogue",
  conjugation: "Conjugation",
  reading: "Reading",
+ web_editor: "Web Editor",
 };
 
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
@@ -124,6 +126,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  dialogue: "bg-lime-100 text-lime-700 ",
  conjugation: " text-text ",
  reading: "bg-primary-soft text-success-fg ",
+ web_editor: "bg-ink-100 text-ink-700 ",
 };
 
 export const exercisesApi = {

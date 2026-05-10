@@ -36,6 +36,7 @@ import {
  DialogueConfigEditor,
  ConjugationConfigEditor,
  ReadingConfigEditor,
+ WebEditorConfigEditor,
 } from "./exercise-config-editors";
 
 const Robot2DEditor = dynamic(
@@ -227,6 +228,10 @@ export default function ExerciseEditorPage() {
  {exercise.exercise_type === "reading" && (
  <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
  <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+ )}
+ {exercise.exercise_type === "web_editor" && (
+ <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+ <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
  )}
 
  {/* Game Level Editors */}
