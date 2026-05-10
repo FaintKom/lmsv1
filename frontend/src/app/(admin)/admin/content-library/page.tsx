@@ -40,6 +40,7 @@ import {
  MessageCircle,
  Table,
  BookOpenText,
+ Globe,
 } from "lucide-react";
 import {
  exercisesApi,
@@ -68,13 +69,14 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  dialogue: MessageCircle,
  conjugation: Table,
  reading: BookOpenText,
+ web_editor: Globe,
 };
 
 const ALL_TYPES: ExerciseType[] = [
  "quiz", "code_challenge", "matching", "ordering",
  "fill_blanks", "true_false", "categorize", "file_upload",
  "robot_2d", "math_interactive", "world_3d",
- "translation", "sentence_builder", "dialogue", "conjugation", "reading",
+ "translation", "sentence_builder", "dialogue", "conjugation", "reading", "web_editor",
 ];
 
 // ─── Types ───
