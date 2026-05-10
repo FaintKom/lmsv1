@@ -5,14 +5,18 @@ Handles search (vector + facet hybrid), get-by-id, list with filters.
 
 from __future__ import annotations
 
+import logging
 import os
 import uuid
 from pathlib import Path
 
 import httpx
 from sqlalchemy import and_, select, text
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
+logger = logging.getLogger(__name__)
 
 from app.knowledge.models import Entry, EntryStatus, EntryVisibility
 
@@ -156,39 +160,44 @@ async def list_entries(
     tags: list[str] | None = None,
 ) -> tuple[list[Entry], int]:
     """List entries with optional facet filters. Returns (items, total_count)."""
-    base_filter = [
-        Entry.deleted_at.is_(None),
-        Entry.status == EntryStatus.verified,
-        Entry.visibility == EntryVisibility.public,
-    ]
-    if types:
-        base_filter.append(Entry.type.in_(types))
-    if stages:
-        base_filter.append(Entry.stage.overlap(stages))
-    if audiences:
-        base_filter.append(Entry.audience.overlap(audiences))
-    if modes:
-        base_filter.append(Entry.mode.overlap(modes))
-    if problems:
-        base_filter.append(Entry.problems.overlap(problems))
-    if tags:
-        base_filter.append(Entry.tags.overlap(tags))
+    try:
+        base_filter = [
+            Entry.deleted_at.is_(None),
+            Entry.status == EntryStatus.verified,
+            Entry.visibility == EntryVisibility.public,
+        ]
+        if types:
+            base_filter.append(Entry.type.in_(types))
+        if stages:
+            base_filter.append(Entry.stage.overlap(stages))
+        if audiences:
+            base_filter.append(Entry.audience.overlap(audiences))
+        if modes:
+            base_filter.append(Entry.mode.overlap(modes))
+        if problems:
+            base_filter.append(Entry.problems.overlap(problems))
+        if tags:
+            base_filter.append(Entry.tags.overlap(tags))
 
-    # Total
-    total_q = select(Entry.id).where(*base_filter)
-    total = len((await db.execute(total_q)).scalars().all())
+        # Total
+        total_q = select(Entry.id).where(*base_filter)
+        total = len((await db.execute(total_q)).scalars().all())
 
-    # Page
-    page_q = (
-        select(Entry)
-        .options(selectinload(Entry.sources))
-        .where(*base_filter)
-        .order_by(Entry.created_at.desc())
-        .limit(limit)
-        .offset(offset)
-    )
-    items = (await db.execute(page_q)).scalars().all()
-    return list(items), total
+        # Page
+        page_q = (
+            select(Entry)
+            .options(selectinload(Entry.sources))
+            .where(*base_filter)
+            .order_by(Entry.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        items = (await db.execute(page_q)).scalars().all()
+        return list(items), total
+    except ProgrammingError as exc:
+        logger.warning("knowledge list_entries failed (table may not exist): %s", exc)
+        await db.rollback()
+        return [], 0
 
 
 async def get_entry(db: AsyncSession, entry_id: uuid.UUID) -> Entry | None:
@@ -202,28 +211,34 @@ async def get_entry(db: AsyncSession, entry_id: uuid.UUID) -> Entry | None:
 
 async def get_facet_counts(db: AsyncSession) -> dict:
     """Aggregate facet value counts for the filter sidebar."""
-    sql = text("""
-        SELECT facet, val, COUNT(*) AS n FROM (
-            SELECT 'type' AS facet, type::text AS val FROM knowledge_entries
-                WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
-            UNION ALL
-            SELECT 'stage', unnest(stage) FROM knowledge_entries
-                WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
-            UNION ALL
-            SELECT 'audience', unnest(audience) FROM knowledge_entries
-                WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
-            UNION ALL
-            SELECT 'mode', unnest(mode) FROM knowledge_entries
-                WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
-            UNION ALL
-            SELECT 'problems', unnest(problems) FROM knowledge_entries
-                WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
-        ) t
-        GROUP BY facet, val
-        ORDER BY facet, n DESC
-    """)
-    result = await db.execute(sql)
-    out: dict[str, list[dict]] = {"type": [], "stage": [], "audience": [], "mode": [], "problems": []}
-    for row in result:
-        out.setdefault(row.facet, []).append({"value": row.val, "count": row.n})
-    return out
+    empty = {"type": [], "stage": [], "audience": [], "mode": [], "problems": []}
+    try:
+        sql = text("""
+            SELECT facet, val, COUNT(*) AS n FROM (
+                SELECT 'type' AS facet, type::text AS val FROM knowledge_entries
+                    WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
+                UNION ALL
+                SELECT 'stage', unnest(stage) FROM knowledge_entries
+                    WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
+                UNION ALL
+                SELECT 'audience', unnest(audience) FROM knowledge_entries
+                    WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
+                UNION ALL
+                SELECT 'mode', unnest(mode) FROM knowledge_entries
+                    WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
+                UNION ALL
+                SELECT 'problems', unnest(problems) FROM knowledge_entries
+                    WHERE deleted_at IS NULL AND status='verified' AND visibility='public'
+            ) t
+            GROUP BY facet, val
+            ORDER BY facet, n DESC
+        """)
+        result = await db.execute(sql)
+        out: dict[str, list[dict]] = dict(empty)
+        for row in result:
+            out.setdefault(row.facet, []).append({"value": row.val, "count": row.n})
+        return out
+    except ProgrammingError as exc:
+        logger.warning("knowledge get_facet_counts failed (table may not exist): %s", exc)
+        await db.rollback()
+        return empty
