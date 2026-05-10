@@ -65,6 +65,8 @@ const en: TranslationMap = {
  "dash.browseCourses": "Browse Courses",
  "dash.recentEnrollments": "Recent Enrollments",
  "dash.viewAll": "View All",
+ "dash.welcomeBack": "Welcome back",
+ "dash.subtitle": "Here's an overview of your learning progress",
 
  // Courses
  "courses.title": "Courses",
@@ -474,6 +476,8 @@ const es: TranslationMap = {
  "dash.browseCourses": "Ver Cursos",
  "dash.recentEnrollments": "Inscripciones Recientes",
  "dash.viewAll": "Ver Todo",
+ "dash.welcomeBack": "Bienvenido de nuevo",
+ "dash.subtitle": "Aquí tienes un resumen de tu progreso de aprendizaje",
  "courses.title": "Cursos",
  "courses.search": "Buscar cursos...",
  "courses.enroll": "Inscribirse",
@@ -832,6 +836,8 @@ const ru: TranslationMap = {
  "dash.browseCourses": "Смотреть курсы",
  "dash.recentEnrollments": "Последние записи",
  "dash.viewAll": "Смотреть все",
+ "dash.welcomeBack": "С возвращением",
+ "dash.subtitle": "Обзор вашего прогресса обучения",
  "courses.title": "Курсы",
  "courses.search": "Поиск курсов...",
  "courses.enroll": "Записаться",
@@ -1200,6 +1206,8 @@ const tr: TranslationMap = {
  "dash.browseCourses": "Kurslara Göz At",
  "dash.recentEnrollments": "Son Kayıtlar",
  "dash.viewAll": "Tümünü Gör",
+ "dash.welcomeBack": "Tekrar hoş geldiniz",
+ "dash.subtitle": "Öğrenme ilerlemenize genel bir bakış",
  "courses.title": "Kurslar",
  "courses.search": "Kurs ara...",
  "courses.enroll": "Kayıt Ol",
@@ -1566,6 +1574,8 @@ const de: TranslationMap = {
  "dash.browseCourses": "Kurse durchsuchen",
  "dash.recentEnrollments": "Letzte Einschreibungen",
  "dash.viewAll": "Alle anzeigen",
+ "dash.welcomeBack": "Willkommen zurueck",
+ "dash.subtitle": "Hier ist eine Uebersicht Ihres Lernfortschritts",
 
  // Courses
  "courses.title": "Kurse",
@@ -1980,6 +1990,8 @@ const uk: TranslationMap = {
  "dash.browseCourses": "Переглянути курси",
  "dash.recentEnrollments": "Останні записи",
  "dash.viewAll": "Переглянути всі",
+ "dash.welcomeBack": "З поверненням",
+ "dash.subtitle": "Огляд вашого прогресу навчання",
 
  // Courses
  "courses.title": "Курси",
