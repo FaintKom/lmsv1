@@ -1,8 +1,8 @@
 from app.assessments.models import Question, QuestionType
 
 
-def grade_quiz(questions: list[Question], answers: list[dict]) -> tuple[float, bool, int]:
-    """Grade a quiz submission. Returns (score_percent, passed, total_points)."""
+def grade_quiz(questions: list[Question], answers: list[dict]) -> tuple[float, int]:
+    """Grade a quiz submission. Returns (score_percent, total_points)."""
     answer_map = {str(a.get("question_id")): a for a in answers}
 
     total_points = sum(q.points for q in questions)
@@ -17,7 +17,7 @@ def grade_quiz(questions: list[Question], answers: list[dict]) -> tuple[float, b
             selected = answer.get("selected_option")
             if question.options:
                 for opt in question.options:
-                    if opt.get("id") == selected and opt.get("is_correct"):
+                    if opt.get("text") == selected and opt.get("is_correct"):
                         earned_points += question.points
                         break
 

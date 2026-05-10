@@ -134,6 +134,13 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  if (data.max_reached) {
  setMaxReached(true);
  }
+ // Restore last submission result so UI shows completed state
+ if (data.last_submission && data.last_submission.passed) {
+   setResult({
+     score: data.last_submission.score,
+     passed: data.last_submission.passed,
+   });
+ }
  }).catch(() => {});
  }, [exercise.id]);
 

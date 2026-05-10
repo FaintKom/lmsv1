@@ -370,16 +370,39 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
 async def get_attempt_status(
     db: AsyncSession, exercise_id: uuid.UUID, user: User,
 ) -> dict:
-    """Get current attempt count and remaining attempts for a student."""
+    """Get current attempt count, remaining attempts, and last submission for a student."""
     exercise = await _get_exercise_with_relations(db, exercise_id)
     max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
     count = await _count_attempts(db, exercise_id, user.id)
     remaining = max(0, max_att - count)
+
+    # Fetch last submission for this student
+    last_sub = None
+    if count > 0:
+        result = await db.execute(
+            select(ExerciseSubmission)
+            .where(
+                ExerciseSubmission.exercise_id == exercise_id,
+                ExerciseSubmission.student_id == user.id,
+            )
+            .order_by(ExerciseSubmission.submitted_at.desc())
+            .limit(1)
+        )
+        sub = result.scalar_one_or_none()
+        if sub:
+            last_sub = {
+                "score": sub.score,
+                "passed": sub.passed,
+                "status": sub.status,
+                "answers": sub.answers,
+            }
+
     return {
         "attempt_count": count,
         "max_attempts": max_att,
         "attempts_remaining": remaining,
         "max_reached": count >= max_att,
+        "last_submission": last_sub,
     }
 
 
