@@ -16,7 +16,6 @@ import {
  CreditCard,
  LogOut,
  LayoutDashboard,
- TrendingUp,
  Trophy,
  Table2,
  Inbox,
@@ -28,7 +27,6 @@ import {
  Library,
  Calculator,
  Plug,
- Sparkles,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -82,13 +80,9 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  { href: "/courses", label: t("nav.courses"), icon: BookOpen },
  { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
- { href: "/paths", label: t("nav.paths"), icon: Route },
- { href: "/progress", label: t("nav.progress"), icon: TrendingUp },
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
- { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
  { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
  { href: "/meetings", label: t("nav.meetings"), icon: Video },
- { href: "/knowledge", label: "Knowledge", icon: Sparkles },
  ];
 
  const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
