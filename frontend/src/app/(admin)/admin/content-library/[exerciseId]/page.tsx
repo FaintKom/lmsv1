@@ -13,6 +13,10 @@ import {
  Trash2,
  Plus,
  Pencil,
+ Code2,
+ FormInput,
+ PanelLeftClose,
+ PanelRightClose,
 } from "lucide-react";
 import {
  exercisesApi,
@@ -39,6 +43,15 @@ import {
  WebEditorConfigEditor,
 } from "./exercise-config-editors";
 
+const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
+ ssr: false,
+ loading: () => (
+   <div className="flex items-center justify-center h-[400px] bg-ink-900 rounded-lg">
+     <span className="text-text-muted text-sm">Loading editor...</span>
+   </div>
+ ),
+});
+
 const Robot2DEditor = dynamic(
  () => import("@/components/game/robot-2d/robot-2d-editor"),
  { ssr: false }
@@ -64,6 +77,7 @@ export default function ExerciseEditorPage() {
  // Editable fields
  const [title, setTitle] = useState("");
  const [config, setConfig] = useState<Record<string, unknown>>({});
+ const [viewMode, setViewMode] = useState<"form" | "split" | "json">("split");
 
  const fetchExercise = () => {
  exercisesApi
@@ -115,8 +129,11 @@ export default function ExerciseEditorPage() {
  );
  }
 
+ const showForm = viewMode === "form" || viewMode === "split";
+ const showJson = viewMode === "json" || viewMode === "split";
+
  return (
- <div className="mx-auto max-w-4xl space-y-6 p-6">
+ <div className={`mx-auto space-y-6 p-6 ${viewMode === "split" ? "max-w-7xl" : "max-w-4xl"}`}>
  {/* Header */}
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
@@ -134,6 +151,36 @@ export default function ExerciseEditorPage() {
  </div>
  </div>
  <div className="flex items-center gap-2">
+ {/* View mode toggle */}
+ <div className="flex rounded-lg border border-border-strong p-0.5">
+   <button
+     onClick={() => setViewMode("form")}
+     className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+       viewMode === "form" ? "bg-primary-soft text-primary" : "text-text-muted hover:text-ink-700"
+     }`}
+     title="Form only"
+   >
+     <FormInput className="h-3.5 w-3.5" />
+   </button>
+   <button
+     onClick={() => setViewMode("split")}
+     className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+       viewMode === "split" ? "bg-primary-soft text-primary" : "text-text-muted hover:text-ink-700"
+     }`}
+     title="Split view"
+   >
+     <PanelRightClose className="h-3.5 w-3.5" />
+   </button>
+   <button
+     onClick={() => setViewMode("json")}
+     className={`flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+       viewMode === "json" ? "bg-primary-soft text-primary" : "text-text-muted hover:text-ink-700"
+     }`}
+     title="JSON only"
+   >
+     <Code2 className="h-3.5 w-3.5" />
+   </button>
+ </div>
  <Button
  variant="outline"
  size="sm"
@@ -149,34 +196,110 @@ export default function ExerciseEditorPage() {
  </div>
  </div>
 
- {/* Title & Config */}
+ {/* Title */}
  <Card>
  <CardHeader>
  <CardTitle>General Settings</CardTitle>
  </CardHeader>
- <CardContent className="space-y-4">
+ <CardContent>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Title</label>
+ <label className="mb-1 block text-sm font-medium text-ink-700">Title</label>
  <input
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  </div>
-
- {/* Type-specific config */}
- {exercise.exercise_type === "quiz" && (
- <QuizConfigEditor config={config} onChange={setConfig} />
- )}
- {exercise.exercise_type === "code_challenge" && (
- <CodeConfigEditor config={config} onChange={setConfig} />
- )}
- {exercise.exercise_type === "file_upload" && (
- <FileUploadConfigEditor config={config} onChange={setConfig} />
- )}
  </CardContent>
  </Card>
+
+ {/* Split-view: Form + JSON */}
+ <div className={`grid gap-6 ${viewMode === "split" ? "grid-cols-2" : "grid-cols-1"}`}>
+ {/* Form panel */}
+ {showForm && (
+   <div className="space-y-6">
+     {/* Type-specific config */}
+     {exercise.exercise_type === "quiz" && (
+       <Card><CardHeader><CardTitle>Quiz Settings</CardTitle></CardHeader>
+       <CardContent><QuizConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "code_challenge" && (
+       <Card><CardHeader><CardTitle>Code Challenge Settings</CardTitle></CardHeader>
+       <CardContent><CodeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "file_upload" && (
+       <Card><CardHeader><CardTitle>File Upload Settings</CardTitle></CardHeader>
+       <CardContent><FileUploadConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "true_false" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><TrueFalseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "fill_blanks" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><FillBlanksConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "matching" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><MatchingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "ordering" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><OrderingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "categorize" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><CategorizeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "translation" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><TranslationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "sentence_builder" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><SentenceBuilderConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "dialogue" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><DialogueConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "conjugation" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><ConjugationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "reading" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "web_editor" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "robot_2d" && (
+       <Card><CardHeader><CardTitle>2D Robot Level Editor</CardTitle></CardHeader>
+       <CardContent><Robot2DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "math_interactive" && (
+       <Card><CardHeader><CardTitle>Math Interactive Editor</CardTitle></CardHeader>
+       <CardContent><MathEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "world_3d" && (
+       <Card><CardHeader><CardTitle>3D World Level Editor</CardTitle></CardHeader>
+       <CardContent><World3DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+   </div>
+ )}
+
+ {/* JSON panel */}
+ {showJson && (
+   <div className={`${viewMode === "split" ? "sticky top-6 self-start" : ""}`}>
+     <Card className="overflow-hidden">
+       <JsonConfigPanel config={config} onChange={setConfig} />
+     </Card>
+   </div>
+ )}
+ </div>
 
  {/* Questions (quiz) */}
  {exercise.exercise_type === "quiz" && (
@@ -186,86 +309,6 @@ export default function ExerciseEditorPage() {
  {/* Test Cases (code challenge) */}
  {exercise.exercise_type === "code_challenge" && (
  <TestCasesEditor exerciseId={exerciseId} testCases={exercise.test_cases || []} onRefresh={fetchExercise} />
- )}
-
- {/* Interactive config — visual editors per type */}
- {exercise.exercise_type === "true_false" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><TrueFalseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "fill_blanks" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><FillBlanksConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "matching" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><MatchingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "ordering" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><OrderingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "categorize" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><CategorizeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "translation" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><TranslationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "sentence_builder" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><SentenceBuilderConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "dialogue" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><DialogueConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "conjugation" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><ConjugationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "reading" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
- {exercise.exercise_type === "web_editor" && (
- <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
- <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
- )}
-
- {/* Game Level Editors */}
- {exercise.exercise_type === "robot_2d" && (
- <Card>
- <CardHeader>
- <CardTitle>2D Robot Level Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <Robot2DEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
- )}
-
- {exercise.exercise_type === "math_interactive" && (
- <Card>
- <CardHeader>
- <CardTitle>Math Interactive Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <MathEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
- )}
-
- {exercise.exercise_type === "world_3d" && (
- <Card>
- <CardHeader>
- <CardTitle>3D World Level Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <World3DEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
  )}
  </div>
  );
