@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Download, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Award, Download } from "lucide-react";
 
 interface CertificateData {
  id: string;
@@ -72,15 +71,19 @@ export default function CertificatesPage() {
  {new Date(cert.issued_at).toLocaleDateString()}
  </p>
  </div>
- <a
- href={`/api/v1/certificates/${cert.id}/download`}
- target="_blank"
- rel="noopener noreferrer"
- className="flex items-center gap-1.5 rounded-lg border border-primary-soft bg-success-soft px-3 py-2 text-xs font-medium text-success-fg hover:bg-primary-soft "
+ <button
+ onClick={async () => {
+   try {
+     const { data } = await apiClient.get(`/certificates/${cert.id}/download`, { responseType: "text" });
+     const w = window.open("", "_blank");
+     if (w) { w.document.write(data); w.document.close(); }
+   } catch { /* toast handled by interceptor */ }
+ }}
+ className="flex items-center gap-1.5 rounded-lg border border-primary-soft bg-success-soft px-3 py-2 text-xs font-medium text-success-fg hover:bg-primary-soft cursor-pointer"
  >
  <Download className="h-3.5 w-3.5" />
  View
- </a>
+ </button>
  </CardContent>
  </Card>
  ))}
