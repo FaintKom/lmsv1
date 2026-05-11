@@ -6,9 +6,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
-COPY . .
-
 ENV NEXT_PUBLIC_API_URL=""
+
+COPY . .
 RUN npm run build
 
 # Stage 2: Production
