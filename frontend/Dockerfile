@@ -9,9 +9,7 @@ RUN npm ci --legacy-peer-deps
 ENV NEXT_PUBLIC_API_URL=""
 
 COPY . .
-RUN grep -n "web_editor" "src/app/(admin)/admin/content-library/page.tsx" && \
-    grep -n "web_editor" "src/lib/api/exercises.ts" && \
-    npm run build
+RUN npm run build
 
 # Stage 2: Production
 FROM node:22-alpine AS runner
