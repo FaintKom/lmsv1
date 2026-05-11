@@ -281,7 +281,32 @@ export default function ExerciseEditorPage() {
    </div>
  ) : (
    <Card className="overflow-hidden">
-     <JsonConfigPanel config={config} onChange={setConfig} />
+     <JsonConfigPanel
+       config={{
+         title,
+         exercise_type: exercise.exercise_type,
+         config,
+         ...(exercise.questions?.length ? { questions: exercise.questions.map(q => ({
+           question_text: q.question_text,
+           question_type: q.question_type,
+           options: q.options,
+           correct_answer: q.correct_answer,
+           points: q.points,
+         })) } : {}),
+         ...(exercise.test_cases?.length ? { test_cases: exercise.test_cases.map(tc => ({
+           input: tc.input,
+           expected_output: tc.expected_output,
+           is_hidden: tc.is_hidden,
+         })) } : {}),
+       }}
+       onChange={(obj) => {
+         if (typeof obj.title === "string") setTitle(obj.title);
+         const c = obj.config;
+         if (c && typeof c === "object" && !Array.isArray(c)) {
+           setConfig(c as Record<string, unknown>);
+         }
+       }}
+     />
    </Card>
  )}
 
