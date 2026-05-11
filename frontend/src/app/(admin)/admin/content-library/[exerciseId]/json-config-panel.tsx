@@ -80,7 +80,7 @@ export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelPro
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <div className="flex items-center justify-between border-b border-border px-3 py-2 bg-surface-2 rounded-t-lg">
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-text-muted" />
@@ -115,8 +115,9 @@ export default function JsonConfigPanel({ config, onChange }: JsonConfigPanelPro
         </div>
       )}
 
-      <div className="flex-1 min-h-[400px] rounded-b-lg overflow-hidden">
+      <div className="rounded-b-lg overflow-hidden">
         <Editor
+          height="500px"
           language="json"
           value={internalText}
           onChange={handleEditorChange}
