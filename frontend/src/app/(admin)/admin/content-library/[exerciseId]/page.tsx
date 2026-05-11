@@ -80,11 +80,21 @@ export default function ExerciseEditorPage() {
  quiz: { passing_score: 70 },
  code_challenge: { language: "python", time_limit_seconds: 10, memory_limit_mb: 256, starter_code: "", solution_code: "" },
  file_upload: { allowed_types: [".pdf", ".png", ".jpg", ".doc", ".docx"], max_file_mb: 50 },
+ true_false: { statement: "", correct_answer: true },
+ fill_blanks: { text: "", blanks: [] },
+ matching: { pairs: [] },
+ ordering: { items: [], correct_order: [] },
+ categorize: { categories: [] },
+ translation: { source_text: "", source_language: "English", target_language: "Russian", accepted_answers: [] },
+ sentence_builder: { correct_order: [], words: [], hint: "" },
+ dialogue: { messages: [] },
+ conjugation: { verb: "", language: "", tense: "", table: [] },
+ reading: { passage: "", questions: [] },
+ web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
  };
  const d = defaults[type];
  if (!d) return raw;
- const merged = { ...d, ...raw };
- return merged;
+ return { ...d, ...raw };
  };
 
  const fetchExercise = () => {
