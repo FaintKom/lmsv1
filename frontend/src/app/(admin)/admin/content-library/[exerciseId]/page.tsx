@@ -75,13 +75,25 @@ export default function ExerciseEditorPage() {
  const [config, setConfig] = useState<Record<string, unknown>>({});
  const [viewMode, setViewMode] = useState<"form" | "json">("form");
 
+ const applyDefaults = (type: ExerciseType, raw: Record<string, unknown>): Record<string, unknown> => {
+ const defaults: Partial<Record<ExerciseType, Record<string, unknown>>> = {
+ quiz: { passing_score: 70 },
+ code_challenge: { language: "python", time_limit_seconds: 10, memory_limit_mb: 256, starter_code: "", solution_code: "" },
+ file_upload: { allowed_types: [".pdf", ".png", ".jpg", ".doc", ".docx"], max_file_mb: 50 },
+ };
+ const d = defaults[type];
+ if (!d) return raw;
+ const merged = { ...d, ...raw };
+ return merged;
+ };
+
  const fetchExercise = () => {
  exercisesApi
  .get(exerciseId)
  .then(({ data }) => {
  setExercise(data);
  setTitle(data.title);
- setConfig(data.config || {});
+ setConfig(applyDefaults(data.exercise_type, data.config || {}));
  })
  .catch(() => toast.error("Exercise not found"))
  .finally(() => setLoading(false));
