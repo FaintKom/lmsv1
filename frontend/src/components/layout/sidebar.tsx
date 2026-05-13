@@ -97,7 +97,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
  ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
- ...(isAdminOnly && isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
+ ...(isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
  ...(isSuperAdmin ? [{ href: "/admin/organizations", label: "Organizations", icon: Building2 }] : []),
  ...(isAdminOnly ? [{ href: "/admin/integrations", label: "Integrations", icon: Plug }] : []),
  ...(isAdminOnly ? [{ href: "/admin/settings", label: "Settings", icon: Settings }] : []),
