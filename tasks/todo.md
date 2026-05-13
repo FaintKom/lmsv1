@@ -34,10 +34,15 @@
 
 - [ ] **Wire frontend export/import buttons** for course-edit page (button bar: Export PDF · Export JSON · Import JSON). Backend ready, just needs UI in `(admin)/admin/courses/[courseId]/edit/page.tsx`.
 - [ ] **Add `npm install --legacy-peer-deps`** as a Dockerfile-frontend step (already there, just confirming) and verify Sentry/React-19 peer-dep still resolves with the two new deps.
-- [ ] **Install Playwright + chromium in backend Docker image** to enable PDF export. Currently the endpoint returns 503 because the dep isn't in `pyproject.toml` (Playwright is heavyweight; not added in this push).
-- [ ] **Frontend `/courses/{id}/print` page** for Playwright to render. Should iterate modules → lessons → exercises with print-friendly CSS, honour `?variant=student|teacher`.
-- [ ] **Wire `math_stepwise` xAPI emit** — on submission, POST a Statement to `/api/v1/scorm-import/xapi/statements` so the LRS captures completion analytics from native exercises too. Currently only SCORM packages emit.
-- [ ] **F7 UI walkthrough** — certificates / ДЗ / прогресс / enrollment / knowledge / i18n / calendar. Use Playwright or Claude Preview against staging.grasslms.online with the test accounts. Capture screenshots + file bugs as discovered.
+- [x] ~~Wire frontend export/import buttons~~ — **commit `622a885`**. Three buttons in course-edit toolbar (Export JSON, Export PDF, Import JSON) using apiClient + Blob download + hidden `<input type="file">`. PDF button surfaces a clear toast when backend returns 503 (Playwright not yet installed).
+- [x] ~~Wire `math_stepwise` xAPI emit~~ — **commit `ca8351d`**. Fire-and-forget POST to `/scorm-import/xapi/statements` after every submission with verb `answered`, success/score/response/steps. Failures swallowed.
+- [ ] **Install Playwright + chromium in backend Docker image** to enable PDF export. Currently the endpoint returns 503. Steps: add `playwright>=1.49` to `backend/pyproject.toml`; in `backend/Dockerfile` after `pip install -e .` add `RUN playwright install --with-deps chromium`. Image size grows ~600 MB.
+- [ ] **Frontend `/courses/{id}/print` page** for Playwright to render. Sketch:
+  - Route group `app/(print)/courses/[courseId]/print/page.tsx` with its own minimal layout (no sidebar, no nav).
+  - Reads `?variant=student|teacher`.
+  - Fetches via apiClient (auth from localStorage — Playwright must be given a session). For the Playwright path the cleanest auth is to issue a single-use export-token query param signed with `JWT_SECRET`; backend `/courses/{id}/export?format=pdf` mints the token, Playwright passes it via cookie/header.
+  - Renders modules → lessons → exercises top-to-bottom with `@media print` rules hiding any remaining interactive controls. Variant=teacher includes answer keys.
+- [ ] **F7 UI walkthrough** — certificates / ДЗ / прогресс / enrollment / knowledge / i18n / calendar. Use Playwright or Claude Preview against staging.grasslms.online with the test accounts. Capture screenshots + file bugs as discovered. Requires owner-supplied test-account credentials in the harness.
 - [ ] **Math follow-ups** (from `docs/RESEARCH_advanced_math.md`):
   - [ ] `math_system` exercise type (linear systems + Plotly visual)
   - [ ] `<MathPlot>` TipTap inline block for graphs
