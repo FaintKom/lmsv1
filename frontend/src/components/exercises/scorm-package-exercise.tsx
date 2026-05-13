@@ -226,13 +226,22 @@ export function SCORMPackageRenderer({
 
  if (cleaned) return;
 
- // 2. Preflight: hit imsmanifest.xml with ?token= to set the
+ // 2. Preflight: hit a known file with ?token= to set the
  //    scorm_access cookie, then load the launch URL clean.
+ //    xAPI uses tincan.xml; SCORM uses imsmanifest.xml.
+ //    If manifest 404s, retry with the launch URL itself.
+ const manifest = cfg.format === "xapi" ? "tincan.xml" : "imsmanifest.xml";
  try {
- await fetch(
- `${filesBase}imsmanifest.xml?token=${encodeURIComponent(token)}`,
+ let res = await fetch(
+ `${filesBase}${manifest}?token=${encodeURIComponent(token)}`,
  { credentials: "include" },
  );
+ if (!res.ok && manifest !== cfg.launch_url) {
+ res = await fetch(
+   `${filesBase}${cfg.launch_url}?token=${encodeURIComponent(token)}`,
+   { credentials: "include" },
+ );
+ }
  if (cleaned) return;
  setIframeSrc(`${filesBase}${cfg.launch_url}`);
  } catch {
