@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
@@ -85,6 +85,22 @@ export default function LessonViewerPage() {
   starter_code: string | null;
   test_cases: { id: string; input: string; expected_output: string }[];
  } | null>(null);
+ const footerSentinelRef = useRef<HTMLDivElement>(null);
+ const [footerVisible, setFooterVisible] = useState(false);
+
+ useEffect(() => {
+  const el = footerSentinelRef.current;
+  if (!el) return;
+  let scrollParent: HTMLElement | null = el.parentElement;
+  while (scrollParent) {
+   const ov = getComputedStyle(scrollParent).overflowY;
+   if ((ov === "auto" || ov === "scroll") && scrollParent.scrollHeight > scrollParent.clientHeight) break;
+   scrollParent = scrollParent.parentElement;
+  }
+  const obs = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting), { root: scrollParent, threshold: 0 });
+  obs.observe(el);
+  return () => obs.disconnect();
+ }, [loading]);
 
  // Build flat lesson list for prev/next navigation
  const allLessons: { lesson: Lesson; moduleId: string }[] = [];
@@ -541,10 +557,16 @@ export default function LessonViewerPage() {
        </div>
       )}
      </div>
+
+     {/* Sentinel — triggers footer when scrolled into view */}
+     <div ref={footerSentinelRef} className="h-px" />
     </div>
 
-    {/* ── Sticky footer nav ─────────────────────────────────────── */}
-    <div className="sticky bottom-0 flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 md:px-14">
+    {/* ── Footer nav — visible only when scrolled to bottom ──── */}
+    <div className={cn(
+     "flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 transition-opacity duration-200 md:px-14",
+     footerVisible ? "opacity-100" : "pointer-events-none h-0 overflow-hidden opacity-0"
+    )}>
      {isCompleted && (
       <div className="flex items-center gap-2 text-xs font-semibold text-green-700">
        <span className="h-[7px] w-[7px] rounded-full bg-green-500" />
