@@ -18,7 +18,7 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Cookie, Depends, File, HTTPException, Query, Request, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -223,14 +223,16 @@ async def get_package(
     return pkg
 
 
-async def _get_user_from_token_param(
-    token: str | None = Query(None, alias="token"),
-    db: AsyncSession = Depends(get_db),
-) -> User:
-    """Authenticate via `?token=<jwt>` query param (for iframe src URLs)."""
-    if not token:
+def _resolve_scorm_token(token_param: str | None, cookie_val: str | None) -> str:
+    """Pick the JWT from query param or cookie, preferring query param."""
+    tok = token_param or cookie_val
+    if not tok:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
-    payload = decode_token(token)
+    return tok
+
+
+async def _validate_jwt_to_user(tok: str, db: AsyncSession) -> User:
+    payload = decode_token(tok)
     if not payload or payload.get("type") != "access":
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
     user_id = payload.get("sub")
@@ -246,14 +248,20 @@ async def _get_user_from_token_param(
 async def serve_package_file(
     pkg_id: uuid.UUID,
     path: str,
-    user: User = Depends(_get_user_from_token_param),
+    request: Request,
+    token: str | None = Query(None),
+    scorm_access: str | None = Cookie(None),
     db: AsyncSession = Depends(get_db),
 ) -> FileResponse:
     """Serve a single file from an extracted package. Used by the iframe.
 
-    Auth via `?token=<jwt>` query param because iframes cannot send
-    Authorization headers.
+    Auth: the launch URL carries `?token=<jwt>` and sets a cookie so
+    that sub-resources (JS, CSS, images) loaded by the SCORM content
+    authenticate transparently without query params.
     """
+    tok = _resolve_scorm_token(token, scorm_access)
+    user = await _validate_jwt_to_user(tok, db)
+
     pkg = await db.get(ImportedSCORMPackage, pkg_id)
     if not pkg or pkg.org_id != user.org_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
@@ -262,7 +270,19 @@ async def serve_package_file(
     target = _safe_join(_scorm_root() / str(pkg.id), path)
     if not target.exists() or not target.is_file():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File not in package")
-    return FileResponse(target)
+
+    response = FileResponse(target)
+    if token:
+        response.set_cookie(
+            key="scorm_access",
+            value=token,
+            httponly=True,
+            secure=True,
+            samesite="strict",
+            path=f"/api/v1/scorm-import/packages/{pkg_id}/files/",
+            max_age=1800,
+        )
+    return response
 
 
 def _extract_verb_object(stmt: dict) -> tuple[str, str, str | None]:
