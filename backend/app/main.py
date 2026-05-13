@@ -67,6 +67,7 @@ from app.recommendations.router import router as recommendations_router
 from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
 from app.scorm.router import router as scorm_router
+from app.scorm_import.router import router as scorm_import_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router
@@ -306,6 +307,7 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.scorm.models  # noqa
+    import app.scorm_import.models  # noqa
     import app.plagiarism.models  # noqa
     import app.peer_review.models  # noqa
     import app.team_projects.models  # noqa
@@ -466,6 +468,7 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
+    app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
     app.include_router(plagiarism_router, prefix="/api/v1/admin/plagiarism", tags=["Plagiarism"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
