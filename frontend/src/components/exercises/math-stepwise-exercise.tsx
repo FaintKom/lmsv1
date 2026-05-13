@@ -218,7 +218,7 @@ interface StepRow {
 }
 
 export function MathStepwiseRenderer({
- exerciseId: _exerciseId,
+ exerciseId,
  config,
  onSubmit,
 }: {
@@ -227,6 +227,43 @@ export function MathStepwiseRenderer({
  onSubmit: (body: Record<string, unknown>) => void;
 }) {
  const cfg = config as MathStepwiseConfig;
+ // Best-effort xAPI emit to the internal LRS. Never blocks submission;
+ // failures are swallowed so a brief network blip doesn't void the
+ // student's actual exercise submission. Verb IRIs follow ADL's xAPI
+ // 1.0.3 verb registry.
+ const emitXapi = async (success: boolean, response: string, steps: string[]) => {
+ try {
+ await apiClient.post("/scorm-import/xapi/statements", {
+ exercise_id: exerciseId,
+ statement: {
+ verb: {
+ id: "http://adlnet.gov/expapi/verbs/answered",
+ display: { "en-US": "answered" },
+ },
+ object: {
+ objectType: "Activity",
+ id: `grasslms://exercises/${exerciseId}`,
+ definition: {
+ name: { "en-US": "Math step-by-step" },
+ type: "http://adlnet.gov/expapi/activities/cmi.interaction",
+ interactionType: "fill-in",
+ },
+ },
+ result: {
+ success,
+ completion: true,
+ response,
+ score: { scaled: success ? 1.0 : 0.0 },
+ extensions: {
+ "https://grasslms.online/xapi/extensions/steps": steps,
+ },
+ },
+ },
+ });
+ } catch {
+ // swallow; analytics is best-effort
+ }
+ };
  const [steps, setSteps] = useState<StepRow[]>([{ value: "", status: "pending" }]);
  const [finalAnswer, setFinalAnswer] = useState("");
  const [checking, setChecking] = useState(false);
@@ -296,14 +333,17 @@ export function MathStepwiseRenderer({
  toast.error("Enter your final answer");
  return;
  }
+ const stepValues = steps.map((s) => s.value);
  if (!expected) {
- // No expected answer set — just submit the trace.
+ // No expected answer set — submit the trace and emit a neutral xAPI
+ // statement (success=true since we can't disprove it).
  onSubmit({
  interactive_answers: {
  final_answer: finalAnswer,
- steps: steps.map((s) => s.value),
+ steps: stepValues,
  },
  });
+ void emitXapi(true, finalAnswer, stepValues);
  return;
  }
  setChecking(true);
@@ -316,10 +356,11 @@ export function MathStepwiseRenderer({
  onSubmit({
  interactive_answers: {
  final_answer: finalAnswer,
- steps: steps.map((s) => s.value),
+ steps: stepValues,
  correct: data.correct,
  },
  });
+ void emitXapi(Boolean(data.correct), finalAnswer, stepValues);
  if (data.correct) {
  toast.success("Correct!");
  } else {
