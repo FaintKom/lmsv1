@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
@@ -43,6 +43,7 @@ import {
  Users,
  UserPlus,
  Eye,
+ Download,
  Settings2,
  ClipboardList,
  ExternalLink,
@@ -452,6 +453,83 @@ export default function CourseEditorPage() {
  }
  };
 
+ // ─── Export / Import ─────────────────────────────────────────────────
+
+ const importFileRef = useRef<HTMLInputElement | null>(null);
+
+ const downloadBlob = (data: Blob, filename: string) => {
+ const url = URL.createObjectURL(data);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = filename;
+ a.click();
+ URL.revokeObjectURL(url);
+ };
+
+ const handleExportJson = async () => {
+ try {
+ const { data } = await apiClient.get(
+ `/courses/${courseId}/export?format=json&variant=teacher`,
+ { responseType: "blob" }
+ );
+ const slug = course?.slug || "course";
+ downloadBlob(data as Blob, `${slug}-teacher.json`);
+ toast.success("Course JSON downloaded");
+ } catch (e) {
+ const err = e as { response?: { status?: number } };
+ if (err.response?.status === 403) {
+ toast.error("You don't have permission to export this course");
+ } else {
+ toast.error("Export failed");
+ }
+ }
+ };
+
+ const handleExportPdf = async () => {
+ try {
+ const { data } = await apiClient.get(
+ `/courses/${courseId}/export?format=pdf&variant=teacher`,
+ { responseType: "blob" }
+ );
+ const slug = course?.slug || "course";
+ downloadBlob(data as Blob, `${slug}-teacher.pdf`);
+ toast.success("Course PDF downloaded");
+ } catch (e) {
+ const err = e as { response?: { status?: number; data?: { detail?: string } } };
+ if (err.response?.status === 503) {
+ toast.error(
+ "PDF export not yet enabled on the server (Playwright needs to be installed)."
+ );
+ } else {
+ toast.error(err.response?.data?.detail || "PDF export failed");
+ }
+ }
+ };
+
+ const handleImportJson = async (file: File) => {
+ if (!file.name.toLowerCase().endsWith(".json")) {
+ toast.error("Pick a .json file produced by `Export JSON`");
+ return;
+ }
+ try {
+ const text = await file.text();
+ const body = JSON.parse(text);
+ const { data } = await apiClient.post<{
+ id: string;
+ slug: string;
+ title: string;
+ module_count: number;
+ }>("/courses/import", body);
+ toast.success(
+ `Imported "${data.title}" (${data.module_count} module${data.module_count === 1 ? "" : "s"})`
+ );
+ router.push(`/admin/courses/${data.id}/edit`);
+ } catch (e) {
+ const err = e as { response?: { data?: { detail?: string } } };
+ toast.error(err.response?.data?.detail || "Import failed (check the JSON schema)");
+ }
+ };
+
  // Module actions
  const handleAddModule = async () => {
  if (!newModuleTitle.trim()) return;
@@ -800,6 +878,33 @@ export default function CourseEditorPage() {
  >
  <Eye className="mr-1 h-4 w-4" />
  Preview
+ </Button>
+ <Button variant="outline" onClick={handleExportJson} title="Download course as JSON (re-importable)">
+ <Download className="mr-1 h-4 w-4" />
+ Export JSON
+ </Button>
+ <Button variant="outline" onClick={handleExportPdf} title="Download course as PDF (teacher variant)">
+ <Download className="mr-1 h-4 w-4" />
+ Export PDF
+ </Button>
+ <input
+ ref={importFileRef}
+ type="file"
+ accept=".json,application/json"
+ className="hidden"
+ onChange={(e) => {
+ const f = e.target.files?.[0];
+ if (f) void handleImportJson(f);
+ e.target.value = "";
+ }}
+ />
+ <Button
+ variant="outline"
+ onClick={() => importFileRef.current?.click()}
+ title="Import a previously-exported course JSON"
+ >
+ <Upload className="mr-1 h-4 w-4" />
+ Import JSON
  </Button>
  {course.status === "draft" && (
  <Button variant="outline" onClick={handlePublish}>
