@@ -18,7 +18,7 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -26,6 +26,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User, UserRole
+from app.auth.security import decode_token
+from app.auth.service import get_user_by_id
 from app.config import settings
 from app.db.session import get_db
 from app.scorm_import.models import (
@@ -221,14 +223,37 @@ async def get_package(
     return pkg
 
 
+async def _get_user_from_token_param(
+    token: str | None = Query(None, alias="token"),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Authenticate via `?token=<jwt>` query param (for iframe src URLs)."""
+    if not token:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "access":
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token payload")
+    user = await get_user_by_id(db, uuid.UUID(user_id))
+    if not user.is_active:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account is deactivated")
+    return user
+
+
 @router.get("/packages/{pkg_id}/files/{path:path}")
 async def serve_package_file(
     pkg_id: uuid.UUID,
     path: str,
-    user: User = Depends(get_current_user),
+    user: User = Depends(_get_user_from_token_param),
     db: AsyncSession = Depends(get_db),
 ) -> FileResponse:
-    """Serve a single file from an extracted package. Used by the iframe."""
+    """Serve a single file from an extracted package. Used by the iframe.
+
+    Auth via `?token=<jwt>` query param because iframes cannot send
+    Authorization headers.
+    """
     pkg = await db.get(ImportedSCORMPackage, pkg_id)
     if not pkg or pkg.org_id != user.org_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")

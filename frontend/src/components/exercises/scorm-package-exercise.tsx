@@ -249,7 +249,11 @@ export function SCORMPackageRenderer({
  );
  }
 
- const src = `/api/v1/scorm-import/packages/${cfg.package_id}/files/${cfg.launch_url}`;
+ const token = typeof window !== "undefined"
+ ? localStorage.getItem("access_token") || localStorage.getItem("token") || ""
+ : "";
+ const sep = cfg.launch_url?.includes("?") ? "&" : "?";
+ const src = `/api/v1/scorm-import/packages/${cfg.package_id}/files/${cfg.launch_url}${sep}token=${encodeURIComponent(token)}`;
 
  return (
  <div className="space-y-3">
