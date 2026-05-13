@@ -16,13 +16,14 @@ ASCII or already-converted strings.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sympy import Eq, S, Symbol, expand, factor, simplify, solveset, sympify
+from sympy import Eq, S, Symbol, expand, factor, simplify, solveset
 from sympy.parsing.sympy_parser import (
     convert_xor,
     implicit_multiplication_application,
@@ -36,11 +37,37 @@ from app.auth.models import User
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+_MAX_EXPR_LEN = 500
+_SAFE_EXPR = re.compile(
+    r"^[0-9a-zA-Zа-яА-ЯёЁ\s\+\-\*\/\^\(\)\[\]\{\}\.\,\=\_\|]+$"
+)
+_SAFE_VARIABLE = re.compile(r"^[a-zA-Z]\w{0,15}$")
 
 _TR = standard_transformations + (
     implicit_multiplication_application,
     convert_xor,
 )
+
+_ALLOWED_NAMES = {
+    c: Symbol(c) for c in "abcdefghijklmnopqrstuvwxyz"
+}
+
+
+def _sanitize(s: str) -> str:
+    """Reject expressions that could trigger code execution in SymPy's eval."""
+    if len(s) > _MAX_EXPR_LEN:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            f"Expression too long (max {_MAX_EXPR_LEN} chars)",
+        )
+    if "__" in s or "import" in s or "eval" in s or "exec" in s:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Forbidden token in expression")
+    if not _SAFE_EXPR.match(s):
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Expression contains disallowed characters",
+        )
+    return s
 
 
 def _parse(s: str):
@@ -50,8 +77,15 @@ def _parse(s: str):
     """
     if not s or not isinstance(s, str):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Expression is empty")
+    s = _sanitize(s.strip())
     try:
-        return parse_expr(s, transformations=_TR, evaluate=True)
+        return parse_expr(
+            s,
+            local_dict=_ALLOWED_NAMES,
+            global_dict={},
+            transformations=_TR,
+            evaluate=True,
+        )
     except (SyntaxError, ValueError, TypeError) as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Cannot parse '{s}': {e}")
 
@@ -76,7 +110,7 @@ def _are_equivalent(a, b) -> bool:
             return False
 
 
-_ALT_SEP = re.compile(r"\s*(?:or|\bили\b|,|;)\s*", re.IGNORECASE)
+_ALT_SEP = re.compile(r"\s*(?:or|или|,|;)\s*", re.IGNORECASE | re.UNICODE)
 
 
 def _parse_answer_set(s: str) -> set:
@@ -97,8 +131,9 @@ def _parse_answer_set(s: str) -> set:
         if m:
             p = m.group(1).strip()
         try:
-            out.add(sympify(_parse(p)))
-        except HTTPException:
+            out.add(_parse(p))
+        except HTTPException as e:
+            logger.warning("_parse_answer_set: skipping part %r: %s", p, e.detail)
             continue
     return out
 
@@ -157,12 +192,25 @@ class StepsOut(BaseModel):
 # ─── Endpoints ──────────────────────────────────────────────────────────
 
 
+def _validated_symbol(name: str | None) -> Symbol:
+    v = (name or "x").strip()
+    if not _SAFE_VARIABLE.match(v):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Invalid variable name: {v!r}")
+    return Symbol(v)
+
+
+async def _in_thread(fn, *args):
+    """Run blocking SymPy work off the event loop."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, fn, *args)
+
+
 @router.post("/validate-step", response_model=ValidateStepOut)
 async def validate_step(body: ValidateStepIn, user: User = Depends(get_current_user)) -> ValidateStepOut:
     """True iff `new_expression` is algebraically equivalent to `prev_expression`."""
     a = _parse(body.prev_expression)
     b = _parse(body.new_expression)
-    eq = _are_equivalent(a, b)
+    eq = await _in_thread(_are_equivalent, a, b)
     return ValidateStepOut(
         equivalent=eq,
         note=None if eq else "Not equivalent — expand both sides and re-check.",
@@ -183,9 +231,10 @@ async def check_answer(body: CheckAnswerIn, user: User = Depends(get_current_use
 
 @router.post("/solve", response_model=SolveOut)
 async def solve_equation(body: SolveIn, user: User = Depends(get_current_user)) -> SolveOut:
-    var = Symbol(body.variable or "x")
+    var = _validated_symbol(body.variable)
     eq = _parse_equation(body.equation)
-    try:
+
+    def _solve():
         sol = solveset(eq, var, domain=S.Complexes)
         sols: list[str] = []
         try:
@@ -193,6 +242,10 @@ async def solve_equation(body: SolveIn, user: User = Depends(get_current_user)) 
                 sols.append(str(s))
         except TypeError:
             sols = [str(sol)]
+        return sols
+
+    try:
+        sols = await _in_thread(_solve)
         return SolveOut(solutions=sols, equation=str(eq))
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Cannot solve: {e}")
@@ -201,13 +254,15 @@ async def solve_equation(body: SolveIn, user: User = Depends(get_current_user)) 
 @router.post("/factor", response_model=FactorOut)
 async def factor_expression(body: ExpressionIn, user: User = Depends(get_current_user)) -> FactorOut:
     expr = _parse(body.expression)
-    return FactorOut(factored=str(factor(expr)))
+    result = await _in_thread(lambda: str(factor(expr)))
+    return FactorOut(factored=result)
 
 
 @router.post("/simplify", response_model=SimplifyOut)
 async def simplify_expression(body: ExpressionIn, user: User = Depends(get_current_user)) -> SimplifyOut:
     expr = _parse(body.expression)
-    return SimplifyOut(simplified=str(simplify(expr)))
+    result = await _in_thread(lambda: str(simplify(expr)))
+    return SimplifyOut(simplified=result)
 
 
 @router.post("/steps", response_model=StepsOut)
@@ -220,23 +275,28 @@ async def equation_steps(body: SolveIn, user: User = Depends(get_current_user)) 
         2. Factor / expand as appropriate
         3. State the solutions
     """
-    var = Symbol(body.variable or "x")
+    var = _validated_symbol(body.variable)
     eq = _parse_equation(body.equation)
-    steps: list[dict[str, Any]] = []
-    canonical = eq.lhs - eq.rhs
-    steps.append({"description": "Move all terms to one side", "expression": f"{canonical} = 0"})
-    factored = factor(canonical)
-    if factored != canonical:
-        steps.append({"description": "Factor the expression", "expression": f"{factored} = 0"})
-    try:
-        sols = list(solveset(Eq(canonical, 0), var, domain=S.Complexes))
-        if sols:
-            steps.append(
-                {
-                    "description": "Solutions",
-                    "expression": ", ".join(f"{var} = {s}" for s in sols),
-                }
-            )
-    except Exception:
-        pass
+
+    def _compute_steps():
+        steps: list[dict[str, Any]] = []
+        canonical = eq.lhs - eq.rhs
+        steps.append({"description": "Move all terms to one side", "expression": f"{canonical} = 0"})
+        factored = factor(canonical)
+        if factored != canonical:
+            steps.append({"description": "Factor the expression", "expression": f"{factored} = 0"})
+        try:
+            sols = list(solveset(Eq(canonical, 0), var, domain=S.Complexes))
+            if sols:
+                steps.append(
+                    {
+                        "description": "Solutions",
+                        "expression": ", ".join(f"{var} = {s}" for s in sols),
+                    }
+                )
+        except Exception:
+            pass
+        return steps
+
+    steps = await _in_thread(_compute_steps)
     return StepsOut(steps=steps)

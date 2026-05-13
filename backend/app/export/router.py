@@ -52,6 +52,7 @@ def _strip_for_student(exercise_dict: dict) -> dict:
         for key in (
             "correct_answer",
             "final_answer",
+            "solution",
             "solution_code",
             "accepted_answers",
             "expected_steps",

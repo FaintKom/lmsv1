@@ -50,10 +50,14 @@ def _scorm_root() -> Path:
     return root
 
 
+_MAX_UNCOMPRESSED = 500 * 1024 * 1024  # 500 MB
+_MAX_ZIP_ENTRIES = 5000
+
+
 def _safe_join(base: Path, rel: str) -> Path:
     """Resolve `rel` against `base` and refuse any path that escapes."""
     target = (base / rel).resolve()
-    if not str(target).startswith(str(base.resolve())):
+    if not target.is_relative_to(base.resolve()):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid path")
     return target
 
@@ -161,7 +165,7 @@ async def upload_package(
         org_id=user.org_id,
         exercise_id=exercise_id,
         uploaded_by=user.id,
-        original_filename=file.filename,
+        original_filename=(file.filename or "")[:255],
         status=ImportedSCORMStatus.pending,
     )
     db.add(pkg)
@@ -171,8 +175,21 @@ async def upload_package(
     extract_dir.mkdir(parents=True, exist_ok=True)
     try:
         with zipfile.ZipFile(io.BytesIO(raw)) as zf:
-            for member in zf.namelist():
-                if member.startswith("/") or ".." in Path(member).parts:
+            names = zf.namelist()
+            if len(names) > _MAX_ZIP_ENTRIES:
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    f"Too many zip entries ({len(names)} > {_MAX_ZIP_ENTRIES})",
+                )
+            total_uncompressed = sum(info.file_size for info in zf.infolist())
+            if total_uncompressed > _MAX_UNCOMPRESSED:
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    f"Uncompressed size {total_uncompressed} exceeds {_MAX_UNCOMPRESSED} bytes",
+                )
+            for member in names:
+                normalized = member.replace("\\", "/")
+                if normalized.startswith("/") or ".." in Path(normalized).parts:
                     raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Unsafe zip entry: {member}")
             zf.extractall(extract_dir)
         fmt, launch, manifest, title = _detect_format(extract_dir)
@@ -205,9 +222,6 @@ async def get_package(
     return pkg
 
 
-_SAFE_PATH = re.compile(r"^[A-Za-z0-9._/\- ()]+$")
-
-
 @router.get("/packages/{pkg_id}/files/{path:path}")
 async def serve_package_file(
     pkg_id: uuid.UUID,
@@ -221,8 +235,6 @@ async def serve_package_file(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
     if pkg.status != ImportedSCORMStatus.extracted:
         raise HTTPException(status.HTTP_409_CONFLICT, "Package not extracted yet")
-    if not _SAFE_PATH.fullmatch(path):
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsafe path")
     target = _safe_join(_scorm_root() / str(pkg.id), path)
     if not target.exists() or not target.is_file():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File not in package")
@@ -280,14 +292,14 @@ async def list_package_statements(
     pkg = await db.get(ImportedSCORMPackage, pkg_id)
     if not pkg or pkg.org_id != user.org_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
-    if user.role == UserRole.student and pkg.uploaded_by != user.id:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Students see only their own attempts")
     q = (
         select(XAPIStatement)
         .where(XAPIStatement.imported_package_id == pkg.id)
         .order_by(XAPIStatement.stored_at.desc())
         .limit(500)
     )
+    if user.role == UserRole.student:
+        q = q.where(XAPIStatement.actor_id == user.id)
     result = await db.execute(q)
     return result.scalars().all()
 
