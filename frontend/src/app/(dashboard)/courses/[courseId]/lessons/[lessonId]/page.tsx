@@ -472,23 +472,34 @@ export default function LessonViewerPage() {
       )}
      </div>
 
-     {/* Exercises — full-width section (legacy v1 only) */}
-     {lesson.content?.version !== 2 && exercises.length > 0 && (
-      <div className="mb-8 space-y-6 px-2 sm:px-6">
-       <h2 className="mx-auto max-w-[720px] text-[21px] font-bold tracking-tight text-text">
-        Exercises
-       </h2>
-       {exercises.map((ex) => (
-        <ExerciseRenderer
-         key={ex.id}
-         exercise={ex as any}
-         courseId={courseId}
-         prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
-         nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
-        />
-       ))}
-      </div>
-     )}
+     {/* Exercises — show exercises not already embedded in v2 blocks */}
+     {(() => {
+      const blockExIds = new Set(
+       (lesson.content?.blocks || [])
+        .filter((b: any) => b.type === "exercise" && b.exercise_id)
+        .map((b: any) => b.exercise_id)
+      );
+      const orphaned = lesson.content?.version === 2
+       ? exercises.filter((ex) => !blockExIds.has(ex.id))
+       : exercises;
+      if (orphaned.length === 0) return null;
+      return (
+       <div className="mb-8 space-y-6 px-2 sm:px-6">
+        <h2 className="mx-auto max-w-[720px] text-[21px] font-bold tracking-tight text-text">
+         Exercises
+        </h2>
+        {orphaned.map((ex) => (
+         <ExerciseRenderer
+          key={ex.id}
+          exercise={ex as any}
+          courseId={courseId}
+          prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
+          nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
+         />
+        ))}
+       </div>
+      );
+     })()}
 
      {/* Complete button — only when no exercises */}
      <div className="mx-auto max-w-[720px]">
