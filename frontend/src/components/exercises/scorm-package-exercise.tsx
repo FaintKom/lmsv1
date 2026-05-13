@@ -199,36 +199,19 @@ export function SCORMPackageRenderer({
 
  const filesBase = `/api/v1/scorm-import/packages/${cfg.package_id}/files/`;
 
- // Preflight: hit imsmanifest.xml with ?token= to set the scorm_access
- // cookie, then load the real launch URL without the token so SCORM
- // content's own query params stay intact.
- fetch(`${filesBase}imsmanifest.xml?token=${encodeURIComponent(token)}`, {
- credentials: "include",
- })
- .then(() => {
+ async function boot() {
+ // 1. Set up scorm-again CMI bridge BEFORE the iframe loads so
+ //    window.API exists when SCORM content calls LMSInitialize.
+ try {
+ const mod = (await import("scorm-again")) as unknown as ScormAgainModule;
  if (cleaned) return;
- setIframeSrc(`${filesBase}${cfg.launch_url}`);
- })
- .catch(() => {
- if (cleaned) return;
- // Fallback: append token directly (may break some SCORM content)
- const sep = cfg.launch_url!.includes("?") ? "&" : "?";
- setIframeSrc(`${filesBase}${cfg.launch_url}${sep}token=${encodeURIComponent(token)}`);
- });
-
- // scorm-again is added to package.json; the dynamic import is wrapped
- // in .catch() so it still degrades cleanly if the dep is missing.
- import("scorm-again")
- .then((mod: unknown) => {
- if (cleaned) return;
- const m = mod as ScormAgainModule;
  const fmt = cfg.format || "scorm12";
- const Ctor = fmt === "scorm2004" ? m.Scorm2004API : m.Scorm12API;
+ const Ctor = fmt === "scorm2004" ? mod.Scorm2004API : mod.Scorm12API;
  const api = new Ctor({
  autocommit: true,
  autocommit_seconds: 30,
  logLevel: 3,
- lmsCommitUrl: `/api/v1/scorm-import/packages/${cfg.package_id}/statements`,
+ lmsCommitUrl: `/api/v1/scorm-import/packages/${cfg.package_id}/commit`,
  sendBeaconCommit: false,
  alwaysSendTotalTime: true,
  });
@@ -236,11 +219,32 @@ export function SCORMPackageRenderer({
  w.API = api;
  w.API_1484_11 = api;
  apiRef.current = api;
- })
- .catch(() => {
+ } catch {
  // eslint-disable-next-line no-console
  console.warn("[scorm-again] dep not installed; running without CMI bridge");
- });
+ }
+
+ if (cleaned) return;
+
+ // 2. Preflight: hit imsmanifest.xml with ?token= to set the
+ //    scorm_access cookie, then load the launch URL clean.
+ try {
+ await fetch(
+ `${filesBase}imsmanifest.xml?token=${encodeURIComponent(token)}`,
+ { credentials: "include" },
+ );
+ if (cleaned) return;
+ setIframeSrc(`${filesBase}${cfg.launch_url}`);
+ } catch {
+ if (cleaned) return;
+ const sep = cfg.launch_url!.includes("?") ? "&" : "?";
+ setIframeSrc(
+ `${filesBase}${cfg.launch_url}${sep}token=${encodeURIComponent(token)}`,
+ );
+ }
+ }
+
+ void boot();
 
  return () => {
  cleaned = true;

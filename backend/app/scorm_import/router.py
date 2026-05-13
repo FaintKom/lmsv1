@@ -289,7 +289,7 @@ async def serve_package_file(
             httponly=True,
             secure=True,
             samesite="strict",
-            path=f"/api/v1/scorm-import/packages/{pkg_id}/files/",
+            path=f"/api/v1/scorm-import/packages/{pkg_id}/",
             max_age=1800,
         )
     return response
@@ -305,11 +305,67 @@ def _extract_verb_object(stmt: dict) -> tuple[str, str, str | None]:
     return verb_id, obj_id, obj_type
 
 
+async def _get_scorm_user(
+    request: Request,
+    scorm_access: str | None = Cookie(None),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Resolve user from Authorization header OR scorm_access cookie.
+
+    scorm-again XHR to lmsCommitUrl cannot send the Authorization header,
+    so we fall back to the same cookie set by the preflight file-serve.
+    """
+    auth = request.headers.get("authorization", "")
+    if auth.startswith("Bearer "):
+        tok = auth.removeprefix("Bearer ").strip()
+    elif scorm_access:
+        tok = scorm_access
+    else:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
+    return await _validate_jwt_to_user(tok, db)
+
+
+@router.post("/packages/{pkg_id}/commit")
+async def commit_cmi_data(
+    pkg_id: uuid.UUID,
+    body: dict,
+    user: User = Depends(_get_scorm_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Accept raw SCORM CMI data from scorm-again autocommit.
+
+    scorm-again POSTs the full CMI data model here; we wrap it as an
+    xAPI-like statement with a synthetic verb so it fits our storage.
+    """
+    pkg = await db.get(ImportedSCORMPackage, pkg_id)
+    if not pkg or pkg.org_id != user.org_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
+    cmi = body.get("cmi", {})
+    core = cmi.get("core", {}) if isinstance(cmi, dict) else {}
+    score = core.get("score") if isinstance(core, dict) else None
+    stmt = XAPIStatement(
+        org_id=user.org_id,
+        actor_id=user.id,
+        verb_id="http://adlnet.gov/expapi/verbs/progressed",
+        object_id=f"urn:scorm:package:{pkg_id}",
+        object_type="Activity",
+        statement=body,
+        result={"score": score} if score else None,
+        context={"lesson_status": core.get("lesson_status")} if core else None,
+        stored_at=datetime.now(tz=timezone.utc),
+        exercise_id=pkg.exercise_id,
+        imported_package_id=pkg.id,
+    )
+    db.add(stmt)
+    await db.flush()
+    return {"id": str(stmt.id), "stored": True}
+
+
 @router.post("/packages/{pkg_id}/statements", response_model=XAPIStatementResponse)
 async def record_package_statement(
     pkg_id: uuid.UUID,
     body: XAPIStatementIn,
-    user: User = Depends(get_current_user),
+    user: User = Depends(_get_scorm_user),
     db: AsyncSession = Depends(get_db),
 ) -> XAPIStatement:
     """Inbox for xAPI statements emitted by a specific SCORM/xAPI package."""
