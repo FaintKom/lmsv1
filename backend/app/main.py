@@ -50,11 +50,13 @@ from app.certificates.router import router as certificates_router
 from app.courses.router import router as courses_router
 from app.discussions.router import router as discussions_router
 from app.exercises.router import router as exercises_router
+from app.export.router import router as export_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
 from app.knowledge.router import router as knowledge_router
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
+from app.math_validation.router import router as math_validation_router
 from app.meetings.router import router as meetings_router
 from app.metered_billing.router import router as metered_billing_router
 from app.notifications.router import router as notifications_router
@@ -67,6 +69,7 @@ from app.recommendations.router import router as recommendations_router
 from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
 from app.scorm.router import router as scorm_router
+from app.scorm_import.router import router as scorm_import_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router
@@ -306,6 +309,7 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.scorm.models  # noqa
+    import app.scorm_import.models  # noqa
     import app.plagiarism.models  # noqa
     import app.peer_review.models  # noqa
     import app.team_projects.models  # noqa
@@ -466,6 +470,9 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
+    app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
+    app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])
+    app.include_router(export_router, prefix="/api/v1/courses", tags=["Course Export"])
     app.include_router(plagiarism_router, prefix="/api/v1/admin/plagiarism", tags=["Plagiarism"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
@@ -43,6 +43,7 @@ import {
  Users,
  UserPlus,
  Eye,
+ Download,
  Settings2,
  ClipboardList,
  ExternalLink,
@@ -56,6 +57,10 @@ import FileUploadConfig from "@/components/submissions/file-upload-config";
 import InteractiveBuilder from "@/components/submissions/interactive-builder";
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
+import {
+ EXERCISE_TYPE_LABELS as EXERCISE_TYPE_LABELS_FULL,
+ EXERCISE_TYPES_META,
+} from "@/lib/api/exercises";
 
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
@@ -448,6 +453,83 @@ export default function CourseEditorPage() {
  }
  };
 
+ // ─── Export / Import ─────────────────────────────────────────────────
+
+ const importFileRef = useRef<HTMLInputElement | null>(null);
+
+ const downloadBlob = (data: Blob, filename: string) => {
+ const url = URL.createObjectURL(data);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = filename;
+ a.click();
+ URL.revokeObjectURL(url);
+ };
+
+ const handleExportJson = async () => {
+ try {
+ const { data } = await apiClient.get(
+ `/courses/${courseId}/export?format=json&variant=teacher`,
+ { responseType: "blob" }
+ );
+ const slug = course?.slug || "course";
+ downloadBlob(data as Blob, `${slug}-teacher.json`);
+ toast.success("Course JSON downloaded");
+ } catch (e) {
+ const err = e as { response?: { status?: number } };
+ if (err.response?.status === 403) {
+ toast.error("You don't have permission to export this course");
+ } else {
+ toast.error("Export failed");
+ }
+ }
+ };
+
+ const handleExportPdf = async () => {
+ try {
+ const { data } = await apiClient.get(
+ `/courses/${courseId}/export?format=pdf&variant=teacher`,
+ { responseType: "blob" }
+ );
+ const slug = course?.slug || "course";
+ downloadBlob(data as Blob, `${slug}-teacher.pdf`);
+ toast.success("Course PDF downloaded");
+ } catch (e) {
+ const err = e as { response?: { status?: number; data?: { detail?: string } } };
+ if (err.response?.status === 503) {
+ toast.error(
+ "PDF export not yet enabled on the server (Playwright needs to be installed)."
+ );
+ } else {
+ toast.error(err.response?.data?.detail || "PDF export failed");
+ }
+ }
+ };
+
+ const handleImportJson = async (file: File) => {
+ if (!file.name.toLowerCase().endsWith(".json")) {
+ toast.error("Pick a .json file produced by `Export JSON`");
+ return;
+ }
+ try {
+ const text = await file.text();
+ const body = JSON.parse(text);
+ const { data } = await apiClient.post<{
+ id: string;
+ slug: string;
+ title: string;
+ module_count: number;
+ }>("/courses/import", body);
+ toast.success(
+ `Imported "${data.title}" (${data.module_count} module${data.module_count === 1 ? "" : "s"})`
+ );
+ router.push(`/admin/courses/${data.id}/edit`);
+ } catch (e) {
+ const err = e as { response?: { data?: { detail?: string } } };
+ toast.error(err.response?.data?.detail || "Import failed (check the JSON schema)");
+ }
+ };
+
  // Module actions
  const handleAddModule = async () => {
  if (!newModuleTitle.trim()) return;
@@ -796,6 +878,33 @@ export default function CourseEditorPage() {
  >
  <Eye className="mr-1 h-4 w-4" />
  Preview
+ </Button>
+ <Button variant="outline" onClick={handleExportJson} title="Download course as JSON (re-importable)">
+ <Download className="mr-1 h-4 w-4" />
+ Export JSON
+ </Button>
+ <Button variant="outline" onClick={handleExportPdf} title="Download course as PDF (teacher variant)">
+ <Download className="mr-1 h-4 w-4" />
+ Export PDF
+ </Button>
+ <input
+ ref={importFileRef}
+ type="file"
+ accept=".json,application/json"
+ className="hidden"
+ onChange={(e) => {
+ const f = e.target.files?.[0];
+ if (f) void handleImportJson(f);
+ e.target.value = "";
+ }}
+ />
+ <Button
+ variant="outline"
+ onClick={() => importFileRef.current?.click()}
+ title="Import a previously-exported course JSON"
+ >
+ <Upload className="mr-1 h-4 w-4" />
+ Import JSON
  </Button>
  {course.status === "draft" && (
  <Button variant="outline" onClick={handlePublish}>
@@ -1757,36 +1866,15 @@ export default function CourseEditorPage() {
 
 
 // ─── Lesson Exercises Manager ─────────────────────────────────────────
-const EXERCISE_TYPE_LABELS: Record<string, string> = {
- quiz: "Quiz",
- code_challenge: "Code Challenge",
- matching: "Matching",
- ordering: "Ordering",
- fill_blanks: "Fill Blanks",
- true_false: "True / False",
- categorize: "Categorize",
- file_upload: "File Upload",
-};
-
-const EXERCISE_TYPES_LIST = [
- { value: "quiz", label: "Quiz", icon: "📝" },
- { value: "code_challenge", label: "Code Challenge", icon: "💻" },
- { value: "matching", label: "Matching", icon: "🧩" },
- { value: "ordering", label: "Ordering", icon: "↕️" },
- { value: "fill_blanks", label: "Fill Blanks", icon: "✏️" },
- { value: "true_false", label: "True/False", icon: "✅" },
- { value: "categorize", label: "Categorize", icon: "📂" },
- { value: "file_upload", label: "File Upload", icon: "📎" },
- { value: "robot_2d", label: "2D Robot", icon: "🤖" },
- { value: "math_interactive", label: "Math Interactive", icon: "📐" },
- { value: "world_3d", label: "3D World", icon: "🌍" },
- { value: "translation", label: "Translation", icon: "🌐" },
- { value: "sentence_builder", label: "Sentence Builder", icon: "🔤" },
- { value: "dialogue", label: "Dialogue", icon: "💬" },
- { value: "conjugation", label: "Conjugation", icon: "📝" },
- { value: "reading", label: "Reading", icon: "📖" },
- { value: "web_editor", label: "Web Editor", icon: "🌐" },
-];
+// Exercise type menu is the single source of truth in @/lib/api/exercises.
+// Adding a new exercise type ONLY there makes it appear in both the
+// content-library filter and the per-lesson "create exercise" picker.
+const EXERCISE_TYPE_LABELS: Record<string, string> = EXERCISE_TYPE_LABELS_FULL;
+const EXERCISE_TYPES_LIST = EXERCISE_TYPES_META.map((m) => ({
+ value: m.value,
+ label: m.label,
+ icon: m.icon,
+}));
 
 function ExerciseBlockCreator({
  lessonId,
