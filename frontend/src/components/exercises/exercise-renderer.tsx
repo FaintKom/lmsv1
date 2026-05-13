@@ -20,6 +20,8 @@ import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exe
 import DialogueExercise from "@/components/exercises/dialogue-exercise";
 import ConjugationExercise from "@/components/exercises/conjugation-exercise";
 import ReadingExercise from "@/components/exercises/reading-exercise";
+import { SCORMPackageRenderer } from "@/components/exercises/scorm-package-exercise";
+import { MathStepwiseRenderer } from "@/components/exercises/math-stepwise-exercise";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
@@ -79,7 +81,9 @@ interface Exercise {
  | "dialogue"
  | "conjugation"
  | "reading"
- | "web_editor";
+ | "web_editor"
+ | "scorm_package"
+ | "math_stepwise";
  title: string;
  config: Record<string, unknown>;
  questions?: Question[];
@@ -133,6 +137,13 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  setMaxAttempts(data.max_attempts ?? 100);
  if (data.max_reached) {
  setMaxReached(true);
+ }
+ // Restore last submission result so UI shows completed state
+ if (data.last_submission && data.last_submission.passed) {
+   setResult({
+     score: data.last_submission.score,
+     passed: data.last_submission.passed,
+   });
  }
  }).catch(() => {});
  }, [exercise.id]);
@@ -576,6 +587,24 @@ function ExerciseBody({
  onSubmit(body);
  }
  }}
+ />
+ );
+
+ case "scorm_package":
+ return (
+ <SCORMPackageRenderer
+ exerciseId={exercise.id}
+ config={exercise.config}
+ onSubmit={(body) => onSubmit(body)}
+ />
+ );
+
+ case "math_stepwise":
+ return (
+ <MathStepwiseRenderer
+ exerciseId={exercise.id}
+ config={exercise.config}
+ onSubmit={(body) => onSubmit(body)}
  />
  );
 

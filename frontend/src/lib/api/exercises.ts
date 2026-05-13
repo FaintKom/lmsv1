@@ -16,7 +16,10 @@ export type ExerciseType =
  | "sentence_builder"
  | "dialogue"
  | "conjugation"
- | "reading";
+ | "reading"
+ | "web_editor"
+ | "scorm_package"
+ | "math_stepwise";
 
 export interface Exercise {
  id: string;
@@ -105,6 +108,9 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
  dialogue: "Dialogue",
  conjugation: "Conjugation",
  reading: "Reading",
+ web_editor: "Web Editor",
+ scorm_package: "SCORM / xAPI",
+ math_stepwise: "Math Step-by-Step",
 };
 
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
@@ -124,7 +130,44 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  dialogue: "bg-lime-100 text-lime-700 ",
  conjugation: " text-text ",
  reading: "bg-primary-soft text-success-fg ",
+ web_editor: "bg-ink-100 text-ink-700 ",
+ scorm_package: "bg-info-soft text-info-fg ",
+ math_stepwise: "bg-primary-soft text-info-fg ",
 };
+
+// Single source of truth for exercise-type menus. UI components (content
+// library filter, course-editor "create exercise" picker) iterate this list.
+// Icon names map to lucide-react identifiers; consumers resolve them locally.
+export interface ExerciseTypeMeta {
+ value: ExerciseType;
+ label: string;
+ icon: string; // emoji fallback for picker
+ lucide?: string; // lucide-react icon name; resolved by callers
+}
+
+export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
+ { value: "quiz", label: "Quiz", icon: "📝", lucide: "ClipboardList" },
+ { value: "code_challenge", label: "Code Challenge", icon: "💻", lucide: "Code" },
+ { value: "matching", label: "Matching", icon: "🧩", lucide: "Puzzle" },
+ { value: "ordering", label: "Ordering", icon: "↕️", lucide: "ArrowUpDown" },
+ { value: "fill_blanks", label: "Fill Blanks", icon: "✏️", lucide: "PenLine" },
+ { value: "true_false", label: "True/False", icon: "✅", lucide: "ToggleLeft" },
+ { value: "categorize", label: "Categorize", icon: "📂", lucide: "FolderOpen" },
+ { value: "file_upload", label: "File Upload", icon: "📎", lucide: "Upload" },
+ { value: "robot_2d", label: "2D Robot", icon: "🤖", lucide: "Bot" },
+ { value: "math_interactive", label: "Math Interactive", icon: "📐", lucide: "Calculator" },
+ { value: "math_stepwise", label: "Math Step-by-Step", icon: "🧮", lucide: "Sigma" },
+ { value: "world_3d", label: "3D World", icon: "🌍", lucide: "Box" },
+ { value: "translation", label: "Translation", icon: "🌐", lucide: "Languages" },
+ { value: "sentence_builder", label: "Sentence Builder", icon: "🔤", lucide: "Type" },
+ { value: "dialogue", label: "Dialogue", icon: "💬", lucide: "MessageCircle" },
+ { value: "conjugation", label: "Conjugation", icon: "📝", lucide: "Table" },
+ { value: "reading", label: "Reading", icon: "📖", lucide: "BookOpenText" },
+ { value: "web_editor", label: "Web Editor", icon: "🌐", lucide: "Globe" },
+ { value: "scorm_package", label: "SCORM / xAPI", icon: "📦", lucide: "Package" },
+];
+
+export const ALL_EXERCISE_TYPES: ExerciseType[] = EXERCISE_TYPES_META.map((m) => m.value);
 
 export const exercisesApi = {
  list: (params?: {

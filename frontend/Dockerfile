@@ -6,10 +6,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps
 
-COPY . .
-
 ENV NEXT_PUBLIC_API_URL=""
-ENV BACKEND_URL="https://lms-backend-0b8v.onrender.com"
+
+COPY . .
 RUN npm run build
 
 # Stage 2: Production

@@ -26,28 +26,27 @@ describe("translations", () => {
  expect(declared).toEqual(available);
  });
 
- it("has the same keys in en and ru (P0-13 parity)", () => {
- const en = new Set(Object.keys(translations.en));
- const ru = new Set(Object.keys(translations.ru));
+ const enKeys = new Set(Object.keys(translations.en));
 
- const missingFromRu = [...en].filter((k) => !ru.has(k));
- const extraInRu = [...ru].filter((k) => !en.has(k));
+ it.each(
+ LOCALES.filter((l) => l.code !== DEFAULT_LOCALE).map((l) => l.code),
+ )("has the same keys in en and %s", (locale) => {
+ const other = new Set(Object.keys(translations[locale]));
 
- expect(missingFromRu).toEqual([]);
- expect(extraInRu).toEqual([]);
+ const missing = [...enKeys].filter((k) => !other.has(k));
+ const extra = [...other].filter((k) => !enKeys.has(k));
+
+ expect(missing).toEqual([]);
+ expect(extra).toEqual([]);
  });
 
- it("has no empty-string values in en (missing translation)", () => {
- const empty = Object.entries(translations.en)
+ it.each(LOCALES.map((l) => l.code))(
+ "has no empty-string values in %s",
+ (locale) => {
+ const empty = Object.entries(translations[locale])
  .filter(([, v]) => !v || v.trim() === "")
  .map(([k]) => k);
  expect(empty).toEqual([]);
- });
-
- it("has no empty-string values in ru", () => {
- const empty = Object.entries(translations.ru)
- .filter(([, v]) => !v || v.trim() === "")
- .map(([k]) => k);
- expect(empty).toEqual([]);
- });
+ },
+ );
 });

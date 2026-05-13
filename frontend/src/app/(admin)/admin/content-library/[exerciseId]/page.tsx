@@ -13,14 +13,6 @@ import {
  Trash2,
  Plus,
  Pencil,
- Code,
- ClipboardList,
- Puzzle,
- ArrowUpDown,
- PenLine,
- ToggleLeft,
- FolderOpen,
- Upload,
 } from "lucide-react";
 import {
  exercisesApi,
@@ -33,6 +25,30 @@ import {
 } from "@/lib/api/exercises";
 import { getApiError } from "@/lib/api-client";
 import dynamic from "next/dynamic";
+import {
+ TrueFalseConfigEditor,
+ FillBlanksConfigEditor,
+ MatchingConfigEditor,
+ OrderingConfigEditor,
+ CategorizeConfigEditor,
+ TranslationConfigEditor,
+ SentenceBuilderConfigEditor,
+ DialogueConfigEditor,
+ ConjugationConfigEditor,
+ ReadingConfigEditor,
+ WebEditorConfigEditor,
+} from "./exercise-config-editors";
+import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
+import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
+
+const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
+ ssr: false,
+ loading: () => (
+   <div className="flex items-center justify-center h-[400px] bg-ink-900 rounded-lg">
+     <span className="text-text-muted text-sm">Loading editor...</span>
+   </div>
+ ),
+});
 
 const Robot2DEditor = dynamic(
  () => import("@/components/game/robot-2d/robot-2d-editor"),
@@ -59,6 +75,31 @@ export default function ExerciseEditorPage() {
  // Editable fields
  const [title, setTitle] = useState("");
  const [config, setConfig] = useState<Record<string, unknown>>({});
+ const [viewMode, setViewMode] = useState<"form" | "json">("form");
+
+ const applyDefaults = (type: ExerciseType, raw: Record<string, unknown>): Record<string, unknown> => {
+ const defaults: Partial<Record<ExerciseType, Record<string, unknown>>> = {
+ quiz: { passing_score: 70 },
+ code_challenge: { language: "python", time_limit_seconds: 10, memory_limit_mb: 256, starter_code: "", solution_code: "" },
+ file_upload: { allowed_types: [".pdf", ".png", ".jpg", ".doc", ".docx"], max_file_mb: 50 },
+ true_false: { statement: "", correct_answer: true },
+ fill_blanks: { text: "", blanks: [] },
+ matching: { pairs: [] },
+ ordering: { items: [], correct_order: [] },
+ categorize: { categories: [] },
+ translation: { source_text: "", source_language: "English", target_language: "Russian", accepted_answers: [] },
+ sentence_builder: { correct_order: [], words: [], hint: "" },
+ dialogue: { messages: [] },
+ conjugation: { verb: "", language: "", tense: "", table: [] },
+ reading: { passage: "", questions: [] },
+ web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
+ scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
+ math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
+ };
+ const d = defaults[type];
+ if (!d) return raw;
+ return { ...d, ...raw };
+ };
 
  const fetchExercise = () => {
  exercisesApi
@@ -66,7 +107,7 @@ export default function ExerciseEditorPage() {
  .then(({ data }) => {
  setExercise(data);
  setTitle(data.title);
- setConfig(data.config || {});
+ setConfig(applyDefaults(data.exercise_type, data.config || {}));
  })
  .catch(() => toast.error("Exercise not found"))
  .finally(() => setLoading(false));
@@ -129,6 +170,24 @@ export default function ExerciseEditorPage() {
  </div>
  </div>
  <div className="flex items-center gap-2">
+ <div className="flex rounded-lg bg-ink-100 p-1">
+   <button
+     onClick={() => setViewMode("form")}
+     className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+       viewMode === "form" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
+     }`}
+   >
+     Form
+   </button>
+   <button
+     onClick={() => setViewMode("json")}
+     className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+       viewMode === "json" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
+     }`}
+   >
+     JSON
+   </button>
+ </div>
  <Button
  variant="outline"
  size="sm"
@@ -144,34 +203,134 @@ export default function ExerciseEditorPage() {
  </div>
  </div>
 
- {/* Title & Config */}
+ {/* Title */}
  <Card>
  <CardHeader>
  <CardTitle>General Settings</CardTitle>
  </CardHeader>
- <CardContent className="space-y-4">
+ <CardContent>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Title</label>
+ <label className="mb-1 block text-sm font-medium text-ink-700">Title</label>
  <input
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  </div>
-
- {/* Type-specific config */}
- {exercise.exercise_type === "quiz" && (
- <QuizConfigEditor config={config} onChange={setConfig} />
- )}
- {exercise.exercise_type === "code_challenge" && (
- <CodeConfigEditor config={config} onChange={setConfig} />
- )}
- {exercise.exercise_type === "file_upload" && (
- <FileUploadConfigEditor config={config} onChange={setConfig} />
- )}
  </CardContent>
  </Card>
+
+ {/* Config editor — Form or JSON tab */}
+ {viewMode === "form" ? (
+   <div className="space-y-6">
+     {exercise.exercise_type === "quiz" && (
+       <Card><CardHeader><CardTitle>Quiz Settings</CardTitle></CardHeader>
+       <CardContent><QuizConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "code_challenge" && (
+       <Card><CardHeader><CardTitle>Code Challenge Settings</CardTitle></CardHeader>
+       <CardContent><CodeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "file_upload" && (
+       <Card><CardHeader><CardTitle>File Upload Settings</CardTitle></CardHeader>
+       <CardContent><FileUploadConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "true_false" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><TrueFalseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "fill_blanks" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><FillBlanksConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "matching" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><MatchingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "ordering" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><OrderingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "categorize" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><CategorizeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "translation" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><TranslationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "sentence_builder" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><SentenceBuilderConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "dialogue" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><DialogueConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "conjugation" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><ConjugationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "reading" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "web_editor" && (
+       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "robot_2d" && (
+       <Card><CardHeader><CardTitle>2D Robot Level Editor</CardTitle></CardHeader>
+       <CardContent><Robot2DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "math_interactive" && (
+       <Card><CardHeader><CardTitle>Math Interactive Editor</CardTitle></CardHeader>
+       <CardContent><MathEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "world_3d" && (
+       <Card><CardHeader><CardTitle>3D World Level Editor</CardTitle></CardHeader>
+       <CardContent><World3DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "scorm_package" && (
+       <Card><CardHeader><CardTitle>SCORM / xAPI Package</CardTitle></CardHeader>
+       <CardContent><SCORMConfigEditor config={config} onChange={setConfig} exerciseId={exerciseId} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "math_stepwise" && (
+       <Card><CardHeader><CardTitle>Step-by-Step Math</CardTitle></CardHeader>
+       <CardContent><MathStepwiseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+   </div>
+ ) : (
+   <Card className="overflow-hidden">
+     <JsonConfigPanel
+       config={{
+         title,
+         exercise_type: exercise.exercise_type,
+         config,
+         ...(exercise.questions?.length ? { questions: exercise.questions.map(q => ({
+           question_text: q.question_text,
+           question_type: q.question_type,
+           options: q.options,
+           correct_answer: q.correct_answer,
+           points: q.points,
+         })) } : {}),
+         ...(exercise.test_cases?.length ? { test_cases: exercise.test_cases.map(tc => ({
+           input: tc.input,
+           expected_output: tc.expected_output,
+           is_hidden: tc.is_hidden,
+         })) } : {}),
+       }}
+       onChange={(obj) => {
+         if (typeof obj.title === "string") setTitle(obj.title);
+         const c = obj.config;
+         if (c && typeof c === "object" && !Array.isArray(c)) {
+           setConfig(c as Record<string, unknown>);
+         }
+       }}
+     />
+   </Card>
+ )}
 
  {/* Questions (quiz) */}
  {exercise.exercise_type === "quiz" && (
@@ -181,66 +340,6 @@ export default function ExerciseEditorPage() {
  {/* Test Cases (code challenge) */}
  {exercise.exercise_type === "code_challenge" && (
  <TestCasesEditor exerciseId={exerciseId} testCases={exercise.test_cases || []} onRefresh={fetchExercise} />
- )}
-
- {/* Interactive config (matching, ordering, etc.) */}
- {["matching", "ordering", "fill_blanks", "true_false", "categorize"].includes(exercise.exercise_type) && (
- <Card>
- <CardHeader>
- <CardTitle>Exercise Configuration</CardTitle>
- </CardHeader>
- <CardContent>
- <p className="mb-3 text-xs text-text-muted ">
- Edit the JSON configuration for this interactive exercise.
- </p>
- <textarea
- value={JSON.stringify(config, null, 2)}
- onChange={(e) => {
- try {
- setConfig(JSON.parse(e.target.value));
- } catch {
- // Allow invalid JSON while typing
- }
- }}
- rows={12}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs text-ink-700 outline-none $1:border-primary "
- />
- </CardContent>
- </Card>
- )}
-
- {/* Game Level Editors */}
- {exercise.exercise_type === "robot_2d" && (
- <Card>
- <CardHeader>
- <CardTitle>2D Robot Level Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <Robot2DEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
- )}
-
- {exercise.exercise_type === "math_interactive" && (
- <Card>
- <CardHeader>
- <CardTitle>Math Interactive Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <MathEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
- )}
-
- {exercise.exercise_type === "world_3d" && (
- <Card>
- <CardHeader>
- <CardTitle>3D World Level Editor</CardTitle>
- </CardHeader>
- <CardContent>
- <World3DEditor config={config} onConfigChange={setConfig} />
- </CardContent>
- </Card>
  )}
  </div>
  );

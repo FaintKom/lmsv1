@@ -5,15 +5,14 @@ Handles search (vector + facet hybrid), get-by-id, list with filters.
 
 from __future__ import annotations
 
+import logging
 import os
 import uuid
 from pathlib import Path
 
-import logging
-
 import httpx
 from sqlalchemy import and_, select, text
-from sqlalchemy.exc import ProgrammingError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 

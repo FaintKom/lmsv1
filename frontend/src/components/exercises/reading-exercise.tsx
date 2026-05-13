@@ -8,7 +8,8 @@ interface ReadingOption {
 }
 
 interface ReadingQuestion {
- question: string;
+ question?: string;
+ text?: string;
  type: "multiple_choice" | "text";
  options?: ReadingOption[];
  correct_answer?: string;
@@ -132,7 +133,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  {qi + 1}
  </span>
  <p className="text-[15px] font-medium text-ink-700 pt-1">
- {q.question}
+ {q.question || q.text}
  </p>
  </div>
 

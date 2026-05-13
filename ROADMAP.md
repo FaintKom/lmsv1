@@ -244,11 +244,18 @@
 
 ## PHASE 3 — Premium Features
 
-### C1. SCORM/xAPI Support
+### C1. SCORM/xAPI Support + Authoring Tool Import
 - SCORM 1.2/2004 package parser (ZIP with imsmanifest.xml)
+- xAPI (Tin Can API) activity support — send/receive xAPI statements
 - Endpoint `POST /courses/{id}/import-scorm` — upload ZIP -> extract -> create lessons
-- SCORM content rendering via iframe with JS API bridge
-- Tracking: completion_status, score, time_spent sent to LMS
+- Endpoint `POST /courses/{id}/import-xapi` — import xAPI packages
+- Import from authoring tools: Articulate Storyline/Rise 360, iSpring Suite,
+  Adobe Captivate, Lectora, Camtasia (SCORM export), H5P
+- SCORM content rendering via iframe with JS API bridge (SCORM RTE)
+- Built-in LRS (Learning Record Store) for xAPI statement storage + optional
+  integration with external LRS (Learning Locker, Watershed, etc.)
+- Tracking: completion_status, score, time_spent, interactions sent to LMS
+- Admin UI: drag-drop SCORM/xAPI package upload, preview, assign to course
 
 ### C2. White Label
 - Model `OrgBranding`: org_id, logo_url, primary_color, accent_color, custom_domain, favicon_url

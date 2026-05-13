@@ -5,9 +5,45 @@
 
 ---
 
-## В работе
+## В работе — Massive Feature Push (2026-05-13, ветка `claude/recursing-booth-ac4fdb`)
 
-_(пусто)_
+Задачи в порядке приоритета. Коммиты в текущую ветку, в конце — PR в `main` → авто-deploy через GitHub Actions.
+
+**Решения (зафиксированы пользователем 2026-05-13):**
+- SCORM/xAPI: новый exercise type `scorm_package`, `scorm-again` (MIT), внутренний LRS (таблица `xapi_statements`).
+- Wolfram → SymPy backend (бесплатно).
+- Математический редактор: **mathlive** (~200kb, полный equation editor).
+- Step-by-step: гибрид, флаг `validate_steps` в config упражнения.
+- TinkerCAD: **скип** (нет публичного embed API).
+- Course export: PDF через Playwright (визуально точный) + JSON re-import (schema v1).
+- PDF варианты: `?variant=student|teacher` query-param.
+- Advanced math: исследовать после остального, решения принимать автономно.
+
+**Итеративные цели:**
+
+- [x] **F1.** Унификация exercise menu — commit `2831e8d`. Новые типы `scorm_package` + `math_stepwise` в backend enum + frontend ExerciseType + content-library + course editor. Migration `n2p3q4r5s6t7`. Все 19 типов теперь читаются из единого `EXERCISE_TYPES_META` в `frontend/src/lib/api/exercises.ts`.
+- [x] **F2.** SCORM/xAPI — commits `a48e945` (backend), `226cb2b` (frontend). Module `app/scorm_import/` (upload .zip / extract / serve / per-package + generic xAPI inbox), internal LRS table `xapi_statements`. Migration `o3p4q5r6s7t8`. Frontend: `SCORMConfigEditor` + `SCORMPackageRenderer` (iframe + scorm-again CMI bridge). `scorm-again@^3.0.4` added to package.json — **run `npm install --legacy-peer-deps` after pull to activate CMI tracking**.
+- [x] **F3.** SymPy `app/math_validation/` — commit `96aee11`. Endpoints `/validate-step`, `/check-answer`, `/solve`, `/factor`, `/simplify`, `/steps`. SymPy added to backend `pyproject.toml`. Handles `^` / implicit multiplication / multi-root answer sets.
+- [x] **F4.** `math_stepwise` — commit `a5558b7`. Teacher editor (problem / variable / max-steps / final-answer / `validate_steps` toggle / auto-generate via SymPy). Student renderer (mathlive `<math-field>` per step, per-step equivalence-checked, final-answer SymPy-checked). `mathlive@^0.105.2` in package.json — **run `npm install --legacy-peer-deps` to enable the equation editor; falls back to plain text input otherwise**.
+- [x] **F5.** Course export `app/export/` — commit `c207835`. GET `/api/v1/courses/{id}/export?format=json|pdf&variant=student|teacher`, POST `/api/v1/courses/import`. JSON schema `grasslms-course-v1`. PDF via Playwright + Chromium; if playwright not installed the endpoint returns 503 with install instructions. **Frontend export/import buttons are not wired yet** — admins can hit the URL directly. Backlog item below.
+- [x] **F6.** Advanced math research — see [`docs/RESEARCH_advanced_math.md`](../docs/RESEARCH_advanced_math.md). Decision: F1-F5 already covers 5 of the 7 listed topics through `math_stepwise` + SymPy. Function plotting (TipTap `<MathPlot>` node) and stereometry editor (`world_3d` extension) and `math_system` (linear systems) are deferred to follow-up sprints with separate todo entries below.
+- [ ] **F7.** UI walkthrough (7 features) — **deferred this session**. Plan: see "Backlog from this push" below.
+- [ ] **F8.** Open PR to `main` (manual step after review).
+
+### Backlog from this push
+
+- [ ] **Wire frontend export/import buttons** for course-edit page (button bar: Export PDF · Export JSON · Import JSON). Backend ready, just needs UI in `(admin)/admin/courses/[courseId]/edit/page.tsx`.
+- [ ] **Add `npm install --legacy-peer-deps`** as a Dockerfile-frontend step (already there, just confirming) and verify Sentry/React-19 peer-dep still resolves with the two new deps.
+- [x] ~~Wire frontend export/import buttons~~ — **commit `622a885`**. Three buttons in course-edit toolbar (Export JSON, Export PDF, Import JSON) using apiClient + Blob download + hidden `<input type="file">`. PDF button surfaces a clear toast when backend returns 503 (Playwright not yet installed).
+- [x] ~~Wire `math_stepwise` xAPI emit~~ — **commit `ca8351d`**. Fire-and-forget POST to `/scorm-import/xapi/statements` after every submission with verb `answered`, success/score/response/steps. Failures swallowed.
+- [x] ~~Frontend `/courses/{id}/print` page~~ — **commit `dbeef09`**. New route group `app/(print)/` with minimal no-sidebar layout. Page fetches `/courses/{id}/export?format=json&variant=...` via apiClient and renders modules→lessons→exercises top-to-bottom. Teacher variant shows quiz ✓ marks, correct_answer, hidden test-case outputs, math_stepwise expected_steps, code_challenge solution_code. CSS `@media print` rules + A4 page size + `.no-print` button class. Today: teacher can open URL + Cmd+P. After the backend gets chromium, Playwright will navigate to this same URL.
+- [ ] **Install Playwright + chromium in backend Docker image** to enable Playwright-driven PDF export. Steps: add `playwright>=1.49` to `backend/pyproject.toml`; in `backend/Dockerfile` after `pip install -e .` add `RUN playwright install --with-deps chromium`. Image size grows ~600 MB.
+- [ ] **Auth for Playwright-driven PDF export.** The print page currently relies on the apiClient's JWT-from-localStorage. Playwright (running in the backend container) has no localStorage. Plan: backend mints a single-use HMAC-signed `?token=...` query param scoped to one course+variant+expiry; print page recognises it and short-circuits localStorage; backend Playwright invocation passes the token through to `page.goto(...)`.
+- [ ] **F7 UI walkthrough** — certificates / ДЗ / прогресс / enrollment / knowledge / i18n / calendar. Use Playwright or Claude Preview against staging.grasslms.online with the test accounts. Capture screenshots + file bugs as discovered. Requires owner-supplied test-account credentials in the harness.
+- [ ] **Math follow-ups** (from `docs/RESEARCH_advanced_math.md`):
+  - [ ] `math_system` exercise type (linear systems + Plotly visual)
+  - [ ] `<MathPlot>` TipTap inline block for graphs
+  - [ ] Stereometry editor on top of `world_3d`
 
 ---
 
@@ -93,6 +129,11 @@ _(пусто)_
 - [ ] **Аналог Wolfram Alpha для проверки решений** — интеграция с Wolfram Alpha
       API или собственный math solver для автоматической проверки математических
       выражений, уравнений, графиков
+- [ ] **SCORM / xAPI поддержка** — импорт SCORM 1.2 / 2004 пакетов и xAPI
+      (Tin Can) активностей. Импорт из Articulate Storyline/Rise, iSpring,
+      Adobe Captivate и аналогичных authoring tools. Плеер SCORM-пакетов
+      внутри платформы, трекинг прогресса/оценок через xAPI statements,
+      LRS (Learning Record Store) — встроенный или интеграция с внешним.
 - [ ] **Поддержка продвинутой математики** — убедиться, что платформа корректно
       поддерживает создание и решение: квадратные уравнения с заменой переменных,
       дробно-рациональные уравнения, стереометрия (призмы, пирамиды, двугранные

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -40,11 +40,15 @@ import {
  MessageCircle,
  Table,
  BookOpenText,
+ Globe,
+ Package,
+ Sigma,
 } from "lucide-react";
 import {
  exercisesApi,
  EXERCISE_TYPE_LABELS,
  EXERCISE_TYPE_COLORS,
+ ALL_EXERCISE_TYPES,
  type Exercise,
  type ExerciseType,
 } from "@/lib/api/exercises";
@@ -68,14 +72,12 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  dialogue: MessageCircle,
  conjugation: Table,
  reading: BookOpenText,
+ web_editor: Globe,
+ scorm_package: Package,
+ math_stepwise: Sigma,
 };
 
-const ALL_TYPES: ExerciseType[] = [
- "quiz", "code_challenge", "matching", "ordering",
- "fill_blanks", "true_false", "categorize", "file_upload",
- "robot_2d", "math_interactive", "world_3d",
- "translation", "sentence_builder", "dialogue", "conjugation", "reading",
-];
+const ALL_TYPES: ExerciseType[] = ALL_EXERCISE_TYPES;
 
 // ─── Types ───
 
