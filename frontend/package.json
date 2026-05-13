@@ -55,6 +55,7 @@
     "recharts": "^3.8.0",
     "rehype-highlight": "^7.0.2",
     "rehype-raw": "^7.0.0",
+    "mathlive": "^0.105.2",
     "remark-gfm": "^4.0.1",
     "scorm-again": "^3.0.4",
     "sonner": "^2.0.7",
