@@ -11,6 +11,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 
+from app.admin.analytics_service import (
+    get_activity_timeline,
+    get_attendance_impact,
+    get_course_effectiveness,
+    get_exercise_difficulty,
+    get_lesson_funnel,
+    get_overview_kpis,
+    get_student_risks,
+)
 from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.admin.service import get_dashboard_stats, get_detailed_analytics
 from app.auth.dependencies import require_role
@@ -1571,3 +1580,66 @@ async def review_queue_list(
         }
         for sub, assignment_title, max_score, student_name, student_email in rows
     ]
+
+
+# ─── Advanced Analytics (v2) ─────────────────────────────────────────
+
+
+@router.get("/analytics/v2/overview")
+async def analytics_overview(
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_overview_kpis(db, user)
+
+
+@router.get("/analytics/v2/student-risks")
+async def analytics_student_risks(
+    course_id: uuid.UUID | None = Query(None),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_student_risks(db, user, course_id=course_id)
+
+
+@router.get("/analytics/v2/course-effectiveness")
+async def analytics_course_effectiveness(
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_course_effectiveness(db, user)
+
+
+@router.get("/analytics/v2/courses/{course_id}/funnel")
+async def analytics_lesson_funnel(
+    course_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_lesson_funnel(db, user, course_id)
+
+
+@router.get("/analytics/v2/exercise-difficulty")
+async def analytics_exercise_difficulty(
+    course_id: uuid.UUID | None = Query(None),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_exercise_difficulty(db, user, course_id=course_id)
+
+
+@router.get("/analytics/v2/activity-timeline")
+async def analytics_activity_timeline(
+    days: int = Query(30, ge=7, le=90),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_activity_timeline(db, user, days=days)
+
+
+@router.get("/analytics/v2/attendance-impact")
+async def analytics_attendance_impact(
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_attendance_impact(db, user)
