@@ -12,7 +12,7 @@ from pathlib import Path
 
 import httpx
 from sqlalchemy import and_, select, text
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -194,8 +194,8 @@ async def list_entries(
         )
         items = (await db.execute(page_q)).scalars().all()
         return list(items), total
-    except ProgrammingError as exc:
-        logger.warning("knowledge list_entries failed (table may not exist): %s", exc)
+    except SQLAlchemyError as exc:
+        logger.warning("knowledge list_entries failed: %s", exc)
         await db.rollback()
         return [], 0
 
@@ -238,7 +238,7 @@ async def get_facet_counts(db: AsyncSession) -> dict:
         for row in result:
             out.setdefault(row.facet, []).append({"value": row.val, "count": row.n})
         return out
-    except ProgrammingError as exc:
-        logger.warning("knowledge get_facet_counts failed (table may not exist): %s", exc)
+    except SQLAlchemyError as exc:
+        logger.warning("knowledge get_facet_counts failed: %s", exc)
         await db.rollback()
         return empty

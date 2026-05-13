@@ -28,11 +28,9 @@ MAX_FILE_MB = 50
 async def create_assignment(
     db: AsyncSession, user: User, data: dict
 ) -> Assignment:
-    # Verify teacher/admin owns the course or is in same org
     course = await _get_course(db, data["course_id"])
-    if user.role not in (UserRole.super_admin, UserRole.admin):
-        if course.teacher_id != user.id:
-            raise ForbiddenError("You don't own this course")
+    if course.org_id != user.org_id:
+        raise ForbiddenError("Course belongs to another organization")
 
     assignment = Assignment(
         org_id=user.org_id,
