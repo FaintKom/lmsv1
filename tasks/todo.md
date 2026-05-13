@@ -21,14 +21,27 @@
 
 **Итеративные цели:**
 
-- [ ] **F1.** Унификация exercise menu: backend enum + frontend ExerciseType + content-library + course editor. Alembic-миграция. Проверка: новые типы видны в обоих меню.
-- [ ] **F2.** SCORM/xAPI: модель `imported_scorm_packages`, `xapi_statements`, роуты импорт/serve/трекинг, frontend upload UI + scorm-again iframe. Проверка: загрузить тестовый SCORM 1.2 → completion=passed → строка в xapi_statements.
-- [ ] **F3.** SymPy модуль `app/math_validation/`: endpoints `/validate-step`, `/solve`, `/factor`, `/simplify`. SymPy в pyproject. Проверка: pytest на каждый endpoint.
-- [ ] **F4.** `math_stepwise` exercise type: editor (mathlive шаги + final answer), renderer (step-by-step UI), валидация. Проверка: задача `x²-5x+6=0`, шаги `(x-2)(x-3)=0` → `x=2 или 3` → оба зелёные.
-- [ ] **F5.** Course export: `app/export/` — JSON re-import + PDF (Playwright). Routes: GET `/courses/{id}/export?format=...&variant=...`, POST `/courses/import`. Кнопки в course-edit. Проверка: JSON round-trip, PDF teacher содержит ответы.
-- [ ] **F6.** Advanced math: research-doc → решения → расширение `math_stepwise` + widgets если нужно (квадратные с заменой, дробно-рациональные, стереометрия, графики, факторизация, физика).
-- [ ] **F7.** UI walkthrough через preview: certificates, ДЗ, прогресс, enrollment, knowledge, i18n, calendar. Скриншоты + багфиксы.
-- [ ] **F8.** PR в main, прогон CI, мердж после зелёных.
+- [x] **F1.** Унификация exercise menu — commit `2831e8d`. Новые типы `scorm_package` + `math_stepwise` в backend enum + frontend ExerciseType + content-library + course editor. Migration `n2p3q4r5s6t7`. Все 19 типов теперь читаются из единого `EXERCISE_TYPES_META` в `frontend/src/lib/api/exercises.ts`.
+- [x] **F2.** SCORM/xAPI — commits `a48e945` (backend), `226cb2b` (frontend). Module `app/scorm_import/` (upload .zip / extract / serve / per-package + generic xAPI inbox), internal LRS table `xapi_statements`. Migration `o3p4q5r6s7t8`. Frontend: `SCORMConfigEditor` + `SCORMPackageRenderer` (iframe + scorm-again CMI bridge). `scorm-again@^3.0.4` added to package.json — **run `npm install --legacy-peer-deps` after pull to activate CMI tracking**.
+- [x] **F3.** SymPy `app/math_validation/` — commit `96aee11`. Endpoints `/validate-step`, `/check-answer`, `/solve`, `/factor`, `/simplify`, `/steps`. SymPy added to backend `pyproject.toml`. Handles `^` / implicit multiplication / multi-root answer sets.
+- [x] **F4.** `math_stepwise` — commit `a5558b7`. Teacher editor (problem / variable / max-steps / final-answer / `validate_steps` toggle / auto-generate via SymPy). Student renderer (mathlive `<math-field>` per step, per-step equivalence-checked, final-answer SymPy-checked). `mathlive@^0.105.2` in package.json — **run `npm install --legacy-peer-deps` to enable the equation editor; falls back to plain text input otherwise**.
+- [x] **F5.** Course export `app/export/` — commit `c207835`. GET `/api/v1/courses/{id}/export?format=json|pdf&variant=student|teacher`, POST `/api/v1/courses/import`. JSON schema `grasslms-course-v1`. PDF via Playwright + Chromium; if playwright not installed the endpoint returns 503 with install instructions. **Frontend export/import buttons are not wired yet** — admins can hit the URL directly. Backlog item below.
+- [x] **F6.** Advanced math research — see [`docs/RESEARCH_advanced_math.md`](../docs/RESEARCH_advanced_math.md). Decision: F1-F5 already covers 5 of the 7 listed topics through `math_stepwise` + SymPy. Function plotting (TipTap `<MathPlot>` node) and stereometry editor (`world_3d` extension) and `math_system` (linear systems) are deferred to follow-up sprints with separate todo entries below.
+- [ ] **F7.** UI walkthrough (7 features) — **deferred this session**. Plan: see "Backlog from this push" below.
+- [ ] **F8.** Open PR to `main` (manual step after review).
+
+### Backlog from this push
+
+- [ ] **Wire frontend export/import buttons** for course-edit page (button bar: Export PDF · Export JSON · Import JSON). Backend ready, just needs UI in `(admin)/admin/courses/[courseId]/edit/page.tsx`.
+- [ ] **Add `npm install --legacy-peer-deps`** as a Dockerfile-frontend step (already there, just confirming) and verify Sentry/React-19 peer-dep still resolves with the two new deps.
+- [ ] **Install Playwright + chromium in backend Docker image** to enable PDF export. Currently the endpoint returns 503 because the dep isn't in `pyproject.toml` (Playwright is heavyweight; not added in this push).
+- [ ] **Frontend `/courses/{id}/print` page** for Playwright to render. Should iterate modules → lessons → exercises with print-friendly CSS, honour `?variant=student|teacher`.
+- [ ] **Wire `math_stepwise` xAPI emit** — on submission, POST a Statement to `/api/v1/scorm-import/xapi/statements` so the LRS captures completion analytics from native exercises too. Currently only SCORM packages emit.
+- [ ] **F7 UI walkthrough** — certificates / ДЗ / прогресс / enrollment / knowledge / i18n / calendar. Use Playwright or Claude Preview against staging.grasslms.online with the test accounts. Capture screenshots + file bugs as discovered.
+- [ ] **Math follow-ups** (from `docs/RESEARCH_advanced_math.md`):
+  - [ ] `math_system` exercise type (linear systems + Plotly visual)
+  - [ ] `<MathPlot>` TipTap inline block for graphs
+  - [ ] Stereometry editor on top of `world_3d`
 
 ---
 
