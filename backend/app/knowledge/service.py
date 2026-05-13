@@ -16,9 +16,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-logger = logging.getLogger(__name__)
-
 from app.knowledge.models import Entry, EntryStatus, EntryVisibility
+
+logger = logging.getLogger(__name__)
 
 VOYAGE_URL = "https://api.voyageai.com/v1/embeddings"
 VOYAGE_MODEL = "voyage-3-large"
