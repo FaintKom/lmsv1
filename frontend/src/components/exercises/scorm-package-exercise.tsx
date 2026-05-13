@@ -256,7 +256,7 @@ export function SCORMPackageRenderer({
  <iframe
  src={src}
  className="h-[600px] w-full rounded-lg border border-border-strong bg-paper-2"
- sandbox="allow-scripts allow-forms allow-popups"
+ sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
  title={cfg.title || "SCORM content"}
  />
  <div className="flex justify-end">
