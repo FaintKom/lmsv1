@@ -75,7 +75,7 @@ export default function AdminAnalyticsPage() {
  apiClient.get("/admin/dashboard/").then(({ data }) => data),
  apiClient.get("/admin/analytics/detailed/").then(({ data }) => data).catch(() => null),
  apiClient.get("/admin/courses/").then(({ data }) => data),
- apiClient.get("/admin/users/").then(({ data }) => data),
+ apiClient.get("/admin/users/").then(({ data }) => data).catch(() => []),
  ])
  .then(([statsData, detailedData, coursesData, usersData]) => {
  setStats(statsData);
