@@ -68,6 +68,7 @@ from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
 from app.scorm.router import router as scorm_router
 from app.scorm_import.router import router as scorm_import_router
+from app.math_validation.router import router as math_validation_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router
@@ -469,6 +470,7 @@ def create_app() -> FastAPI:
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
+    app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])
     app.include_router(plagiarism_router, prefix="/api/v1/admin/plagiarism", tags=["Plagiarism"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
