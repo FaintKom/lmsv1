@@ -186,10 +186,35 @@ export function SCORMPackageRenderer({
 }) {
  const cfg = config as SCORMConfig;
  const apiRef = useRef<ScormAPI | null>(null);
+ const [iframeSrc, setIframeSrc] = useState<string | null>(null);
 
  useEffect(() => {
- if (!cfg.package_id) return;
+ if (!cfg.package_id || !cfg.launch_url) return;
  let cleaned = false;
+
+ const token =
+ localStorage.getItem("access_token") ||
+ localStorage.getItem("token") ||
+ "";
+
+ const filesBase = `/api/v1/scorm-import/packages/${cfg.package_id}/files/`;
+
+ // Preflight: hit imsmanifest.xml with ?token= to set the scorm_access
+ // cookie, then load the real launch URL without the token so SCORM
+ // content's own query params stay intact.
+ fetch(`${filesBase}imsmanifest.xml?token=${encodeURIComponent(token)}`, {
+ credentials: "include",
+ })
+ .then(() => {
+ if (cleaned) return;
+ setIframeSrc(`${filesBase}${cfg.launch_url}`);
+ })
+ .catch(() => {
+ if (cleaned) return;
+ // Fallback: append token directly (may break some SCORM content)
+ const sep = cfg.launch_url!.includes("?") ? "&" : "?";
+ setIframeSrc(`${filesBase}${cfg.launch_url}${sep}token=${encodeURIComponent(token)}`);
+ });
 
  // scorm-again is added to package.json; the dynamic import is wrapped
  // in .catch() so it still degrades cleanly if the dep is missing.
@@ -213,8 +238,6 @@ export function SCORMPackageRenderer({
  apiRef.current = api;
  })
  .catch(() => {
- // scorm-again not installed yet; iframe still renders but CMI
- // tracking will be silent. Run `npm install scorm-again` to enable.
  // eslint-disable-next-line no-console
  console.warn("[scorm-again] dep not installed; running without CMI bridge");
  });
@@ -230,8 +253,9 @@ export function SCORMPackageRenderer({
  delete w.API;
  delete w.API_1484_11;
  apiRef.current = null;
+ setIframeSrc(null);
  };
- }, [cfg.package_id, cfg.format]);
+ }, [cfg.package_id, cfg.format, cfg.launch_url]);
 
  if (!cfg.package_id) {
  return (
@@ -249,20 +273,20 @@ export function SCORMPackageRenderer({
  );
  }
 
- const token = typeof window !== "undefined"
- ? localStorage.getItem("access_token") || localStorage.getItem("token") || ""
- : "";
- const sep = cfg.launch_url?.includes("?") ? "&" : "?";
- const src = `/api/v1/scorm-import/packages/${cfg.package_id}/files/${cfg.launch_url}${sep}token=${encodeURIComponent(token)}`;
-
  return (
  <div className="space-y-3">
+ {iframeSrc ? (
  <iframe
- src={src}
+ src={iframeSrc}
  className="h-[600px] w-full rounded-lg border border-border-strong bg-paper-2"
  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
  title={cfg.title || "SCORM content"}
  />
+ ) : (
+ <div className="flex h-[600px] w-full items-center justify-center rounded-lg border border-border-strong bg-paper-2">
+ <p className="text-sm text-text-muted">Loading SCORM content…</p>
+ </div>
+ )}
  <div className="flex justify-end">
  <Button
  size="sm"
