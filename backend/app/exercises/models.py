@@ -37,6 +37,8 @@ class ExerciseType(str, enum.Enum):
     conjugation = "conjugation"
     reading = "reading"
     web_editor = "web_editor"
+    scorm_package = "scorm_package"
+    math_stepwise = "math_stepwise"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -57,6 +59,8 @@ EXERCISE_TYPE_PREFIX = {
     "conjugation": "CJ",
     "reading": "RD",
     "web_editor": "W",
+    "scorm_package": "SC",
+    "math_stepwise": "MS",
 }
 
 

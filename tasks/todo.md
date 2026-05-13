@@ -5,9 +5,30 @@
 
 ---
 
-## В работе
+## В работе — Massive Feature Push (2026-05-13, ветка `claude/recursing-booth-ac4fdb`)
 
-_(пусто)_
+Задачи в порядке приоритета. Коммиты в текущую ветку, в конце — PR в `main` → авто-deploy через GitHub Actions.
+
+**Решения (зафиксированы пользователем 2026-05-13):**
+- SCORM/xAPI: новый exercise type `scorm_package`, `scorm-again` (MIT), внутренний LRS (таблица `xapi_statements`).
+- Wolfram → SymPy backend (бесплатно).
+- Математический редактор: **mathlive** (~200kb, полный equation editor).
+- Step-by-step: гибрид, флаг `validate_steps` в config упражнения.
+- TinkerCAD: **скип** (нет публичного embed API).
+- Course export: PDF через Playwright (визуально точный) + JSON re-import (schema v1).
+- PDF варианты: `?variant=student|teacher` query-param.
+- Advanced math: исследовать после остального, решения принимать автономно.
+
+**Итеративные цели:**
+
+- [ ] **F1.** Унификация exercise menu: backend enum + frontend ExerciseType + content-library + course editor. Alembic-миграция. Проверка: новые типы видны в обоих меню.
+- [ ] **F2.** SCORM/xAPI: модель `imported_scorm_packages`, `xapi_statements`, роуты импорт/serve/трекинг, frontend upload UI + scorm-again iframe. Проверка: загрузить тестовый SCORM 1.2 → completion=passed → строка в xapi_statements.
+- [ ] **F3.** SymPy модуль `app/math_validation/`: endpoints `/validate-step`, `/solve`, `/factor`, `/simplify`. SymPy в pyproject. Проверка: pytest на каждый endpoint.
+- [ ] **F4.** `math_stepwise` exercise type: editor (mathlive шаги + final answer), renderer (step-by-step UI), валидация. Проверка: задача `x²-5x+6=0`, шаги `(x-2)(x-3)=0` → `x=2 или 3` → оба зелёные.
+- [ ] **F5.** Course export: `app/export/` — JSON re-import + PDF (Playwright). Routes: GET `/courses/{id}/export?format=...&variant=...`, POST `/courses/import`. Кнопки в course-edit. Проверка: JSON round-trip, PDF teacher содержит ответы.
+- [ ] **F6.** Advanced math: research-doc → решения → расширение `math_stepwise` + widgets если нужно (квадратные с заменой, дробно-рациональные, стереометрия, графики, факторизация, физика).
+- [ ] **F7.** UI walkthrough через preview: certificates, ДЗ, прогресс, enrollment, knowledge, i18n, calendar. Скриншоты + багфиксы.
+- [ ] **F8.** PR в main, прогон CI, мердж после зелёных.
 
 ---
 

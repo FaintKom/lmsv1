@@ -56,6 +56,10 @@ import FileUploadConfig from "@/components/submissions/file-upload-config";
 import InteractiveBuilder from "@/components/submissions/interactive-builder";
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
+import {
+ EXERCISE_TYPE_LABELS as EXERCISE_TYPE_LABELS_FULL,
+ EXERCISE_TYPES_META,
+} from "@/lib/api/exercises";
 
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
@@ -1757,36 +1761,15 @@ export default function CourseEditorPage() {
 
 
 // ─── Lesson Exercises Manager ─────────────────────────────────────────
-const EXERCISE_TYPE_LABELS: Record<string, string> = {
- quiz: "Quiz",
- code_challenge: "Code Challenge",
- matching: "Matching",
- ordering: "Ordering",
- fill_blanks: "Fill Blanks",
- true_false: "True / False",
- categorize: "Categorize",
- file_upload: "File Upload",
-};
-
-const EXERCISE_TYPES_LIST = [
- { value: "quiz", label: "Quiz", icon: "📝" },
- { value: "code_challenge", label: "Code Challenge", icon: "💻" },
- { value: "matching", label: "Matching", icon: "🧩" },
- { value: "ordering", label: "Ordering", icon: "↕️" },
- { value: "fill_blanks", label: "Fill Blanks", icon: "✏️" },
- { value: "true_false", label: "True/False", icon: "✅" },
- { value: "categorize", label: "Categorize", icon: "📂" },
- { value: "file_upload", label: "File Upload", icon: "📎" },
- { value: "robot_2d", label: "2D Robot", icon: "🤖" },
- { value: "math_interactive", label: "Math Interactive", icon: "📐" },
- { value: "world_3d", label: "3D World", icon: "🌍" },
- { value: "translation", label: "Translation", icon: "🌐" },
- { value: "sentence_builder", label: "Sentence Builder", icon: "🔤" },
- { value: "dialogue", label: "Dialogue", icon: "💬" },
- { value: "conjugation", label: "Conjugation", icon: "📝" },
- { value: "reading", label: "Reading", icon: "📖" },
- { value: "web_editor", label: "Web Editor", icon: "🌐" },
-];
+// Exercise type menu is the single source of truth in @/lib/api/exercises.
+// Adding a new exercise type ONLY there makes it appear in both the
+// content-library filter and the per-lesson "create exercise" picker.
+const EXERCISE_TYPE_LABELS: Record<string, string> = EXERCISE_TYPE_LABELS_FULL;
+const EXERCISE_TYPES_LIST = EXERCISE_TYPES_META.map((m) => ({
+ value: m.value,
+ label: m.label,
+ icon: m.icon,
+}));
 
 function ExerciseBlockCreator({
  lessonId,
