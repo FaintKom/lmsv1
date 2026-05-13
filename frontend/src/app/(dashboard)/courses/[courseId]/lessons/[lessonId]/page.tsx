@@ -564,7 +564,7 @@ export default function LessonViewerPage() {
 
     {/* ── Footer nav — visible only when scrolled to bottom ──── */}
     <div className={cn(
-     "flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 transition-opacity duration-200 md:px-14",
+     "mb-14 flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 transition-opacity duration-200 md:mb-0 md:px-14",
      footerVisible ? "opacity-100" : "pointer-events-none h-0 overflow-hidden opacity-0"
     )}>
      {isCompleted && (
