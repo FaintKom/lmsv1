@@ -20,6 +20,8 @@ import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exe
 import DialogueExercise from "@/components/exercises/dialogue-exercise";
 import ConjugationExercise from "@/components/exercises/conjugation-exercise";
 import ReadingExercise from "@/components/exercises/reading-exercise";
+import { SCORMPackageRenderer } from "@/components/exercises/scorm-package-exercise";
+import { MathStepwiseRenderer } from "@/components/exercises/math-stepwise-exercise";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
@@ -583,6 +585,24 @@ function ExerciseBody({
  onSubmit(body);
  }
  }}
+ />
+ );
+
+ case "scorm_package":
+ return (
+ <SCORMPackageRenderer
+ exerciseId={exercise.id}
+ config={exercise.config}
+ onSubmit={(body) => onSubmit(body)}
+ />
+ );
+
+ case "math_stepwise":
+ return (
+ <MathStepwiseRenderer
+ exerciseId={exercise.id}
+ config={exercise.config}
+ onSubmit={(body) => onSubmit(body)}
  />
  );
 

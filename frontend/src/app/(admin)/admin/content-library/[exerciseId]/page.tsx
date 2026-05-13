@@ -38,6 +38,8 @@ import {
  ReadingConfigEditor,
  WebEditorConfigEditor,
 } from "./exercise-config-editors";
+import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
+import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
@@ -91,6 +93,8 @@ export default function ExerciseEditorPage() {
  conjugation: { verb: "", language: "", tense: "", table: [] },
  reading: { passage: "", questions: [] },
  web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
+ scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
+ math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
  };
  const d = defaults[type];
  if (!d) return raw;
@@ -287,6 +291,14 @@ export default function ExerciseEditorPage() {
      {exercise.exercise_type === "world_3d" && (
        <Card><CardHeader><CardTitle>3D World Level Editor</CardTitle></CardHeader>
        <CardContent><World3DEditor config={config} onConfigChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "scorm_package" && (
+       <Card><CardHeader><CardTitle>SCORM / xAPI Package</CardTitle></CardHeader>
+       <CardContent><SCORMConfigEditor config={config} onChange={setConfig} exerciseId={exerciseId} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "math_stepwise" && (
+       <Card><CardHeader><CardTitle>Step-by-Step Math</CardTitle></CardHeader>
+       <CardContent><MathStepwiseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
    </div>
  ) : (
