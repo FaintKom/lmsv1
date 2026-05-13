@@ -17,7 +17,6 @@ from app.exercises.models import Exercise, ExerciseSubmission
 from app.gamification.models import UserStreak
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
 
-
 # ── Student Risk Scores ──────────────────────────────────────────────
 
 
