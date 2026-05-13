@@ -21,6 +21,8 @@ import {
  Bot,
  Calculator,
  Box,
+ PanelLeftClose,
+ PanelLeft,
  type LucideIcon,
 } from "lucide-react";
 import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
@@ -62,6 +64,7 @@ export default function LessonViewerPage() {
  const [completing, setCompleting] = useState(false);
  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== "undefined" ? window.innerWidth >= 768 : true);
+ const [lessonSidebarCollapsed, setLessonSidebarCollapsed] = useState(false);
  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
  const [exercises, setExercises] = useState<
   {
@@ -261,21 +264,42 @@ export default function LessonViewerPage() {
    )}
 
    {/* ── Lesson sidebar ─────────────────────────────────────────── */}
+   {lessonSidebarCollapsed ? (
+    <div className="hidden md:flex flex-col items-center border-r border-border bg-paper-2 py-3 px-1.5 w-12 shrink-0">
+     <button
+      onClick={() => setLessonSidebarCollapsed(false)}
+      className="rounded-lg p-2 text-text-muted hover:bg-ink-100 hover:text-text"
+      title="Expand sidebar"
+     >
+      <PanelLeft className="h-4 w-4" />
+     </button>
+    </div>
+   ) : null}
    <aside
     className={cn(
      "fixed top-0 left-0 z-50 flex h-full w-[min(320px,85vw)] flex-col border-r border-border bg-paper-2 transition-transform duration-200 overscroll-contain md:relative md:z-auto md:w-80 md:translate-x-0",
-     sidebarOpen ? "translate-x-0" : "-translate-x-full"
+     sidebarOpen ? "translate-x-0" : "-translate-x-full",
+     lessonSidebarCollapsed && "md:hidden"
     )}
    >
     {/* Sidebar header */}
     <div className="border-b border-border px-5 pb-4 pt-5">
-     <Link
-      href={`/courses/${courseId}`}
-      className="mb-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-text"
-     >
-      <ArrowLeft className="h-3.5 w-3.5" />
-      Back to course
-     </Link>
+     <div className="flex items-center justify-between mb-2.5">
+      <Link
+       href={`/courses/${courseId}`}
+       className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-text"
+      >
+       <ArrowLeft className="h-3.5 w-3.5" />
+       Back to course
+      </Link>
+      <button
+       onClick={() => setLessonSidebarCollapsed(true)}
+       className="hidden md:flex rounded-lg p-1.5 text-text-muted hover:bg-ink-100 hover:text-text"
+       title="Collapse sidebar"
+      >
+       <PanelLeftClose className="h-4 w-4" />
+      </button>
+     </div>
      <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700">
       Course · {course.modules?.length || 0} modules · {allLessons.length} lessons
      </p>
@@ -521,15 +545,12 @@ export default function LessonViewerPage() {
 
     {/* ── Sticky footer nav ─────────────────────────────────────── */}
     <div className="sticky bottom-0 flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 md:px-14">
-     <div className="flex items-center gap-2 text-xs font-semibold text-text-muted">
-      <span
-       className={cn(
-        "h-[7px] w-[7px] rounded-full",
-        isCompleted ? "bg-green-500" : "bg-ink-300"
-       )}
-      />
-      {isCompleted ? "Completed" : "In progress"}
-     </div>
+     {isCompleted && (
+      <div className="flex items-center gap-2 text-xs font-semibold text-green-700">
+       <span className="h-[7px] w-[7px] rounded-full bg-green-500" />
+       Completed
+      </div>
+     )}
      <div className="flex-1" />
 
      {prevLesson && (

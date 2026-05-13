@@ -21,7 +21,13 @@ export default function DashboardLayout({
  const pathname = usePathname();
  const { isAuthenticated, isLoading, fetchUser } = useAuthStore();
  const [sidebarOpen, setSidebarOpen] = useState(false);
+ const isLessonPage = /\/courses\/[^/]+\/lessons\//.test(pathname);
  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+ // Auto-collapse main sidebar on lesson pages — lesson has its own sidebar
+ useEffect(() => {
+  if (isLessonPage) setSidebarCollapsed(true);
+ }, [isLessonPage]);
 
  useEffect(() => {
  fetchUser();

@@ -300,19 +300,6 @@ export function SCORMPackageRenderer({
  <p className="text-sm text-text-muted">Loading SCORM content…</p>
  </div>
  )}
- <div className="flex justify-end">
- <Button
- size="sm"
- variant="outline"
- onClick={() =>
- onSubmit({
- interactive_answers: { scorm_finished: true, package_id: cfg.package_id },
- })
- }
- >
- Mark complete
- </Button>
- </div>
  </div>
  );
 }
