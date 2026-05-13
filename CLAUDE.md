@@ -53,12 +53,15 @@ Coolify is outdated; ignore or delete it.
 ## Deploy workflow
 
 **⚠️ Claude MUST NOT deploy via SSH. No `cat | ssh`, no `scp`, no direct file
-copy.** All changes go through GitHub: commit → push → owner pulls on server.
+copy.** All changes go through GitHub: commit → push → CI/CD auto-deploys.
 
 To deploy:
-1. Commit changes locally
+1. Commit changes on a branch
 2. Push to GitHub (`git push origin <branch>`)
-3. Owner pulls and rebuilds on server manually
+3. Create PR and merge to `main`
+4. CI runs automatically (`.github/workflows/ci.yml`)
+5. On CI success → `deploy.yml` auto-deploys to prod:
+   - SSH pull, rebuild containers, apply migrations, smoke check
 
 ## Stack
 
@@ -83,9 +86,8 @@ with the rebrand. Verified in DB.
 
 ## What to NOT do
 
-- Do not push to `origin/main` expecting auto-deploy. There is no webhook.
 - Do not run `docker compose` on your laptop expecting it to affect prod.
-- Do not assume there is CI/CD for deployment. CI runs lint+tests on PRs (`.github/workflows/ci.yml`), but deployment is manual SSH+rebuild.
+- Do not SSH to the server to deploy. CI/CD handles deployment automatically via `.github/workflows/deploy.yml` (triggered on CI success after merge to main).
 - Do not look for `render.yaml` or `deploy/` — they were deleted in March 2026 (Render → Hetzner migration). If you see references in old commits or memory, ignore them.
 - Do not edit production migrations after they've been applied. Create a new migration instead.
 - Do not run scripts from `scripts/legacy/` — they're archived one-offs, may break data. See `scripts/legacy/README.md`.

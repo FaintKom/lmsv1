@@ -33,6 +33,11 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   redis:
     image: redis:7-alpine
@@ -47,6 +52,11 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   # Service name is `staging-backend` (NOT `backend`) on purpose. Docker
   # always registers the service name as a network alias on every network
@@ -90,6 +100,11 @@ services:
     restart: unless-stopped
     security_opt:
       - "no-new-privileges:true"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   staging-frontend:
     build: ./frontend
@@ -103,6 +118,11 @@ services:
     environment:
       BACKEND_URL: http://backend:8000
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   sandbox:
     build: ./sandbox
@@ -112,8 +132,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
-          memory: 256M
+          cpus: "2.0"
+          memory: 700M
     read_only: true
     tmpfs:
       - /tmp:size=100M

@@ -108,15 +108,47 @@
 
 ---
 
-## Протестировать фичи (UI walkthrough)
+## Протестировать фичи (UI walkthrough) — результаты 2026-05-10
 
-- [ ] **Сертификаты** — автогенерация при завершении курса, номер, скачивание, верификация
-- [ ] **Домашки/задания** — CRUD, сдача, оценки, файлы, дедлайны, статусы
-- [ ] **Прогресс/аналитика** — дашборд, детальная аналитика, CSV экспорт, XP/лиги
-- [ ] **Запись на курсы** — самозапись, массовая, групповая, learning paths
-- [ ] **Библиотека материалов** — Knowledge base + RAG + pgvector поиск
-- [ ] **Мультиязычность** — UK, RU, EN + ещё 3 языка
-- [ ] **Календарь/расписание** — Events, повторения, iCal, auto-дедлайны
+- [x] **Сертификаты** — ✅ **ПОЛНОСТЬЮ ПРОВЕРЕНО.** Создан тестовый курс
+      "Certificate Test Course" (1 модуль, 1 урок). Студент (Emma Wilson)
+      записался, прошёл, сертификат **автоматически сгенерирован**:
+      #LH-2026-D1BA842C, issued 2026-05-10. Скачивание (download API → 200
+      с JWT). Публичная верификация `/verify/LH-2026-D1BA842C` → valid:true,
+      student_name, course_title, issued_at. Всё работает.
+- [x] **Домашки/задания** — ⚠️ Список assignments пустой, dropdown курсов работает.
+      🐛 **BUG:** `POST /api/v1/assignments` → **403 Forbidden** для teacher role
+      (Sarah Johnson). Создание задания невозможно. Нужна проверка permissions.
+- [x] **Прогресс/аналитика** — ✅ Progress dashboard работает: список курсов
+      с прогрессом, детальный view с графиком по модулям, XP 0/100, Level 1.
+      Achievements page загружается (0 badges). Leaderboard работает (пустой).
+      🐛 **Minor:** один курс отображается как просто "Course" без названия.
+- [x] **Запись на курсы** — ✅ Каталог работает (5 курсов), карточки с описаниями,
+      фильтр по категориям, learning paths page загружается. Студент уже записан
+      на все курсы → кнопка "Continue". Самозапись работает.
+- [x] **Библиотека материалов** — ⚠️ Knowledge page загружается, UI есть.
+      🐛 **BUG:** `/api/v1/knowledge/facets` и `/api/v1/knowledge?limit=50` →
+      **500 Internal Server Error**. Вероятно VOYAGE_API_KEY не настроен
+      на проде или таблица knowledge_entries пуста.
+- [x] **Мультиязычность** — ⚠️ Переключатель работает, 6 языков (EN/ES/RU/TR/DE/UA).
+      Сайдбар переводится частично. 🐛 **BUG:** raw i18n keys "DASH.WELCOMEBACK",
+      "dash.subtitle" на dashboard. Контент страниц (SAT Practice, Leaderboard,
+      Knowledge) не переводится — остаётся English.
+- [x] **Календарь/расписание** — ✅ Все 3 вида работают (month/week/day), навигация
+      ← → today, today подсвечен, легенда типов событий (Deadline/Lesson/Meeting/Custom).
+      🐛 **BUG:** server error toast при загрузке events API. Calendar пустой
+      (нет событий для тестирования повторений/iCal/auto-дедлайнов).
+
+### Обнаруженные баги (сводка)
+
+| # | Severity | Где | Описание |
+|---|----------|-----|----------|
+| 1 | 🔴 High | Assignments | `POST /api/v1/assignments` → 403 для teacher. Создание невозможно |
+| 2 | 🔴 High | Knowledge | `/api/v1/knowledge/*` → 500. VOYAGE_API_KEY или пустая таблица |
+| 3 | 🟡 Medium | Dashboard i18n | raw keys "DASH.WELCOMEBACK", "dash.subtitle" вместо перевода |
+| 4 | 🟡 Medium | i18n | Страницы SAT Practice, Leaderboard, Knowledge не переводятся |
+| 5 | 🟢 Low | Progress | Курс отображается как "Course" без реального названия |
+| 6 | 🟡 Medium | Calendar | Server error при загрузке events (API endpoint сбоит) |
 
 ## Идеи на потом
 

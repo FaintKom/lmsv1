@@ -16,6 +16,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   backend:
     build: ./backend
@@ -35,6 +40,11 @@ services:
     networks:
       - backend-net
       - frontend-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   frontend:
     build: ./frontend
@@ -51,6 +61,11 @@ services:
       - backend
     networks:
       - frontend-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   sandbox:
     build: ./sandbox
@@ -61,7 +76,7 @@ services:
       resources:
         limits:
           cpus: "2.0"
-          memory: 512M
+          memory: 700M
     read_only: true
     tmpfs:
       - /tmp:size=100M

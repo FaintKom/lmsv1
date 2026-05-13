@@ -15,6 +15,11 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   redis:
     image: redis:7-alpine
@@ -29,6 +34,11 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   backend:
     build: ./backend
@@ -54,12 +64,22 @@ services:
     restart: unless-stopped
     security_opt:
       - "no-new-privileges:true"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   frontend:
     build: ./frontend
     networks:
       - internal
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   sandbox:
     build: ./sandbox
@@ -70,7 +90,7 @@ services:
       resources:
         limits:
           cpus: "2.0"
-          memory: 512M
+          memory: 700M
     read_only: true
     tmpfs:
       - /tmp:size=100M
@@ -92,6 +112,11 @@ services:
     networks:
       - internal
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -101,6 +126,11 @@ services:
     restart: unless-stopped
     depends_on:
       - nginx
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 700M
 
 volumes:
   pgdata:

@@ -340,7 +340,13 @@ async def list_courses_admin(
     from app.courses.models import Course
 
     query = select(Course)
-    if user.role != UserRole.super_admin:
+    if user.role == UserRole.super_admin:
+        pass  # super_admin sees everything
+    elif user.role == UserRole.teacher:
+        # Teachers only see courses they own
+        query = query.where(Course.org_id == user.org_id, Course.teacher_id == user.id)
+    else:
+        # admin sees all courses in their org
         query = query.where(Course.org_id == user.org_id)
     result = await db.execute(query.order_by(Course.created_at.desc()))
     courses = result.scalars().all()
