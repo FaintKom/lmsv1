@@ -50,11 +50,13 @@ from app.certificates.router import router as certificates_router
 from app.courses.router import router as courses_router
 from app.discussions.router import router as discussions_router
 from app.exercises.router import router as exercises_router
+from app.export.router import router as export_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
 from app.knowledge.router import router as knowledge_router
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
+from app.math_validation.router import router as math_validation_router
 from app.meetings.router import router as meetings_router
 from app.metered_billing.router import router as metered_billing_router
 from app.notifications.router import router as notifications_router
@@ -68,8 +70,6 @@ from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
 from app.scorm.router import router as scorm_router
 from app.scorm_import.router import router as scorm_import_router
-from app.math_validation.router import router as math_validation_router
-from app.export.router import router as export_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router

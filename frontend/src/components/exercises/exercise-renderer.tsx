@@ -81,7 +81,9 @@ interface Exercise {
  | "dialogue"
  | "conjugation"
  | "reading"
- | "web_editor";
+ | "web_editor"
+ | "scorm_package"
+ | "math_stepwise";
  title: string;
  config: Record<string, unknown>;
  questions?: Question[];

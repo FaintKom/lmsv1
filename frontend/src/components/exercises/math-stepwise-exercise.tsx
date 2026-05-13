@@ -38,7 +38,6 @@ let mathliveLoaded = false;
 async function ensureMathlive(): Promise<void> {
  if (mathliveLoaded || typeof window === "undefined") return;
  try {
- // @ts-expect-error — mathlive types resolve after `npm install`
  await import("mathlive");
  mathliveLoaded = true;
  } catch {
@@ -48,7 +47,13 @@ async function ensureMathlive(): Promise<void> {
 
 // Use the web component element as JSX. Cast through unknown to avoid
 // JSX intrinsic-element typing complaints across React versions.
-const MathField = "math-field" as unknown as React.ElementType;
+type MathFieldProps = {
+ ref?: React.Ref<HTMLElement>;
+ onInput?: () => void;
+ onBlur?: () => void;
+ style?: React.CSSProperties;
+};
+const MathField = "math-field" as unknown as React.FC<MathFieldProps>;
 
 // Lift a math-field value (LaTeX) -> ASCII-ish expression SymPy can parse.
 // Mathlive exposes `getValue("ascii-math")` which is good enough for

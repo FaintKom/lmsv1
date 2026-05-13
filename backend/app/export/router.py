@@ -26,12 +26,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.assessments.models import Question
 from app.auth.dependencies import get_current_user
 from app.auth.models import User, UserRole
 from app.config import settings
 from app.courses.models import Course, Lesson, Module
 from app.db.session import get_db
-from app.assessments.models import Question
 from app.exercises.models import Exercise, ExerciseType
 from app.sandbox.models import TestCase
 

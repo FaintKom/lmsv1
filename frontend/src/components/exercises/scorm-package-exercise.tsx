@@ -191,9 +191,8 @@ export function SCORMPackageRenderer({
  if (!cfg.package_id) return;
  let cleaned = false;
 
- // @ts-expect-error — scorm-again is added to package.json but the
- // type/module is only resolvable after `npm install --legacy-peer-deps`.
- // The dynamic import is wrapped in .catch() so it degrades cleanly.
+ // scorm-again is added to package.json; the dynamic import is wrapped
+ // in .catch() so it still degrades cleanly if the dep is missing.
  import("scorm-again")
  .then((mod: unknown) => {
  if (cleaned) return;
