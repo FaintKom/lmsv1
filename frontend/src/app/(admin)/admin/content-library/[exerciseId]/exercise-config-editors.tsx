@@ -1,7 +1,9 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import apiClient from "@/lib/api-client";
 
 type EditorProps = {
  config: Record<string, unknown>;
@@ -616,6 +618,412 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
            </div>
          ))}
        </div>
+     </div>
+   </div>
+ );
+}
+
+// ─── SRS Flashcard ──────────────────────────────────────────────────
+
+export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
+ const cards = (config.cards as { front: string; back: string }[]) || [];
+ const mastery = (config.mastery_threshold as number) ?? 0.7;
+
+ const updateCard = (i: number, side: "front" | "back", val: string) => {
+   const next = cards.map((c, j) => (j === i ? { ...c, [side]: val } : c));
+   onChange({ ...config, cards: next });
+ };
+
+ const addCard = () => onChange({ ...config, cards: [...cards, { front: "", back: "" }] });
+ const removeCard = (i: number) => onChange({ ...config, cards: cards.filter((_, j) => j !== i) });
+
+ return (
+   <div className="space-y-4">
+     <p className={hintCls}>Create flashcards with front (question/term) and back (answer/definition). Students self-rate each card.</p>
+     <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider px-1">
+       <span>Front</span><span /><span>Back</span><span className="w-9" />
+     </div>
+     {cards.map((card, i) => (
+       <div key={i} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
+         <input type="text" value={card.front} onChange={(e) => updateCard(i, "front", e.target.value)} placeholder="Term / question" className={inputCls} />
+         <span className="text-text-muted text-sm px-1">{"→"}</span>
+         <input type="text" value={card.back} onChange={(e) => updateCard(i, "back", e.target.value)} placeholder="Definition / answer" className={inputCls} />
+         {cards.length > 1 ? (
+           <Button variant="ghost" size="sm" onClick={() => removeCard(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
+         ) : <span className="w-9" />}
+       </div>
+     ))}
+     <Button variant="outline" size="sm" onClick={addCard}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Card</Button>
+     <div>
+       <label className={labelCls}>Mastery Threshold</label>
+       <div className="flex items-center gap-3">
+         <input
+           type="range" min="0.5" max="1" step="0.1"
+           value={mastery}
+           onChange={(e) => onChange({ ...config, mastery_threshold: parseFloat(e.target.value) })}
+           className="flex-1"
+         />
+         <span className="text-sm font-medium text-ink-700 w-12 text-right">{Math.round(mastery * 100)}%</span>
+       </div>
+       <p className={hintCls}>Student must rate this % of cards as &quot;good&quot; or &quot;easy&quot; to pass.</p>
+     </div>
+   </div>
+ );
+}
+
+// ─── Crossword ──────────────────────────────────────────────────────
+
+interface CrosswordWord {
+ word: string;
+ clue: string;
+ row: number;
+ col: number;
+ direction: "across" | "down";
+}
+
+export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
+ const words = (config.words as CrosswordWord[]) || [];
+ const gridSize = (config.grid_size as number) || 10;
+
+ const updateWord = (i: number, field: string, val: unknown) => {
+   const next = words.map((w, j) => (j === i ? { ...w, [field]: val } : w));
+   onChange({ ...config, words: next });
+ };
+
+ const addWord = () => onChange({
+   ...config,
+   words: [...words, { word: "", clue: "", row: 0, col: 0, direction: "across" as const }],
+ });
+
+ const removeWord = (i: number) => onChange({ ...config, words: words.filter((_, j) => j !== i) });
+
+ return (
+   <div className="space-y-4">
+     <div>
+       <label className={labelCls}>Grid Size</label>
+       <input type="number" min={5} max={20} value={gridSize}
+         onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 10 })}
+         className={`w-24 ${inputCls}`} />
+       <p className={hintCls}>{gridSize} x {gridSize} grid. Words must fit within.</p>
+     </div>
+     <div>
+       <label className={labelCls}>Words ({words.length})</label>
+       <div className="space-y-3">
+         {words.map((w, i) => (
+           <div key={i} className="rounded-lg border border-border-strong p-3 space-y-2">
+             <div className="flex items-center gap-2">
+               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
+               <input type="text" value={w.word} onChange={(e) => updateWord(i, "word", e.target.value.toUpperCase())} placeholder="WORD" className={`w-32 ${inputCls} font-mono uppercase`} />
+               <input type="text" value={w.clue} onChange={(e) => updateWord(i, "clue", e.target.value)} placeholder="Clue for this word..." className={`flex-1 ${inputCls}`} />
+               <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
+             </div>
+             <div className="flex items-center gap-3 pl-9">
+               <div className="flex items-center gap-1">
+                 <label className="text-xs text-text-muted">Row:</label>
+                 <input type="number" min={0} max={gridSize - 1} value={w.row} onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+               </div>
+               <div className="flex items-center gap-1">
+                 <label className="text-xs text-text-muted">Col:</label>
+                 <input type="number" min={0} max={gridSize - 1} value={w.col} onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+               </div>
+               <select value={w.direction} onChange={(e) => updateWord(i, "direction", e.target.value)} className={`w-28 ${inputCls}`}>
+                 <option value="across">Across →</option>
+                 <option value="down">Down ↓</option>
+               </select>
+             </div>
+           </div>
+         ))}
+       </div>
+       <Button variant="outline" size="sm" onClick={addWord} className="mt-2"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Word</Button>
+     </div>
+   </div>
+ );
+}
+
+// ─── Word Search ────────────────────────────────────────────────────
+
+export function WordSearchConfigEditor({ config, onChange }: EditorProps) {
+ const words = (config.words as string[]) || [];
+ const gridSize = (config.grid_size as number) || 12;
+
+ const updateWord = (i: number, val: string) => {
+   const next = [...words]; next[i] = val.toUpperCase();
+   onChange({ ...config, words: next });
+ };
+
+ const addWord = () => onChange({ ...config, words: [...words, ""] });
+ const removeWord = (i: number) => onChange({ ...config, words: words.filter((_, j) => j !== i) });
+
+ return (
+   <div className="space-y-4">
+     <div>
+       <label className={labelCls}>Grid Size</label>
+       <input type="number" min={8} max={20} value={gridSize}
+         onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 12 })}
+         className={`w-24 ${inputCls}`} />
+       <p className={hintCls}>{gridSize} x {gridSize} letter grid. Words are hidden horizontally, vertically, and diagonally.</p>
+     </div>
+     <div>
+       <label className={labelCls}>Hidden Words ({words.length})</label>
+       <p className={hintCls}>Enter words to hide in the grid. The grid fills remaining cells with random letters.</p>
+       <div className="space-y-2 mt-2">
+         {words.map((word, i) => (
+           <div key={i} className="flex items-center gap-2">
+             <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
+             <input type="text" value={word} onChange={(e) => updateWord(i, e.target.value)} placeholder="WORD" className={`flex-1 ${inputCls} font-mono uppercase`} />
+             {words.length > 1 && (
+               <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
+             )}
+           </div>
+         ))}
+         <Button variant="outline" size="sm" onClick={addWord}><Plus className="mr-1.5 h-3.5 w-3.5" />Add Word</Button>
+       </div>
+     </div>
+   </div>
+ );
+}
+
+// ─── Map Pin Drop ───────────────────────────────────────────────────
+
+interface MapPin {
+ label: string;
+ x: number;
+ y: number;
+ tolerance: number;
+}
+
+export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
+ const imageUrl = (config.image_url as string) || "";
+ const pins = (config.pins as MapPin[]) || [];
+ const instructions = (config.instructions as string) || "";
+ const fileRef = useRef<HTMLInputElement>(null);
+ const [uploading, setUploading] = useState(false);
+ const [activePinIndex, setActivePinIndex] = useState<number | null>(null);
+
+ const updatePin = (i: number, field: string, val: unknown) => {
+   const next = pins.map((p, j) => (j === i ? { ...p, [field]: val } : p));
+   onChange({ ...config, pins: next });
+ };
+
+ const addPin = () => {
+   const newIndex = pins.length;
+   onChange({ ...config, pins: [...pins, { label: "", x: 50, y: 50, tolerance: 30 }] });
+   setActivePinIndex(newIndex);
+ };
+ const removePin = (i: number) => {
+   onChange({ ...config, pins: pins.filter((_, j) => j !== i) });
+   setActivePinIndex(null);
+ };
+
+ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+   const file = e.target.files?.[0];
+   if (!file) return;
+   setUploading(true);
+   try {
+     const formData = new FormData();
+     formData.append("file", file);
+     const { data } = await apiClient.post<{ url: string }>("/courses/upload-image", formData, {
+       headers: { "Content-Type": "multipart/form-data" },
+     });
+     onChange({ ...config, image_url: data.url });
+   } catch {
+     // toast handled by api-client interceptor
+   } finally {
+     setUploading(false);
+     if (fileRef.current) fileRef.current.value = "";
+   }
+ };
+
+ const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+   if (activePinIndex === null) return;
+   const rect = e.currentTarget.getBoundingClientRect();
+   const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+   const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+   updatePin(activePinIndex, "x", x);
+   updatePin(activePinIndex, "y", y);
+   // Actually need to update both at once
+   const next = pins.map((p, j) => (j === activePinIndex ? { ...p, x, y } : p));
+   onChange({ ...config, pins: next });
+ };
+
+ return (
+   <div className="space-y-4">
+     <div>
+       <label className={labelCls}>Background Image</label>
+       <div className="flex gap-2">
+         <input type="text" value={imageUrl} onChange={(e) => onChange({ ...config, image_url: e.target.value })} placeholder="https://example.com/map.png" className={`flex-1 ${inputCls}`} />
+         <input ref={fileRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+         <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading} className="flex-shrink-0">
+           <Upload className="mr-1.5 h-3.5 w-3.5" />{uploading ? "Uploading..." : "Upload"}
+         </Button>
+       </div>
+       <p className={hintCls}>Paste a URL or upload an image. Students drop pins on it. Coordinates are in % (0-100).</p>
+     </div>
+     <div>
+       <label className={labelCls}>Instructions (optional)</label>
+       <input type="text" value={instructions} onChange={(e) => onChange({ ...config, instructions: e.target.value })} placeholder="Drop pins on the correct locations..." className={inputCls} />
+     </div>
+     {imageUrl && (
+       <div className="space-y-2">
+         <div className="flex items-center gap-2">
+           <p className={`text-xs ${activePinIndex !== null ? "text-primary font-medium" : "text-text-muted"}`}>
+             {activePinIndex !== null
+               ? `Click on the image to place pin "${pins[activePinIndex]?.label || activePinIndex + 1}"`
+               : "Select a pin below, then click on the image to position it"}
+           </p>
+           {activePinIndex !== null && (
+             <Button variant="ghost" size="sm" onClick={() => setActivePinIndex(null)} className="text-xs h-6 px-2">Cancel</Button>
+           )}
+         </div>
+         <div
+           className={`relative rounded-lg border-2 overflow-hidden ${activePinIndex !== null ? "border-primary cursor-crosshair" : "border-border-strong"}`}
+           onClick={handleImageClick}
+         >
+           <img src={imageUrl} alt="Background" className="w-full object-contain" draggable={false} />
+           {pins.map((pin, i) => (
+             <div
+               key={i}
+               className="absolute -translate-x-1/2 -translate-y-full pointer-events-none"
+               style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+             >
+               <div className="flex flex-col items-center">
+                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-white" : "bg-ink-700 text-white"}`}>
+                   {pin.label || i + 1}
+                 </span>
+                 <svg className={`h-5 w-4 ${i === activePinIndex ? "text-primary" : "text-ink-700"}`} viewBox="0 0 20 24" fill="currentColor">
+                   <path d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 14 10 14s10-6.5 10-14C20 4.5 15.5 0 10 0zm0 13c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z" />
+                 </svg>
+               </div>
+             </div>
+           ))}
+         </div>
+       </div>
+     )}
+     <div>
+       <label className={labelCls}>Pins ({pins.length})</label>
+       <div className="space-y-3">
+         {pins.map((pin, i) => (
+           <div
+             key={i}
+             className={`flex items-center gap-2 flex-wrap rounded-lg p-2 transition-colors ${i === activePinIndex ? "bg-primary-soft ring-1 ring-primary" : ""}`}
+           >
+             <button
+               onClick={() => setActivePinIndex(activePinIndex === i ? null : i)}
+               title={activePinIndex === i ? "Deselect pin" : "Click to place on image"}
+               className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                 i === activePinIndex ? "bg-primary text-white" : "bg-coral-300 text-coral-700 hover:bg-primary hover:text-white"
+               }`}
+             >
+               {i === activePinIndex ? <MapPinIcon className="h-3.5 w-3.5" /> : i + 1}
+             </button>
+             <input type="text" value={pin.label} onChange={(e) => updatePin(i, "label", e.target.value)} placeholder="Label" className={`w-32 ${inputCls}`} />
+             <div className="flex items-center gap-1"><label className="text-xs text-text-muted">X%:</label>
+               <input type="number" min={0} max={100} value={pin.x} onChange={(e) => updatePin(i, "x", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+             </div>
+             <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Y%:</label>
+               <input type="number" min={0} max={100} value={pin.y} onChange={(e) => updatePin(i, "y", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+             </div>
+             <div className="flex items-center gap-1"><label className="text-xs text-text-muted">Tolerance:</label>
+               <input type="number" min={1} max={50} value={pin.tolerance} onChange={(e) => updatePin(i, "tolerance", parseInt(e.target.value) || 30)} className={`w-16 ${inputCls}`} />
+             </div>
+             <Button variant="ghost" size="sm" onClick={() => removePin(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
+           </div>
+         ))}
+       </div>
+       <Button variant="outline" size="sm" onClick={addPin} className="mt-2"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Pin</Button>
+     </div>
+   </div>
+ );
+}
+
+// ─── Bubble Sheet ───────────────────────────────────────────────────
+
+interface BubbleQuestion {
+ number: number;
+ options: string[];
+ correct: string;
+}
+
+export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
+ const questions = (config.questions as BubbleQuestion[]) || [];
+ const numOptions = (config.num_options as number) || 4;
+ const passingScore = (config.passing_score as number) || 70;
+ const optionLabels = "ABCDEFGH".slice(0, numOptions).split("");
+
+ const updateQuestion = (i: number, correct: string) => {
+   const next = questions.map((q, j) => (j === i ? { ...q, correct } : q));
+   onChange({ ...config, questions: next });
+ };
+
+ const addQuestions = (count: number) => {
+   const start = questions.length + 1;
+   const newQs = Array.from({ length: count }, (_, i) => ({
+     number: start + i,
+     options: optionLabels,
+     correct: "",
+   }));
+   onChange({ ...config, questions: [...questions, ...newQs] });
+ };
+
+ const removeQuestion = (i: number) => {
+   const next = questions.filter((_, j) => j !== i).map((q, j) => ({ ...q, number: j + 1 }));
+   onChange({ ...config, questions: next });
+ };
+
+ return (
+   <div className="space-y-4">
+     <div className="grid grid-cols-2 gap-4">
+       <div>
+         <label className={labelCls}>Options per Question</label>
+         <select value={numOptions} onChange={(e) => {
+           const n = parseInt(e.target.value);
+           const labels = "ABCDEFGH".slice(0, n).split("");
+           const updated = questions.map(q => ({ ...q, options: labels, correct: labels.includes(q.correct) ? q.correct : "" }));
+           onChange({ ...config, num_options: n, questions: updated });
+         }} className={inputCls}>
+           <option value={3}>3 (A-C)</option>
+           <option value={4}>4 (A-D)</option>
+           <option value={5}>5 (A-E)</option>
+         </select>
+       </div>
+       <div>
+         <label className={labelCls}>Passing Score (%)</label>
+         <input type="number" min={1} max={100} value={passingScore}
+           onChange={(e) => onChange({ ...config, passing_score: parseInt(e.target.value) || 70 })}
+           className={inputCls} />
+       </div>
+     </div>
+     <div>
+       <div className="flex items-center justify-between mb-2">
+         <label className={labelCls}>Answer Key ({questions.length} questions)</label>
+         <div className="flex gap-2">
+           <Button variant="outline" size="sm" onClick={() => addQuestions(1)}><Plus className="mr-1 h-3.5 w-3.5" />+1</Button>
+           <Button variant="outline" size="sm" onClick={() => addQuestions(10)}><Plus className="mr-1 h-3.5 w-3.5" />+10</Button>
+         </div>
+       </div>
+       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+         {questions.map((q, i) => (
+           <div key={i} className="flex items-center gap-1.5 rounded-lg border border-border-strong px-2 py-1.5">
+             <span className="text-xs font-bold text-text-muted w-6">{q.number}.</span>
+             {optionLabels.map((opt) => (
+               <button
+                 key={opt}
+                 type="button"
+                 onClick={() => updateQuestion(i, opt)}
+                 className={`w-7 h-7 rounded-full text-xs font-bold transition-all ${
+                   q.correct === opt
+                     ? "bg-primary text-white ring-2 ring-primary-soft"
+                     : "bg-surface-2 text-text-muted hover:bg-ink-100"
+                 }`}
+               >{opt}</button>
+             ))}
+             <Button variant="ghost" size="sm" onClick={() => removeQuestion(i)} className="text-danger-fg ml-auto p-0 h-6 w-6"><Trash2 className="h-3 w-3" /></Button>
+           </div>
+         ))}
+       </div>
+       {questions.length === 0 && (
+         <p className="text-sm text-text-muted text-center py-4">No questions yet. Click +1 or +10 to add.</p>
+       )}
      </div>
    </div>
  );

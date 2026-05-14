@@ -19,7 +19,12 @@ export type ExerciseType =
  | "reading"
  | "web_editor"
  | "scorm_package"
- | "math_stepwise";
+ | "math_stepwise"
+ | "srs_flashcard"
+ | "crossword"
+ | "word_search"
+ | "map_pin_drop"
+ | "bubble_sheet";
 
 export interface Exercise {
  id: string;
@@ -111,6 +116,11 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
  web_editor: "Web Editor",
  scorm_package: "SCORM / xAPI",
  math_stepwise: "Math Step-by-Step",
+ srs_flashcard: "Flashcards (SRS)",
+ crossword: "Crossword",
+ word_search: "Word Search",
+ map_pin_drop: "Map Pin Drop",
+ bubble_sheet: "Bubble Sheet",
 };
 
 export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
@@ -133,6 +143,11 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  web_editor: "bg-ink-100 text-ink-700 ",
  scorm_package: "bg-info-soft text-info-fg ",
  math_stepwise: "bg-primary-soft text-info-fg ",
+ srs_flashcard: "bg-sun-100 text-warning-fg ",
+ crossword: "bg-lime-100 text-lime-700 ",
+ word_search: "bg-info-soft text-info-fg ",
+ map_pin_drop: "bg-coral-300 text-coral-700 ",
+ bubble_sheet: "bg-ink-100 text-ink-700 ",
 };
 
 // Single source of truth for exercise-type menus. UI components (content
@@ -165,6 +180,11 @@ export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
  { value: "reading", label: "Reading", icon: "📖", lucide: "BookOpenText" },
  { value: "web_editor", label: "Web Editor", icon: "🌐", lucide: "Globe" },
  { value: "scorm_package", label: "SCORM / xAPI", icon: "📦", lucide: "Package" },
+ { value: "srs_flashcard", label: "Flashcards (SRS)", icon: "🃏", lucide: "Layers" },
+ { value: "crossword", label: "Crossword", icon: "🔠", lucide: "Grid3x3" },
+ { value: "word_search", label: "Word Search", icon: "🔍", lucide: "Search" },
+ { value: "map_pin_drop", label: "Map Pin Drop", icon: "📍", lucide: "MapPin" },
+ { value: "bubble_sheet", label: "Bubble Sheet", icon: "⭕", lucide: "CircleDot" },
 ];
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = EXERCISE_TYPES_META.map((m) => m.value);

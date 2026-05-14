@@ -37,6 +37,11 @@ import {
  ConjugationConfigEditor,
  ReadingConfigEditor,
  WebEditorConfigEditor,
+ SRSFlashcardConfigEditor,
+ CrosswordConfigEditor,
+ WordSearchConfigEditor,
+ MapPinDropConfigEditor,
+ BubbleSheetConfigEditor,
 } from "./exercise-config-editors";
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
@@ -95,6 +100,11 @@ export default function ExerciseEditorPage() {
  web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
  scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
  math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
+ srs_flashcard: { cards: [], mastery_threshold: 0.7 },
+ crossword: { grid_size: 10, words: [] },
+ word_search: { grid_size: 10, words: [] },
+ map_pin_drop: { image_url: "", instructions: "", pins: [] },
+ bubble_sheet: { questions: [], num_options: 4, passing_score: 70 },
  };
  const d = defaults[type];
  if (!d) return raw;
@@ -299,6 +309,26 @@ export default function ExerciseEditorPage() {
      {exercise.exercise_type === "math_stepwise" && (
        <Card><CardHeader><CardTitle>Step-by-Step Math</CardTitle></CardHeader>
        <CardContent><MathStepwiseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "srs_flashcard" && (
+       <Card><CardHeader><CardTitle>Flashcards (SRS)</CardTitle></CardHeader>
+       <CardContent><SRSFlashcardConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "crossword" && (
+       <Card><CardHeader><CardTitle>Crossword</CardTitle></CardHeader>
+       <CardContent><CrosswordConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "word_search" && (
+       <Card><CardHeader><CardTitle>Word Search</CardTitle></CardHeader>
+       <CardContent><WordSearchConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "map_pin_drop" && (
+       <Card><CardHeader><CardTitle>Map Pin Drop</CardTitle></CardHeader>
+       <CardContent><MapPinDropConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "bubble_sheet" && (
+       <Card><CardHeader><CardTitle>Bubble Sheet</CardTitle></CardHeader>
+       <CardContent><BubbleSheetConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
    </div>
  ) : (
