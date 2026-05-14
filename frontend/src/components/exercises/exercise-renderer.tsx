@@ -10,25 +10,65 @@ import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximiz
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
 import { MaybeMath } from "@/components/common/math-renderer";
-import Editor from "@monaco-editor/react";
-import MatchingExercise from "@/components/submissions/exercises/matching";
-import OrderingExercise from "@/components/submissions/exercises/ordering";
-import FillBlanksExercise from "@/components/submissions/exercises/fill-blanks";
-import TrueFalseExercise from "@/components/submissions/exercises/true-false";
-import CategorizeExercise from "@/components/submissions/exercises/categorize";
-import TranslationExercise from "@/components/exercises/translation-exercise";
-import SentenceBuilderExercise from "@/components/exercises/sentence-builder-exercise";
-import DialogueExercise from "@/components/exercises/dialogue-exercise";
-import ConjugationExercise from "@/components/exercises/conjugation-exercise";
-import ReadingExercise from "@/components/exercises/reading-exercise";
-import { SCORMPackageRenderer } from "@/components/exercises/scorm-package-exercise";
-import { MathStepwiseRenderer } from "@/components/exercises/math-stepwise-exercise";
-import SrsFlashcardExercise from "@/components/submissions/exercises/srs-flashcard";
-import CrosswordExercise from "@/components/exercises/crossword-exercise";
-import WordSearchExercise from "@/components/exercises/word-search-exercise";
-import MapPinDropExercise from "@/components/exercises/map-pin-drop-exercise";
-import BubbleSheetExercise from "@/components/exercises/bubble-sheet-exercise";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
+
+const ExerciseLoading = () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading exercise...</div>;
+
+const Editor = dynamic(() => import("@monaco-editor/react"), {
+ ssr: false,
+ loading: ExerciseLoading,
+});
+const MatchingExercise = dynamic(() => import("@/components/submissions/exercises/matching"), {
+ loading: ExerciseLoading,
+});
+const OrderingExercise = dynamic(() => import("@/components/submissions/exercises/ordering"), {
+ loading: ExerciseLoading,
+});
+const FillBlanksExercise = dynamic(() => import("@/components/submissions/exercises/fill-blanks"), {
+ loading: ExerciseLoading,
+});
+const TrueFalseExercise = dynamic(() => import("@/components/submissions/exercises/true-false"), {
+ loading: ExerciseLoading,
+});
+const CategorizeExercise = dynamic(() => import("@/components/submissions/exercises/categorize"), {
+ loading: ExerciseLoading,
+});
+const TranslationExercise = dynamic(() => import("@/components/exercises/translation-exercise"), {
+ loading: ExerciseLoading,
+});
+const SentenceBuilderExercise = dynamic(() => import("@/components/exercises/sentence-builder-exercise"), {
+ loading: ExerciseLoading,
+});
+const DialogueExercise = dynamic(() => import("@/components/exercises/dialogue-exercise"), {
+ loading: ExerciseLoading,
+});
+const ConjugationExercise = dynamic(() => import("@/components/exercises/conjugation-exercise"), {
+ loading: ExerciseLoading,
+});
+const ReadingExercise = dynamic(() => import("@/components/exercises/reading-exercise"), {
+ loading: ExerciseLoading,
+});
+const SCORMPackageRenderer = dynamic(() => import("@/components/exercises/scorm-package-exercise").then(m => ({ default: m.SCORMPackageRenderer })), {
+ loading: ExerciseLoading,
+});
+const MathStepwiseRenderer = dynamic(() => import("@/components/exercises/math-stepwise-exercise").then(m => ({ default: m.MathStepwiseRenderer })), {
+ loading: ExerciseLoading,
+});
+const SrsFlashcardExercise = dynamic(() => import("@/components/submissions/exercises/srs-flashcard"), {
+ loading: ExerciseLoading,
+});
+const CrosswordExercise = dynamic(() => import("@/components/exercises/crossword-exercise"), {
+ loading: ExerciseLoading,
+});
+const WordSearchExercise = dynamic(() => import("@/components/exercises/word-search-exercise"), {
+ loading: ExerciseLoading,
+});
+const MapPinDropExercise = dynamic(() => import("@/components/exercises/map-pin-drop-exercise"), {
+ loading: ExerciseLoading,
+});
+const BubbleSheetExercise = dynamic(() => import("@/components/exercises/bubble-sheet-exercise"), {
+ loading: ExerciseLoading,
+});
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
  ssr: false,
