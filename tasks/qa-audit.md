@@ -8,10 +8,10 @@
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| Flows tested | 30+ | 32 |
+| Flows tested | 30+ | 38 |
 | Critical bugs (P0 — blocks usage) | 0 remaining | 1 found → **FIXED** |
-| Major bugs (P1 — broken but workaround exists) | 0 remaining | 3 found |
-| Minor bugs (P2 — cosmetic/UX) | documented | 5 found |
+| Major bugs (P1 — broken but workaround exists) | 0 remaining | 5 found |
+| Minor bugs (P2 — cosmetic/UX) | documented | 7 found |
 | Roles fully tested | 3/3 | 3/3 |
 | Auth flows pass | 3/3 | 3/3 |
 | Core CRUD pass (courses, lessons, exercises) | yes | yes |
@@ -42,6 +42,14 @@
 3. **Course editor slow with many exercises** — The admin course editor page becomes sluggish when a course has 8+ exercises attached. Similar root cause to P0 — admin-side exercise config editors may also benefit from lazy loading.
    - **Workaround:** Page still functional, just slow.
 
+4. **Whitelabel: primary/secondary colors have no visual effect** — Settings page lets admin pick primary/secondary hex colors, which are saved to org settings and injected as CSS variables (`--primary`, `--secondary`). However, **no CSS rule in the entire codebase consumes these variables** — Tailwind theme uses its own hardcoded tokens. Color picker is a non-functional feature.
+   - **Workaround:** None — feature is cosmetic-only.
+   - **Fix needed:** Wire Tailwind theme tokens (`primary`, `success-fg`, etc.) to `var(--primary)` / `var(--secondary)` CSS variables, or remove color picker until implemented.
+
+5. **Whitelabel: Methodist can view settings but not save** — Methodist role (teacher with `is_methodist=true`) can navigate to `/admin/settings` and see the branding form, but save fails with 403 because backend requires `admin` role. Misleading UX.
+   - **Workaround:** Use super_admin account to change settings.
+   - **Fix needed:** Either grant methodists write access to org settings, or hide the settings page from non-admin roles.
+
 ### P2 — Minor (cosmetic, UX polish)
 
 1. **Login form retains credentials after logout** — After signing out, the login form still shows the previous user's email/password (browser autofill). Not a security issue in shared-device context since it's browser behavior, but looks unprofessional.
@@ -56,6 +64,10 @@
    - **Fix:** Add description or hide from student catalog.
 
 5. **Achievements page very slow to load** — Takes 5+ seconds, may timeout on slower connections.
+
+6. **Duplicate "Algonova" organizations** — Two orgs named "Algonova" exist (slugs: `algonova` created 4/20, `algonova-1` created 5/6). One is a duplicate.
+
+7. **Org named "1"** — An organization exists with just the name "1" (slug "1", created 5/4). Likely accidentally created. Shows as "1" in course org dropdowns — this is the source of the P1 "org shows 1" bug.
 
 ### P3 — Enhancement (nice-to-have)
 
@@ -120,6 +132,23 @@
 - [ ] Teacher creates exercise -> Student submits -> Teacher sees submission
 - [ ] Admin creates course -> Teacher assigned -> Students see it
 
+## Phase 5b: Whitelabel / Multi-Org
+- [x] Settings page loads (admin)
+- [x] Display name change → sidebar updates immediately
+- [x] Display name persists after page reload
+- [x] Logo URL field exists (not tested with real image)
+- [x] Primary color picker works in UI
+- [x] Secondary color picker works in UI
+- [ ] **FAIL:** Primary/secondary colors not applied to UI theme (CSS vars injected but unused)
+- [x] Menu visibility toggles render correctly
+- [ ] **FAIL:** Methodist can't save settings (403) but can see the page
+- [x] Organizations list (super_admin only)
+- [x] Create new organization button visible
+- [x] Edit/delete/members buttons per org
+- [x] Multi-org isolation: different orgs show different branding
+- [x] Org switcher visible in sidebar (super_admin)
+- [ ] **CLEANUP:** Duplicate Algonova orgs, orphan org "1"
+
 ## Phase 6: UX/Edge Cases
 - [ ] Empty states (no courses, no submissions)
 - [ ] Loading states
@@ -138,3 +167,5 @@ Before handing off to the organization, clean up:
 3. Add description to "Scorm xAPI test" or remove from catalog
 4. Remove `@test.app` test accounts from user list
 5. Verify org name displays correctly (not raw ID "1")
+6. Delete duplicate "Algonova" org (keep the older `algonova` slug from 4/20)
+7. Delete or rename org "1" (slug "1", created 5/4)
