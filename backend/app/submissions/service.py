@@ -124,6 +124,16 @@ def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple
         return _grade_conjugation(content, answers)
     elif exercise_type == "reading":
         return _grade_reading(content, answers)
+    elif exercise_type == "srs_flashcard":
+        return _grade_srs_flashcard(content, answers)
+    elif exercise_type == "crossword":
+        return _grade_crossword(content, answers)
+    elif exercise_type == "word_search":
+        return _grade_word_search(content, answers)
+    elif exercise_type == "map_pin_drop":
+        return _grade_map_pin_drop(content, answers)
+    elif exercise_type == "bubble_sheet":
+        return _grade_bubble_sheet(content, answers)
     return 0.0, False
 
 
@@ -298,6 +308,86 @@ def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
                 correct += 1
     score = correct / len(questions)
     return score, score >= 0.7
+
+
+def _grade_srs_flashcard(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade SRS flashcards — pass if student rated all cards good or easy."""
+    cards = content.get("cards", [])
+    ratings = answers.get("ratings", {})
+    if not cards:
+        return 1.0, True
+    good_ratings = {"good", "easy"}
+    mastered = sum(1 for i in range(len(cards)) if ratings.get(str(i), "") in good_ratings)
+    score = mastered / len(cards)
+    threshold = content.get("mastery_threshold", 0.7)
+    return score, score >= threshold
+
+
+def _grade_crossword(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade crossword — compare each word placement."""
+    words = content.get("words", [])
+    student_words = answers.get("words", {})
+    if not words:
+        return 1.0, True
+    correct = 0
+    for i, w in enumerate(words):
+        expected = w.get("word", "").strip().lower()
+        given = (student_words.get(str(i)) or "").strip().lower()
+        if given == expected:
+            correct += 1
+    score = correct / len(words)
+    return score, score >= 0.7
+
+
+def _grade_word_search(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade word search — check how many hidden words were found."""
+    hidden_words = content.get("words", [])
+    found = answers.get("found_words", [])
+    if not hidden_words:
+        return 1.0, True
+    expected_set = {w.strip().lower() for w in hidden_words}
+    found_set = {w.strip().lower() for w in found}
+    correct = len(expected_set & found_set)
+    score = correct / len(expected_set)
+    return score, score >= 0.7
+
+
+def _grade_map_pin_drop(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade map pin drop — check if pins are within tolerance of correct positions."""
+    pins = content.get("pins", [])
+    student_pins = answers.get("pins", [])
+    if not pins:
+        return 1.0, True
+    correct = 0
+    for i, pin in enumerate(pins):
+        if i >= len(student_pins):
+            continue
+        sp = student_pins[i]
+        dx = (sp.get("x", 0) - pin.get("x", 0))
+        dy = (sp.get("y", 0) - pin.get("y", 0))
+        dist = (dx ** 2 + dy ** 2) ** 0.5
+        tolerance = pin.get("tolerance", 30)
+        if dist <= tolerance:
+            correct += 1
+    score = correct / len(pins)
+    return score, score >= 0.7
+
+
+def _grade_bubble_sheet(content: dict, answers: dict) -> tuple[float, bool]:
+    """Grade bubble sheet — standard MC answer sheet."""
+    questions = content.get("questions", [])
+    student_answers = answers.get("answers", {})
+    if not questions:
+        return 1.0, True
+    correct = 0
+    for i, q in enumerate(questions):
+        expected = q.get("correct", "").strip().upper()
+        given = (student_answers.get(str(i)) or "").strip().upper()
+        if given == expected:
+            correct += 1
+    score = correct / len(questions)
+    passing = content.get("passing_score", 70) / 100
+    return score, score >= passing
 
 
 async def submit_interactive(

@@ -22,6 +22,11 @@ import ConjugationExercise from "@/components/exercises/conjugation-exercise";
 import ReadingExercise from "@/components/exercises/reading-exercise";
 import { SCORMPackageRenderer } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseRenderer } from "@/components/exercises/math-stepwise-exercise";
+import SrsFlashcardExercise from "@/components/submissions/exercises/srs-flashcard";
+import CrosswordExercise from "@/components/exercises/crossword-exercise";
+import WordSearchExercise from "@/components/exercises/word-search-exercise";
+import MapPinDropExercise from "@/components/exercises/map-pin-drop-exercise";
+import BubbleSheetExercise from "@/components/exercises/bubble-sheet-exercise";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const Robot2DExercise = dynamic(() => import("@/components/game/robot-2d/robot-2d-exercise"), {
@@ -83,7 +88,12 @@ interface Exercise {
  | "reading"
  | "web_editor"
  | "scorm_package"
- | "math_stepwise";
+ | "math_stepwise"
+ | "srs_flashcard"
+ | "crossword"
+ | "word_search"
+ | "map_pin_drop"
+ | "bubble_sheet";
  title: string;
  config: Record<string, unknown>;
  questions?: Question[];
@@ -607,6 +617,40 @@ function ExerciseBody({
  onSubmit={(body) => onSubmit(body)}
  />
  );
+
+ case "srs_flashcard": {
+ const cfg = exercise.config as { cards?: { front: string; back: string }[]; mastery_threshold?: number; instructions?: string; daily_new_cards?: number; daily_review_cap?: number };
+ return (
+ <SrsFlashcardExercise
+ exerciseId={exercise.id}
+ cards={cfg.cards || []}
+ instructions={cfg.instructions}
+ dailyNewCards={cfg.daily_new_cards}
+ dailyReviewCap={cfg.daily_review_cap}
+ onSubmit={(answers) => onSubmit({ interactive_answers: answers })}
+ />
+ );
+ }
+
+ case "crossword": {
+ const cfg = exercise.config as { grid_size?: number; words?: { word: string; clue: string; row: number; col: number; direction: "across" | "down" }[] };
+ return <CrosswordExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+ }
+
+ case "word_search": {
+ const cfg = exercise.config as { grid_size?: number; words?: string[] };
+ return <WordSearchExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+ }
+
+ case "map_pin_drop": {
+ const cfg = exercise.config as { image_url?: string; instructions?: string; pins?: { label: string; x: number; y: number; tolerance?: number }[] };
+ return <MapPinDropExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+ }
+
+ case "bubble_sheet": {
+ const cfg = exercise.config as { questions?: { number: number; options: string[]; correct: string }[]; num_options?: number; passing_score?: number };
+ return <BubbleSheetExercise config={cfg} onSubmit={(answers) => onSubmit({ interactive_answers: answers })} />;
+ }
 
  default:
  return (

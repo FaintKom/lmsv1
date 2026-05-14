@@ -39,6 +39,11 @@ class ExerciseType(str, enum.Enum):
     web_editor = "web_editor"
     scorm_package = "scorm_package"
     math_stepwise = "math_stepwise"
+    srs_flashcard = "srs_flashcard"
+    crossword = "crossword"
+    word_search = "word_search"
+    map_pin_drop = "map_pin_drop"
+    bubble_sheet = "bubble_sheet"
 
 
 EXERCISE_TYPE_PREFIX = {
@@ -61,6 +66,11 @@ EXERCISE_TYPE_PREFIX = {
     "web_editor": "W",
     "scorm_package": "SC",
     "math_stepwise": "MS",
+    "srs_flashcard": "SF",
+    "crossword": "CW",
+    "word_search": "WS",
+    "map_pin_drop": "MP",
+    "bubble_sheet": "BS",
 }
 
 

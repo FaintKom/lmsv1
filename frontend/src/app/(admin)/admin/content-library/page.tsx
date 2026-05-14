@@ -43,6 +43,10 @@ import {
  Globe,
  Package,
  Sigma,
+ Layers,
+ Grid3X3,
+ MapPin,
+ CircleDot,
 } from "lucide-react";
 import {
  exercisesApi,
@@ -75,6 +79,11 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  web_editor: Globe,
  scorm_package: Package,
  math_stepwise: Sigma,
+ srs_flashcard: Layers,
+ crossword: Grid3X3,
+ word_search: Search,
+ map_pin_drop: MapPin,
+ bubble_sheet: CircleDot,
 };
 
 const ALL_TYPES: ExerciseType[] = ALL_EXERCISE_TYPES;
