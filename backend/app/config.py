@@ -77,6 +77,13 @@ class Settings(BaseSettings):
     # Redis (optional). Rate limiter falls back to in-memory when empty.
     redis_url: str = ""
 
+    # Per-endpoint rate limits (slowapi syntax: "N/unit"). Overrideable via
+    # env so QA / load tests can raise the cap without changing the code.
+    # Defaults match the historical hard-coded values.
+    auth_login_rate_limit: str = "5/minute"
+    auth_register_rate_limit: str = "3/hour"
+    auth_password_reset_rate_limit: str = "3/hour"
+
     # Demo mode — exposes POST /auth/demo-login that returns a session
     # for a pre-configured demo account without any credentials. Off by
     # default. When on, also set the demo account emails below; the

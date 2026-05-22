@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 
 import { LoginPage } from "../poms/LoginPage";
 
-// Quarantined: depends on UI form login which needs NEXT_PUBLIC_API_URL
-// runtime support in api-client.ts. See Phase 3 PR notes.
-test.skip("student journey @quarantine", async ({ page }) => {
+// Unquarantined: Next.js server-side rewrites via BACKEND_URL env handle
+// browser /api/* -> backend proxy without changing api-client baseURL.
+test("student journey @smoke", async ({ page }) => {
   const login = new LoginPage(page);
   await login.loginViaUi("student");
   await expect(page).toHaveURL(/\/dashboard/);

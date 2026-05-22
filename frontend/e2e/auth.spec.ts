@@ -24,17 +24,16 @@ test.describe("auth @smoke", () => {
     expect(body.email).toBe("qa-admin@qa.example.com");
   });
 
-  // UI form-login tests are quarantined until the frontend's api-client
-  // honours NEXT_PUBLIC_API_URL at runtime. Right now baseURL is hard-coded
-  // to "/api/v1" which 404s in the QA stack (no nginx in front of the
-  // published frontend port). See follow-up note in the Phase 3 PR.
-  test.skip("UI login as student lands on dashboard @quarantine", async ({ page }) => {
+  // UI form-login tests use Next.js server-side rewrites (next.config.ts
+  // `rewrites()` consumes BACKEND_URL env) to proxy /api/* -> backend, so
+  // the browser's relative axios baseURL works without a code change.
+  test("UI login as student lands on dashboard", async ({ page }) => {
     const login = new LoginPage(page);
     await login.loginViaUi("student");
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test.skip("UI login as teacher lands on admin @quarantine", async ({ page }) => {
+  test("UI login as teacher lands on admin", async ({ page }) => {
     const login = new LoginPage(page);
     await login.loginViaUi("teacher");
     await expect(page).toHaveURL(/\/admin/);
