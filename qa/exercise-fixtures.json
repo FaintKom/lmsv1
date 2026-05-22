@@ -1,0 +1,273 @@
+{
+  "$schema_version": 1,
+  "$doc": "Deterministic fixture data for all 24 exercise types. Consumed by scripts/seed_qa.py (Python) and by future frontend e2e registry (TypeScript). Sync is enforced at seed-time (raises SystemExit if any ExerciseType enum value lacks a fixture). Lifecycle-test fields (sampleCorrectAnswer / sampleWrongAnswer / rendererSelector / submitSelector) are added separately when the Playwright lifecycle spec is wired up - see docs/superpowers/plans/2026-05-22-qa-system.md Phase 5.",
+  "fixtures": [
+    {
+      "type": "quiz",
+      "label": "Quiz",
+      "config": {"passing_score": 70},
+      "questions": [
+        {
+          "question_text": "2+2?",
+          "question_type": "multiple_choice",
+          "options": [
+            {"text": "3", "is_correct": false},
+            {"text": "4", "is_correct": true}
+          ],
+          "correct_answer": null,
+          "points": 1
+        }
+      ]
+    },
+    {
+      "type": "code_challenge",
+      "label": "Code Challenge",
+      "config": {
+        "language": "python",
+        "starter_code": "def add(a, b):\n    pass",
+        "solution_code": "def add(a, b):\n    return a + b",
+        "time_limit_seconds": 5,
+        "memory_limit_mb": 128
+      },
+      "test_cases": [
+        {"input": "1 2", "expected_output": "3", "is_hidden": false},
+        {"input": "10 -3", "expected_output": "7", "is_hidden": true}
+      ]
+    },
+    {
+      "type": "matching",
+      "label": "Matching",
+      "config": {
+        "pairs": [
+          {"left": "Dog", "right": "Bark"},
+          {"left": "Cat", "right": "Meow"}
+        ],
+        "shuffle": false
+      }
+    },
+    {
+      "type": "ordering",
+      "label": "Ordering",
+      "config": {
+        "items": ["one", "two", "three"],
+        "correct_order": ["one", "two", "three"]
+      }
+    },
+    {
+      "type": "fill_blanks",
+      "label": "Fill in the blanks",
+      "config": {
+        "text": "The capital of France is ___.",
+        "blanks": ["Paris"]
+      }
+    },
+    {
+      "type": "true_false",
+      "label": "True / False",
+      "config": {
+        "statement": "The sky is blue.",
+        "correct_answer": true
+      }
+    },
+    {
+      "type": "categorize",
+      "label": "Categorize",
+      "config": {
+        "categories": [
+          {"name": "Fruit", "items": ["apple", "banana"]},
+          {"name": "Vehicle", "items": ["car", "bus"]}
+        ]
+      }
+    },
+    {
+      "type": "file_upload",
+      "label": "File upload",
+      "config": {
+        "allowed_types": [".pdf", ".png"],
+        "max_file_mb": 5
+      },
+      "skipReason": "Lifecycle test cannot upload a real file in CI without a fixture binary; covered by manual smoke for now."
+    },
+    {
+      "type": "robot_2d",
+      "label": "Robot 2D",
+      "config": {
+        "grid_width": 3,
+        "grid_height": 3,
+        "cells": [
+          {"x": 0, "y": 0, "type": "start"},
+          {"x": 2, "y": 2, "type": "goal"}
+        ],
+        "available_blocks": ["move_forward", "turn_right"],
+        "win_condition": "reach_goal",
+        "difficulty": "beginner",
+        "hints": []
+      }
+    },
+    {
+      "type": "math_interactive",
+      "label": "Math (interactive)",
+      "config": {
+        "template_type": "coordinate_plane",
+        "template_config": {},
+        "success_condition": {"kind": "click_origin"},
+        "difficulty": "beginner",
+        "instructions": "Click the origin."
+      }
+    },
+    {
+      "type": "world_3d",
+      "label": "World 3D",
+      "config": {
+        "grid_width": 3,
+        "grid_depth": 3,
+        "cells": [
+          {"x": 0, "z": 0, "y": 0, "type": "start"},
+          {"x": 2, "z": 2, "y": 0, "type": "goal"}
+        ],
+        "player_start": {"x": 0, "y": 0, "z": 0, "direction": "east"},
+        "available_blocks": ["move_forward", "turn_right"],
+        "win_condition": "reach_goal",
+        "difficulty": "beginner"
+      }
+    },
+    {
+      "type": "translation",
+      "label": "Translation",
+      "config": {
+        "source_text": "Hello",
+        "source_language": "en",
+        "target_language": "es",
+        "accepted_answers": ["Hola", "hola"],
+        "case_sensitive": false
+      }
+    },
+    {
+      "type": "sentence_builder",
+      "label": "Sentence builder",
+      "config": {
+        "words": ["I", "am", "happy"],
+        "correct_order": ["I", "am", "happy"],
+        "distractors": ["sad"],
+        "instructions": "Arrange the words into a sentence."
+      }
+    },
+    {
+      "type": "dialogue",
+      "label": "Dialogue",
+      "config": {
+        "context": "Ordering coffee.",
+        "messages": [
+          {"speaker": "Barista", "text": "What would you like?"},
+          {"speaker": "You", "text": "", "options": ["A latte, please.", "Just water."]}
+        ]
+      }
+    },
+    {
+      "type": "conjugation",
+      "label": "Conjugation",
+      "config": {
+        "verb": "to be",
+        "tense": "present",
+        "language": "en",
+        "table": [
+          {"pronoun": "I", "correct": "am"},
+          {"pronoun": "You", "correct": "are"},
+          {"pronoun": "He/She/It", "correct": "is"}
+        ]
+      }
+    },
+    {
+      "type": "reading",
+      "label": "Reading",
+      "config": {
+        "passage": "The cat sat on the mat.",
+        "questions": [
+          {
+            "question": "Where did the cat sit?",
+            "type": "multiple_choice",
+            "options": ["mat", "chair"],
+            "correct_answer": "mat"
+          }
+        ]
+      }
+    },
+    {
+      "type": "web_editor",
+      "label": "Web editor",
+      "config": {
+        "description": "Render the word 'hello' in red.",
+        "starter_html": "<p>hello</p>",
+        "starter_css": "",
+        "starter_js": "",
+        "requirements": ["p element must be red"]
+      }
+    },
+    {
+      "type": "scorm_package",
+      "label": "SCORM package",
+      "config": {"package_url": "/static/qa-fixtures/placeholder-scorm.zip"},
+      "skipReason": "Requires a real SCORM .zip uploaded via /api/v1/scorm-import; covered by manual smoke for now."
+    },
+    {
+      "type": "math_stepwise",
+      "label": "Math (step-by-step)",
+      "config": {
+        "problem": "Solve: x + 2 = 5",
+        "variable": "x",
+        "max_steps": 3,
+        "final_answer": "3",
+        "validate_steps": false
+      }
+    },
+    {
+      "type": "srs_flashcard",
+      "label": "SRS flashcard",
+      "config": {
+        "cards": [
+          {"front": "What is 2+2?", "back": "4"},
+          {"front": "Capital of France?", "back": "Paris"}
+        ]
+      }
+    },
+    {
+      "type": "crossword",
+      "label": "Crossword",
+      "config": {
+        "grid_width": 5,
+        "grid_height": 5,
+        "clues": [
+          {"number": 1, "direction": "across", "answer": "CAT", "clue": "A small furry pet."},
+          {"number": 2, "direction": "down", "answer": "CAR", "clue": "A road vehicle."}
+        ]
+      }
+    },
+    {
+      "type": "word_search",
+      "label": "Word search",
+      "config": {
+        "words": ["cat", "dog", "fish"],
+        "grid_size": 8
+      }
+    },
+    {
+      "type": "map_pin_drop",
+      "label": "Map pin drop",
+      "config": {
+        "map_url": "/static/qa-fixtures/world-map.png",
+        "pins": [
+          {"label": "Paris", "x": 0.51, "y": 0.34, "tolerance": 0.05}
+        ]
+      }
+    },
+    {
+      "type": "bubble_sheet",
+      "label": "Bubble sheet",
+      "config": {
+        "question_count": 5,
+        "choices_per_question": 4,
+        "correct_answers": ["A", "B", "C", "D", "A"]
+      }
+    }
+  ]
+}
