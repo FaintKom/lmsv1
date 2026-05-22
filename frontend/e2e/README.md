@@ -49,3 +49,35 @@ Unit tests live in `src/**/*.test.ts(x)` and use Vitest + jsdom.
    if needed, not by clicking through other tests.
 3. Keep each smoke test under 10 seconds. Long flows go in their own
    file, not `smoke.spec.ts`.
+
+## QA harness layout
+
+The QA system (see `docs/superpowers/specs/2026-05-22-qa-system-design.md`)
+adds these subdirectories:
+
+- `e2e/poms/` - Page Object Models (LoginPage, CourseEditorPage,
+  ExerciseRendererPage). Spec files import these instead of clicking
+  selectors directly so a UI rewrite touches one POM, not 20 specs.
+- `e2e/registry/exercise-types.ts` - declarative registry of all 24
+  exercise types, sourced from `qa/exercise-fixtures.json` (the same
+  file `scripts/seed_qa.py` consumes).
+- `e2e/exercises/lifecycle.spec.ts` - parameterised over the registry:
+  creates each exercise type via API, submits, asserts non-5xx.
+- `e2e/roles/` - one happy-path file per role (student / teacher /
+  methodist / admin).
+- `e2e/auth.spec.ts` - login form, redirect, API token.
+
+Smoke runs (PR): tests tagged `@smoke`. Full runs (nightly): every test.
+
+## Quarantine
+
+Tests tagged `@quarantine` in the title still run (so they don't
+bit-rot) but failures don't block the PR. Add to `quarantine.ts` for
+visibility. File a GitHub issue every time and reference it in the
+inline comment. Goal: empty quarantine at release.
+
+Example:
+
+```typescript
+test("flaky thing @quarantine", async ({ page }) => { ... });
+```

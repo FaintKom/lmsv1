@@ -1,6 +1,12 @@
 import axios from "axios";
 import { toast } from "sonner";
 
+// In prod the frontend is served behind nginx which proxies /api/* to
+// the backend, so a relative baseURL Just Works. In QA (and any setup
+// where the frontend port is different from the backend port and there
+// is no proxy in front), set NEXT_PUBLIC_API_URL at build time to point
+// at the backend - e.g. `http://localhost:8000` from
+// docker-compose.qa.yml's frontend build args.
 const apiClient = axios.create({
  baseURL: "/api/v1",
  headers: {
