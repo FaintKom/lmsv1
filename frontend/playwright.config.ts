@@ -17,12 +17,17 @@ export default defineConfig({
   testMatch: ["e2e/**/*.spec.ts", "widget-tests/**/*.spec.ts"],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? [["github"], ["list"]] : "list",
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 4 : undefined,
+  reporter: process.env.CI
+    ? [["github"], ["list"], ["html", { open: "never" }]]
+    : "list",
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
-    trace: "on-first-retry",
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
+    trace: "retain-on-failure",
+    video: "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [

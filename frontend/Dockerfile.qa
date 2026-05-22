@@ -1,0 +1,42 @@
+# QA frontend Dockerfile.
+# Differs from frontend/Dockerfile only in that the build context is the
+# REPO ROOT (set in docker-compose.qa.yml) so we can COPY both frontend/
+# and qa/ - the e2e registry imports qa/exercise-fixtures.json and
+# Next.js typechecks during build, so the JSON must be inside the build
+# context. Keeping this separate from the prod Dockerfile avoids
+# perturbing prod builds.
+
+# Stage 1: Build
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --legacy-peer-deps
+
+ARG NEXT_PUBLIC_API_URL=""
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+# Copy frontend source to /app and qa fixtures to /qa so the registry's
+# relative import (`../../../qa/exercise-fixtures.json` from
+# frontend/e2e/registry/) resolves the same way it does on the host.
+COPY frontend/ ./
+COPY qa/ /qa/
+
+RUN npm run build
+
+# Stage 2: Production
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+EXPOSE 3000
+
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]
