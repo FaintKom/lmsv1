@@ -24,11 +24,27 @@ These tests are NOT transactional - mutations persist for the lifetime
 of the QA stack. Order independence is the test author's responsibility.
 """
 import os
+import uuid
 
 import pytest_asyncio
 from httpx import AsyncClient
 
 API_URL = os.environ.get("QA_API_URL", "http://localhost:8000")
+
+# Mirror of scripts/seed_qa.py constants. Re-derive instead of importing
+# because scripts/ is not a Python package (no __init__.py) and importing
+# from it requires hacking sys.path even more than the seed already does.
+NAMESPACE_QA = uuid.UUID("12345678-1234-5678-1234-567812345678")
+
+
+def qa_uuid(slug: str) -> uuid.UUID:
+    return uuid.uuid5(NAMESPACE_QA, slug)
+
+
+QA_ORG_ID    = qa_uuid("qa-org")
+QA_COURSE_ID = qa_uuid("qa-course")
+QA_MODULE_ID = qa_uuid("qa-module")
+QA_LESSON_ID = qa_uuid("qa-lesson")
 
 QA_USERS: dict[str, tuple[str, str]] = {
     "student":   ("qa-student@qa.example.com",   "QaTest2026!"),
