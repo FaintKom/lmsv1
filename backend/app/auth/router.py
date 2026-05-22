@@ -81,7 +81,7 @@ async def search_organizations(
 
 
 @router.post("/register", response_model=TokenResponse)
-@limiter.limit("3/hour")
+@limiter.limit(lambda: settings.auth_register_rate_limit)
 async def register_endpoint(
     request: Request,
     response: Response,
@@ -206,7 +206,7 @@ async def demo_login_endpoint(
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/minute")
+@limiter.limit(lambda: settings.auth_login_rate_limit)
 async def login_endpoint(
     request: Request,
     response: Response,
@@ -524,7 +524,7 @@ class ResetPasswordRequest(BaseModel):
 
 
 @router.post("/forgot-password")
-@limiter.limit("3/hour")
+@limiter.limit(lambda: settings.auth_password_reset_rate_limit)
 async def forgot_password_endpoint(
     request: Request,
     response: Response,

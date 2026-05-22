@@ -248,21 +248,35 @@ def _grade_sentence_builder(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade dialogue — check selected options."""
-    messages = content.get("messages", [])
-    selections = answers.get("selections", {})  # {message_index: selected_option_id}
+    """Grade dialogue - check selected options.
+
+    Each message may have `options` as either:
+      - a list of strings (label-only, no correctness marker; a matching
+        pick counts as correct)
+      - a list of dicts {id, label, is_correct?} (correctness marker
+        drives the grade)
+    """
+    messages = content.get("messages") or []
+    selections = (answers or {}).get("selections") or {}
     total = 0
     correct = 0
     for i, msg in enumerate(messages):
-        options = msg.get("options")
+        options = (msg or {}).get("options")
         if not options:
             continue
         total += 1
         selected = selections.get(str(i))
+        if selected is None:
+            continue
         for opt in options:
-            if opt.get("id") == selected and opt.get("is_correct"):
-                correct += 1
-                break
+            if isinstance(opt, str):
+                if selected == opt:
+                    correct += 1
+                    break
+            elif isinstance(opt, dict):
+                if opt.get("id") == selected and opt.get("is_correct"):
+                    correct += 1
+                    break
     if total == 0:
         return 1.0, True
     score = correct / total
@@ -287,21 +301,41 @@ def _grade_conjugation(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade reading comprehension — grade each question."""
-    questions = content.get("questions", [])
-    student_answers = answers.get("answers", {})  # {question_index: answer}
+    """Grade reading comprehension - grade each question.
+
+    Each question may have `options` as either:
+      - a list of strings (compare student answer directly to
+        `correct_answer` from the question)
+      - a list of dicts {id, label, is_correct} (id-based check)
+    """
+    questions = content.get("questions") or []
+    student_answers = (answers or {}).get("answers") or {}
     if not questions:
         return 1.0, True
     correct = 0
     for i, q in enumerate(questions):
+        if not isinstance(q, dict):
+            continue
         student = student_answers.get(str(i), "")
-        if q.get("type") == "multiple_choice":
-            options = q.get("options", [])
+        q_type = q.get("type")
+        if q_type == "multiple_choice":
+            options = q.get("options") or []
+            expected_answer = (q.get("correct_answer") or "").strip().lower()
+            student_str = (student or "").strip().lower()
+            matched = False
             for opt in options:
-                if opt.get("id") == student and opt.get("is_correct"):
-                    correct += 1
-                    break
-        elif q.get("type") == "text":
+                if isinstance(opt, str):
+                    # Label-only fixture: compare student pick to correct_answer.
+                    if student_str and student_str == expected_answer:
+                        matched = True
+                        break
+                elif isinstance(opt, dict):
+                    if opt.get("id") == student and opt.get("is_correct"):
+                        matched = True
+                        break
+            if matched:
+                correct += 1
+        elif q_type == "text":
             expected = (q.get("correct_answer") or "").strip().lower()
             given = (student or "").strip().lower()
             if given == expected:
