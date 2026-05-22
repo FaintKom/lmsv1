@@ -1,0 +1,97 @@
+# docker-compose.qa.yml — ephemeral stack for CI and local QA runs.
+# NOT shared with prod. tmpfs DB, no nginx/cloudflared, no backups.
+#
+# Always run with explicit project name so containers don't clash with the
+# local dev/prod stack (which uses the default project name `lms`):
+#     docker compose -f docker-compose.qa.yml up -d --wait
+# (the top-level `name:` field below pins the project to `lms-qa`).
+#
+# All POSTGRES_*/JWT_*/etc values are HARD-CODED rather than interpolated
+# from .env.qa — the root .env (prod) shadows ${VAR:-default} substitution
+# in compose YAML and broke DB auth in the first attempt. env_file: .env.qa
+# still applies to container env vars (different mechanism, not shadowed).
+
+name: lms-qa
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: qa
+      POSTGRES_PASSWORD: qa-password-not-for-prod
+      POSTGRES_DB: lms_qa
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qa -d lms_qa"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  sandbox:
+    build: ./sandbox
+    command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M
+    security_opt:
+      - "no-new-privileges:true"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+
+  backend:
+    build: ./backend
+    env_file: .env.qa
+    environment:
+      DATABASE_URL: postgresql+asyncpg://qa:qa-password-not-for-prod@db:5432/lms_qa
+      SANDBOX_URL: http://sandbox:8001
+      RATE_LIMIT_STORAGE_URI: redis://redis:6379/0
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      # /health returns {"status": "ok", "ready": <bool>}. We require ready=true
+      # so the QA stack is genuinely usable before tests start — a 200 with
+      # ready=false hides a broken DB connection.
+      test:
+        - "CMD-SHELL"
+        - "python -c 'import json,urllib.request,sys; r=urllib.request.urlopen(\"http://localhost:8000/health\"); d=json.load(r); sys.exit(0 if d.get(\"ready\") else 1)'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    env_file: .env.qa
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    healthcheck:
+      # node:22-alpine ships busybox wget.
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000 >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
