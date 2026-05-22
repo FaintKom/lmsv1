@@ -68,6 +68,10 @@ services:
       # ephemeral DB without rebuilding the image when fixtures change.
       - ./scripts:/app/scripts:ro
       - ./qa:/app/qa:ro
+      # Role-flow tests live in this repo but the backend image is built once
+      # and may pre-date them. Mount the dir so `pytest tests/role_flows/`
+      # picks up edits without a rebuild.
+      - ./backend/tests/role_flows:/app/tests/role_flows:ro
     depends_on:
       db:
         condition: service_healthy
