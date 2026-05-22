@@ -1,0 +1,117 @@
+name: QA
+
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start QA stack
+        run: docker compose -f docker-compose.qa.yml up -d --wait
+
+      - name: Apply migrations
+        run: docker compose -f docker-compose.qa.yml exec -T backend alembic upgrade head
+
+      - name: Install backend dev deps (pytest + httpx)
+        run: docker compose -f docker-compose.qa.yml exec -T backend pip install pytest pytest-asyncio httpx
+
+      - name: Seed and capture IDs
+        id: seed
+        run: |
+          set -euo pipefail
+          OUT=$(docker compose -f docker-compose.qa.yml exec -T backend python scripts/seed_qa.py)
+          echo "$OUT"
+          LESSON=$(echo "$OUT" | grep '^QA_LESSON_ID=' | cut -d= -f2 | tr -d '\r')
+          COURSE=$(echo "$OUT" | grep '^QA_COURSE_ID=' | cut -d= -f2 | tr -d '\r')
+          ORG=$(echo "$OUT"    | grep '^QA_ORG_ID='    | cut -d= -f2 | tr -d '\r')
+          echo "lesson_id=$LESSON" >> "$GITHUB_OUTPUT"
+          echo "course_id=$COURSE" >> "$GITHUB_OUTPUT"
+          echo "org_id=$ORG"       >> "$GITHUB_OUTPUT"
+
+      - name: Backend role-flow tests
+        env:
+          QA_LIVE: "1"
+        run: docker compose -f docker-compose.qa.yml exec -T -e QA_LIVE=1 backend python -m pytest tests/role_flows/ -v
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install Playwright browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Vitest (registry parity etc.)
+        working-directory: frontend
+        run: npm test
+
+      - name: Run Playwright suite
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_API_URL: http://localhost:8000
+          QA_LESSON_ID: ${{ steps.seed.outputs.lesson_id }}
+          QA_COURSE_ID: ${{ steps.seed.outputs.course_id }}
+          QA_ORG_ID: ${{ steps.seed.outputs.org_id }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npx playwright test e2e/ --grep @smoke
+          else
+            npx playwright test e2e/
+          fi
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+      - name: Upload Playwright test-results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: frontend/test-results/
+          retention-days: 7
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.qa.yml logs --no-color > compose-logs.txt
+
+      - name: Upload compose logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-logs
+          path: compose-logs.txt
+          retention-days: 7
+
+      - name: Stop stack
+        if: always()
+        run: docker compose -f docker-compose.qa.yml down -v
