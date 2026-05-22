@@ -46,11 +46,11 @@ async def test_student_submits_quiz_correctly_and_scores_100(role_client_factory
     # `text` (not its array index) - see app/assessments/grading.py.
     # The seed fixture quiz options are [{text:"3"},{text:"4"}] with "4"
     # marked correct.
-    CORRECT_TEXT = "4"
+    correct_text = "4"
 
     r = await c.post(
         f"/api/v1/exercises/{quiz['id']}/submit",
-        json={"answers": [{"question_id": q["id"], "selected_option": CORRECT_TEXT}]},
+        json={"answers": [{"question_id": q["id"], "selected_option": correct_text}]},
     )
     assert r.status_code == 200, r.text
     sub = r.json()
@@ -67,11 +67,11 @@ async def test_student_submits_quiz_wrong_and_scores_zero(role_client_factory):
     detail = r.json()
     q = detail["questions"][0]
 
-    WRONG_TEXT = "3"  # see comment in test above; "3" is the wrong option
+    wrong_text = "3"  # see comment in test above; "3" is the wrong option
 
     r = await c.post(
         f"/api/v1/exercises/{quiz['id']}/submit",
-        json={"answers": [{"question_id": q["id"], "selected_option": WRONG_TEXT}]},
+        json={"answers": [{"question_id": q["id"], "selected_option": wrong_text}]},
     )
     assert r.status_code == 200, r.text
     sub = r.json()
