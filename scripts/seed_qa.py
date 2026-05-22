@@ -5,20 +5,23 @@ Idempotent: run twice, no duplicates. Run inside the backend container after
 
     docker compose -f docker-compose.qa.yml exec -T backend python scripts/seed_qa.py
 
-Creates: 4 role users, 1 organization, 1 course with 1 module and 1 lesson,
-1 student enrollment. UUIDs are derived from string slugs so tests can
-reference them without round-tripping to the DB.
+Creates:
+  - 1 organization
+  - 4 role users (student, teacher, methodist, admin)
+  - 1 published course -> 1 module -> 1 lesson
+  - 1 student enrollment
+  - 24 exercises (one per ExerciseType), loaded from qa/exercise-fixtures.json,
+    with Question rows for quiz/reading and TestCase rows for code_challenge.
+
+UUIDs are derived from string slugs (`uuid.uuid5(NAMESPACE_QA, slug)`) so
+tests can reference them without round-tripping to the DB.
 
 Exit codes:
   0 - success
   non-zero - abort. CI must not run tests against a half-seeded DB.
-
-Scope note: this file deliberately does NOT create exercises. That is a
-follow-up (Phase 2 PR) because quiz/code_challenge store their Question /
-TestCase rows in separate tables and the fixture-to-row mapping deserves
-its own commit + review pass.
 """
 import asyncio
+import json
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -67,11 +70,16 @@ import app.team_projects.models  # noqa: F401
 import app.waitlist.models  # noqa: F401
 import app.webhooks.models  # noqa: F401
 
+from app.assessments.models import Question, QuestionType
 from app.auth.models import Organization, User, UserRole
 from app.auth.security import hash_password
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.db.session import async_session_factory
+from app.exercises.models import Exercise, ExerciseType
 from app.progress.models import Enrollment
+from app.sandbox.models import TestCase
+
+FIXTURES_PATH = _BACKEND_ROOT / "qa" / "exercise-fixtures.json"
 
 NAMESPACE_QA = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
@@ -220,14 +228,111 @@ async def upsert_enrollment(
     await db.flush()
 
 
+# ---------------------------------------------------------------------------
+# Exercises (one per ExerciseType, loaded from qa/exercise-fixtures.json)
+# ---------------------------------------------------------------------------
+
+def load_fixtures() -> list[dict]:
+    """Read qa/exercise-fixtures.json. Returns the `fixtures` list."""
+    data = json.loads(FIXTURES_PATH.read_text(encoding="utf-8"))
+    return data["fixtures"]
+
+
+def assert_fixture_coverage() -> None:
+    """Abort early if any ExerciseType enum value lacks a fixture or vice versa.
+
+    Catches the most common regression: adding a new exercise type to the
+    backend enum without registering a QA fixture (or vice versa). The QA
+    matrix test is meaningless if these drift.
+    """
+    fixtures = load_fixtures()
+    fx_types = {fx["type"] for fx in fixtures}
+    enum_types = {e.value for e in ExerciseType}
+    missing = enum_types - fx_types
+    extra = fx_types - enum_types
+    if missing or extra:
+        raise SystemExit(
+            f"Fixture mismatch: missing={sorted(missing)} extra={sorted(extra)}"
+        )
+
+
+async def upsert_exercises(
+    db: AsyncSession, org: Organization, lesson: Lesson
+) -> list[Exercise]:
+    """Create one Exercise per fixture entry, with Question / TestCase children.
+
+    Idempotent: matches by deterministic uuid5. Existing rows are kept as-is
+    (no field updates). Re-running after a fixture content change therefore
+    does NOT propagate the change to already-seeded rows - tear down the DB
+    (`docker compose down -v`) and re-seed for that. Acceptable trade-off:
+    the QA stack is ephemeral, and idempotency exists for safety on re-runs
+    in CI, not for live edit-and-reseed loops.
+    """
+    fixtures = load_fixtures()
+    created: list[Exercise] = []
+
+    for i, fx in enumerate(fixtures):
+        ex_id = qa_uuid(f"qa-exercise-{fx['type']}")
+        existing = await db.get(Exercise, ex_id)
+        if existing is not None:
+            created.append(existing)
+            continue
+
+        ex = Exercise(
+            id=ex_id,
+            lesson_id=lesson.id,
+            org_id=org.id,
+            display_id=f"QA-{fx['type'][:10].upper()}-{i:02d}",
+            exercise_type=ExerciseType(fx["type"]),
+            title=f"QA {fx['label']}",
+            config=fx.get("config", {}),
+            sort_order=i,
+        )
+        db.add(ex)
+        await db.flush()  # need ex.id for FK below
+
+        # Optional children: questions (quiz/reading) and test_cases (code_challenge).
+        for j, q_spec in enumerate(fx.get("questions") or []):
+            q = Question(
+                id=qa_uuid(f"qa-question-{fx['type']}-{j}"),
+                exercise_id=ex.id,
+                question_text=q_spec["question_text"],
+                question_type=QuestionType(q_spec["question_type"]),
+                options=q_spec.get("options"),
+                correct_answer=q_spec.get("correct_answer"),
+                points=q_spec.get("points", 1),
+                sort_order=j,
+            )
+            db.add(q)
+
+        for k, tc_spec in enumerate(fx.get("test_cases") or []):
+            tc = TestCase(
+                id=qa_uuid(f"qa-testcase-{fx['type']}-{k}"),
+                exercise_id=ex.id,
+                input=tc_spec.get("input", ""),
+                expected_output=tc_spec["expected_output"],
+                is_hidden=tc_spec.get("is_hidden", False),
+                sort_order=k,
+            )
+            db.add(tc)
+
+        await db.flush()
+        created.append(ex)
+
+    return created
+
+
 async def main() -> int:
+    assert_fixture_coverage()
     async with async_session_factory() as db:
         org = await upsert_org(db)
         users = await upsert_users(db, org)
         course, _module, lesson = await upsert_course_tree(db, org, users["qa-teacher"])
         await upsert_enrollment(db, course, users["qa-student"])
+        exercises = await upsert_exercises(db, org, lesson)
         await db.commit()
         # Machine-parseable lines for CI to capture as job outputs.
+        print(f"QA_EXERCISE_COUNT={len(exercises)}")
         print(f"QA_ORG_ID={org.id}")
         print(f"QA_COURSE_ID={course.id}")
         print(f"QA_LESSON_ID={lesson.id}")
