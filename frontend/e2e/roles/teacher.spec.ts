@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 
 import { LoginPage } from "../poms/LoginPage";
 
-// Quarantined: depends on UI form login. See Phase 3 PR notes.
-test.skip("teacher journey @quarantine", async ({ page }) => {
+// Unquarantined: rewrites via BACKEND_URL handle the proxy.
+test("teacher journey @smoke", async ({ page }) => {
   const login = new LoginPage(page);
   await login.loginViaUi("teacher");
   await expect(page).toHaveURL(/\/admin/);

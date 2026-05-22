@@ -161,8 +161,7 @@
           {"speaker": "Barista", "text": "What would you like?"},
           {"speaker": "You", "text": "", "options": ["A latte, please.", "Just water."]}
         ]
-      },
-      "skipReason": "Backend submit handler crashes 500 ('str' object has no attribute 'get') - real bug found by lifecycle test, needs follow-up fix in app/exercises/service.py"
+      }
     },
     {
       "type": "conjugation",
@@ -191,8 +190,7 @@
             "correct_answer": "mat"
           }
         ]
-      },
-      "skipReason": "Backend submit handler crashes 500 ('NoneType' object has no attribute 'get') - real bug found by lifecycle test, needs follow-up fix in app/exercises/service.py"
+      }
     },
     {
       "type": "web_editor",
