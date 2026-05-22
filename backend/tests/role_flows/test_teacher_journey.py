@@ -2,8 +2,6 @@
 -> add exercise -> view gradebook."""
 import uuid
 
-import pytest
-
 
 async def test_teacher_can_create_course_module_lesson_exercise(role_client_factory):
     c = await role_client_factory("teacher")

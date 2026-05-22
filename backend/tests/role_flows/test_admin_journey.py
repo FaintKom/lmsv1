@@ -1,6 +1,5 @@
 """Admin happy path: log in -> list users -> view dashboard -> list
 organizations."""
-import pytest
 
 
 async def test_admin_can_list_users(role_client_factory):

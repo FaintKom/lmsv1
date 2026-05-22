@@ -1,7 +1,5 @@
 """Student happy path: log in -> see enrolled QA Course -> see exercises
 -> submit the seeded quiz with correct answer -> score 100."""
-import pytest
-
 from .conftest import QA_COURSE_ID, QA_LESSON_ID
 
 

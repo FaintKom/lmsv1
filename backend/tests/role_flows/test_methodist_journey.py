@@ -5,7 +5,6 @@ facets, by-id) over HTTP. There is no POST /knowledge endpoint -
 entries are ingested out-of-band via the F:\\sources pipeline (see
 project CLAUDE.md). The methodist test therefore covers read paths only.
 """
-import pytest
 
 
 async def test_methodist_can_list_knowledge(role_client_factory):
