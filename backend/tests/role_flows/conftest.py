@@ -29,6 +29,13 @@ import uuid
 import pytest_asyncio
 from httpx import AsyncClient
 
+# These tests REQUIRE a live ephemeral QA backend on QA_API_URL. The QA
+# workflow (.github/workflows/qa.yml) opts in by setting QA_LIVE=1; the
+# standard CI workflow does NOT. When QA_LIVE is unset, refuse to collect
+# any test in this directory so the main pytest run stays clean.
+if not os.environ.get("QA_LIVE"):
+    collect_ignore_glob = ["test_*.py"]
+
 API_URL = os.environ.get("QA_API_URL", "http://localhost:8000")
 
 # Mirror of scripts/seed_qa.py constants. Re-derive instead of importing
