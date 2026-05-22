@@ -93,7 +93,12 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      # Context is repo root so the build can COPY both frontend/ and qa/
+      # (the registry imports qa/exercise-fixtures.json at typecheck time).
+      # Dockerfile.qa exists separately so prod's `./frontend` context build
+      # is unaffected.
+      context: .
+      dockerfile: frontend/Dockerfile.qa
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8000
     env_file: .env.qa
