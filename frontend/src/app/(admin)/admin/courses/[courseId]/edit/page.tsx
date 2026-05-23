@@ -1881,7 +1881,7 @@ const EXERCISE_TYPE_LABELS: Record<string, string> = EXERCISE_TYPE_LABELS_FULL;
 const EXERCISE_TYPES_LIST = EXERCISE_TYPES_META.map((m) => ({
  value: m.value,
  label: m.label,
- icon: m.icon,
+ Icon: m.Icon,
 }));
 
 function ExerciseBlockCreator({
@@ -1924,19 +1924,23 @@ function ExerciseBlockCreator({
  <div className="space-y-3">
  <p className="text-xs text-text-subtle">Create a new exercise for this block:</p>
  <div className="flex flex-wrap gap-1.5">
- {EXERCISE_TYPES_LIST.map((t) => (
+ {EXERCISE_TYPES_LIST.map((t) => {
+ const Icon = t.Icon;
+ return (
  <button
  key={t.value}
  onClick={() => setSelectedType(t.value)}
- className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+ className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
  selectedType === t.value
  ? "bg-primary-soft text-success-fg "
  : "bg-ink-100 text-text-muted hover:bg-ink-200 "
  }`}
  >
- {t.icon} {t.label}
+ <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+ {t.label}
  </button>
- ))}
+ );
+ })}
  </div>
  <div className="flex gap-2">
  <input

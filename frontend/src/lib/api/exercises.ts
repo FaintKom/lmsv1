@@ -1,4 +1,31 @@
 import apiClient from "@/lib/api-client";
+import {
+ ArrowUpDown,
+ BookOpenText,
+ Bot,
+ Box,
+ Calculator,
+ CircleDot,
+ ClipboardList,
+ Code,
+ FolderOpen,
+ Globe,
+ Grid3x3,
+ Languages,
+ Layers,
+ MapPin,
+ MessageCircle,
+ Package,
+ PenLine,
+ Puzzle,
+ Search,
+ Sigma,
+ Table,
+ ToggleLeft,
+ Type,
+ Upload,
+ type LucideIcon,
+} from "lucide-react";
 
 export type ExerciseType =
  | "quiz"
@@ -151,41 +178,46 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
 };
 
 // Single source of truth for exercise-type menus. UI components (content
-// library filter, course-editor "create exercise" picker) iterate this list.
-// Icon names map to lucide-react identifiers; consumers resolve them locally.
+// library filter, course-editor "create exercise" picker, lesson WYSIWYG)
+// iterate this list. `Icon` is a lucide-react component — render as
+// `<meta.Icon className="..." />`. No emoji.
 export interface ExerciseTypeMeta {
  value: ExerciseType;
  label: string;
- icon: string; // emoji fallback for picker
- lucide?: string; // lucide-react icon name; resolved by callers
+ Icon: LucideIcon;
 }
 
 export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
- { value: "quiz", label: "Quiz", icon: "📝", lucide: "ClipboardList" },
- { value: "code_challenge", label: "Code Challenge", icon: "💻", lucide: "Code" },
- { value: "matching", label: "Matching", icon: "🧩", lucide: "Puzzle" },
- { value: "ordering", label: "Ordering", icon: "↕️", lucide: "ArrowUpDown" },
- { value: "fill_blanks", label: "Fill Blanks", icon: "✏️", lucide: "PenLine" },
- { value: "true_false", label: "True/False", icon: "✅", lucide: "ToggleLeft" },
- { value: "categorize", label: "Categorize", icon: "📂", lucide: "FolderOpen" },
- { value: "file_upload", label: "File Upload", icon: "📎", lucide: "Upload" },
- { value: "robot_2d", label: "2D Robot", icon: "🤖", lucide: "Bot" },
- { value: "math_interactive", label: "Math Interactive", icon: "📐", lucide: "Calculator" },
- { value: "math_stepwise", label: "Math Step-by-Step", icon: "🧮", lucide: "Sigma" },
- { value: "world_3d", label: "3D World", icon: "🌍", lucide: "Box" },
- { value: "translation", label: "Translation", icon: "🌐", lucide: "Languages" },
- { value: "sentence_builder", label: "Sentence Builder", icon: "🔤", lucide: "Type" },
- { value: "dialogue", label: "Dialogue", icon: "💬", lucide: "MessageCircle" },
- { value: "conjugation", label: "Conjugation", icon: "📝", lucide: "Table" },
- { value: "reading", label: "Reading", icon: "📖", lucide: "BookOpenText" },
- { value: "web_editor", label: "Web Editor", icon: "🌐", lucide: "Globe" },
- { value: "scorm_package", label: "SCORM / xAPI", icon: "📦", lucide: "Package" },
- { value: "srs_flashcard", label: "Flashcards (SRS)", icon: "🃏", lucide: "Layers" },
- { value: "crossword", label: "Crossword", icon: "🔠", lucide: "Grid3x3" },
- { value: "word_search", label: "Word Search", icon: "🔍", lucide: "Search" },
- { value: "map_pin_drop", label: "Map Pin Drop", icon: "📍", lucide: "MapPin" },
- { value: "bubble_sheet", label: "Bubble Sheet", icon: "⭕", lucide: "CircleDot" },
+ { value: "quiz", label: "Quiz", Icon: ClipboardList },
+ { value: "code_challenge", label: "Code Challenge", Icon: Code },
+ { value: "matching", label: "Matching", Icon: Puzzle },
+ { value: "ordering", label: "Ordering", Icon: ArrowUpDown },
+ { value: "fill_blanks", label: "Fill Blanks", Icon: PenLine },
+ { value: "true_false", label: "True/False", Icon: ToggleLeft },
+ { value: "categorize", label: "Categorize", Icon: FolderOpen },
+ { value: "file_upload", label: "File Upload", Icon: Upload },
+ { value: "robot_2d", label: "2D Robot", Icon: Bot },
+ { value: "math_interactive", label: "Math Interactive", Icon: Calculator },
+ { value: "math_stepwise", label: "Math Step-by-Step", Icon: Sigma },
+ { value: "world_3d", label: "3D World", Icon: Box },
+ { value: "translation", label: "Translation", Icon: Languages },
+ { value: "sentence_builder", label: "Sentence Builder", Icon: Type },
+ { value: "dialogue", label: "Dialogue", Icon: MessageCircle },
+ { value: "conjugation", label: "Conjugation", Icon: Table },
+ { value: "reading", label: "Reading", Icon: BookOpenText },
+ { value: "web_editor", label: "Web Editor", Icon: Globe },
+ { value: "scorm_package", label: "SCORM / xAPI", Icon: Package },
+ { value: "srs_flashcard", label: "Flashcards (SRS)", Icon: Layers },
+ { value: "crossword", label: "Crossword", Icon: Grid3x3 },
+ { value: "word_search", label: "Word Search", Icon: Search },
+ { value: "map_pin_drop", label: "Map Pin Drop", Icon: MapPin },
+ { value: "bubble_sheet", label: "Bubble Sheet", Icon: CircleDot },
 ];
+
+/** Resolve a Lucide icon component for a given exercise type. */
+export function getExerciseIcon(type: ExerciseType): LucideIcon {
+ return EXERCISE_TYPES_META.find((m) => m.value === type)?.Icon || ClipboardList;
+}
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = EXERCISE_TYPES_META.map((m) => m.value);
 
