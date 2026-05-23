@@ -372,20 +372,17 @@ export default function CourseEditorPage() {
 
  useEffect(() => {
  fetchCourse();
- }, [fetchCourse]);
+ // Eager fetch so the collapsed-section counters show the real count
+ // without forcing the user to expand each panel first.
+ fetchStudents();
+ fetchAssignments();
+ }, [fetchCourse, fetchStudents, fetchAssignments]);
 
  useEffect(() => {
  if (showStudents) {
- fetchStudents();
  fetchAllUsers();
  }
- }, [showStudents, fetchStudents, fetchAllUsers]);
-
- useEffect(() => {
- if (showAssignments) {
- fetchAssignments();
- }
- }, [showAssignments, fetchAssignments]);
+ }, [showStudents, fetchAllUsers]);
 
  // When expanding a quiz lesson, load quiz data
  const loadQuizForLesson = useCallback((lessonId: string) => {
