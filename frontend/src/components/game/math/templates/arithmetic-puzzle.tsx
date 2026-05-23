@@ -9,13 +9,89 @@ interface PuzzleCell {
  isBlank: boolean;
 }
 
+/** Pretty symbol shown to the student for an operator code. */
+const OPERATOR_DISPLAY: Record<string, string> = {
+ "+": "+", "-": "−", "*": "×", "x": "×", "×": "×", "/": "÷", ":": "÷", "÷": "÷",
+};
+
+/**
+ * Canonical config form: { equations: [{cells, answer, blankIndex}, ...] }.
+ * Legacy form (from earlier seed data): { rows: [{operands: [a, b], operator, result}, ...] }
+ * where `null` marks the blank. Convert legacy → canonical on read so old
+ * seeded exercises still render correctly.
+ */
+function legacyRowsToEquations(
+ rows: { operands: (number | null)[]; operator: string; result: number | null }[]
+): { cells: { value: number | null; display: string }[]; answer: number; blankIndex: number }[] {
+ const out: { cells: { value: number | null; display: string }[]; answer: number; blankIndex: number }[] = [];
+ for (const r of rows) {
+ const a = r.operands?.[0] ?? null;
+ const b = r.operands?.[1] ?? null;
+ const result = r.result ?? null;
+ const opSymbol = OPERATOR_DISPLAY[r.operator] || r.operator || "+";
+ const cells = [
+ { value: a, display: a == null ? "_" : String(a) },
+ { value: null, display: opSymbol },
+ { value: b, display: b == null ? "_" : String(b) },
+ { value: null, display: "=" },
+ { value: result, display: result == null ? "_" : String(result) },
+ ];
+ let blankIndex = -1;
+ let answer = 0;
+ if (a == null && b != null && result != null) {
+ blankIndex = 0;
+ answer = solveBlank("a", b, result, r.operator);
+ } else if (b == null && a != null && result != null) {
+ blankIndex = 2;
+ answer = solveBlank("b", a, result, r.operator);
+ } else if (result == null && a != null && b != null) {
+ blankIndex = 4;
+ answer = solveBlank("r", a, b, r.operator);
+ } else {
+ continue; // malformed row — skip
+ }
+ out.push({ cells, answer, blankIndex });
+ }
+ return out;
+}
+
+function solveBlank(which: "a" | "b" | "r", x: number, y: number, op: string): number {
+ const o = (op || "+").trim();
+ if (which === "r") {
+ if (o === "+") return x + y;
+ if (o === "-") return x - y;
+ if (o === "*" || o === "x" || o === "×") return x * y;
+ if (o === "/" || o === ":" || o === "÷") return Math.round(x / y);
+ return 0;
+ }
+ if (which === "a") {
+ if (o === "+") return y - x;
+ if (o === "-") return y + x;
+ if (o === "*" || o === "x" || o === "×") return Math.round(y / x);
+ if (o === "/" || o === ":" || o === "÷") return y * x;
+ }
+ // which === "b"
+ if (o === "+") return y - x;
+ if (o === "-") return x - y;
+ if (o === "*" || o === "x" || o === "×") return Math.round(y / x);
+ if (o === "/" || o === ":" || o === "÷") return Math.round(x / y);
+ return 0;
+}
+
 export default function ArithmeticPuzzle({ config, onComplete }: MathTemplateProps) {
- // Config: equations like "_ + 3 = 7" represented as cells
- const equations = (config.equations as {
- cells: { value: number | null; display: string }[];
- answer: number;
- blankIndex: number;
- }[]) || [
+ // Accept canonical `equations` OR legacy `rows` shape.
+ const rawEquations = config.equations as
+ | { cells: { value: number | null; display: string }[]; answer: number; blankIndex: number }[]
+ | undefined;
+ const rawRows = config.rows as
+ | { operands: (number | null)[]; operator: string; result: number | null }[]
+ | undefined;
+ const equations =
+ rawEquations && rawEquations.length > 0
+ ? rawEquations
+ : rawRows && rawRows.length > 0
+ ? legacyRowsToEquations(rawRows)
+ : [
  { cells: [{ value: null, display: "_" }, { value: null, display: "+" }, { value: 3, display: "3" }, { value: null, display: "=" }, { value: 7, display: "7" }], answer: 4, blankIndex: 0 },
  { cells: [{ value: 8, display: "8" }, { value: null, display: "-" }, { value: null, display: "_" }, { value: null, display: "=" }, { value: 5, display: "5" }], answer: 3, blankIndex: 2 },
  { cells: [{ value: null, display: "_" }, { value: null, display: "×" }, { value: 4, display: "4" }, { value: null, display: "=" }, { value: 12, display: "12" }], answer: 3, blankIndex: 0 },
