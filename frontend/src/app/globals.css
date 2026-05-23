@@ -791,3 +791,34 @@ button { font-family: inherit; }
  display: inline-block;
  animation: gp-pulse-heart 500ms var(--motion-ease);
 }
+
+/* ─── V2 mobile polish ──────────────────────────────────────────────
+   Phase 6 — narrow-viewport adjustments for the V2 exercise family
+   (quiz / true-false / fill-blanks / matching / ordering / etc).
+   Targets phones in portrait. Tap targets ≥44pt, smaller chrome,
+   16px input font (prevents iOS focus zoom).
+*/
+@media (max-width: 560px) {
+ .gp-tile {
+  padding: 14px 14px;
+  font-size: 15px;
+  min-height: 44px;
+ }
+ .gp-input {
+  padding: 12px 14px;
+  font-size: 16px;
+ }
+ .gp-title { font-size: 19px; }
+ .gp-btn { padding: 14px 18px; font-size: 14px; }
+ .lf-top { padding: 10px 12px; gap: 8px; }
+ .lf-close { width: 32px; height: 32px; }
+ .lf-bottom { padding: 12px; }
+ .lf-fb-msg { font-size: 14px; }
+ .lf-fb-explain { font-size: 12px; }
+}
+
+/* Ensure a sensible minimum tap area on coarse pointers regardless of width. */
+@media (hover: none) and (pointer: coarse) {
+ .gp-tile { min-height: 44px; }
+ .gp-btn { min-height: 44px; }
+}
