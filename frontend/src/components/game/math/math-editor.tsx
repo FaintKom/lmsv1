@@ -338,18 +338,238 @@ function EquationBalanceConfig({ config, onChange }: { config: Record<string, un
  );
 }
 
-function ArithmeticPuzzleConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * ArithmeticPuzzleConfig — methodist UI for arithmetic puzzle rows.
+ *
+ * Each row is "a OP b = result", where exactly one of {a, b, result} is the
+ * blank the student must fill. Methodist sees three number inputs + an
+ * operator dropdown + a "blank position" radio. We persist in the renderer's
+ * canonical shape (`config.equations`) so no migration is needed.
+ *
+ * Also reads the legacy `config.rows` shape (used by older seeded
+ * exercises) so existing configs can be opened, edited, and saved into the
+ * canonical shape without dropping data.
+ */
+function ArithmeticPuzzleConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ type BlankPos = "a" | "b" | "result";
+ interface Row {
+ a: number;
+ op: "+" | "-" | "*" | "/";
+ b: number;
+ result: number;
+ blank: BlankPos;
+ }
+
+ const OP_LABELS: Record<Row["op"], string> = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+
+ /** Compute the value at the blank cell from the other two known cells. */
+ const fillBlankValue = (r: Row): number => {
+ const { a, op, b, result, blank } = r;
+ if (blank === "result") {
+ if (op === "+") return a + b;
+ if (op === "-") return a - b;
+ if (op === "*") return a * b;
+ if (op === "/") return b !== 0 ? Math.round(a / b) : 0;
+ }
+ if (blank === "a") {
+ if (op === "+") return result - b;
+ if (op === "-") return result + b;
+ if (op === "*") return b !== 0 ? Math.round(result / b) : 0;
+ if (op === "/") return result * b;
+ }
+ // blank === "b"
+ if (op === "+") return result - a;
+ if (op === "-") return a - result;
+ if (op === "*") return a !== 0 ? Math.round(result / a) : 0;
+ if (op === "/") return result !== 0 ? Math.round(a / result) : 0;
+ return 0;
+ };
+
+ /** Decode existing config (canonical OR legacy) into editable rows. */
+ const decode = (): Row[] => {
+ const eqs = config.equations as
+ | { cells: { value: number | null; display: string }[]; answer: number; blankIndex: number }[]
+ | undefined;
+ if (eqs && eqs.length) {
+ return eqs.map((eq) => {
+ const opSymbol = (eq.cells[1]?.display || "+") as string;
+ const op: Row["op"] =
+ opSymbol === "−" || opSymbol === "-" ? "-" :
+ opSymbol === "×" || opSymbol === "*" || opSymbol === "x" ? "*" :
+ opSymbol === "÷" || opSymbol === "/" || opSymbol === ":" ? "/" : "+";
+ const aVal = eq.cells[0]?.value ?? null;
+ const bVal = eq.cells[2]?.value ?? null;
+ const rVal = eq.cells[4]?.value ?? null;
+ const blank: BlankPos =
+ eq.blankIndex === 0 ? "a" : eq.blankIndex === 2 ? "b" : "result";
+ return {
+ a: blank === "a" ? eq.answer : (aVal ?? 0),
+ b: blank === "b" ? eq.answer : (bVal ?? 0),
+ result: blank === "result" ? eq.answer : (rVal ?? 0),
+ op,
+ blank,
+ };
+ });
+ }
+ const legacy = config.rows as
+ | { operands: (number | null)[]; operator: string; result: number | null }[]
+ | undefined;
+ if (legacy && legacy.length) {
+ return legacy.map((r): Row => {
+ const a = r.operands?.[0];
+ const b = r.operands?.[1];
+ const op: Row["op"] =
+ r.operator === "-" ? "-" :
+ r.operator === "*" || r.operator === "x" || r.operator === "×" ? "*" :
+ r.operator === "/" || r.operator === ":" || r.operator === "÷" ? "/" : "+";
+ const blank: BlankPos = a == null ? "a" : b == null ? "b" : "result";
+ const row: Row = {
+ a: a ?? 0,
+ b: b ?? 0,
+ result: r.result ?? 0,
+ op,
+ blank,
+ };
+ row[blank === "result" ? "result" : blank] = fillBlankValue(row);
+ return row;
+ });
+ }
+ return [
+ { a: 7, op: "+", b: 5, result: 12, blank: "a" },
+ { a: 15, op: "-", b: 3, result: 12, blank: "result" },
+ ];
+ };
+
+ const rows: Row[] = decode();
+
+ /** Persist `rows` into the renderer's canonical `equations` shape. */
+ const persist = (next: Row[]) => {
+ const equations = next.map((r) => {
+ const blankIndex = r.blank === "a" ? 0 : r.blank === "b" ? 2 : 4;
+ const answer = fillBlankValue(r);
+ const aDisplay = r.blank === "a" ? "_" : String(r.a);
+ const bDisplay = r.blank === "b" ? "_" : String(r.b);
+ const rDisplay = r.blank === "result" ? "_" : String(r.result);
+ const aVal = r.blank === "a" ? null : r.a;
+ const bVal = r.blank === "b" ? null : r.b;
+ const rVal = r.blank === "result" ? null : r.result;
+ return {
+ cells: [
+ { value: aVal, display: aDisplay },
+ { value: null, display: OP_LABELS[r.op] },
+ { value: bVal, display: bDisplay },
+ { value: null, display: "=" },
+ { value: rVal, display: rDisplay },
+ ],
+ answer,
+ blankIndex,
+ };
+ });
+ const { rows: _legacy, ...rest } = config as Record<string, unknown> & { rows?: unknown };
+ void _legacy;
+ onChange({ ...rest, equations });
+ };
+
+ const updateRow = (i: number, patch: Partial<Row>) => {
+ const next = rows.map((r, j) => (j === i ? { ...r, ...patch } : r));
+ persist(next);
+ };
+
+ const addRow = () => persist([...rows, { a: 1, op: "+", b: 1, result: 2, blank: "result" }]);
+ const removeRow = (i: number) => persist(rows.filter((_, j) => j !== i));
+
+ const numCls =
+ "w-16 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm text-center";
+
  return (
- <div>
- <label className="mb-1 block text-xs text-text-muted">Equations (JSON)</label>
- <textarea
- value={JSON.stringify((config.equations as unknown[]) || [
- { cells: [{ value: null, display: "_" }, { value: null, display: "+" }, { value: 3, display: "3" }, { value: null, display: "=" }, { value: 7, display: "7" }], answer: 4, blankIndex: 0 },
- ], null, 2)}
- rows={8}
- onChange={(e) => { try { onChange({ ...config, equations: JSON.parse(e.target.value) }); } catch { /* ignore */ } }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs "
+ <div className="space-y-3">
+ <p className="text-xs text-text-subtle">
+ Each row is an equation. Pick which cell the student must fill in (the blank).
+ </p>
+ <div className="space-y-2">
+ {rows.map((r, i) => (
+ <div
+ key={i}
+ className="flex flex-wrap items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <input
+ type="number"
+ value={r.a}
+ onChange={(e) => updateRow(i, { a: parseInt(e.target.value) || 0 })}
+ className={numCls}
+ disabled={r.blank === "a"}
+ title={r.blank === "a" ? "Blank — auto-computed" : "Operand A"}
  />
+ <select
+ value={r.op}
+ onChange={(e) => updateRow(i, { op: e.target.value as Row["op"] })}
+ className="rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ >
+ <option value="+">+</option>
+ <option value="-">−</option>
+ <option value="*">×</option>
+ <option value="/">÷</option>
+ </select>
+ <input
+ type="number"
+ value={r.b}
+ onChange={(e) => updateRow(i, { b: parseInt(e.target.value) || 0 })}
+ className={numCls}
+ disabled={r.blank === "b"}
+ title={r.blank === "b" ? "Blank — auto-computed" : "Operand B"}
+ />
+ <span className="text-sm font-semibold text-text-muted">=</span>
+ <input
+ type="number"
+ value={r.result}
+ onChange={(e) => updateRow(i, { result: parseInt(e.target.value) || 0 })}
+ className={numCls}
+ disabled={r.blank === "result"}
+ title={r.blank === "result" ? "Blank — auto-computed" : "Result"}
+ />
+ <div className="ml-2 flex items-center gap-2 text-xs text-text-muted">
+ <span>Blank:</span>
+ {(["a", "b", "result"] as const).map((pos) => (
+ <label key={pos} className="flex items-center gap-1">
+ <input
+ type="radio"
+ name={`blank-${i}`}
+ checked={r.blank === pos}
+ onChange={() => updateRow(i, { blank: pos })}
+ className="h-3 w-3 accent-green-600"
+ />
+ {pos === "result" ? "result" : pos}
+ </label>
+ ))}
+ </div>
+ <span className="ml-auto text-[10px] text-text-subtle">
+ answer = {fillBlankValue(r)}
+ </span>
+ <button
+ type="button"
+ onClick={() => removeRow(i)}
+ className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete row"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
+ <button
+ type="button"
+ onClick={addRow}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add equation
+ </button>
  </div>
  );
 }
