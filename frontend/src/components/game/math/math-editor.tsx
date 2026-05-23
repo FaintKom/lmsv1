@@ -656,37 +656,185 @@ function GraphTransformConfig({ config, onChange }: { config: Record<string, unk
  );
 }
 
-function VennConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * VennConfig — methodist UI for the Venn diagram template.
+ *
+ * Per-region row layout instead of raw JSON:
+ *   - Each of "A only" / "Both" / "B only" / "Neither" gets a "Blank for
+ *     student" checkbox. When ticked the region shows two inputs:
+ *       · expected answer (correct value), used to grade
+ *       · the renderer shows a blank box to the student
+ *     When unticked the region shows a single input for the value to
+ *     display as-is in the diagram.
+ *   - "Use intersection" toggle controls whether the diagram shows two
+ *     overlapping circles (default) or two separate circles. When off
+ *     the "Both" row is hidden.
+ */
+function VennConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ type RegionKey = "a_only" | "intersection" | "b_only" | "neither";
+
+ const setALabel = (config.set_a_label as string) || "Set A";
+ const setBLabel = (config.set_b_label as string) || "Set B";
+ const total = (config.total as number) ?? 40;
+ const useIntersection = (config.use_intersection as boolean | undefined) !== false;
+
+ // Normalise legacy `both` → `intersection` in incoming data on read.
+ const rawRegions = ((config.regions as Record<string, number | null>) || {}) as Record<string, number | null>;
+ const rawAnswers = ((config.answers as Record<string, number>) || {}) as Record<string, number>;
+ const regions: Record<RegionKey, number | null> = {
+ a_only: rawRegions.a_only !== undefined ? rawRegions.a_only : 12,
+ intersection:
+ rawRegions.intersection !== undefined
+ ? rawRegions.intersection
+ : rawRegions.both !== undefined
+ ? rawRegions.both
+ : 4,
+ b_only: rawRegions.b_only !== undefined ? rawRegions.b_only : null,
+ neither: rawRegions.neither !== undefined ? rawRegions.neither : null,
+ };
+ const answers: Record<string, number> = {
+ ...rawAnswers,
+ ...(rawAnswers.both !== undefined && rawAnswers.intersection === undefined
+ ? { intersection: rawAnswers.both }
+ : {}),
+ };
+
+ const writeRegion = (key: RegionKey, value: number | null) => {
+ const next = { ...regions, [key]: value };
+ onChange({ ...config, regions: next });
+ };
+ const toggleBlank = (key: RegionKey, blank: boolean) => {
+ if (blank) {
+ const nextAnswers = { ...answers };
+ if (regions[key] !== null && !(key in nextAnswers)) nextAnswers[key] = regions[key] as number;
+ writeRegion(key, null);
+ onChange({ ...config, regions: { ...regions, [key]: null }, answers: nextAnswers });
+ } else {
+ const value = answers[key] ?? 0;
+ const nextAnswers = { ...answers };
+ delete nextAnswers[key];
+ onChange({ ...config, regions: { ...regions, [key]: value }, answers: nextAnswers });
+ }
+ };
+ const writeAnswer = (key: RegionKey, value: number) => {
+ onChange({ ...config, answers: { ...answers, [key]: value } });
+ };
+
+ const visibleKeys: RegionKey[] = useIntersection
+ ? ["a_only", "intersection", "b_only", "neither"]
+ : ["a_only", "b_only", "neither"];
+
+ const regionLabel: Record<RegionKey, string> = {
+ a_only: `Only ${setALabel}`,
+ intersection: "Both (intersection)",
+ b_only: `Only ${setBLabel}`,
+ neither: "Neither",
+ };
+
+ const inputCls =
+ "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm";
+
  return (
- <div className="space-y-3">
+ <div className="space-y-4">
+ {/* Labels + total */}
  <div className="grid grid-cols-3 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Set A Label</label>
- <input type="text" value={(config.set_a_label as string) || "Set A"} onChange={(e) => onChange({ ...config, set_a_label: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={setALabel}
+ onChange={(e) => onChange({ ...config, set_a_label: e.target.value })}
+ className={inputCls}
+ />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Set B Label</label>
- <input type="text" value={(config.set_b_label as string) || "Set B"} onChange={(e) => onChange({ ...config, set_b_label: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={setBLabel}
+ onChange={(e) => onChange({ ...config, set_b_label: e.target.value })}
+ className={inputCls}
+ />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Total</label>
- <input type="number" value={(config.total as number) || 40} onChange={(e) => onChange({ ...config, total: parseInt(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="number"
+ value={total}
+ onChange={(e) => onChange({ ...config, total: parseInt(e.target.value) || 0 })}
+ className={inputCls}
+ />
  </div>
  </div>
- <div>
- <label className="mb-1 block text-xs text-text-muted">Regions (JSON: null = blank)</label>
- <input type="text" value={JSON.stringify((config.regions as Record<string,number|null>) || {a_only:12,b_only:null,intersection:8,neither:null})}
- onChange={(e) => { try { onChange({ ...config, regions: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+
+ {/* Intersection toggle */}
+ <label className="flex items-center gap-2 text-sm text-ink-700">
+ <input
+ type="checkbox"
+ checked={useIntersection}
+ onChange={(e) => onChange({ ...config, use_intersection: e.target.checked })}
+ className="h-4 w-4 accent-green-600"
+ />
+ Use intersection (overlap circles)
+ <span className="text-xs text-text-subtle">
+ — turn off to show two separate circles with no "Both" region
+ </span>
+ </label>
+
+ {/* Per-region rows */}
+ <div className="space-y-2">
+ <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+ Regions
+ </p>
+ {visibleKeys.map((key) => {
+ const blank = regions[key] === null;
+ return (
+ <div
+ key={key}
+ className="flex flex-wrap items-center gap-3 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <span className="w-40 text-sm font-medium text-ink-700">
+ {regionLabel[key]}
+ </span>
+ <label className="flex items-center gap-1.5 text-xs text-text-muted">
+ <input
+ type="checkbox"
+ checked={blank}
+ onChange={(e) => toggleBlank(key, e.target.checked)}
+ className="h-3.5 w-3.5 accent-green-600"
+ />
+ Blank for student
+ </label>
+ {blank ? (
+ <div className="flex items-center gap-1.5">
+ <span className="text-xs text-text-subtle">Expected answer:</span>
+ <input
+ type="number"
+ value={answers[key] ?? 0}
+ onChange={(e) => writeAnswer(key, parseInt(e.target.value) || 0)}
+ className="w-20 rounded border border-border-strong px-2 py-1 text-sm"
+ />
  </div>
- <div>
- <label className="mb-1 block text-xs text-text-muted">Answers (JSON)</label>
- <input type="text" value={JSON.stringify((config.answers as Record<string,number>) || {b_only:10,neither:10})}
- onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ ) : (
+ <div className="flex items-center gap-1.5">
+ <span className="text-xs text-text-subtle">Shown value:</span>
+ <input
+ type="number"
+ value={regions[key] ?? 0}
+ onChange={(e) => writeRegion(key, parseInt(e.target.value) || 0)}
+ className="w-20 rounded border border-border-strong px-2 py-1 text-sm"
+ />
+ </div>
+ )}
+ </div>
+ );
+ })}
  </div>
  </div>
  );
