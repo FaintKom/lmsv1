@@ -604,31 +604,215 @@ function FunctionGraphConfig({ config, onChange }: { config: Record<string, unkn
  );
 }
 
-function EquationSolverConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * EquationSolverConfig — initial equation + step list (action label +
+ * resulting left/right). Replaces the steps JSON textarea.
+ *
+ * Accepts legacy seed shape on read:
+ *   { equation_config: { equation: "2x+4=10", steps: [{operation, operand, result}], final_answer } }
+ * → splits `equation` on "=" and turns `operation/operand` into actionLabel.
+ */
+function EquationSolverConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ interface Step {
+ id?: string;
+ action?: string;
+ actionLabel: string;
+ resultLeft: string;
+ resultRight: string;
+ }
+
+ // Renderer reads (config.equation_config || config) — so we mirror.
+ const inner = (config.equation_config as Record<string, unknown> | undefined) || config;
+
+ // Decode initial sides — split on '=' if only `equation` provided.
+ let initialLeft = (inner.initial_left as string) || "";
+ let initialRight = (inner.initial_right as string) || "";
+ if ((!initialLeft || !initialRight) && typeof inner.equation === "string") {
+ const parts = (inner.equation as string).split("=");
+ initialLeft = initialLeft || (parts[0] || "").trim();
+ initialRight = initialRight || (parts[1] || "").trim();
+ }
+ if (!initialLeft) initialLeft = "2x + 5";
+ if (!initialRight) initialRight = "17";
+
+ // Decode steps — accept canonical OR legacy.
+ const rawSteps = (inner.steps as unknown[]) || [];
+ const steps: Step[] = rawSteps.map((s, i) => {
+ const o = s as Record<string, unknown>;
+ if (typeof o.actionLabel === "string") {
+ return {
+ id: (o.id as string) || `s${i + 1}`,
+ action: (o.action as string) || "",
+ actionLabel: o.actionLabel as string,
+ resultLeft: (o.resultLeft as string) || "",
+ resultRight: (o.resultRight as string) || "",
+ };
+ }
+ // Legacy shape: { operation: 'subtract', operand: 4, result: '2x = 6' }
+ const op = (o.operation as string) || "";
+ const operand = o.operand;
+ const verb =
+ op === "subtract" ? "Subtract" :
+ op === "add" ? "Add" :
+ op === "multiply" ? "Multiply by" :
+ op === "divide" ? "Divide by" : op;
+ const label = verb
+ ? `${verb} ${operand ?? ""} ${operand !== undefined ? (op === "subtract" || op === "add" ? "from both sides" : "both sides") : ""}`.trim()
+ : `Step ${i + 1}`;
+ const resultStr = (o.result as string) || "";
+ const [rl, rr] = resultStr.split("=").map((p) => p.trim());
+ return {
+ id: `s${i + 1}`,
+ action: `${op}_${operand}`,
+ actionLabel: label,
+ resultLeft: rl || "",
+ resultRight: rr || "",
+ };
+ });
+ if (steps.length === 0) {
+ steps.push({
+ id: "s1",
+ actionLabel: "Subtract 5 from both sides",
+ resultLeft: "2x",
+ resultRight: "12",
+ });
+ }
+
+ const finalAnswer = (inner.final_answer as string | number | undefined);
+ const finalAnswerStr =
+ typeof finalAnswer === "number" ? `x = ${finalAnswer}` :
+ typeof finalAnswer === "string" ? finalAnswer : "x = 6";
+
+ const writeAll = (nextSteps: Step[], next?: { initialLeft?: string; initialRight?: string; finalAnswer?: string }) => {
+ const equation_config = {
+ initial_left: next?.initialLeft ?? initialLeft,
+ initial_right: next?.initialRight ?? initialRight,
+ steps: nextSteps.map((s, i) => ({
+ id: s.id || `s${i + 1}`,
+ action: s.action || `step_${i + 1}`,
+ actionLabel: s.actionLabel,
+ resultLeft: s.resultLeft,
+ resultRight: s.resultRight,
+ })),
+ final_answer: next?.finalAnswer ?? finalAnswerStr,
+ };
+ onChange({ ...config, equation_config });
+ };
+
+ const updateStep = (i: number, patch: Partial<Step>) => {
+ const next = steps.map((s, j) => (j === i ? { ...s, ...patch } : s));
+ writeAll(next);
+ };
+ const addStep = () =>
+ writeAll([
+ ...steps,
+ {
+ id: `s${steps.length + 1}`,
+ actionLabel: "New step",
+ resultLeft: "",
+ resultRight: "",
+ },
+ ]);
+ const removeStep = (i: number) => writeAll(steps.filter((_, j) => j !== i));
+
+ const inputCls = "rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+
  return (
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Left Side</label>
- <input type="text" value={(config.initial_left as string) || "2x + 5"} onChange={(e) => onChange({ ...config, initial_left: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <label className="mb-1 block text-xs text-text-muted">Initial Left Side</label>
+ <input
+ type="text"
+ value={initialLeft}
+ onChange={(e) => writeAll(steps, { initialLeft: e.target.value })}
+ className={`w-full ${inputCls}`}
+ />
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Right Side</label>
- <input type="text" value={(config.initial_right as string) || "17"} onChange={(e) => onChange({ ...config, initial_right: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <label className="mb-1 block text-xs text-text-muted">Initial Right Side</label>
+ <input
+ type="text"
+ value={initialRight}
+ onChange={(e) => writeAll(steps, { initialRight: e.target.value })}
+ className={`w-full ${inputCls}`}
+ />
  </div>
  </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Steps (JSON)</label>
- <textarea rows={5} value={JSON.stringify((config.steps as unknown[]) || [], null, 2)}
- onChange={(e) => { try { onChange({ ...config, steps: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-1.5 flex items-center justify-between">
+ <label className="block text-xs text-text-muted">Steps</label>
+ <button
+ type="button"
+ onClick={addStep}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add step
+ </button>
  </div>
+ <div className="space-y-2">
+ {steps.map((s, i) => (
+ <div
+ key={i}
+ className="space-y-1.5 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <div className="flex items-center gap-2">
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <input
+ type="text"
+ value={s.actionLabel}
+ onChange={(e) => updateStep(i, { actionLabel: e.target.value })}
+ placeholder='e.g. "Subtract 5 from both sides"'
+ className={`flex-1 ${inputCls}`}
+ />
+ <button
+ type="button"
+ onClick={() => removeStep(i)}
+ className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete step"
+ >
+ ×
+ </button>
+ </div>
+ <div className="flex items-center gap-2 pl-10">
+ <span className="text-xs text-text-subtle">→</span>
+ <input
+ type="text"
+ value={s.resultLeft}
+ onChange={(e) => updateStep(i, { resultLeft: e.target.value })}
+ placeholder="Resulting left"
+ className={`w-32 ${inputCls}`}
+ />
+ <span className="text-xs text-text-muted">=</span>
+ <input
+ type="text"
+ value={s.resultRight}
+ onChange={(e) => updateStep(i, { resultRight: e.target.value })}
+ placeholder="Resulting right"
+ className={`w-32 ${inputCls}`}
+ />
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+
  <div>
  <label className="mb-1 block text-xs text-text-muted">Final Answer</label>
- <input type="text" value={(config.final_answer as string) || "x = 6"} onChange={(e) => onChange({ ...config, final_answer: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={finalAnswerStr}
+ onChange={(e) => writeAll(steps, { finalAnswer: e.target.value })}
+ placeholder="e.g. x = 6"
+ className={`w-full ${inputCls}`}
+ />
  </div>
  </div>
  );
