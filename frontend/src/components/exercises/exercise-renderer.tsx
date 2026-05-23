@@ -752,7 +752,12 @@ function CodeChallengeExercise({
  onSubmit,
 }: {
  exerciseId: string;
- config: { language?: string; starter_code?: string; description?: string };
+ config: {
+   language?: string;
+   starter_code?: string;
+   description?: string;
+   examples?: { input: string; output: string; explanation?: string }[];
+ };
  testCases: TestCase[];
  onSubmit: (body: Record<string, unknown>) => void;
 }) {
@@ -836,6 +841,35 @@ function CodeChallengeExercise({
  <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-line">
  {config.description}
  </p>
+ </div>
+ )}
+ {/* Examples (sample I/O, public) */}
+ {config.examples && config.examples.length > 0 && (
+ <div className="px-5 pb-3 space-y-2">
+ <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ Examples
+ </p>
+ {config.examples.map((ex, i) => (
+ <div
+ key={i}
+ className="rounded-lg border border-border-strong bg-surface-2 p-3 text-xs"
+ >
+ <span className="font-semibold text-text-muted">Example {i + 1}</span>
+ <div className="mt-1 grid grid-cols-2 gap-2">
+ <div>
+ <span className="text-text-subtle">Input:</span>
+ <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700">{ex.input}</pre>
+ </div>
+ <div>
+ <span className="text-text-subtle">Output:</span>
+ <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700">{ex.output}</pre>
+ </div>
+ </div>
+ {ex.explanation && (
+ <p className="mt-1.5 text-text-muted">{ex.explanation}</p>
+ )}
+ </div>
+ ))}
  </div>
  )}
  {/* Visible test cases */}

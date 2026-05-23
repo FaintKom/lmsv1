@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import apiClient from "@/lib/api-client";
@@ -797,8 +797,10 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
  const pins = (config.pins as MapPin[]) || [];
  const instructions = (config.instructions as string) || "";
  const fileRef = useRef<HTMLInputElement>(null);
+ const imageBoxRef = useRef<HTMLDivElement>(null);
  const [uploading, setUploading] = useState(false);
  const [activePinIndex, setActivePinIndex] = useState<number | null>(null);
+ const [draggingPinIndex, setDraggingPinIndex] = useState<number | null>(null);
 
  const updatePin = (i: number, field: string, val: unknown) => {
    const next = pins.map((p, j) => (j === i ? { ...p, [field]: val } : p));
@@ -839,12 +841,31 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
    const rect = e.currentTarget.getBoundingClientRect();
    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-   updatePin(activePinIndex, "x", x);
-   updatePin(activePinIndex, "y", y);
-   // Actually need to update both at once
    const next = pins.map((p, j) => (j === activePinIndex ? { ...p, x, y } : p));
    onChange({ ...config, pins: next });
  };
+
+ // Drag-to-reposition: mousedown on a pin starts drag; window mousemove
+ // updates its x/y from image box bounding rect; mouseup ends drag.
+ useEffect(() => {
+   if (draggingPinIndex === null) return;
+   const box = imageBoxRef.current;
+   if (!box) return;
+   const handleMove = (ev: MouseEvent) => {
+     const rect = box.getBoundingClientRect();
+     const x = Math.max(0, Math.min(100, Math.round(((ev.clientX - rect.left) / rect.width) * 100)));
+     const y = Math.max(0, Math.min(100, Math.round(((ev.clientY - rect.top) / rect.height) * 100)));
+     const next = pins.map((p, j) => (j === draggingPinIndex ? { ...p, x, y } : p));
+     onChange({ ...config, pins: next });
+   };
+   const handleUp = () => setDraggingPinIndex(null);
+   window.addEventListener("mousemove", handleMove);
+   window.addEventListener("mouseup", handleUp);
+   return () => {
+     window.removeEventListener("mousemove", handleMove);
+     window.removeEventListener("mouseup", handleUp);
+   };
+ }, [draggingPinIndex, pins, config, onChange]);
 
  return (
    <div className="space-y-4">
@@ -876,17 +897,28 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
            )}
          </div>
          <div
+           ref={imageBoxRef}
            className={`relative rounded-lg border-2 overflow-hidden ${activePinIndex !== null ? "border-primary cursor-crosshair" : "border-border-strong"}`}
            onClick={handleImageClick}
          >
-           <img src={imageUrl} alt="Background" className="w-full object-contain" draggable={false} />
+           <img src={imageUrl} alt="Background" className="w-full object-contain select-none" draggable={false} />
            {pins.map((pin, i) => (
              <div
                key={i}
-               className="absolute -translate-x-1/2 -translate-y-full pointer-events-none"
+               role="button"
+               tabIndex={0}
+               onMouseDown={(e) => {
+                 e.stopPropagation();
+                 setDraggingPinIndex(i);
+                 setActivePinIndex(i);
+               }}
+               className={`absolute -translate-x-1/2 -translate-y-full ${
+                 draggingPinIndex === i ? "cursor-grabbing" : "cursor-grab"
+               }`}
                style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+               title="Drag to reposition"
              >
-               <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center pointer-events-none">
                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-white" : "bg-ink-700 text-white"}`}>
                    {pin.label || i + 1}
                  </span>
@@ -897,6 +929,9 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
              </div>
            ))}
          </div>
+         <p className="text-[11px] text-text-subtle">
+           Drag pins on the image, or select a pin below and click on the image.
+         </p>
        </div>
      )}
      <div>
@@ -942,6 +977,7 @@ interface BubbleQuestion {
  number: number;
  options: string[];
  correct: string;
+ question_text?: string;
 }
 
 export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
@@ -950,8 +986,8 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
  const passingScore = (config.passing_score as number) || 70;
  const optionLabels = "ABCDEFGH".slice(0, numOptions).split("");
 
- const updateQuestion = (i: number, correct: string) => {
-   const next = questions.map((q, j) => (j === i ? { ...q, correct } : q));
+ const updateQuestion = (i: number, patch: Partial<BubbleQuestion>) => {
+   const next = questions.map((q, j) => (j === i ? { ...q, ...patch } : q));
    onChange({ ...config, questions: next });
  };
 
@@ -961,6 +997,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
      number: start + i,
      options: optionLabels,
      correct: "",
+     question_text: "",
    }));
    onChange({ ...config, questions: [...questions, ...newQs] });
  };
@@ -1001,23 +1038,43 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
            <Button variant="outline" size="sm" onClick={() => addQuestions(10)}><Plus className="mr-1 h-3.5 w-3.5" />+10</Button>
          </div>
        </div>
-       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+       <div className="space-y-2">
          {questions.map((q, i) => (
-           <div key={i} className="flex items-center gap-1.5 rounded-lg border border-border-strong px-2 py-1.5">
-             <span className="text-xs font-bold text-text-muted w-6">{q.number}.</span>
-             {optionLabels.map((opt) => (
-               <button
-                 key={opt}
-                 type="button"
-                 onClick={() => updateQuestion(i, opt)}
-                 className={`w-7 h-7 rounded-full text-xs font-bold transition-all ${
-                   q.correct === opt
-                     ? "bg-primary text-white ring-2 ring-primary-soft"
-                     : "bg-surface-2 text-text-muted hover:bg-ink-100"
-                 }`}
-               >{opt}</button>
-             ))}
-             <Button variant="ghost" size="sm" onClick={() => removeQuestion(i)} className="text-danger-fg ml-auto p-0 h-6 w-6"><Trash2 className="h-3 w-3" /></Button>
+           <div key={i} className="rounded-lg border border-border-strong px-3 py-2">
+             <div className="flex items-start gap-2">
+               <span className="mt-2 w-6 shrink-0 text-xs font-bold text-text-muted">{q.number}.</span>
+               <div className="flex-1 space-y-1.5">
+                 <input
+                   type="text"
+                   value={q.question_text || ""}
+                   onChange={(e) => updateQuestion(i, { question_text: e.target.value })}
+                   placeholder="Question text (optional)"
+                   className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-xs"
+                 />
+                 <div className="flex items-center gap-1.5">
+                   {optionLabels.map((opt) => (
+                     <button
+                       key={opt}
+                       type="button"
+                       onClick={() => updateQuestion(i, { correct: opt })}
+                       className={`w-7 h-7 rounded-full text-xs font-bold transition-all ${
+                         q.correct === opt
+                           ? "bg-primary text-white ring-2 ring-primary-soft"
+                           : "bg-surface-2 text-text-muted hover:bg-ink-100"
+                       }`}
+                     >{opt}</button>
+                   ))}
+                   <Button
+                     variant="ghost"
+                     size="sm"
+                     onClick={() => removeQuestion(i)}
+                     className="text-danger-fg ml-auto p-0 h-6 w-6"
+                   >
+                     <Trash2 className="h-3 w-3" />
+                   </Button>
+                 </div>
+               </div>
+             </div>
            </div>
          ))}
        </div>

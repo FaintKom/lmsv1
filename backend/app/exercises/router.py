@@ -21,6 +21,7 @@ from app.exercises.schemas import (
     SubmitExerciseRequest,
     TestCaseCreate,
     TestCaseInExercise,
+    TestCaseUpdate,
 )
 from app.exercises.service import (
     add_question_to_exercise,
@@ -29,6 +30,7 @@ from app.exercises.service import (
     delete_exercise,
     delete_question_from_exercise,
     delete_test_case_from_exercise,
+    update_test_case_in_exercise,
     get_attempt_status,
     get_exercise,
     get_exercises_by_lesson,
@@ -206,6 +208,20 @@ async def add_test_case_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     tc = await add_test_case_to_exercise(db, exercise_id, user, data.model_dump())
+    return TestCaseInExercise.model_validate(tc)
+
+
+@router.patch("/{exercise_id}/test-cases/{test_case_id}", response_model=TestCaseInExercise)
+async def update_test_case_endpoint(
+    exercise_id: uuid.UUID,
+    test_case_id: uuid.UUID,
+    data: TestCaseUpdate,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    tc = await update_test_case_in_exercise(
+        db, test_case_id, user, data.model_dump(exclude_unset=True)
+    )
     return TestCaseInExercise.model_validate(tc)
 
 

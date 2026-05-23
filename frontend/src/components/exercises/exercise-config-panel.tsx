@@ -331,6 +331,21 @@ function CodeConfigEditor({
   config: Record<string, unknown>;
   onChange: (c: Record<string, unknown>) => void;
 }) {
+  const description = (config.description as string) || "";
+  const examples =
+    (config.examples as { input: string; output: string; explanation?: string }[]) || [];
+
+  const updateExample = (i: number, patch: Partial<{ input: string; output: string; explanation: string }>) => {
+    const next = examples.map((e, j) => (j === i ? { ...e, ...patch } : e));
+    onChange({ ...config, examples: next });
+  };
+  const addExample = () => {
+    onChange({ ...config, examples: [...examples, { input: "", output: "", explanation: "" }] });
+  };
+  const removeExample = (i: number) => {
+    onChange({ ...config, examples: examples.filter((_, j) => j !== i) });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -338,6 +353,20 @@ function CodeConfigEditor({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-ink-700">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => onChange({ ...config, description: e.target.value })}
+              rows={5}
+              placeholder="Describe the problem the student should solve. Plain text or simple markdown."
+              className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-text-subtle">
+              Shown to the student above the editor.
+            </p>
+          </div>
+
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-ink-700">Language</label>
@@ -372,6 +401,79 @@ function CodeConfigEditor({
               />
             </div>
           </div>
+
+          {/* Examples (sample I/O shown to the student, like Codeforces) */}
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="block text-sm font-medium text-ink-700">
+                Examples ({examples.length})
+              </label>
+              <Button variant="outline" size="sm" onClick={addExample}>
+                <Plus className="mr-1 h-3.5 w-3.5" />
+                Add Example
+              </Button>
+            </div>
+            <p className="mb-2 text-xs text-text-subtle">
+              Public sample input/output shown to the student. Separate from grading test cases below.
+            </p>
+            <div className="space-y-2">
+              {examples.map((ex, i) => (
+                <div
+                  key={i}
+                  className="group relative rounded-lg border border-border-strong bg-paper-2 p-3"
+                >
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-text-muted">Example {i + 1}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-danger-fg opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={() => removeExample(i)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-0.5 block text-[10px] uppercase tracking-wider text-text-subtle">
+                        Input
+                      </label>
+                      <textarea
+                        value={ex.input}
+                        onChange={(e) => updateExample(i, { input: e.target.value })}
+                        rows={2}
+                        className="w-full rounded border border-border-strong px-2 py-1.5 font-mono text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-0.5 block text-[10px] uppercase tracking-wider text-text-subtle">
+                        Output
+                      </label>
+                      <textarea
+                        value={ex.output}
+                        onChange={(e) => updateExample(i, { output: e.target.value })}
+                        rows={2}
+                        className="w-full rounded border border-border-strong px-2 py-1.5 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <label className="mb-0.5 block text-[10px] uppercase tracking-wider text-text-subtle">
+                      Explanation (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={ex.explanation || ""}
+                      onChange={(e) => updateExample(i, { explanation: e.target.value })}
+                      placeholder="Why this output…"
+                      className="w-full rounded border border-border-strong px-2 py-1 text-xs"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="mb-1 block text-sm font-medium text-ink-700">Starter Code</label>
             <textarea
@@ -735,6 +837,8 @@ function TestCasesEditor({
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ input: "", expected_output: "", is_hidden: false });
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const handleAdd = async () => {
     if (!form.expected_output.trim()) return;
@@ -752,6 +856,15 @@ function TestCasesEditor({
     }
   };
 
+  const toggleHidden = async (tc: ExerciseTestCase) => {
+    try {
+      await exercisesApi.updateTestCase(exerciseId, tc.id, { is_hidden: !tc.is_hidden });
+      onRefresh();
+    } catch (e) {
+      toast.error(getApiError(e, "Failed to update test case"));
+    }
+  };
+
   const handleDelete = async (tcId: string) => {
     try {
       await exercisesApi.deleteTestCase(exerciseId, tcId);
@@ -762,14 +875,129 @@ function TestCasesEditor({
     }
   };
 
+  /** Minimal CSV parser (RFC 4180-ish): handles quoted fields with embedded
+   * commas, escaped quotes (""), and CRLF / LF line endings. Header row
+   * required: `input,expected_output[,is_hidden]`. Returns parsed rows.
+   */
+  const parseCsv = (text: string): { input: string; expected_output: string; is_hidden: boolean }[] => {
+    const rows: string[][] = [];
+    let cur = "";
+    let row: string[] = [];
+    let inQuote = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuote) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuote = false;
+          }
+        } else {
+          cur += ch;
+        }
+      } else {
+        if (ch === '"') {
+          inQuote = true;
+        } else if (ch === ",") {
+          row.push(cur);
+          cur = "";
+        } else if (ch === "\n" || ch === "\r") {
+          if (ch === "\r" && text[i + 1] === "\n") i++;
+          row.push(cur);
+          rows.push(row);
+          row = [];
+          cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+    }
+    if (cur.length > 0 || row.length > 0) {
+      row.push(cur);
+      rows.push(row);
+    }
+    if (rows.length === 0) return [];
+    const header = rows[0].map((h) => h.trim().toLowerCase());
+    const inputIdx = header.indexOf("input");
+    const outputIdx = header.findIndex((h) => h === "expected_output" || h === "output");
+    const hiddenIdx = header.findIndex((h) => h === "is_hidden" || h === "hidden");
+    if (outputIdx === -1) throw new Error("CSV header must contain 'expected_output' (or 'output')");
+    const out: { input: string; expected_output: string; is_hidden: boolean }[] = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (r.length === 1 && r[0].trim() === "") continue;
+      out.push({
+        input: inputIdx >= 0 ? (r[inputIdx] ?? "") : "",
+        expected_output: r[outputIdx] ?? "",
+        is_hidden:
+          hiddenIdx >= 0
+            ? ["true", "1", "yes", "y", "hidden"].includes((r[hiddenIdx] ?? "").trim().toLowerCase())
+            : false,
+      });
+    }
+    return out;
+  };
+
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const parsed = parseCsv(text);
+      if (parsed.length === 0) {
+        toast.error("CSV had no data rows");
+        return;
+      }
+      // Sequential to preserve sort_order; small batches in olympiad practice.
+      let ok = 0;
+      for (const row of parsed) {
+        try {
+          await exercisesApi.addTestCase(exerciseId, row);
+          ok++;
+        } catch {
+          /* keep going */
+        }
+      }
+      toast.success(`Imported ${ok} of ${parsed.length} test cases`);
+      onRefresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to parse CSV");
+    } finally {
+      setImporting(false);
+      if (csvInputRef.current) csvInputRef.current.value = "";
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Test Cases ({testCases.length})</CardTitle>
-        <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add Test Case
-        </Button>
+        <div className="flex gap-2">
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            onChange={handleCsvUpload}
+            className="hidden"
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => csvInputRef.current?.click()}
+            disabled={importing}
+            title="CSV columns: input, expected_output, is_hidden (optional)"
+          >
+            <Plus className="mr-1.5 h-4 w-4" />
+            {importing ? "Importing…" : "Import CSV"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowForm(true)}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Test Case
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {testCases.map((tc, idx) => (
@@ -778,11 +1006,15 @@ function TestCasesEditor({
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-text-muted">#{idx + 1}</span>
-                  {tc.is_hidden && (
-                    <span className="rounded bg-sun-100 px-1.5 py-0.5 text-[10px] font-medium text-warning-fg">
-                      Hidden
-                    </span>
-                  )}
+                  <label className="flex cursor-pointer items-center gap-1 text-[10px] text-text-muted">
+                    <input
+                      type="checkbox"
+                      checked={tc.is_hidden}
+                      onChange={() => toggleHidden(tc)}
+                      className="h-3 w-3 accent-green-600"
+                    />
+                    Hidden
+                  </label>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
