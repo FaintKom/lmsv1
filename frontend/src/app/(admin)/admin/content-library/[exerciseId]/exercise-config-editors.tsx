@@ -3,6 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Upload, MapPin as MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
+
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+ ssr: false,
+ loading: () => (
+ <div className="flex h-32 items-center justify-center rounded-lg border border-border-strong bg-surface-2 text-xs text-text-subtle">
+ Loading editor…
+ </div>
+ ),
+});
 import apiClient from "@/lib/api-client";
 
 type EditorProps = {
@@ -448,6 +458,16 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
  const tense = (config.tense as string) || "";
  const table = (config.table as { pronoun: string; correct: string }[]) || [];
 
+ const PRESETS: Record<string, string[]> = {
+   Spanish: ["yo", "tú", "él/ella", "nosotros", "vosotros", "ellos/ellas"],
+   French: ["je", "tu", "il/elle", "nous", "vous", "ils/elles"],
+   German: ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"],
+   Russian: ["я", "ты", "он/она", "мы", "вы", "они"],
+   Italian: ["io", "tu", "lui/lei", "noi", "voi", "loro"],
+   Portuguese: ["eu", "tu", "ele/ela", "nós", "vós", "eles/elas"],
+ };
+ const KNOWN_LANGS = Object.keys(PRESETS);
+
  const updateRow = (i: number, field: "pronoun" | "correct", val: string) => {
    const next = table.map((r, j) => (j === i ? { ...r, [field]: val } : r));
    onChange({ ...config, table: next });
@@ -456,17 +476,18 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
  const addRow = () => onChange({ ...config, table: [...table, { pronoun: "", correct: "" }] });
  const removeRow = (i: number) => onChange({ ...config, table: table.filter((_, j) => j !== i) });
 
- const presetPronouns = (lang: string) => {
-   const presets: Record<string, string[]> = {
-     Spanish: ["yo", "tu", "el/ella", "nosotros", "vosotros", "ellos/ellas"],
-     French: ["je", "tu", "il/elle", "nous", "vous", "ils/elles"],
-     German: ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"],
-     Russian: ["ya", "ty", "on/ona", "my", "vy", "oni"],
-   };
-   const pronouns = presets[lang];
-   if (pronouns) {
-     onChange({ ...config, language: lang, table: pronouns.map((p) => ({ pronoun: p, correct: table.find((r) => r.pronoun === p)?.correct || "" })) });
-   }
+ /** Apply preset; preserve any existing `correct` value when pronoun matches. */
+ const applyPreset = (lang: string) => {
+   const pronouns = PRESETS[lang];
+   if (!pronouns) return;
+   onChange({
+     ...config,
+     language: lang,
+     table: pronouns.map((p) => ({
+       pronoun: p,
+       correct: table.find((r) => r.pronoun === p)?.correct || "",
+     })),
+   });
  };
 
  return (
@@ -478,7 +499,19 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
        </div>
        <div>
          <label className={labelCls}>Language</label>
-         <input type="text" value={language} onChange={(e) => onChange({ ...config, language: e.target.value })} placeholder="e.g., Spanish" className={inputCls} />
+         <input
+           type="text"
+           list="conjugation-langs"
+           value={language}
+           onChange={(e) => onChange({ ...config, language: e.target.value })}
+           placeholder="e.g., Spanish"
+           className={inputCls}
+         />
+         <datalist id="conjugation-langs">
+           {KNOWN_LANGS.map((l) => (
+             <option key={l} value={l} />
+           ))}
+         </datalist>
        </div>
        <div>
          <label className={labelCls}>Tense (optional)</label>
@@ -486,9 +519,27 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
        </div>
      </div>
 
-     {language && ["Spanish", "French", "German", "Russian"].includes(language) && table.length === 0 && (
-       <Button variant="outline" size="sm" onClick={() => presetPronouns(language)}>Load {language} pronoun presets</Button>
-     )}
+     {/* Preset bar — always visible so methodist can rebuild pronoun table anytime. */}
+     <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-3">
+       <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-text-muted">
+         Load pronoun preset
+       </p>
+       <div className="flex flex-wrap gap-1.5">
+         {KNOWN_LANGS.map((lang) => (
+           <Button
+             key={lang}
+             variant={language === lang ? "default" : "outline"}
+             size="sm"
+             onClick={() => applyPreset(lang)}
+           >
+             {lang}
+           </Button>
+         ))}
+       </div>
+       <p className="mt-1 text-[11px] text-text-subtle">
+         Replaces the pronoun list with the 6 standard pronouns for the language. Existing correct forms for matching pronouns are kept.
+       </p>
+     </div>
 
      <div>
        <label className={labelCls}>Conjugation Table</label>
@@ -1094,25 +1145,68 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
  const starterCss = (config.starter_css as string) || "";
  const starterJs = (config.starter_js as string) || "";
 
+ const monacoOptions = {
+   minimap: { enabled: false },
+   fontSize: 13,
+   lineNumbers: "on" as const,
+   wordWrap: "on" as const,
+   scrollBeyondLastLine: false,
+   automaticLayout: true,
+   tabSize: 2,
+ };
+
  return (
    <div className="space-y-4">
      <div>
        <label className={labelCls}>Instructions for Student</label>
-       <textarea value={instructions} onChange={(e) => onChange({ ...config, instructions: e.target.value })} placeholder="Describe what the student should build with HTML/CSS/JS..." rows={3} className={inputCls} />
+       <textarea
+         value={instructions}
+         onChange={(e) => onChange({ ...config, instructions: e.target.value })}
+         placeholder="Describe what the student should build with HTML/CSS/JS..."
+         rows={3}
+         className={inputCls}
+       />
        <p className={hintCls}>This exercise is manually graded by the teacher after submission.</p>
      </div>
      <div>
        <label className={labelCls}>Starter HTML (optional)</label>
-       <textarea value={starterHtml} onChange={(e) => onChange({ ...config, starter_html: e.target.value })} placeholder="<div>...</div>" rows={4} className={`${inputCls} font-mono text-xs`} />
+       <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
+         <MonacoEditor
+           height="100%"
+           language="html"
+           value={starterHtml}
+           onChange={(v) => onChange({ ...config, starter_html: v || "" })}
+           theme="vs-light"
+           options={monacoOptions}
+         />
+       </div>
      </div>
      <div className="grid grid-cols-2 gap-4">
        <div>
          <label className={labelCls}>Starter CSS (optional)</label>
-         <textarea value={starterCss} onChange={(e) => onChange({ ...config, starter_css: e.target.value })} placeholder="body { ... }" rows={4} className={`${inputCls} font-mono text-xs`} />
+         <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
+           <MonacoEditor
+             height="100%"
+             language="css"
+             value={starterCss}
+             onChange={(v) => onChange({ ...config, starter_css: v || "" })}
+             theme="vs-light"
+             options={monacoOptions}
+           />
+         </div>
        </div>
        <div>
          <label className={labelCls}>Starter JS (optional)</label>
-         <textarea value={starterJs} onChange={(e) => onChange({ ...config, starter_js: e.target.value })} placeholder="// starter code" rows={4} className={`${inputCls} font-mono text-xs`} />
+         <div className="h-40 overflow-hidden rounded-lg border border-border-strong">
+           <MonacoEditor
+             height="100%"
+             language="javascript"
+             value={starterJs}
+             onChange={(v) => onChange({ ...config, starter_js: v || "" })}
+             theme="vs-light"
+             options={monacoOptions}
+           />
+         </div>
        </div>
      </div>
    </div>
