@@ -6,9 +6,22 @@
  * Adopted from 2026-05-23 design package (q-basics.jsx · QuizExerciseV2).
  * Reads existing { questions: [{ question_text, options: [{text, is_correct}] }] }
  * config (same shape the legacy QuizTaker uses), but renders one question at a
- * time inside a LessonShell. Hearts are tracked locally; the existing
- * `POST /exercises/{id}/submit` contract can be wired up via the `onFinish`
- * callback when integrated into the renderer.
+ * time inside a LessonShell.
+ *
+ * Hearts model (per user · 2026-05-23):
+ *   - Each task has its OWN heart pool, sized by `maxAttemptsPerTask`
+ *     (default 3). On a wrong attempt the count drops by 1, the pill
+ *     pulses, and the student can pick again.
+ *   - At 0 attempts the task ends: feedback sheet reveals the canonical
+ *     answer with a Continue button, and the streak resets.
+ *   - Switching to the next task RESETS the heart pool.
+ *
+ * Streak model:
+ *   - `streak` is the running count of tasks the student has correctly
+ *     solved in this session. Starts at 0.
+ *   - +1 each time a task ends "ok" (correct, however many attempts it
+ *     took). Resets to 0 only when a task ends "no" (all attempts
+ *     exhausted without a correct pick).
  */
 
 import { useState } from "react";
@@ -27,23 +40,25 @@ export interface QuizV2Props {
   questions: QuizV2Question[];
   /** Optional eyebrow line (e.g. course / lesson position). */
   eyebrow?: string;
-  /** Optional starting heart count. */
-  initialHearts?: number;
-  /** Optional streak count (display only). */
-  streak?: number;
+  /** Maximum attempts the student has on each individual question. Default 3. */
+  maxAttemptsPerTask?: number;
   /** Override default title; otherwise uses question_text. */
   title?: string;
   /** Called when the methodist exits via the top-left ×. */
   onQuit?: () => void;
   /** Called once when student has finished all questions. */
-  onFinish?: (result: { correct: number; total: number; hearts: number }) => void;
+  onFinish?: (result: {
+    correctOnFirstTry: number;
+    correctEventually: number;
+    total: number;
+    finalStreak: number;
+  }) => void;
 }
 
 export function QuizV2({
   questions,
   eyebrow,
-  initialHearts = 5,
-  streak = 0,
+  maxAttemptsPerTask = 3,
   title,
   onQuit,
   onFinish,
@@ -51,9 +66,12 @@ export function QuizV2({
   const [idx, setIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
-  const [hearts, setHearts] = useState(initialHearts);
+  const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [lostHeart, setLostHeart] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [usedAttempts, setUsedAttempts] = useState(0);
+  const [correctFirstTry, setCorrectFirstTry] = useState(0);
+  const [correctEventually, setCorrectEventually] = useState(0);
   const { fire, layer } = useConfetti();
 
   const q = questions[idx];
@@ -67,43 +85,75 @@ export function QuizV2({
 
   const handleCheck = () => {
     if (pick === null) return;
-    if (pick === correctIdx) {
-      setFeedback({ kind: "ok", msg: "Exactly right." });
-      setCorrectCount((c) => c + 1);
+    const isCorrect = pick === correctIdx;
+
+    if (isCorrect) {
+      setFeedback({
+        kind: "ok",
+        msg: usedAttempts === 0 ? "Exactly right." : "Got it!",
+      });
+      setStreak((s) => s + 1);
+      setCorrectEventually((c) => c + 1);
+      if (usedAttempts === 0) setCorrectFirstTry((c) => c + 1);
       fire();
-    } else {
-      const next = Math.max(0, hearts - 1);
-      setHearts(next);
-      setLostHeart(true);
-      setTimeout(() => setLostHeart(false), 500);
+      return;
+    }
+
+    // Wrong attempt.
+    const remaining = attemptsLeft - 1;
+    setAttemptsLeft(remaining);
+    setUsedAttempts((u) => u + 1);
+    setLostHeart(true);
+    setTimeout(() => setLostHeart(false), 500);
+
+    if (remaining <= 0) {
+      // Task fully failed — reveal answer + advance.
       setFeedback({
         kind: "no",
-        msg: "Not quite.",
+        msg: "Out of attempts.",
         correct: q.options[correctIdx]?.text,
+      });
+      setStreak(0);
+    } else {
+      // Still has retries — show wrong sheet with "Try again" CTA.
+      setFeedback({
+        kind: "no",
+        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
       });
     }
   };
 
-  const handleContinue = () => {
-    const wasCorrect = feedback?.kind === "ok";
+  const handleRetry = () => {
     setFeedback(null);
     setPick(null);
+  };
+
+  const handleContinue = () => {
+    setFeedback(null);
+    setPick(null);
+    setAttemptsLeft(maxAttemptsPerTask);
+    setUsedAttempts(0);
     if (idx + 1 < questions.length) {
       setIdx((i) => i + 1);
     } else {
       onFinish?.({
-        correct: correctCount + (wasCorrect ? 1 : 0),
+        correctOnFirstTry: correctFirstTry,
+        correctEventually,
         total: questions.length,
-        hearts,
+        finalStreak: streak,
       });
     }
   };
+
+  // Show a retry CTA only when the task is wrong AND there are still attempts.
+  const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
   return (
     <div style={{ position: "relative", height: "100%" }}>
       {layer}
       <LessonShell
-        hearts={hearts}
+        hearts={attemptsLeft}
+        maxHearts={maxAttemptsPerTask}
         streak={streak}
         step={idx + 1}
         totalSteps={questions.length}
@@ -114,6 +164,7 @@ export function QuizV2({
         canCheck={pick !== null}
         onCheck={handleCheck}
         onContinue={handleContinue}
+        onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
         <div
