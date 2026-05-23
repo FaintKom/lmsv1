@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GrassLMS · Exercise redesign · 24 task types</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  html, body { height: 100%; }
+  body { background: var(--paper); }
+  #root { width: 100%; height: 100vh; }
+
+  /* ── shared exercise-frame chrome ─────────────────────────── */
+  .lf-shell {
+    background: var(--paper);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-sans);
+    color: var(--ink-900);
+  }
+  .lf-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid var(--ink-100);
+    background: var(--paper);
+  }
+  .lf-close {
+    width: 28px; height: 28px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ink-50);
+    color: var(--ink-500);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 120ms;
+  }
+  .lf-close:hover { background: var(--ink-100); }
+  .lf-progress {
+    flex: 1;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--ink-100);
+    overflow: hidden;
+    position: relative;
+  }
+  .lf-progress::after {
+    content: '';
+    position: absolute;
+    inset: 2px 2px 6px 2px;
+    height: 4px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 999px;
+  }
+  .lf-progress-fill {
+    height: 100%;
+    background: linear-gradient(180deg, var(--green-400), var(--green-600));
+    border-radius: 999px;
+    transition: width 400ms var(--motion-ease);
+    position: relative;
+  }
+  .lf-streak, .lf-hearts {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px 4px 6px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .lf-streak { color: var(--coral-700); background: var(--coral-50); }
+  .lf-hearts { color: var(--coral-700); background: var(--coral-50); }
+
+  /* signature shadow-pop button */
+  .gp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 14px;
+    border: none;
+    background: var(--green-600);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 0 0 var(--green-700);
+    transition: transform 120ms var(--motion-ease), box-shadow 120ms var(--motion-ease), background 120ms;
+    user-select: none;
+  }
+  .gp-btn:hover  { transform: translateY(2px); box-shadow: 0 2px 0 0 var(--green-700); }
+  .gp-btn:active { transform: translateY(4px); box-shadow: 0 0 0 0 var(--green-700); }
+  .gp-btn:disabled {
+    background: var(--ink-100);
+    color: var(--ink-300);
+    box-shadow: 0 4px 0 0 var(--ink-200);
+    cursor: not-allowed;
+  }
+  .gp-btn.coral  { background: var(--coral-500); box-shadow: 0 4px 0 0 var(--coral-700); }
+  .gp-btn.coral:hover  { box-shadow: 0 2px 0 0 var(--coral-700); }
+  .gp-btn.coral:active { box-shadow: 0 0 0 0 var(--coral-700); }
+  .gp-btn.sun    { background: var(--sun-400); color: var(--ink-900); box-shadow: 0 4px 0 0 var(--sun-500); }
+  .gp-btn.sun:hover    { box-shadow: 0 2px 0 0 var(--sun-500); }
+  .gp-btn.sun:active   { box-shadow: 0 0 0 0 var(--sun-500); }
+  .gp-btn.ghost {
+    background: var(--paper-2);
+    color: var(--ink-500);
+    box-shadow: 0 4px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100);
+  }
+  .gp-btn.ghost:hover  { box-shadow: 0 2px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
+  .gp-btn.ghost:active { box-shadow: 0 0 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
+
+  /* tile / chip used in many exercises */
+  .gp-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--paper-2);
+    color: var(--ink-700);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100);
+    transition: transform 120ms var(--motion-ease), box-shadow 120ms var(--motion-ease), background 120ms;
+    user-select: none;
+  }
+  .gp-tile:hover { transform: translateY(1px); box-shadow: 0 1px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
+  .gp-tile:active { transform: translateY(2px); box-shadow: 0 0 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
+  .gp-tile.selected {
+    background: var(--green-50);
+    color: var(--green-800);
+    box-shadow: 0 2px 0 0 var(--green-300), inset 0 0 0 2px var(--green-300);
+  }
+  .gp-tile.correct {
+    background: var(--green-50);
+    color: var(--green-800);
+    box-shadow: 0 2px 0 0 var(--green-600), inset 0 0 0 2px var(--green-600);
+  }
+  .gp-tile.wrong {
+    background: var(--coral-50);
+    color: var(--coral-700);
+    box-shadow: 0 2px 0 0 var(--coral-500), inset 0 0 0 2px var(--coral-500);
+  }
+  .gp-tile.locked { opacity: 0.6; pointer-events: none; }
+
+  /* eyebrow */
+  .gp-eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-400);
+  }
+  .gp-title {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.25;
+    color: var(--ink-900);
+    margin: 6px 0 0 0;
+    text-wrap: pretty;
+  }
+  .gp-mark {
+    background: var(--sun-300);
+    padding: 0 6px;
+    border-radius: 4px;
+    display: inline-block;
+    transform: rotate(-1.5deg);
+  }
+
+  /* feedback bottom sheet */
+  .lf-bottom {
+    border-top: 2px solid var(--ink-100);
+    background: var(--paper-2);
+    padding: 18px 22px 22px;
+  }
+  .lf-bottom.correct { background: var(--green-50); border-top-color: var(--green-300); }
+  .lf-bottom.wrong   { background: var(--coral-50); border-top-color: var(--coral-300); }
+  .lf-fb-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .lf-fb-icon {
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    display: grid; place-items: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .lf-fb-icon.ok { background: var(--green-600); }
+  .lf-fb-icon.no { background: var(--coral-500); }
+  .lf-fb-text { font-weight: 800; font-size: 19px; }
+  .lf-fb-text.ok { color: var(--green-800); }
+  .lf-fb-text.no { color: var(--coral-700); }
+  .lf-fb-sub { font-size: 13px; color: var(--ink-500); margin-top: 2px; font-weight: 500; }
+  .lf-fb-correct { font-size: 14px; color: var(--coral-700); margin-top: 4px; font-weight: 600; }
+  .lf-fb-correct b { font-weight: 800; }
+
+  /* mobile shell additions */
+  .mobile-frame {
+    width: 390px;
+    height: 780px;
+    border-radius: 36px;
+    overflow: hidden;
+    background: var(--paper);
+    position: relative;
+  }
+  .mobile-statusbar {
+    height: 38px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 4px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink-900);
+  }
+
+  /* confetti container */
+  .gp-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .gp-confetti span {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -20px;
+    animation: gp-fall 1400ms var(--motion-ease) forwards;
+  }
+  @keyframes gp-fall {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(560px) rotate(540deg); opacity: 0; }
+  }
+
+  /* shimmery sun-300 marker pop on correct */
+  @keyframes gp-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .gp-pop { animation: gp-pop 400ms var(--motion-ease) both; }
+
+  /* heart pulse */
+  @keyframes gp-pulse-heart {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+  .gp-heart-loss {
+    display: inline-block;
+    animation: gp-pulse-heart 500ms var(--motion-ease);
+  }
+
+  /* small input with thick 2px border per spec */
+  .gp-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--ink-100);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--ink-900);
+    background: var(--paper-2);
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  .gp-input:focus {
+    outline: none;
+    border-color: var(--green-500);
+    box-shadow: 0 0 0 4px var(--green-100);
+  }
+  .gp-input.correct {
+    border-color: var(--green-500);
+    background: var(--green-50);
+  }
+  .gp-input.wrong {
+    border-color: var(--coral-500);
+    background: var(--coral-50);
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="shell.jsx"></script>
+  <script type="text/babel" src="q-basics.jsx"></script>
+  <script type="text/babel" src="q-language.jsx"></script>
+  <script type="text/babel" src="q-programming.jsx"></script>
+  <script type="text/babel" src="q-math.jsx"></script>
+  <script type="text/babel" src="q-math-templates.jsx"></script>
+  <script type="text/babel" src="q-other.jsx"></script>
+  <script type="text/babel" src="q-fullscreen.jsx"></script>
+  <script type="text/babel" src="q-mobile.jsx"></script>
+  <script type="text/babel" src="q-theory.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
