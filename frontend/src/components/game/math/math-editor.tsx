@@ -959,14 +959,42 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
  );
 }
 
-function ScatterPlotConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/** ScatterPlotConfig — mode / slope / intercept + per-point (x, y) rows. */
+function ScatterPlotConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ const points: { x: number; y: number }[] =
+ (config.points as { x: number; y: number }[]) ||
+ [
+ { x: 1, y: 2 },
+ { x: 2, y: 4 },
+ { x: 3, y: 5 },
+ ];
+ const writePoints = (next: { x: number; y: number }[]) => onChange({ ...config, points: next });
+ const updatePoint = (i: number, patch: Partial<{ x: number; y: number }>) =>
+ writePoints(points.map((p, j) => (j === i ? { ...p, ...patch } : p)));
+ const addPoint = () => {
+ const last = points[points.length - 1] || { x: 0, y: 0 };
+ writePoints([...points, { x: last.x + 1, y: last.y + 1 }]);
+ };
+ const removePoint = (i: number) => writePoints(points.filter((_, j) => j !== i));
+
+ const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+
  return (
  <div className="space-y-3">
  <div className="grid grid-cols-3 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Mode</label>
- <select value={(config.mode as string) || "best_fit"} onChange={(e) => onChange({ ...config, mode: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ <select
+ value={(config.mode as string) || "best_fit"}
+ onChange={(e) => onChange({ ...config, mode: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ >
  <option value="best_fit">Best Fit Line</option>
  <option value="correlation">Identify Correlation</option>
  <option value="read_value">Read a Value</option>
@@ -974,20 +1002,75 @@ function ScatterPlotConfig({ config, onChange }: { config: Record<string, unknow
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target Slope</label>
- <input type="number" step={0.1} value={(config.target_slope as number) ?? 1} onChange={(e) => onChange({ ...config, target_slope: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="number"
+ step={0.1}
+ value={(config.target_slope as number) ?? 1}
+ onChange={(e) => onChange({ ...config, target_slope: parseFloat(e.target.value) || 0 })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target Intercept</label>
- <input type="number" step={0.5} value={(config.target_intercept as number) ?? 0} onChange={(e) => onChange({ ...config, target_intercept: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="number"
+ step={0.5}
+ value={(config.target_intercept as number) ?? 0}
+ onChange={(e) => onChange({ ...config, target_intercept: parseFloat(e.target.value) || 0 })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Data Points (JSON)</label>
- <textarea rows={3} value={JSON.stringify((config.points as unknown[]) || [{x:1,y:2},{x:2,y:4},{x:3,y:5}], null, 2)}
- onChange={(e) => { try { onChange({ ...config, points: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-1.5 flex items-center justify-between">
+ <label className="block text-xs text-text-muted">Data Points ({points.length})</label>
+ <button
+ type="button"
+ onClick={addPoint}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add point
+ </button>
+ </div>
+ <div className="space-y-1.5">
+ {points.map((p, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ >
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ x
+ <input
+ type="number"
+ step={0.1}
+ value={p.x}
+ onChange={(e) => updatePoint(i, { x: parseFloat(e.target.value) || 0 })}
+ className={numCls}
+ />
+ </label>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ y
+ <input
+ type="number"
+ step={0.1}
+ value={p.y}
+ onChange={(e) => updatePoint(i, { y: parseFloat(e.target.value) || 0 })}
+ className={numCls}
+ />
+ </label>
+ <button
+ type="button"
+ onClick={() => removePoint(i)}
+ className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete point"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
  </div>
  </div>
  );
