@@ -55,16 +55,17 @@ export default function V2QuizPreviewPage() {
       >
         <QuizV2
           questions={SAMPLE_QUESTIONS}
-          eyebrow="PREVIEW · V2 CHROME · LESSON 6 / 12"
-          initialHearts={4}
-          streak={7}
+          eyebrow="PREVIEW · V2 CHROME · 3 questions · 3 attempts each"
+          maxAttemptsPerTask={3}
           onQuit={() => {
             // eslint-disable-next-line no-alert
             alert("Quit pressed (demo only)");
           }}
           onFinish={(r) => {
             // eslint-disable-next-line no-alert
-            alert(`Finished: ${r.correct}/${r.total} · hearts ${r.hearts}`);
+            alert(
+              `Finished: ${r.correctEventually}/${r.total} correct (${r.correctOnFirstTry} first-try) · streak ended at ${r.finalStreak}`
+            );
           }}
         />
       </div>

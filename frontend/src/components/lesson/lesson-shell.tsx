@@ -37,9 +37,20 @@ export interface LessonFeedback {
 }
 
 export interface LessonShellProps {
-  // Gamification — pulled from user context in production
+  /**
+   * Hearts = attempts remaining for the CURRENT task. Each task starts with
+   * its own pool (default 3 in QuizV2). On a wrong attempt the count drops
+   * by one and the pill pulses; at 0 the task ends and the answer is
+   * revealed. New task resets the pool.
+   */
   hearts?: number;
+  /** Display only — the "/ max" caption next to the heart count. */
   maxHearts?: number;
+  /**
+   * Streak = number of tasks the student has correctly solved in a row
+   * (zero-indexed; resets to 0 on a failed task, NOT on a single wrong
+   * attempt if there are still retries left).
+   */
   streak?: number;
   /** Hide hearts + streak (passive content: theory, scorm). */
   hideStats?: boolean;
@@ -61,6 +72,9 @@ export interface LessonShellProps {
   canCheck: boolean;
   onCheck: () => void;
   onContinue: () => void;
+  /** Optional. When provided + feedback is wrong, the bottom sheet shows
+   * "Try again" instead of "Continue" — caller resets the question state. */
+  onRetry?: () => void;
   checkLabel?: string;
   /** Default true; hide for game flows. */
   showSkip?: boolean;
@@ -106,11 +120,17 @@ const Ico = {
 export function FeedbackSheet({
   feedback,
   onContinue,
+  onRetry,
 }: {
   feedback: LessonFeedback;
   onContinue: () => void;
+  /** When provided + feedback is wrong, sheet shows "Try again" instead of
+   * "Continue" so the student can retake the same task with the remaining
+   * attempts. Caller is responsible for clearing pick state on retry. */
+  onRetry?: () => void;
 }) {
   const ok = feedback.kind === "ok";
+  const canRetry = !ok && !!onRetry;
   return (
     <div className={"lf-bottom " + (ok ? "correct" : "wrong")}>
       <div className="lf-fb-row">
@@ -119,9 +139,9 @@ export function FeedbackSheet({
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className={"lf-fb-text " + (ok ? "ok" : "no")}>
-            {feedback.msg || (ok ? "Nicely done!" : "Not quite")}
+            {feedback.msg || (ok ? "Nicely done!" : canRetry ? "Try again" : "Not quite")}
           </div>
-          {feedback.correct && !ok && (
+          {feedback.correct && !ok && !canRetry && (
             <div className="lf-fb-correct">
               Answer: <b>{feedback.correct}</b>
             </div>
@@ -130,10 +150,10 @@ export function FeedbackSheet({
         </div>
         <button
           className={"gp-btn " + (ok ? "" : "coral")}
-          onClick={onContinue}
+          onClick={canRetry ? onRetry : onContinue}
           style={{ padding: "14px 30px" }}
         >
-          Continue
+          {canRetry ? "Try again" : "Continue"}
         </button>
       </div>
     </div>
@@ -216,6 +236,7 @@ export function LessonShell({
   canCheck,
   onCheck,
   onContinue,
+  onRetry,
   checkLabel = "Check",
   showSkip = true,
   onSkip,
@@ -289,7 +310,7 @@ export function LessonShell({
       </div>
 
       {feedback ? (
-        <FeedbackSheet feedback={feedback} onContinue={onContinue} />
+        <FeedbackSheet feedback={feedback} onContinue={onContinue} onRetry={onRetry} />
       ) : (
         <div className="lf-bottom" style={{ background: "var(--paper)" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
