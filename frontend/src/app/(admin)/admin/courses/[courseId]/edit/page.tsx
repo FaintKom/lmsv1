@@ -1081,6 +1081,14 @@ export default function CourseEditorPage() {
  ) : (
  <ChevronRight className="h-4 w-4 shrink-0 text-text-subtle" />
  )}
+ <a
+ href={`/admin/lessons/${lesson.id}/edit?courseId=${courseId}&moduleId=${module.id}`}
+ onClick={(e) => e.stopPropagation()}
+ className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary-soft"
+ title="Open in new WYSIWYG editor (prototype)"
+ >
+ ✨ Edit
+ </a>
  <button
  onClick={(e) => {
  e.stopPropagation();
