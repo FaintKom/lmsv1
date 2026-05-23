@@ -336,7 +336,7 @@ function EquationBalanceConfig({
 
  return (
  <div className="space-y-3">
- <div className="grid grid-cols-2 gap-3">
+ <div className="grid grid-cols-3 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Left Side Numbers (comma-sep)</label>
  <input
@@ -364,6 +364,18 @@ function EquationBalanceConfig({
  }
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
  />
+ </div>
+ <div>
+ <label className="mb-1 block text-xs text-text-muted">Student adds terms to</label>
+ <select
+ value={(config.target_side as string) || "right"}
+ onChange={(e) => onChange({ ...config, target_side: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ >
+ <option value="right">Right side only</option>
+ <option value="left">Left side only</option>
+ <option value="both">Either side</option>
+ </select>
  </div>
  </div>
 
