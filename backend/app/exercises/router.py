@@ -30,7 +30,6 @@ from app.exercises.service import (
     delete_exercise,
     delete_question_from_exercise,
     delete_test_case_from_exercise,
-    update_test_case_in_exercise,
     get_attempt_status,
     get_exercise,
     get_exercises_by_lesson,
@@ -39,6 +38,7 @@ from app.exercises.service import (
     submit_exercise,
     update_exercise,
     update_question_in_exercise,
+    update_test_case_in_exercise,
     upload_file_submission,
 )
 
