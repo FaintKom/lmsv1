@@ -735,9 +735,16 @@ interface CrosswordWord {
 export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
  const words = (config.words as CrosswordWord[]) || [];
  const gridSize = (config.grid_size as number) || 10;
+ const [placingIdx, setPlacingIdx] = useState<number | null>(null);
 
  const updateWord = (i: number, field: string, val: unknown) => {
    const next = words.map((w, j) => (j === i ? { ...w, [field]: val } : w));
+   onChange({ ...config, words: next });
+ };
+
+ /** Batch-update row + col (avoids stale state from two sequential updateWord calls). */
+ const setWordPosition = (i: number, row: number, col: number) => {
+   const next = words.map((w, j) => (j === i ? { ...w, row, col } : w));
    onChange({ ...config, words: next });
  };
 
@@ -746,46 +753,231 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
    words: [...words, { word: "", clue: "", row: 0, col: 0, direction: "across" as const }],
  });
 
- const removeWord = (i: number) => onChange({ ...config, words: words.filter((_, j) => j !== i) });
+ const removeWord = (i: number) => {
+   if (placingIdx === i) setPlacingIdx(null);
+   onChange({ ...config, words: words.filter((_, j) => j !== i) });
+ };
+
+ /** Build occupancy map: 'r:c' → list of {letter, wordIdx}. */
+ const occupancy = new Map<string, { letter: string; wordIdx: number }[]>();
+ words.forEach((w, wi) => {
+   const word = (w.word || "").toUpperCase();
+   for (let k = 0; k < word.length; k++) {
+     const r = w.direction === "down" ? w.row + k : w.row;
+     const c = w.direction === "across" ? w.col + k : w.col;
+     if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) continue;
+     const key = `${r}:${c}`;
+     const list = occupancy.get(key) || [];
+     list.push({ letter: word[k], wordIdx: wi });
+     occupancy.set(key, list);
+   }
+ });
+ const conflicts = new Set<string>();
+ for (const [key, list] of occupancy) {
+   if (new Set(list.map((x) => x.letter)).size > 1) conflicts.add(key);
+ }
+
+ /** Does the word at idx still fit when placed at (r,c) with current direction? */
+ const fitsAt = (idx: number, r: number, c: number): boolean => {
+   const w = words[idx];
+   if (!w) return false;
+   const len = (w.word || "").length;
+   if (w.direction === "across") return c + len <= gridSize && r < gridSize;
+   return r + len <= gridSize && c < gridSize;
+ };
+
+ /** When the methodist clicks a cell in placement mode, snap the word there. */
+ const handleCellClick = (r: number, c: number) => {
+   if (placingIdx === null) return;
+   if (!fitsAt(placingIdx, r, c)) return;
+   setWordPosition(placingIdx, r, c);
+   setPlacingIdx(null);
+ };
+
+ // Pre-compute letters per cell for grid render.
+ const cellLetter = (r: number, c: number): string => {
+   const list = occupancy.get(`${r}:${c}`);
+   return list && list.length > 0 ? list[0].letter : "";
+ };
+ const cellInWord = (r: number, c: number, idx: number): boolean => {
+   const list = occupancy.get(`${r}:${c}`);
+   return !!list && list.some((x) => x.wordIdx === idx);
+ };
+
+ const activeWord = placingIdx !== null ? words[placingIdx] : null;
 
  return (
    <div className="space-y-4">
      <div>
        <label className={labelCls}>Grid Size</label>
-       <input type="number" min={5} max={20} value={gridSize}
+       <input
+         type="number"
+         min={5}
+         max={20}
+         value={gridSize}
          onChange={(e) => onChange({ ...config, grid_size: parseInt(e.target.value) || 10 })}
-         className={`w-24 ${inputCls}`} />
-       <p className={hintCls}>{gridSize} x {gridSize} grid. Words must fit within.</p>
+         className={`w-24 ${inputCls}`}
+       />
+       <p className={hintCls}>
+         {gridSize} × {gridSize} grid. Words must fit within. Click "Place on grid" on a row to position it visually.
+       </p>
      </div>
+
+     {/* Visual grid preview */}
+     <div>
+       <div className="mb-1 flex items-center gap-3">
+         <label className={labelCls}>Grid preview</label>
+         {placingIdx !== null && activeWord && (
+           <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-[11px] font-medium text-primary">
+             Click a cell to place "{activeWord.word || `word ${placingIdx + 1}`}" ({activeWord.direction})
+           </span>
+         )}
+         {placingIdx !== null && (
+           <Button variant="ghost" size="sm" onClick={() => setPlacingIdx(null)}>
+             Cancel placement
+           </Button>
+         )}
+         {conflicts.size > 0 && (
+           <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-[11px] font-medium text-danger-fg">
+             {conflicts.size} conflict{conflicts.size === 1 ? "" : "s"}
+           </span>
+         )}
+       </div>
+       <div
+         className="inline-grid border border-border-strong bg-paper"
+         style={{
+           gridTemplateColumns: `repeat(${gridSize}, 28px)`,
+           gridTemplateRows: `repeat(${gridSize}, 28px)`,
+         }}
+       >
+         {Array.from({ length: gridSize * gridSize }, (_, idx) => {
+           const r = Math.floor(idx / gridSize);
+           const c = idx % gridSize;
+           const key = `${r}:${c}`;
+           const letter = cellLetter(r, c);
+           const hasConflict = conflicts.has(key);
+           const inActive = placingIdx !== null && cellInWord(r, c, placingIdx);
+           const canDrop = placingIdx !== null && fitsAt(placingIdx, r, c);
+           const isEmpty = !letter;
+           return (
+             <div
+               key={key}
+               onClick={() => handleCellClick(r, c)}
+               className={`flex items-center justify-center border border-border text-sm font-mono font-bold uppercase transition-colors ${
+                 hasConflict
+                   ? "bg-danger-soft text-danger-fg"
+                   : inActive
+                   ? "bg-primary-soft text-primary"
+                   : !isEmpty
+                   ? "bg-paper-2 text-ink-700"
+                   : placingIdx !== null && canDrop
+                   ? "cursor-pointer bg-paper hover:bg-primary-soft"
+                   : placingIdx !== null
+                   ? "cursor-not-allowed bg-ink-100/40 text-text-subtle"
+                   : "bg-paper text-text-subtle"
+               }`}
+               title={hasConflict ? "Letter conflict with another word" : ""}
+             >
+               {letter}
+             </div>
+           );
+         })}
+       </div>
+     </div>
+
+     {/* Word list */}
      <div>
        <label className={labelCls}>Words ({words.length})</label>
        <div className="space-y-3">
-         {words.map((w, i) => (
-           <div key={i} className="rounded-lg border border-border-strong p-3 space-y-2">
-             <div className="flex items-center gap-2">
-               <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
-               <input type="text" value={w.word} onChange={(e) => updateWord(i, "word", e.target.value.toUpperCase())} placeholder="WORD" className={`w-32 ${inputCls} font-mono uppercase`} />
-               <input type="text" value={w.clue} onChange={(e) => updateWord(i, "clue", e.target.value)} placeholder="Clue for this word..." className={`flex-1 ${inputCls}`} />
-               <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
-             </div>
-             <div className="flex items-center gap-3 pl-9">
-               <div className="flex items-center gap-1">
-                 <label className="text-xs text-text-muted">Row:</label>
-                 <input type="number" min={0} max={gridSize - 1} value={w.row} onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+         {words.map((w, i) => {
+           const isPlacing = placingIdx === i;
+           const wordLen = (w.word || "").length;
+           const overflow =
+             wordLen > 0 &&
+             ((w.direction === "across" && w.col + wordLen > gridSize) ||
+               (w.direction === "down" && w.row + wordLen > gridSize));
+           return (
+             <div
+               key={i}
+               className={`rounded-lg border p-3 space-y-2 ${
+                 isPlacing ? "border-primary bg-primary-soft/10" : "border-border-strong"
+               }`}
+             >
+               <div className="flex items-center gap-2">
+                 <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">
+                   {i + 1}
+                 </span>
+                 <input
+                   type="text"
+                   value={w.word}
+                   onChange={(e) => updateWord(i, "word", e.target.value.toUpperCase())}
+                   placeholder="WORD"
+                   className={`w-32 ${inputCls} font-mono uppercase`}
+                 />
+                 <input
+                   type="text"
+                   value={w.clue}
+                   onChange={(e) => updateWord(i, "clue", e.target.value)}
+                   placeholder="Clue for this word..."
+                   className={`flex-1 ${inputCls}`}
+                 />
+                 <Button
+                   variant={isPlacing ? "default" : "outline"}
+                   size="sm"
+                   onClick={() => setPlacingIdx(isPlacing ? null : i)}
+                   title="Pick a cell on the grid to place this word"
+                 >
+                   {isPlacing ? "Cancel" : "Place on grid"}
+                 </Button>
+                 <Button variant="ghost" size="sm" onClick={() => removeWord(i)} className="text-danger-fg">
+                   <Trash2 className="h-3.5 w-3.5" />
+                 </Button>
                </div>
-               <div className="flex items-center gap-1">
-                 <label className="text-xs text-text-muted">Col:</label>
-                 <input type="number" min={0} max={gridSize - 1} value={w.col} onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)} className={`w-16 ${inputCls}`} />
+               <div className="flex items-center gap-3 pl-9">
+                 <div className="flex items-center gap-1">
+                   <label className="text-xs text-text-muted">Row:</label>
+                   <input
+                     type="number"
+                     min={0}
+                     max={gridSize - 1}
+                     value={w.row}
+                     onChange={(e) => updateWord(i, "row", parseInt(e.target.value) || 0)}
+                     className={`w-16 ${inputCls}`}
+                   />
+                 </div>
+                 <div className="flex items-center gap-1">
+                   <label className="text-xs text-text-muted">Col:</label>
+                   <input
+                     type="number"
+                     min={0}
+                     max={gridSize - 1}
+                     value={w.col}
+                     onChange={(e) => updateWord(i, "col", parseInt(e.target.value) || 0)}
+                     className={`w-16 ${inputCls}`}
+                   />
+                 </div>
+                 <select
+                   value={w.direction}
+                   onChange={(e) => updateWord(i, "direction", e.target.value)}
+                   className={`w-28 ${inputCls}`}
+                 >
+                   <option value="across">Across →</option>
+                   <option value="down">Down ↓</option>
+                 </select>
+                 {overflow && (
+                   <span className="text-[11px] text-danger-fg">
+                     ⚠ Word extends past grid edge
+                   </span>
+                 )}
                </div>
-               <select value={w.direction} onChange={(e) => updateWord(i, "direction", e.target.value)} className={`w-28 ${inputCls}`}>
-                 <option value="across">Across →</option>
-                 <option value="down">Down ↓</option>
-               </select>
              </div>
-           </div>
-         ))}
+           );
+         })}
        </div>
-       <Button variant="outline" size="sm" onClick={addWord} className="mt-2"><Plus className="mr-1.5 h-3.5 w-3.5" />Add Word</Button>
+       <Button variant="outline" size="sm" onClick={addWord} className="mt-2">
+         <Plus className="mr-1.5 h-3.5 w-3.5" />
+         Add Word
+       </Button>
      </div>
    </div>
  );
