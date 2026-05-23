@@ -498,8 +498,9 @@ def main() -> int:
 
     # Find or create "Exercise Types Demo" course
     courses = api("GET", "/courses", token=token)
-    if isinstance(courses, dict) and "results" in courses:
-        courses = courses["results"]
+    if isinstance(courses, dict):
+        # API returns {items, total, page, per_page, pages}; also accept legacy 'results'.
+        courses = courses.get("items") or courses.get("results") or []
     demo = next(
         (c for c in courses if c.get("title", "").lower() == "exercise types demo"),
         None,
