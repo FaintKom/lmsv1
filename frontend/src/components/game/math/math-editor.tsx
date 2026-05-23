@@ -993,34 +993,231 @@ function ScatterPlotConfig({ config, onChange }: { config: Record<string, unknow
  );
 }
 
-function TwoWayTableConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * TwoWayTableConfig — full grid editor with per-cell "Blank for student" toggle.
+ *
+ * Replaces twin JSON textareas (cells + answers). Headers get +/− buttons.
+ * Each cell renders one number input + tick. When ticked the cell becomes
+ * `null` in `cells[]` and its value is moved into `answers["r{r}c{c}"]`.
+ *
+ * Reads legacy answer keys "{row}_{col}" (from older seed data) and
+ * normalises to canonical "r{r}c{c}" on first save.
+ */
+function TwoWayTableConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ const rowHeaders = (config.row_headers as string[]) || ["Boys", "Girls", "Total"];
+ const colHeaders = (config.col_headers as string[]) || ["Soccer", "Basketball", "Total"];
+ const cells: (number | null)[][] =
+ (config.cells as (number | null)[][]) ||
+ [
+ [12, null, 25],
+ [null, 10, 23],
+ [20, null, 48],
+ ];
+
+ // Normalise legacy `{r}_{c}` keys to canonical `r{r}c{c}`.
+ const rawAnswers = (config.answers as Record<string, number>) || {};
+ const answers: Record<string, number> = {};
+ for (const [k, v] of Object.entries(rawAnswers)) {
+ if (/^r\d+c\d+$/.test(k)) answers[k] = v;
+ else {
+ const m = k.match(/^(\d+)[_-](\d+)$/);
+ if (m) answers[`r${m[1]}c${m[2]}`] = v;
+ else answers[k] = v;
+ }
+ }
+
+ const persist = (patch: Partial<{
+ row_headers: string[];
+ col_headers: string[];
+ cells: (number | null)[][];
+ answers: Record<string, number>;
+ }>) => {
+ onChange({
+ ...config,
+ row_headers: patch.row_headers ?? rowHeaders,
+ col_headers: patch.col_headers ?? colHeaders,
+ cells: patch.cells ?? cells,
+ answers: patch.answers ?? answers,
+ });
+ };
+
+ const updateHeader = (axis: "row" | "col", i: number, value: string) => {
+ if (axis === "row") {
+ const next = [...rowHeaders];
+ next[i] = value;
+ persist({ row_headers: next });
+ } else {
+ const next = [...colHeaders];
+ next[i] = value;
+ persist({ col_headers: next });
+ }
+ };
+
+ const addRow = () => {
+ persist({
+ row_headers: [...rowHeaders, `Row ${rowHeaders.length + 1}`],
+ cells: [...cells, Array(colHeaders.length).fill(0) as (number | null)[]],
+ });
+ };
+ const removeRow = (i: number) => {
+ const nextAnswers: Record<string, number> = {};
+ for (const [k, v] of Object.entries(answers)) {
+ const m = k.match(/^r(\d+)c(\d+)$/);
+ if (!m) continue;
+ const r = Number(m[1]);
+ const c = Number(m[2]);
+ if (r === i) continue;
+ nextAnswers[`r${r > i ? r - 1 : r}c${c}`] = v;
+ }
+ persist({
+ row_headers: rowHeaders.filter((_, j) => j !== i),
+ cells: cells.filter((_, j) => j !== i),
+ answers: nextAnswers,
+ });
+ };
+ const addCol = () => {
+ persist({
+ col_headers: [...colHeaders, `Col ${colHeaders.length + 1}`],
+ cells: cells.map((row) => [...row, 0]),
+ });
+ };
+ const removeCol = (i: number) => {
+ const nextAnswers: Record<string, number> = {};
+ for (const [k, v] of Object.entries(answers)) {
+ const m = k.match(/^r(\d+)c(\d+)$/);
+ if (!m) continue;
+ const r = Number(m[1]);
+ const c = Number(m[2]);
+ if (c === i) continue;
+ nextAnswers[`r${r}c${c > i ? c - 1 : c}`] = v;
+ }
+ persist({
+ col_headers: colHeaders.filter((_, j) => j !== i),
+ cells: cells.map((row) => row.filter((_, j) => j !== i)),
+ answers: nextAnswers,
+ });
+ };
+
+ const setCell = (r: number, c: number, isBlank: boolean, value: number) => {
+ const nextCells = cells.map((row, ri) =>
+ row.map((v, ci) => {
+ if (ri !== r || ci !== c) return v;
+ return isBlank ? null : value;
+ })
+ );
+ const nextAnswers = { ...answers };
+ const key = `r${r}c${c}`;
+ if (isBlank) nextAnswers[key] = value;
+ else delete nextAnswers[key];
+ persist({ cells: nextCells, answers: nextAnswers });
+ };
+
  return (
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Row Headers (comma-sep)</label>
- <input type="text" value={((config.row_headers as string[]) || ["Boys","Girls","Total"]).join(", ")}
- onChange={(e) => onChange({ ...config, row_headers: e.target.value.split(",").map(s => s.trim()) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <div className="mb-1 flex items-center justify-between">
+ <label className="text-xs text-text-muted">Row Headers</label>
+ <div className="flex gap-1">
+ {rowHeaders.length > 1 && (
+ <button type="button" onClick={() => removeRow(rowHeaders.length - 1)} className="text-xs text-text-subtle hover:text-danger-fg">−</button>
+ )}
+ <button type="button" onClick={addRow} className="text-xs font-medium text-primary hover:underline">+</button>
+ </div>
+ </div>
+ <div className="space-y-1">
+ {rowHeaders.map((h, i) => (
+ <input
+ key={i}
+ type="text"
+ value={h}
+ onChange={(e) => updateHeader("row", i, e.target.value)}
+ className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ />
+ ))}
+ </div>
  </div>
  <div>
- <label className="mb-1 block text-xs text-text-muted">Column Headers (comma-sep)</label>
- <input type="text" value={((config.col_headers as string[]) || ["Soccer","Basketball","Total"]).join(", ")}
- onChange={(e) => onChange({ ...config, col_headers: e.target.value.split(",").map(s => s.trim()) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <div className="mb-1 flex items-center justify-between">
+ <label className="text-xs text-text-muted">Column Headers</label>
+ <div className="flex gap-1">
+ {colHeaders.length > 1 && (
+ <button type="button" onClick={() => removeCol(colHeaders.length - 1)} className="text-xs text-text-subtle hover:text-danger-fg">−</button>
+ )}
+ <button type="button" onClick={addCol} className="text-xs font-medium text-primary hover:underline">+</button>
  </div>
  </div>
+ <div className="space-y-1">
+ {colHeaders.map((h, i) => (
+ <input
+ key={i}
+ type="text"
+ value={h}
+ onChange={(e) => updateHeader("col", i, e.target.value)}
+ className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ />
+ ))}
+ </div>
+ </div>
+ </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Cells (JSON, null = blank)</label>
- <textarea rows={4} value={JSON.stringify((config.cells as unknown[]) || [[12,null,25],[null,10,23],[20,null,48]], null, 2)}
- onChange={(e) => { try { onChange({ ...config, cells: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <p className="mb-1.5 text-xs text-text-muted">
+ Cells — tick the checkbox to make a cell a blank the student fills.
+ The value next to it becomes the expected answer.
+ </p>
+ <div className="overflow-x-auto rounded-lg border border-border-strong bg-paper-2">
+ <table className="w-full text-xs">
+ <thead>
+ <tr>
+ <th className="bg-ink-100 px-2 py-1"></th>
+ {colHeaders.map((h, i) => (
+ <th key={i} className="bg-ink-100 px-2 py-1 text-text-muted">{h}</th>
+ ))}
+ </tr>
+ </thead>
+ <tbody>
+ {cells.map((row, r) => (
+ <tr key={r}>
+ <th className="bg-ink-100 px-2 py-1 text-left text-text-muted">{rowHeaders[r]}</th>
+ {row.map((v, c) => {
+ const key = `r${r}c${c}`;
+ const isBlank = v === null;
+ const displayValue = isBlank ? answers[key] ?? 0 : v ?? 0;
+ return (
+ <td key={c} className="border-l border-border px-1.5 py-1 align-top">
+ <div className="flex items-center gap-1">
+ <input
+ type="number"
+ value={displayValue}
+ onChange={(e) => setCell(r, c, isBlank, parseInt(e.target.value) || 0)}
+ className={`w-16 rounded border px-1.5 py-0.5 text-center text-xs ${
+ isBlank ? "border-warning bg-sun-50" : "border-border-strong bg-paper"
+ }`}
+ title={isBlank ? "Expected answer" : "Shown value"}
+ />
+ <input
+ type="checkbox"
+ checked={isBlank}
+ onChange={(e) => setCell(r, c, e.target.checked, displayValue)}
+ className="h-3 w-3 accent-amber-500"
+ title="Blank for student"
+ />
  </div>
- <div>
- <label className="mb-1 block text-xs text-text-muted">Answers (JSON: {"{"}&quot;r0c1&quot;: 13, ...{"}"})</label>
- <input type="text" value={JSON.stringify((config.answers as Record<string,number>) || {})}
- onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ </td>
+ );
+ })}
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
  </div>
  </div>
  );
