@@ -1,20 +1,25 @@
 "use client";
 
 /**
- * WYSIWYG Lesson Editor — prototype.
+ * WYSIWYG Lesson Editor — single-lesson focus.
  *
  * Methodist edits ONE lesson at a time on a dedicated page that looks like the
  * student view, with hover-revealed edit chrome on each block and an inline
- * "+ add block" zone between every pair. Auto-saves on debounce.
+ * "+ add block" zone between blocks.
  *
- * Reuses existing renderers (ContentRenderer, VideoPlayer, ExerciseRenderer) so
- * what the methodist sees matches what the student sees byte-for-byte.
+ * Exercise blocks render their config form INLINE on the page (no drawer, no
+ * "Configure" toggle). When the methodist picks an exercise type, the exercise
+ * is created immediately with a default title — there is no second "Create"
+ * step. The methodist can edit title + config in place; both auto-save.
+ *
+ * Reuses ContentRenderer (TipTap/markdown/html), BlockEditor (TipTap edit
+ * mode), VideoPlayer, ExerciseRenderer (preview), and ExerciseConfigPanel
+ * (the inline 24-type dispatch).
  *
  * Route: /admin/lessons/[lessonId]/edit?courseId=...&moduleId=...
- * (courseId + moduleId required for the PUT endpoint; passed from course editor.)
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
@@ -30,7 +35,6 @@ import {
   Plus,
   Puzzle,
   Trash2,
-  X,
   Code,
 } from "lucide-react";
 import {
@@ -52,16 +56,16 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import apiClient from "@/lib/api-client";
-import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { VideoPlayer } from "@/components/video-player";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
-import QuizBuilder from "@/components/assessments/quiz-builder";
-import ChallengeBuilder from "@/components/code-editor/challenge-builder";
-import FileUploadConfig from "@/components/submissions/file-upload-config";
-import InteractiveBuilder from "@/components/submissions/interactive-builder";
-import { EXERCISE_TYPES_META, EXERCISE_TYPE_LABELS } from "@/lib/api/exercises";
+import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-panel";
+import {
+  EXERCISE_TYPES_META,
+  EXERCISE_TYPE_LABELS,
+  type ExerciseType,
+} from "@/lib/api/exercises";
 import type { LessonBlock } from "@/types/api";
 
 const BlockEditor = dynamic(
@@ -149,7 +153,6 @@ export default function LessonEditorPage() {
   const [exercises, setExercises] = useState<ExerciseSummary[]>([]);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [previewMode, setPreviewMode] = useState(false);
-  const [drawerBlockId, setDrawerBlockId] = useState<string | null>(null);
   const [courseTitle, setCourseTitle] = useState("");
 
   const initialLoadRef = useRef(false);
@@ -193,7 +196,7 @@ export default function LessonEditorPage() {
     };
   }, [courseId, lessonId, moduleId]);
 
-  /* ── Debounced auto-save ── */
+  /* ── Debounced lesson auto-save (title / duration / blocks structure) ── */
   const triggerSave = useCallback(() => {
     if (!initialLoadRef.current) return;
     setSaveStatus("dirty");
@@ -215,7 +218,6 @@ export default function LessonEditorPage() {
     }, 1200);
   }, [blocks, courseId, duration, lessonId, moduleId, title]);
 
-  // Fire save whenever title/blocks/duration change after initial load.
   useEffect(() => {
     triggerSave();
   }, [triggerSave]);
@@ -226,14 +228,22 @@ export default function LessonEditorPage() {
   }, []);
 
   const deleteBlock = useCallback(
-    async (id: string) => {
+    async (block: LessonBlock) => {
       const ok = await confirm({
         message: "Delete this block?",
         variant: "danger",
         confirmLabel: "Delete",
       });
       if (!ok) return;
-      setBlocks((bs) => bs.filter((b) => b.id !== id));
+      // Best-effort cleanup if this is an exercise block.
+      if (block.type === "exercise" && block.exercise_id) {
+        try {
+          await apiClient.delete(`/exercises/${block.exercise_id}`);
+        } catch (err) {
+          console.warn("Failed to delete exercise from server (block removed locally):", err);
+        }
+      }
+      setBlocks((bs) => bs.filter((b) => b.id !== block.id));
     },
     [confirm]
   );
@@ -263,6 +273,33 @@ export default function LessonEditorPage() {
     });
   }, []);
 
+  /* ── Instantly create an exercise of a given type and attach to a block. */
+  const createAndAttachExercise = useCallback(
+    async (blockId: string, exerciseType: ExerciseType) => {
+      const defaultTitle = `New ${EXERCISE_TYPE_LABELS[exerciseType] || exerciseType}`;
+      try {
+        const { data } = await apiClient.post("/exercises", {
+          lesson_id: lessonId,
+          exercise_type: exerciseType,
+          title: defaultTitle,
+          config: {},
+        });
+        updateBlock(blockId, { exercise_id: data.id });
+        // Refresh exercise list so the preview/renderer has it.
+        try {
+          const { data: list } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
+          setExercises(list || []);
+        } catch {
+          /* non-fatal */
+        }
+      } catch (err) {
+        toast.error("Failed to create exercise");
+        console.error(err);
+      }
+    },
+    [lessonId, updateBlock]
+  );
+
   /* ── DnD ── */
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -279,22 +316,6 @@ export default function LessonEditorPage() {
       return arrayMove(bs, oldIndex, newIndex);
     });
   }, []);
-
-  /* ── Exercise drawer helpers ── */
-  const drawerBlock = useMemo(() => blocks.find((b) => b.id === drawerBlockId) || null, [blocks, drawerBlockId]);
-  const drawerExercise = useMemo(
-    () => (drawerBlock?.exercise_id ? exercises.find((e) => e.id === drawerBlock.exercise_id) : null),
-    [drawerBlock, exercises]
-  );
-
-  const refreshExercises = useCallback(async () => {
-    try {
-      const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
-      setExercises(data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [lessonId]);
 
   /* ── Render ── */
   if (loading) {
@@ -380,8 +401,16 @@ export default function LessonEditorPage() {
                       exercises={exercises}
                       previewMode={previewMode}
                       onUpdate={(patch) => updateBlock(block.id, patch)}
-                      onDelete={() => deleteBlock(block.id)}
-                      onOpenDrawer={() => setDrawerBlockId(block.id)}
+                      onDelete={() => deleteBlock(block)}
+                      onPickExerciseType={(t) => createAndAttachExercise(block.id, t)}
+                      onExerciseChanged={async () => {
+                        try {
+                          const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
+                          setExercises(data || []);
+                        } catch {
+                          /* non-fatal */
+                        }
+                      }}
                     />
                     {!previewMode && (
                       <AddZone onAdd={(kind) => addBlock(kind, i + 1)} />
@@ -398,21 +427,6 @@ export default function LessonEditorPage() {
           </DndContext>
         </div>
       </div>
-
-      {/* Exercise config drawer */}
-      {drawerBlock && drawerBlock.type === "exercise" && (
-        <ExerciseDrawer
-          block={drawerBlock}
-          existingExercise={drawerExercise ?? null}
-          lessonId={lessonId}
-          onClose={() => setDrawerBlockId(null)}
-          onCreated={async (exerciseId) => {
-            updateBlock(drawerBlock.id, { exercise_id: exerciseId });
-            await refreshExercises();
-          }}
-          onChanged={refreshExercises}
-        />
-      )}
     </div>
   );
 }
@@ -492,14 +506,16 @@ function SortableBlock({
   previewMode,
   onUpdate,
   onDelete,
-  onOpenDrawer,
+  onPickExerciseType,
+  onExerciseChanged,
 }: {
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
   onUpdate: (patch: Partial<LessonBlock>) => void;
   onDelete: () => void;
-  onOpenDrawer: () => void;
+  onPickExerciseType: (type: ExerciseType) => void;
+  onExerciseChanged: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
   const style = {
@@ -534,7 +550,8 @@ function SortableBlock({
         exercises={exercises}
         previewMode={previewMode}
         onUpdate={onUpdate}
-        onOpenDrawer={onOpenDrawer}
+        onPickExerciseType={onPickExerciseType}
+        onExerciseChanged={onExerciseChanged}
       />
     </div>
   );
@@ -547,13 +564,15 @@ function BlockBody({
   exercises,
   previewMode,
   onUpdate,
-  onOpenDrawer,
+  onPickExerciseType,
+  onExerciseChanged,
 }: {
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
   onUpdate: (patch: Partial<LessonBlock>) => void;
-  onOpenDrawer: () => void;
+  onPickExerciseType: (type: ExerciseType) => void;
+  onExerciseChanged: () => void;
 }) {
   if (block.type === "text") {
     return <TextBlockBody block={block} previewMode={previewMode} onUpdate={onUpdate} />;
@@ -570,7 +589,8 @@ function BlockBody({
         block={block}
         exercises={exercises}
         previewMode={previewMode}
-        onOpenDrawer={onOpenDrawer}
+        onPickExerciseType={onPickExerciseType}
+        onExerciseChanged={onExerciseChanged}
       />
     );
   }
@@ -662,12 +682,14 @@ function ExerciseBlockBody({
   block,
   exercises,
   previewMode,
-  onOpenDrawer,
+  onPickExerciseType,
+  onExerciseChanged,
 }: {
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
-  onOpenDrawer: () => void;
+  onPickExerciseType: (type: ExerciseType) => void;
+  onExerciseChanged: () => void;
 }) {
   const exercise = block.exercise_id ? exercises.find((e) => e.id === block.exercise_id) : null;
 
@@ -689,204 +711,40 @@ function ExerciseBlockBody({
     );
   }
 
+  // Edit mode, no exercise yet: show inline type picker grid right inside the block.
   if (!exercise) {
     return (
-      <button
-        onClick={onOpenDrawer}
-        className="flex w-full items-center gap-3 rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/30 px-4 py-3 text-left hover:border-primary"
-      >
-        <Puzzle className="h-5 w-5 text-primary" />
-        <div>
-          <p className="text-sm font-semibold text-primary">Pick exercise type & configure</p>
-          <p className="text-xs text-text-subtle">Click to choose from 24 types and set up</p>
-        </div>
-      </button>
-    );
-  }
-
-  const meta = EXERCISE_TYPES_META.find((m) => m.value === exercise.exercise_type);
-  const questionCount = Array.isArray(exercise.questions) ? exercise.questions.length : 0;
-  const testCaseCount = Array.isArray(exercise.test_cases) ? exercise.test_cases.length : 0;
-  const summary =
-    questionCount > 0 ? `${questionCount} questions` : testCaseCount > 0 ? `${testCaseCount} test cases` : "configured";
-
-  return (
-    <button
-      onClick={onOpenDrawer}
-      className="flex w-full items-center gap-3 rounded-lg border border-border-strong bg-surface-2 px-4 py-3 text-left transition-colors hover:border-primary"
-    >
-      <span className="text-2xl">{meta?.icon || "📝"}</span>
-      <div className="flex-1">
-        <p className="text-sm font-semibold text-text">{exercise.title}</p>
-        <p className="text-xs text-text-subtle">
-          {(EXERCISE_TYPE_LABELS as Record<string, string>)[exercise.exercise_type] || exercise.exercise_type} · {summary}
+      <div className="rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
+          Pick exercise type — created instantly
         </p>
+        <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+          {EXERCISE_TYPES_META.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => onPickExerciseType(t.value)}
+              className="flex flex-col items-center gap-1 rounded-lg bg-paper px-2 py-2 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+              title={t.label}
+            >
+              <span className="text-xl leading-none">{t.icon}</span>
+              <span className="leading-tight">{t.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
-      <span className="text-xs font-medium text-primary">Configure →</span>
-    </button>
-  );
-}
-
-/* ─── Exercise drawer ────────────────────────────────────────────────── */
-
-function ExerciseDrawer({
-  block,
-  existingExercise,
-  lessonId,
-  onClose,
-  onCreated,
-  onChanged,
-}: {
-  block: LessonBlock;
-  existingExercise: ExerciseSummary | null;
-  lessonId: string;
-  onClose: () => void;
-  onCreated: (exerciseId: string) => void;
-  onChanged: () => void;
-}) {
-  const [selectedType, setSelectedType] = useState(existingExercise?.exercise_type || "quiz");
-  const [newTitle, setNewTitle] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  const isNew = !block.exercise_id;
-
-  const handleCreate = async () => {
-    if (!newTitle.trim()) {
-      toast.error("Title required");
-      return;
-    }
-    setCreating(true);
-    try {
-      const { data } = await apiClient.post("/exercises", {
-        lesson_id: lessonId,
-        exercise_type: selectedType,
-        title: newTitle.trim(),
-        config: {},
-      });
-      onCreated(data.id);
-      toast.success("Exercise created");
-    } catch {
-      toast.error("Failed to create");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  return (
-    <>
-      <div className="fixed inset-0 z-40 bg-ink-900/30" onClick={onClose} />
-      <aside className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-xl flex-col border-l border-border bg-paper shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-sm font-semibold text-text">
-            {isNew ? "New exercise" : `Edit: ${existingExercise?.title}`}
-          </h2>
-          <button onClick={onClose} className="rounded p-1 text-ink-300 hover:bg-ink-100 hover:text-text">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-auto p-4">
-          {isNew ? (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  Type
-                </label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {EXERCISE_TYPES_META.map((t) => (
-                    <button
-                      key={t.value}
-                      onClick={() => setSelectedType(t.value)}
-                      className={`rounded-lg border-2 px-2 py-2 text-left text-xs transition-colors ${
-                        selectedType === t.value
-                          ? "border-primary bg-primary-soft text-primary"
-                          : "border-transparent bg-ink-100 text-text-muted hover:bg-ink-200"
-                      }`}
-                    >
-                      <span className="mr-1">{t.icon}</span>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-text-muted">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Quick check"
-                  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                  autoFocus
-                  onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                />
-              </div>
-              <Button onClick={handleCreate} disabled={creating || !newTitle.trim()} className="w-full">
-                {creating ? "Creating…" : "Create & configure"}
-              </Button>
-            </div>
-          ) : (
-            <ExerciseConfigSurface
-              exerciseType={existingExercise!.exercise_type}
-              lessonId={lessonId}
-              onSaved={onChanged}
-            />
-          )}
-        </div>
-      </aside>
-    </>
-  );
-}
-
-function ExerciseConfigSurface({
-  exerciseType,
-  lessonId,
-  onSaved,
-}: {
-  exerciseType: string;
-  lessonId: string;
-  onSaved: () => void;
-}) {
-  // Prototype: route to existing builders for the 4 historical types.
-  // Other 20 types fall back to "open full editor" CTA to /admin/content-library/[id].
-  if (exerciseType === "quiz") {
-    return <QuizBuilder lessonId={lessonId} existingQuiz={undefined} onSaved={onSaved} />;
-  }
-  if (exerciseType === "code_challenge") {
-    return <ChallengeBuilder lessonId={lessonId} onSaved={onSaved} />;
-  }
-  if (exerciseType === "file_upload") {
-    return (
-      <FileUploadConfig
-        courseId=""
-        moduleId=""
-        lessonId={lessonId}
-        initialContent={{}}
-        onSaved={onSaved}
-      />
     );
   }
-  if (exerciseType === "interactive") {
-    return (
-      <InteractiveBuilder
-        courseId=""
-        moduleId=""
-        lessonId={lessonId}
-        initialContent={{}}
-        onSaved={onSaved}
-      />
-    );
-  }
+
+  // Edit mode, exercise exists: render inline config panel right on the page.
   return (
-    <div className="rounded-lg border border-dashed border-ink-300 bg-surface-2 p-6 text-center">
-      <p className="text-sm text-text-muted">
-        Inline editor for <strong>{exerciseType}</strong> not wired yet in prototype.
-      </p>
-      <p className="mt-1 text-xs text-text-subtle">
-        Use the full content library editor for now.
-      </p>
+    <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-xl">{EXERCISE_TYPES_META.find((m) => m.value === exercise.exercise_type)?.icon || "📝"}</span>
+        <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+          {EXERCISE_TYPE_LABELS[exercise.exercise_type as ExerciseType] || exercise.exercise_type}
+        </span>
+      </div>
+      <ExerciseConfigPanel exerciseId={exercise.id} onSaved={onExerciseChanged} />
     </div>
   );
 }
