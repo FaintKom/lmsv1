@@ -576,13 +576,65 @@ function ArithmeticPuzzleConfig({
 
 // ─── Custom HTML Editor ─────────────────────────────────────────────
 
-function FunctionGraphConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * FunctionGraphConfig — type-conditional parameter inputs.
+ * Linear:      m (slope), b (intercept)
+ * Quadratic:   a, b, c
+ * Exponential: a (coefficient), base, c (vertical shift)
+ */
+function FunctionGraphConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ const fnType = ((config.function_type as string) || "linear") as
+ | "linear"
+ | "quadratic"
+ | "exponential";
+ const params = (config.target_params as Record<string, number>) || {};
+
+ const setType = (next: string) => {
+ // Provide sane defaults when switching type so the renderer doesn't see NaN.
+ const defaultParams: Record<string, Record<string, number>> = {
+ linear: { m: 2, b: -1 },
+ quadratic: { a: 1, b: 0, c: 0 },
+ exponential: { a: 1, base: 2, c: 0 },
+ };
+ onChange({ ...config, function_type: next, target_params: defaultParams[next] || {} });
+ };
+ const setParam = (key: string, value: number) =>
+ onChange({ ...config, target_params: { ...params, [key]: value } });
+
+ const paramFields: { key: string; label: string }[] =
+ fnType === "linear"
+ ? [{ key: "m", label: "Slope m" }, { key: "b", label: "Intercept b" }]
+ : fnType === "quadratic"
+ ? [
+ { key: "a", label: "a" },
+ { key: "b", label: "b" },
+ { key: "c", label: "c" },
+ ]
+ : [
+ { key: "a", label: "Coefficient a" },
+ { key: "base", label: "Base" },
+ { key: "c", label: "Vertical shift c" },
+ ];
+
+ const formula =
+ fnType === "linear" ? "y = mx + b" :
+ fnType === "quadratic" ? "y = ax² + bx + c" :
+ "y = a · base^x + c";
+
+ const inputCls = "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm";
+
  return (
- <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+ <div className="space-y-3">
+ <div className="grid grid-cols-2 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Function Type</label>
- <select value={(config.function_type as string) || "linear"} onChange={(e) => onChange({ ...config, function_type: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ <select value={fnType} onChange={(e) => setType(e.target.value)} className={inputCls}>
  <option value="linear">Linear (y = mx + b)</option>
  <option value="quadratic">Quadratic (y = ax² + bx + c)</option>
  <option value="exponential">Exponential (y = a·base^x + c)</option>
@@ -590,15 +642,35 @@ function FunctionGraphConfig({ config, onChange }: { config: Record<string, unkn
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Grid Range (±)</label>
- <input type="number" min={3} max={20} value={(config.grid_range as number) || 6}
+ <input
+ type="number"
+ min={3}
+ max={20}
+ value={(config.grid_range as number) || 6}
  onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) || 6 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className={inputCls}
+ />
  </div>
+ </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Target Params (JSON)</label>
- <input type="text" value={JSON.stringify((config.target_params as Record<string, number>) || { m: 2, b: -1 })}
- onChange={(e) => { try { onChange({ ...config, target_params: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <p className="mb-1 text-xs font-medium text-text-muted">
+ Target parameters — <span className="font-mono">{formula}</span>
+ </p>
+ <div className="grid grid-cols-3 gap-3">
+ {paramFields.map((f) => (
+ <div key={f.key}>
+ <label className="mb-1 block text-xs text-text-subtle">{f.label}</label>
+ <input
+ type="number"
+ step={0.25}
+ value={params[f.key] ?? 0}
+ onChange={(e) => setParam(f.key, parseFloat(e.target.value) || 0)}
+ className={inputCls}
+ />
+ </div>
+ ))}
+ </div>
  </div>
  </div>
  );
