@@ -4,13 +4,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
+// One source of truth for circle colors so the legend can't drift.
+const COLOR_A = "#6366f1"; // indigo
+const COLOR_B = "#f59e0b"; // amber
+const COLOR_NEITHER = "#94a3b8"; // slate
+
 interface VennConfig {
  set_a_label: string;
  set_b_label: string;
  total: number;
- // Regions: A only, B only, A∩B, neither
+ // Regions: A only, B only, A∩B, neither. `intersection` is canonical;
+ // legacy seed data may carry `both` — aliased below.
  regions: { a_only: number | null; b_only: number | null; intersection: number | null; neither: number | null };
  answers: Record<string, number>;
+ use_intersection?: boolean; // when false, circles do not overlap
 }
 
 const DEFAULT: VennConfig = {
@@ -19,11 +26,36 @@ const DEFAULT: VennConfig = {
  total: 40,
  regions: { a_only: 12, b_only: null, intersection: 8, neither: null },
  answers: { b_only: 10, neither: 10 },
+ use_intersection: true,
 };
 
 export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
- const cfg: VennConfig = { ...DEFAULT, ...(config as Partial<VennConfig>) };
+ const raw = (config as Partial<VennConfig> & { regions?: Record<string, number | null> }) || {};
+ // Accept legacy `both` key in regions / answers as an alias for `intersection`.
+ const rawRegions = (raw.regions || {}) as Record<string, number | null>;
+ const rawAnswers = (raw.answers || {}) as Record<string, number>;
+ const cfg: VennConfig = {
+ ...DEFAULT,
+ ...raw,
+ regions: {
+ ...DEFAULT.regions,
+ ...rawRegions,
+ intersection:
+ rawRegions.intersection !== undefined
+ ? rawRegions.intersection
+ : rawRegions.both !== undefined
+ ? rawRegions.both
+ : DEFAULT.regions.intersection,
+ } as VennConfig["regions"],
+ answers: {
+ ...rawAnswers,
+ ...(rawAnswers.both !== undefined && rawAnswers.intersection === undefined
+ ? { intersection: rawAnswers.both }
+ : {}),
+ },
+ };
  const { set_a_label, set_b_label, total, regions, answers } = cfg;
+ const useIntersection = cfg.use_intersection !== false;
 
  const [userValues, setUserValues] = useState<Record<string, string>>({});
  const [checked, setChecked] = useState(false);
@@ -51,13 +83,28 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  else if (correct > 0) onComplete(false, correct / total_blanks);
  };
 
- const regionKeys = ["a_only", "intersection", "b_only", "neither"] as const;
+ const regionKeys = (
+ useIntersection
+ ? (["a_only", "intersection", "b_only", "neither"] as const)
+ : (["a_only", "b_only", "neither"] as const)
+ );
  const regionLabels: Record<string, string> = {
  a_only: `Only ${set_a_label}`,
  b_only: `Only ${set_b_label}`,
  intersection: "Both",
  neither: "Neither",
  };
+
+ // Geometry: when intersection is on, circles overlap; when off, they sit
+ // apart with a small gap so the layout still reads as two sets.
+ const cxA = useIntersection ? 170 : 130;
+ const cxB = useIntersection ? 290 : 330;
+ const radius = useIntersection ? 100 : 90;
+ const aOnlyX = useIntersection ? 90 : 90;
+ const intersectionX = 190;
+ const bOnlyX = useIntersection ? 290 : 290;
+ const labelAx = useIntersection ? 110 : 80;
+ const labelBx = useIntersection ? 310 : 320;
 
  const renderValue = (key: string) => {
  const val = regions[key as keyof typeof regions];
@@ -92,25 +139,27 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <text x={230} y={30} textAnchor="middle" fontSize={12} fill="#94a3b8">Total: {total}</text>
 
  {/* Circle A */}
- <circle cx={170} cy={155} r={100} fill="#6366f1" opacity={0.12} stroke="#6366f1" strokeWidth={2.5} />
- <text x={110} y={80} fontSize={13} fill="#6366f1" fontWeight="bold">{set_a_label}</text>
+ <circle cx={cxA} cy={155} r={radius} fill={COLOR_A} opacity={0.12} stroke={COLOR_A} strokeWidth={2.5} />
+ <text x={labelAx} y={80} fontSize={13} fill={COLOR_A} fontWeight="bold">{set_a_label}</text>
 
  {/* Circle B */}
- <circle cx={290} cy={155} r={100} fill="#f59e0b" opacity={0.12} stroke="#f59e0b" strokeWidth={2.5} />
- <text x={310} y={80} fontSize={13} fill="#f59e0b" fontWeight="bold">{set_b_label}</text>
+ <circle cx={cxB} cy={155} r={radius} fill={COLOR_B} opacity={0.12} stroke={COLOR_B} strokeWidth={2.5} />
+ <text x={labelBx} y={80} fontSize={13} fill={COLOR_B} fontWeight="bold">{set_b_label}</text>
 
  {/* A only value */}
- <foreignObject x={90} y={125} width={80} height={50}>
+ <foreignObject x={aOnlyX} y={125} width={80} height={50}>
  <div className="flex h-full items-center justify-center">{renderValue("a_only")}</div>
  </foreignObject>
 
- {/* Intersection value */}
- <foreignObject x={190} y={125} width={80} height={50}>
+ {/* Intersection value — only rendered when intersection is on */}
+ {useIntersection && (
+ <foreignObject x={intersectionX} y={125} width={80} height={50}>
  <div className="flex h-full items-center justify-center">{renderValue("intersection")}</div>
  </foreignObject>
+ )}
 
  {/* B only value */}
- <foreignObject x={290} y={125} width={80} height={50}>
+ <foreignObject x={bOnlyX} y={125} width={80} height={50}>
  <div className="flex h-full items-center justify-center">{renderValue("b_only")}</div>
  </foreignObject>
 
@@ -121,18 +170,29 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <text x={410} y={228} textAnchor="middle" fontSize={10} fill="#94a3b8">Neither</text>
  </svg>
 
- {/* Legend */}
- <div className="flex gap-4 text-xs text-text-muted">
- {regionKeys.map((key) => (
- <span key={key} className="flex items-center gap-1">
- <span className={`inline-block h-2.5 w-2.5 rounded-pill ${
- key === "a_only" ? "bg-primary" :
- key === "b_only" ? "bg-sun-400" :
- key === "intersection" ? "bg-primary" : "bg-ink-300"
- }`} />
+ {/* Legend — inline backgrounds match the SVG circle colors exactly */}
+ <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted">
+ {regionKeys.map((key) => {
+ const bg =
+ key === "a_only"
+ ? { backgroundColor: COLOR_A }
+ : key === "b_only"
+ ? { backgroundColor: COLOR_B }
+ : key === "intersection"
+ ? {
+ background: `linear-gradient(90deg, ${COLOR_A} 0%, ${COLOR_A} 50%, ${COLOR_B} 50%, ${COLOR_B} 100%)`,
+ }
+ : { backgroundColor: COLOR_NEITHER };
+ return (
+ <span key={key} className="flex items-center gap-1.5">
+ <span
+ className="inline-block h-2.5 w-2.5 rounded-full border border-ink-300"
+ style={bg}
+ />
  {regionLabels[key]}
  </span>
- ))}
+ );
+ })}
  </div>
 
  <Button onClick={handleCheck} disabled={checked && Object.values(results).every(Boolean)}>
