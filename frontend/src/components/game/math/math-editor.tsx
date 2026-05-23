@@ -756,22 +756,178 @@ function TwoWayTableConfig({ config, onChange }: { config: Record<string, unknow
  );
 }
 
-function CardSortConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * CardSortConfig — categories + cards in two stacked form sections.
+ * Categories: id (slug, auto from label), label, colour swatch.
+ * Cards: text input + dropdown to pick which category it belongs to.
+ */
+function CardSortConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ interface Category { id: string; label: string; color: string }
+ interface Card { id: string; text: string; category: string }
+
+ const slug = (s: string) =>
+ s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || `cat_${Date.now()}`;
+
+ const categories: Category[] =
+ (config.categories as Category[]) ||
+ [
+ { id: "linear", label: "Linear", color: "#4C97FF" },
+ { id: "quadratic", label: "Quadratic", color: "#FF8C1A" },
+ ];
+ const cards: Card[] =
+ (config.cards as Card[]) ||
+ [{ id: "c1", text: "y = 2x + 3", category: "linear" }];
+
+ const writeCategories = (next: Category[]) => onChange({ ...config, categories: next });
+ const writeCards = (next: Card[]) => onChange({ ...config, cards: next });
+
+ const addCategory = () =>
+ writeCategories([
+ ...categories,
+ { id: `cat_${categories.length + 1}`, label: `Category ${categories.length + 1}`, color: "#6366f1" },
+ ]);
+ const updateCategory = (i: number, patch: Partial<Category>) => {
+ const next = categories.map((c, j) => (j === i ? { ...c, ...patch } : c));
+ // If label changed and id was auto-derived (matches slug of old label), re-slug.
+ if (patch.label !== undefined && categories[i].id === slug(categories[i].label)) {
+ next[i].id = slug(patch.label);
+ // re-point cards that referenced old id
+ const oldId = categories[i].id;
+ const newId = next[i].id;
+ if (oldId !== newId) {
+ writeCards(cards.map((c) => (c.category === oldId ? { ...c, category: newId } : c)));
+ }
+ }
+ writeCategories(next);
+ };
+ const removeCategory = (i: number) => {
+ const oldId = categories[i].id;
+ writeCategories(categories.filter((_, j) => j !== i));
+ // Drop cards pointing to deleted category.
+ const remaining = cards.filter((c) => c.category !== oldId);
+ if (remaining.length !== cards.length) writeCards(remaining);
+ };
+
+ const addCard = () =>
+ writeCards([
+ ...cards,
+ {
+ id: `c_${Date.now()}_${cards.length}`,
+ text: "",
+ category: categories[0]?.id || "",
+ },
+ ]);
+ const updateCard = (i: number, patch: Partial<Card>) =>
+ writeCards(cards.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+ const removeCard = (i: number) => writeCards(cards.filter((_, j) => j !== i));
+
+ const inputCls = "rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+
  return (
- <div className="space-y-3">
+ <div className="space-y-4">
+ {/* Categories */}
  <div>
- <label className="mb-1 block text-xs text-text-muted">Categories (JSON)</label>
- <textarea rows={3} value={JSON.stringify((config.categories as unknown[]) || [
- {id:"linear",label:"Linear",color:"#4C97FF"},{id:"quadratic",label:"Quadratic",color:"#FF8C1A"},{id:"exponential",label:"Exponential",color:"#40BF4A"}
- ], null, 2)} onChange={(e) => { try { onChange({ ...config, categories: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-2 flex items-center justify-between">
+ <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+ Categories ({categories.length})
+ </p>
+ <button
+ type="button"
+ onClick={addCategory}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add category
+ </button>
  </div>
+ <div className="space-y-2">
+ {categories.map((cat, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <input
+ type="color"
+ value={cat.color || "#6366f1"}
+ onChange={(e) => updateCategory(i, { color: e.target.value })}
+ className="h-6 w-8 cursor-pointer rounded border border-border-strong"
+ title="Category colour"
+ />
+ <input
+ type="text"
+ value={cat.label}
+ onChange={(e) => updateCategory(i, { label: e.target.value })}
+ placeholder="Category label"
+ className={`flex-1 ${inputCls}`}
+ />
+ <span className="font-mono text-[10px] text-text-subtle">id: {cat.id}</span>
+ <button
+ type="button"
+ onClick={() => removeCategory(i)}
+ className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete category"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
+ </div>
+
+ {/* Cards */}
  <div>
- <label className="mb-1 block text-xs text-text-muted">Cards (JSON: [{"{"} id, text, category {"}"}])</label>
- <textarea rows={5} value={JSON.stringify((config.cards as unknown[]) || [
- {id:"c1",text:"y = 2x + 3",category:"linear"},{id:"c2",text:"y = x² - 4",category:"quadratic"}
- ], null, 2)} onChange={(e) => { try { onChange({ ...config, cards: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-2 flex items-center justify-between">
+ <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+ Cards ({cards.length})
+ </p>
+ <button
+ type="button"
+ onClick={addCard}
+ className="text-xs font-medium text-primary hover:underline"
+ disabled={categories.length === 0}
+ >
+ + Add card
+ </button>
+ </div>
+ <div className="space-y-2">
+ {cards.map((card, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <input
+ type="text"
+ value={card.text}
+ onChange={(e) => updateCard(i, { text: e.target.value })}
+ placeholder="Card text"
+ className={`flex-1 ${inputCls}`}
+ />
+ <select
+ value={card.category}
+ onChange={(e) => updateCard(i, { category: e.target.value })}
+ className={inputCls}
+ >
+ {categories.map((cat) => (
+ <option key={cat.id} value={cat.id}>{cat.label}</option>
+ ))}
+ </select>
+ <button
+ type="button"
+ onClick={() => removeCard(i)}
+ className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete card"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
  </div>
  </div>
  );
