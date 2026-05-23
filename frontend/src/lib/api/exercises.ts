@@ -277,6 +277,9 @@ export const exercisesApi = {
  addTestCase: (exerciseId: string, data: Record<string, unknown>) =>
  apiClient.post<ExerciseTestCase>(`/exercises/${exerciseId}/test-cases`, data),
 
+ updateTestCase: (exerciseId: string, testCaseId: string, data: Record<string, unknown>) =>
+ apiClient.patch<ExerciseTestCase>(`/exercises/${exerciseId}/test-cases/${testCaseId}`, data),
+
  deleteTestCase: (exerciseId: string, testCaseId: string) =>
  apiClient.delete(`/exercises/${exerciseId}/test-cases/${testCaseId}`),
 };

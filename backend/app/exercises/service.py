@@ -291,6 +291,21 @@ async def add_test_case_to_exercise(
     return result.scalar_one()
 
 
+async def update_test_case_in_exercise(
+    db: AsyncSession, test_case_id: uuid.UUID, user: User, data: dict
+) -> TestCase:
+    _check_permission(user)
+    result = await db.execute(select(TestCase).where(TestCase.id == test_case_id))
+    tc = result.scalar_one_or_none()
+    if not tc:
+        raise NotFoundError("Test case not found")
+    for k, v in data.items():
+        if hasattr(tc, k):
+            setattr(tc, k, v)
+    await db.flush()
+    return tc
+
+
 async def delete_test_case_from_exercise(
     db: AsyncSession, test_case_id: uuid.UUID, user: User
 ) -> None:
