@@ -1483,40 +1483,138 @@ function CardSortConfig({
  );
 }
 
-function TablePatternConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/**
+ * TablePatternConfig — paired (x, y) row editor with per-row "Blank" toggle.
+ * `answers` is computed automatically from blanked rows on every edit, so
+ * methodist never edits raw JSON.
+ */
+function TablePatternConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ const xValues: number[] = (config.x_values as number[]) || [1, 2, 3, 4, 5];
+ const yValues: (number | null)[] = (config.y_values as (number | null)[]) || [3, 5, null, 9, null];
+ const existingAnswers = (config.answers as Record<string, number>) || {};
+
+ // Build editable rows: each row has x, y (always a number for the form),
+ // and `blank` flag. `blank=true` means y is the expected answer.
+ interface Row { x: number; y: number; blank: boolean }
+ const rows: Row[] = xValues.map((x, i) => {
+ const rawY = yValues[i];
+ if (rawY === null || rawY === undefined) {
+ const exp = existingAnswers[String(i)];
+ return { x, y: typeof exp === "number" ? exp : 0, blank: true };
+ }
+ return { x, y: rawY, blank: false };
+ });
+
+ const writeRows = (next: Row[]) => {
+ const newXs = next.map((r) => r.x);
+ const newYs = next.map((r) => (r.blank ? null : r.y));
+ const newAnswers: Record<string, number> = {};
+ next.forEach((r, i) => {
+ if (r.blank) newAnswers[String(i)] = r.y;
+ });
+ onChange({ ...config, x_values: newXs, y_values: newYs, answers: newAnswers });
+ };
+ const updateRow = (i: number, patch: Partial<Row>) =>
+ writeRows(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+ const addRow = () => {
+ const last = rows[rows.length - 1] || { x: 0, y: 0, blank: false };
+ writeRows([...rows, { x: last.x + 1, y: last.y + 2, blank: false }]);
+ };
+ const removeRow = (i: number) => writeRows(rows.filter((_, j) => j !== i));
+
+ const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+
  return (
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">X Values (comma-sep)</label>
- <input type="text" value={((config.x_values as number[]) || [1,2,3,4,5]).join(", ")}
- onChange={(e) => onChange({ ...config, x_values: e.target.value.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
- </div>
- <div>
- <label className="mb-1 block text-xs text-text-muted">Y Values (comma-sep, ? for blank)</label>
- <input type="text" value={((config.y_values as (number|null)[]) || [3,5,null,9,null]).map(v => v === null ? "?" : v).join(", ")}
- onChange={(e) => onChange({ ...config, y_values: e.target.value.split(",").map(s => s.trim() === "?" ? null : parseFloat(s.trim())) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
- </div>
- </div>
- <div className="grid grid-cols-2 gap-3">
- <div>
  <label className="mb-1 block text-xs text-text-muted">Rule Label</label>
- <input type="text" value={(config.rule_label as string) || ""} placeholder="e.g. f(x) =" onChange={(e) => onChange({ ...config, rule_label: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={(config.rule_label as string) || ""}
+ placeholder="e.g. f(x) ="
+ onChange={(e) => onChange({ ...config, rule_label: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Rule Answer</label>
- <input type="text" value={(config.rule_answer as string) || ""} placeholder="e.g. 2x+1" onChange={(e) => onChange({ ...config, rule_answer: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={(config.rule_answer as string) || ""}
+ placeholder="e.g. 2x+1"
+ onChange={(e) => onChange({ ...config, rule_answer: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Answers (JSON: {"{"} index: value {"}"})</label>
- <input type="text" value={JSON.stringify((config.answers as Record<number,number>) || {})}
- onChange={(e) => { try { onChange({ ...config, answers: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-1.5 flex items-center justify-between">
+ <label className="block text-xs text-text-muted">Rows ({rows.length})</label>
+ <button
+ type="button"
+ onClick={addRow}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add row
+ </button>
+ </div>
+ <p className="mb-2 text-[11px] text-text-subtle">
+ Tick "Blank" on rows where the student should fill in the y-value.
+ </p>
+ <div className="space-y-1.5">
+ {rows.map((r, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ >
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ x
+ <input
+ type="number"
+ value={r.x}
+ onChange={(e) => updateRow(i, { x: parseFloat(e.target.value) || 0 })}
+ className={numCls}
+ />
+ </label>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ y
+ <input
+ type="number"
+ value={r.y}
+ onChange={(e) => updateRow(i, { y: parseFloat(e.target.value) || 0 })}
+ className={`${numCls} ${r.blank ? "bg-sun-50 border-warning" : ""}`}
+ title={r.blank ? "Expected answer (student fills)" : "Shown to student"}
+ />
+ </label>
+ <label className="flex items-center gap-1 text-xs text-text-subtle">
+ <input
+ type="checkbox"
+ checked={r.blank}
+ onChange={(e) => updateRow(i, { blank: e.target.checked })}
+ className="h-3 w-3 accent-amber-500"
+ />
+ Blank
+ </label>
+ <button
+ type="button"
+ onClick={() => removeRow(i)}
+ className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete row"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
  </div>
  </div>
  );
