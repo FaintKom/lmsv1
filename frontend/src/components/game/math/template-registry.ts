@@ -1,10 +1,31 @@
 import { lazy, type ComponentType } from "react";
+import {
+ Calculator,
+ CircleDot,
+ Code2,
+ Compass,
+ Hash,
+ Layers,
+ LineChart,
+ ListChecks,
+ Minus,
+ PieChart,
+ Puzzle,
+ RefreshCcw,
+ Scale,
+ ScatterChart,
+ Table,
+ Table2,
+ TrendingUp,
+ type LucideIcon,
+} from "lucide-react";
 
 export interface MathTemplateConfig {
  type: string;
  label: string;
  description: string;
  icon: string;
+ Icon: LucideIcon;
  component: ComponentType<MathTemplateProps>;
 }
 
@@ -36,6 +57,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Coordinate Plane",
  description: "Drag points to correct positions on an XY plane",
  icon: "📐",
+ Icon: Compass,
  component: CoordinatePlane,
  },
  number_line: {
@@ -43,6 +65,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Number Line",
  description: "Place markers at correct positions on a number line",
  icon: "📏",
+ Icon: Minus,
  component: NumberLine,
  },
  visual_fractions: {
@@ -50,6 +73,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Visual Fractions",
  description: "Select the correct fraction by shading parts",
  icon: "🥧",
+ Icon: PieChart,
  component: VisualFractions,
  },
  equation_balance: {
@@ -57,6 +81,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Equation Balance",
  description: "Drag terms to balance both sides of an equation",
  icon: "⚖️",
+ Icon: Scale,
  component: EquationBalance,
  },
  arithmetic_puzzle: {
@@ -64,6 +89,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Arithmetic Puzzle",
  description: "Fill in missing numbers in arithmetic operations",
  icon: "🧩",
+ Icon: Puzzle,
  component: ArithmeticPuzzle,
  },
  function_graph: {
@@ -71,6 +97,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Function Graph",
  description: "Match a function by adjusting parameters (linear, quadratic, exponential)",
  icon: "📈",
+ Icon: LineChart,
  component: FunctionGraph,
  },
  equation_solver: {
@@ -78,6 +105,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Equation Solver",
  description: "Solve equations step-by-step by choosing the right operations",
  icon: "🔢",
+ Icon: Calculator,
  component: EquationSolver,
  },
  multiple_choice_math: {
@@ -85,6 +113,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Multiple Choice (SAT)",
  description: "SAT-style multiple choice with explanation",
  icon: "📝",
+ Icon: ListChecks,
  component: MultipleChoiceMath,
  },
  numeric_input: {
@@ -92,6 +121,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Numeric Input (Grid-in)",
  description: "Enter a numeric answer (SAT grid-in format)",
  icon: "🔣",
+ Icon: Hash,
  component: NumericInput,
  },
  scatter_plot: {
@@ -99,6 +129,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Scatter Plot",
  description: "Draw a line of best fit, identify correlation, or read values from a scatter plot",
  icon: "📊",
+ Icon: ScatterChart,
  component: ScatterPlot,
  },
  two_way_table: {
@@ -106,6 +137,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Two-Way Table",
  description: "Fill in missing values in a frequency table (rows + columns = totals)",
  icon: "📋",
+ Icon: Table,
  component: TwoWayTable,
  },
  card_sort: {
@@ -113,6 +145,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Card Sort",
  description: "Drag cards into the correct categories (classify expressions, functions, etc.)",
  icon: "🃏",
+ Icon: Layers,
  component: CardSort,
  },
  table_pattern: {
@@ -120,6 +153,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Table / Pattern",
  description: "Complete a function table and identify the rule",
  icon: "📐",
+ Icon: Table2,
  component: TablePattern,
  },
  inequality_graph: {
@@ -127,6 +161,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Inequality Graph",
  description: "Graph a linear inequality and shade the solution region",
  icon: "📐",
+ Icon: TrendingUp,
  component: InequalityGraph,
  },
  graph_transform: {
@@ -134,6 +169,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Graph Transformations",
  description: "Apply shifts and stretches to match a target function",
  icon: "🔄",
+ Icon: RefreshCcw,
  component: GraphTransform,
  },
  venn_diagram: {
@@ -141,6 +177,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Venn Diagram",
  description: "Fill in missing values in a Venn diagram (probability/sets)",
  icon: "⭕",
+ Icon: CircleDot,
  component: VennDiagram,
  },
  custom_html: {
@@ -148,6 +185,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Custom HTML",
  description: "Teacher-defined HTML/JS exercise",
  icon: "🖥️",
+ Icon: Code2,
  component: null as unknown as ComponentType<MathTemplateProps>,
  },
  // Aliases for backward compatibility with seed data
@@ -156,6 +194,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Function Graph",
  description: "Match a function by adjusting parameters",
  icon: "📈",
+ Icon: LineChart,
  component: FunctionGraph,
  },
  graph_transformation: {
@@ -163,6 +202,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Graph Transformations",
  description: "Apply shifts and stretches to match a target function",
  icon: "🔄",
+ Icon: RefreshCcw,
  component: GraphTransform,
  },
  inequality_graphing: {
@@ -170,6 +210,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Inequality Graph",
  description: "Graph a linear inequality and shade the solution region",
  icon: "📐",
+ Icon: TrendingUp,
  component: InequalityGraph,
  },
  card_sorting: {
@@ -177,6 +218,7 @@ export const MATH_TEMPLATES: Record<string, MathTemplateConfig> = {
  label: "Card Sort",
  description: "Drag cards into the correct categories",
  icon: "🃏",
+ Icon: Layers,
  component: CardSort,
  },
 };

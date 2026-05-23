@@ -1,10 +1,92 @@
 "use client";
 
-import { useState, useCallback, Suspense } from "react";
-import { Loader2, Eye } from "lucide-react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
+import { Check, ChevronDown, Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MATH_TEMPLATES, TEMPLATE_LIST } from "./template-registry";
 import Editor from "@monaco-editor/react";
+
+/** Compact dropdown that lists math templates with their lucide icon. */
+function TemplatePicker({
+ value,
+ onChange,
+}: {
+ value: string;
+ onChange: (type: string) => void;
+}) {
+ const [open, setOpen] = useState(false);
+ const wrapRef = useRef<HTMLDivElement>(null);
+
+ useEffect(() => {
+ if (!open) return;
+ const onDown = (e: MouseEvent) => {
+ if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+ setOpen(false);
+ }
+ };
+ const onKey = (e: KeyboardEvent) => {
+ if (e.key === "Escape") setOpen(false);
+ };
+ window.addEventListener("mousedown", onDown);
+ window.addEventListener("keydown", onKey);
+ return () => {
+ window.removeEventListener("mousedown", onDown);
+ window.removeEventListener("keydown", onKey);
+ };
+ }, [open]);
+
+ const list = [...TEMPLATE_LIST, MATH_TEMPLATES.custom_html];
+ const current = MATH_TEMPLATES[value] || MATH_TEMPLATES.coordinate_plane;
+ const CurrentIcon = current.Icon;
+
+ return (
+ <div ref={wrapRef} className="relative">
+ <button
+ type="button"
+ onClick={() => setOpen((o) => !o)}
+ className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-left text-sm font-medium text-ink-700 hover:border-ink-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ aria-haspopup="listbox"
+ aria-expanded={open}
+ >
+ <CurrentIcon className="h-4 w-4 shrink-0 text-text-muted" strokeWidth={1.75} />
+ <span className="flex-1 truncate">{current.label}</span>
+ <ChevronDown className={`h-4 w-4 shrink-0 text-text-subtle transition-transform ${open ? "rotate-180" : ""}`} />
+ </button>
+ {open && (
+ <div
+ role="listbox"
+ className="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-auto rounded-lg border border-border-strong bg-paper shadow-lg"
+ >
+ {list.map((t) => {
+ const Icon = t.Icon;
+ const selected = t.type === value;
+ return (
+ <button
+ key={t.type}
+ type="button"
+ role="option"
+ aria-selected={selected}
+ onClick={() => {
+ onChange(t.type);
+ setOpen(false);
+ }}
+ className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
+ selected
+ ? "bg-primary-soft text-primary"
+ : "text-ink-700 hover:bg-ink-100"
+ }`}
+ >
+ <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+ <span className="flex-1 truncate">{t.label}</span>
+ {selected && <Check className="h-3.5 w-3.5 shrink-0 text-primary" />}
+ </button>
+ );
+ })}
+ </div>
+ )}
+ </div>
+ );
+}
 
 interface MathEditorProps {
  config: Record<string, unknown>;
@@ -28,29 +110,18 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
 
  return (
  <div className="space-y-6">
- {/* Template selector */}
+ {/* Template selector — compact dropdown with icons */}
  <div>
  <label className="mb-2 block text-xs font-medium text-text-muted ">
  Template Type
  </label>
- <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
- {[...TEMPLATE_LIST, MATH_TEMPLATES.custom_html].map((tmpl) => (
- <button
- key={tmpl.type}
- onClick={() => updateConfig({ template_type: tmpl.type })}
- className={`flex flex-col items-center gap-1.5 rounded-lg border p-3 text-center transition-colors ${
- templateType === tmpl.type
- ? "border-primary bg-primary-soft "
- : "border-border-strong bg-paper-2 hover:border-ink-300 "
- }`}
- >
- <span className="text-2xl">{tmpl.icon}</span>
- <span className="text-xs font-medium text-ink-700 ">
- {tmpl.label}
- </span>
- </button>
- ))}
- </div>
+ <TemplatePicker
+ value={templateType}
+ onChange={(t) => updateConfig({ template_type: t })}
+ />
+ <p className="mt-1 text-xs text-text-subtle">
+ {MATH_TEMPLATES[templateType]?.description}
+ </p>
  </div>
 
  {/* Instructions */}
