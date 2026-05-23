@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, Download, HelpCircle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import {
@@ -838,6 +838,7 @@ function TestCasesEditor({
   const [form, setForm] = useState({ input: "", expected_output: "", is_hidden: false });
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [showCsvHelp, setShowCsvHelp] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   const handleAdd = async () => {
@@ -971,6 +972,27 @@ function TestCasesEditor({
     }
   };
 
+  // Sample CSV used both for "Download example" + visible inline preview.
+  const SAMPLE_CSV =
+    "input,expected_output,is_hidden\n" +
+    "5,25,false\n" +
+    "10,100,false\n" +
+    "-3,9,true\n" +
+    '"1,2,3","6",false\n' +
+    '"hello ""world""","HELLO ""WORLD""",false\n';
+
+  const downloadExampleCsv = () => {
+    const blob = new Blob([SAMPLE_CSV], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "test_cases_example.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -983,6 +1005,14 @@ function TestCasesEditor({
             onChange={handleCsvUpload}
             className="hidden"
           />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowCsvHelp((v) => !v)}
+            title="What CSV format?"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -1000,6 +1030,45 @@ function TestCasesEditor({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {showCsvHelp && (
+          <div className="rounded-lg border border-border-strong bg-surface-2 p-3 text-xs text-text-muted">
+            <div className="mb-2 flex items-center justify-between">
+              <strong className="text-ink-700">CSV format for test cases</strong>
+              <Button size="sm" variant="ghost" onClick={downloadExampleCsv}>
+                <Download className="mr-1 h-3.5 w-3.5" />
+                Download example
+              </Button>
+            </div>
+            <ul className="mb-2 list-disc space-y-0.5 pl-4">
+              <li>
+                First row is the header. Required column:
+                <code className="mx-1 rounded bg-paper-2 px-1">expected_output</code>
+                (also accepts <code className="mx-1 rounded bg-paper-2 px-1">output</code>).
+              </li>
+              <li>
+                Optional columns:
+                <code className="mx-1 rounded bg-paper-2 px-1">input</code>,
+                <code className="mx-1 rounded bg-paper-2 px-1">is_hidden</code>
+                (accepts <code className="rounded bg-paper-2 px-1">true / 1 / yes / hidden</code>).
+              </li>
+              <li>
+                Wrap a field in <code className="mx-1 rounded bg-paper-2 px-1">&quot;double quotes&quot;</code>
+                if it contains a comma or a newline. Escape an inner quote by doubling it:
+                <code className="mx-1 rounded bg-paper-2 px-1">&quot;&quot;</code>.
+              </li>
+              <li>Line endings: LF or CRLF, both work.</li>
+            </ul>
+            <p className="mb-1 text-[10px] uppercase tracking-wider text-text-subtle">
+              Example
+            </p>
+            <pre className="overflow-x-auto rounded bg-paper-2 p-2 font-mono text-[11px] leading-snug text-ink-700">
+{SAMPLE_CSV}</pre>
+            <p className="mt-2 text-[11px] text-text-subtle">
+              Row 4 is a single field with the literal value <code>1,2,3</code>.<br />
+              Row 5 is a single field containing the literal text <code>hello &quot;world&quot;</code>.
+            </p>
+          </div>
+        )}
         {testCases.map((tc, idx) => (
           <div key={tc.id} className="group relative rounded-lg border border-border p-3">
             <div className="flex items-start justify-between">
