@@ -28,25 +28,29 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
 
  return (
  <div className="space-y-6">
- {/* Template selector — compact dropdown to save vertical space */}
+ {/* Template selector */}
  <div>
  <label className="mb-2 block text-xs font-medium text-text-muted ">
  Template Type
  </label>
- <select
- value={templateType}
- onChange={(e) => updateConfig({ template_type: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm font-medium text-ink-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
- >
+ <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
  {[...TEMPLATE_LIST, MATH_TEMPLATES.custom_html].map((tmpl) => (
- <option key={tmpl.type} value={tmpl.type}>
+ <button
+ key={tmpl.type}
+ onClick={() => updateConfig({ template_type: tmpl.type })}
+ className={`flex flex-col items-center gap-1.5 rounded-lg border p-3 text-center transition-colors ${
+ templateType === tmpl.type
+ ? "border-primary bg-primary-soft "
+ : "border-border-strong bg-paper-2 hover:border-ink-300 "
+ }`}
+ >
+ <span className="text-2xl">{tmpl.icon}</span>
+ <span className="text-xs font-medium text-ink-700 ">
  {tmpl.label}
- </option>
+ </span>
+ </button>
  ))}
- </select>
- <p className="mt-1 text-xs text-text-subtle">
- {MATH_TEMPLATES[templateType]?.description}
- </p>
+ </div>
  </div>
 
  {/* Instructions */}
