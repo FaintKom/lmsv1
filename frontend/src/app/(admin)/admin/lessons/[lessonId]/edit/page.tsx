@@ -64,6 +64,7 @@ import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-pane
 import {
   EXERCISE_TYPES_META,
   EXERCISE_TYPE_LABELS,
+  getExerciseIcon,
   type ExerciseType,
 } from "@/lib/api/exercises";
 import type { LessonBlock } from "@/types/api";
@@ -719,27 +720,31 @@ function ExerciseBlockBody({
           Pick exercise type — created instantly
         </p>
         <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
-          {EXERCISE_TYPES_META.map((t) => (
-            <button
-              key={t.value}
-              onClick={() => onPickExerciseType(t.value)}
-              className="flex flex-col items-center gap-1 rounded-lg bg-paper px-2 py-2 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
-              title={t.label}
-            >
-              <span className="text-xl leading-none">{t.icon}</span>
-              <span className="leading-tight">{t.label}</span>
-            </button>
-          ))}
+          {EXERCISE_TYPES_META.map((t) => {
+            const Icon = t.Icon;
+            return (
+              <button
+                key={t.value}
+                onClick={() => onPickExerciseType(t.value)}
+                className="flex flex-col items-center gap-1.5 rounded-lg bg-paper px-2 py-2.5 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+                title={t.label}
+              >
+                <Icon className="h-5 w-5" strokeWidth={1.75} />
+                <span className="leading-tight">{t.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
   }
 
   // Edit mode, exercise exists: render inline config panel right on the page.
+  const TypeIcon = getExerciseIcon(exercise.exercise_type as ExerciseType);
   return (
     <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
       <div className="mb-3 flex items-center gap-2">
-        <span className="text-xl">{EXERCISE_TYPES_META.find((m) => m.value === exercise.exercise_type)?.icon || "📝"}</span>
+        <TypeIcon className="h-5 w-5 text-text-muted" strokeWidth={1.75} />
         <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
           {EXERCISE_TYPE_LABELS[exercise.exercise_type as ExerciseType] || exercise.exercise_type}
         </span>
