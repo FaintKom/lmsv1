@@ -310,29 +310,118 @@ function FractionsConfig({ config, onChange }: { config: Record<string, unknown>
  );
 }
 
-function EquationBalanceConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/** EquationBalanceConfig — left/right side numbers + per-term row editor. */
+function EquationBalanceConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ interface Term { value: number; label: string }
+ const terms: Term[] =
+ (config.available_terms as Term[]) ||
+ [
+ { value: 3, label: "3" },
+ { value: 4, label: "4" },
+ ];
+
+ const writeTerms = (next: Term[]) => onChange({ ...config, available_terms: next });
+ const updateTerm = (i: number, patch: Partial<Term>) =>
+ writeTerms(terms.map((t, j) => (j === i ? { ...t, ...patch } : t)));
+ const addTerm = () => writeTerms([...terms, { value: 1, label: "1" }]);
+ const removeTerm = (i: number) => writeTerms(terms.filter((_, j) => j !== i));
+
+ const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+
  return (
  <div className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Left Side (comma-sep)</label>
- <input type="text" value={((config.left_fixed as number[]) || [5]).join(", ")}
- onChange={(e) => onChange({ ...config, left_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <label className="mb-1 block text-xs text-text-muted">Left Side Numbers (comma-sep)</label>
+ <input
+ type="text"
+ value={((config.left_fixed as number[]) || [5]).join(", ")}
+ onChange={(e) =>
+ onChange({
+ ...config,
+ left_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
+ })
+ }
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Right Side Fixed (comma-sep)</label>
- <input type="text" value={((config.right_fixed as number[]) || [2]).join(", ")}
- onChange={(e) => onChange({ ...config, right_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <input
+ type="text"
+ value={((config.right_fixed as number[]) || [2]).join(", ")}
+ onChange={(e) =>
+ onChange({
+ ...config,
+ right_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
+ })
+ }
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Available Terms (JSON array)</label>
- <input type="text"
- value={JSON.stringify((config.available_terms as unknown[]) || [{ value: 3, label: "3" }, { value: 4, label: "4" }])}
- onChange={(e) => { try { onChange({ ...config, available_terms: JSON.parse(e.target.value) }); } catch { /* ignore */ } }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-1.5 flex items-center justify-between">
+ <label className="block text-xs text-text-muted">
+ Available Terms ({terms.length}) — what the student can drag onto the scale
+ </label>
+ <button
+ type="button"
+ onClick={addTerm}
+ className="text-xs font-medium text-primary hover:underline"
+ >
+ + Add term
+ </button>
+ </div>
+ <div className="space-y-1.5">
+ {terms.map((t, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ >
+ <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ Value
+ <input
+ type="number"
+ value={t.value}
+ onChange={(e) => {
+ const v = parseInt(e.target.value) || 0;
+ // Keep label in sync with value if it tracked the number.
+ const patch: Partial<Term> = { value: v };
+ if (t.label === String(t.value)) patch.label = String(v);
+ updateTerm(i, patch);
+ }}
+ className={numCls}
+ />
+ </label>
+ <label className="flex items-center gap-1 text-xs text-text-muted">
+ Label
+ <input
+ type="text"
+ value={t.label}
+ onChange={(e) => updateTerm(i, { label: e.target.value })}
+ className="w-24 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ />
+ </label>
+ <button
+ type="button"
+ onClick={() => removeTerm(i)}
+ className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete term"
+ >
+ ×
+ </button>
+ </div>
+ ))}
+ </div>
  </div>
  </div>
  );
