@@ -634,25 +634,111 @@ function EquationSolverConfig({ config, onChange }: { config: Record<string, unk
  );
 }
 
-function MCMathConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
+/** MCMathConfig — radio list of choices with the correct one marked. */
+function MCMathConfig({
+ config,
+ onChange,
+}: {
+ config: Record<string, unknown>;
+ onChange: (c: Record<string, unknown>) => void;
+}) {
+ interface Choice { text: string; correct: boolean }
+ const choices: Choice[] =
+ (config.choices as Choice[]) ||
+ [
+ { text: "", correct: true },
+ { text: "", correct: false },
+ ];
+
+ const writeChoices = (next: Choice[]) => onChange({ ...config, choices: next });
+ const updateChoice = (i: number, patch: Partial<Choice>) => {
+ // Setting `correct=true` is exclusive — clear others.
+ if (patch.correct) {
+ writeChoices(choices.map((c, j) => ({ ...c, correct: j === i, ...(j === i ? patch : {}) })));
+ return;
+ }
+ writeChoices(choices.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+ };
+ const addChoice = () => writeChoices([...choices, { text: "", correct: false }]);
+ const removeChoice = (i: number) => writeChoices(choices.filter((_, j) => j !== i));
+ const labels = ["A", "B", "C", "D", "E", "F"];
+
  return (
  <div className="space-y-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Question</label>
- <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <label className="mb-1 block text-xs text-text-muted">Question (supports KaTeX with $...$)</label>
+ <textarea
+ rows={2}
+ value={(config.question as string) || ""}
+ onChange={(e) => onChange({ ...config, question: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Choices (JSON)</label>
- <textarea rows={4} value={JSON.stringify((config.choices as unknown[]) || [
- { text: "A", correct: false }, { text: "B", correct: true }, { text: "C", correct: false }, { text: "D", correct: false }
- ], null, 2)} onChange={(e) => { try { onChange({ ...config, choices: JSON.parse(e.target.value) }); } catch {} }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs " />
+ <div className="mb-1.5 flex items-center justify-between">
+ <label className="block text-xs text-text-muted">Choices</label>
+ <button
+ type="button"
+ onClick={addChoice}
+ className="text-xs font-medium text-primary hover:underline"
+ disabled={choices.length >= 6}
+ >
+ + Add choice
+ </button>
  </div>
+ <div className="space-y-2">
+ {choices.map((c, i) => (
+ <div
+ key={i}
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ >
+ <label
+ className="flex items-center gap-1.5 text-xs font-semibold text-text-muted"
+ title="Mark this choice as correct"
+ >
+ <input
+ type="radio"
+ name="mc-correct"
+ checked={c.correct}
+ onChange={() => updateChoice(i, { correct: true })}
+ className="h-3.5 w-3.5 accent-green-600"
+ />
+ {labels[i]}
+ </label>
+ <input
+ type="text"
+ value={c.text}
+ onChange={(e) => updateChoice(i, { text: e.target.value })}
+ placeholder={`Choice ${labels[i]}`}
+ className="flex-1 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ />
+ {choices.length > 2 && (
+ <button
+ type="button"
+ onClick={() => removeChoice(i)}
+ className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ title="Delete choice"
+ >
+ ×
+ </button>
+ )}
+ </div>
+ ))}
+ </div>
+ <p className="mt-1 text-[11px] text-text-subtle">
+ Tick the radio next to the correct answer. Exactly one must be correct.
+ </p>
+ </div>
+
  <div>
- <label className="mb-1 block text-xs text-text-muted">Explanation</label>
- <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ <label className="mb-1 block text-xs text-text-muted">Explanation (shown after answering)</label>
+ <textarea
+ rows={2}
+ value={(config.explanation as string) || ""}
+ onChange={(e) => onChange({ ...config, explanation: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ />
  </div>
  </div>
  );
