@@ -45,7 +45,7 @@ requests.post(f"{API}/courses/{cid}/publish", headers=H)
 print("Published!")
 
 # Enroll student
-r = requests.post(f"{API}/auth/login", json={"email":"student@learnhub.app","password":"Student2026!"})
+r = requests.post(f"{API}/auth/login", json={"email":"student@learnhub.app","password":os.environ.get("E2E_STUDENT_PASSWORD","")})
 sh = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}
 requests.post(f"{API}/progress/enroll", json={"course_id": cid}, headers=sh)
 print("Student enrolled!")

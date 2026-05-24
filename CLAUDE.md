@@ -71,15 +71,20 @@ To deploy:
 ## Test accounts (prod)
 
 Renamed from legacy `@learnhub.app` to `@grasslms.online` on 2026-04-25 to align
-with the rebrand. Verified in DB.
+with the rebrand. Passwords rotated 2026-05-24 ahead of public-repo flip — no
+longer stored in source. Owner keeps current creds in their password manager.
 
 | Role | Email | Password |
 |---|---|---|
-| Student | student@grasslms.online | Student2026! |
-| Teacher | teacher@grasslms.online | Teacher2026! |
-| Methodist | methodist@grasslms.online | Methodist2026! |
-| Demo "Alex" | alex@grasslms.online | Alex2026! |
+| Student | student@grasslms.online | (in owner's password manager) |
+| Teacher | teacher@grasslms.online | (in owner's password manager) |
+| Methodist | methodist@grasslms.online | (in owner's password manager) |
+| Demo "Alex" | alex@grasslms.online | (in owner's password manager) |
 | Super Admin | faintkom@gmail.com | (owner's account, rotate via /profile UI) |
+
+For automated E2E tests, set env vars `E2E_STUDENT_PASSWORD`,
+`E2E_TEACHER_PASSWORD`, `E2E_METHODIST_PASSWORD`, `E2E_ADMIN_PASSWORD` in CI
+secrets and local `.env.local` (not committed).
 
 ## What to NOT do
 

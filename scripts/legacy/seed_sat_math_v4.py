@@ -69,7 +69,7 @@ def publish(cid):
 
 def enroll_students(cid):
     if not cid: return
-    for email, pwd in [("student@learnhub.app", "Student2026!"), ("alex@learnhub.app", "Alex2026!")]:
+    for email, pwd in [("student@learnhub.app", os.environ.get("E2E_STUDENT_PASSWORD","")), ("alex@learnhub.app", os.environ.get("E2E_ALEX_PASSWORD",""))]:
         r = requests.post(f"{API}/auth/login", json={"email": email, "password": pwd}, verify=False)
         if r.status_code == 200:
             sh = {"Authorization": f"Bearer {r.json()['access_token']}", "Content-Type": "application/json"}
