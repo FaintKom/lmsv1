@@ -34,6 +34,8 @@ import { toast } from "sonner";
 import "katex/dist/katex.min.css";
 import "./editor-styles.css";
 
+import DragHandle from "@tiptap/extension-drag-handle-react";
+import { GripVertical } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { Callout } from "./extensions/callout";
 import { MathBlock } from "./extensions/math-block";
@@ -414,6 +416,18 @@ export function BlockEditor({
  />
  )}
  {editable && <EditorBubbleMenu editor={editor} />}
+ {editable && (
+ <DragHandle editor={editor}>
+ <button
+ type="button"
+ aria-label="Drag block"
+ className="flex h-6 w-5 cursor-grab items-center justify-center rounded text-ink-300 hover:bg-ink-100 hover:text-ink-700 active:cursor-grabbing"
+ onClick={(e) => e.preventDefault()}
+ >
+ <GripVertical className="h-4 w-4" />
+ </button>
+ </DragHandle>
+ )}
  <EditorContent
  editor={editor}
  className="block-editor-wrapper px-6 py-4"
