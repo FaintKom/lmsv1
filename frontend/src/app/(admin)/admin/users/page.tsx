@@ -1,14 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Trash2 } from "lucide-react";
+import { UserPlus, Trash2, KeyRound } from "lucide-react";
 import type { User } from "@/types/api";
 import { useAuthStore } from "@/stores/auth-store";
+
+function describeError(err: unknown, fallback: string): string {
+ if (axios.isAxiosError(err)) {
+  const detail =
+   (err.response?.data as { detail?: string } | undefined)?.detail ||
+   err.response?.statusText ||
+   err.message;
+  return detail || fallback;
+ }
+ return fallback;
+}
 
 interface OrgOption {
  id: string;
@@ -59,8 +71,8 @@ export default function AdminUsersPage() {
  setShowForm(false);
  toast.success("User created successfully");
  fetchUsers();
- } catch {
- toast.error("Failed to create user");
+ } catch (err) {
+ toast.error(describeError(err, "Failed to create user"));
  } finally {
  setSubmitting(false);
  }
@@ -72,8 +84,26 @@ export default function AdminUsersPage() {
  await apiClient.delete(`/admin/users/${userId}`);
  toast.success("User deleted");
  fetchUsers();
- } catch {
- toast.error("Failed to delete user");
+ } catch (err) {
+ toast.error(describeError(err, "Failed to delete user"));
+ }
+ };
+
+ const handleResetPassword = async (userId: string, email: string) => {
+ const pwd = window.prompt(
+ `Set a new password for ${email} (minimum 8 chars).\n\nWrite the new password down — it will NOT be shown again.`,
+ ""
+ );
+ if (!pwd) return;
+ if (pwd.length < 8) {
+ toast.error("Password must be at least 8 characters");
+ return;
+ }
+ try {
+ await apiClient.post(`/admin/users/${userId}/password`, { new_password: pwd });
+ toast.success(`Password reset for ${email}`);
+ } catch (err) {
+ toast.error(describeError(err, "Failed to reset password"));
  }
  };
 
@@ -284,6 +314,14 @@ export default function AdminUsersPage() {
  {new Date(u.created_at).toLocaleDateString()}
  </td>
  <td className="px-5 py-4">
+ <div className="flex items-center gap-1">
+ <button
+ onClick={() => handleResetPassword(u.id, u.email)}
+ className="rounded p-1 text-ink-300 hover:bg-success-soft hover:text-primary"
+ title="Reset password"
+ >
+ <KeyRound className="h-4 w-4" />
+ </button>
  <button
  onClick={() => handleDelete(u.id)}
  className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
@@ -291,6 +329,7 @@ export default function AdminUsersPage() {
  >
  <Trash2 className="h-4 w-4" />
  </button>
+ </div>
  </td>
  </tr>
  ))}
