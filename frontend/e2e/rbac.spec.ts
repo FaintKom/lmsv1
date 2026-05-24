@@ -5,17 +5,26 @@
  * pages and is blocked from unauthorized ones. Runs against a live
  * server pointed at by PLAYWRIGHT_BASE_URL.
  *
- * Test accounts (from reference_test_accounts.md):
- *   student@grasslms.online / Student2026!
- *   teacher@grasslms.online / Teacher2026!
+ * Credentials come from env vars (never hardcoded):
+ *   E2E_STUDENT_PASSWORD, E2E_TEACHER_PASSWORD
  *
  * Run:
- *   PLAYWRIGHT_BASE_URL=https://204-168-165-41.nip.io \
+ *   E2E_STUDENT_PASSWORD=... E2E_TEACHER_PASSWORD=... \
+ *     PLAYWRIGHT_BASE_URL=https://grasslms.online \
  *     npx playwright test e2e/rbac.spec.ts
  */
 import { test, expect, Page } from "@playwright/test";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+
+const STUDENT_PASSWORD = process.env.E2E_STUDENT_PASSWORD;
+const TEACHER_PASSWORD = process.env.E2E_TEACHER_PASSWORD;
+
+if (!STUDENT_PASSWORD || !TEACHER_PASSWORD) {
+  throw new Error(
+    "E2E_STUDENT_PASSWORD and E2E_TEACHER_PASSWORD must be set (see CLAUDE.md test accounts table).",
+  );
+}
 
 async function login(page: Page, email: string, password: string) {
   await page.goto(`${BASE}/login`);
@@ -33,7 +42,7 @@ async function login(page: Page, email: string, password: string) {
 // ---------------------------------------------------------------------------
 test.describe("Student role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "student@grasslms.online", "Student2026!");
+    await login(page, "student@grasslms.online", STUDENT_PASSWORD!);
   });
 
   test("can access /dashboard", async ({ page }) => {
@@ -84,7 +93,7 @@ test.describe("Student role", () => {
 // ---------------------------------------------------------------------------
 test.describe("Teacher role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "teacher@grasslms.online", "Teacher2026!");
+    await login(page, "teacher@grasslms.online", TEACHER_PASSWORD!);
   });
 
   test("can access /admin (dashboard)", async ({ page }) => {

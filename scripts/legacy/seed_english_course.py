@@ -208,7 +208,7 @@ mk_lesson(cid, m4, "My Daily Routine", 0,
 # Publish + enroll
 requests.post(f"{API}/courses/{cid}/publish", headers=H)
 print("Published!")
-for email, pwd in [("student@learnhub.app","Student2026!"),("alex@learnhub.app","Alex2026!")]:
+for email, pwd in [("student@learnhub.app",os.environ.get("E2E_STUDENT_PASSWORD","")),("alex@learnhub.app",os.environ.get("E2E_ALEX_PASSWORD",""))]:
     r2 = requests.post(f"{API}/auth/login", json={"email":email,"password":pwd})
     if r2.status_code == 200:
         sh = {"Authorization":f"Bearer {r2.json()['access_token']}","Content-Type":"application/json"}

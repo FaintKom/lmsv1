@@ -41,7 +41,7 @@ if echo "$BODY" | grep -q access_token; then
 else
   echo "Register failed ($HTTP), using fallback..."
   callp "$API/auth/login" -X POST -H "Content-Type: application/json" \
-    -d '{"email":"student@grasslms.online","password":"Student2026!"}'
+    -d "{\"email\":\"student@grasslms.online\",\"password\":\"${E2E_STUDENT_PASSWORD:?must be set}\"}"
   TOKEN=$(echo "$BODY" | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
   REFRESH=$(echo "$BODY" | python3 -c "import sys,json;print(json.load(sys.stdin)['refresh_token'])")
   STUDENT_ID=$(echo "$BODY" | python3 -c "import sys,json;print(json.load(sys.stdin)['user']['id'])")
@@ -54,7 +54,7 @@ echo ""
 echo "========== AUTHENTICATION =========="
 
 callp "$API/auth/login" -X POST -H "Content-Type: application/json" \
-  -d '{"email":"student@grasslms.online","password":"Student2026!"}'
+  -d "{\"email\":\"student@grasslms.online\",\"password\":\"${E2E_STUDENT_PASSWORD:?must be set}\"}"
 check 1 "Login" "POST /auth/login" "$HTTP" "200" "$BODY"
 
 callp "$API/auth/me" -H "$A"
