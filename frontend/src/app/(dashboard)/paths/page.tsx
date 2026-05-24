@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Route, ArrowRight, CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface PathItem {
  id: string;
@@ -20,6 +21,7 @@ interface PathItem {
 }
 
 export default function PathsPage() {
+ const { t } = useTranslation();
  const [paths, setPaths] = useState<PathItem[]>([]);
  const [loading, setLoading] = useState(true);
 
@@ -34,12 +36,12 @@ export default function PathsPage() {
  const handleEnroll = async (pathId: string) => {
  try {
  await apiClient.post(`/learning-paths/${pathId}/enroll`);
- toast.success("Enrolled in learning path!");
+ toast.success(t("paths.enrolled"));
  // Refresh
  const { data } = await apiClient.get("/learning-paths/");
  setPaths(data);
  } catch {
- toast.error("Failed to enroll");
+ toast.error(t("paths.enrollFailed"));
  }
  };
 
@@ -54,9 +56,9 @@ export default function PathsPage() {
  return (
  <div className="mx-auto max-w-4xl">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">Learning Paths</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("paths.title")}</h1>
  <p className="mt-1 text-base text-text-muted ">
- Follow structured course sequences to master a topic
+ {t("paths.subtitle")}
  </p>
  </div>
 
@@ -67,10 +69,10 @@ export default function PathsPage() {
  <Route className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- No learning paths available
+ {t("paths.empty")}
  </h3>
  <p className="text-base text-text-muted ">
- Check back later for structured course sequences.
+ {t("paths.emptyHint")}
  </p>
  </CardContent>
  </Card>
@@ -89,10 +91,10 @@ export default function PathsPage() {
  <div>
  <h3 className="text-lg font-semibold text-text ">{p.title}</h3>
  <p className="mt-1 text-sm text-text-muted ">
- {p.description || "No description"}
+ {p.description || t("paths.noDescription")}
  </p>
  <p className="mt-2 text-xs text-text-subtle ">
- {p.step_count} course{p.step_count !== 1 ? "s" : ""}
+ {p.step_count} {p.step_count !== 1 ? t("paths.coursesMany") : t("paths.courseOne")}
  </p>
  </div>
  </div>
@@ -101,7 +103,7 @@ export default function PathsPage() {
  <>
  <Link href={`/paths/${p.id}`}>
  <Button size="sm" variant="outline">
- Continue <ArrowRight className="ml-1 h-3 w-3" />
+ {t("paths.continue")} <ArrowRight className="ml-1 h-3 w-3" />
  </Button>
  </Link>
  <div className="flex items-center gap-2">
@@ -116,7 +118,7 @@ export default function PathsPage() {
  </>
  ) : (
  <Button size="sm" onClick={() => handleEnroll(p.id)}>
- Enroll
+ {t("paths.enroll")}
  </Button>
  )}
  </div>

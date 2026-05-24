@@ -7,6 +7,7 @@ import { Flame, Medal, Star, Trophy, Zap } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface LeagueInfo {
  name: string;
@@ -82,6 +83,7 @@ function getRankIcon(rank: number) {
 }
 
 export default function LeaderboardPage() {
+ const { t } = useTranslation();
  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
  const [loading, setLoading] = useState(true);
  const user = useAuthStore((s) => s.user);
@@ -90,9 +92,9 @@ export default function LeaderboardPage() {
  apiClient
  .get("/gamification/leaderboard")
  .then(({ data }) => setEntries(data))
- .catch(() => toast.error("Failed to load leaderboard"))
+ .catch(() => toast.error(t("leaderboard.failedToLoad")))
  .finally(() => setLoading(false));
- }, []);
+ }, [t]);
 
  if (loading) {
  return (
@@ -105,9 +107,9 @@ export default function LeaderboardPage() {
  return (
  <div className="mx-auto max-w-3xl">
  <div className="mb-8 text-center">
- <h1 className="text-2xl font-bold text-text ">Leaderboard</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("leaderboard.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- See how you rank among your classmates
+ {t("leaderboard.subtitle")}
  </p>
  </div>
 
@@ -128,13 +130,13 @@ export default function LeaderboardPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Star className="h-4 w-4 text-warning-fg" />
- Rankings
+ {t("leaderboard.rankings")}
  </CardTitle>
  </CardHeader>
  <CardContent className="p-0">
  {entries.length === 0 ? (
  <div className="p-8 text-center text-sm text-text-muted ">
- No leaderboard data yet. Complete lessons to earn XP!
+ {t("leaderboard.empty")}
  </div>
  ) : (
  <div className="divide-y divide-border ">
@@ -170,7 +172,7 @@ export default function LeaderboardPage() {
  <p className={`truncate text-sm font-semibold ${isCurrentUser ? "text-success-fg " : "text-text "}`}>
  {entry.user_name}
  {isCurrentUser && (
- <span className="ml-1.5 text-xs font-normal text-primary ">(You)</span>
+ <span className="ml-1.5 text-xs font-normal text-primary ">{t("leaderboard.you")}</span>
  )}
  </p>
  </div>
@@ -197,7 +199,7 @@ export default function LeaderboardPage() {
  <Zap className="h-3.5 w-3.5 text-warning-fg" />
  {entry.total_xp.toLocaleString()}
  </p>
- <p className="text-[10px] text-text-subtle">XP</p>
+ <p className="text-[10px] text-text-subtle">{t("leaderboard.xp")}</p>
  </div>
  </div>
  );

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSATHistoryStore } from "@/stores/sat-history-store";
 import { DOMAIN_LABELS, DOMAIN_COLORS, type SATDomain } from "@/components/sat/sat-question-bank";
+import { useTranslation } from "@/lib/i18n/context";
 
 function ScoreTrendChart({ data }: { data: { date: string; score: number; mode: string }[] }) {
  if (data.length === 0) return null;
@@ -80,6 +81,7 @@ function DomainBars({ stats }: { stats: Record<SATDomain, { correct: number; tot
 }
 
 export default function SATAnalyticsPage() {
+ const { t } = useTranslation();
  const [hydrated, setHydrated] = useState(false);
  useEffect(() => {
  useSATHistoryStore.persist.rehydrate();
@@ -114,17 +116,17 @@ export default function SATAnalyticsPage() {
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
  <Link href="/sat-practice">
- <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
+ <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" /> {t("sat.back")}</Button>
  </Link>
  <div>
- <h1 className="text-xl font-bold text-text ">SAT Practice Analytics</h1>
- <p className="text-xs text-text-muted">{totalTests} test{totalTests !== 1 ? "s" : ""} taken</p>
+ <h1 className="text-xl font-bold text-text ">{t("sat.analyticsTitle")}</h1>
+ <p className="text-xs text-text-muted">{totalTests} {totalTests !== 1 ? t("sat.testsTakenPlural") : t("sat.testsTakenSingular")}</p>
  </div>
  </div>
  {records.length > 0 && (
- <Button variant="ghost" size="sm" onClick={() => { if (confirm("Clear all test history?")) clearHistory(); }}
+ <Button variant="ghost" size="sm" onClick={() => { if (confirm(t("sat.clearAllConfirm"))) clearHistory(); }}
  className="text-danger hover:text-danger-fg">
- <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear
+ <Trash2 className="h-3.5 w-3.5 mr-1" /> {t("sat.clear")}
  </Button>
  )}
  </div>
@@ -133,10 +135,10 @@ export default function SATAnalyticsPage() {
  <Card>
  <CardContent className="p-12 text-center">
  <TrendingUp className="mx-auto h-10 w-10 text-ink-300 mb-3" />
- <p className="text-text-muted text-sm">No test history yet</p>
- <p className="text-xs text-text-subtle mt-1">Take a practice test to see your analytics here</p>
+ <p className="text-text-muted text-sm">{t("sat.noHistory")}</p>
+ <p className="text-xs text-text-subtle mt-1">{t("sat.noHistoryHint")}</p>
  <Link href="/sat-practice">
- <Button className="mt-4" size="sm">Start Practice</Button>
+ <Button className="mt-4" size="sm">{t("sat.startPractice")}</Button>
  </Link>
  </CardContent>
  </Card>
@@ -145,10 +147,10 @@ export default function SATAnalyticsPage() {
  {/* Summary stats */}
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
  {[
- { label: "Avg Score", value: String(avgScore), icon: TrendingUp, color: "text-primary" },
- { label: "Best Score", value: String(bestScore), icon: Target, color: "text-primary" },
- { label: "Tests Taken", value: String(totalTests), icon: TrendingUp, color: "text-info-fg" },
- { label: "Avg Time", value: `${avgTime}min`, icon: Clock, color: "text-warning-fg" },
+ { label: t("sat.avgScore"), value: String(avgScore), icon: TrendingUp, color: "text-primary" },
+ { label: t("sat.bestScore"), value: String(bestScore), icon: Target, color: "text-primary" },
+ { label: t("sat.testsTaken"), value: String(totalTests), icon: TrendingUp, color: "text-info-fg" },
+ { label: t("sat.avgTime"), value: `${avgTime}${t("sat.minutesShort")}`, icon: Clock, color: "text-warning-fg" },
  ].map((s) => (
  <Card key={s.label}>
  <CardContent className="p-4 text-center">
@@ -165,7 +167,7 @@ export default function SATAnalyticsPage() {
  <CardContent className="p-6">
  <h3 className="text-sm font-semibold text-ink-700 mb-4 flex items-center gap-2">
  <TrendingUp className="h-4 w-4 text-primary" />
- Score Trend
+ {t("sat.scoreTrend")}
  </h3>
  <ScoreTrendChart data={scoreTrend} />
  </CardContent>
@@ -176,7 +178,7 @@ export default function SATAnalyticsPage() {
  <CardContent className="p-6">
  <h3 className="text-sm font-semibold text-ink-700 mb-4 flex items-center gap-2">
  <Target className="h-4 w-4 text-primary" />
- Domain Performance
+ {t("sat.domainPerformance")}
  </h3>
  <DomainBars stats={domainStats} />
  </CardContent>
@@ -188,7 +190,7 @@ export default function SATAnalyticsPage() {
  <CardContent className="p-6">
  <h3 className="text-sm font-semibold text-warning-fg mb-3 flex items-center gap-2">
  <AlertTriangle className="h-4 w-4" />
- Areas to Improve
+ {t("sat.areasToImprove")}
  </h3>
  <div className="space-y-2">
  {weakDomains.map((d) => (
@@ -202,7 +204,7 @@ export default function SATAnalyticsPage() {
  ))}
  </div>
  <p className="mt-3 text-xs text-text-muted">
- Focus on these domains with targeted practice to boost your score.
+ {t("sat.areasToImproveHint")}
  </p>
  </CardContent>
  </Card>
@@ -211,7 +213,7 @@ export default function SATAnalyticsPage() {
  {/* Test history table */}
  <Card>
  <CardContent className="p-6">
- <h3 className="text-sm font-semibold text-ink-700 mb-4">Test History</h3>
+ <h3 className="text-sm font-semibold text-ink-700 mb-4">{t("sat.testHistory")}</h3>
  <div className="space-y-2">
  {records.map((r) => (
  <div key={r.id} className="flex items-center gap-4 rounded-lg border border-border-strong bg-surface-2 px-4 py-3 ">
@@ -220,15 +222,15 @@ export default function SATAnalyticsPage() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium text-ink-700 ">
- {r.mode === "full_adaptive" ? "Full SAT" : r.mode === "mini" ? "Quick Practice" : "Domain Practice"}
+ {r.mode === "full_adaptive" ? t("sat.modeFull") : r.mode === "mini" ? t("sat.modeQuick") : t("sat.modeDomain")}
  {r.module2Difficulty !== "none" && (
  <span className={`ml-2 text-[10px] font-bold ${r.module2Difficulty === "hard" ? "text-danger-fg" : "text-info-fg"}`}>
- {r.module2Difficulty === "hard" ? "Hard" : "Std"} Route
+ {r.module2Difficulty === "hard" ? t("sat.hardShort") : t("sat.stdShort")} {t("sat.routeSuffix")}
  </span>
  )}
  </p>
  <p className="text-[10px] text-text-subtle">
- {new Date(r.date).toLocaleDateString()} · {r.rawCorrect}/{r.totalQuestions} · {Math.floor(r.totalTimeSeconds / 60)}min
+ {new Date(r.date).toLocaleDateString()} · {r.rawCorrect}/{r.totalQuestions} · {Math.floor(r.totalTimeSeconds / 60)}{t("sat.minutesShort")}
  </p>
  </div>
  </div>
