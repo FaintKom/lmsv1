@@ -30,6 +30,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { TeacherOnboarding } from "@/components/onboarding/teacher-onboarding";
 import { toast } from "sonner";
 import { OnboardingTour, startOnboardingTour } from "@/components/onboarding-tour";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Stats {
   total_users: number;
@@ -135,6 +136,7 @@ function QuickLink({
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [teacherStats, setTeacherStats] = useState<TeacherStats | null>(null);
   const [copied, setCopied] = useState(false);
@@ -153,7 +155,7 @@ export default function AdminDashboardPage() {
   const copyInviteLink = () => {
     navigator.clipboard.writeText(inviteLink);
     setCopied(true);
-    toast.success("Invite link copied!");
+    toast.success(t("admin.dashboard.inviteLinkCopied"));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -180,10 +182,10 @@ export default function AdminDashboardPage() {
         {/* Header */}
         <div className="mb-7">
           <p className="mb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-green-700">
-            Teacher · Dashboard
+            {t("admin.dashboard.teacherCrumb")}
           </p>
           <h1 className="text-[28px] font-extrabold tracking-tight text-text">
-            Welcome back, {user?.full_name}
+            {t("admin.dashboard.welcomeBack")}, {user?.full_name}
           </h1>
         </div>
 
@@ -194,25 +196,25 @@ export default function AdminDashboardPage() {
         {/* KPI strip */}
         <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
-            label="My Courses"
+            label={t("admin.dashboard.myCourses")}
             value={teacherStats?.my_courses || 0}
             icon={BookOpen}
             color="green"
           />
           <KpiCard
-            label="My Students"
+            label={t("admin.dashboard.myStudents")}
             value={teacherStats?.my_students || 0}
             icon={Users}
             color="green"
           />
           <KpiCard
-            label="To Review"
+            label={t("admin.dashboard.toReview")}
             value={teacherStats?.to_review || 0}
             icon={Inbox}
             color="coral"
           />
           <KpiCard
-            label="Avg Score"
+            label={t("admin.dashboard.avgScore")}
             value={teacherStats?.avg_score || 0}
             suffix="%"
             icon={TrendingUp}
@@ -226,7 +228,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
               <Sparkles className="h-4 w-4 text-green-600" />
               <h3 className="text-[14px] font-extrabold text-text">
-                Quick Insights
+                {t("admin.dashboard.quickInsights")}
               </h3>
             </div>
             <div className="space-y-2.5 p-5">
@@ -234,16 +236,15 @@ export default function AdminDashboardPage() {
                 <div className="flex items-start gap-3 rounded-[10px] bg-coral-50 p-3">
                   <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-coral-700" />
                   <p className="text-[13px] text-ink-700">
-                    <span className="font-bold">
-                      {teacherStats.to_review} submission
-                      {teacherStats.to_review !== 1 ? "s" : ""}
-                    </span>{" "}
-                    waiting for review.{" "}
+                    <span className="font-bold">{teacherStats.to_review}</span>{" "}
+                    {teacherStats.to_review !== 1
+                      ? t("admin.dashboard.submissionsWaiting")
+                      : t("admin.dashboard.submissionWaiting")}{" "}
                     <Link
                       href="/admin/review"
                       className="font-bold text-coral-700 hover:underline"
                     >
-                      Review now →
+                      {t("admin.dashboard.reviewNow")} →
                     </Link>
                   </p>
                 </div>
@@ -252,14 +253,14 @@ export default function AdminDashboardPage() {
                 <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
                   <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                   <p className="text-[13px] text-ink-700">
-                    Average score across your students is{" "}
+                    {t("admin.dashboard.avgScoreLine")}{" "}
                     <span className="font-bold">{teacherStats.avg_score}%</span>
                     .
                     {teacherStats.avg_score >= 80
-                      ? " Great job — your students are performing well!"
+                      ? ` ${t("admin.dashboard.greatJob")}`
                       : teacherStats.avg_score >= 60
-                        ? " Consider reviewing topics where students struggle."
-                        : " Some students may need extra support."}
+                        ? ` ${t("admin.dashboard.considerReview")}`
+                        : ` ${t("admin.dashboard.needExtraSupport")}`}
                   </p>
                 </div>
               )}
@@ -267,12 +268,12 @@ export default function AdminDashboardPage() {
                 <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
                   <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                   <p className="text-[13px] text-ink-700">
-                    You haven&apos;t created any courses yet.{" "}
+                    {t("admin.dashboard.noCoursesYet")}{" "}
                     <Link
                       href="/admin/courses"
                       className="font-bold text-green-700 hover:underline"
                     >
-                      Create your first course →
+                      {t("admin.dashboard.createFirstCourse")} →
                     </Link>
                   </p>
                 </div>
@@ -282,8 +283,7 @@ export default function AdminDashboardPage() {
                   <div className="flex items-start gap-3 rounded-[10px] bg-ink-50 p-3">
                     <Users className="mt-0.5 h-4 w-4 shrink-0 text-ink-500" />
                     <p className="text-[13px] text-ink-700">
-                      No students enrolled yet. Share your invite link to get
-                      started.
+                      {t("admin.dashboard.noStudentsYet")}
                     </p>
                   </div>
                 )}
@@ -292,7 +292,7 @@ export default function AdminDashboardPage() {
                   <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                     <p className="text-[13px] text-ink-700">
-                      All caught up — no submissions pending review.
+                      {t("admin.dashboard.allCaughtUp")}
                     </p>
                   </div>
                 )}
@@ -301,11 +301,11 @@ export default function AdminDashboardPage() {
                   <div className="flex items-start gap-3 rounded-[10px] bg-ink-50 p-3">
                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-ink-500" />
                     <p className="text-[13px] text-ink-700">
-                      Last submission from{" "}
+                      {t("admin.dashboard.lastSubmissionFrom")}{" "}
                       <span className="font-bold">
                         {teacherStats.recent_submissions[0].student_name}
                       </span>{" "}
-                      on{" "}
+                      ·{" "}
                       {new Date(
                         teacherStats.recent_submissions[0].submitted_at,
                       ).toLocaleDateString()}
@@ -323,7 +323,7 @@ export default function AdminDashboardPage() {
             <div className="mb-6 rounded-[14px] border border-border bg-paper-2">
               <div className="border-b border-border px-5 py-3.5">
                 <h3 className="text-[14px] font-extrabold text-text">
-                  Recent Submissions
+                  {t("admin.dashboard.recentSubmissions")}
                 </h3>
               </div>
               <div className="divide-y divide-border/50">
@@ -373,25 +373,25 @@ export default function AdminDashboardPage() {
           <QuickLink
             href="/admin/content-library"
             icon={Library}
-            label="Browse Templates"
+            label={t("admin.dashboard.browseTemplates")}
             iconColor="bg-green-100 text-green-700"
           />
           <QuickLink
             href="/admin/courses"
             icon={BookOpen}
-            label="My Courses"
+            label={t("admin.dashboard.myCourses")}
             iconColor="bg-green-100 text-green-700"
           />
           <QuickLink
             href="/admin/assignments"
             icon={ClipboardList}
-            label="Assignments"
+            label={t("admin.dashboard.assignmentsLink")}
             iconColor="bg-sun-100 text-sun-700"
           />
           <QuickLink
             href="/admin/review"
             icon={Inbox}
-            label="Review Queue"
+            label={t("admin.dashboard.reviewQueueLink")}
             iconColor="bg-coral-50 text-coral-700"
           />
         </div>
@@ -410,37 +410,37 @@ export default function AdminDashboardPage() {
       <div className="mb-7 flex items-start justify-between border-b border-border pb-5">
         <div>
           <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-green-700">
-            Admin · Overview
+            {t("admin.dashboard.adminCrumb")}
           </p>
           <h1 className="mb-2 text-[28px] font-extrabold tracking-tight text-text">
-            Admin Dashboard
+            {t("admin.dashboard.title")}
           </h1>
           <p className="max-w-md text-[14px] text-text-muted">
-            Overview of your organization
+            {t("admin.dashboard.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={startOnboardingTour}
-            title="Replay the onboarding tour"
+            title={t("admin.dashboard.tourTitle")}
             className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-paper-2 px-3 text-[12px] font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <HelpCircle className="h-3.5 w-3.5" />
-            Tour
+            {t("admin.dashboard.tour")}
           </button>
           <Link
             href="/admin/users"
             className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-paper-2 px-3 text-[12px] font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <UserPlus className="h-3.5 w-3.5" />
-            Add User
+            {t("admin.dashboard.addUser")}
           </Link>
           <Link
             href="/admin/courses"
             className="btn-pop flex h-9 items-center gap-1.5 rounded-[11px] bg-green-600 px-4 text-[12px] font-bold text-white"
           >
             <Plus className="h-3.5 w-3.5" />
-            New Course
+            {t("admin.dashboard.newCourse")}
           </Link>
         </div>
       </div>
@@ -454,7 +454,7 @@ export default function AdminDashboardPage() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-600" />
                 <h3 className="text-[14px] font-extrabold text-text">
-                  Getting Started
+                  {t("admin.dashboard.gettingStarted")}
                 </h3>
               </div>
               <button
@@ -473,21 +473,21 @@ export default function AdminDashboardPage() {
                 className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-ink-700 transition-colors hover:bg-green-100/60"
               >
                 <PlusCircle className="h-4 w-4 text-green-600" />
-                Create your first course
+                {t("admin.dashboard.createFirstCourse")}
               </Link>
               <Link
                 href="/admin/users"
                 className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-ink-700 transition-colors hover:bg-green-100/60"
               >
                 <UserPlus className="h-4 w-4 text-green-600" />
-                Invite students
+                {t("admin.dashboard.inviteStudents")}
               </Link>
               <Link
                 href="/admin/analytics"
                 className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-ink-700 transition-colors hover:bg-green-100/60"
               >
                 <BarChart3 className="h-4 w-4 text-green-600" />
-                View analytics
+                {t("admin.dashboard.viewAnalytics")}
               </Link>
             </div>
           </div>
@@ -496,25 +496,25 @@ export default function AdminDashboardPage() {
       {/* ── KPI strip ─────────────────────────────────────────── */}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Total Users"
+          label={t("admin.dashboard.totalUsers")}
           value={stats?.total_users || 0}
           icon={Users}
           color="green"
         />
         <KpiCard
-          label="Courses"
+          label={t("admin.dashboard.coursesKpi")}
           value={stats?.total_courses || 0}
           icon={BookOpen}
           color="green"
         />
         <KpiCard
-          label="Enrollments"
+          label={t("admin.dashboard.enrollments")}
           value={stats?.total_enrollments || 0}
           icon={BookOpen}
           color="sun"
         />
         <KpiCard
-          label="MRR"
+          label={t("common.mrr")}
           value="$0"
           icon={DollarSign}
           color="ink"
@@ -528,9 +528,9 @@ export default function AdminDashboardPage() {
             <LinkIcon className="h-4 w-4 text-green-700" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-text">Invite Students</p>
+            <p className="text-[13px] font-bold text-text">{t("admin.dashboard.inviteStudentsTitle")}</p>
             <p className="font-mono text-[10px] text-text-muted">
-              Share this link so students can join your school
+              {t("admin.dashboard.inviteStudentsHint")}
             </p>
           </div>
         </div>
@@ -546,11 +546,11 @@ export default function AdminDashboardPage() {
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-green-600" /> Copied
+                <Check className="h-3.5 w-3.5 text-green-600" /> {t("admin.dashboard.copied")}
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5" /> Copy Link
+                <Copy className="h-3.5 w-3.5" /> {t("admin.dashboard.copyLink")}
               </>
             )}
           </button>
@@ -562,19 +562,19 @@ export default function AdminDashboardPage() {
         <QuickLink
           href="/admin/users"
           icon={Users}
-          label="Manage Users"
+          label={t("admin.dashboard.manageUsers")}
           iconColor="bg-green-100 text-green-700"
         />
         <QuickLink
           href="/admin/courses"
           icon={BookOpen}
-          label="Manage Courses"
+          label={t("admin.dashboard.manageCourses")}
           iconColor="bg-green-100 text-green-700"
         />
         <QuickLink
           href="/admin/analytics"
           icon={BarChart3}
-          label="View Analytics"
+          label={t("admin.dashboard.viewAnalyticsBtn")}
           iconColor="bg-sun-100 text-sun-700"
         />
       </div>

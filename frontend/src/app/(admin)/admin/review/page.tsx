@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InboxIcon, FileText, Clock, User, ChevronRight, Download } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface QueueItem {
  id: string;
@@ -24,6 +25,7 @@ interface QueueItem {
 }
 
 export default function ReviewQueuePage() {
+ const { t } = useTranslation();
  const [items, setItems] = useState<QueueItem[]>([]);
  const [loading, setLoading] = useState(true);
  const [selected, setSelected] = useState<QueueItem | null>(null);
@@ -57,11 +59,11 @@ export default function ReviewQueuePage() {
  `/assignments/${selected.assignment_id}/submissions/${selected.id}/grade`,
  { score: parseFloat(score), feedback }
  );
- toast.success("Graded successfully");
+ toast.success(t("admin.review.gradedSuccess"));
  setItems((prev) => prev.filter((i) => i.id !== selected.id));
  setSelected(null);
  } catch {
- toast.error("Failed to grade");
+ toast.error(t("admin.review.failedGrade"));
  } finally {
  setGrading(false);
  }
@@ -84,9 +86,9 @@ export default function ReviewQueuePage() {
  return (
  <div>
  <div className="mb-6">
- <h1 className="text-2xl font-bold text-text ">Review Queue</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.review.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- {items.length} submission{items.length !== 1 ? "s" : ""} waiting for review
+ {items.length} {items.length !== 1 ? t("admin.review.subtitleMany") : t("admin.review.subtitleOne")}
  </p>
  </div>
 
@@ -97,10 +99,10 @@ export default function ReviewQueuePage() {
  <InboxIcon className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- All caught up!
+ {t("admin.review.allCaughtUp")}
  </h3>
  <p className="text-base text-text-muted ">
- No submissions waiting for review.
+ {t("admin.review.noSubmissions")}
  </p>
  </CardContent>
  </Card>
@@ -145,7 +147,7 @@ export default function ReviewQueuePage() {
  </span>
  {item.status === "late" && (
  <span className="rounded-pill bg-coral-300 px-1.5 py-0.5 text-[10px] font-medium text-coral-700 ">
- Late
+ {t("admin.review.late")}
  </span>
  )}
  </div>
@@ -171,7 +173,7 @@ export default function ReviewQueuePage() {
  {selected.content && (
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Student Answer
+ {t("admin.review.studentAnswer")}
  </label>
  <div className="max-h-64 overflow-y-auto rounded-lg border border-border-strong bg-surface-2 p-3 text-sm whitespace-pre-wrap text-ink-700 ">
  {selected.content}
@@ -183,7 +185,7 @@ export default function ReviewQueuePage() {
  {selected.original_filename && (
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Attached File
+ {t("admin.review.attachedFile")}
  </label>
  <a
  href={`${apiClient.defaults.baseURL?.replace("/api/v1", "")}/uploads/${selected.file_path}`}
@@ -198,18 +200,18 @@ export default function ReviewQueuePage() {
  )}
 
  {!selected.content && !selected.original_filename && (
- <p className="text-sm text-text-subtle italic">No content submitted.</p>
+ <p className="text-sm text-text-subtle italic">{t("admin.review.noContent")}</p>
  )}
 
  {/* Grade form */}
  <div className="border-t border-border-strong pt-4 ">
  <h4 className="mb-3 text-sm font-semibold text-ink-700 ">
- Grade Submission
+ {t("admin.review.gradeSubmission")}
  </h4>
  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Score (0–{selected.max_score})
+ {t("admin.review.scoreLabel").replace("{max}", String(selected.max_score))}
  </label>
  <input
  type="number"
@@ -218,20 +220,20 @@ export default function ReviewQueuePage() {
  value={score}
  onChange={(e) => setScore(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
- placeholder="Score"
+ placeholder={t("admin.review.scorePlaceholder")}
  />
  </div>
  </div>
  <div className="mt-3">
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Feedback (optional)
+ {t("admin.review.feedbackOptional")}
  </label>
  <textarea
  value={feedback}
  onChange={(e) => setFeedback(e.target.value)}
  rows={3}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
- placeholder="Write feedback for the student..."
+ placeholder={t("admin.review.feedbackPlaceholder")}
  />
  </div>
  <Button
@@ -239,7 +241,7 @@ export default function ReviewQueuePage() {
  onClick={handleGrade}
  disabled={grading || !score}
  >
- {grading ? "Grading..." : "Grade"}
+ {grading ? t("admin.review.grading") : t("admin.review.grade")}
  </Button>
  </div>
  </CardContent>
@@ -248,7 +250,7 @@ export default function ReviewQueuePage() {
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
  <p className="text-sm text-text-subtle ">
- Select a submission from the list to review it.
+ {t("admin.review.selectSubmission")}
  </p>
  </CardContent>
  </Card>

@@ -25,8 +25,10 @@ import {
  type ExerciseSubmission,
 } from "@/lib/api/exercises";
 import apiClient from "@/lib/api-client";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function SubmissionsViewerPage() {
+ const { t } = useTranslation();
  const { exerciseId } = useParams<{ exerciseId: string }>();
  const router = useRouter();
  const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -67,7 +69,7 @@ export default function SubmissionsViewerPage() {
  }
  });
  })
- .catch(() => toast.error("Failed to load submissions"))
+ .catch(() => toast.error(t("admin.submissionsViewer.failedLoad")))
  .finally(() => setLoading(false));
  };
 
@@ -81,7 +83,7 @@ export default function SubmissionsViewerPage() {
  if (!exercise && !loading) {
  return (
  <div className="flex flex-col items-center justify-center py-24 text-text-subtle">
- <p>Exercise not found</p>
+ <p>{t("admin.submissionsViewer.exerciseNotFound")}</p>
  </div>
  );
  }
@@ -102,7 +104,7 @@ export default function SubmissionsViewerPage() {
  <div>
  <div className="flex items-center gap-2">
  <h1 className="text-xl font-bold text-text ">
- Submissions
+ {t("admin.submissionsViewer.title")}
  </h1>
  {exercise && (
  <span
@@ -113,7 +115,7 @@ export default function SubmissionsViewerPage() {
  )}
  </div>
  <p className="text-sm text-text-muted ">
- {exercise?.title} · {total} submission{total !== 1 ? "s" : ""}
+ {exercise?.title} · {total} {t("admin.submissionsViewer.title").toLowerCase()}
  </p>
  </div>
  </div>
@@ -131,7 +133,7 @@ export default function SubmissionsViewerPage() {
  ) : submissions.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-16 text-text-subtle ">
  <FileText className="mb-3 h-10 w-10" />
- <p className="text-sm font-medium">No submissions yet</p>
+ <p className="text-sm font-medium">{t("admin.submissionsViewer.noSubmissions")}</p>
  </div>
  ) : (
  <div className="divide-y divide-slate-50 ">
@@ -151,14 +153,14 @@ export default function SubmissionsViewerPage() {
  {totalPages > 1 && (
  <div className="flex items-center justify-between border-t border-border px-6 py-3 ">
  <p className="text-xs text-text-muted">
- Page {page} of {totalPages}
+ {t("admin.contentLibrary.pageOf").replace("{page}", String(page)).replace("{total}", String(totalPages)).replace("{count}", String(total))}
  </p>
  <div className="flex gap-2">
  <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
- Previous
+ {t("common.previous")}
  </Button>
  <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
- Next
+ {t("common.next")}
  </Button>
  </div>
  </div>

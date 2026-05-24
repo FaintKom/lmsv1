@@ -24,6 +24,7 @@ import {
  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "@/lib/i18n/context";
 import {
  ArrowLeft,
  Plus,
@@ -254,6 +255,8 @@ const TYPE_EXPANDED_BG: Record<string, string> = {
 };
 
 export default function CourseEditorPage() {
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const { t } = useTranslation();
  const params = useParams();
  const router = useRouter();
  const confirm = useConfirm();
@@ -348,7 +351,7 @@ export default function CourseEditorPage() {
  const ids = new Set<string>((data.modules || []).map((m: Module) => m.id));
  setExpandedModules(ids);
  })
- .catch(() => toast.error("Failed to load course"))
+ .catch(() => toast.error(t("common.failedToLoad")))
  .finally(() => setLoading(false));
  }, [courseId]);
 

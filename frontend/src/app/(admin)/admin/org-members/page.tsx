@@ -6,6 +6,7 @@ import { Trash2, UserPlus, Users } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Member {
  user_id: string;
@@ -33,6 +34,7 @@ type Role = (typeof ROLES)[number];
  * transfers them to another one or rejects the operation.
  */
 export default function OrgMembersPage() {
+ const { t } = useTranslation();
  const [members, setMembers] = useState<Member[]>([]);
  const [loading, setLoading] = useState(true);
  const [email, setEmail] = useState("");
@@ -44,7 +46,7 @@ export default function OrgMembersPage() {
  const res = await apiClient.get<MembersResponse>("/admin/org-members");
  setMembers(res.data.members);
  } catch {
- toast.error("Failed to load org members");
+ toast.error(t("admin.orgMembers.failedLoad"));
  } finally {
  setLoading(false);
  }
@@ -65,8 +67,8 @@ export default function OrgMembersPage() {
  });
  toast.success(
  res.data.status === "updated"
- ? "Member role updated"
- : "Member added to organization"
+ ? t("admin.orgMembers.memberUpdated")
+ : t("admin.orgMembers.memberAdded")
  );
  setEmail("");
  await load();
@@ -75,11 +77,9 @@ export default function OrgMembersPage() {
  response?: { status?: number; data?: { detail?: string } };
  };
  if (anyErr.response?.status === 404) {
- toast.error(
- "No user with that email exists. Ask them to register first."
- );
+ toast.error(t("admin.orgMembers.userNotFound"));
  } else {
- toast.error(anyErr.response?.data?.detail ?? "Failed to add member");
+ toast.error(anyErr.response?.data?.detail ?? t("admin.orgMembers.failedAdd"));
  }
  } finally {
  setSubmitting(false);
@@ -89,21 +89,20 @@ export default function OrgMembersPage() {
  async function handleRemove(member: Member) {
  if (
  !confirm(
- `Remove ${member.full_name} (${member.email}) from this organization? ` +
- `They will keep their account but lose access to this org's content.`
+ t("admin.orgMembers.removeConfirm").replace("{name}", member.full_name).replace("{email}", member.email)
  )
  ) {
  return;
  }
  try {
  await apiClient.delete(`/admin/org-members/${member.user_id}`);
- toast.success("Member removed");
+ toast.success(t("admin.orgMembers.memberRemoved"));
  await load();
  } catch (err) {
  const anyErr = err as {
  response?: { data?: { detail?: string } };
  };
- toast.error(anyErr.response?.data?.detail ?? "Failed to remove member");
+ toast.error(anyErr.response?.data?.detail ?? t("admin.orgMembers.failedRemove"));
  }
  }
 
@@ -115,11 +114,10 @@ export default function OrgMembersPage() {
  </div>
  <div>
  <h1 className="text-2xl font-bold text-text">
- Organization members
+ {t("admin.orgMembers.title")}
  </h1>
  <p className="text-sm text-text-muted">
- Add existing users to this organization or remove their access.
- Users must have already registered a GrassLMS account.
+ {t("admin.orgMembers.subtitle")}
  </p>
  </div>
  </div>
@@ -128,7 +126,7 @@ export default function OrgMembersPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-lg">
  <UserPlus className="h-5 w-5 text-text-subtle" aria-hidden="true" />
- Add member
+ {t("admin.orgMembers.addMember")}
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -141,13 +139,13 @@ export default function OrgMembersPage() {
  htmlFor="member-email"
  className="mb-1 block text-xs font-medium text-text-muted"
  >
- Email
+ {t("common.email")}
  </label>
  <input
  id="member-email"
  type="email"
  required
- placeholder="teacher@school.edu"
+ placeholder={t("admin.orgMembers.emailPlaceholder")}
  value={email}
  onChange={(e) => setEmail(e.target.value)}
  className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
@@ -159,7 +157,7 @@ export default function OrgMembersPage() {
  htmlFor="member-role"
  className="mb-1 block text-xs font-medium text-text-muted"
  >
- Role
+ {t("common.role")}
  </label>
  <select
  id="member-role"
@@ -176,7 +174,7 @@ export default function OrgMembersPage() {
  </select>
  </div>
  <Button type="submit" disabled={submitting}>
- {submitting ? "Adding..." : "Add member"}
+ {submitting ? t("admin.orgMembers.adding") : t("admin.orgMembers.addMember")}
  </Button>
  </form>
  </CardContent>
@@ -185,14 +183,14 @@ export default function OrgMembersPage() {
  <Card>
  <CardHeader>
  <CardTitle className="text-lg">
- Current members ({members.length})
+ {t("admin.orgMembers.currentMembers")} ({members.length})
  </CardTitle>
  </CardHeader>
  <CardContent>
  {loading ? (
- <p className="text-sm text-text-muted">Loading...</p>
+ <p className="text-sm text-text-muted">{t("common.loading")}</p>
  ) : members.length === 0 ? (
- <p className="text-sm text-text-muted">No members yet.</p>
+ <p className="text-sm text-text-muted">{t("admin.orgMembers.noMembers")}</p>
  ) : (
  <ul className="divide-y divide-slate-100">
  {members.map((m) => (
@@ -212,17 +210,17 @@ export default function OrgMembersPage() {
  {!m.is_primary_org && (
  <span
  className="text-xs text-text-subtle"
- title="This org is not the user's primary/active org"
+ title={t("admin.orgMembers.notPrimary")}
  >
- (secondary)
+ {t("admin.orgMembers.secondary")}
  </span>
  )}
  <button
  type="button"
  onClick={() => handleRemove(m)}
  className="rounded-lg p-2 text-text-subtle transition-colors hover:bg-danger-soft hover:text-danger-fg"
- aria-label={`Remove ${m.full_name}`}
- title="Remove from org"
+ aria-label={t("admin.orgMembers.removeAria").replace("{name}", m.full_name)}
+ title={t("admin.orgMembers.removeTitle")}
  >
  <Trash2 className="h-4 w-4" aria-hidden="true" />
  </button>

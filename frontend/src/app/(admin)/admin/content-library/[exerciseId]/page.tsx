@@ -45,12 +45,13 @@ import {
 } from "./exercise-config-editors";
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
+import { useTranslation } from "@/lib/i18n/context";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
  loading: () => (
    <div className="flex items-center justify-center h-[400px] bg-ink-900 rounded-lg">
-     <span className="text-text-muted text-sm">Loading editor...</span>
+     <span className="text-text-muted text-sm">{/* dynamic-loaded fallback */}Loading editor...</span>
    </div>
  ),
 });
@@ -71,6 +72,7 @@ const World3DEditor = dynamic(
 );
 
 export default function ExerciseEditorPage() {
+ const { t } = useTranslation();
  const { exerciseId } = useParams<{ exerciseId: string }>();
  const router = useRouter();
  const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -119,7 +121,7 @@ export default function ExerciseEditorPage() {
  setTitle(data.title);
  setConfig(applyDefaults(data.exercise_type, data.config || {}));
  })
- .catch(() => toast.error("Exercise not found"))
+ .catch(() => toast.error(t("admin.exerciseEditor.notFound")))
  .finally(() => setLoading(false));
  };
 
@@ -133,9 +135,9 @@ export default function ExerciseEditorPage() {
  try {
  const { data } = await exercisesApi.update(exerciseId, { title, config });
  setExercise(data);
- toast.success("Exercise saved");
+ toast.success(t("admin.exerciseEditor.exerciseSaved"));
  } catch (e) {
- toast.error(getApiError(e, "Failed to save"));
+ toast.error(getApiError(e, t("admin.exerciseEditor.failedSave")));
  } finally {
  setSaving(false);
  }
@@ -153,9 +155,9 @@ export default function ExerciseEditorPage() {
  if (!exercise) {
  return (
  <div className="flex flex-col items-center justify-center py-24 text-text-subtle">
- <p>Exercise not found</p>
+ <p>{t("admin.exerciseEditor.notFound")}</p>
  <Button variant="outline" className="mt-4" onClick={() => router.push("/admin/content-library")}>
- Back to Library
+ {t("admin.exerciseEditor.backToLibrary")}
  </Button>
  </div>
  );
@@ -187,7 +189,7 @@ export default function ExerciseEditorPage() {
        viewMode === "form" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
      }`}
    >
-     Form
+     {t("admin.exerciseEditor.formMode")}
    </button>
    <button
      onClick={() => setViewMode("json")}
@@ -195,7 +197,7 @@ export default function ExerciseEditorPage() {
        viewMode === "json" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
      }`}
    >
-     JSON
+     {t("admin.exerciseEditor.jsonMode")}
    </button>
  </div>
  <Button
@@ -204,11 +206,11 @@ export default function ExerciseEditorPage() {
  onClick={() => router.push(`/admin/content-library/${exerciseId}/submissions`)}
  >
  <Eye className="mr-1.5 h-4 w-4" />
- Submissions
+ {t("admin.exerciseEditor.submissions")}
  </Button>
  <Button size="sm" onClick={handleSave} disabled={saving}>
  <Save className="mr-1.5 h-4 w-4" />
- {saving ? "Saving..." : "Save"}
+ {saving ? t("common.saving") : t("common.save")}
  </Button>
  </div>
  </div>
@@ -216,11 +218,11 @@ export default function ExerciseEditorPage() {
  {/* Title */}
  <Card>
  <CardHeader>
- <CardTitle>General Settings</CardTitle>
+ <CardTitle>{t("admin.exerciseEditor.generalSettings")}</CardTitle>
  </CardHeader>
  <CardContent>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700">Title</label>
+ <label className="mb-1 block text-sm font-medium text-ink-700">{t("common.title")}</label>
  <input
  type="text"
  value={title}
@@ -235,59 +237,59 @@ export default function ExerciseEditorPage() {
  {viewMode === "form" ? (
    <div className="space-y-6">
      {exercise.exercise_type === "quiz" && (
-       <Card><CardHeader><CardTitle>Quiz Settings</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.quizSettings")}</CardTitle></CardHeader>
        <CardContent><QuizConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "code_challenge" && (
-       <Card><CardHeader><CardTitle>Code Challenge Settings</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.codeSettings")}</CardTitle></CardHeader>
        <CardContent><CodeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "file_upload" && (
-       <Card><CardHeader><CardTitle>File Upload Settings</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.fileUploadSettings")}</CardTitle></CardHeader>
        <CardContent><FileUploadConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "true_false" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><TrueFalseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "fill_blanks" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><FillBlanksConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "matching" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><MatchingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "ordering" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><OrderingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "categorize" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><CategorizeConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "translation" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><TranslationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "sentence_builder" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><SentenceBuilderConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "dialogue" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><DialogueConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "conjugation" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><ConjugationConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "reading" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><ReadingConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "web_editor" && (
-       <Card><CardHeader><CardTitle>Exercise Configuration</CardTitle></CardHeader>
+       <Card><CardHeader><CardTitle>{t("admin.exerciseEditor.exerciseConfiguration")}</CardTitle></CardHeader>
        <CardContent><WebEditorConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "robot_2d" && (

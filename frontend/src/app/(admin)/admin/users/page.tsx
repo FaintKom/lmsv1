@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { UserPlus, Trash2, KeyRound } from "lucide-react";
 import type { User } from "@/types/api";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTranslation } from "@/lib/i18n/context";
 
 function describeError(err: unknown, fallback: string): string {
  if (axios.isAxiosError(err)) {
@@ -30,6 +31,7 @@ interface OrgOption {
 }
 
 export default function AdminUsersPage() {
+ const { t } = useTranslation();
  const confirm = useConfirm();
  const currentUser = useAuthStore((s) => s.user);
  const isSuperAdmin = currentUser?.role === "super_admin";
@@ -69,61 +71,61 @@ export default function AdminUsersPage() {
  await apiClient.post("/admin/users", form);
  setForm({ full_name: "", email: "", password: "", role: "student" });
  setShowForm(false);
- toast.success("User created successfully");
+ toast.success(t("admin.users.userCreated"));
  fetchUsers();
  } catch (err) {
- toast.error(describeError(err, "Failed to create user"));
+ toast.error(describeError(err, t("admin.users.failedCreateUser")));
  } finally {
  setSubmitting(false);
  }
  };
 
  const handleDelete = async (userId: string) => {
- if (!(await confirm({ message: "Are you sure you want to delete this user?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("admin.users.confirmDelete"), variant: "danger", confirmLabel: t("common.delete") }))) return;
  try {
  await apiClient.delete(`/admin/users/${userId}`);
- toast.success("User deleted");
+ toast.success(t("admin.users.userDeleted"));
  fetchUsers();
  } catch (err) {
- toast.error(describeError(err, "Failed to delete user"));
+ toast.error(describeError(err, t("admin.users.failedDeleteUser")));
  }
  };
 
  const handleResetPassword = async (userId: string, email: string) => {
  const pwd = window.prompt(
- `Set a new password for ${email} (minimum 8 chars).\n\nWrite the new password down — it will NOT be shown again.`,
+ t("admin.users.passwordResetPrompt").replace("{email}", email),
  ""
  );
  if (!pwd) return;
  if (pwd.length < 8) {
- toast.error("Password must be at least 8 characters");
+ toast.error(t("admin.users.passwordMinChars"));
  return;
  }
  try {
  await apiClient.post(`/admin/users/${userId}/password`, { new_password: pwd });
- toast.success(`Password reset for ${email}`);
+ toast.success(t("admin.users.passwordResetFor").replace("{email}", email));
  } catch (err) {
- toast.error(describeError(err, "Failed to reset password"));
+ toast.error(describeError(err, t("admin.users.failedResetPassword")));
  }
  };
 
  const handleRoleChange = async (userId: string, newRole: string) => {
  try {
  await apiClient.put(`/admin/users/${userId}`, { role: newRole });
- toast.success("Role updated");
+ toast.success(t("admin.users.roleUpdated"));
  fetchUsers();
  } catch {
- toast.error("Failed to update role");
+ toast.error(t("common.failedToUpdate"));
  }
  };
 
  const handleOrgChange = async (userId: string, newOrgId: string) => {
  try {
  await apiClient.put(`/admin/users/${userId}`, { org_id: newOrgId });
- toast.success("Organization updated");
+ toast.success(t("admin.users.orgUpdated"));
  fetchUsers();
  } catch {
- toast.error("Failed to update organization");
+ toast.error(t("common.failedToUpdate"));
  }
  };
 
@@ -132,17 +134,17 @@ export default function AdminUsersPage() {
  await apiClient.put(`/admin/users/${userId}`, { is_active: !isActive });
  fetchUsers();
  } catch {
- toast.error("Failed to update status");
+ toast.error(t("admin.users.failedUpdateStatus"));
  }
  };
 
  const handleToggleMethodist = async (userId: string, isMethodist: boolean) => {
  try {
  await apiClient.put(`/admin/users/${userId}`, { is_methodist: !isMethodist });
- toast.success(!isMethodist ? "Methodist role granted" : "Methodist role revoked");
+ toast.success(!isMethodist ? t("admin.users.methodistGranted") : t("admin.users.methodistRevoked"));
  fetchUsers();
  } catch {
- toast.error("Failed to update methodist status");
+ toast.error(t("admin.users.failedUpdateMethodist"));
  }
  };
 
@@ -163,27 +165,27 @@ export default function AdminUsersPage() {
  <div className="mx-auto max-w-6xl">
  <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Users</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.users.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- {users.length} users{isSuperAdmin ? " across all organizations" : " in your organization"}
+ {users.length} {isSuperAdmin ? t("admin.users.countAll") : t("admin.users.countOrg")}
  </p>
  </div>
  <Button onClick={() => setShowForm(!showForm)}>
  <UserPlus className="mr-2 h-4 w-4" />
- Add User
+ {t("admin.users.addUser")}
  </Button>
  </div>
 
  {showForm && (
  <Card className="mb-6">
  <CardHeader>
- <CardTitle className="text-base">New User</CardTitle>
+ <CardTitle className="text-base">{t("admin.users.newUser")}</CardTitle>
  </CardHeader>
  <CardContent>
  <form onSubmit={handleAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
  <input
  type="text"
- placeholder="Full Name"
+ placeholder={t("admin.users.fullName")}
  value={form.full_name}
  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
  className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
@@ -191,7 +193,7 @@ export default function AdminUsersPage() {
  />
  <input
  type="email"
- placeholder="Email"
+ placeholder={t("common.email")}
  value={form.email}
  onChange={(e) => setForm({ ...form, email: e.target.value })}
  className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
@@ -199,7 +201,7 @@ export default function AdminUsersPage() {
  />
  <input
  type="password"
- placeholder="Password"
+ placeholder={t("admin.users.password")}
  value={form.password}
  onChange={(e) => setForm({ ...form, password: e.target.value })}
  className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
@@ -210,16 +212,16 @@ export default function AdminUsersPage() {
  onChange={(e) => setForm({ ...form, role: e.target.value })}
  className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
  >
- <option value="student">Student</option>
- <option value="teacher">Teacher</option>
- <option value="admin">Admin</option>
+ <option value="student">student</option>
+ <option value="teacher">teacher</option>
+ <option value="admin">admin</option>
  </select>
  <div className="flex gap-2 sm:col-span-2">
  <Button type="submit" disabled={submitting}>
- {submitting ? "Creating..." : "Create User"}
+ {submitting ? t("common.creating") : t("admin.users.createUser")}
  </Button>
  <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
- Cancel
+ {t("common.cancel")}
  </Button>
  </div>
  </form>
@@ -233,13 +235,13 @@ export default function AdminUsersPage() {
  <table className="w-full">
  <thead>
  <tr className="border-b border-border-strong text-left text-xs font-medium uppercase tracking-wider text-text-subtle">
- <th className="px-5 py-3">Name</th>
- <th className="px-5 py-3">Email</th>
- <th className="px-5 py-3">Role</th>
- <th className="px-5 py-3">Methodist</th>
- {isSuperAdmin && <th className="px-5 py-3">Organization</th>}
- <th className="px-5 py-3">Status</th>
- <th className="px-5 py-3">Joined</th>
+ <th className="px-5 py-3">{t("common.name")}</th>
+ <th className="px-5 py-3">{t("common.email")}</th>
+ <th className="px-5 py-3">{t("common.role")}</th>
+ <th className="px-5 py-3">{t("admin.users.methodist")}</th>
+ {isSuperAdmin && <th className="px-5 py-3">{t("admin.users.organization")}</th>}
+ <th className="px-5 py-3">{t("common.status")}</th>
+ <th className="px-5 py-3">{t("common.joined")}</th>
  <th className="px-5 py-3"></th>
  </tr>
  </thead>
@@ -277,7 +279,7 @@ export default function AdminUsersPage() {
  : "bg-surface-2 text-text-subtle"
  }`}
  >
- {u.is_methodist ? "Methodist" : "Regular"}
+ {u.is_methodist ? t("admin.users.methodist") : t("admin.users.regular")}
  </button>
  ) : (
  <span className="text-xs text-ink-300">—</span>
@@ -307,7 +309,7 @@ export default function AdminUsersPage() {
  : "bg-danger-soft text-danger-fg"
  }`}
  >
- {u.is_active ? "Active" : "Inactive"}
+ {u.is_active ? t("common.active") : t("common.inactive")}
  </button>
  </td>
  <td className="px-5 py-4 text-xs text-text-subtle">
@@ -318,14 +320,14 @@ export default function AdminUsersPage() {
  <button
  onClick={() => handleResetPassword(u.id, u.email)}
  className="rounded p-1 text-ink-300 hover:bg-success-soft hover:text-primary"
- title="Reset password"
+ title={t("admin.users.resetPasswordTitle")}
  >
  <KeyRound className="h-4 w-4" />
  </button>
  <button
  onClick={() => handleDelete(u.id)}
  className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
- title="Delete user"
+ title={t("admin.users.deleteUserTitle")}
  >
  <Trash2 className="h-4 w-4" />
  </button>

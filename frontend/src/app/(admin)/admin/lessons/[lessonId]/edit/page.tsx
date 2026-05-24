@@ -68,6 +68,7 @@ import {
   type ExerciseType,
 } from "@/lib/api/exercises";
 import type { LessonBlock } from "@/types/api";
+import { useTranslation } from "@/lib/i18n/context";
 
 const BlockEditor = dynamic(
   () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
@@ -138,6 +139,7 @@ function extractBlocks(content: Record<string, unknown> | undefined, contentType
 /* ─── Page ──────────────────────────────────────────────────────────── */
 
 export default function LessonEditorPage() {
+  const { t } = useTranslation();
   const params = useParams();
   const search = useSearchParams();
   const router = useRouter();
@@ -164,7 +166,7 @@ export default function LessonEditorPage() {
     let cancelled = false;
     async function load() {
       if (!courseId || !moduleId) {
-        toast.error("Missing courseId/moduleId in URL.");
+        toast.error(t("admin.lessonEditor.missingIds"));
         setLoading(false);
         return;
       }
@@ -182,7 +184,7 @@ export default function LessonEditorPage() {
         setExercises(exercisesRes.data || []);
         setCourseTitle(courseRes.data?.title || "");
       } catch (err) {
-        if (!cancelled) toast.error("Failed to load lesson");
+        if (!cancelled) toast.error(t("admin.lessonEditor.failedLoad"));
         console.error(err);
       } finally {
         if (!cancelled) {
@@ -206,7 +208,7 @@ export default function LessonEditorPage() {
       setSaveStatus("saving");
       try {
         await apiClient.put(`/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/`, {
-          title: title.trim() || "Untitled lesson",
+          title: title.trim() || t("admin.lessonEditor.untitled"),
           content: buildV2Content(blocks),
           duration_minutes: duration ? parseInt(duration, 10) : null,
         });
@@ -231,9 +233,9 @@ export default function LessonEditorPage() {
   const deleteBlock = useCallback(
     async (block: LessonBlock) => {
       const ok = await confirm({
-        message: "Delete this block?",
+        message: t("admin.lessonEditor.deleteBlockMsg"),
         variant: "danger",
-        confirmLabel: "Delete",
+        confirmLabel: t("common.delete"),
       });
       if (!ok) return;
       // Best-effort cleanup if this is an exercise block.
@@ -294,7 +296,7 @@ export default function LessonEditorPage() {
           /* non-fatal */
         }
       } catch (err) {
-        toast.error("Failed to create exercise");
+        toast.error(t("admin.lessonEditor.failedCreateExercise"));
         console.error(err);
       }
     },
@@ -339,7 +341,7 @@ export default function LessonEditorPage() {
             className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-text-muted hover:bg-ink-100 hover:text-text"
           >
             <ArrowLeft className="h-4 w-4" />
-            {courseTitle ? courseTitle : "Back to course"}
+            {courseTitle ? courseTitle : t("admin.lessonEditor.backToCourse")}
           </button>
           <div className="ml-auto flex items-center gap-3">
             <SaveIndicator status={saveStatus} />
@@ -352,7 +354,7 @@ export default function LessonEditorPage() {
               }`}
             >
               {previewMode ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-              {previewMode ? "Edit mode" : "Preview"}
+              {previewMode ? t("admin.lessonEditor.editMode") : t("admin.lessonEditor.previewMode")}
             </button>
           </div>
         </div>
@@ -367,13 +369,13 @@ export default function LessonEditorPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Untitled lesson"
+              placeholder={t("admin.lessonEditor.untitled")}
               disabled={previewMode}
               className="w-full border-none bg-transparent text-3xl font-bold text-text outline-none placeholder:text-ink-300 disabled:cursor-default"
             />
             {!previewMode && (
               <div className="flex items-center gap-2 text-sm text-text-subtle">
-                <span>Duration:</span>
+                <span>{t("admin.lessonEditor.durationLabel")}</span>
                 <input
                   type="number"
                   value={duration}
@@ -382,11 +384,11 @@ export default function LessonEditorPage() {
                   min={1}
                   className="w-16 rounded border border-border-strong px-2 py-0.5 text-sm focus:border-primary focus:outline-none"
                 />
-                <span>min</span>
+                <span>{t("admin.lessonEditor.minSuffix")}</span>
               </div>
             )}
             {previewMode && duration && (
-              <p className="text-sm text-text-subtle">{duration} min</p>
+              <p className="text-sm text-text-subtle">{duration} {t("admin.lessonEditor.minSuffix")}</p>
             )}
           </div>
 
@@ -420,7 +422,7 @@ export default function LessonEditorPage() {
                 ))}
                 {blocks.length === 0 && !previewMode && (
                   <p className="py-8 text-center text-sm text-text-subtle">
-                    Empty lesson. Pick a block above to start.
+                    {t("admin.lessonEditor.emptyHint")}
                   </p>
                 )}
               </div>

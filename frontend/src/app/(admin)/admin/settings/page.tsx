@@ -6,21 +6,23 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Settings, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 
-const MENU_ITEMS = [
- { key: "users", label: "Users", adminOnly: true },
- { key: "groups", label: "Groups", adminOnly: false },
- { key: "courses", label: "Courses", adminOnly: false },
- { key: "assignments", label: "Assignments", adminOnly: false },
- { key: "gradebook", label: "Gradebook", adminOnly: false },
- { key: "review", label: "Review Queue", adminOnly: false },
- { key: "paths", label: "Learning Paths", adminOnly: false },
- { key: "calendar", label: "Calendar", adminOnly: false },
- { key: "meetings", label: "Meetings", adminOnly: false },
- { key: "analytics", label: "Analytics", adminOnly: false },
+const MENU_ITEM_KEYS = [
+ { key: "users", labelKey: "admin.settings.menuUsers", adminOnly: true },
+ { key: "groups", labelKey: "admin.settings.menuGroups", adminOnly: false },
+ { key: "courses", labelKey: "admin.settings.menuCourses", adminOnly: false },
+ { key: "assignments", labelKey: "admin.settings.menuAssignments", adminOnly: false },
+ { key: "gradebook", labelKey: "admin.settings.menuGradebook", adminOnly: false },
+ { key: "review", labelKey: "admin.settings.menuReview", adminOnly: false },
+ { key: "paths", labelKey: "admin.settings.menuPaths", adminOnly: false },
+ { key: "calendar", labelKey: "admin.settings.menuCalendar", adminOnly: false },
+ { key: "meetings", labelKey: "admin.settings.menuMeetings", adminOnly: false },
+ { key: "analytics", labelKey: "admin.settings.menuAnalytics", adminOnly: false },
 ];
 
 export default function SettingsPage() {
+ const { t } = useTranslation();
  const user = useAuthStore((s) => s.user);
  const fetchUser = useAuthStore((s) => s.fetchUser);
  const [menuVisibility, setMenuVisibility] = useState<Record<string, boolean>>({});
@@ -39,7 +41,7 @@ export default function SettingsPage() {
  const { data } = await apiClient.get(`/admin/organizations/${user?.org_id}`);
  const settings = data.settings || {};
  const vis: Record<string, boolean> = {};
- for (const item of MENU_ITEMS) {
+ for (const item of MENU_ITEM_KEYS) {
  vis[item.key] = settings.menu_visibility?.[item.key] !== false;
  }
  setMenuVisibility(vis);
@@ -50,7 +52,7 @@ export default function SettingsPage() {
  setSecondaryColor(settings.secondary_color || "#3b82f6");
  } catch {
  const vis: Record<string, boolean> = {};
- for (const item of MENU_ITEMS) vis[item.key] = true;
+ for (const item of MENU_ITEM_KEYS) vis[item.key] = true;
  setMenuVisibility(vis);
  } finally {
  setLoading(false);
@@ -77,9 +79,9 @@ export default function SettingsPage() {
  });
  // Refresh the auth store so sidebar/CSS picks up new branding
  await fetchUser();
- toast.success("Settings saved");
+ toast.success(t("admin.settings.saved"));
  } catch {
- toast.error("Failed to save settings");
+ toast.error(t("admin.settings.failedSave"));
  } finally {
  setSaving(false);
  }
@@ -98,40 +100,40 @@ export default function SettingsPage() {
  <div>
  <h1 className="text-2xl font-bold text-text flex items-center gap-2">
  <Settings className="h-6 w-6 text-primary" />
- Settings
+ {t("admin.settings.title")}
  </h1>
  <p className="text-sm text-text-muted ">
- Configure which menu items are visible in the admin sidebar
+ {t("admin.settings.subtitle")}
  </p>
  </div>
 
  {/* P2-2: Branding card */}
  <div className="rounded-lg border border-border-strong bg-paper-2 ">
  <div className="border-b border-border px-6 py-4 ">
- <h2 className="font-semibold text-text ">Branding</h2>
+ <h2 className="font-semibold text-text ">{t("admin.settings.brandingTitle")}</h2>
  <p className="text-xs text-text-subtle ">
- Customize how your organization appears to staff and students
+ {t("admin.settings.brandingSubtitle")}
  </p>
  </div>
  <div className="space-y-5 p-6">
  <div>
  <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-ink-700 ">
- Organization display name
+ {t("admin.settings.displayName")}
  </label>
  <input
  id="displayName"
  type="text"
  value={displayName}
  onChange={(e) => setDisplayName(e.target.value)}
- placeholder="My School"
+ placeholder={t("admin.settings.displayNamePlaceholder")}
  className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  />
- <p className="mt-1 text-xs text-text-subtle">Shown in the sidebar header instead of &ldquo;GrassLMS&rdquo;</p>
+ <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.displayNameHint")}</p>
  </div>
 
  <div>
  <label htmlFor="logoUrl" className="mb-1 block text-sm font-medium text-ink-700 ">
- Logo URL
+ {t("admin.settings.logoUrl")}
  </label>
  <div className="flex items-center gap-3">
  <input
@@ -151,12 +153,12 @@ export default function SettingsPage() {
  />
  )}
  </div>
- <p className="mt-1 text-xs text-text-subtle">Square image recommended (e.g. 128×128 px). Leave blank for the default icon.</p>
+ <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.logoUrlHint")}</p>
  </div>
 
  <div>
  <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium text-ink-700 ">
- Primary color
+ {t("admin.settings.primaryColor")}
  </label>
  <div className="flex items-center gap-3">
  <input
@@ -178,12 +180,12 @@ export default function SettingsPage() {
  style={{ background: primaryColor }}
  />
  </div>
- <p className="mt-1 text-xs text-text-subtle">Main accent: buttons, links, sidebar icon, active states.</p>
+ <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.primaryColorHint")}</p>
  </div>
 
  <div>
  <label htmlFor="secondaryColor" className="mb-1 block text-sm font-medium text-ink-700 ">
- Secondary color
+ {t("admin.settings.secondaryColor")}
  </label>
  <div className="flex items-center gap-3">
  <input
@@ -205,31 +207,31 @@ export default function SettingsPage() {
  style={{ background: secondaryColor }}
  />
  </div>
- <p className="mt-1 text-xs text-text-subtle">Complementary accent: badges, highlights, secondary buttons, category tags.</p>
+ <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.secondaryColorHint")}</p>
  </div>
  </div>
  </div>
 
  <div className="rounded-lg border border-border-strong bg-paper-2 ">
  <div className="border-b border-border px-6 py-4 ">
- <h2 className="font-semibold text-text ">Menu Visibility</h2>
+ <h2 className="font-semibold text-text ">{t("admin.settings.menuVisibility")}</h2>
  <p className="text-xs text-text-subtle ">
- Toggle which sections appear in the navigation sidebar
+ {t("admin.settings.menuVisibilityHint")}
  </p>
  </div>
  <div className="divide-y divide-slate-100 ">
- {MENU_ITEMS.map((item) => (
+ {MENU_ITEM_KEYS.map((item) => (
  <label
  key={item.key}
  className="flex cursor-pointer items-center justify-between px-6 py-3 hover:bg-surface-2 "
  >
  <div>
  <span className="text-sm font-medium text-ink-700 ">
- {item.label}
+ {t(item.labelKey)}
  </span>
  {item.adminOnly && (
  <span className="ml-2 rounded-pill bg-sun-100 px-2 py-0.5 text-[10px] font-semibold text-warning-fg ">
- Admin only
+ {t("admin.settings.adminOnly")}
  </span>
  )}
  </div>
@@ -251,7 +253,7 @@ export default function SettingsPage() {
  <div className="flex justify-end">
  <Button onClick={save} disabled={saving}>
  <Save className="h-4 w-4" />
- {saving ? "Saving..." : "Save Settings"}
+ {saving ? t("common.saving") : t("admin.settings.saveSettings")}
  </Button>
  </div>
  </div>

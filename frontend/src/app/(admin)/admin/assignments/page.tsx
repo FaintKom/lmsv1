@@ -8,6 +8,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ClipboardList, Plus, Trash2, Clock, Users, ArrowRight } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AdminAssignment {
  id: string;
@@ -32,6 +33,7 @@ interface GroupOption {
 }
 
 export default function AdminAssignmentsPage() {
+ const { t } = useTranslation();
  const confirm = useConfirm();
  const [assignments, setAssignments] = useState<AdminAssignment[]>([]);
  const [courses, setCourses] = useState<CourseOption[]>([]);
@@ -78,23 +80,23 @@ export default function AdminAssignmentsPage() {
  });
  setForm({ title: "", description: "", course_id: "", group_id: "", due_date: "", max_score: 100, allow_late: false });
  setShowForm(false);
- toast.success("Assignment created");
+ toast.success(t("admin.assignments.created"));
  fetchAssignments();
  } catch {
- toast.error("Failed to create assignment");
+ toast.error(t("admin.assignments.failedCreate"));
  } finally {
  setSubmitting(false);
  }
  };
 
  const handleDelete = async (id: string) => {
- if (!(await confirm({ message: "Delete this assignment?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("admin.assignments.confirmDelete"), variant: "danger", confirmLabel: t("common.delete") }))) return;
  try {
  await apiClient.delete(`/assignments/${id}`);
- toast.success("Assignment deleted");
+ toast.success(t("admin.assignments.deleted"));
  fetchAssignments();
  } catch {
- toast.error("Failed to delete assignment");
+ toast.error(t("admin.assignments.failedDelete"));
  }
  };
 
@@ -112,27 +114,27 @@ export default function AdminAssignmentsPage() {
  <div>
  <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Assignments</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.assignments.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- Create and manage homework assignments
+ {t("admin.assignments.subtitle")}
  </p>
  </div>
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
- New Assignment
+ {t("admin.assignments.newAssignment")}
  </Button>
  </div>
 
  {showForm && (
  <Card className="mb-6">
  <CardHeader>
- <CardTitle>Create Assignment</CardTitle>
+ <CardTitle>{t("admin.assignments.createAssignment")}</CardTitle>
  </CardHeader>
  <CardContent>
  <form onSubmit={handleCreate} className="space-y-4">
  <input
  type="text"
- placeholder="Assignment Title"
+ placeholder={t("admin.assignments.assignmentTitlePlaceholder")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
@@ -140,7 +142,7 @@ export default function AdminAssignmentsPage() {
  autoFocus
  />
  <textarea
- placeholder="Description (instructions for students)"
+ placeholder={t("admin.assignments.descriptionPlaceholder")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
@@ -148,27 +150,27 @@ export default function AdminAssignmentsPage() {
  />
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Course *</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("admin.assignments.course")}</label>
  <select
  value={form.course_id}
  onChange={(e) => setForm({ ...form, course_id: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  >
- <option value="">Select course...</option>
+ <option value="">{t("admin.assignments.selectCourse")}</option>
  {courses.map((c) => (
  <option key={c.id} value={c.id}>{c.title}</option>
  ))}
  </select>
  </div>
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Group (optional)</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("admin.assignments.groupOptional")}</label>
  <select
  value={form.group_id}
  onChange={(e) => setForm({ ...form, group_id: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  >
- <option value="">All students</option>
+ <option value="">{t("admin.assignments.allStudents")}</option>
  {groups.map((g) => (
  <option key={g.id} value={g.id}>{g.name}</option>
  ))}
@@ -177,7 +179,7 @@ export default function AdminAssignmentsPage() {
  </div>
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Due Date *</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("admin.assignments.dueDate")}</label>
  <input
  type="datetime-local"
  value={form.due_date}
@@ -187,7 +189,7 @@ export default function AdminAssignmentsPage() {
  />
  </div>
  <div>
- <label className="mb-1 block text-xs font-medium text-text-muted ">Max Score</label>
+ <label className="mb-1 block text-xs font-medium text-text-muted ">{t("admin.assignments.maxScore")}</label>
  <input
  type="number"
  min={1}
@@ -204,12 +206,12 @@ export default function AdminAssignmentsPage() {
  onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
  className="rounded border-ink-300 text-primary focus:ring-green-500"
  />
- Allow late submissions
+ {t("admin.assignments.allowLate")}
  </label>
  </div>
  </div>
  <Button type="submit" disabled={submitting}>
- {submitting ? "Creating..." : "Create Assignment"}
+ {submitting ? t("common.creating") : t("admin.assignments.createAssignment")}
  </Button>
  </form>
  </CardContent>
@@ -223,10 +225,10 @@ export default function AdminAssignmentsPage() {
  <ClipboardList className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- No assignments yet
+ {t("admin.assignments.noAssignments")}
  </h3>
  <p className="text-base text-text-muted ">
- Create your first assignment for students.
+ {t("admin.assignments.noAssignmentsHint")}
  </p>
  </CardContent>
  </Card>
@@ -253,9 +255,9 @@ export default function AdminAssignmentsPage() {
  {a.course_title && <span>{a.course_title}</span>}
  <span className="flex items-center gap-1">
  <Clock className="h-3 w-3" />
- Due: {new Date(a.due_date).toLocaleDateString()}
+ {t("admin.assignments.dueLabel")} {new Date(a.due_date).toLocaleDateString()}
  </span>
- <span>Max: {a.max_score} pts</span>
+ <span>{t("admin.assignments.maxLabel")} {a.max_score} {t("admin.assignments.ptsSuffix")}</span>
  </div>
  </div>
  <Link
@@ -263,7 +265,7 @@ export default function AdminAssignmentsPage() {
  className="flex items-center gap-1 rounded-lg bg-success-soft px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary-soft "
  >
  <Users className="h-3 w-3" />
- Review
+ {t("admin.assignments.review")}
  <ArrowRight className="h-3 w-3" />
  </Link>
  <button

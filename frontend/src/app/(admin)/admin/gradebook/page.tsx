@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table2, Download } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface CourseOption {
  id: string;
@@ -41,17 +42,17 @@ function scoreColor(score: number | null | undefined, max: number) {
  return "bg-danger-soft text-danger-fg ";
 }
 
-function typeLabel(type: string) {
+export default function GradebookPage() {
+ const { t } = useTranslation();
+ const typeLabel = (type: string) => {
  switch (type) {
- case "quiz": return "Quiz";
- case "code": return "Code";
- case "interactive": return "Exercise";
- case "assignment": return "HW";
+ case "quiz": return t("admin.gradebook.typeQuiz");
+ case "code": return t("admin.gradebook.typeCode");
+ case "interactive": return t("admin.gradebook.typeExercise");
+ case "assignment": return t("admin.gradebook.typeHw");
  default: return type;
  }
-}
-
-export default function GradebookPage() {
+ };
  const [courses, setCourses] = useState<CourseOption[]>([]);
  const [courseId, setCourseId] = useState("");
  const [data, setData] = useState<GradebookData | null>(null);
@@ -119,7 +120,7 @@ export default function GradebookPage() {
  a.click();
  URL.revokeObjectURL(url);
  } catch {
- toast.error("Failed to export Excel file");
+ toast.error(t("admin.gradebook.failedExcel"));
  }
  };
 
@@ -149,20 +150,20 @@ export default function GradebookPage() {
  <div>
  <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Gradebook</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.gradebook.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- View and export student grades by course
+ {t("admin.gradebook.subtitle")}
  </p>
  </div>
  {data && data.columns.length > 0 && (
  <div className="flex items-center gap-2">
  <Button variant="outline" onClick={handleExportWithAuth}>
  <Download className="mr-2 h-4 w-4" />
- CSV
+ {t("admin.gradebook.csv")}
  </Button>
  <Button variant="outline" onClick={handleExportXlsx}>
  <Download className="mr-2 h-4 w-4" />
- Excel
+ {t("admin.gradebook.excel")}
  </Button>
  </div>
  )}
@@ -175,7 +176,7 @@ export default function GradebookPage() {
  onChange={(e) => setCourseId(e.target.value)}
  className="rounded-lg border border-border-strong bg-paper-2 px-4 py-2.5 text-sm text-text focus:border-primary focus:outline-none "
  >
- <option value="">Select a course...</option>
+ <option value="">{t("admin.gradebook.selectCoursePlaceholder")}</option>
  {courses.map((c) => (
  <option key={c.id} value={c.id}>{c.title}</option>
  ))}
@@ -189,10 +190,10 @@ export default function GradebookPage() {
  <Table2 className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- Select a course
+ {t("admin.gradebook.selectCourse")}
  </h3>
  <p className="text-base text-text-muted ">
- Choose a course above to view the gradebook matrix.
+ {t("admin.gradebook.selectCourseHint")}
  </p>
  </CardContent>
  </Card>
@@ -210,10 +211,10 @@ export default function GradebookPage() {
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- No students enrolled
+ {t("admin.gradebook.noStudents")}
  </h3>
  <p className="text-base text-text-muted ">
- This course has no enrolled students yet.
+ {t("admin.gradebook.noStudentsHint")}
  </p>
  </CardContent>
  </Card>
@@ -226,7 +227,7 @@ export default function GradebookPage() {
  <thead>
  <tr className="border-b border-border-strong ">
  <th className="sticky left-0 z-10 bg-paper-2 px-4 py-3 text-left font-semibold text-ink-700 ">
- Student
+ {t("admin.gradebook.student")}
  </th>
  {data.columns.map((col) => (
  <th
@@ -238,9 +239,8 @@ export default function GradebookPage() {
  {col.title}
  </div>
  </th>
- ))}
- <th className="px-3 py-3 text-center font-semibold text-ink-700 ">
- Avg %
+ ))} <th className="px-3 py-3 text-center font-semibold text-ink-700 ">
+ {t("admin.gradebook.avgPct")}
  </th>
  </tr>
  </thead>
@@ -285,7 +285,7 @@ export default function GradebookPage() {
  {/* Averages row */}
  <tr className="border-t-2 border-ink-300 bg-surface-2 font-semibold ">
  <td className="sticky left-0 z-10 bg-surface-2 px-4 py-2.5 text-ink-700 ">
- Average
+ {t("admin.gradebook.averageRow")}
  </td>
  {data.columns.map((col) => {
  const avg = data.averages[col.id];

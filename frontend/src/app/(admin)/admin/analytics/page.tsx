@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useTranslation } from "@/lib/i18n/context";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -122,50 +123,54 @@ interface AttendanceData {
 
 // ── Constants ──────────────────────────────────────────────────────
 
-const TABS = [
-  { key: "overview", label: "Обзор" },
-  { key: "students", label: "Студенты" },
-  { key: "courses", label: "Курсы" },
-  { key: "exercises", label: "Задания" },
-  { key: "attendance", label: "Посещаемость" },
-] as const;
+const TAB_KEYS = ["overview", "students", "courses", "exercises", "attendance"] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = (typeof TAB_KEYS)[number];
 
 const RISK_COLORS = { high: "#ef4444", medium: "#f59e0b", low: "#10b981" };
 const RISK_BG = { high: "bg-red-50", medium: "bg-amber-50", low: "bg-emerald-50" };
 const RISK_TEXT = { high: "text-red-700", medium: "text-amber-700", low: "text-emerald-700" };
-const RISK_LABEL = { high: "Высокий", medium: "Средний", low: "Низкий" };
-const DIFFICULTY_LABEL: Record<string, string> = { easy: "Лёгкое", medium: "Среднее", hard: "Сложное" };
 const DIFFICULTY_BG: Record<string, string> = { easy: "bg-emerald-50", medium: "bg-amber-50", hard: "bg-red-50" };
 const DIFFICULTY_TEXT: Record<string, string> = { easy: "text-emerald-700", medium: "text-amber-700", hard: "text-red-700" };
-const PIE_COLORS = ["#ef4444", "#f59e0b", "#10b981"];
 
-const EXERCISE_TYPE_LABELS: Record<string, string> = {
-  multiple_choice: "Выбор ответа",
-  single_choice: "Один ответ",
-  true_false: "Верно/Неверно",
-  short_answer: "Короткий ответ",
-  fill_blank: "Заполни пропуск",
-  matching: "Сопоставление",
-  ordering: "Упорядочивание",
-  code_challenge: "Код",
-  essay: "Эссе",
-  file_upload: "Загрузка файла",
-  video_response: "Видео-ответ",
-  audio_response: "Аудио-ответ",
-  interactive_widget: "Виджет",
-  math_input: "Математика",
-  robot_2d: "Робот 2D",
-  world_3d: "Мир 3D",
+// Exercise type display labels — kept short enum-style; long labels go through t() at usage sites
+const EXERCISE_TYPE_LABELS_FALLBACK: Record<string, string> = {
+  multiple_choice: "Multiple choice",
+  single_choice: "Single choice",
+  true_false: "True/False",
+  short_answer: "Short answer",
+  fill_blank: "Fill blank",
+  matching: "Matching",
+  ordering: "Ordering",
+  code_challenge: "Code",
+  essay: "Essay",
+  file_upload: "File upload",
+  video_response: "Video response",
+  audio_response: "Audio response",
+  interactive_widget: "Widget",
+  math_input: "Math",
+  robot_2d: "Robot 2D",
+  world_3d: "World 3D",
   peer_review: "Peer review",
-  group_project: "Групповой проект",
-  web_editor: "Веб-редактор",
+  group_project: "Group project",
+  web_editor: "Web editor",
 };
 
 // ── Component ──────────────────────────────────────────────────────
 
 export default function AdminAnalyticsPage() {
+  const { t } = useTranslation();
+  const TABS = TAB_KEYS.map((key) => ({ key, label: t(`admin.analytics.tab${key.charAt(0).toUpperCase()}${key.slice(1)}`) }));
+  const RISK_LABEL: Record<"high" | "medium" | "low", string> = {
+    high: t("admin.analytics.riskHigh"),
+    medium: t("admin.analytics.riskMedium"),
+    low: t("admin.analytics.riskLow"),
+  };
+  const DIFFICULTY_LABEL: Record<string, string> = {
+    easy: t("admin.analytics.difficultyEasy"),
+    medium: t("admin.analytics.difficultyMedium"),
+    hard: t("admin.analytics.difficultyHard"),
+  };
   const [tab, setTab] = useState<TabKey>("overview");
   const [loading, setLoading] = useState(true);
 
@@ -228,10 +233,11 @@ export default function AdminAnalyticsPage() {
   const riskPieData = useMemo(() => {
     if (!overview) return [];
     return [
-      { name: "Высокий", value: overview.at_risk_high, fill: RISK_COLORS.high },
-      { name: "Средний", value: overview.at_risk_medium, fill: RISK_COLORS.medium },
-      { name: "Низкий", value: overview.at_risk_low, fill: RISK_COLORS.low },
+      { name: RISK_LABEL.high, value: overview.at_risk_high, fill: RISK_COLORS.high },
+      { name: RISK_LABEL.medium, value: overview.at_risk_medium, fill: RISK_COLORS.medium },
+      { name: RISK_LABEL.low, value: overview.at_risk_low, fill: RISK_COLORS.low },
     ].filter(d => d.value > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overview]);
 
   const handleExportCSV = async () => {
@@ -263,15 +269,15 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text">Аналитика</h1>
-          <p className="mt-1 text-sm text-text-muted">Детальный анализ вашей организации</p>
+          <h1 className="text-2xl font-bold text-text">{t("admin.analytics.title")}</h1>
+          <p className="mt-1 text-sm text-text-muted">{t("admin.analytics.subtitle")}</p>
         </div>
         <button
           onClick={handleExportCSV}
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
         >
           <Download className="h-4 w-4" />
-          Экспорт CSV
+          {t("admin.analytics.exportCsv")}
         </button>
       </div>
 
@@ -298,9 +304,11 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Tab content */}
-      {tab === "overview" && <OverviewTab overview={overview} timeline={timeline} riskPieData={riskPieData} courses={courses} />}
+      {tab === "overview" && <OverviewTab t={t} overview={overview} timeline={timeline} riskPieData={riskPieData} courses={courses} />}
       {tab === "students" && (
         <StudentsTab
+          t={t}
+          riskLabel={RISK_LABEL}
           risks={filteredRisks}
           riskFilter={riskFilter}
           setRiskFilter={setRiskFilter}
@@ -309,6 +317,7 @@ export default function AdminAnalyticsPage() {
       )}
       {tab === "courses" && (
         <CoursesTab
+          t={t}
           courses={courses}
           funnel={funnel}
           selectedCourse={selectedCourse}
@@ -317,12 +326,14 @@ export default function AdminAnalyticsPage() {
       )}
       {tab === "exercises" && (
         <ExercisesTab
+          t={t}
+          difficultyLabel={DIFFICULTY_LABEL}
           exercises={filteredExercises}
           difficultyFilter={difficultyFilter}
           setDifficultyFilter={setDifficultyFilter}
         />
       )}
-      {tab === "attendance" && <AttendanceTab data={attendance} />}
+      {tab === "attendance" && <AttendanceTab t={t} data={attendance} />}
     </div>
   );
 }
@@ -367,23 +378,28 @@ function KpiCard({
 // ── Overview Tab ───────────────────────────────────────────────────
 
 function OverviewTab({
+  t,
   overview,
   timeline,
   riskPieData,
   courses,
 }: {
+  t: (key: string) => string;
   overview: OverviewKPIs | null;
   timeline: ActivityDay[];
   riskPieData: { name: string; value: number; fill: string }[];
   courses: CourseEffectiveness[];
 }) {
-  if (!overview) return <EmptyState text="Нет данных для отображения" />;
+  if (!overview) return <EmptyState text={t("admin.analytics.noData")} />;
 
+  const labelSubmissions = t("admin.analytics.colSubmissions");
+  const labelActive = t("admin.analytics.colActive");
+  const labelLessons = t("admin.analytics.colLessons");
   const chartData = timeline.map(d => ({
     date: d.date.slice(5),
-    "Ответов": d.submissions,
-    "Активных": d.active_students,
-    "Уроков": d.lessons_completed,
+    [labelSubmissions]: d.submissions,
+    [labelActive]: d.active_students,
+    [labelLessons]: d.lessons_completed,
   }));
 
   const topCourses = courses
@@ -394,21 +410,21 @@ function OverviewTab({
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        <KpiCard icon={Users} label="Студентов" value={overview.total_students} />
+        <KpiCard icon={Users} label={t("admin.analytics.kpiStudents")} value={overview.total_students} />
         <KpiCard
           icon={Activity}
-          label="Активных (7д)"
+          label={t("admin.analytics.kpiActive7d")}
           value={overview.active_7d}
-          subtitle={`${overview.total_students > 0 ? Math.round(overview.active_7d / overview.total_students * 100) : 0}% от всех`}
+          subtitle={t("admin.analytics.kpiActive7dSub").replace("{pct}", String(overview.total_students > 0 ? Math.round(overview.active_7d / overview.total_students * 100) : 0))}
         />
-        <KpiCard icon={BookOpen} label="Курсов" value={overview.total_courses} />
-        <KpiCard icon={Target} label="Завершаемость" value={`${overview.completion_rate}%`} />
-        <KpiCard icon={Award} label="Ср. балл" value={`${overview.avg_score}%`} />
+        <KpiCard icon={BookOpen} label={t("admin.analytics.kpiCourses")} value={overview.total_courses} />
+        <KpiCard icon={Target} label={t("admin.analytics.kpiCompletion")} value={`${overview.completion_rate}%`} />
+        <KpiCard icon={Award} label={t("admin.analytics.kpiAvgScore")} value={`${overview.avg_score}%`} />
         <KpiCard
           icon={AlertTriangle}
-          label="В зоне риска"
+          label={t("admin.analytics.kpiAtRisk")}
           value={overview.at_risk_high + overview.at_risk_medium}
-          subtitle={`${overview.at_risk_high} высокий, ${overview.at_risk_medium} средний`}
+          subtitle={t("admin.analytics.kpiAtRiskSub").replace("{high}", String(overview.at_risk_high)).replace("{medium}", String(overview.at_risk_medium))}
           color="bg-red-50 text-red-600"
         />
       </div>
@@ -420,7 +436,7 @@ function OverviewTab({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <TrendingUp className="h-4 w-4 text-primary" />
-              Активность за 30 дней
+              {t("admin.analytics.activity30Days")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -442,13 +458,13 @@ function OverviewTab({
                   <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" allowDecimals={false} />
                   <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }} />
                   <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
-                  <Area type="monotone" dataKey="Ответов" stroke="#6366f1" fill="url(#gradSub)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="Активных" stroke="#10b981" fill="url(#gradActive)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="Уроков" stroke="#f59e0b" fill="transparent" strokeWidth={1.5} strokeDasharray="4 4" />
+                  <Area type="monotone" dataKey={labelSubmissions} stroke="#6366f1" fill="url(#gradSub)" strokeWidth={2} />
+                  <Area type="monotone" dataKey={labelActive} stroke="#10b981" fill="url(#gradActive)" strokeWidth={2} />
+                  <Area type="monotone" dataKey={labelLessons} stroke="#f59e0b" fill="transparent" strokeWidth={1.5} strokeDasharray="4 4" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState text="Нет данных за последние 30 дней" />
+              <EmptyState text={t("admin.analytics.no30Day")} />
             )}
           </CardContent>
         </Card>
@@ -458,7 +474,7 @@ function OverviewTab({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <AlertTriangle className="h-4 w-4 text-amber-500" />
-              Риски студентов
+              {t("admin.analytics.studentRisks")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -483,7 +499,7 @@ function OverviewTab({
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <EmptyState text="Нет данных о рисках" />
+              <EmptyState text={t("admin.analytics.noRiskData")} />
             )}
           </CardContent>
         </Card>
@@ -495,7 +511,7 @@ function OverviewTab({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <BookOpen className="h-4 w-4 text-primary" />
-              Топ курсов по записям
+              {t("admin.analytics.topCoursesByEnrollment")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -504,10 +520,10 @@ function OverviewTab({
                 <div key={c.course_id} className="rounded-xl border border-ink-100 p-3">
                   <p className="mb-2 text-sm font-semibold text-text line-clamp-2">{c.title}</p>
                   <div className="space-y-1 text-[11px]">
-                    <Metric label="Записано" value={c.total_enrolled} />
-                    <Metric label="Завершили" value={`${c.completion_rate}%`} />
-                    <Metric label="Ср. балл" value={c.avg_score != null ? `${c.avg_score}%` : "—"} />
-                    <Metric label="Активных (7д)" value={c.active_7d} />
+                    <Metric label={t("admin.analytics.metricEnrolled")} value={c.total_enrolled} />
+                    <Metric label={t("admin.analytics.metricCompleted")} value={`${c.completion_rate}%`} />
+                    <Metric label={t("admin.analytics.kpiAvgScore")} value={c.avg_score != null ? `${c.avg_score}%` : "—"} />
+                    <Metric label={t("admin.analytics.metricActive7d")} value={c.active_7d} />
                   </div>
                 </div>
               ))}
@@ -522,11 +538,15 @@ function OverviewTab({
 // ── Students Tab ──────────────────────────────────────────────────
 
 function StudentsTab({
+  t,
+  riskLabel,
   risks,
   riskFilter,
   setRiskFilter,
   totalCounts,
 }: {
+  t: (key: string) => string;
+  riskLabel: Record<"high" | "medium" | "low", string>;
   risks: StudentRisk[];
   riskFilter: string;
   setRiskFilter: (v: "all" | "high" | "medium" | "low") => void;
@@ -546,7 +566,7 @@ function StudentsTab({
                 : "bg-surface-2 text-text-muted hover:bg-ink-100"
             }`}
           >
-            {f === "all" ? "Все" : RISK_LABEL[f]}
+            {f === "all" ? t("admin.analytics.allFilter") : riskLabel[f]}
             {f !== "all" && totalCounts && (
               <span className="ml-1 opacity-60">({totalCounts[f]})</span>
             )}
@@ -555,7 +575,7 @@ function StudentsTab({
       </div>
 
       {risks.length === 0 ? (
-        <EmptyState text="Нет студентов для отображения" />
+        <EmptyState text={t("admin.analytics.noStudentsToShow")} />
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -563,13 +583,13 @@ function StudentsTab({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-surface-2 text-left text-xs font-medium text-text-subtle">
-                    <th className="px-4 py-3">Студент</th>
-                    <th className="px-4 py-3">Риск</th>
-                    <th className="px-4 py-3 text-center">Неактивен (дн.)</th>
-                    <th className="px-4 py-3 text-center">Ср. балл</th>
-                    <th className="px-4 py-3">Прогресс</th>
-                    <th className="px-4 py-3 text-center">Серия</th>
-                    <th className="px-4 py-3 text-center">Курсов</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colStudent")}</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colRisk")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colDaysInactive")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colAvgScore")}</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colProgress")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colStreak")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colCourses")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -581,7 +601,7 @@ function StudentsTab({
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${RISK_BG[r.risk_level]} ${RISK_TEXT[r.risk_level]}`}>
-                          {RISK_LABEL[r.risk_level]}
+                          {riskLabel[r.risk_level]}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center tabular-nums">
@@ -625,11 +645,13 @@ function StudentsTab({
 // ── Courses Tab ───────────────────────────────────────────────────
 
 function CoursesTab({
+  t,
   courses,
   funnel,
   selectedCourse,
   setSelectedCourse,
 }: {
+  t: (key: string) => string;
   courses: CourseEffectiveness[];
   funnel: LessonFunnel[];
   selectedCourse: string | null;
@@ -638,7 +660,7 @@ function CoursesTab({
   return (
     <div className="space-y-6">
       {courses.length === 0 ? (
-        <EmptyState text="Нет курсов для анализа" />
+        <EmptyState text={t("admin.analytics.noCourseAnalysis")} />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -656,12 +678,12 @@ function CoursesTab({
                     <ChevronRight className={`h-4 w-4 shrink-0 text-text-subtle transition-transform ${selectedCourse === c.course_id ? "rotate-90" : ""}`} />
                   </div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
-                    <Metric label="Записано" value={c.total_enrolled} />
-                    <Metric label="Завершили" value={`${c.completion_rate}%`} />
-                    <Metric label="Ср. балл" value={c.avg_score != null ? `${c.avg_score}%` : "—"} />
-                    <Metric label="Ср. прогресс" value={`${c.avg_progress}%`} />
-                    <Metric label="Активных (7д)" value={c.active_7d} />
-                    <Metric label="Дней до завершения" value={c.avg_days_to_complete ?? "—"} />
+                    <Metric label={t("admin.analytics.metricEnrolled")} value={c.total_enrolled} />
+                    <Metric label={t("admin.analytics.metricCompleted")} value={`${c.completion_rate}%`} />
+                    <Metric label={t("admin.analytics.kpiAvgScore")} value={c.avg_score != null ? `${c.avg_score}%` : "—"} />
+                    <Metric label={t("admin.analytics.metricAvgProgress")} value={`${c.avg_progress}%`} />
+                    <Metric label={t("admin.analytics.metricActive7d")} value={c.active_7d} />
+                    <Metric label={t("admin.analytics.metricDaysToComplete")} value={c.avg_days_to_complete ?? "—"} />
                   </div>
                   {/* Mini progress bar */}
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100">
@@ -681,7 +703,7 @@ function CoursesTab({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <BarChart3 className="h-4 w-4 text-primary" />
-                  Воронка уроков
+                  {t("admin.analytics.lessonFunnel")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -698,8 +720,8 @@ function CoursesTab({
                     />
                     <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Bar dataKey="started" name="Начали" fill="#6366f1" radius={[0, 2, 2, 0]} />
-                    <Bar dataKey="completed" name="Завершили" fill="#10b981" radius={[0, 2, 2, 0]} />
+                    <Bar dataKey="started" name={t("admin.analytics.colStarted")} fill="#6366f1" radius={[0, 2, 2, 0]} />
+                    <Bar dataKey="completed" name={t("admin.analytics.colCompleted")} fill="#10b981" radius={[0, 2, 2, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -714,10 +736,14 @@ function CoursesTab({
 // ── Exercises Tab ─────────────────────────────────────────────────
 
 function ExercisesTab({
+  t,
+  difficultyLabel,
   exercises,
   difficultyFilter,
   setDifficultyFilter,
 }: {
+  t: (key: string) => string;
+  difficultyLabel: Record<string, string>;
   exercises: ExerciseDifficulty[];
   difficultyFilter: string;
   setDifficultyFilter: (v: "all" | "easy" | "medium" | "hard") => void;
@@ -736,13 +762,13 @@ function ExercisesTab({
                 : "bg-surface-2 text-text-muted hover:bg-ink-100"
             }`}
           >
-            {f === "all" ? "Все" : DIFFICULTY_LABEL[f]}
+            {f === "all" ? t("admin.analytics.allFilter") : difficultyLabel[f]}
           </button>
         ))}
       </div>
 
       {exercises.length === 0 ? (
-        <EmptyState text="Нет данных по заданиям" />
+        <EmptyState text={t("admin.analytics.noExerciseData")} />
       ) : (
         <Card>
           <CardContent className="p-0">
@@ -750,29 +776,29 @@ function ExercisesTab({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-surface-2 text-left text-xs font-medium text-text-subtle">
-                    <th className="px-4 py-3">Задание</th>
-                    <th className="px-4 py-3">Тип</th>
-                    <th className="px-4 py-3">Сложность</th>
-                    <th className="px-4 py-3 text-center">Проходимость</th>
-                    <th className="px-4 py-3 text-center">Ср. балл</th>
-                    <th className="px-4 py-3 text-center">Попыток</th>
-                    <th className="px-4 py-3 text-center">Студентов</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colExercise")}</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colType")}</th>
+                    <th className="px-4 py-3">{t("admin.analytics.colDifficulty")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colPassRate")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colAvgScore")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colAttempts")}</th>
+                    <th className="px-4 py-3 text-center">{t("admin.analytics.colStudents")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {exercises.map(ex => (
                     <tr key={ex.exercise_id} className="hover:bg-surface-2/50 transition-colors">
                       <td className="max-w-[200px] truncate px-4 py-3 font-medium text-text">
-                        {ex.title || "Без названия"}
+                        {ex.title || t("admin.analytics.untitled")}
                       </td>
                       <td className="px-4 py-3 text-text-muted">
                         <span className="rounded bg-ink-50 px-1.5 py-0.5 text-[11px]">
-                          {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
+                          {EXERCISE_TYPE_LABELS_FALLBACK[ex.exercise_type] || ex.exercise_type}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${DIFFICULTY_BG[ex.difficulty]} ${DIFFICULTY_TEXT[ex.difficulty]}`}>
-                          {DIFFICULTY_LABEL[ex.difficulty]}
+                          {difficultyLabel[ex.difficulty]}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -801,7 +827,7 @@ function ExercisesTab({
 
 // ── Attendance Tab ────────────────────────────────────────────────
 
-function AttendanceTab({ data }: { data: AttendanceData | null }) {
+function AttendanceTab({ t, data }: { t: (key: string) => string; data: AttendanceData | null }) {
   const buckets = useMemo(() => {
     if (!data || !data.has_data) return [];
     const result: { range: string; count: number; avgScore: number }[] = [];
@@ -824,7 +850,7 @@ function AttendanceTab({ data }: { data: AttendanceData | null }) {
   }, [data]);
 
   if (!data || !data.has_data) {
-    return <EmptyState text="Нет данных о посещаемости. Отмечайте присутствие через модуль посещаемости." />;
+    return <EmptyState text={t("admin.analytics.noAttendanceData")} />;
   }
 
   return (
@@ -833,17 +859,17 @@ function AttendanceTab({ data }: { data: AttendanceData | null }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard
           icon={Calendar}
-          label="Ср. посещаемость"
+          label={t("admin.analytics.attendanceAvg")}
           value={data.avg_attendance_rate != null ? `${data.avg_attendance_rate}%` : "—"}
         />
         <KpiCard
           icon={Users}
-          label="Студентов с данными"
+          label={t("admin.analytics.studentsWithData")}
           value={data.students.length}
         />
         <KpiCard
           icon={AlertTriangle}
-          label="Посещаемость <50%"
+          label={t("admin.analytics.attendanceBelow50")}
           value={data.students.filter(s => s.attendance_rate < 50).length}
           color="bg-red-50 text-red-600"
         />
@@ -852,7 +878,7 @@ function AttendanceTab({ data }: { data: AttendanceData | null }) {
       {/* Attendance vs Score chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Посещаемость → Баллы (корреляция)</CardTitle>
+          <CardTitle className="text-base">{t("admin.analytics.attendanceVsScore")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={220}>
@@ -862,8 +888,8 @@ function AttendanceTab({ data }: { data: AttendanceData | null }) {
               <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="count" name="Студентов" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="avgScore" name="Ср. балл" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" name={t("admin.analytics.kpiStudents")} fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="avgScore" name={t("admin.analytics.kpiAvgScore")} fill="#10b981" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -872,16 +898,16 @@ function AttendanceTab({ data }: { data: AttendanceData | null }) {
       {/* Student table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">По студентам</CardTitle>
+          <CardTitle className="text-base">{t("admin.analytics.byStudent")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-surface-2 text-left text-xs font-medium text-text-subtle">
-                  <th className="px-4 py-3">Студент</th>
-                  <th className="px-4 py-3 text-center">Посещаемость</th>
-                  <th className="px-4 py-3 text-center">Ср. балл</th>
+                  <th className="px-4 py-3">{t("admin.analytics.colStudent")}</th>
+                  <th className="px-4 py-3 text-center">{t("admin.analytics.colAttendance")}</th>
+                  <th className="px-4 py-3 text-center">{t("admin.analytics.colAvgScore")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">

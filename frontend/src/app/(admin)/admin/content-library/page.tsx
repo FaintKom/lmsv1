@@ -56,6 +56,7 @@ import {
  type Exercise,
  type ExerciseType,
 } from "@/lib/api/exercises";
+import { useTranslation } from "@/lib/i18n/context";
 
 // ─── Exercise type config ───
 
@@ -114,6 +115,7 @@ interface Assignment {
 // ─── Main Page ───
 
 export default function ContentLibraryPage() {
+ const { t } = useTranslation();
  const [activeTab, setActiveTab] = useState<"templates" | "exercises" | "assignments">("templates");
 
  return (
@@ -122,7 +124,7 @@ export default function ContentLibraryPage() {
  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft ">
  <Library className="h-5 w-5 text-primary " />
  </div>
- <h1 className="text-2xl font-bold text-text ">Content Library</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.contentLibrary.title")}</h1>
  </div>
 
  {/* Tabs */}
@@ -136,7 +138,7 @@ export default function ContentLibraryPage() {
  }`}
  >
  <FileStack className="h-4 w-4" />
- Course Templates
+ {t("admin.contentLibrary.tabTemplates")}
  </button>
  <button
  onClick={() => setActiveTab("exercises")}
@@ -147,7 +149,7 @@ export default function ContentLibraryPage() {
  }`}
  >
  <ClipboardList className="h-4 w-4" />
- Exercises
+ {t("admin.contentLibrary.tabExercises")}
  </button>
  <button
  onClick={() => setActiveTab("assignments")}
@@ -158,7 +160,7 @@ export default function ContentLibraryPage() {
  }`}
  >
  <ClipboardList className="h-4 w-4" />
- Assignments
+ {t("admin.contentLibrary.tabAssignments")}
  </button>
  </div>
 
@@ -176,6 +178,7 @@ export default function ContentLibraryPage() {
 // ─── Templates Tab ───
 
 function TemplatesTab() {
+ const { t } = useTranslation();
  const router = useRouter();
  const confirm = useConfirm();
  const user = useAuthStore((s) => s.user);
@@ -203,7 +206,7 @@ function TemplatesTab() {
  setTemplates(data);
  }
  })
- .catch(() => toast.error("Failed to load templates"))
+ .catch(() => toast.error(t("admin.contentLibrary.failedLoadTemplates")))
  .finally(() => setLoading(false));
 
  apiClient
@@ -215,18 +218,18 @@ function TemplatesTab() {
 
  const handleDelete = async (course: Course) => {
  const ok = await confirm({
- title: "Delete Template",
- message: `Delete template "${course.title}"? This cannot be undone.`,
- confirmLabel: "Delete",
+ title: t("admin.contentLibrary.deleteTemplateTitle"),
+ message: t("admin.contentLibrary.deleteTemplateMsg").replace("{title}", course.title),
+ confirmLabel: t("common.delete"),
  variant: "danger",
  });
  if (!ok) return;
  try {
  await apiClient.delete(`/courses/${course.id}`);
- toast.success("Template deleted");
+ toast.success(t("admin.contentLibrary.templateDeleted"));
  setTemplates((prev) => prev.filter((c) => c.id !== course.id));
  } catch {
- toast.error("Failed to delete template");
+ toast.error(t("admin.contentLibrary.failedDeleteTemplate"));
  }
  };
 
@@ -240,14 +243,14 @@ function TemplatesTab() {
  const enrolled = data.enrolled_count;
  toast.success(
  enrolled > 0
- ? `Course copied! ${enrolled} student${enrolled !== 1 ? "s" : ""} enrolled.`
- : "Course copied!"
+ ? t("admin.courses.copied") + ` (${enrolled})`
+ : t("admin.courses.copied")
  );
  setCopyModal(null);
  setSelectedGroups([]);
  router.push(`/admin/courses/${data.course.id}/edit`);
  } catch {
- toast.error("Failed to copy template");
+ toast.error(t("admin.contentLibrary.failedCopyTemplate"));
  } finally {
  setCopying(false);
  }
@@ -262,7 +265,7 @@ function TemplatesTab() {
  });
  router.push(`/admin/courses/${data.id}/edit`);
  } catch {
- toast.error("Failed to create template");
+ toast.error(t("admin.contentLibrary.failedCreateTemplate"));
  }
  };
 
@@ -279,7 +282,7 @@ function TemplatesTab() {
  <div className="flex justify-end">
  <Button onClick={handleCreateTemplate}>
  <Plus className="h-4 w-4" />
- Create Template
+ {t("admin.contentLibrary.createTemplate")}
  </Button>
  </div>
  )}
@@ -295,9 +298,9 @@ function TemplatesTab() {
  <Card>
  <CardContent className="flex flex-col items-center justify-center py-16 text-text-subtle ">
  <FileStack className="mb-3 h-10 w-10" />
- <p className="text-sm font-medium">No course templates yet</p>
+ <p className="text-sm font-medium">{t("admin.contentLibrary.noTemplates")}</p>
  {isMethodistOrAdmin && (
- <p className="text-xs">Create your first template to get started</p>
+ <p className="text-xs">{t("admin.contentLibrary.createFirstTemplate")}</p>
  )}
  </CardContent>
  </Card>
@@ -356,7 +359,7 @@ function TemplatesTab() {
  onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
  >
  <Pencil className="h-3.5 w-3.5" />
- Edit
+ {t("common.edit")}
  </Button>
  <Button
  variant="ghost"
@@ -378,7 +381,7 @@ function TemplatesTab() {
  className={isMethodistOrAdmin ? "ml-auto" : ""}
  >
  <Copy className="h-3.5 w-3.5" />
- Use Template
+ {t("admin.contentLibrary.useTemplate")}
  </Button>
  )}
  </div>
@@ -394,7 +397,7 @@ function TemplatesTab() {
  <div className="mx-4 w-full max-w-md rounded-lg bg-paper-2 p-6 shadow-xl ">
  <div className="mb-4 flex items-center justify-between">
  <h2 className="text-lg font-semibold text-text ">
- Use Template
+ {t("admin.contentLibrary.useTemplate")}
  </h2>
  <button
  onClick={() => setCopyModal(null)}
@@ -405,17 +408,18 @@ function TemplatesTab() {
  </div>
 
  <p className="mb-1 text-sm text-text-muted ">
- Copy <strong>&quot;{copyModal.title}&quot;</strong> to your courses.
+ {/* Render the prompt: backend message contains HTML-like markers */}
+ <span dangerouslySetInnerHTML={{ __html: t("admin.contentLibrary.copyTemplatePrompt").replace("{title}", copyModal.title) }} />
  </p>
  <p className="mb-4 text-xs text-text-subtle">
- Select groups to auto-enroll their students (optional).
+ {t("admin.contentLibrary.selectGroupsHint")}
  </p>
 
  {/* Group selection */}
  <div className="mb-4 max-h-48 space-y-2 overflow-y-auto">
  {groups.length === 0 ? (
  <p className="py-4 text-center text-xs text-text-subtle">
- No groups available. You can enroll groups later.
+ {t("admin.contentLibrary.noGroupsHint")}
  </p>
  ) : (
  groups.map((group) => (
@@ -446,7 +450,7 @@ function TemplatesTab() {
  {group.member_count != null && (
  <p className="flex items-center gap-1 text-xs text-text-subtle">
  <Users className="h-3 w-3" />
- {group.member_count} members
+ {group.member_count} {t("admin.groups.members")}
  </p>
  )}
  </div>
@@ -457,15 +461,15 @@ function TemplatesTab() {
 
  <div className="flex gap-2">
  <Button variant="outline" className="flex-1" onClick={() => setCopyModal(null)}>
- Cancel
+ {t("common.cancel")}
  </Button>
  <Button className="flex-1" onClick={handleCopy} disabled={copying}>
  <Copy className="h-4 w-4" />
  {copying
- ? "Copying..."
+ ? t("admin.contentLibrary.copying")
  : selectedGroups.length > 0
- ? `Copy & Enroll`
- : "Copy Course"}
+ ? t("admin.contentLibrary.copyAndEnroll")
+ : t("admin.contentLibrary.copyCourse")}
  </Button>
  </div>
  </div>
@@ -478,6 +482,7 @@ function TemplatesTab() {
 // ─── Exercises Tab (original content) ───
 
 function ExercisesTab() {
+ const { t } = useTranslation();
  const router = useRouter();
  const confirm = useConfirm();
  const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -500,7 +505,7 @@ function ExercisesTab() {
  setExercises(data.items);
  setTotal(data.total);
  })
- .catch(() => toast.error("Failed to load exercises"))
+ .catch(() => toast.error(t("admin.contentLibrary.failedLoadExercises")))
  .finally(() => setLoading(false));
  };
 
@@ -520,18 +525,18 @@ function ExercisesTab() {
 
  const handleDelete = async (exercise: Exercise) => {
  const ok = await confirm({
- title: "Delete Exercise",
- message: `Delete "${exercise.title}" (${exercise.display_id})? This will also delete all student submissions.`,
- confirmLabel: "Delete",
+ title: t("admin.contentLibrary.deleteExerciseTitle"),
+ message: t("admin.contentLibrary.deleteExerciseMsg").replace("{title}", exercise.title).replace("{id}", exercise.display_id),
+ confirmLabel: t("common.delete"),
  variant: "danger",
  });
  if (!ok) return;
  try {
  await exercisesApi.delete(exercise.id);
- toast.success("Exercise deleted");
+ toast.success(t("admin.contentLibrary.exerciseDeleted"));
  fetchExercises();
  } catch {
- toast.error("Failed to delete exercise");
+ toast.error(t("admin.contentLibrary.failedDeleteExercise"));
  }
  };
 
@@ -547,7 +552,7 @@ function ExercisesTab() {
  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
  <input
  type="text"
- placeholder="Search by title or ID..."
+ placeholder={t("admin.contentLibrary.searchByTitleOrId")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
@@ -564,7 +569,7 @@ function ExercisesTab() {
  : "bg-ink-100 text-text-muted hover:bg-ink-200 "
  }`}
  >
- All ({total})
+ {t("admin.contentLibrary.allLabel")} ({total})
  </button>
  {ALL_TYPES.map((type) => {
  const Icon = TYPE_ICONS[type];
@@ -599,19 +604,19 @@ function ExercisesTab() {
  ) : exercises.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-16 text-text-subtle ">
  <Library className="mb-3 h-10 w-10" />
- <p className="text-sm font-medium">No exercises found</p>
- <p className="text-xs">Exercises are created inside course lessons</p>
+ <p className="text-sm font-medium">{t("admin.contentLibrary.noExercisesFound")}</p>
+ <p className="text-xs">{t("admin.contentLibrary.noExercisesHint")}</p>
  </div>
  ) : (
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
  <tr className="border-b border-border ">
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">ID</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Title</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Type</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Created</th>
- <th className="px-6 py-3 text-right font-semibold text-text-muted ">Actions</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.idCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.titleCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.typeCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.createdCol")}</th>
+ <th className="px-6 py-3 text-right font-semibold text-text-muted ">{t("common.actions")}</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-border ">
@@ -646,7 +651,7 @@ function ExercisesTab() {
  variant="ghost"
  size="sm"
  onClick={() => router.push(`/admin/content-library/${ex.id}`)}
- title="Edit exercise"
+ title={t("admin.contentLibrary.editExerciseTitle")}
  >
  <Pencil className="h-4 w-4" />
  </Button>
@@ -654,7 +659,7 @@ function ExercisesTab() {
  variant="ghost"
  size="sm"
  onClick={() => router.push(`/admin/content-library/${ex.id}/submissions`)}
- title="View submissions"
+ title={t("admin.contentLibrary.viewSubmissionsTitle")}
  >
  <Eye className="h-4 w-4" />
  </Button>
@@ -662,7 +667,7 @@ function ExercisesTab() {
  variant="ghost"
  size="sm"
  onClick={() => handleDelete(ex)}
- title="Delete"
+ title={t("common.delete")}
  className="text-danger-fg hover:text-danger-fg "
  >
  <Trash2 className="h-4 w-4" />
@@ -680,14 +685,14 @@ function ExercisesTab() {
  {totalPages > 1 && (
  <div className="flex items-center justify-between border-t border-border px-6 py-3 ">
  <p className="text-xs text-text-muted ">
- Page {page} of {totalPages} ({total} total)
+ {t("admin.contentLibrary.pageOf").replace("{page}", String(page)).replace("{total}", String(totalPages)).replace("{count}", String(total))}
  </p>
  <div className="flex gap-2">
  <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
- Previous
+ {t("common.previous")}
  </Button>
  <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
- Next
+ {t("common.next")}
  </Button>
  </div>
  </div>
@@ -707,6 +712,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 function AssignmentsTab() {
+ const { t } = useTranslation();
  const router = useRouter();
  const confirm = useConfirm();
 
@@ -732,7 +738,7 @@ function AssignmentsTab() {
  .then(({ data }) => {
  setAssignments(Array.isArray(data) ? data : data.items ?? []);
  })
- .catch(() => toast.error("Failed to load assignments"))
+ .catch(() => toast.error(t("admin.contentLibrary.failedLoadAssignments")))
  .finally(() => setLoading(false));
  }, []);
 
@@ -749,18 +755,18 @@ function AssignmentsTab() {
 
  const handleDelete = async (assignment: Assignment) => {
  const ok = await confirm({
- title: "Delete Assignment",
- message: `Delete "${assignment.title}"? This cannot be undone.`,
- confirmLabel: "Delete",
+ title: t("admin.contentLibrary.deleteAssignmentTitle"),
+ message: t("admin.contentLibrary.deleteAssignmentMsg").replace("{title}", assignment.title),
+ confirmLabel: t("common.delete"),
  variant: "danger",
  });
  if (!ok) return;
  try {
  await apiClient.delete(`/assignments/${assignment.id}`);
- toast.success("Assignment deleted");
+ toast.success(t("admin.contentLibrary.assignmentDeleted"));
  setAssignments((prev) => prev.filter((a) => a.id !== assignment.id));
  } catch {
- toast.error("Failed to delete assignment");
+ toast.error(t("admin.contentLibrary.failedDeleteAssignment"));
  }
  };
 
@@ -776,7 +782,7 @@ function AssignmentsTab() {
  const handleCreate = async (e: React.FormEvent) => {
  e.preventDefault();
  if (!formTitle.trim() || !formDueDate || !formCourseId) {
- toast.error("Please fill in all required fields");
+ toast.error(t("admin.contentLibrary.fillRequired"));
  return;
  }
  setSubmitting(true);
@@ -789,12 +795,12 @@ function AssignmentsTab() {
  max_score: formMaxScore,
  allow_late: formAllowLate,
  });
- toast.success("Assignment created");
+ toast.success(t("admin.contentLibrary.assignmentCreated"));
  resetForm();
  setShowForm(false);
  fetchAssignments();
  } catch {
- toast.error("Failed to create assignment");
+ toast.error(t("admin.contentLibrary.failedCreateAssignment"));
  } finally {
  setSubmitting(false);
  }
@@ -824,7 +830,7 @@ function AssignmentsTab() {
  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
  <input
  type="text"
- placeholder="Search assignments by title..."
+ placeholder={t("admin.contentLibrary.searchAssignments")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
@@ -834,12 +840,12 @@ function AssignmentsTab() {
  {showForm ? (
  <>
  <X className="h-4 w-4" />
- Cancel
+ {t("common.cancel")}
  </>
  ) : (
  <>
  <Plus className="h-4 w-4" />
- Create Assignment
+ {t("admin.contentLibrary.createAssignment")}
  </>
  )}
  </Button>
@@ -852,14 +858,14 @@ function AssignmentsTab() {
  <Card>
  <CardContent className="p-6">
  <h3 className="mb-4 text-sm font-semibold text-text ">
- New Assignment
+ {t("admin.courseEdit.newAssignment")}
  </h3>
  <form onSubmit={handleCreate} className="space-y-4">
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
  {/* Course */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Course <span className="text-danger-fg">*</span>
+ {t("admin.contentLibrary.courseCol")} <span className="text-danger-fg">*</span>
  </label>
  <select
  value={formCourseId}
@@ -867,7 +873,7 @@ function AssignmentsTab() {
  required
  className={inputClass}
  >
- <option value="">Select a course...</option>
+ <option value="">{t("admin.contentLibrary.selectCoursePlaceholder")}</option>
  {courses.map((c) => (
  <option key={c.id} value={c.id}>
  {c.title}
@@ -879,14 +885,14 @@ function AssignmentsTab() {
  {/* Title */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Title <span className="text-danger-fg">*</span>
+ {t("common.title")} <span className="text-danger-fg">*</span>
  </label>
  <input
  type="text"
  value={formTitle}
  onChange={(e) => setFormTitle(e.target.value)}
  required
- placeholder="Assignment title"
+ placeholder={t("admin.courseEdit.assignmentTitlePlaceholder")}
  className={inputClass}
  />
  </div>
@@ -894,7 +900,7 @@ function AssignmentsTab() {
  {/* Due Date */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Due Date <span className="text-danger-fg">*</span>
+ {t("admin.contentLibrary.dueDateCol")} <span className="text-danger-fg">*</span>
  </label>
  <input
  type="datetime-local"
@@ -908,7 +914,7 @@ function AssignmentsTab() {
  {/* Max Score */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Max Score
+ {t("admin.contentLibrary.maxScoreCol")}
  </label>
  <input
  type="number"
@@ -923,13 +929,13 @@ function AssignmentsTab() {
  {/* Description */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Description
+ {t("common.description")}
  </label>
  <textarea
  value={formDescription}
  onChange={(e) => setFormDescription(e.target.value)}
  rows={3}
- placeholder="Optional description..."
+ placeholder={t("admin.courseEdit.optionalDescPlaceholder")}
  className={inputClass}
  />
  </div>
@@ -942,12 +948,12 @@ function AssignmentsTab() {
  onChange={(e) => setFormAllowLate(e.target.checked)}
  className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary "
  />
- Allow late submissions
+ {t("admin.assignments.allowLate")}
  </label>
 
  <div className="flex justify-end">
  <Button type="submit" disabled={submitting}>
- {submitting ? "Creating..." : "Create Assignment"}
+ {submitting ? t("common.creating") : t("admin.contentLibrary.createAssignment")}
  </Button>
  </div>
  </form>
@@ -967,21 +973,21 @@ function AssignmentsTab() {
  ) : filtered.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-16 text-text-subtle ">
  <ClipboardList className="mb-3 h-10 w-10" />
- <p className="text-sm font-medium">No assignments found</p>
- <p className="text-xs">Create your first assignment to get started</p>
+ <p className="text-sm font-medium">{t("admin.contentLibrary.noAssignmentsFound")}</p>
+ <p className="text-xs">{t("admin.contentLibrary.noAssignmentsHint")}</p>
  </div>
  ) : (
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
  <tr className="border-b border-border ">
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Title</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Course</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Due Date</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Max Score</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Submissions</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">Status</th>
- <th className="px-6 py-3 text-right font-semibold text-text-muted ">Actions</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.titleCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.courseCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.dueDateCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.maxScoreCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.submissionsCol")}</th>
+ <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.statusCol")}</th>
+ <th className="px-6 py-3 text-right font-semibold text-text-muted ">{t("common.actions")}</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-border ">
@@ -1028,7 +1034,7 @@ function AssignmentsTab() {
  onClick={() =>
  window.open(`/admin/assignments/${a.id}/edit`, "_blank")
  }
- title="Edit"
+ title={t("common.edit")}
  >
  <Pencil className="h-4 w-4" />
  </Button>
@@ -1038,7 +1044,7 @@ function AssignmentsTab() {
  onClick={() =>
  window.open(`/admin/assignments/${a.id}/review`, "_blank")
  }
- title="Review submissions"
+ title={t("admin.courseEdit.reviewSubmissionsTitle")}
  >
  <Eye className="h-4 w-4" />
  </Button>
@@ -1046,7 +1052,7 @@ function AssignmentsTab() {
  variant="ghost"
  size="sm"
  onClick={() => handleDelete(a)}
- title="Delete"
+ title={t("common.delete")}
  className="text-danger-fg hover:text-danger-fg "
  >
  <Trash2 className="h-4 w-4" />
