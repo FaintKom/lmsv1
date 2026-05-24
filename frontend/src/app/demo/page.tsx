@@ -8,6 +8,7 @@ import { BookOpen, Loader2, Play, Users } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTranslation } from "@/lib/i18n/context";
 
 /**
  * /demo — public "try before you buy" landing.
@@ -25,6 +26,7 @@ import { useAuthStore } from "@/stores/auth-store";
  * emails can deep-link directly into a demo without requiring a click.
  */
 function DemoRunner() {
+ const { t } = useTranslation();
  const router = useRouter();
  const params = useSearchParams();
  const fetchUser = useAuthStore((s) => s.fetchUser);
@@ -44,9 +46,9 @@ function DemoRunner() {
  } catch (err) {
  const e = err as { response?: { status?: number; data?: { detail?: string } } };
  if (e?.response?.status === 404) {
- setError("Demo mode is not enabled on this server.");
+ setError(t("demo.errorNotEnabled"));
  } else {
- setError(e?.response?.data?.detail || "Could not start demo. Please try again.");
+ setError(e?.response?.data?.detail || t("demo.errorGeneric"));
  }
  } finally {
  setLoading(null);
@@ -76,7 +78,7 @@ function DemoRunner() {
  </Link>
  <Link href="/login">
  <Button variant="ghost" size="sm">
- Real sign in
+ {t("demo.signIn")}
  </Button>
  </Link>
  </div>
@@ -85,15 +87,13 @@ function DemoRunner() {
  <main className="mx-auto max-w-3xl px-6 py-16 text-center">
  <div className="mb-8 inline-flex items-center gap-2 rounded-pill border border-primary-soft bg-success-soft px-4 py-1.5 text-sm font-medium text-success-fg ">
  <Play className="h-3.5 w-3.5" />
- No signup required
+ {t("demo.noSignup")}
  </div>
  <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-text md:text-5xl">
- Try GrassLMS in one click
+ {t("demo.title")}
  </h1>
  <p className="mx-auto mb-10 max-w-xl text-lg text-text-muted ">
- Pick a role and we'll drop you straight into the product with a
- pre-built SAT Math course to explore. No account, no credit card,
- no email.
+ {t("demo.subtitle")}
  </p>
 
  {error && (
@@ -114,20 +114,19 @@ function DemoRunner() {
  <Users className="h-7 w-7 text-primary " />
  </div>
  <h2 className="text-xl font-bold text-text ">
- Try as a student
+ {t("demo.studentTitle")}
  </h2>
  <p className="text-sm text-text-muted ">
- Take an SAT Math lesson, write some code, see what the student
- experience looks like.
+ {t("demo.studentDesc")}
  </p>
  <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary ">
  {loading === "student" ? (
  <>
  <Loader2 className="h-4 w-4 animate-spin" />
- Starting demo...
+ {t("demo.starting")}
  </>
  ) : (
- "Enter student demo →"
+ t("demo.enterStudent")
  )}
  </div>
  </button>
@@ -143,30 +142,28 @@ function DemoRunner() {
  <BookOpen className="h-7 w-7 text-primary " />
  </div>
  <h2 className="text-xl font-bold text-text ">
- Try as a teacher
+ {t("demo.teacherTitle")}
  </h2>
  <p className="text-sm text-text-muted ">
- See the admin dashboard, build a course, try the gradebook and
- bulk enrollment.
+ {t("demo.teacherDesc")}
  </p>
  <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary ">
  {loading === "teacher" ? (
  <>
  <Loader2 className="h-4 w-4 animate-spin" />
- Starting demo...
+ {t("demo.starting")}
  </>
  ) : (
- "Enter teacher demo →"
+ t("demo.enterTeacher")
  )}
  </div>
  </button>
  </div>
 
  <p className="mx-auto mt-12 max-w-md text-xs text-text-subtle ">
- Demo accounts are shared — your changes are visible to other visitors
- and reset periodically. For private trials,{" "}
+ {t("demo.sharedHint")}{" "}
  <Link href="/register" className="text-primary hover:underline">
- create a free account
+ {t("demo.createFreeAccount")}
  </Link>
  .
  </p>

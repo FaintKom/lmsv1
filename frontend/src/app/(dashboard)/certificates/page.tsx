@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, Download } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface CertificateData {
  id: string;
@@ -14,6 +15,7 @@ interface CertificateData {
 }
 
 export default function CertificatesPage() {
+ const { t } = useTranslation();
  const [certificates, setCertificates] = useState<CertificateData[]>([]);
  const [loading, setLoading] = useState(true);
 
@@ -36,9 +38,9 @@ export default function CertificatesPage() {
  return (
  <div className="mx-auto max-w-4xl">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">My Certificates</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("certs.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- Certificates earned upon course completion
+ {t("certs.subtitle")}
  </p>
  </div>
 
@@ -48,9 +50,9 @@ export default function CertificatesPage() {
  <div className="mb-4 rounded-pill bg-ink-100 p-4">
  <Award className="h-8 w-8 text-text-subtle" />
  </div>
- <h3 className="text-lg font-semibold text-text-muted ">No certificates yet</h3>
+ <h3 className="text-lg font-semibold text-text-muted ">{t("certs.noTitle")}</h3>
  <p className="mt-1 text-sm text-text-subtle ">
- Complete a course to earn your first certificate!
+ {t("certs.noCerts")}
  </p>
  </CardContent>
  </Card>
@@ -67,7 +69,7 @@ export default function CertificatesPage() {
  {cert.course_title}
  </h3>
  <p className="text-xs text-text-subtle ">
- Certificate #{cert.certificate_number} · Issued{" "}
+ {t("certs.certNumber")}{cert.certificate_number} · {t("certs.issued")}{" "}
  {new Date(cert.issued_at).toLocaleDateString()}
  </p>
  </div>
@@ -82,7 +84,7 @@ export default function CertificatesPage() {
  className="flex items-center gap-1.5 rounded-lg border border-primary-soft bg-success-soft px-3 py-2 text-xs font-medium text-success-fg hover:bg-primary-soft cursor-pointer"
  >
  <Download className="h-3.5 w-3.5" />
- View
+ {t("certs.view")}
  </button>
  </CardContent>
  </Card>

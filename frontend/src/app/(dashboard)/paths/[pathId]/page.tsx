@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, Lock, BookOpen, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface PathStep {
  id: string;
@@ -29,6 +30,7 @@ interface PathDetail {
 }
 
 export default function PathDetailPage() {
+ const { t } = useTranslation();
  const params = useParams();
  const pathId = params.pathId as string;
  const [path, setPath] = useState<PathDetail | null>(null);
@@ -45,11 +47,11 @@ export default function PathDetailPage() {
  const handleEnroll = async () => {
  try {
  await apiClient.post(`/learning-paths/${pathId}/enroll`);
- toast.success("Enrolled!");
+ toast.success(t("paths.enrollSuccess"));
  const { data } = await apiClient.get(`/learning-paths/${pathId}`);
  setPath(data);
  } catch {
- toast.error("Failed to enroll");
+ toast.error(t("paths.enrollFailed"));
  }
  };
 
@@ -64,9 +66,9 @@ export default function PathDetailPage() {
  if (!path) {
  return (
  <div className="mx-auto max-w-3xl text-center">
- <p className="text-text-muted ">Learning path not found.</p>
+ <p className="text-text-muted ">{t("paths.notFound")}</p>
  <Link href="/paths" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:text-success-fg">
- <ArrowLeft className="h-3 w-3" /> Back to paths
+ <ArrowLeft className="h-3 w-3" /> {t("paths.backToPaths")}
  </Link>
  </div>
  );
@@ -81,7 +83,7 @@ export default function PathDetailPage() {
  href="/paths"
  className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-ink-700 "
  >
- <ArrowLeft className="h-4 w-4" /> Back to learning paths
+ <ArrowLeft className="h-4 w-4" /> {t("paths.backToLearningPaths")}
  </Link>
 
  <Card className="mb-6">
@@ -102,12 +104,12 @@ export default function PathDetailPage() {
  </div>
  </div>
  <span className="text-sm font-medium text-text-muted ">
- {completedCount}/{path.steps.length} completed
+ {t("paths.completedCount").replace("{done}", String(completedCount)).replace("{total}", String(path.steps.length))}
  </span>
  </div>
  {!path.enrolled && (
  <Button className="mt-4" onClick={handleEnroll}>
- Enroll in this path
+ {t("paths.enrollInPath")}
  </Button>
  )}
  </CardContent>
@@ -158,26 +160,26 @@ export default function PathDetailPage() {
  </h3>
  {!step.is_required && (
  <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] text-text-muted ">
- Optional
+ {t("common.optional")}
  </span>
  )}
  </div>
  <p className="text-xs text-text-muted ">
- Step {idx + 1}
- {step.completed && " — Completed"}
+ {t("paths.stepNum").replace("{n}", String(idx + 1))}
+ {step.completed && t("paths.stepCompletedSuffix")}
  </p>
  </div>
  {isUnlocked && !step.completed && (
  <Link href={`/courses/${step.course_id}`}>
  <Button size="sm" variant={isCurrent ? "default" : "outline"}>
- {isCurrent ? "Start" : "View"} <ArrowRight className="ml-1 h-3 w-3" />
+ {isCurrent ? t("paths.start") : t("paths.view")} <ArrowRight className="ml-1 h-3 w-3" />
  </Button>
  </Link>
  )}
  {step.completed && (
  <Link href={`/courses/${step.course_id}`}>
  <Button size="sm" variant="ghost">
- Review <ArrowRight className="ml-1 h-3 w-3" />
+ {t("paths.review")} <ArrowRight className="ml-1 h-3 w-3" />
  </Button>
  </Link>
  )}

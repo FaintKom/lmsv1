@@ -17,10 +17,12 @@ import {
  type SATQuestion,
 } from "@/components/sat/sat-question-bank";
 import { useSATHistoryStore } from "@/stores/sat-history-store";
+import { useTranslation } from "@/lib/i18n/context";
 
 type PageState = "lobby" | "test";
 
 export default function SATPracticePage() {
+ const { t } = useTranslation();
  const [state, setState] = useState<PageState>("lobby");
  const [selectedConfig, setSelectedConfig] = useState<SATTestConfig>(SAT_MINI_CONFIG);
  const [questions, setQuestions] = useState<SATQuestion[]>([]);
@@ -55,7 +57,7 @@ export default function SATPracticePage() {
 
  const startDomainPractice = (domain: SATDomain) => {
  const config: SATTestConfig = {
- name: `${DOMAIN_LABELS[domain]} Practice`,
+ name: `${DOMAIN_LABELS[domain]} ${t("sat.practiceSuffix")}`,
  questions_per_module: 10,
  time_per_module_minutes: 15,
  modules: 1,
@@ -85,13 +87,12 @@ export default function SATPracticePage() {
  <BookOpen className="h-6 w-6" />
  </div>
  <div>
- <h1 className="text-2xl font-bold">SAT Math Practice</h1>
- <p className="text-sm opacity-80">Adaptive simulation with real test conditions</p>
+ <h1 className="text-2xl font-bold">{t("sat.title")}</h1>
+ <p className="text-sm opacity-80">{t("sat.subtitleHero")}</p>
  </div>
  </div>
  <p className="mt-3 max-w-xl text-sm leading-relaxed opacity-90">
- Experience the real Digital SAT Math format: 2 adaptive modules, timed sessions,
- Desmos calculator, and College Board-style score estimation.
+ {t("sat.heroDesc")}
  </p>
  </div>
 
@@ -106,14 +107,14 @@ export default function SATPracticePage() {
  <Zap className="h-5 w-5" />
  </div>
  <div>
- <h3 className="font-bold text-ink-700 ">Quick Practice</h3>
- <p className="text-xs text-text-muted">10 questions · 10 minutes</p>
+ <h3 className="font-bold text-ink-700 ">{t("sat.quickPractice")}</h3>
+ <p className="text-xs text-text-muted">{t("sat.quickDesc")}</p>
  </div>
  </div>
  <p className="text-sm text-text-muted ">
- Short practice session to warm up or review specific topics. Great for daily practice.
+ {t("sat.quickIntro")}
  </p>
- <Button className="mt-4 w-full" variant="outline">Start Quick Test</Button>
+ <Button className="mt-4 w-full" variant="outline">{t("sat.startQuick")}</Button>
  </CardContent>
  </Card>
 
@@ -126,14 +127,14 @@ export default function SATPracticePage() {
  <BookOpen className="h-5 w-5" />
  </div>
  <div>
- <h3 className="font-bold text-ink-700 ">Full SAT Math</h3>
- <p className="text-xs text-text-muted">2 adaptive modules · 22q each · 35 min/module</p>
+ <h3 className="font-bold text-ink-700 ">{t("sat.fullTest")}</h3>
+ <p className="text-xs text-text-muted">{t("sat.fullDesc")}</p>
  </div>
  </div>
  <p className="text-sm text-text-muted ">
- Complete simulation: Module 1 → adaptive routing → Module 2 (Easy or Hard) → realistic score.
+ {t("sat.fullIntro")}
  </p>
- <Button className="mt-4 w-full">Start Full Test</Button>
+ <Button className="mt-4 w-full">{t("sat.startFull")}</Button>
  </CardContent>
  </Card>
  </div>
@@ -144,9 +145,9 @@ export default function SATPracticePage() {
  <div className="flex items-center justify-between mb-4">
  <h3 className="text-sm font-semibold text-ink-700 flex items-center gap-2">
  <Target className="h-4 w-4 text-primary" />
- Practice by Domain
+ {t("sat.practiceByDomain")}
  </h3>
- <span className="text-[10px] text-text-subtle">10 questions · 15 min each</span>
+ <span className="text-[10px] text-text-subtle">{t("sat.domainEach")}</span>
  </div>
  <div className="grid gap-3 sm:grid-cols-2">
  {(Object.keys(DOMAIN_LABELS) as SATDomain[]).map((domain) => {
@@ -162,17 +163,17 @@ export default function SATPracticePage() {
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium text-ink-700 ">{DOMAIN_LABELS[domain]}</p>
  <p className="text-[10px] text-text-subtle">
- {domain === "algebra" || domain === "advanced_math" ? "~35% of test" : "~15% of test"}
+ {domain === "algebra" || domain === "advanced_math" ? t("sat.percentOfTestAlg") : t("sat.percentOfTestGeo")}
  {stat && stat.total > 0 && (
  <span className={`ml-2 font-semibold ${stat.percent >= 70 ? "text-primary" : stat.percent >= 50 ? "text-warning-fg" : "text-danger-fg"}`}>
- · {stat.percent}% avg
+ · {stat.percent}{t("sat.percentAvg")}
  </span>
  )}
  </p>
  </div>
  {isWeak && (
  <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-[9px] font-bold text-danger-fg shrink-0">
- Weak
+ {t("sat.weak")}
  </span>
  )}
  <ChevronRight className="h-4 w-4 text-ink-300 shrink-0" />
@@ -190,10 +191,10 @@ export default function SATPracticePage() {
  <div className="flex items-center justify-between mb-4">
  <h3 className="text-sm font-semibold text-ink-700 flex items-center gap-2">
  <TrendingUp className="h-4 w-4 text-primary" />
- Recent Tests
+ {t("sat.recentTests")}
  </h3>
  <Link href="/sat-practice/analytics" className="text-xs text-primary hover:text-success-fg font-medium">
- View Analytics →
+ {t("sat.viewAnalytics")}
  </Link>
  </div>
  <div className="space-y-2">
@@ -204,17 +205,17 @@ export default function SATPracticePage() {
  </div>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium text-ink-700 ">
- {test.mode === "full_adaptive" ? "Full SAT" : test.mode === "mini" ? "Quick Practice" : "Domain Practice"}
+ {test.mode === "full_adaptive" ? t("sat.modeFull") : test.mode === "mini" ? t("sat.modeQuick") : t("sat.modeDomain")}
  {test.module2Difficulty !== "none" && (
  <span className={`ml-2 text-[10px] font-bold ${
  test.module2Difficulty === "hard" ? "text-danger-fg" : "text-info-fg"
  }`}>
- {test.module2Difficulty === "hard" ? "Hard Route" : "Standard Route"}
+ {test.module2Difficulty === "hard" ? t("sat.hardRoute") : t("sat.stdRoute")}
  </span>
  )}
  </p>
  <p className="text-[10px] text-text-subtle">
- {new Date(test.date).toLocaleDateString()} · {test.rawCorrect}/{test.totalQuestions} correct · {Math.floor(test.totalTimeSeconds / 60)}min
+ {new Date(test.date).toLocaleDateString()} · {test.rawCorrect}/{test.totalQuestions} {t("sat.correctSuffix")} · {Math.floor(test.totalTimeSeconds / 60)}{t("sat.minutesShort")}
  </p>
  </div>
  </div>
@@ -227,27 +228,27 @@ export default function SATPracticePage() {
  {/* Tips */}
  <Card>
  <CardContent className="p-6">
- <h3 className="mb-3 text-sm font-semibold text-ink-700 ">Test-Taking Tips</h3>
+ <h3 className="mb-3 text-sm font-semibold text-ink-700 ">{t("sat.tipsTitle")}</h3>
  <ul className="space-y-2 text-sm text-text-muted ">
  <li className="flex items-start gap-2">
  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
- <span><b>Pace yourself:</b> ~1.5 minutes per question. Skip hard ones and come back.</span>
+ <span><b>{t("sat.tipPaceBold")}</b> {t("sat.tipPaceText")}</span>
  </li>
  <li className="flex items-start gap-2">
  <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
- <span><b>Use Desmos:</b> The graphing calculator can solve ~30% of questions. Click the calculator button.</span>
+ <span><b>{t("sat.tipDesmosBold")}</b> {t("sat.tipDesmosText")}</span>
  </li>
  <li className="flex items-start gap-2">
  <Zap className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
- <span><b>Flag and move on:</b> If stuck for 45+ seconds, flag it and return later.</span>
+ <span><b>{t("sat.tipFlagBold")}</b> {t("sat.tipFlagText")}</span>
  </li>
  <li className="flex items-start gap-2">
  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
- <span><b>Never leave blanks:</b> No penalty for guessing. Always pick an answer.</span>
+ <span><b>{t("sat.tipBlanksBold")}</b> {t("sat.tipBlanksText")}</span>
  </li>
  <li className="flex items-start gap-2">
  <Target className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
- <span><b>Keyboard shortcuts:</b> Press A/B/C/D to select answers, arrow keys to navigate, F to flag.</span>
+ <span><b>{t("sat.tipKeysBold")}</b> {t("sat.tipKeysText")}</span>
  </li>
  </ul>
  </CardContent>

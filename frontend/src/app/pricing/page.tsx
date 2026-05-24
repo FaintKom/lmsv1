@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Plan {
  id: string;
@@ -69,51 +70,42 @@ const PLAN_ICON: Record<string, React.ReactNode> = {
  Enterprise: <Crown className="h-5 w-5" />,
 };
 
-const PLAN_TAGLINE: Record<string, string> = {
- Free: "For trying GrassLMS with a small class",
- Starter: "For small schools and solo teachers",
- Professional: "For growing programs with real analytics needs",
- Enterprise: "For schools and districts that need the whole platform",
-};
-
-const FEATURE_ROWS: { key: string; label: string }[] = [
- { key: "sandbox", label: "Code sandbox (37 languages)" },
- { key: "certificates", label: "Course completion certificates" },
- { key: "analytics", label: "Advanced analytics" },
- { key: "ai_hints", label: "AI tutor hints" },
- { key: "white_label", label: "White label branding" },
- { key: "custom_domain", label: "Custom domain" },
-];
-
-const FAQ = [
- {
- q: "Can I try GrassLMS before paying?",
- a: "Yes — Free includes up to 10 students and 3 courses forever. No credit card required.",
- },
- {
- q: "What counts as a 'student'?",
- a: "Any user with the student role enrolled in at least one course in your organization. Teachers and admins are unlimited.",
- },
- {
- q: "Do you charge per student or per school?",
- a: "Plans are per school (per organization). The price is flat; only the student cap differs between tiers.",
- },
- {
- q: "Can I upgrade or downgrade later?",
- a: "Yes, any time through the Admin → Billing page. Upgrades are prorated. Downgrades take effect at the end of the current billing period.",
- },
- {
- q: "What happens to my data if I cancel?",
- a: "Your course content and student progress stay in place for 30 days. You can export everything as JSON at any time (GDPR Article 20). After 30 days of inactivity the account is archived and data is deleted on request.",
- },
- {
- q: "Do you offer discounts for schools?",
- a: "Yes. Registered non-profit educational institutions get 50% off any paid plan. Contact us with your registration details.",
- },
-];
-
 export default function PricingPage() {
+ const { t } = useTranslation();
  const [plans, setPlans] = useState<Plan[]>(FALLBACK_PLANS);
+
+ const planNameLabel = (name: string): string => {
+ if (name === "Free") return t("pricing.planFree");
+ if (name === "Starter") return t("pricing.planStarter");
+ if (name === "Professional") return t("pricing.planPro");
+ if (name === "Enterprise") return t("pricing.planEnterprise");
+ return name;
+ };
+
+ const PLAN_TAGLINE: Record<string, string> = {
+ Free: t("pricing.taglineFree"),
+ Starter: t("pricing.taglineStarter"),
+ Professional: t("pricing.taglinePro"),
+ Enterprise: t("pricing.taglineEnterprise"),
+ };
+
+ const FEATURE_ROWS: { key: string; label: string }[] = [
+ { key: "sandbox", label: t("pricing.featSandbox") },
+ { key: "certificates", label: t("pricing.featCertificates") },
+ { key: "analytics", label: t("pricing.featAnalytics") },
+ { key: "ai_hints", label: t("pricing.featAiHints") },
+ { key: "white_label", label: t("pricing.featWhiteLabel") },
+ { key: "custom_domain", label: t("pricing.featCustomDomain") },
+ ];
+
+ const FAQ = [
+ { q: t("pricing.faq1Q"), a: t("pricing.faq1A") },
+ { q: t("pricing.faq2Q"), a: t("pricing.faq2A") },
+ { q: t("pricing.faq3Q"), a: t("pricing.faq3A") },
+ { q: t("pricing.faq4Q"), a: t("pricing.faq4A") },
+ { q: t("pricing.faq5Q"), a: t("pricing.faq5A") },
+ { q: t("pricing.faq6Q"), a: t("pricing.faq6A") },
+ ];
 
  useEffect(() => {
  apiClient
@@ -156,12 +148,12 @@ export default function PricingPage() {
  <div className="flex items-center gap-3">
  <Link href="/login">
  <Button variant="ghost" size="sm">
- Sign In
+ {t("pricing.signIn")}
  </Button>
  </Link>
  <Link href="/register">
  <Button size="sm">
- Get Started
+ {t("pricing.getStarted")}
  <ArrowRight className="h-4 w-4" />
  </Button>
  </Link>
@@ -173,12 +165,10 @@ export default function PricingPage() {
  {/* Hero */}
  <div className="mb-14 text-center">
  <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-text md:text-5xl">
- Simple, transparent pricing
+ {t("pricing.heroTitle")}
  </h1>
  <p className="mx-auto max-w-2xl text-lg text-text-muted">
- Pick a plan that matches your school. Upgrade any time. Every plan
- includes the interactive code sandbox, 4C/ID course builder, and
- AI tutor on the student side.
+ {t("pricing.heroSub")}
  </p>
  </div>
 
@@ -197,12 +187,12 @@ export default function PricingPage() {
  >
  {isPopular && (
  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-pill bg-primary px-3 py-1 text-xs font-semibold text-white">
- MOST POPULAR
+ {t("pricing.mostPopular")}
  </div>
  )}
  <div className="mb-4 flex items-center gap-2 text-ink-700">
  {PLAN_ICON[plan.name]}
- <h3 className="text-lg font-bold">{plan.name}</h3>
+ <h3 className="text-lg font-bold">{planNameLabel(plan.name)}</h3>
  </div>
  <p className="mb-6 min-h-[40px] text-sm text-text-muted">
  {PLAN_TAGLINE[plan.name] || ""}
@@ -211,20 +201,20 @@ export default function PricingPage() {
  <span className="text-4xl font-extrabold text-text">
  ${plan.price_monthly}
  </span>
- <span className="ml-1 text-sm text-text-muted">/ month</span>
+ <span className="ml-1 text-sm text-text-muted">{t("pricing.perMonth")}</span>
  </div>
  <ul className="mb-6 space-y-2.5 text-sm text-ink-700">
  <li className="flex items-center gap-2">
  <Check className="h-4 w-4 text-primary" />
  {plan.max_students === null
- ? "Unlimited students"
- : `Up to ${plan.max_students} students`}
+ ? t("pricing.unlimitedStudents")
+ : t("pricing.upToStudents").replace("{n}", String(plan.max_students))}
  </li>
  <li className="flex items-center gap-2">
  <Check className="h-4 w-4 text-primary" />
  {plan.max_courses === null
- ? "Unlimited courses"
- : `Up to ${plan.max_courses} courses`}
+ ? t("pricing.unlimitedCourses")
+ : t("pricing.upToCourses").replace("{n}", String(plan.max_courses))}
  </li>
  {FEATURE_ROWS.filter((r) => plan.features?.[r.key]).map(
  (r) => (
@@ -241,7 +231,7 @@ export default function PricingPage() {
  className="w-full"
  variant={isPopular ? "default" : "outline"}
  >
- {plan.price_monthly === 0 ? "Start Free" : "Start trial"}
+ {plan.price_monthly === 0 ? t("pricing.startFree") : t("pricing.startTrial")}
  </Button>
  </Link>
  </div>
@@ -253,37 +243,37 @@ export default function PricingPage() {
  {/* Feature comparison */}
  <div className="mb-20">
  <h2 className="mb-8 text-center text-2xl font-bold text-text">
- Full feature comparison
+ {t("pricing.fullComparison")}
  </h2>
  <div className="overflow-x-auto rounded-lg border border-border-strong">
  <table className="w-full text-sm">
  <thead>
  <tr className="border-b border-border-strong bg-surface-2 text-left">
- <th className="p-4 font-semibold text-text-muted">Feature</th>
+ <th className="p-4 font-semibold text-text-muted">{t("pricing.tableFeature")}</th>
  {plans.map((p) => (
  <th
  key={p.id}
  className="p-4 text-center font-semibold text-text"
  >
- {p.name}
+ {planNameLabel(p.name)}
  </th>
  ))}
  </tr>
  </thead>
  <tbody>
  <tr className="border-b border-border">
- <td className="p-4 text-ink-700">Students</td>
+ <td className="p-4 text-ink-700">{t("pricing.tableStudents")}</td>
  {plans.map((p) => (
  <td key={p.id} className="p-4 text-center text-ink-700">
- {p.max_students === null ? "Unlimited" : p.max_students}
+ {p.max_students === null ? t("pricing.tableUnlimited") : p.max_students}
  </td>
  ))}
  </tr>
  <tr className="border-b border-border">
- <td className="p-4 text-ink-700">Courses</td>
+ <td className="p-4 text-ink-700">{t("pricing.tableCourses")}</td>
  {plans.map((p) => (
  <td key={p.id} className="p-4 text-center text-ink-700">
- {p.max_courses === null ? "Unlimited" : p.max_courses}
+ {p.max_courses === null ? t("pricing.tableUnlimited") : p.max_courses}
  </td>
  ))}
  </tr>
@@ -312,7 +302,7 @@ export default function PricingPage() {
  {/* FAQ */}
  <div className="mb-20">
  <h2 className="mb-8 text-center text-2xl font-bold text-text">
- Frequently asked questions
+ {t("pricing.faqTitle")}
  </h2>
  <div className="mx-auto max-w-3xl space-y-4">
  {FAQ.map((item) => (
@@ -337,18 +327,17 @@ export default function PricingPage() {
  {/* Bottom CTA */}
  <div className="rounded-lg bg-gradient-to-br from-green-600 to-emerald-600 px-8 py-12 text-center text-white">
  <h2 className="mb-3 text-3xl font-extrabold">
- Not sure which plan fits?
+ {t("pricing.bottomCtaTitle")}
  </h2>
  <p className="mx-auto mb-6 max-w-xl text-success-soft">
- Start on Free and upgrade later once you know your class size.
- You can export your data at any time.
+ {t("pricing.bottomCtaSub")}
  </p>
  <Link href="/register">
  <Button
  size="lg"
  className="bg-paper-2 text-success-fg hover:bg-success-soft"
  >
- Create your school — it's free
+ {t("pricing.bottomCtaButton")}
  <ArrowRight className="h-5 w-5" />
  </Button>
  </Link>
@@ -358,7 +347,7 @@ export default function PricingPage() {
  {/* Footer */}
  <footer className="border-t border-border py-10 text-center text-sm text-text-subtle">
  <div className="mx-auto max-w-6xl px-6">
- <p>&copy; {new Date().getFullYear()} GrassLMS. All rights reserved.</p>
+ <p>{t("pricing.copyright").replace("{year}", String(new Date().getFullYear()))}</p>
  </div>
  </footer>
  </div>

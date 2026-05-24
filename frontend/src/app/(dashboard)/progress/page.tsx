@@ -6,6 +6,7 @@ import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Trophy, CheckCircle, Clock, ArrowRight, FileText } from "lucide-react";
 import type { Enrollment, Course } from "@/types/api";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Grade {
  type: string;
@@ -18,6 +19,7 @@ interface Grade {
 }
 
 export default function ProgressPage() {
+ const { t } = useTranslation();
  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
  const [courses, setCourses] = useState<Course[]>([]);
  const [grades, setGrades] = useState<Grade[]>([]);
@@ -54,9 +56,9 @@ export default function ProgressPage() {
  return (
  <div className="mx-auto max-w-4xl">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">My Progress</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("progress.title")}</h1>
  <p className="mt-1 text-base text-text-muted ">
- Track your learning journey across all enrolled courses
+ {t("progress.subtitle")}
  </p>
  </div>
 
@@ -65,17 +67,16 @@ export default function ProgressPage() {
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
  <Trophy className="mb-4 h-12 w-12 text-ink-300 " />
  <h3 className="mb-2 text-lg font-semibold text-text-muted ">
- No enrollments yet
+ {t("progress.noEnrollments")}
  </h3>
  <p className="mb-4 text-base text-text-muted ">
- Enroll in a course from the Courses page to start tracking your
- progress!
+ {t("progress.noEnrollmentsHint")}
  </p>
  <Link
  href="/courses"
  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-success-fg"
  >
- Browse courses <ArrowRight className="h-3 w-3" />
+ {t("progress.browseCourses")} <ArrowRight className="h-3 w-3" />
  </Link>
  </CardContent>
  </Card>
@@ -86,19 +87,19 @@ export default function ProgressPage() {
  <Card>
  <CardContent className="p-4 text-center">
  <p className="text-2xl font-bold text-primary">{enrollments.length}</p>
- <p className="text-xs text-text-muted">Enrolled</p>
+ <p className="text-xs text-text-muted">{t("progress.enrolled")}</p>
  </CardContent>
  </Card>
  <Card>
  <CardContent className="p-4 text-center">
  <p className="text-2xl font-bold text-warning-fg">{inProgressEnrollments.length}</p>
- <p className="text-xs text-text-muted">In Progress</p>
+ <p className="text-xs text-text-muted">{t("progress.inProgress")}</p>
  </CardContent>
  </Card>
  <Card>
  <CardContent className="p-4 text-center">
  <p className="text-2xl font-bold text-primary">{completedEnrollments.length}</p>
- <p className="text-xs text-text-muted">Completed</p>
+ <p className="text-xs text-text-muted">{t("progress.completed")}</p>
  </CardContent>
  </Card>
  </div>
@@ -108,7 +109,7 @@ export default function ProgressPage() {
  <div>
  <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
  <Clock className="h-4 w-4 text-warning-fg" />
- In Progress
+ {t("progress.inProgress")}
  </h2>
  <div className="space-y-3">
  {inProgressEnrollments.map((e) => {
@@ -122,10 +123,10 @@ export default function ProgressPage() {
  </div>
  <div className="min-w-0 flex-1">
  <p className="font-medium text-text ">
- {course?.title || "Course"}
+ {course?.title || t("progress.course")}
  </p>
  <p className="text-xs text-text-muted">
- Enrolled:{" "}
+ {t("progress.enrolledLabel")}{" "}
  {new Date(e.enrolled_at).toLocaleDateString()}
  {course?.category && (
  <span className="ml-2 rounded bg-ink-100 px-1.5 py-0.5 text-xs uppercase">
@@ -159,7 +160,7 @@ export default function ProgressPage() {
  <div>
  <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
  <FileText className="h-4 w-4 text-primary" />
- My Grades
+ {t("progress.myGrades")}
  </h2>
  <div className="space-y-2">
  {grades.map((g, i) => (
@@ -171,9 +172,9 @@ export default function ProgressPage() {
  </p>
  <p className="text-xs text-text-muted">
  {g.status === "graded"
- ? `Graded${g.submitted_at ? " · " + new Date(g.submitted_at).toLocaleDateString() : ""}`
+ ? `${t("progress.graded")}${g.submitted_at ? " · " + new Date(g.submitted_at).toLocaleDateString() : ""}`
  : g.status === "submitted" || g.status === "late"
- ? "Awaiting review"
+ ? t("progress.awaitingReview")
  : g.status}
  </p>
  {g.feedback && (
@@ -199,7 +200,7 @@ export default function ProgressPage() {
  </div>
  ) : (
  <span className="rounded-pill bg-ink-100 px-2.5 py-1 text-xs font-medium text-text-muted ">
- Pending
+ {t("progress.pending")}
  </span>
  )}
  </CardContent>
@@ -214,7 +215,7 @@ export default function ProgressPage() {
  <div>
  <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
  <CheckCircle className="h-4 w-4 text-primary" />
- Completed
+ {t("progress.completed")}
  </h2>
  <div className="space-y-3">
  {completedEnrollments.map((e) => {
@@ -228,10 +229,10 @@ export default function ProgressPage() {
  </div>
  <div className="min-w-0 flex-1">
  <p className="font-medium text-text ">
- {course?.title || "Course"}
+ {course?.title || t("progress.course")}
  </p>
  <p className="text-xs text-text-muted">
- Completed:{" "}
+ {t("progress.completedLabel")}{" "}
  {new Date(e.completed_at!).toLocaleDateString()}
  </p>
  </div>

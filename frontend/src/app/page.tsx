@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
  Code,
@@ -27,8 +29,10 @@ import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { InteractiveDemo } from "@/components/landing/interactive-demo";
 import { LandingHeader } from "@/components/landing/landing-header";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function Home() {
+ const { t } = useTranslation();
  return (
  <div className="min-h-screen bg-paper-2">
  {/* Header */}
@@ -41,30 +45,28 @@ export default function Home() {
  <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 text-center md:pt-28">
  <div className="mb-6 inline-flex items-center gap-2 rounded-pill border border-primary-soft bg-success-soft px-4 py-1.5 text-sm font-medium text-success-fg">
  <Sparkles className="h-4 w-4" />
- Platform for modern education
+ {t("landing.platformBadge")}
  </div>
  <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-text md:text-6xl">
- Teach smarter with
+ {t("landing.heroTeachSmarter")}
  <br />
  <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
- interactive learning
+ {t("landing.heroInteractive")}
  </span>
  </h1>
  <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-text-muted">
- 37 programming languages, interactive math, AI tutor, gamification,
- and game-based learning. Everything a modern school needs in one
- platform.
+ {t("landing.heroSubExtended")}
  </p>
  <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
  <Link href="/register">
  <Button size="lg">
- Get Started Free
+ {t("landing.getStarted")}
  <ArrowRight className="h-5 w-5" />
  </Button>
  </Link>
  <Link href="/login">
  <Button variant="outline" size="lg">
- Sign In
+ {t("landing.signIn")}
  </Button>
  </Link>
  </div>
@@ -76,10 +78,10 @@ export default function Home() {
  <div className="mx-auto max-w-6xl px-6">
  <div className="mb-12 text-center">
  <h2 className="mb-3 text-3xl font-bold text-text">
- Everything you need
+ {t("landing.everythingYouNeed")}
  </h2>
  <p className="text-text-muted">
- Powerful tools for teachers and engaging experience for students
+ {t("landing.everythingYouNeedSub")}
  </p>
  </div>
  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -88,11 +90,10 @@ export default function Home() {
  <Code className="h-6 w-6 text-primary" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- Code in 37 Languages
+ {t("landing.feat37LangsTitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- Browser-based editor with auto-grading. Python, JavaScript, Java,
- C++, Go, Rust, and 31 more. Sandboxed execution with test cases.
+ {t("landing.feat37LangsDesc")}
  </p>
  </div>
 
@@ -101,11 +102,10 @@ export default function Home() {
  <Calculator className="h-6 w-6 text-primary" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- Interactive Math
+ {t("landing.featMathTitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- 15+ exercise types: coordinate planes, graphing, equation scales,
- fractions, number lines. Plus full SAT Math prep with Desmos.
+ {t("landing.featMathDesc")}
  </p>
  </div>
 
@@ -114,11 +114,10 @@ export default function Home() {
  <Brain className="h-6 w-6 text-primary" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- AI Tutor
+ {t("landing.featAITitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- Built-in AI assistant that guides students through problems using
- the Socratic method. Self-hosted, private, no data leaves your server.
+ {t("landing.featAIDesc")}
  </p>
  </div>
 
@@ -127,11 +126,10 @@ export default function Home() {
  <Gamepad2 className="h-6 w-6 text-warning-fg" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- Game-Based Learning
+ {t("landing.featGamesTitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- 2D robot programming puzzles and 3D exploration worlds. Students
- learn by playing, solving, and building.
+ {t("landing.featGamesDesc")}
  </p>
  </div>
 
@@ -140,11 +138,10 @@ export default function Home() {
  <Trophy className="h-6 w-6 text-danger-fg" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- Gamification
+ {t("landing.featGamificationTitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- XP, daily streaks, 10+ badges, 5-tier league system, and class
- leaderboards. Students stay motivated and engaged.
+ {t("landing.featGamificationDesc")}
  </p>
  </div>
 
@@ -153,11 +150,10 @@ export default function Home() {
  <BookOpen className="h-6 w-6 text-info-fg" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
- 9 Lesson Types, 11 Exercises
+ {t("landing.featLessonsTitle")}
  </h3>
  <p className="text-sm leading-relaxed text-text-muted">
- Text, video, quizzes, code challenges, interactive widgets, file
- uploads. Matching, ordering, fill-blanks, categorize, and more.
+ {t("landing.featLessonsDesc")}
  </p>
  </div>
  </div>
@@ -176,11 +172,10 @@ export default function Home() {
  <Globe className="h-6 w-6 text-warning-fg" />
  </div>
  <h3 className="mb-1 font-semibold text-text">
- 4 Languages
+ {t("landing.trust4Langs")}
  </h3>
  <p className="text-sm text-text-muted">
- Interface in English, Spanish, Russian, and Turkish.
- Serve students worldwide.
+ {t("landing.trust4LangsDesc")}
  </p>
  </div>
  <div className="text-center">
@@ -188,11 +183,10 @@ export default function Home() {
  <Shield className="h-6 w-6 text-primary" />
  </div>
  <h3 className="mb-1 font-semibold text-text">
- Privacy First
+ {t("landing.trustPrivacy")}
  </h3>
  <p className="text-sm text-text-muted">
- GDPR and COPPA compliant. AI runs on your server. No
- third-party tracking. Student data stays private.
+ {t("landing.trustPrivacyDesc")}
  </p>
  </div>
  <div className="text-center">
@@ -200,11 +194,10 @@ export default function Home() {
  <BarChart3 className="h-6 w-6 text-primary" />
  </div>
  <h3 className="mb-1 font-semibold text-text">
- Teacher Dashboard
+ {t("landing.trustDashboard")}
  </h3>
  <p className="text-sm text-text-muted">
- Gradebook, assignments, analytics, review queue, and
- content library. Everything in one place.
+ {t("landing.trustDashboardDesc")}
  </p>
  </div>
  </div>
@@ -216,10 +209,10 @@ export default function Home() {
  <div className="mx-auto max-w-6xl px-6">
  <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
  {[
- { value: "37", label: "Programming Languages", sub: "Python, JS, Java, C++, Go, Rust..." },
- { value: "15+", label: "Exercise Types", sub: "Code, quizzes, matching, games..." },
- { value: "4", label: "Interface Languages", sub: "English, Spanish, Russian, Turkish" },
- { value: "200-800", label: "SAT Score Range", sub: "Adaptive simulation with Desmos" },
+ { value: "37", label: t("landing.metricLangsLabel"), sub: t("landing.metricLangsSub") },
+ { value: "15+", label: t("landing.metricExLabel"), sub: t("landing.metricExSub") },
+ { value: "4", label: t("landing.metricIfLangsLabel"), sub: t("landing.metricIfLangsSub") },
+ { value: "200-800", label: t("landing.metricSatLabel"), sub: t("landing.metricSatSub") },
  ].map((m) => (
  <div key={m.label} className="text-center">
  <p className="text-4xl font-extrabold text-primary md:text-5xl">{m.value}</p>
@@ -235,21 +228,20 @@ export default function Home() {
  <section className="border-t border-border bg-surface-2/50 py-20">
  <div className="mx-auto max-w-6xl px-6">
  <div className="mb-12 text-center">
- <h2 className="mb-3 text-3xl font-bold text-text">See what you get</h2>
- <p className="text-text-muted">A complete teaching toolkit, ready out of the box</p>
+ <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.showcaseTitle")}</h2>
+ <p className="text-text-muted">{t("landing.showcaseSubtitle")}</p>
  </div>
  <div className="grid gap-6 md:grid-cols-2">
  <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Monitor className="h-6 w-6 text-primary" /></div>
- <h3 className="text-lg font-semibold text-text">Student Dashboard</h3>
+ <h3 className="text-lg font-semibold text-text">{t("landing.showcaseStudentDash")}</h3>
  </div>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Clean, distraction-free learning environment. Course catalog, progress tracking,
- achievements, and a personal calendar — all in one place.
+ {t("landing.showcaseStudentDashDesc")}
  </p>
  <div className="flex flex-wrap gap-2">
- {["Course catalog", "Progress tracker", "Achievements", "Calendar", "Dark mode"].map((f) => (
+ {[t("landing.showcaseFeatCatalog"), t("landing.showcaseFeatTracker"), t("landing.showcaseFeatAchievements"), t("landing.showcaseFeatCalendar"), t("landing.showcaseFeatDark")].map((f) => (
  <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-success-soft px-3 py-1 text-xs font-medium text-success-fg">
  <CheckCircle className="h-3 w-3" /> {f}
  </span>
@@ -260,14 +252,13 @@ export default function Home() {
  <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Layout className="h-6 w-6 text-primary" /></div>
- <h3 className="text-lg font-semibold text-text">Teacher Admin Panel</h3>
+ <h3 className="text-lg font-semibold text-text">{t("landing.showcaseTeacher")}</h3>
  </div>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Create courses with drag-and-drop, manage students and groups, grade assignments,
- and track performance — all from a powerful admin dashboard.
+ {t("landing.showcaseTeacherDesc")}
  </p>
  <div className="flex flex-wrap gap-2">
- {["Course builder", "Gradebook", "Student groups", "Analytics", "Review queue"].map((f) => (
+ {[t("landing.showcaseFeatBuilder"), t("landing.showcaseFeatGradebook"), t("landing.showcaseFeatGroups"), t("landing.showcaseFeatAnalytics"), t("landing.showcaseFeatReview")].map((f) => (
  <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-success-soft px-3 py-1 text-xs font-medium text-success-fg">
  <CheckCircle className="h-3 w-3" /> {f}
  </span>
@@ -278,14 +269,13 @@ export default function Home() {
  <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-sun-50 p-3"><Code className="h-6 w-6 text-warning-fg" /></div>
- <h3 className="text-lg font-semibold text-text">Code Sandbox</h3>
+ <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSandbox")}</h3>
  </div>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Monaco editor (same as VS Code) with syntax highlighting, auto-complete, and
- sandboxed execution. Students run code safely in the browser.
+ {t("landing.showcaseSandboxDesc")}
  </p>
  <div className="flex flex-wrap gap-2">
- {["37 languages", "Auto-grading", "Test cases", "Live preview", "HTML/CSS/JS editor"].map((f) => (
+ {[t("landing.showcaseFeat37"), t("landing.showcaseFeatAutoGrade"), t("landing.showcaseFeatTestCases"), t("landing.showcaseFeatLivePreview"), t("landing.showcaseFeatHtmlCss")].map((f) => (
  <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-sun-50 px-3 py-1 text-xs font-medium text-warning-fg">
  <CheckCircle className="h-3 w-3" /> {f}
  </span>
@@ -296,14 +286,13 @@ export default function Home() {
  <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-info-soft p-3"><PieChart className="h-6 w-6 text-info-fg" /></div>
- <h3 className="text-lg font-semibold text-text">SAT Math Simulator</h3>
+ <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSat")}</h3>
  </div>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Full Digital SAT experience: 2 adaptive modules, Desmos calculator, realistic scoring,
- domain analytics, and unlimited practice questions.
+ {t("landing.showcaseSatDesc")}
  </p>
  <div className="flex flex-wrap gap-2">
- {["Adaptive modules", "Desmos calc", "Score analytics", "Domain practice", "Keyboard shortcuts"].map((f) => (
+ {[t("landing.showcaseFeatAdaptive"), t("landing.showcaseFeatDesmos"), t("landing.showcaseFeatScoreAn"), t("landing.showcaseFeatDomain"), t("landing.showcaseFeatKeys")].map((f) => (
  <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-info-soft px-3 py-1 text-xs font-medium text-info-fg">
  <CheckCircle className="h-3 w-3" /> {f}
  </span>
@@ -318,24 +307,23 @@ export default function Home() {
  <section className="py-20">
  <div className="mx-auto max-w-6xl px-6">
  <div className="mb-12 text-center">
- <h2 className="mb-3 text-3xl font-bold text-text">Built for everyone who teaches</h2>
- <p className="text-text-muted">Whether you run a school, teach online, or tutor small groups</p>
+ <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.forWhoTitle")}</h2>
+ <p className="text-text-muted">{t("landing.forWhoSubtitle")}</p>
  </div>
  <div className="grid gap-8 md:grid-cols-3">
  <div className="rounded-lg border border-primary-soft/60 bg-gradient-to-b from-green-50 to-white p-8">
  <div className="mb-5 inline-flex rounded-lg bg-primary-soft p-3.5">
  <School className="h-7 w-7 text-primary" />
  </div>
- <h3 className="mb-2 text-lg font-bold text-text">Schools</h3>
+ <h3 className="mb-2 text-lg font-bold text-text">{t("landing.audSchools")}</h3>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Manage classes, departments, and curricula. Track student progress across subjects.
- GDPR-compliant and privacy-first.
+ {t("landing.audSchoolsDesc")}
  </p>
  <ul className="space-y-2 text-sm text-text-muted">
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Multi-teacher organization</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Student groups & enrollment</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Custom branding (logo & colors)</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Gradebook & assignments</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audSchoolsItem1")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audSchoolsItem2")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audSchoolsItem3")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audSchoolsItem4")}</li>
  </ul>
  </div>
 
@@ -343,16 +331,15 @@ export default function Home() {
  <div className="mb-5 inline-flex rounded-lg bg-primary-soft p-3.5">
  <Users className="h-7 w-7 text-primary" />
  </div>
- <h3 className="mb-2 text-lg font-bold text-text">Online Schools</h3>
+ <h3 className="mb-2 text-lg font-bold text-text">{t("landing.audOnline")}</h3>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Launch your online education business. Create courses, sell access,
- and scale to hundreds of students with automated tools.
+ {t("landing.audOnlineDesc")}
  </p>
  <ul className="space-y-2 text-sm text-text-muted">
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Unlimited course creation</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Student analytics & progress</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> Certificates & achievements</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> AI tutor for 24/7 support</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audOnlineItem1")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audOnlineItem2")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audOnlineItem3")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary shrink-0" /> {t("landing.audOnlineItem4")}</li>
  </ul>
  </div>
 
@@ -360,16 +347,15 @@ export default function Home() {
  <div className="mb-5 inline-flex rounded-lg bg-sun-100 p-3.5">
  <UserCheck className="h-7 w-7 text-warning-fg" />
  </div>
- <h3 className="mb-2 text-lg font-bold text-text">Tutors</h3>
+ <h3 className="mb-2 text-lg font-bold text-text">{t("landing.audTutors")}</h3>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
- Perfect for private tutors and small groups. Interactive lessons,
- SAT prep, and coding exercises — all in one platform.
+ {t("landing.audTutorsDesc")}
  </p>
  <ul className="space-y-2 text-sm text-text-muted">
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> Free plan for up to 20 students</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> SAT Math adaptive simulator</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> Live lessons & calendar</li>
- <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> Quick setup, no tech needed</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> {t("landing.audTutorsItem1")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> {t("landing.audTutorsItem2")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> {t("landing.audTutorsItem3")}</li>
+ <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-warning-fg shrink-0" /> {t("landing.audTutorsItem4")}</li>
  </ul>
  </div>
  </div>
@@ -380,35 +366,17 @@ export default function Home() {
  <section className="border-t border-border bg-surface-2/50 py-20">
  <div className="mx-auto max-w-3xl px-6">
  <div className="mb-12 text-center">
- <h2 className="mb-3 text-3xl font-bold text-text">Frequently asked questions</h2>
- <p className="text-text-muted">Everything you need to know before getting started</p>
+ <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.faqTitle")}</h2>
+ <p className="text-text-muted">{t("landing.faqSub")}</p>
  </div>
  <div className="space-y-3">
  {[
- {
- q: "Is GrassLMS really free?",
- a: "Yes! The free plan includes up to 20 students, 3 courses, and 2 groups — with no time limit. You can upgrade anytime as you grow.",
- },
- {
- q: "Do I need to install anything?",
- a: "No. GrassLMS runs entirely in the browser. Students and teachers just need a web browser — works on desktop, tablet, and phone.",
- },
- {
- q: "Can I use it for SAT prep?",
- a: "Absolutely. GrassLMS includes a full Digital SAT Math simulator with adaptive 2-module tests, Desmos calculator, realistic scoring (200-800), and unlimited practice questions.",
- },
- {
- q: "What programming languages are supported?",
- a: "37 languages including Python, JavaScript, Java, C++, Go, Rust, TypeScript, Ruby, PHP, Swift, Kotlin, and more. All execute in a secure sandbox.",
- },
- {
- q: "Is student data private and secure?",
- a: "Yes. We are GDPR and COPPA compliant. The AI tutor runs on your server, no student data is shared with third parties, and all communication is encrypted.",
- },
- {
- q: "Can I customize the platform with my brand?",
- a: "Yes. Upload your logo, set your brand colors, and your students see your school name — not ours. Available on all plans.",
- },
+ { q: t("landing.faq1Q"), a: t("landing.faq1A") },
+ { q: t("landing.faq2Q"), a: t("landing.faq2A") },
+ { q: t("landing.faq3Q"), a: t("landing.faq3A") },
+ { q: t("landing.faq4Q"), a: t("landing.faq4A") },
+ { q: t("landing.faq5Q"), a: t("landing.faq5A") },
+ { q: t("landing.faq6Q"), a: t("landing.faq6A") },
  ].map((item) => (
  <details key={item.q} className="group rounded-lg border border-border-strong bg-paper-2">
  <summary className="flex cursor-pointer items-center justify-between px-6 py-4 text-sm font-semibold text-ink-700 [&::-webkit-details-marker]:hidden">
@@ -428,30 +396,30 @@ export default function Home() {
  <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-paper-2 py-20">
  <div className="mx-auto max-w-2xl px-6 text-center">
  <h2 className="mb-4 text-3xl font-bold text-text">
- Ready to get started?
+ {t("landing.ctaReady")}
  </h2>
  <p className="mb-8 text-text-muted">
- Create your school account and start building courses today.
+ {t("landing.ctaReadySub")}
  </p>
  <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
  <Link href="/register">
  <Button size="lg">
- Create Free Account
+ {t("landing.ctaCreateFree")}
  <ArrowRight className="h-5 w-5" />
  </Button>
  </Link>
  <Link href="/demo">
  <Button variant="outline" size="lg">
- Try the demo
+ {t("landing.ctaTryDemo")}
  </Button>
  </Link>
  </div>
  <div className="mt-12 border-t border-border-strong pt-10">
  <h3 className="mb-2 text-lg font-semibold text-text">
- Or join the waitlist for early access
+ {t("landing.ctaJoinWaitlist")}
  </h3>
  <p className="mb-6 text-sm text-text-muted">
- Get notified when new features launch.
+ {t("landing.ctaWaitlistSub")}
  </p>
  <WaitlistForm source="landing-cta" />
  </div>
@@ -464,12 +432,12 @@ export default function Home() {
  <div className="mx-auto max-w-6xl px-6">
  <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
  <span className="text-sm text-text-subtle">
- &copy; 2026 GrassLMS &mdash; Modern Learning Platform
+ {t("landing.copyright")}
  </span>
  <div className="flex gap-6 text-sm text-text-subtle">
- <Link href="/terms" className="hover:text-text-muted">Terms</Link>
- <Link href="/privacy" className="hover:text-text-muted">Privacy</Link>
- <Link href="/cookies" className="hover:text-text-muted">Cookies</Link>
+ <Link href="/terms" className="hover:text-text-muted">{t("landing.terms")}</Link>
+ <Link href="/privacy" className="hover:text-text-muted">{t("landing.privacy")}</Link>
+ <Link href="/cookies" className="hover:text-text-muted">{t("landing.cookies")}</Link>
  </div>
  </div>
  </div>
