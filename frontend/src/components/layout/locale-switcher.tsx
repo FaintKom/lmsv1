@@ -33,7 +33,7 @@ export default function LocaleSwitcher() {
  <span>{current?.flag}</span>
  </button>
  {open && (
- <div role="listbox" aria-label="Select language" className="absolute bottom-full left-0 mb-1 w-40 rounded-lg border border-border-strong bg-paper-2 py-1 shadow-lg">
+ <div role="listbox" aria-label="Select language" className="absolute bottom-full left-0 z-50 mb-1 w-40 rounded-lg border border-border-strong bg-paper-2 py-1 shadow-2xl">
  {LOCALES.map((l) => (
  <button
  key={l.code}

@@ -333,7 +333,10 @@ button { font-family: inherit; }
   --ink-100: rgba(255,255,255,0.08);
   --ink-300: rgba(255,255,255,0.2);
   --ink-700: rgba(255,255,255,0.85);
-  --paper-2: rgba(255,255,255,0.06);
+  /* Solid elevated tone — overlays (dropdowns, popovers) need opacity
+     to be readable on top of the dark sidebar; previously translucent 0.06
+     made the locale switcher invisible. */
+  --paper-2: #142319;
 }
 
 /* Skeleton shimmer */
