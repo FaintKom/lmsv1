@@ -404,6 +404,7 @@ async def delete_user_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     from fastapi import HTTPException
+    from sqlalchemy.exc import IntegrityError
 
     query = select(User).where(User.id == user_id, *_user_org_filter(admin))
     result = await db.execute(query)
@@ -412,7 +413,47 @@ async def delete_user_endpoint(
         raise NotFoundError("User not found")
     if target.id == admin.id:
         raise HTTPException(400, "Cannot delete yourself")
-    await db.delete(target)
+    try:
+        await db.delete(target)
+        await db.flush()
+    except IntegrityError as e:
+        raise HTTPException(
+            400,
+            f"Cannot delete user: linked records exist (FK constraint). "
+            f"Use POST /admin/users/{{id}}/password to rotate credentials instead, "
+            f"or set is_active=false to disable login. Original error: {e.orig}",
+        )
+    return {"ok": True}
+
+
+@router.post("/users/{user_id}/password")
+async def reset_user_password_endpoint(
+    user_id: uuid.UUID,
+    body: dict,
+    admin: User = Depends(require_role(UserRole.admin)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin password reset for any user in the same org (or any user if super_admin).
+
+    Body: {"new_password": "..."} — must be >= 8 chars.
+    Returns {"ok": True} on success. Does NOT echo the new password back.
+    """
+    from fastapi import HTTPException
+
+    from app.auth.security import hash_password
+
+    new_password = (body or {}).get("new_password", "")
+    if not isinstance(new_password, str) or len(new_password) < 8:
+        raise HTTPException(400, "new_password must be a string with at least 8 characters")
+
+    query = select(User).where(User.id == user_id, *_user_org_filter(admin))
+    result = await db.execute(query)
+    target = result.scalar_one_or_none()
+    if not target:
+        raise NotFoundError("User not found")
+
+    target.hashed_password = hash_password(new_password)
+    await db.flush()
     return {"ok": True}
 
 
