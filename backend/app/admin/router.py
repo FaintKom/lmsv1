@@ -439,6 +439,7 @@ async def reset_user_password_endpoint(
     Returns {"ok": True} on success. Does NOT echo the new password back.
     """
     from fastapi import HTTPException
+
     from app.auth.security import hash_password
 
     new_password = (body or {}).get("new_password", "")
