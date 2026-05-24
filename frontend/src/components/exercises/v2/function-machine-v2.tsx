@@ -22,6 +22,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface FunctionMachineV2Props {
   /** The hidden rule. Component never reveals the function body. */
@@ -60,13 +61,14 @@ export function FunctionMachineV2({
   ruleDisplay,
   sampleInputs = [1, 2, 5, 10],
   eyebrow,
-  title = "Find the rule the machine is using",
+  title,
   minRuns = 3,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: FunctionMachineV2Props) {
+  const { t } = useTranslation();
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<RunEntry[]>([]);
   const [running, setRunning] = useState(false);
@@ -101,7 +103,7 @@ export function FunctionMachineV2({
     if (ok) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Rule cracked." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.functionMachine.ruleCracked") : t("exercise.gotIt"),
         explain: ruleDisplay,
       });
       setStreak((s) => s + 1);
@@ -116,14 +118,14 @@ export function FunctionMachineV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Not the rule.",
+        msg: t("exercise.functionMachine.notTheRule"),
         correct: ruleDisplay,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left. Try more inputs.`,
+        msg: (remaining === 1 ? t("exercise.functionMachine.notQuiteTryMoreAttempt") : t("exercise.functionMachine.notQuiteTryMoreAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -152,7 +154,7 @@ export function FunctionMachineV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.functionMachine.title")}
         feedback={feedback}
         canCheck={canCheck}
         onCheck={handleCheck}
@@ -271,7 +273,7 @@ export function FunctionMachineV2({
                 className="gp-btn"
                 style={{ padding: "8px 18px", fontSize: 13 }}
               >
-                Feed
+                {t("exercise.functionMachine.feed")}
               </button>
             </div>
             {sampleInputs.length > 0 && (
@@ -292,7 +294,7 @@ export function FunctionMachineV2({
                     alignSelf: "center",
                   }}
                 >
-                  try:
+                  {t("exercise.functionMachine.try")}
                 </span>
                 {sampleInputs.map((n) => (
                   <button
@@ -322,7 +324,7 @@ export function FunctionMachineV2({
           {/* History + rule guess */}
           <div>
             <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-              History · {history.length} / {minRuns}+
+              {t("exercise.functionMachine.history")} · {history.length} / {minRuns}+
             </div>
             <div
               style={{
@@ -348,7 +350,7 @@ export function FunctionMachineV2({
                     padding: 12,
                   }}
                 >
-                  Feed some x values…
+                  {t("exercise.functionMachine.feedSomeX")}
                 </div>
               ) : (
                 history.map((h, i) => (
@@ -368,7 +370,7 @@ export function FunctionMachineV2({
               )}
             </div>
             <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-              What is f(x)?
+              {t("exercise.functionMachine.whatIsFx")}
             </div>
             <input
               value={guess}

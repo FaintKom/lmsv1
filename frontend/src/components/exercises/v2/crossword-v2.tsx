@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface CrosswordCell {
   /** Single uppercase letter expected in this cell. */
@@ -61,12 +62,13 @@ export function CrosswordV2({
   clues,
   answerSummary,
   eyebrow,
-  title = "Solve the crossword",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: CrosswordV2Props) {
+  const { t } = useTranslation();
   const cellKeys = Object.keys(cells);
   const [vals, setVals] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -85,7 +87,7 @@ export function CrosswordV2({
     if (isOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Crossword solved." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.crossword.solved") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -99,14 +101,14 @@ export function CrosswordV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Some letters are off.",
+        msg: t("exercise.crossword.someLettersOff"),
         correct: answerSummary,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Some letters are off — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.crossword.someLettersOffAttempt") : t("exercise.crossword.someLettersOffAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -134,7 +136,7 @@ export function CrosswordV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.crossword.title")}
         feedback={feedback}
         canCheck={allFilled}
         onCheck={handleCheck}
@@ -252,7 +254,7 @@ export function CrosswordV2({
           </div>
           <div style={{ flex: 1, minWidth: 200, fontSize: 14 }}>
             <div className="gp-eyebrow" style={{ marginBottom: 10 }}>
-              Clues
+              {t("exercise.clues")}
             </div>
             {clues.across.length > 0 && (
               <div style={{ marginBottom: 14 }}>
@@ -264,7 +266,7 @@ export function CrosswordV2({
                     marginBottom: 4,
                   }}
                 >
-                  ACROSS
+                  {t("exercise.across")}
                 </div>
                 {clues.across.map((c) => (
                   <div key={`a-${c.n}`}>
@@ -284,7 +286,7 @@ export function CrosswordV2({
                     marginBottom: 4,
                   }}
                 >
-                  DOWN
+                  {t("exercise.down")}
                 </div>
                 {clues.down.map((c) => (
                   <div key={`d-${c.n}`}>

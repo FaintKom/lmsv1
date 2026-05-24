@@ -30,6 +30,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface QuizV2Question {
   question_text: string;
@@ -73,11 +74,12 @@ export function QuizV2({
   const [correctFirstTry, setCorrectFirstTry] = useState(0);
   const [correctEventually, setCorrectEventually] = useState(0);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const q = questions[idx];
   if (!q) {
     return (
-      <div className="p-6 text-sm text-text-subtle">No questions configured.</div>
+      <div className="p-6 text-sm text-text-subtle">{t("exercise.noQuestionsConfigured")}</div>
     );
   }
 
@@ -90,7 +92,7 @@ export function QuizV2({
     if (isCorrect) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Exactly right." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.quiz.exactlyRight") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       setCorrectEventually((c) => c + 1);
@@ -110,7 +112,7 @@ export function QuizV2({
       // Task fully failed — reveal answer + advance.
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: q.options[correctIdx]?.text,
       });
       setStreak(0);
@@ -118,7 +120,7 @@ export function QuizV2({
       // Still has retries — show wrong sheet with "Try again" CTA.
       setFeedback({
         kind: "no",
-        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };

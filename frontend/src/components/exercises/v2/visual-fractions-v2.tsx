@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface VisualFractionsV2Props {
   numerator: number;
@@ -50,6 +51,7 @@ export function VisualFractionsV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const toggle = (i: number) => {
     if (feedback) return;
@@ -65,8 +67,8 @@ export function VisualFractionsV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `That's ${numerator}/${denominator}.`
-            : "Got it!",
+            ? t("exercise.visualFractions.thatsNumOverDen").replace("{n}", String(numerator)).replace("{d}", String(denominator))
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -80,14 +82,15 @@ export function VisualFractionsV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `You shaded ${shaded.size}/${denominator}.`,
+        msg: t("exercise.visualFractions.youShaded").replace("{n}", String(shaded.size)).replace("{d}", String(denominator)),
         correct: `${numerator}/${denominator}`,
       });
       setStreak(0);
     } else {
+      const tmpl = remaining === 1 ? t("exercise.visualFractions.youShadedAttempt") : t("exercise.visualFractions.youShadedAttempts");
       setFeedback({
         kind: "no",
-        msg: `You shaded ${shaded.size}/${denominator} — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: tmpl.replace("{n}", String(shaded.size)).replace("{d}", String(denominator)).replace("{r}", String(remaining)),
       });
     }
   };
@@ -118,7 +121,7 @@ export function VisualFractionsV2({
         eyebrow={eyebrow}
         title={
           <>
-            Tap to shade{" "}
+            {t("exercise.visualFractions.tapToShade")}{" "}
             <span
               className="gp-mark"
               style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}

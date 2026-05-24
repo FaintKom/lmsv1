@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface SentenceBuilderV2Props {
   source: string;
@@ -58,7 +59,7 @@ export function SentenceBuilderV2({
   correctWords,
   distractors = [],
   eyebrow,
-  title = "Build the sentence",
+  title,
   explain,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
@@ -66,6 +67,7 @@ export function SentenceBuilderV2({
   onQuit,
   onFinish,
 }: SentenceBuilderV2Props) {
+  const { t } = useTranslation();
   const all = useMemo(
     () => [...correctWords, ...distractors].map((w, i) => ({ w, i })),
     [correctWords, distractors]
@@ -98,7 +100,7 @@ export function SentenceBuilderV2({
     if (isOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Excellent!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.sentenceBuilder.excellent") : t("exercise.gotIt"),
         explain,
       });
       setStreak((s) => s + 1);
@@ -113,7 +115,7 @@ export function SentenceBuilderV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: correctWords.join(" "),
         explain,
       });
@@ -121,7 +123,7 @@ export function SentenceBuilderV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `Almost — order matters. ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.sentenceBuilder.almostOrderMattersAttempt") : t("exercise.sentenceBuilder.almostOrderMattersAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -149,7 +151,7 @@ export function SentenceBuilderV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.sentenceBuilder.title")}
         feedback={feedback}
         canCheck={picked.length > 0}
         onCheck={handleCheck}
@@ -169,7 +171,7 @@ export function SentenceBuilderV2({
           <button
             type="button"
             onClick={onSpeak}
-            aria-label="Play audio"
+            aria-label={t("exercise.playAudio")}
             style={{
               width: 56,
               height: 56,

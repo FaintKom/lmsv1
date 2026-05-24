@@ -17,6 +17,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface TwoWayTableV2Props {
   rowLabels: string[];
@@ -58,14 +59,15 @@ export function TwoWayTableV2({
   colLabels,
   cells,
   answers,
-  hint = "Each row and column sums to its Total.",
+  hint,
   eyebrow,
-  title = "Fill the missing cells",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: TwoWayTableV2Props) {
+  const { t } = useTranslation();
   const [vals, setVals] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -96,7 +98,7 @@ export function TwoWayTableV2({
     if (wrong === 0) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Totals all check out." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.twoWayTable.totalsCheckOut") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -107,14 +109,15 @@ export function TwoWayTableV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    const msg = `${wrong} cell${wrong === 1 ? "" : "s"} wrong.`;
+    const msg = (wrong === 1 ? t("exercise.twoWayTable.wrongOne") : t("exercise.twoWayTable.wrongMany")).replace("{n}", String(wrong));
     if (remaining <= 0) {
       setFeedback({ kind: "no", msg, explain: hint });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
         explain: hint,
       });
     }
@@ -143,7 +146,7 @@ export function TwoWayTableV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.twoWayTable.title")}
         feedback={feedback}
         canCheck={allFilled}
         onCheck={handleCheck}

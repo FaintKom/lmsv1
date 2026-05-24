@@ -17,6 +17,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { GridAxes } from "@/components/exercises/v2/_grid-axes";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface GraphTransformV2Props {
   /** Target {h: horiz shift, v: vert shift, a: vert stretch}. */
@@ -100,6 +101,7 @@ export function GraphTransformV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const pathStr = (hh: number, vv: number, aa: number) => {
     const pts: [number, number][] = [];
@@ -121,7 +123,7 @@ export function GraphTransformV2({
     ) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Curves overlap." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.graphTransform.curvesOverlap") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -135,14 +137,14 @@ export function GraphTransformV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Not aligned yet.",
+        msg: t("exercise.graphTransform.notAligned"),
         correct: `y = ${target.a}(x − ${target.h})² + ${target.v}`,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not aligned yet — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.graphTransform.notAlignedAttempt") : t("exercise.graphTransform.notAlignedAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -172,8 +174,8 @@ export function GraphTransformV2({
         eyebrow={eyebrow}
         title={
           <>
-            Transform y = x² to match the{" "}
-            <span className="gp-mark">dashed</span> curve
+            {t("exercise.graphTransform.transformToMatch")}{" "}
+            <span className="gp-mark">{t("exercise.graphTransform.dashed")}</span> {t("exercise.graphTransform.curve")}
           </>
         }
         feedback={feedback}

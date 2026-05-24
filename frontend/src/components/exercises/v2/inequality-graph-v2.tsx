@@ -17,6 +17,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { GridAxes } from "@/components/exercises/v2/_grid-axes";
+import { useTranslation } from "@/lib/i18n/context";
 
 export type InequalityOp = ">" | ">=" | "<" | "<=";
 export type ShadeSide = "above" | "below";
@@ -102,8 +103,9 @@ export function InequalityGraphV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
-  const linePath = `M ${toX(-range)} ${toY(m * -range + b)} L ${toX(range)} ${toY(m * range + b)}`;
+  const linePath =`M ${toX(-range)} ${toY(m * -range + b)} L ${toX(range)} ${toY(m * range + b)}`;
   const dashed = op === ">" || op === "<";
   const shading =
     side === "above"
@@ -120,7 +122,7 @@ export function InequalityGraphV2({
     if (ok) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Region matches." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.inequalityGraph.regionMatches") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -136,14 +138,14 @@ export function InequalityGraphV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Not quite.",
+        msg: t("exercise.inequalityGraph.notQuite"),
         correct: `y ${sym} ${target.m}x + ${target.b}`,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.inequalityGraph.notQuiteAttempt") : t("exercise.inequalityGraph.notQuiteAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -175,7 +177,7 @@ export function InequalityGraphV2({
         eyebrow={eyebrow}
         title={
           <>
-            Graph{" "}
+            {t("exercise.inequalityGraph.graph")}{" "}
             <span
               className="gp-mark"
               style={{ fontFamily: "var(--font-mono)" }}

@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ArithmeticEquation {
   /** Token list; the literal "_" marks the blank slot. */
@@ -45,12 +46,13 @@ export function ArithmeticPuzzleV2({
   equations,
   bank,
   eyebrow,
-  title = "Find the missing number",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: ArithmeticPuzzleV2Props) {
+  const { t } = useTranslation();
   const [filled, setFilled] = useState<(number | null)[]>(() =>
     equations.map(() => null)
   );
@@ -78,8 +80,8 @@ export function ArithmeticPuzzleV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `All ${equations.length} correct.`
-            : "Got it!",
+            ? t("exercise.arithmeticPuzzle.allCorrect").replace("{n}", String(equations.length))
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -93,14 +95,14 @@ export function ArithmeticPuzzleV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Some are off.",
+        msg: t("exercise.arithmeticPuzzle.someAreOff"),
         correct: equations.map((e) => e.answer).join(" · "),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Some are off — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.arithmeticPuzzle.someAreOffAttempt") : t("exercise.arithmeticPuzzle.someAreOffAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -128,7 +130,7 @@ export function ArithmeticPuzzleV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.arithmeticPuzzle.title")}
         feedback={feedback}
         canCheck={filled.every((v) => v !== null)}
         onCheck={handleCheck}
@@ -211,7 +213,7 @@ export function ArithmeticPuzzleV2({
             className="gp-eyebrow"
             style={{ marginTop: 18, marginBottom: 8, textAlign: "center" }}
           >
-            Number bank · tap to place
+            {t("exercise.numberBankTapToPlace")}
           </div>
           <div
             style={{

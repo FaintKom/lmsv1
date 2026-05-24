@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface MathStepwiseStep {
   /** Short label rendered to the left (e.g. "Step 1"). */
@@ -50,12 +51,13 @@ export function MathStepwiseV2({
   problem,
   steps,
   eyebrow,
-  title = "Show your work",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: MathStepwiseV2Props) {
+  const { t } = useTranslation();
   const [values, setValues] = useState<string[]>(() => steps.map(() => ""));
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -75,7 +77,7 @@ export function MathStepwiseV2({
     if (allOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "All steps correct!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.mathStepwise.allCorrect") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -89,14 +91,14 @@ export function MathStepwiseV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: correctSummary,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Check the highlighted steps — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.mathStepwise.checkHighlightedOne") : t("exercise.mathStepwise.checkHighlighted")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -125,7 +127,7 @@ export function MathStepwiseV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.mathStepwise.title")}
         feedback={feedback}
         canCheck={allFilled}
         onCheck={handleCheck}

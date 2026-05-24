@@ -23,6 +23,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface FillBlanksV2Props {
   /** Sentence template with `{{blank}}` markers — mutually exclusive with `parts`. */
@@ -64,7 +65,7 @@ export function FillBlanksV2({
   blanks,
   wordBank,
   eyebrow,
-  title = "Tap the words to fill the blanks",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
@@ -83,6 +84,7 @@ export function FillBlanksV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const place = (wi: number) => {
     const empty = slots.findIndex((s) => s === null);
@@ -108,7 +110,7 @@ export function FillBlanksV2({
     if (isCorrect) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Sweet." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.fillBlanks.sweet") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -124,14 +126,14 @@ export function FillBlanksV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: blanks.join(" · "),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -162,7 +164,7 @@ export function FillBlanksV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.fillBlanks.title")}
         feedback={feedback}
         canCheck={allFilled}
         onCheck={handleCheck}

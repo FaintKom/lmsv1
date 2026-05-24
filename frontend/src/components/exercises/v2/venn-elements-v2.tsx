@@ -17,6 +17,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export type VennRegion = "a_only" | "intersection" | "b_only" | "neither";
 
@@ -62,7 +63,7 @@ export function VennElementsV2({
   setB,
   items,
   correct,
-  hint = "Drag from the bank into a region · click a placed item to send it back.",
+  hint,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
@@ -70,6 +71,7 @@ export function VennElementsV2({
   onQuit,
   onFinish,
 }: VennElementsV2Props) {
+  const { t } = useTranslation();
   const [placed, setPlaced] = useState<Record<string, VennRegion>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
   const [hover, setHover] = useState<VennRegion | null>(null);
@@ -106,8 +108,8 @@ export function VennElementsV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? "Every item's in its right region."
-            : "Got it!",
+            ? t("exercise.vennElements.everyItemRight")
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -121,16 +123,17 @@ export function VennElementsV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `${wrong} in the wrong region.`,
+        msg: (wrong === 1 ? t("exercise.vennElements.wrongOne") : t("exercise.vennElements.wrongMany")).replace("{n}", String(wrong)),
         explain: items
           .map((it) => `${it} → ${correct[String(it)] ?? "neither"}`)
           .join(", "),
       });
       setStreak(0);
     } else {
+      const tmpl = remaining === 1 ? t("exercise.vennElements.wrongOneAttempt") : t("exercise.vennElements.wrongOneAttempts");
       setFeedback({
         kind: "no",
-        msg: `${wrong} in the wrong region — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: tmpl.replace("{n}", String(wrong)).replace("{r}", String(remaining)),
       });
     }
   };
@@ -215,7 +218,7 @@ export function VennElementsV2({
         title={
           title ?? (
             <>
-              Drag each item into the right region · A = {setA} · B = {setB}
+              {t("exercise.vennElements.dragToRegion").replace("{a}", setA).replace("{b}", setB)}
             </>
           )
         }
@@ -370,7 +373,7 @@ export function VennElementsV2({
               <span
                 style={{ fontSize: 12, color: "var(--ink-400)", padding: 10 }}
               >
-                All placed — hit Check.
+                {t("exercise.allPlacedHitCheck")}
               </span>
             ) : (
               unplaced.map((it) => (
@@ -411,7 +414,7 @@ export function VennElementsV2({
               textAlign: "center",
             }}
           >
-            {hint}
+            {hint ?? t("exercise.vennElements.defaultHint")}
           </div>
         </div>
       </LessonShell>

@@ -23,6 +23,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 // Excalidraw is heavy (>1MB gzip) — lazy load on client only.
 const Excalidraw = dynamic(
@@ -31,6 +32,7 @@ const Excalidraw = dynamic(
 );
 
 function WhiteboardLoading() {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -45,7 +47,7 @@ function WhiteboardLoading() {
         fontSize: 13,
       }}
     >
-      Loading whiteboard…
+      {t("exercise.loadingWhiteboard")}
     </div>
   );
 }
@@ -91,20 +93,11 @@ export interface WhiteboardV2Props {
   }) => void;
 }
 
-const defaultStubSubmit = async (): Promise<WhiteboardSubmitResult> => {
-  await new Promise((r) => setTimeout(r, 300));
-  return {
-    ok: true,
-    msg: "Submitted — awaiting teacher review.",
-    explain: "Your teacher will leave feedback within 48h.",
-  };
-};
-
 export function WhiteboardV2({
   initialData,
-  onSubmit = defaultStubSubmit,
+  onSubmit,
   eyebrow,
-  title = "Sketch your answer",
+  title,
   prompt,
   height = 480,
   streak: initialStreak = 0,
@@ -116,6 +109,15 @@ export function WhiteboardV2({
   const [streak, setStreak] = useState(initialStreak);
   const apiRef = useRef<ExcalidrawAPI | null>(null);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
+  const defaultSubmit = async (): Promise<WhiteboardSubmitResult> => {
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      ok: true,
+      msg: t("exercise.submittedAwaitingReview"),
+      explain: t("exercise.teacherFeedback48h"),
+    };
+  };
 
   const handleSubmit = async () => {
     if (!apiRef.current || submitting) return;
@@ -146,7 +148,8 @@ export function WhiteboardV2({
       });
 
       const scene: ExcalidrawScene = { elements, appState, files };
-      const r = await onSubmit({ scene, preview });
+      const submitter = onSubmit ?? defaultSubmit;
+      const r = await submitter({ scene, preview });
       setFeedback({
         kind: r.ok ? "ok" : "no",
         msg: r.msg,
@@ -159,7 +162,7 @@ export function WhiteboardV2({
     } catch (err) {
       setFeedback({
         kind: "no",
-        msg: "Could not submit.",
+        msg: t("exercise.couldNotSubmit"),
         explain: String(err),
       });
     } finally {
@@ -181,11 +184,11 @@ export function WhiteboardV2({
       <LessonShell
         streak={streak}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.whiteboard.title")}
         feedback={feedback}
         canCheck={!submitting && !feedback}
         onCheck={handleSubmit}
-        checkLabel={submitting ? "Submitting…" : "Submit for review"}
+        checkLabel={submitting ? t("exercise.submitting") : t("exercise.submitForReview")}
         showSkip={false}
         onContinue={handleContinue}
         onQuit={onQuit}
@@ -233,7 +236,7 @@ export function WhiteboardV2({
               textAlign: "center",
             }}
           >
-            Draw, write, diagram — then Submit for teacher review.
+            {t("exercise.draftWriteDiagram")}
           </div>
         </div>
       </LessonShell>

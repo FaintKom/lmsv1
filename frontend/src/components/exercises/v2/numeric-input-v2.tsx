@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface NumericInputExample {
   q: string;
@@ -53,7 +54,7 @@ export function NumericInputV2({
   example,
   explain,
   eyebrow,
-  title = "What number is it?",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
@@ -67,13 +68,14 @@ export function NumericInputV2({
   const [streak, setStreak] = useState(initialStreak);
   const [showExample, setShowExample] = useState(false);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const handleCheck = () => {
     const n = parseFloat(val);
     if (Number.isFinite(n) && Math.abs(n - correct) <= tolerance) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Right." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.numericInput.right") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -87,7 +89,7 @@ export function NumericInputV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: String(correct),
         explain,
       });
@@ -95,7 +97,7 @@ export function NumericInputV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
         explain,
       });
     }
@@ -124,7 +126,7 @@ export function NumericInputV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.numericInput.title")}
         feedback={feedback}
         canCheck={val.length > 0}
         onCheck={handleCheck}
@@ -172,7 +174,7 @@ export function NumericInputV2({
                     alignItems: "center",
                   }}
                 >
-                  <Lightbulb size={14} /> Example
+                  <Lightbulb size={14} /> {t("exercise.example")}
                 </span>
                 <span style={{ color: "var(--ink-400)" }}>
                   {showExample ? "−" : "+"}

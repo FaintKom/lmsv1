@@ -15,6 +15,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface CategorizeCategory {
   name: string;
@@ -44,12 +45,13 @@ const DEFAULT_PALETTE: { color: string; border: string }[] = [
 export function CategorizeV2({
   categories,
   eyebrow,
-  title = "Drag each item into its bucket",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: CategorizeV2Props) {
+  const { t } = useTranslation();
   const palette = categories.map(
     (c, i) => ({
       color: c.color || DEFAULT_PALETTE[i % DEFAULT_PALETTE.length].color,
@@ -84,7 +86,7 @@ export function CategorizeV2({
     if (isCorrect) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Spot on." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.categorize.spotOn") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -98,14 +100,14 @@ export function CategorizeV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: categories.map((c) => `${c.items.join(", ")} → ${c.name}`).join(" · "),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -134,7 +136,7 @@ export function CategorizeV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.categorize.title")}
         feedback={feedback}
         canCheck={Object.keys(placed).length === all.length}
         onCheck={handleCheck}
@@ -235,7 +237,7 @@ export function CategorizeV2({
         >
           {unplaced.length === 0 ? (
             <span style={{ color: "var(--ink-400)", fontSize: 13 }}>
-              All placed — hit Check.
+              {t("exercise.allPlacedHitCheck")}
             </span>
           ) : (
             unplaced.map((it) => (

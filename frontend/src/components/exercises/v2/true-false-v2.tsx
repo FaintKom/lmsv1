@@ -14,6 +14,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface TrueFalseV2Props {
   statement: string;
@@ -42,7 +43,7 @@ export function TrueFalseV2({
   correctAnswer,
   explain,
   eyebrow,
-  title = "True or false?",
+  title,
   maxAttemptsPerTask = 2,
   streak: initialStreak = 0,
   onQuit,
@@ -55,6 +56,7 @@ export function TrueFalseV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const handleCheck = () => {
     if (pick === null) return;
@@ -63,7 +65,7 @@ export function TrueFalseV2({
     if (isCorrect) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Right!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.trueFalse.right") : t("exercise.gotIt"),
         explain,
       });
       setStreak((s) => s + 1);
@@ -80,15 +82,15 @@ export function TrueFalseV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
-        correct: correctAnswer ? "True" : "False",
+        msg: t("exercise.outOfAttempts"),
+        correct: correctAnswer ? t("exercise.trueFalse.true") : t("exercise.trueFalse.false"),
         explain,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -117,7 +119,7 @@ export function TrueFalseV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.trueFalse.title")}
         feedback={feedback}
         canCheck={pick !== null}
         onCheck={handleCheck}
@@ -157,7 +159,7 @@ export function TrueFalseV2({
                 style={{ minWidth: 140, padding: "20px 24px", fontSize: 17 }}
                 onClick={() => !feedback && setPick(v)}
               >
-                {v ? "True" : "False"}
+                {v ? t("exercise.trueFalse.true") : t("exercise.trueFalse.false")}
               </button>
             );
           })}

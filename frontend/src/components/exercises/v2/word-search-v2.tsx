@@ -23,6 +23,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface WordSearchV2Props {
   /** Equal-length uppercase strings, one per row. */
@@ -62,11 +63,12 @@ export function WordSearchV2({
   grid,
   words,
   eyebrow,
-  title = "Find all the words",
+  title,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: WordSearchV2Props) {
+  const { t } = useTranslation();
   const [selecting, setSelecting] = useState(false);
   const [start, setStart] = useState<string | null>(null);
   const [drag, setDrag] = useState<string[]>([]);
@@ -110,7 +112,7 @@ export function WordSearchV2({
       setTimeout(() => {
         setFeedback({
           kind: "ok",
-          msg: `All ${words.length} found.`,
+          msg: t("exercise.wordSearch.allFound").replace("{n}", String(words.length)),
         });
         setStreak((s) => s + 1);
         fire();
@@ -142,7 +144,7 @@ export function WordSearchV2({
       <LessonShell
         streak={streak}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.wordSearch.title")}
         feedback={feedback}
         canCheck={false}
         showSkip={false}
@@ -208,7 +210,7 @@ export function WordSearchV2({
           </div>
           <div style={{ flex: 1, minWidth: 160 }}>
             <div className="gp-eyebrow" style={{ marginBottom: 10 }}>
-              To find
+              {t("exercise.toFind")}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {words.map((w) => (

@@ -23,6 +23,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface CodeChallengeExample {
   input: string;
@@ -102,6 +103,7 @@ export function CodeChallengeV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const handleRun = async () => {
     if (!onRun) return;
@@ -131,8 +133,8 @@ export function CodeChallengeV2({
           kind: "ok",
           msg:
             usedAttempts === 0
-              ? `${passed}/${total} tests passed.`
-              : `${passed}/${total} — got there!`,
+              ? t("exercise.testsPassed").replace("{passed}", String(passed)).replace("{total}", String(total))
+              : t("exercise.gotThere").replace("{score}", String(passed)).replace("{total}", String(total)),
         });
         setStreak((s) => s + 1);
         fire();
@@ -145,15 +147,15 @@ export function CodeChallengeV2({
         if (remaining <= 0) {
           setFeedback({
             kind: "no",
-            msg: `${passed}/${total} tests passed.`,
-            explain: hint ?? "Out of attempts — review the failing tests below.",
+            msg: t("exercise.testsPassed").replace("{passed}", String(passed)).replace("{total}", String(total)),
+            explain: hint ?? t("exercise.outOfAttemptsReviewFailing"),
           });
           setStreak(0);
         } else {
           setFeedback({
             kind: "no",
-            msg: `${passed}/${total} tests passed.`,
-            explain: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+            msg: t("exercise.testsPassed").replace("{passed}", String(passed)).replace("{total}", String(total)),
+            explain: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
           });
         }
       }
@@ -193,7 +195,7 @@ export function CodeChallengeV2({
         feedback={feedback}
         canCheck={!running && code.trim().length > 0}
         onCheck={handleSubmit}
-        checkLabel="Submit"
+        checkLabel={t("exercise.submit")}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
@@ -223,7 +225,7 @@ export function CodeChallengeV2({
               {problem.desc}
             </p>
             <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-              Examples
+              {t("exercise.examples")}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {problem.examples.map((ex, i) => (
@@ -242,7 +244,7 @@ export function CodeChallengeV2({
                       color: "var(--ink-500)",
                     }}
                   >
-                    Input:
+                    {t("exercise.input")}
                   </div>
                   <code
                     style={{
@@ -261,7 +263,7 @@ export function CodeChallengeV2({
                       marginTop: 6,
                     }}
                   >
-                    Output:
+                    {t("exercise.output")}
                   </div>
                   <code
                     style={{
@@ -324,7 +326,7 @@ export function CodeChallengeV2({
                   gap: 6,
                 }}
               >
-                <Play size={12} /> Run
+                <Play size={12} /> {t("exercise.run")}
               </button>
               <span
                 style={{
@@ -390,11 +392,11 @@ export function CodeChallengeV2({
                   borderBottom: "1px solid var(--ink-100)",
                 }}
               >
-                {(["output", "tests"] as Tab[]).map((t) => (
+                {(["output", "tests"] as Tab[]).map((tb) => (
                   <button
-                    key={t}
+                    key={tb}
                     type="button"
-                    onClick={() => setTab(t)}
+                    onClick={() => setTab(tb)}
                     style={{
                       background: "transparent",
                       border: "none",
@@ -405,15 +407,15 @@ export function CodeChallengeV2({
                       textTransform: "uppercase",
                       fontWeight: 700,
                       cursor: "pointer",
-                      color: tab === t ? "var(--green-700)" : "var(--ink-400)",
+                      color: tab === tb ? "var(--green-700)" : "var(--ink-400)",
                       borderBottom:
-                        tab === t
+                        tab === tb
                           ? "2px solid var(--green-600)"
                           : "2px solid transparent",
                     }}
                   >
-                    {t}
-                    {t === "tests" && results
+                    {tb}
+                    {tb === "tests" && results
                       ? ` · ${passedCount}/${results.length}`
                       : ""}
                   </button>
@@ -430,7 +432,7 @@ export function CodeChallengeV2({
               >
                 {tab === "output" ? (
                   running ? (
-                    <span style={{ color: "var(--ink-400)" }}>Running…</span>
+                    <span style={{ color: "var(--ink-400)" }}>{t("exercise.running")}</span>
                   ) : output ? (
                     <pre
                       style={{
@@ -443,12 +445,12 @@ export function CodeChallengeV2({
                     </pre>
                   ) : (
                     <span style={{ color: "var(--ink-500)" }}>
-                      {"> "}Press Run to test.
+                      {"> "}{t("exercise.pressRunToTest")}
                     </span>
                   )
                 ) : !results ? (
                   <span style={{ color: "var(--ink-400)" }}>
-                    Submit to run all test cases.
+                    {t("exercise.submitToRunTests")}
                   </span>
                 ) : (
                   <div
@@ -458,19 +460,19 @@ export function CodeChallengeV2({
                       gap: 4,
                     }}
                   >
-                    {results.map((t) => (
+                    {results.map((r) => (
                       <div
-                        key={t.id}
+                        key={r.id}
                         style={{
                           display: "flex",
                           alignItems: "center",
                           gap: 8,
                           padding: "4px 8px",
-                          background: t.passed
+                          background: r.passed
                             ? "var(--green-50)"
                             : "var(--coral-50)",
                           borderRadius: 6,
-                          color: t.passed
+                          color: r.passed
                             ? "var(--green-800)"
                             : "var(--coral-700)",
                         }}
@@ -480,7 +482,7 @@ export function CodeChallengeV2({
                             width: 14,
                             height: 14,
                             borderRadius: 999,
-                            background: t.passed
+                            background: r.passed
                               ? "var(--green-600)"
                               : "var(--coral-500)",
                             display: "grid",
@@ -488,13 +490,13 @@ export function CodeChallengeV2({
                             color: "#fff",
                           }}
                         >
-                          {t.passed ? <Check size={10} /> : <X size={10} />}
+                          {r.passed ? <Check size={10} /> : <X size={10} />}
                         </span>
                         <span style={{ flex: 1 }}>
-                          {t.hidden ? "Hidden test" : `Test ${t.id} · ${t.name}`}
+                          {r.hidden ? t("exercise.hiddenTest") : `Test ${r.id} · ${r.name}`}
                         </span>
-                        {t.time !== undefined && (
-                          <span style={{ opacity: 0.7 }}>{t.time}ms</span>
+                        {r.time !== undefined && (
+                          <span style={{ opacity: 0.7 }}>{r.time}ms</span>
                         )}
                       </div>
                     ))}
