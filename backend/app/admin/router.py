@@ -397,16 +397,21 @@ async def update_course_admin(
     return {"ok": True}
 
 
-async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> dict:
-    """Programmatically clear all FK references to users.id before deleting the row.
+async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> tuple[dict, list]:
+    """Clear ALL FK references to users.id ourselves before issuing the DELETE.
 
-    Production DB may have FK constraints created WITHOUT ON DELETE CASCADE/SET NULL
-    (predates migration b3c4d5e6f7a8 or added via create_all without ALTER).
-    This function introspects pg_constraint at runtime, finds every FK pointing
-    to users(id), and either DELETEs (NOT NULL columns) or UPDATEs to NULL
-    (nullable columns) the referencing rows.
+    Why clear ALL (not only NO ACTION/RESTRICT)?
+    Production DB has pgvector-indexed tables (knowledge_entries). When Postgres
+    processes a user DELETE and triggers cascade SET NULL on knowledge_entries,
+    the per-row index maintenance pulls in `vector` opclass functions and fails
+    with `could not access file "$libdir/vector"` if the extension binary is
+    missing/broken. By pre-clearing the rows via plain UPDATE/DELETE (no
+    cascade), we keep the user DELETE itself a leaf operation: zero referencing
+    rows to act on, zero cascades, no vector ops needed.
 
-    Returns a summary dict of {table.column: rows_affected} for logging.
+    Each per-table operation runs inside its own SAVEPOINT so one broken table
+    (missing extension, bad trigger, etc.) does not abort the whole transaction.
+    Failures are collected and returned alongside the summary.
     """
     rows = await db.execute(
         text(
@@ -415,8 +420,7 @@ async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> dic
               c.conname                          AS constraint_name,
               tn.nspname || '.' || tc.relname    AS child_table,
               ta.attname                         AS child_column,
-              ta.attnotnull                      AS not_null,
-              c.confdeltype                      AS on_delete
+              ta.attnotnull                      AS not_null
             FROM pg_constraint c
             JOIN pg_class tc       ON tc.oid = c.conrelid
             JOIN pg_namespace tn   ON tn.oid = tc.relnamespace
@@ -432,23 +436,25 @@ async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> dic
         )
     )
     summary: dict[str, int] = {}
+    failures: list[str] = []
     for row in rows.mappings().all():
         table = row["child_table"]
         col = row["child_column"]
-        on_delete = row["on_delete"]  # 'a'=NO ACTION, 'r'=RESTRICT, 'c'=CASCADE, 'n'=SET NULL, 'd'=SET DEFAULT
-        # If FK already has CASCADE/SET NULL/SET DEFAULT, Postgres handles it. Skip.
-        if on_delete in ("c", "n", "d"):
-            continue
-        # confdeltype 'a' or 'r' — must clear manually.
         not_null = row["not_null"]
         if not_null:
             stmt = text(f'DELETE FROM {table} WHERE "{col}" = :uid')
         else:
             stmt = text(f'UPDATE {table} SET "{col}" = NULL WHERE "{col}" = :uid')
-        res = await db.execute(stmt, {"uid": user_id})
-        if res.rowcount:
-            summary[f"{table}.{col}"] = res.rowcount
-    return summary
+        sp = await db.begin_nested()
+        try:
+            res = await db.execute(stmt, {"uid": user_id})
+            if res.rowcount:
+                summary[f"{table}.{col}"] = res.rowcount
+            await sp.commit()
+        except Exception as e:  # noqa: BLE001
+            await sp.rollback()
+            failures.append(f"{table}.{col}: {type(e).__name__}: {e}")
+    return summary, failures
 
 
 @router.delete("/users/{user_id}")
@@ -466,17 +472,18 @@ async def delete_user_endpoint(
         raise NotFoundError("User not found")
     if target.id == admin.id:
         raise HTTPException(400, "Cannot delete yourself")
+    summary, failures = await _cascade_delete_user_refs(db, user_id)
     try:
-        summary = await _cascade_delete_user_refs(db, user_id)
         await db.delete(target)
         await db.flush()
     except IntegrityError as e:
         raise HTTPException(
             400,
-            f"Cannot delete user: residual FK constraint blocked deletion "
-            f"even after manual cascade. Original error: {e.orig}",
+            f"Cannot delete user: residual FK constraint blocked deletion. "
+            f"Cleared tables: {summary}. Pre-clear failures: {failures}. "
+            f"Original error: {e.orig}",
         ) from e
-    return {"ok": True, "cascaded": summary}
+    return {"ok": True, "cascaded": summary, "preclear_failures": failures}
 
 
 @router.post("/users/{user_id}/password")
