@@ -63,6 +63,7 @@ import { ScormPackageV2 } from "@/components/exercises/v2/scorm-v2";
 import { WhiteboardV2 } from "@/components/exercises/v2/whiteboard-v2";
 import { ProbabilityWheelV2 } from "@/components/exercises/v2/probability-wheel-v2";
 import { AreaModelV2 } from "@/components/exercises/v2/area-model-v2";
+import { FunctionMachineV2 } from "@/components/exercises/v2/function-machine-v2";
 
 export type V2ExerciseType =
   | "quiz"
@@ -108,7 +109,8 @@ export type V2ExerciseType =
   | "scorm"
   | "whiteboard"
   | "probability-wheel"
-  | "area-model";
+  | "area-model"
+  | "function-machine";
 
 export interface V2Step {
   type: V2ExerciseType;
@@ -179,6 +181,7 @@ const REGISTRY: Record<V2ExerciseType, React.ComponentType<any>> = {
   "whiteboard": WhiteboardV2,
   "probability-wheel": ProbabilityWheelV2,
   "area-model": AreaModelV2,
+  "function-machine": FunctionMachineV2,
 };
 
 export function V2LessonRunner({
