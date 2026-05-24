@@ -15,6 +15,7 @@ import {
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Course {
  id: string;
@@ -99,6 +100,7 @@ function downloadSampleCsv() {
 type ImportMode = "enroll" | "import";
 
 export default function BulkEnrollPage() {
+ const { t } = useTranslation();
  const [mode, setMode] = useState<ImportMode>("enroll");
  const [courses, setCourses] = useState<Course[]>([]);
  const [groups, setGroups] = useState<Group[]>([]);
@@ -121,7 +123,7 @@ export default function BulkEnrollPage() {
  const items = (data?.items || []) as Course[];
  setCourses(items.filter((c) => !c.is_template));
  })
- .catch(() => toast.error("Failed to load courses"));
+ .catch(() => toast.error(t("admin.bulkEnroll.failedLoadCourses")));
 
  apiClient
  .get("/admin/groups")
@@ -155,7 +157,7 @@ export default function BulkEnrollPage() {
  if (file && (file.name.endsWith(".csv") || file.type === "text/csv")) {
  handleFile(file);
  } else {
- toast.error("Please drop a CSV file");
+ toast.error(t("admin.bulkEnroll.dropCsv"));
  }
  }, []);
 
@@ -175,10 +177,10 @@ export default function BulkEnrollPage() {
  try {
  const rows = parseCsv(csvText);
  if (rows.length === 0) {
- setParseError("No data rows found in CSV");
+ setParseError(t("admin.bulkEnroll.noDataRows"));
  return;
  }
- toast.success(`Parsed ${rows.length} row${rows.length === 1 ? "" : "s"}`);
+ toast.success(t("admin.bulkEnroll.parsedRows").replace("{n}", String(rows.length)));
  } catch (e) {
  setParseError((e as Error).message);
  }
@@ -186,11 +188,11 @@ export default function BulkEnrollPage() {
 
  const handleSubmitEnroll = async () => {
  if (!courseId) {
- toast.error("Pick a course first");
+ toast.error(t("admin.bulkEnroll.pickCourseFirst"));
  return;
  }
  if (parsed.length === 0) {
- toast.error("No valid rows to import");
+ toast.error(t("admin.bulkEnroll.noValidRows"));
  return;
  }
  setSubmitting(true);
@@ -207,16 +209,19 @@ export default function BulkEnrollPage() {
  setEnrollResult(data);
  if (data.errors.length === 0) {
  toast.success(
- `Imported ${data.total} students: ${data.created} new, ${data.enrolled} enrolled`
+ t("admin.bulkEnroll.importedSummary")
+ .replace("{total}", String(data.total))
+ .replace("{created}", String(data.created))
+ .replace("{enrolled}", String(data.enrolled))
  );
  } else {
  toast.warning(
- `Imported with ${data.errors.length} error${data.errors.length === 1 ? "" : "s"}`
+ t("admin.bulkEnroll.importedWithErrors").replace("{n}", String(data.errors.length))
  );
  }
  } catch (err) {
  const e = err as { response?: { data?: { detail?: string } } };
- toast.error(e?.response?.data?.detail || "Import failed");
+ toast.error(e?.response?.data?.detail || t("admin.bulkEnroll.importFailed"));
  } finally {
  setSubmitting(false);
  }
@@ -224,7 +229,7 @@ export default function BulkEnrollPage() {
 
  const handleSubmitImport = async () => {
  if (parsed.length === 0 && !csvFile) {
- toast.error("No valid rows to import");
+ toast.error(t("admin.bulkEnroll.noValidRows"));
  return;
  }
  setSubmitting(true);
@@ -248,13 +253,15 @@ export default function BulkEnrollPage() {
  );
  setImportResult(data);
  if (data.errors.length === 0) {
- toast.success(`Created ${data.created} students, ${data.skipped} skipped`);
+ toast.success(
+ t("admin.bulkEnroll.createdStudents").replace("{created}", String(data.created)).replace("{skipped}", String(data.skipped))
+ );
  } else {
- toast.warning(`Import finished with ${data.errors.length} error(s)`);
+ toast.warning(t("admin.bulkEnroll.finishedWithErrors").replace("{n}", String(data.errors.length)));
  }
  } catch (err) {
  const e = err as { response?: { data?: { detail?: string } } };
- toast.error(e?.response?.data?.detail || "Import failed");
+ toast.error(e?.response?.data?.detail || t("admin.bulkEnroll.importFailed"));
  } finally {
  setSubmitting(false);
  }
@@ -264,10 +271,10 @@ export default function BulkEnrollPage() {
  <div className="mx-auto max-w-4xl">
  <div className="mb-8">
  <h1 className="text-2xl font-bold text-text ">
- Bulk Student Import
+ {t("admin.bulkEnroll.title")}
  </h1>
  <p className="mt-1 text-sm text-text-muted ">
- Upload a CSV to create student accounts and optionally enroll them in a course.
+ {t("admin.bulkEnroll.subtitle")}
  </p>
  </div>
 
@@ -282,7 +289,7 @@ export default function BulkEnrollPage() {
  }`}
  >
  <Users className="h-4 w-4" />
- Create &amp; Enroll in Course
+ {t("admin.bulkEnroll.enrollMode")}
  </button>
  <button
  onClick={() => setMode("import")}
@@ -293,7 +300,7 @@ export default function BulkEnrollPage() {
  }`}
  >
  <UserPlus className="h-4 w-4" />
- Import Students Only
+ {t("admin.bulkEnroll.importMode")}
  </button>
  </div>
 
@@ -303,7 +310,7 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Users className="h-4 w-4" />
- 1. Pick course
+ {t("admin.bulkEnroll.pickCourse")}
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -312,7 +319,7 @@ export default function BulkEnrollPage() {
  onChange={(e) => setCourseId(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
  >
- <option value="">-- Select a course --</option>
+ <option value="">{t("admin.bulkEnroll.selectCourseOption")}</option>
  {courses.map((c) => (
  <option key={c.id} value={c.id}>
  {c.title}
@@ -329,7 +336,7 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Users className="h-4 w-4" />
- 1. Assign to group (optional)
+ {t("admin.bulkEnroll.assignGroup")}
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -338,7 +345,7 @@ export default function BulkEnrollPage() {
  onChange={(e) => setGroupId(e.target.value)}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
  >
- <option value="">-- No group --</option>
+ <option value="">{t("admin.bulkEnroll.noGroupOption")}</option>
  {groups.map((g) => (
  <option key={g.id} value={g.id}>
  {g.name} ({g.member_count} members)
@@ -354,7 +361,7 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <FileText className="h-4 w-4" />
- 2. Upload CSV
+ {t("admin.bulkEnroll.uploadCsv")}
  </CardTitle>
  </CardHeader>
  <CardContent className="space-y-4">
@@ -370,7 +377,7 @@ export default function BulkEnrollPage() {
  className="flex items-center gap-1 text-xs font-medium text-primary hover:underline "
  >
  <Download className="h-3 w-3" />
- Download template
+ {t("admin.bulkEnroll.downloadTemplate")}
  </button>
  </div>
 
@@ -388,12 +395,12 @@ export default function BulkEnrollPage() {
  >
  <Upload className={`mb-2 h-8 w-8 ${isDragging ? "text-primary" : "text-text-subtle"}`} />
  <p className="text-sm font-medium text-text-muted ">
- {isDragging ? "Drop CSV file here" : "Drag & drop a CSV file, or click to browse"}
+ {isDragging ? t("admin.bulkEnroll.dropHere") : t("admin.bulkEnroll.dragOrClick")}
  </p>
- <p className="mt-1 text-xs text-text-subtle">Only .csv files accepted</p>
+ <p className="mt-1 text-xs text-text-subtle">{t("admin.bulkEnroll.onlyCsv")}</p>
  {csvFile && (
  <p className="mt-2 text-xs font-medium text-primary ">
- Loaded: {csvFile.name}
+ {t("admin.bulkEnroll.loaded")} {csvFile.name}
  </p>
  )}
  <input
@@ -411,7 +418,7 @@ export default function BulkEnrollPage() {
  {/* Manual textarea */}
  <details className="group">
  <summary className="cursor-pointer text-xs font-medium text-text-muted hover:text-ink-700 ">
- Or paste CSV text manually
+ {t("admin.bulkEnroll.pasteManually")}
  </summary>
  <textarea
  value={csvText}
@@ -435,10 +442,10 @@ export default function BulkEnrollPage() {
  }}
  className="text-xs font-medium text-primary hover:underline "
  >
- Use sample template
+ {t("admin.bulkEnroll.useSample")}
  </button>
  <Button variant="outline" size="sm" onClick={handlePreview}>
- Preview
+ {t("admin.bulkEnroll.previewBtn")}
  </Button>
  </div>
 
@@ -456,7 +463,7 @@ export default function BulkEnrollPage() {
  <Card className="mb-6">
  <CardHeader>
  <CardTitle className="text-base">
- Preview ({parsed.length} row{parsed.length === 1 ? "" : "s"})
+ {t("admin.bulkEnroll.previewTitle")} ({parsed.length})
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -465,9 +472,9 @@ export default function BulkEnrollPage() {
  <thead className="sticky top-0 bg-surface-2 ">
  <tr>
  <th className="px-3 py-2 font-semibold text-text-muted ">#</th>
- <th className="px-3 py-2 font-semibold text-text-muted ">Email</th>
- <th className="px-3 py-2 font-semibold text-text-muted ">Name</th>
- <th className="px-3 py-2 font-semibold text-text-muted ">Password</th>
+ <th className="px-3 py-2 font-semibold text-text-muted ">{t("common.email")}</th>
+ <th className="px-3 py-2 font-semibold text-text-muted ">{t("admin.bulkEnroll.colName")}</th>
+ <th className="px-3 py-2 font-semibold text-text-muted ">{t("admin.bulkEnroll.colPassword")}</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-border ">
@@ -475,8 +482,8 @@ export default function BulkEnrollPage() {
  <tr key={i} className="hover:bg-surface-2 ">
  <td className="px-3 py-1.5 text-text-subtle">{i + 1}</td>
  <td className="px-3 py-1.5 font-mono text-text ">{row.email}</td>
- <td className="px-3 py-1.5 text-ink-700 ">{row.full_name || <span className="italic text-text-subtle">auto</span>}</td>
- <td className="px-3 py-1.5 text-text-muted">{row.password ? "***" : <span className="italic text-text-subtle">{mode === "enroll" ? "default" : "random"}</span>}</td>
+ <td className="px-3 py-1.5 text-ink-700 ">{row.full_name || <span className="italic text-text-subtle">{t("admin.bulkEnroll.autoLabel")}</span>}</td>
+ <td className="px-3 py-1.5 text-text-muted">{row.password ? "***" : <span className="italic text-text-subtle">{mode === "enroll" ? t("admin.bulkEnroll.defaultLabel") : t("admin.bulkEnroll.randomLabel")}</span>}</td>
  </tr>
  ))}
  </tbody>
@@ -492,7 +499,7 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <Users className="h-4 w-4" />
- 3. Default password (for rows without one)
+ {t("admin.bulkEnroll.defaultPassword")}
  </CardTitle>
  </CardHeader>
  <CardContent>
@@ -504,7 +511,7 @@ export default function BulkEnrollPage() {
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
  />
  <p className="mt-1 text-xs text-text-muted ">
- Minimum 8 characters. Students should change this on first login.
+ {t("admin.bulkEnroll.defaultPasswordHint")}
  </p>
  </CardContent>
  </Card>
@@ -518,8 +525,8 @@ export default function BulkEnrollPage() {
  className="w-full"
  >
  {submitting
- ? "Importing..."
- : `Import & Enroll ${parsed.length} student${parsed.length === 1 ? "" : "s"}`}
+ ? t("admin.bulkEnroll.importing")
+ : t("admin.bulkEnroll.importAndEnroll").replace("{n}", String(parsed.length))}
  </Button>
  ) : (
  <Button
@@ -528,8 +535,8 @@ export default function BulkEnrollPage() {
  className="w-full"
  >
  {submitting
- ? "Importing..."
- : `Import ${parsed.length} student${parsed.length === 1 ? "" : "s"}`}
+ ? t("admin.bulkEnroll.importing")
+ : t("admin.bulkEnroll.importStudents").replace("{n}", String(parsed.length))}
  </Button>
  )}
 
@@ -539,21 +546,22 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <CheckCircle className="h-4 w-4 text-primary" />
- Import results
+ {t("admin.bulkEnroll.importResults")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
- <Stat label="Total" value={enrollResult.total} />
- <Stat label="Created" value={enrollResult.created} />
- <Stat label="Reused" value={enrollResult.reused} />
- <Stat label="Enrolled" value={enrollResult.enrolled} />
+ <Stat label={t("admin.bulkEnroll.statTotal")} value={enrollResult.total} />
+ <Stat label={t("admin.bulkEnroll.statCreated")} value={enrollResult.created} />
+ <Stat label={t("admin.bulkEnroll.statReused")} value={enrollResult.reused} />
+ <Stat label={t("admin.bulkEnroll.statEnrolled")} value={enrollResult.enrolled} />
  </div>
  {enrollResult.already_enrolled > 0 && (
  <p className="mb-3 text-xs text-text-muted">
- {enrollResult.already_enrolled} student
- {enrollResult.already_enrolled === 1 ? " was" : "s were"} already
- enrolled in the course (skipped).
+ {(enrollResult.already_enrolled === 1
+ ? t("admin.bulkEnroll.alreadyEnrolledOne")
+ : t("admin.bulkEnroll.alreadyEnrolledMany")
+ ).replace("{n}", String(enrollResult.already_enrolled))}
  </p>
  )}
  {enrollResult.errors.length > 0 && (
@@ -569,14 +577,14 @@ export default function BulkEnrollPage() {
  <CardHeader>
  <CardTitle className="flex items-center gap-2 text-base">
  <CheckCircle className="h-4 w-4 text-primary" />
- Import results
+ {t("admin.bulkEnroll.importResults")}
  </CardTitle>
  </CardHeader>
  <CardContent>
  <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
- <Stat label="Created" value={importResult.created} />
- <Stat label="Skipped" value={importResult.skipped} />
- <Stat label="Errors" value={importResult.errors.length} />
+ <Stat label={t("admin.bulkEnroll.statCreated")} value={importResult.created} />
+ <Stat label={t("admin.bulkEnroll.statSkipped")} value={importResult.skipped} />
+ <Stat label={t("admin.bulkEnroll.statErrors")} value={importResult.errors.length} />
  </div>
  {importResult.errors.length > 0 && (
  <ErrorList errors={importResult.errors} />
@@ -601,6 +609,7 @@ function ErrorList({ errors }: { errors: string[] }) {
  return (
  <div>
  <p className="mb-2 text-sm font-semibold text-danger-fg ">
+ {/* errorsLabel is generic - just show label */}
  Errors ({errors.length})
  </p>
  <div className="max-h-48 overflow-y-auto rounded-lg border border-danger bg-danger-soft p-3 ">

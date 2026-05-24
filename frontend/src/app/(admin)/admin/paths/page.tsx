@@ -7,6 +7,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Route, Plus, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface PathItem {
  id: string;
@@ -23,6 +24,7 @@ interface CourseOption {
 }
 
 export default function AdminPathsPage() {
+ const { t } = useTranslation();
  const confirm = useConfirm();
  const [paths, setPaths] = useState<PathItem[]>([]);
  const [courses, setCourses] = useState<CourseOption[]>([]);
@@ -48,7 +50,7 @@ export default function AdminPathsPage() {
  const handleCreate = async (e: React.FormEvent) => {
  e.preventDefault();
  if (selectedCourses.length === 0) {
- toast.error("Add at least one course to the path");
+ toast.error(t("admin.paths.addOneCourse"));
  return;
  }
  setSubmitting(true);
@@ -61,10 +63,10 @@ export default function AdminPathsPage() {
  setForm({ title: "", description: "" });
  setSelectedCourses([]);
  setShowForm(false);
- toast.success("Learning path created");
+ toast.success(t("admin.paths.pathCreated"));
  fetchPaths();
  } catch {
- toast.error("Failed to create path");
+ toast.error(t("admin.paths.failedCreate"));
  } finally {
  setSubmitting(false);
  }
@@ -75,21 +77,21 @@ export default function AdminPathsPage() {
  await apiClient.put(`/learning-paths/${path.id}`, {
  is_published: !path.is_published,
  });
- toast.success(path.is_published ? "Unpublished" : "Published");
+ toast.success(path.is_published ? t("admin.paths.unpublished") : t("admin.paths.published"));
  fetchPaths();
  } catch {
- toast.error("Failed to update path");
+ toast.error(t("admin.paths.failedUpdate"));
  }
  };
 
  const handleDelete = async (id: string) => {
- if (!(await confirm({ message: "Delete this learning path?", variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message: t("admin.paths.confirmDelete"), variant: "danger", confirmLabel: t("common.delete") }))) return;
  try {
  await apiClient.delete(`/learning-paths/${id}`);
- toast.success("Path deleted");
+ toast.success(t("admin.paths.pathDeleted"));
  fetchPaths();
  } catch {
- toast.error("Failed to delete path");
+ toast.error(t("admin.paths.failedDelete"));
  }
  };
 
@@ -122,27 +124,27 @@ export default function AdminPathsPage() {
  <div>
  <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Learning Paths</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.paths.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- Create structured course sequences for students
+ {t("admin.paths.subtitle")}
  </p>
  </div>
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
- New Path
+ {t("admin.paths.newPath")}
  </Button>
  </div>
 
  {showForm && (
  <Card className="mb-6">
  <CardHeader>
- <CardTitle>Create Learning Path</CardTitle>
+ <CardTitle>{t("admin.paths.createPath")}</CardTitle>
  </CardHeader>
  <CardContent>
  <form onSubmit={handleCreate} className="space-y-4">
  <input
  type="text"
- placeholder="Path Title"
+ placeholder={t("admin.paths.pathTitlePlaceholder")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
@@ -150,7 +152,7 @@ export default function AdminPathsPage() {
  autoFocus
  />
  <textarea
- placeholder="Description"
+ placeholder={t("common.description")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
@@ -159,7 +161,7 @@ export default function AdminPathsPage() {
  {/* Course selector */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Add courses (in order)
+ {t("admin.paths.addCoursesInOrder")}
  </label>
  <select
  onChange={(e) => {
@@ -168,7 +170,7 @@ export default function AdminPathsPage() {
  }}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  >
- <option value="">Select a course to add...</option>
+ <option value="">{t("admin.paths.selectCourseToAdd")}</option>
  {courses
  .filter((c) => !selectedCourses.find((s) => s.course_id === c.id))
  .map((c) => (
@@ -189,7 +191,7 @@ export default function AdminPathsPage() {
  <GripVertical className="h-4 w-4 text-ink-300 " />
  <span className="text-xs font-bold text-text-subtle">{idx + 1}</span>
  <span className="flex-1 text-sm text-text ">
- {course?.title || "Unknown"}
+ {course?.title || t("admin.paths.unknownCourse")}
  </span>
  <label className="flex items-center gap-1 text-xs text-text-muted ">
  <input
@@ -198,7 +200,7 @@ export default function AdminPathsPage() {
  onChange={() => toggleRequired(s.course_id)}
  className="rounded border-ink-300 text-primary focus:ring-green-500"
  />
- Required
+ {t("admin.paths.required")}
  </label>
  <button
  type="button"
@@ -213,7 +215,7 @@ export default function AdminPathsPage() {
  </div>
  )}
  <Button type="submit" disabled={submitting}>
- {submitting ? "Creating..." : "Create Path"}
+ {submitting ? t("common.creating") : t("admin.paths.createPath")}
  </Button>
  </form>
  </CardContent>
@@ -227,10 +229,10 @@ export default function AdminPathsPage() {
  <Route className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- No learning paths yet
+ {t("admin.paths.noPaths")}
  </h3>
  <p className="text-base text-text-muted ">
- Create a structured course sequence for your students.
+ {t("admin.paths.noPathsHint")}
  </p>
  </CardContent>
  </Card>
@@ -249,13 +251,13 @@ export default function AdminPathsPage() {
  {p.title}
  </h3>
  <div className="mt-1 flex items-center gap-3 text-xs text-text-muted ">
- <span>{p.step_count} courses</span>
+ <span>{p.step_count} {t("admin.paths.coursesCount")}</span>
  <span className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
  p.is_published
  ? "bg-primary-soft text-success-fg "
  : "bg-ink-100 text-text-muted "
  }`}>
- {p.is_published ? "Published" : "Draft"}
+ {p.is_published ? t("common.published") : t("common.draft")}
  </span>
  </div>
  </div>
@@ -263,7 +265,7 @@ export default function AdminPathsPage() {
  variant="ghost"
  size="sm"
  onClick={() => handleTogglePublish(p)}
- title={p.is_published ? "Unpublish" : "Publish"}
+ title={p.is_published ? t("common.unpublish") : t("common.publish")}
  >
  {p.is_published ? (
  <EyeOff className="h-4 w-4 text-text-subtle" />

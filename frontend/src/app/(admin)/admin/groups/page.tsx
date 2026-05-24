@@ -18,6 +18,7 @@ import {
  Search,
  X,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Group {
  id: string;
@@ -48,6 +49,7 @@ interface CourseOption {
 }
 
 export default function GroupsPage() {
+ const { t } = useTranslation();
  const [groups, setGroups] = useState<Group[]>([]);
  const [users, setUsers] = useState<UserOption[]>([]);
  const [courses, setCourses] = useState<CourseOption[]>([]);
@@ -68,7 +70,7 @@ export default function GroupsPage() {
  apiClient
  .get("/admin/groups")
  .then(({ data }) => setGroups(data))
- .catch(() => toast.error("Failed to load groups"))
+ .catch(() => toast.error(t("admin.groups.failedLoad")))
  .finally(() => setLoading(false));
  }, []);
 
@@ -101,29 +103,29 @@ export default function GroupsPage() {
  name: newName.trim(),
  description: newDesc.trim() || null,
  });
- toast.success("Group created");
+ toast.success(t("admin.groups.groupCreated"));
  setNewName("");
  setNewDesc("");
  setShowCreate(false);
  fetchGroups();
  } catch {
- toast.error("Failed to create group");
+ toast.error(t("admin.groups.failedCreate"));
  }
  };
 
  const deleteGroup = async (g: Group) => {
  const ok = await confirm({
- title: "Delete Group",
- message: `Delete "${g.name}"? Members will not be deleted, only the group.`,
+ title: t("admin.groups.deleteGroupTitle"),
+ message: t("admin.groups.deleteGroupMsg").replace("{name}", g.name),
  variant: "danger",
  });
  if (!ok) return;
  try {
  await apiClient.delete(`/admin/groups/${g.id}`);
- toast.success("Group deleted");
+ toast.success(t("admin.groups.groupDeleted"));
  fetchGroups();
  } catch {
- toast.error("Failed to delete group");
+ toast.error(t("admin.groups.failedDelete"));
  }
  };
 
@@ -134,29 +136,29 @@ export default function GroupsPage() {
  `/admin/groups/${groupId}/members`,
  { user_ids: selectedUsers }
  );
- toast.success(`${data.added} member(s) added`);
+ toast.success(t("admin.groups.memberAddedCount").replace("{count}", String(data.added)));
  setSelectedUsers([]);
  setAddingMembers(null);
  fetchMembers(groupId);
  fetchGroups();
  } catch {
- toast.error("Failed to add members");
+ toast.error(t("admin.groups.failedAddMembers"));
  }
  };
 
  const removeMember = async (groupId: string, userId: string, name: string) => {
  const ok = await confirm({
- title: "Remove Member",
- message: `Remove ${name} from this group?`,
+ title: t("admin.groups.removeMemberTitle"),
+ message: t("admin.groups.removeMemberMsg").replace("{name}", name),
  });
  if (!ok) return;
  try {
  await apiClient.delete(`/admin/groups/${groupId}/members/${userId}`);
- toast.success("Member removed");
+ toast.success(t("admin.groups.memberRemoved"));
  fetchMembers(groupId);
  fetchGroups();
  } catch {
- toast.error("Failed to remove member");
+ toast.error(t("admin.groups.failedRemoveMember"));
  }
  };
 
@@ -168,12 +170,12 @@ export default function GroupsPage() {
  { course_id: selectedCourse }
  );
  toast.success(
- `${data.enrolled} of ${data.total_members} members enrolled`
+ t("admin.groups.enrolledOf").replace("{enrolled}", String(data.enrolled)).replace("{total}", String(data.total_members))
  );
  setEnrollingGroup(null);
  setSelectedCourse("");
  } catch {
- toast.error("Failed to enroll group");
+ toast.error(t("admin.groups.failedEnroll"));
  }
  };
 
@@ -195,14 +197,14 @@ export default function GroupsPage() {
  <div className="mx-auto max-w-5xl">
  <div className="mb-8 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Student Groups</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.groups.title")}</h1>
  <p className="mt-1 text-sm text-text-muted ">
- Organize students into groups and enroll them in courses
+ {t("admin.groups.subtitle")}
  </p>
  </div>
  <Button onClick={() => setShowCreate(!showCreate)} size="sm">
  <Plus className="h-4 w-4" />
- New Group
+ {t("admin.groups.newGroup")}
  </Button>
  </div>
 
@@ -210,11 +212,11 @@ export default function GroupsPage() {
  {showCreate && (
  <Card className="mb-6">
  <CardContent className="p-5">
- <h3 className="mb-3 font-semibold text-ink-700 ">Create Group</h3>
+ <h3 className="mb-3 font-semibold text-ink-700 ">{t("admin.groups.createGroup")}</h3>
  <div className="space-y-3">
  <input
  type="text"
- placeholder="Group name (e.g. Class 10-A)"
+ placeholder={t("admin.groups.namePlaceholder")}
  value={newName}
  onChange={(e) => setNewName(e.target.value)}
  className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
@@ -222,21 +224,21 @@ export default function GroupsPage() {
  />
  <input
  type="text"
- placeholder="Description (optional)"
+ placeholder={t("admin.groups.descPlaceholder")}
  value={newDesc}
  onChange={(e) => setNewDesc(e.target.value)}
  className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
  />
  <div className="flex gap-2">
  <Button size="sm" onClick={createGroup} disabled={!newName.trim()}>
- Create
+ {t("common.create")}
  </Button>
  <Button
  size="sm"
  variant="outline"
  onClick={() => setShowCreate(false)}
  >
- Cancel
+ {t("common.cancel")}
  </Button>
  </div>
  </div>
@@ -251,7 +253,7 @@ export default function GroupsPage() {
  <UsersRound className="h-8 w-8 text-text-subtle" />
  </div>
  <p className="text-sm text-text-muted ">
- No groups yet. Create one to organize your students.
+ {t("admin.groups.noGroupsYet")}
  </p>
  </div>
  ) : (
@@ -275,7 +277,7 @@ export default function GroupsPage() {
  </div>
  <div className="flex items-center gap-3">
  <span className="rounded-pill bg-ink-100 px-2.5 py-1 text-xs font-medium text-text-muted ">
- {g.member_count} members
+ {g.member_count} {t("admin.groups.members")}
  </span>
  {expandedGroup === g.id ? (
  <ChevronUp className="h-4 w-4 text-text-subtle" />
@@ -299,7 +301,7 @@ export default function GroupsPage() {
  }}
  >
  <UserPlus className="h-3.5 w-3.5" />
- Add Members
+ {t("admin.groups.addMembers")}
  </Button>
  <Button
  size="sm"
@@ -311,7 +313,7 @@ export default function GroupsPage() {
  }}
  >
  <BookOpen className="h-3.5 w-3.5" />
- Enroll in Course
+ {t("admin.groups.enrollInCourse")}
  </Button>
  <Button
  size="sm"
@@ -323,7 +325,7 @@ export default function GroupsPage() {
  }}
  >
  <Trash2 className="h-3.5 w-3.5" />
- Delete
+ {t("common.delete")}
  </Button>
  </div>
 
@@ -331,13 +333,13 @@ export default function GroupsPage() {
  {addingMembers === g.id && (
  <div className="mb-4 rounded-lg border border-border-strong bg-paper-2 p-4">
  <h4 className="mb-2 text-sm font-medium text-ink-700 ">
- Select users to add:
+ {t("admin.groups.selectUsersToAdd")}
  </h4>
  <div className="relative mb-2">
  <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-subtle" />
  <input
  type="text"
- placeholder="Search users..."
+ placeholder={t("admin.groups.searchUsers")}
  value={userSearch}
  onChange={(e) => setUserSearch(e.target.value)}
  className="w-full rounded-lg border border-border-strong py-2 pl-9 pr-3 text-sm focus:border-primary focus:outline-none"
@@ -386,7 +388,7 @@ export default function GroupsPage() {
  </span>
  {isMember && (
  <span className="ml-auto text-xs text-text-subtle">
- already in group
+ {t("admin.groups.alreadyInGroup")}
  </span>
  )}
  </label>
@@ -399,7 +401,7 @@ export default function GroupsPage() {
  onClick={() => addMembers(g.id)}
  disabled={selectedUsers.length === 0}
  >
- Add {selectedUsers.length > 0 && `(${selectedUsers.length})`}
+ {t("admin.groups.addCount")} {selectedUsers.length > 0 && `(${selectedUsers.length})`}
  </Button>
  <Button
  size="sm"
@@ -409,7 +411,7 @@ export default function GroupsPage() {
  setSelectedUsers([]);
  }}
  >
- Cancel
+ {t("common.cancel")}
  </Button>
  </div>
  </div>
@@ -419,14 +421,14 @@ export default function GroupsPage() {
  {enrollingGroup === g.id && (
  <div className="mb-4 rounded-lg border border-border-strong bg-paper-2 p-4">
  <h4 className="mb-2 text-sm font-medium text-ink-700 ">
- Select course to enroll all members:
+ {t("admin.groups.selectCourseToEnroll")}
  </h4>
  <select
  value={selectedCourse}
  onChange={(e) => setSelectedCourse(e.target.value)}
  className="mb-3 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  >
- <option value="">Choose a course...</option>
+ <option value="">{t("admin.groups.chooseCourse")}</option>
  {courses.map((c) => (
  <option key={c.id} value={c.id}>
  {c.title}
@@ -439,7 +441,7 @@ export default function GroupsPage() {
  onClick={() => enrollGroup(g.id)}
  disabled={!selectedCourse}
  >
- Enroll All Members
+ {t("admin.groups.enrollAll")}
  </Button>
  <Button
  size="sm"
@@ -449,7 +451,7 @@ export default function GroupsPage() {
  setSelectedCourse("");
  }}
  >
- Cancel
+ {t("common.cancel")}
  </Button>
  </div>
  </div>
@@ -458,13 +460,13 @@ export default function GroupsPage() {
  {/* Members List */}
  <div>
  <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-subtle">
- Members
+ {t("admin.groups.membersLabel")}
  </h4>
  {!members[g.id] ? (
- <p className="text-sm text-text-subtle">Loading...</p>
+ <p className="text-sm text-text-subtle">{t("common.loading")}</p>
  ) : members[g.id].length === 0 ? (
  <p className="text-sm text-text-subtle">
- No members yet. Add students above.
+ {t("admin.groups.noMembersYet")}
  </p>
  ) : (
  <div className="space-y-1">

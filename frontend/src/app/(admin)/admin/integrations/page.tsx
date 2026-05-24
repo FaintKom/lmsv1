@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface Connection {
  id: string;
@@ -130,6 +131,7 @@ const OAUTH_PROVIDERS: Record<string, string> = {
 };
 
 export default function IntegrationsPage() {
+ const { t } = useTranslation();
  const [connections, setConnections] = useState<Connection[]>([]);
  const [loading, setLoading] = useState(true);
  const searchParams = useSearchParams();
@@ -147,14 +149,15 @@ export default function IntegrationsPage() {
  const connected = searchParams.get("connected");
  const error = searchParams.get("error");
  if (connected) {
- toast.success(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
+ const name = connected.charAt(0).toUpperCase() + connected.slice(1);
+ toast.success(t("admin.integrations.connectSuccess").replace("{name}", name));
  // Refresh connections
  apiClient.get("/integrations/status").then(({ data }) => setConnections(data.connections || []));
  // Clean URL
  window.history.replaceState({}, "", "/admin/integrations");
  }
  if (error) {
- toast.error(`Connection failed: ${error.replace(/_/g, " ")}`);
+ toast.error(t("admin.integrations.connectionFailed").replace("{error}", error.replace(/_/g, " ")));
  window.history.replaceState({}, "", "/admin/integrations");
  }
  }, [searchParams]);
@@ -164,7 +167,7 @@ export default function IntegrationsPage() {
  if (authUrl) {
  window.location.href = authUrl;
  } else {
- toast.info("This integration is coming soon");
+ toast.info(t("admin.integrations.comingSoonInfo"));
  }
  }, []);
 
@@ -175,18 +178,18 @@ export default function IntegrationsPage() {
  try {
  await apiClient.delete(`/integrations/${provider}`);
  setConnections((prev) => prev.filter((c) => c.provider !== provider));
- toast.success("Integration disconnected");
+ toast.success(t("admin.integrations.disconnected"));
  } catch {
- toast.error("Failed to disconnect");
+ toast.error(t("admin.integrations.failedDisconnect"));
  }
  };
 
  return (
  <div className="space-y-6">
  <div>
- <h1 className="text-2xl font-bold text-text ">Integrations</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.integrations.title")}</h1>
  <p className="text-sm text-text-muted ">
- Connect external services to enhance your learning platform
+ {t("admin.integrations.subtitle")}
  </p>
  </div>
 
@@ -216,17 +219,17 @@ export default function IntegrationsPage() {
  {isConnected ? (
  <>
  <CheckCircle className="h-3 w-3 text-primary" />
- <span className="text-[10px] font-medium text-primary">Connected</span>
+ <span className="text-[10px] font-medium text-primary">{t("admin.integrations.connected")}</span>
  </>
  ) : isComingSoon ? (
  <>
  <Circle className="h-3 w-3 text-warning" />
- <span className="text-[10px] font-medium text-warning-fg">Coming soon</span>
+ <span className="text-[10px] font-medium text-warning-fg">{t("admin.integrations.comingSoon")}</span>
  </>
  ) : (
  <>
  <Circle className="h-3 w-3 text-ink-300" />
- <span className="text-[10px] font-medium text-text-subtle">Not connected</span>
+ <span className="text-[10px] font-medium text-text-subtle">{t("admin.integrations.notConnected")}</span>
  </>
  )}
  </div>
@@ -255,7 +258,7 @@ export default function IntegrationsPage() {
  {isConnected ? (
  <div className="flex items-center gap-2">
  <span className="flex-1 truncate text-xs text-text-subtle">
- {conn.account_email || conn.account_name || "Connected"}
+ {conn.account_email || conn.account_name || t("admin.integrations.connected")}
  </span>
  <Button
  size="sm"
@@ -264,17 +267,17 @@ export default function IntegrationsPage() {
  onClick={() => handleDisconnect(intg.provider)}
  >
  <Unplug className="h-3.5 w-3.5 mr-1" />
- Disconnect
+ {t("admin.integrations.disconnect")}
  </Button>
  </div>
  ) : isComingSoon ? (
  <Button size="sm" variant="outline" disabled className="w-full opacity-50">
- Coming Soon
+ {t("admin.integrations.comingSoonBtn")}
  </Button>
  ) : (
  <Button size="sm" className="w-full">
  <Settings className="h-3.5 w-3.5 mr-1" />
- Connect {intg.name}
+ {t("admin.integrations.connect")} {intg.name}
  </Button>
  )}
  </CardContent>
@@ -287,7 +290,7 @@ export default function IntegrationsPage() {
  <Card>
  <CardContent className="p-6">
  <h3 className="text-sm font-semibold text-ink-700 mb-2">
- How integrations work
+ {t("admin.integrations.howItWorks")}
  </h3>
  <ul className="space-y-1.5 text-xs text-text-muted ">
  <li>Each integration connects to your organization's external account via secure OAuth</li>

@@ -7,6 +7,7 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AssignmentData {
  id: string;
@@ -20,6 +21,7 @@ interface AssignmentData {
 }
 
 export default function EditAssignmentPage() {
+ const { t } = useTranslation();
  const params = useParams();
  const router = useRouter();
  const id = params.id as string;
@@ -52,7 +54,7 @@ export default function EditAssignmentPage() {
  });
  })
  .catch(() => {
- toast.error("Failed to load assignment");
+ toast.error(t("admin.assignmentEdit.failedLoad"));
  })
  .finally(() => setLoading(false));
  }, [id]);
@@ -68,9 +70,9 @@ export default function EditAssignmentPage() {
  max_score: form.max_score,
  allow_late: form.allow_late,
  });
- toast.success("Assignment updated");
+ toast.success(t("admin.assignmentEdit.updated"));
  } catch {
- toast.error("Failed to save assignment");
+ toast.error(t("admin.assignmentEdit.failedSave"));
  } finally {
  setSaving(false);
  }
@@ -101,11 +103,11 @@ export default function EditAssignmentPage() {
  className="mb-4 flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-text "
  >
  <ArrowLeft className="h-4 w-4" />
- Back to Assignments
+ {t("admin.assignmentEdit.backToAssignments")}
  </button>
 
  <h1 className="mb-6 text-2xl font-bold text-text ">
- Edit Assignment
+ {t("admin.assignmentEdit.title")}
  </h1>
 
  <form onSubmit={handleSave} className="space-y-5 rounded-lg border border-border-strong bg-paper-2 p-6 ">
@@ -113,7 +115,7 @@ export default function EditAssignmentPage() {
  {form.course_title && (
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Course
+ {t("admin.contentLibrary.courseCol")}
  </label>
  <span className="inline-block rounded-lg bg-success-soft px-3 py-1.5 text-sm font-medium text-primary ">
  {form.course_title}
@@ -124,7 +126,7 @@ export default function EditAssignmentPage() {
  {/* Title */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Title *
+ {t("admin.courseEdit.titleLabel")}
  </label>
  <input
  type="text"
@@ -138,7 +140,7 @@ export default function EditAssignmentPage() {
  {/* Description */}
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Description
+ {t("common.description")}
  </label>
  <textarea
  value={form.description}
@@ -152,7 +154,7 @@ export default function EditAssignmentPage() {
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Due Date *
+ {t("admin.assignments.dueDate")}
  </label>
  <input
  type="datetime-local"
@@ -164,7 +166,7 @@ export default function EditAssignmentPage() {
  </div>
  <div>
  <label className="mb-1 block text-xs font-medium text-text-muted ">
- Max Score
+ {t("admin.assignments.maxScore")}
  </label>
  <input
  type="number"
@@ -186,19 +188,19 @@ export default function EditAssignmentPage() {
  onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
  className="rounded border-ink-300 text-primary focus:ring-green-500"
  />
- Allow late submissions
+ {t("admin.assignments.allowLate")}
  </label>
 
  {/* Actions */}
  <div className="flex items-center gap-3 pt-2">
  <Button type="submit" disabled={saving}>
- {saving ? "Saving..." : "Save Changes"}
+ {saving ? t("common.saving") : t("common.save")}
  </Button>
  <Link
  href={`/admin/assignments/${id}/review`}
  className="flex items-center gap-1 rounded-lg bg-ink-100 px-4 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-200 "
  >
- View Submissions &rarr;
+ {t("admin.assignmentEdit.viewSubmissions")} &rarr;
  </Link>
  </div>
  </form>

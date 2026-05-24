@@ -11,6 +11,7 @@ import { BookOpen, Plus, Pencil, Trash2, Copy, FileStack, Loader2 } from "lucide
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import type { Course } from "@/types/api";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AdminCourse {
  id: string;
@@ -33,6 +34,7 @@ interface OrgOption {
 }
 
 export default function AdminCoursesPage() {
+ const { t } = useTranslation();
  const router = useRouter();
  const confirm = useConfirm();
  const currentUser = useAuthStore((s) => s.user);
@@ -86,11 +88,11 @@ export default function AdminCoursesPage() {
  await apiClient.post("/courses/", form);
  setForm({ title: "", description: "", category: "", is_template: false });
  setShowForm(false);
- toast.success("Course created successfully");
+ toast.success(t("admin.courses.created"));
  fetchCourses();
  if (form.is_template) fetchTemplates();
  } catch {
- toast.error("Failed to create course");
+ toast.error(t("admin.courses.failedCreate"));
  } finally {
  setSubmitting(false);
  }
@@ -99,10 +101,10 @@ export default function AdminCoursesPage() {
  const handlePublish = async (courseId: string) => {
  try {
  await apiClient.post(`/courses/${courseId}/publish/`);
- toast.success("Course published");
+ toast.success(t("admin.courses.published"));
  fetchCourses();
  } catch {
- toast.error("Failed to publish course");
+ toast.error(t("admin.courses.failedPublish"));
  }
  };
 
@@ -115,17 +117,17 @@ export default function AdminCoursesPage() {
  } catch { /* proceed with default message */ }
 
  const message = enrolledCount > 0
- ? `${enrolledCount} student(s) are enrolled in this course. Their progress will be permanently deleted. Are you sure?`
- : "Are you sure you want to delete this course?";
+ ? t("admin.courses.confirmDeleteEnrolled").replace("{count}", String(enrolledCount))
+ : t("admin.courses.confirmDelete");
 
- if (!(await confirm({ message, variant: "danger", confirmLabel: "Delete" }))) return;
+ if (!(await confirm({ message, variant: "danger", confirmLabel: t("common.delete") }))) return;
  try {
  await apiClient.delete(`/courses/${courseId}/`);
- toast.success("Course deleted");
+ toast.success(t("admin.courses.deleted"));
  fetchCourses();
  fetchTemplates();
  } catch {
- toast.error("Failed to delete course");
+ toast.error(t("admin.courses.failedDelete"));
  }
  };
 
@@ -133,11 +135,11 @@ export default function AdminCoursesPage() {
  setCopying(courseId);
  try {
  const { data } = await apiClient.post(`/courses/${courseId}/copy`);
- toast.success("Course copied successfully");
+ toast.success(t("admin.courses.copied"));
  fetchCourses();
  router.push(`/admin/courses/${data.id}/edit`);
  } catch {
- toast.error("Failed to copy course");
+ toast.error(t("admin.courses.failedCopy"));
  } finally {
  setCopying(null);
  }
@@ -146,10 +148,10 @@ export default function AdminCoursesPage() {
  const handleOrgChange = async (courseId: string, newOrgId: string) => {
  try {
  await apiClient.put(`/admin/courses/${courseId}`, { org_id: newOrgId });
- toast.success("Organization updated");
+ toast.success(t("admin.courses.orgUpdated"));
  fetchCourses();
  } catch {
- toast.error("Failed to update organization");
+ toast.error(t("admin.courses.failedUpdateOrg"));
  }
  };
 
@@ -217,7 +219,7 @@ export default function AdminCoursesPage() {
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
  <span className="rounded-pill bg-primary/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
- Template
+ {t("admin.courses.fromTemplate")}
  </span>
  )}
  {statusBadge(course.status)}
@@ -233,7 +235,7 @@ export default function AdminCoursesPage() {
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
  <span className="rounded-pill bg-paper-2/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
- Template
+ {t("admin.courses.fromTemplate")}
  </span>
  )}
  {statusBadge(course.status)}
@@ -251,14 +253,14 @@ export default function AdminCoursesPage() {
  )}
  {'source_course_id' in course && course.source_course_id && (
  <span className="rounded-pill bg-success-soft px-2 py-0.5 text-xs font-medium text-primary ">
- From template{('template_version' in course && course.template_version) ? ` v${course.template_version}` : ""}
+ {t("admin.courses.fromTemplate")}{('template_version' in course && course.template_version) ? ` v${course.template_version}` : ""}
  </span>
  )}
  </div>
 
  <h3 className="mb-1 font-semibold text-text ">{course.title}</h3>
  <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-text-muted ">
- {course.description || "No description"}
+ {course.description || t("admin.courses.noDescription")}
  </p>
 
  {/* Organization selector for super admin */}
@@ -293,7 +295,7 @@ export default function AdminCoursesPage() {
  ) : (
  <Copy className="mr-1 h-3.5 w-3.5" />
  )}
- {isTemplate ? "Use Template" : "Copy"}
+ {isTemplate ? t("admin.courses.useTemplate") : t("admin.courses.copy")}
  </Button>
  )}
  {showEdit && (
@@ -304,7 +306,7 @@ export default function AdminCoursesPage() {
  onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
  >
  <Pencil className="mr-1 h-3.5 w-3.5" />
- Edit
+ {t("common.edit")}
  </Button>
  )}
  {course.status === "draft" && showEdit && (
@@ -314,7 +316,7 @@ export default function AdminCoursesPage() {
  className="flex-1"
  onClick={() => handlePublish(course.id)}
  >
- Publish
+ {t("common.publish")}
  </Button>
  )}
  {showDelete && (
@@ -337,27 +339,27 @@ export default function AdminCoursesPage() {
  <div>
  <div className="mb-6 flex items-center justify-between">
  <div>
- <h1 className="text-2xl font-bold text-text ">Courses</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("admin.courses.title")}</h1>
  {isSuperAdmin && (
- <p className="mt-1 text-sm text-text-muted ">{courses.length} courses across all organizations</p>
+ <p className="mt-1 text-sm text-text-muted ">{courses.length} {t("admin.courses.countAcross")}</p>
  )}
  </div>
  <Button onClick={() => setShowForm(!showForm)}>
  <Plus className="mr-2 h-4 w-4" />
- New Course
+ {t("admin.courses.newCourse")}
  </Button>
  </div>
 
  {showForm && (
  <Card className="mb-6">
  <CardHeader>
- <CardTitle>Create Course</CardTitle>
+ <CardTitle>{t("admin.courses.createCourse")}</CardTitle>
  </CardHeader>
  <CardContent>
  <form onSubmit={handleCreate} className="space-y-4">
  <input
  type="text"
- placeholder="Course Title"
+ placeholder={t("admin.courses.courseTitle")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
  className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
@@ -365,7 +367,7 @@ export default function AdminCoursesPage() {
  autoFocus
  />
  <textarea
- placeholder="Description"
+ placeholder={t("common.description")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
  className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
@@ -373,7 +375,7 @@ export default function AdminCoursesPage() {
  />
  <input
  type="text"
- placeholder="Category (e.g., programming, math)"
+ placeholder={t("admin.courses.categoryPlaceholder")}
  value={form.category}
  onChange={(e) => setForm({ ...form, category: e.target.value })}
  className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
@@ -386,12 +388,12 @@ export default function AdminCoursesPage() {
  onChange={(e) => setForm({ ...form, is_template: e.target.checked })}
  className="rounded border-ink-300 text-primary focus:ring-emerald-500"
  />
- Create as organization template
- <span className="text-xs text-text-subtle">(visible to all teachers for copying)</span>
+ {t("admin.courses.createAsTemplate")}
+ <span className="text-xs text-text-subtle">{t("admin.courses.templateHint")}</span>
  </label>
  )}
  <Button type="submit" disabled={submitting}>
- {submitting ? "Creating..." : "Create Course"}
+ {submitting ? t("common.creating") : t("admin.courses.createCourse")}
  </Button>
  </form>
  </CardContent>
@@ -404,11 +406,11 @@ export default function AdminCoursesPage() {
  <div className="mb-4">
  <h2 className="flex items-center gap-2 text-lg font-semibold text-text ">
  <FileStack className="h-5 w-5 text-primary" />
- Organization Templates
+ {t("admin.courses.templates")}
  <span className="text-sm font-normal text-text-subtle ">({templates.length})</span>
  </h2>
  <p className="mt-1 text-sm text-text-muted ">
- Ready-made courses you can copy and customize for your students
+ {t("admin.courses.templatesHint")}
  </p>
  </div>
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -426,7 +428,7 @@ export default function AdminCoursesPage() {
  {/* My Courses / All Courses */}
  <div className="mb-4">
  <h2 className="text-lg font-semibold text-text ">
- {isTeacher ? "My Courses" : "All Courses"}
+ {isTeacher ? t("admin.courses.myCourses") : t("admin.courses.allCourses")}
  </h2>
  </div>
  {courses.filter((c) => !c.is_template).length === 0 ? (
@@ -435,11 +437,11 @@ export default function AdminCoursesPage() {
  <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
  <BookOpen className="h-8 w-8 text-text-subtle" />
  </div>
- <h3 className="mb-1 text-lg font-semibold text-text-muted ">No courses yet</h3>
+ <h3 className="mb-1 text-lg font-semibold text-text-muted ">{t("admin.courses.noCoursesYet")}</h3>
  <p className="text-sm text-text-muted ">
  {templates.length > 0
- ? "Create your first course or copy a template above to get started!"
- : "Create your first course to get started!"}
+ ? t("admin.courses.createFirstOrCopy")
+ : t("admin.courses.createFirstCta")}
  </p>
  </CardContent>
  </Card>
