@@ -5,24 +5,30 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/context";
 import { ArrowLeft, Clock, CheckCircle, Upload, FileText, AlertCircle } from "lucide-react";
 import type { Assignment, AssignmentSubmission } from "@/types/api";
 
-function timeLeft(dueDate: string) {
+function useTimeLeft() {
+ const { t } = useTranslation();
+ return (dueDate: string) => {
  const now = Date.now();
  const due = new Date(dueDate).getTime();
  const diff = due - now;
- if (diff < 0) return "Past due";
+ if (diff < 0) return t("assign.pastDue");
  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
- if (days > 0) return `${days}d ${hours}h left`;
- if (hours > 0) return `${hours}h left`;
+ if (days > 0) return `${days}${t("assign.daysShort")} ${hours}${t("assign.hoursShort")} ${t("assign.leftSuffix")}`;
+ if (hours > 0) return `${hours}${t("assign.hoursShort")} ${t("assign.leftSuffix")}`;
  const mins = Math.floor(diff / (1000 * 60));
- return `${mins}m left`;
+ return `${mins}${t("assign.minsShort")} ${t("assign.leftSuffix")}`;
+ };
 }
 
 export default function AssignmentDetailPage() {
  const params = useParams();
+ const { t } = useTranslation();
+ const timeLeft = useTimeLeft();
  const assignmentId = params.assignmentId as string;
  const [assignment, setAssignment] = useState<Assignment | null>(null);
  const [submission, setSubmission] = useState<AssignmentSubmission | null>(null);
@@ -48,7 +54,7 @@ export default function AssignmentDetailPage() {
 
  const handleSubmit = async () => {
  if (!content && !file) {
- setError("Please enter text or attach a file.");
+ setError(t("assignment.enterTextOrFile"));
  return;
  }
  setSubmitting(true);
@@ -62,7 +68,7 @@ export default function AssignmentDetailPage() {
  });
  setSubmission(data);
  } catch (err: unknown) {
- const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || "Submission failed";
+ const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || t("assignment.submissionFailed");
  setError(msg);
  } finally {
  setSubmitting(false);
@@ -80,9 +86,9 @@ export default function AssignmentDetailPage() {
  if (!assignment) {
  return (
  <div className="mx-auto max-w-3xl text-center">
- <p className="text-text-muted ">Assignment not found.</p>
+ <p className="text-text-muted ">{t("assignment.notFound")}</p>
  <Link href="/assignments" className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:text-success-fg">
- <ArrowLeft className="h-3 w-3" /> Back to assignments
+ <ArrowLeft className="h-3 w-3" /> {t("assignment.backTo")}
  </Link>
  </div>
  );
@@ -98,7 +104,7 @@ export default function AssignmentDetailPage() {
  href="/assignments"
  className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-ink-700 "
  >
- <ArrowLeft className="h-4 w-4" /> Back to assignments
+ <ArrowLeft className="h-4 w-4" /> {t("assignment.backTo")}
  </Link>
 
  {/* Assignment info */}
@@ -128,9 +134,9 @@ export default function AssignmentDetailPage() {
  </div>
  )}
  <div className="flex flex-wrap gap-4 text-xs text-text-muted ">
- <span>Due: {new Date(assignment.due_date).toLocaleString()}</span>
- <span>Max score: {assignment.max_score}</span>
- {assignment.allow_late && <span className="text-coral-700">Late submissions allowed</span>}
+ <span>{t("assignment.due")}: {new Date(assignment.due_date).toLocaleString()}</span>
+ <span>{t("assignment.maxScore")}: {assignment.max_score}</span>
+ {assignment.allow_late && <span className="text-coral-700">{t("assignment.lateAllowed")}</span>}
  </div>
  </CardContent>
  </Card>
@@ -144,13 +150,13 @@ export default function AssignmentDetailPage() {
  </div>
  <div className="flex-1">
  <p className="text-sm font-semibold text-text ">
- Score: {submission.score} / {assignment.max_score}
+ {t("assignment.scoreColon")}: {submission.score} / {assignment.max_score}
  </p>
  {submission.feedback && (
  <p className="mt-1 text-sm text-text-muted ">{submission.feedback}</p>
  )}
  <p className="mt-1 text-xs text-text-subtle ">
- Graded {submission.graded_at ? new Date(submission.graded_at).toLocaleString() : ""}
+ {t("assignment.gradedAt")} {submission.graded_at ? new Date(submission.graded_at).toLocaleString() : ""}
  </p>
  </div>
  </CardContent>
@@ -166,11 +172,11 @@ export default function AssignmentDetailPage() {
  </div>
  <div className="flex-1">
  <p className="text-sm font-semibold text-text ">
- Submitted {submission.status === "late" ? "(Late)" : ""}
+ {t("assignment.submitted")} {submission.status === "late" ? t("assignment.lateParen") : ""}
  </p>
  <p className="mt-0.5 text-xs text-text-muted ">
  {new Date(submission.submitted_at).toLocaleString()}
- {submission.original_filename && ` · File: ${submission.original_filename}`}
+ {submission.original_filename && ` · ${t("assignment.fileLabel")}: ${submission.original_filename}`}
  </p>
  </div>
  </CardContent>
@@ -182,29 +188,29 @@ export default function AssignmentDetailPage() {
  <Card>
  <CardHeader>
  <CardTitle className="text-base">
- {submission ? "Resubmit" : "Submit Your Work"}
+ {submission ? t("assignment.resubmit") : t("assignment.submitYourWork")}
  </CardTitle>
  </CardHeader>
  <CardContent className="space-y-4">
  <div>
  <label className="mb-1 block text-sm font-medium text-ink-700 ">
- Your answer
+ {t("assignment.yourAnswer")}
  </label>
  <textarea
  value={content}
  onChange={(e) => setContent(e.target.value)}
  rows={6}
  className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
- placeholder="Type your answer here..."
+ placeholder={t("assignment.yourAnswerPlaceholder")}
  />
  </div>
  <div>
  <label className="mb-1 block text-sm font-medium text-ink-700 ">
- Attach file (optional)
+ {t("assignment.attachFile")}
  </label>
  <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-ink-300 p-4 text-sm text-text-muted transition-colors $1:border-primary hover:text-primary ">
  <Upload className="h-4 w-4" />
- {file ? file.name : "Click to choose a file"}
+ {file ? file.name : t("assignment.chooseFile")}
  <input
  type="file"
  className="hidden"
@@ -223,7 +229,7 @@ export default function AssignmentDetailPage() {
  disabled={submitting}
  className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors $1:bg-primary-hover disabled:opacity-50"
  >
- {submitting ? "Submitting..." : submission ? "Resubmit" : "Submit"}
+ {submitting ? t("assignment.submitting") : submission ? t("assignment.resubmit") : t("assignment.submit")}
  </button>
  </CardContent>
  </Card>
@@ -236,8 +242,8 @@ export default function AssignmentDetailPage() {
  <AlertCircle className="h-5 w-5 text-danger-fg " />
  </div>
  <div>
- <p className="text-sm font-semibold text-text ">Deadline passed</p>
- <p className="text-xs text-text-muted ">Late submissions are not allowed for this assignment.</p>
+ <p className="text-sm font-semibold text-text ">{t("assignment.deadlinePassed")}</p>
+ <p className="text-xs text-text-muted ">{t("assignment.lateNotAllowed")}</p>
  </div>
  </CardContent>
  </Card>

@@ -22,6 +22,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
+import { useTranslation } from "@/lib/i18n/context";
 import type { Course } from "@/types/api";
 
 /* ── subject radial gradients (same as course-card) ────────────── */
@@ -64,6 +65,7 @@ const ICON_COLORS: Record<string, string> = {
 
 export default function CourseDetailPage() {
   const params = useParams();
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,9 +103,9 @@ export default function CourseDetailPage() {
         course_id: params.courseId,
       });
       setEnrolled(true);
-      toast.success("Successfully enrolled in the course!");
+      toast.success(t("course.enrollSuccess"));
     } catch {
-      toast.error("Failed to enroll (may already be enrolled)");
+      toast.error(t("course.enrollFailed"));
     } finally {
       setEnrolling(false);
     }
@@ -139,7 +141,7 @@ export default function CourseDetailPage() {
         className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-text-muted transition-colors hover:text-text"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        All courses
+        {t("course.allCourses")}
       </Link>
 
       {/* ── hero ──────────────────────────────────────────────── */}
@@ -171,11 +173,11 @@ export default function CourseDetailPage() {
           <div className="mb-6 flex items-center gap-3">
             <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-[11px] font-semibold text-white/90">
               <BookOpen className="h-3.5 w-3.5" />
-              {course.modules?.length || 0} modules
+              {course.modules?.length || 0} {t("courses.modules")}
             </span>
             <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-[11px] font-semibold text-white/90">
               <FileText className="h-3.5 w-3.5" />
-              {totalLessons} lessons
+              {totalLessons} {t("courses.lessons")}
             </span>
           </div>
 
@@ -183,7 +185,7 @@ export default function CourseDetailPage() {
           <div className="flex items-center gap-3">
             {canPreview && !enrolled && (
               <span className="rounded-pill bg-white/15 px-3 py-1 text-[11px] font-bold text-white">
-                Preview Mode
+                {t("course.previewMode")}
               </span>
             )}
 
@@ -191,7 +193,7 @@ export default function CourseDetailPage() {
               <>
                 <span className="inline-flex items-center gap-1.5 rounded-pill bg-white/20 px-4 py-2 text-[13px] font-bold text-white">
                   <CheckCircle className="h-4 w-4" />
-                  Enrolled
+                  {t("courses.enrolled")}
                 </span>
                 {firstLessonId && (
                   <Link
@@ -199,7 +201,7 @@ export default function CourseDetailPage() {
                     className="btn-pop inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-ink-900"
                     style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
                   >
-                    Start Learning
+                    {t("course.startLearning")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 )}
@@ -210,7 +212,7 @@ export default function CourseDetailPage() {
                 disabled={enrolling}
                 className="btn-pop btn-pop--sun rounded-[14px] bg-sun-400 px-6 py-2.5 text-[13px] font-bold text-ink-900"
               >
-                {enrolling ? "Enrolling..." : "Enroll in Course"}
+                {enrolling ? t("course.enrolling") : t("course.enrollInCourse")}
               </button>
             ) : null}
           </div>
@@ -233,7 +235,7 @@ export default function CourseDetailPage() {
                 {module.title}
               </h2>
               <span className="font-mono text-[11px] text-text-muted">
-                {module.lessons?.length || 0} lessons
+                {module.lessons?.length || 0} {t("courses.lessons")}
               </span>
             </div>
 

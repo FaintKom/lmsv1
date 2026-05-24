@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { CourseCard } from "@/components/courses/course-card";
+import { useTranslation } from "@/lib/i18n/context";
 import { BookOpen, ArrowRight } from "lucide-react";
 import type { Course } from "@/types/api";
 
 export default function CoursesPage() {
+ const { t } = useTranslation();
  const [courses, setCourses] = useState<Course[]>([]);
  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
  const [loading, setLoading] = useState(true);
@@ -58,11 +60,11 @@ export default function CoursesPage() {
  <div className="mx-auto max-w-6xl">
  <div className="mb-8">
  <p className="mb-1 font-mono text-[11px] font-semibold uppercase tracking-widest text-primary">
- Catalog
+ {t("courses.catalog")}
  </p>
- <h1 className="text-[28px] font-extrabold tracking-tight text-text">Courses</h1>
+ <h1 className="text-[28px] font-extrabold tracking-tight text-text">{t("courses.title")}</h1>
  <p className="mt-1 text-[15px] text-text-muted">
- Browse and enroll in available courses
+ {t("courses.subtitle")}
  </p>
  </div>
  {courses.length === 0 ? (
@@ -71,16 +73,16 @@ export default function CoursesPage() {
  <BookOpen className="h-8 w-8 text-text-subtle" />
  </div>
  <h3 className="mb-1 text-lg font-bold text-text">
- No courses available
+ {t("courses.noAvailable")}
  </h3>
  <p className="mb-4 text-sm text-text-muted">
- Courses will appear here once your admin publishes them.
+ {t("courses.noAvailableHint")}
  </p>
  <Link
  href="/dashboard"
  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover"
  >
- Back to dashboard <ArrowRight className="h-3 w-3" />
+ {t("courses.backToDashboard")} <ArrowRight className="h-3 w-3" />
  </Link>
  </div>
  ) : (

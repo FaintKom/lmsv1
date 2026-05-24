@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 import { CheckCircle, MailCheck, XCircle } from "lucide-react";
 
 type Status = "loading" | "success" | "error";
 
 function VerifyEmailFlow() {
  const searchParams = useSearchParams();
+ const { t } = useTranslation();
  const token = searchParams.get("token") || "";
  const [status, setStatus] = useState<Status>("loading");
  const [message, setMessage] = useState("");
@@ -18,23 +20,23 @@ function VerifyEmailFlow() {
  useEffect(() => {
  if (!token) {
  setStatus("error");
- setMessage("Missing verification token. Use the link from your email.");
+ setMessage(t("auth.missingVerifyToken"));
  return;
  }
  apiClient
  .post("/auth/verify-email", { token })
  .then(() => {
  setStatus("success");
- setMessage("Your email has been verified. You can now sign in.");
+ setMessage(t("auth.verifySuccess"));
  })
  .catch((err) => {
  setStatus("error");
  setMessage(
  err?.response?.data?.detail ||
- "Verification failed. The link may have expired or already been used."
+ t("auth.verifyFailed")
  );
  });
- }, [token]);
+ }, [token, t]);
 
  return (
  <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4 ">
@@ -57,17 +59,17 @@ function VerifyEmailFlow() {
  )}
  </div>
  <h1 className="mb-2 text-center text-xl font-bold text-text ">
- {status === "loading" && "Verifying your email..."}
- {status === "success" && "Email verified"}
- {status === "error" && "Verification failed"}
+ {status === "loading" && t("verifyEmail.verifying")}
+ {status === "success" && t("verifyEmail.success")}
+ {status === "error" && t("verifyEmail.error")}
  </h1>
  <p className="mb-6 text-center text-sm text-text-muted ">
- {message || "Please wait while we confirm your address."}
+ {message || t("auth.pleaseWaitConfirm")}
  </p>
  {status !== "loading" && (
  <Link href="/login">
  <Button className="w-full">
- {status === "success" ? "Sign in" : "Back to sign in"}
+ {status === "success" ? t("verifyEmail.signIn") : t("verifyEmail.backToSignIn")}
  </Button>
  </Link>
  )}
