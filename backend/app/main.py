@@ -53,7 +53,8 @@ from app.exercises.router import router as exercises_router
 from app.export.router import router as export_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
-from app.knowledge.router import router as knowledge_router
+
+# from app.knowledge.router import router as knowledge_router  # disabled: pgvector binary missing on prod DB, re-enable after server fix
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
@@ -460,7 +461,7 @@ def create_app() -> FastAPI:
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
     app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
-    app.include_router(knowledge_router, prefix="/api/v1/knowledge", tags=["Knowledge"])
+    # app.include_router(knowledge_router, prefix="/api/v1/knowledge", tags=["Knowledge"])  # disabled with knowledge_router import
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
     app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
