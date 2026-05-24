@@ -1,18 +1,29 @@
 "use client";
 
 /**
- * SRSFlashcardV2 — Anki-style deck review.
+ * SRSFlashcardV2 — Anki-style deck review with FSRS-6 scheduling.
  *
  * Adopted from q-language.jsx · SRSFlashcardExerciseV2. Methodist
- * supplies an ordered list of cards `{front, back, hint?}`. Student
- * taps to flip, then rates Again / Hard / Good / Easy.
+ * supplies an ordered list of cards `{front, back, hint?}`. Each card
+ * is paired with an internal FSRS Card state on mount (or hydrated
+ * from `initialSchedule`). On rating, ts-fsrs computes next interval +
+ * state; rating buttons show the real next-due interval ("<10m", "3d").
  *
- * Streak only — no per-task HP. Rating distribution returned via
- * onFinish so a wrapping shell can persist real SRS scheduling
- * (intervals stay client-side here).
+ * Streak only — no per-task HP. `onFinish` returns the updated
+ * `schedule` (keyed by card.front) so the parent can persist to
+ * backend (e.g. POST /api/v1/srs/cards/upsert).
  */
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  Card,
+  fsrs,
+  Rating,
+  type Grade,
+  createEmptyCard,
+  type FSRSParameters,
+  type RecordLog,
+} from "ts-fsrs";
 import {
   LessonShell,
   useConfetti,
@@ -33,8 +44,26 @@ export interface SRSRatingStats {
   easy: number;
 }
 
+/** Per-card schedule snapshot — what the parent persists. */
+export interface SRSCardSchedule {
+  /** Serialized due date (ISO string). */
+  due: string;
+  stability: number;
+  difficulty: number;
+  elapsed_days: number;
+  scheduled_days: number;
+  reps: number;
+  lapses: number;
+  state: number;
+  last_review?: string;
+}
+
 export interface SRSFlashcardV2Props {
   cards: SRSCard[];
+  /** Optional pre-existing schedule keyed by card.front. */
+  initialSchedule?: Record<string, SRSCardSchedule>;
+  /** Optional FSRS parameter overrides (defaults are FSRS-6). */
+  fsrsParams?: Partial<FSRSParameters>;
   /** Eyebrow prefix, e.g. "CHINESE · DECK". Card N/Total auto-appended. */
   eyebrowPrefix?: string;
   /** Label shown on the front face (e.g. "HANZI"). */
@@ -49,53 +78,112 @@ export interface SRSFlashcardV2Props {
     stats: SRSRatingStats;
     total: number;
     streak: number;
+    /** Updated FSRS schedule per card (front → snapshot). Persist this. */
+    schedule: Record<string, SRSCardSchedule>;
   }) => void;
 }
 
-const BUTTONS: {
+interface ButtonMeta {
+  rating: Grade;
   key: keyof SRSRatingStats;
   label: string;
   color: string;
   shadow: string;
-  sub: string;
   textColor: string;
-}[] = [
+}
+
+const BUTTONS: ButtonMeta[] = [
   {
+    rating: Rating.Again,
     key: "again",
     label: "Again",
     color: "var(--coral-500)",
     shadow: "var(--coral-700)",
-    sub: "<1m",
     textColor: "#fff",
   },
   {
+    rating: Rating.Hard,
     key: "hard",
     label: "Hard",
     color: "var(--sun-400)",
     shadow: "var(--sun-500)",
-    sub: "6m",
     textColor: "var(--ink-900)",
   },
   {
+    rating: Rating.Good,
     key: "good",
     label: "Good",
     color: "var(--green-600)",
     shadow: "var(--green-700)",
-    sub: "10m",
     textColor: "#fff",
   },
   {
+    rating: Rating.Easy,
     key: "easy",
     label: "Easy",
     color: "var(--green-500)",
     shadow: "var(--green-700)",
-    sub: "4d",
     textColor: "#fff",
   },
 ];
 
+/** Convert SRSCardSchedule (serialized) → ts-fsrs Card. */
+function hydrate(s: SRSCardSchedule): Card {
+  return {
+    due: new Date(s.due),
+    stability: s.stability,
+    difficulty: s.difficulty,
+    elapsed_days: s.elapsed_days,
+    scheduled_days: s.scheduled_days,
+    reps: s.reps,
+    lapses: s.lapses,
+    state: s.state,
+    last_review: s.last_review ? new Date(s.last_review) : undefined,
+    learning_steps: 0,
+  };
+}
+
+/** Convert ts-fsrs Card → SRSCardSchedule (serializable). */
+function snapshot(c: Card): SRSCardSchedule {
+  return {
+    due: c.due.toISOString(),
+    stability: c.stability,
+    difficulty: c.difficulty,
+    elapsed_days: c.elapsed_days,
+    scheduled_days: c.scheduled_days,
+    reps: c.reps,
+    lapses: c.lapses,
+    state: c.state,
+    last_review: c.last_review ? c.last_review.toISOString() : undefined,
+  };
+}
+
+/** Format scheduled_days as a compact label: "<10m", "1h", "3d", "2mo". */
+function formatInterval(scheduledDays: number): string {
+  if (scheduledDays < 1 / 1440) return "<1m";
+  if (scheduledDays < 1 / 24) {
+    const min = Math.round(scheduledDays * 1440);
+    return `${min}m`;
+  }
+  if (scheduledDays < 1) {
+    const h = Math.round(scheduledDays * 24);
+    return `${h}h`;
+  }
+  if (scheduledDays < 30) {
+    const d = Math.round(scheduledDays);
+    return `${d}d`;
+  }
+  if (scheduledDays < 365) {
+    const mo = Math.round(scheduledDays / 30);
+    return `${mo}mo`;
+  }
+  return `${Math.round(scheduledDays / 365)}y`;
+}
+
 export function SRSFlashcardV2({
   cards,
+  initialSchedule,
+  fsrsParams,
   eyebrowPrefix = "DECK",
   frontLabel = "FRONT",
   backLabel = "BACK",
@@ -104,6 +192,16 @@ export function SRSFlashcardV2({
   onQuit,
   onFinish,
 }: SRSFlashcardV2Props) {
+  const scheduler = useMemo(() => fsrs(fsrsParams), [fsrsParams]);
+
+  // Card state per index — lazy hydrated from initialSchedule or empty.
+  const [cardStates, setCardStates] = useState<Card[]>(() =>
+    cards.map((c) => {
+      const seed = initialSchedule?.[c.front];
+      return seed ? hydrate(seed) : createEmptyCard();
+    })
+  );
+
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [stats, setStats] = useState<SRSRatingStats>({
@@ -117,10 +215,31 @@ export function SRSFlashcardV2({
   const { fire, layer } = useConfetti();
 
   const card = cards[idx];
+  const cardState = cardStates[idx];
 
-  const rate = (key: keyof SRSRatingStats) => {
-    const next = { ...stats, [key]: stats[key] + 1 };
-    setStats(next);
+  // Preview next intervals for the rating buttons — RecordLog has 1..4.
+  const previewLog: RecordLog | null = useMemo(() => {
+    if (!cardState || !flipped) return null;
+    return scheduler.repeat(cardState, new Date());
+  }, [cardState, flipped, scheduler]);
+
+  const intervalLabel = (rating: Grade): string => {
+    if (!previewLog) return "";
+    const item = previewLog[rating];
+    if (!item) return "";
+    return formatInterval(item.card.scheduled_days);
+  };
+
+  const rate = (rating: Grade, key: keyof SRSRatingStats) => {
+    if (!cardState) return;
+    const { card: nextCard } = scheduler.next(cardState, new Date(), rating);
+    const nextStates = cardStates.slice();
+    nextStates[idx] = nextCard;
+    setCardStates(nextStates);
+
+    const nextStats = { ...stats, [key]: stats[key] + 1 };
+    setStats(nextStats);
+
     if (idx === cards.length - 1) {
       setDone(true);
       setStreak((s) => s + 1);
@@ -137,11 +256,16 @@ export function SRSFlashcardV2({
     : null;
 
   const handleContinue = () => {
+    const schedule: Record<string, SRSCardSchedule> = {};
+    cards.forEach((c, i) => {
+      schedule[c.front] = snapshot(cardStates[i]);
+    });
     onFinish?.({
       correct: known === cards.length,
       stats,
       total: cards.length,
       streak,
+      schedule,
     });
   };
 
@@ -246,7 +370,7 @@ export function SRSFlashcardV2({
                   <button
                     key={b.key}
                     type="button"
-                    onClick={() => rate(b.key)}
+                    onClick={() => rate(b.rating, b.key)}
                     style={{
                       background: b.color,
                       color: b.textColor,
@@ -283,7 +407,7 @@ export function SRSFlashcardV2({
                         marginTop: 2,
                       }}
                     >
-                      {b.sub}
+                      {intervalLabel(b.rating)}
                     </div>
                   </button>
                 ))}
