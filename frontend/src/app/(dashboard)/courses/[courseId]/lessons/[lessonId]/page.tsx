@@ -34,6 +34,7 @@ import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 import { VideoPlayer } from "@/components/video-player";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface LessonProgressItem {
  lesson_id: string;
@@ -55,6 +56,7 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
 export default function LessonViewerPage() {
  const params = useParams();
  const router = useRouter();
+ const { t } = useTranslation();
  const courseId = params.courseId as string;
  const lessonId = params.lessonId as string;
 
@@ -173,9 +175,9 @@ export default function LessonViewerPage() {
   try {
    await apiClient.post(`/progress/lessons/${lessonId}/complete/`);
    setCompletedLessons((prev) => new Set(prev).add(lessonId));
-   toast.success("Lesson marked as complete!");
+   toast.success(t("lesson.completedSuccess"));
   } catch {
-   toast.error("Failed to mark as complete. Make sure you are enrolled.");
+   toast.error(t("lesson.completeFailed"));
   } finally {
    setCompleting(false);
   }
@@ -244,12 +246,12 @@ export default function LessonViewerPage() {
     <div className="mb-4 rounded-full bg-ink-100 p-4">
      <FileText className="h-8 w-8 text-text-subtle" />
     </div>
-    <h3 className="mb-1 text-lg font-bold text-text">Lesson not found</h3>
+    <h3 className="mb-1 text-lg font-bold text-text">{t("lesson.notFound")}</h3>
     <Link
      href={`/courses/${courseId}`}
      className="mt-2 text-sm font-semibold text-primary hover:text-primary-hover"
     >
-     Back to course
+     {t("courses.backToCourse")}
     </Link>
    </div>
   );
@@ -285,7 +287,7 @@ export default function LessonViewerPage() {
      <button
       onClick={() => setLessonSidebarCollapsed(false)}
       className="rounded-lg p-2 text-text-muted hover:bg-ink-100 hover:text-text"
-      title="Expand sidebar"
+      title={t("lesson.expandSidebar")}
      >
       <PanelLeft className="h-4 w-4" />
      </button>
@@ -306,18 +308,18 @@ export default function LessonViewerPage() {
        className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-text"
       >
        <ArrowLeft className="h-3.5 w-3.5" />
-       Back to course
+       {t("courses.backToCourse")}
       </Link>
       <button
        onClick={() => setLessonSidebarCollapsed(true)}
        className="hidden md:flex rounded-lg p-1.5 text-text-muted hover:bg-ink-100 hover:text-text"
-       title="Collapse sidebar"
+       title={t("lesson.collapseSidebar")}
       >
        <PanelLeftClose className="h-4 w-4" />
       </button>
      </div>
      <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700">
-      Course · {course.modules?.length || 0} modules · {allLessons.length} lessons
+      {t("lesson.courseLabel")} · {course.modules?.length || 0} {t("courses.modules")} · {allLessons.length} {t("courses.lessons")}
      </p>
      <h3 className="mb-3 text-base font-extrabold leading-tight tracking-tight text-text">
       {course.title}
@@ -455,7 +457,7 @@ export default function LessonViewerPage() {
      <div className="text-xs font-semibold text-text-muted">
       {currentModuleIndex >= 0 && (
        <>
-        Module {currentModuleIndex + 1} / Lesson {currentLessonInModuleIndex + 1} ·{" "}
+        {t("lesson.module")} {currentModuleIndex + 1} / {t("lesson.lessonLabel")} {currentLessonInModuleIndex + 1} ·{" "}
        </>
       )}
       <span className="font-bold text-text">{lesson.title}</span>
@@ -463,7 +465,7 @@ export default function LessonViewerPage() {
      <div className="flex-1" />
      {isCompleted && (
       <span className="inline-flex items-center gap-1.5 rounded-pill bg-green-100 px-3 py-1 text-[11px] font-bold text-green-800">
-       <CheckCircle className="h-3 w-3" /> Done
+       <CheckCircle className="h-3 w-3" /> {t("lesson.done")}
       </span>
      )}
     </div>
@@ -480,7 +482,7 @@ export default function LessonViewerPage() {
        {lesson.duration_minutes && (
         <span className="inline-flex items-center gap-1.5 rounded-pill bg-ink-100 px-3 py-[5px] text-xs font-bold text-ink-700">
          <Clock className="h-3 w-3" />
-         {lesson.duration_minutes} min
+         {lesson.duration_minutes} {t("lesson.minSuffix")}
         </span>
        )}
       </div>
@@ -526,7 +528,7 @@ export default function LessonViewerPage() {
       return (
        <div className="mb-8 space-y-6 px-2 sm:px-6">
         <h2 className="mx-auto max-w-[720px] text-[21px] font-bold tracking-tight text-text">
-         Exercises
+         {t("lesson.exercises")}
         </h2>
         {orphaned.map((ex) => (
          <ExerciseRenderer
@@ -552,7 +554,7 @@ export default function LessonViewerPage() {
          style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
         >
          <CheckCircle className="h-4 w-4" />
-         {completing ? "Marking as complete..." : "Mark Lesson as Complete"}
+         {completing ? t("lesson.completing") : t("lesson.complete")}
         </button>
        </div>
       )}
@@ -570,7 +572,7 @@ export default function LessonViewerPage() {
      {isCompleted && (
       <div className="flex items-center gap-2 text-xs font-semibold text-green-700">
        <span className="h-[7px] w-[7px] rounded-full bg-green-500" />
-       Completed
+       {t("lesson.completed")}
       </div>
      )}
      <div className="flex-1" />
@@ -583,7 +585,7 @@ export default function LessonViewerPage() {
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
         <span className="block font-mono text-[9px] font-semibold uppercase tracking-widest text-text-subtle">
-         Previous
+         {t("lesson.previous")}
         </span>
         <span className="block max-w-[160px] truncate">{prevLesson.lesson.title}</span>
        </div>
@@ -598,7 +600,7 @@ export default function LessonViewerPage() {
       >
        <div className="text-right">
         <span className="block font-mono text-[9px] font-semibold uppercase tracking-widest text-white/70">
-         Up next
+         {t("lesson.upNext")}
         </span>
         <span className="block max-w-[160px] truncate">{nextLesson.lesson.title}</span>
        </div>
@@ -611,7 +613,7 @@ export default function LessonViewerPage() {
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <CheckCircle className="h-3.5 w-3.5" />
-       Back to Course
+       {t("lesson.backToCourse")}
       </Link>
      )}
     </div>
@@ -651,6 +653,7 @@ function BlockContent({
  prevLesson: { lesson: Lesson; moduleId: string } | null;
  nextLesson: { lesson: Lesson; moduleId: string } | null;
 }) {
+ const { t } = useTranslation();
  const pages = [...new Set(blocks.map((b) => b.page || 1))].sort((a, b) => a - b);
  const currentBlocks = blocks
   .filter((b) => (b.page || 1) === currentPage)
@@ -678,7 +681,7 @@ function BlockContent({
    ))}
 
    {currentBlocks.length === 0 && (
-    <div className="text-sm text-text-muted">No content on this page.</div>
+    <div className="text-sm text-text-muted">{t("lesson.noContentOnPage")}</div>
    )}
 
    {hasMultiplePages && (
@@ -753,6 +756,7 @@ function PageNav({
  currentPage: number;
  setCurrentPage: (p: number) => void;
 }) {
+ const { t } = useTranslation();
  const currentIndex = pages.indexOf(currentPage);
  const prevPage = currentIndex > 0 ? pages[currentIndex - 1] : null;
  const nextPage = currentIndex < pages.length - 1 ? pages[currentIndex + 1] : null;
@@ -765,7 +769,7 @@ function PageNav({
     className="flex items-center gap-2 rounded-xl bg-ink-50 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
    >
     <ArrowLeft className="h-3 w-3" />
-    Previous
+    {t("common.previous")}
    </button>
 
    <div className="flex items-center gap-1">
@@ -788,7 +792,7 @@ function PageNav({
     onClick={() => nextPage !== null && setCurrentPage(nextPage)}
     className="flex items-center gap-2 rounded-xl bg-ink-50 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
    >
-    Next
+    {t("common.next")}
     <ArrowRight className="h-3 w-3" />
    </button>
   </div>
@@ -808,6 +812,7 @@ function LegacyContent({
  lessonId: string;
  onComplete: () => void;
 }) {
+ const { t } = useTranslation();
  return (
   <>
    {/* Theory content — shown for ALL lesson types when content.body exists */}
@@ -825,7 +830,7 @@ function LegacyContent({
    {/* Type-specific content */}
    <div className="mb-8">
     {lesson.content_type === "text" && !lesson.content?.body && (
-     <div className="text-sm text-text-muted">No content yet.</div>
+     <div className="text-sm text-text-muted">{t("lesson.noContent")}</div>
     )}
 
     {lesson.content_type === "video" &&
@@ -833,7 +838,7 @@ function LegacyContent({
       <VideoPlayer url={lesson.content.url as string} lessonId={lessonId} />
      ) : (
       <div className="flex aspect-video items-center justify-center rounded-[14px] bg-ink-900 text-white">
-       No video URL provided
+       {t("lesson.noVideo")}
       </div>
      ))}
 
@@ -862,7 +867,7 @@ function LegacyContent({
      <div className="rounded-[14px] border border-border bg-ink-50 p-6 text-center">
       <Code className="mx-auto mb-2 h-10 w-10 text-text-subtle" />
       <p className="text-sm text-text-muted">
-       No challenge has been configured for this lesson yet.
+       {t("lesson.noChallenge")}
       </p>
      </div>
     )}

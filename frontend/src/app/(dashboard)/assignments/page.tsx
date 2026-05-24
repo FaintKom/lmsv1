@@ -4,40 +4,51 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "@/lib/i18n/context";
 import { ClipboardList, Clock, CheckCircle, AlertCircle, FileText, ArrowRight } from "lucide-react";
 import type { AssignmentListItem } from "@/types/api";
 
 type FilterTab = "all" | "active" | "overdue" | "graded";
 
-function statusBadge(status: string | null) {
+function useStatusBadge() {
+ const { t } = useTranslation();
+ function statusBadge(status: string | null) {
  switch (status) {
  case "submitted":
- return <span className="rounded-pill bg-info-soft px-2.5 py-0.5 text-xs font-medium text-info-fg ">Submitted</span>;
+ return <span className="rounded-pill bg-info-soft px-2.5 py-0.5 text-xs font-medium text-info-fg ">{t("assign.statusSubmitted")}</span>;
  case "graded":
- return <span className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-medium text-success-fg ">Graded</span>;
+ return <span className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-medium text-success-fg ">{t("assign.statusGraded")}</span>;
  case "late":
- return <span className="rounded-pill bg-coral-300 px-2.5 py-0.5 text-xs font-medium text-coral-700 ">Late</span>;
+ return <span className="rounded-pill bg-coral-300 px-2.5 py-0.5 text-xs font-medium text-coral-700 ">{t("assign.statusLate")}</span>;
  case "overdue":
- return <span className="rounded-pill bg-danger-soft px-2.5 py-0.5 text-xs font-medium text-danger-fg ">Overdue</span>;
+ return <span className="rounded-pill bg-danger-soft px-2.5 py-0.5 text-xs font-medium text-danger-fg ">{t("assign.statusOverdue")}</span>;
  default:
- return <span className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-text-muted ">Pending</span>;
+ return <span className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{t("assign.statusPending")}</span>;
  }
+ }
+ return statusBadge;
 }
 
-function timeLeft(dueDate: string) {
+function useTimeLeft() {
+ const { t } = useTranslation();
+ return (dueDate: string) => {
  const now = Date.now();
  const due = new Date(dueDate).getTime();
  const diff = due - now;
- if (diff < 0) return "Past due";
+ if (diff < 0) return t("assign.pastDue");
  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
- if (days > 0) return `${days}d ${hours}h left`;
- if (hours > 0) return `${hours}h left`;
+ if (days > 0) return `${days}${t("assign.daysShort")} ${hours}${t("assign.hoursShort")} ${t("assign.leftSuffix")}`;
+ if (hours > 0) return `${hours}${t("assign.hoursShort")} ${t("assign.leftSuffix")}`;
  const mins = Math.floor(diff / (1000 * 60));
- return `${mins}m left`;
+ return `${mins}${t("assign.minsShort")} ${t("assign.leftSuffix")}`;
+ };
 }
 
 export default function AssignmentsPage() {
+ const { t } = useTranslation();
+ const statusBadge = useStatusBadge();
+ const timeLeft = useTimeLeft();
  const [assignments, setAssignments] = useState<AssignmentListItem[]>([]);
  const [loading, setLoading] = useState(true);
  const [tab, setTab] = useState<FilterTab>("all");
@@ -67,10 +78,10 @@ export default function AssignmentsPage() {
  });
 
  const tabs: { key: FilterTab; label: string; count: number }[] = [
- { key: "all", label: "All", count: assignments.length },
- { key: "active", label: "Active", count: assignments.filter((a) => a.status === "pending").length },
- { key: "overdue", label: "Overdue", count: assignments.filter((a) => a.status === "overdue" || a.status === "late").length },
- { key: "graded", label: "Graded", count: assignments.filter((a) => a.status === "graded").length },
+ { key: "all", label: t("assign.tabAll"), count: assignments.length },
+ { key: "active", label: t("assign.tabActive"), count: assignments.filter((a) => a.status === "pending").length },
+ { key: "overdue", label: t("assign.tabOverdue"), count: assignments.filter((a) => a.status === "overdue" || a.status === "late").length },
+ { key: "graded", label: t("assign.tabGraded"), count: assignments.filter((a) => a.status === "graded").length },
  ];
 
  const borderColor = (status: string | null) => {
@@ -86,9 +97,9 @@ export default function AssignmentsPage() {
  return (
  <div className="mx-auto max-w-6xl">
  <div className="mb-8">
- <h1 className="text-2xl font-bold text-text ">Assignments</h1>
+ <h1 className="text-2xl font-bold text-text ">{t("assign.title")}</h1>
  <p className="mt-1 text-base text-text-muted ">
- View and submit your homework assignments
+ {t("assign.subtitle")}
  </p>
  </div>
 
@@ -119,12 +130,12 @@ export default function AssignmentsPage() {
  <ClipboardList className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
- No assignments
+ {t("assign.noAssignments")}
  </h3>
  <p className="text-base text-text-muted ">
  {tab === "all"
- ? "You don't have any assignments yet."
- : `No ${tab} assignments found.`}
+ ? t("assign.noAssignmentsAll")
+ : t("assign.noAssignmentsFiltered")}
  </p>
  </CardContent>
  </Card>
@@ -166,10 +177,10 @@ export default function AssignmentsPage() {
  <Clock className="h-3 w-3" />
  {timeLeft(a.due_date)}
  </span>
- <span>Max: {a.max_score} pts</span>
+ <span>{t("assign.maxLabel")}: {a.max_score} {t("assign.ptsLabel")}</span>
  {a.score !== null && a.score !== undefined && (
  <span className="font-medium text-primary ">
- Score: {a.score}/{a.max_score}
+ {t("assign.scoreLabel")}: {a.score}/{a.max_score}
  </span>
  )}
  </div>

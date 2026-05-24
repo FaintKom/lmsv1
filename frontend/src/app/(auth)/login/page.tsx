@@ -6,10 +6,12 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/lib/i18n/context";
 import { LogIn } from "lucide-react";
 
 export default function LoginPage() {
  const router = useRouter();
+ const { t } = useTranslation();
  const login = useAuthStore((s) => s.login);
  const [email, setEmail] = useState("");
  const [password, setPassword] = useState("");
@@ -28,7 +30,7 @@ export default function LoginPage() {
  router.push(isAdminOrTeacher ? "/admin" : "/dashboard");
  } catch (err: unknown) {
  const message =
- err instanceof Error ? err.message : "Invalid email or password";
+ err instanceof Error ? err.message : t("auth.invalidEmailOrPassword");
  setError(message);
  } finally {
  setLoading(false);
@@ -38,10 +40,10 @@ export default function LoginPage() {
  return (
  <div>
  <h1 className="mb-2 text-center text-2xl font-bold text-text ">
- Welcome back
+ {t("auth.welcome")}
  </h1>
  <p className="mb-8 text-center text-sm text-text-muted ">
- Sign in to your account to continue
+ {t("auth.signInToContinue")}
  </p>
 
  <form onSubmit={handleSubmit} className="space-y-5">
@@ -52,7 +54,7 @@ export default function LoginPage() {
  )}
  <div>
  <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Email
+ {t("auth.email")}
  </label>
  <Input
  id="login-email"
@@ -66,7 +68,7 @@ export default function LoginPage() {
  </div>
  <div>
  <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Password
+ {t("auth.password")}
  </label>
  <Input
  id="login-password"
@@ -80,7 +82,7 @@ export default function LoginPage() {
  </div>
  <Button type="submit" className="w-full" disabled={loading}>
  <LogIn className="h-4 w-4" />
- {loading ? "Signing in..." : "Sign In"}
+ {loading ? t("auth.signingIn") : t("auth.login")}
  </Button>
  </form>
 
@@ -89,17 +91,17 @@ export default function LoginPage() {
  href="/forgot-password"
  className="text-sm text-text-muted hover:text-primary "
  >
- Forgot your password?
+ {t("auth.forgotPassword")}
  </Link>
  </div>
 
  <p className="mt-6 text-center text-sm text-text-muted ">
- Don&apos;t have an account?{" "}
+ {t("auth.noAccount")}{" "}
  <Link
  href="/register"
  className="font-medium text-primary hover:text-success-fg"
  >
- Create one
+ {t("auth.createOne")}
  </Link>
  </p>
  </div>

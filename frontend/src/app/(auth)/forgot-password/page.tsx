@@ -5,9 +5,11 @@ import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/lib/i18n/context";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 
 export default function ForgotPasswordPage() {
+ const { t } = useTranslation();
  const [email, setEmail] = useState("");
  const [loading, setLoading] = useState(false);
  const [sent, setSent] = useState(false);
@@ -21,7 +23,7 @@ export default function ForgotPasswordPage() {
  await apiClient.post("/auth/forgot-password", { email });
  setSent(true);
  } catch {
- setError("Something went wrong. Please try again.");
+ setError(t("auth.somethingWentWrong"));
  } finally {
  setLoading(false);
  }
@@ -33,15 +35,15 @@ export default function ForgotPasswordPage() {
  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-pill bg-primary-soft ">
  <CheckCircle className="h-6 w-6 text-primary " />
  </div>
- <h1 className="mb-2 text-xl font-bold text-text ">Check your email</h1>
+ <h1 className="mb-2 text-xl font-bold text-text ">{t("auth.checkYourEmail")}</h1>
  <p className="mb-6 text-sm text-text-muted ">
- If an account exists for {email}, we&apos;ve sent instructions to reset your password.
+ {`${t("auth.resetEmailSentPrefix")} ${email}${t("auth.resetEmailSentSuffix")}`}
  </p>
  <Link
  href="/login"
  className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-success-fg"
  >
- <ArrowLeft className="h-3 w-3" /> Back to sign in
+ <ArrowLeft className="h-3 w-3" /> {t("auth.backToSignIn")}
  </Link>
  </div>
  );
@@ -50,10 +52,10 @@ export default function ForgotPasswordPage() {
  return (
  <div>
  <h1 className="mb-2 text-center text-2xl font-bold text-text ">
- Forgot password?
+ {t("auth.forgotPasswordTitle")}
  </h1>
  <p className="mb-8 text-center text-sm text-text-muted ">
- Enter your email and we&apos;ll send you a reset link
+ {t("auth.forgotPasswordSub")}
  </p>
 
  <form onSubmit={handleSubmit} className="space-y-5">
@@ -64,7 +66,7 @@ export default function ForgotPasswordPage() {
  )}
  <div>
  <label htmlFor="reset-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Email
+ {t("auth.email")}
  </label>
  <Input
  id="reset-email"
@@ -77,7 +79,7 @@ export default function ForgotPasswordPage() {
  </div>
  <Button type="submit" className="w-full" disabled={loading}>
  <Mail className="h-4 w-4" />
- {loading ? "Sending..." : "Send Reset Link"}
+ {loading ? t("auth.sending") : t("auth.sendResetLink")}
  </Button>
  </form>
 
@@ -86,7 +88,7 @@ export default function ForgotPasswordPage() {
  href="/login"
  className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-primary "
  >
- <ArrowLeft className="h-3 w-3" /> Back to sign in
+ <ArrowLeft className="h-3 w-3" /> {t("auth.backToSignIn")}
  </Link>
  </p>
  </div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/lib/i18n/context";
 import { UserPlus } from "lucide-react";
 import apiClient from "@/lib/api-client";
 
@@ -26,6 +27,7 @@ export default function RegisterPage() {
 function RegisterForm() {
  const router = useRouter();
  const searchParams = useSearchParams();
+ const { t } = useTranslation();
  const register = useAuthStore((s) => s.register);
  const [form, setForm] = useState({
  org_name: "",
@@ -73,15 +75,15 @@ function RegisterForm() {
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault();
  if (form.role === "student" && !form.org_id) {
- setError("Student accounts require an invitation link");
+ setError(t("auth.studentRequiresInvite"));
  return;
  }
  if (form.role === "teacher" && !form.org_name.trim()) {
- setError("Please enter your organization name");
+ setError(t("auth.pleaseEnterOrg"));
  return;
  }
  if (!form.consent) {
- setError("You must accept the Privacy Policy and Terms of Service");
+ setError(t("consent.required"));
  return;
  }
  setError("");
@@ -96,7 +98,7 @@ function RegisterForm() {
  }
  } catch (err: unknown) {
  const message =
- err instanceof Error ? err.message : "Registration failed";
+ err instanceof Error ? err.message : t("auth.registrationFailed");
  setError(message);
  } finally {
  setLoading(false);
@@ -109,12 +111,12 @@ function RegisterForm() {
  return (
  <div>
  <h1 className="mb-2 text-center text-2xl font-bold text-text ">
- {inviteOrg ? `Join ${inviteOrg.name}` : "Create your account"}
+ {inviteOrg ? `${t("auth.joinPrefix")} ${inviteOrg.name}` : t("auth.signUp")}
  </h1>
  <p className="mb-6 text-center text-sm text-text-muted ">
  {inviteOrg
- ? "Create your student account to start learning"
- : "Set up your organization and start teaching"}
+ ? t("auth.studentCreateAccount")
+ : t("auth.teacherCreateAccount")}
  </p>
 
  <form onSubmit={handleSubmit} className="space-y-5">
@@ -127,7 +129,7 @@ function RegisterForm() {
  {/* Invite banner */}
  {inviteOrg && (
  <div className="rounded-lg border border-primary-soft bg-success-soft px-4 py-3 text-sm text-success-fg ">
- You&apos;re joining <strong>{inviteOrg.name}</strong> as a student
+ {t("auth.joiningAsPrefix")} <strong>{inviteOrg.name}</strong> {t("auth.joiningAsSuffix")}
  </div>
  )}
 
@@ -140,7 +142,7 @@ function RegisterForm() {
  {!inviteOrg && form.role === "teacher" && (
  <div>
  <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- School / Organization Name
+ {t("auth.schoolOrgName")}
  </label>
  <Input
  id="reg-org"
@@ -154,7 +156,7 @@ function RegisterForm() {
 
  <div>
  <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Full Name
+ {t("auth.fullName")}
  </label>
  <Input
  id="reg-fullname"
@@ -167,7 +169,7 @@ function RegisterForm() {
  </div>
  <div>
  <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Email
+ {t("auth.email")}
  </label>
  <Input
  id="reg-email"
@@ -181,7 +183,7 @@ function RegisterForm() {
  </div>
  <div>
  <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
- Password
+ {t("auth.password")}
  </label>
  <Input
  id="reg-password"
@@ -203,26 +205,26 @@ function RegisterForm() {
  className="mt-1 rounded border-ink-300 text-primary focus:ring-green-500"
  />
  <label htmlFor="reg-consent" className="text-sm text-text-muted ">
- I agree to the{" "}
- <Link href="/privacy" className="font-medium text-primary hover:text-success-fg">Privacy Policy</Link>
- {" "}and{" "}
- <Link href="/terms" className="font-medium text-primary hover:text-success-fg">Terms of Service</Link>
+ {t("auth.iAgreeTo")}{" "}
+ <Link href="/privacy" className="font-medium text-primary hover:text-success-fg">{t("consent.privacy")}</Link>
+ {" "}{t("auth.andLower")}{" "}
+ <Link href="/terms" className="font-medium text-primary hover:text-success-fg">{t("consent.terms")}</Link>
  </label>
  </div>
 
  <Button type="submit" className="w-full" disabled={loading}>
  <UserPlus className="h-4 w-4" />
- {loading ? "Creating account..." : "Create Account"}
+ {loading ? t("auth.creatingAccount") : t("auth.register")}
  </Button>
  </form>
 
  <p className="mt-6 text-center text-sm text-text-muted ">
- Already have an account?{" "}
+ {t("auth.hasAccount")}{" "}
  <Link
  href="/login"
  className="font-medium text-primary hover:text-success-fg"
  >
- Sign in
+ {t("auth.signInLink")}
  </Link>
  </p>
  </div>
