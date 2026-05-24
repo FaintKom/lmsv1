@@ -28,6 +28,7 @@ import {
  ImageIcon,
  AlertCircle,
  Sigma,
+ Puzzle,
 } from "lucide-react";
 import { toast } from "sonner";
 import "katex/dist/katex.min.css";
@@ -36,6 +37,7 @@ import "./editor-styles.css";
 import apiClient from "@/lib/api-client";
 import { Callout } from "./extensions/callout";
 import { MathBlock } from "./extensions/math-block";
+import { V2Exercise } from "./extensions/v2-exercise";
 import { SlashCommands } from "./slash-commands";
 import { EditorBubbleMenu } from "./toolbar";
 
@@ -198,6 +200,13 @@ function EditorToolbar({
  <AlertCircle className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
+ onClick={() => editor.commands.setV2Exercise()}
+ active={editor.isActive("v2Exercise")}
+ title="V2 Exercise"
+ >
+ <Puzzle className="h-4 w-4" />
+ </ToolbarButton>
+ <ToolbarButton
  onClick={() => editor.chain().focus().setHorizontalRule().run()}
  title="Divider"
  >
@@ -294,6 +303,7 @@ export function BlockEditor({
  }),
  Callout,
  MathBlock,
+ V2Exercise,
  ...(editable ? [SlashCommands] : []),
  ],
  content: content || { type: "doc", content: [{ type: "paragraph" }] },
