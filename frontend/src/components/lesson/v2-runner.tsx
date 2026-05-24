@@ -61,6 +61,7 @@ import { MapPinDropV2 } from "@/components/exercises/v2/map-pin-v2";
 import { FileUploadV2 } from "@/components/exercises/v2/file-upload-v2";
 import { ScormPackageV2 } from "@/components/exercises/v2/scorm-v2";
 import { WhiteboardV2 } from "@/components/exercises/v2/whiteboard-v2";
+import { ProbabilityWheelV2 } from "@/components/exercises/v2/probability-wheel-v2";
 
 export type V2ExerciseType =
   | "quiz"
@@ -104,7 +105,8 @@ export type V2ExerciseType =
   | "map-pin"
   | "file-upload"
   | "scorm"
-  | "whiteboard";
+  | "whiteboard"
+  | "probability-wheel";
 
 export interface V2Step {
   type: V2ExerciseType;
@@ -173,6 +175,7 @@ const REGISTRY: Record<V2ExerciseType, React.ComponentType<any>> = {
   "file-upload": FileUploadV2,
   "scorm": ScormPackageV2,
   "whiteboard": WhiteboardV2,
+  "probability-wheel": ProbabilityWheelV2,
 };
 
 export function V2LessonRunner({
