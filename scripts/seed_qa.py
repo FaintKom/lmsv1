@@ -83,7 +83,7 @@ FIXTURES_PATH = _BACKEND_ROOT / "qa" / "exercise-fixtures.json"
 
 NAMESPACE_QA = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
-QA_PASSWORD = "QaTest2026!"
+QA_PASSWORD = "qa-test-not-for-prod"
 
 # Methodist is modelled as a teacher with is_methodist=True (there is no
 # dedicated UserRole enum value - see backend/app/auth/models.py).

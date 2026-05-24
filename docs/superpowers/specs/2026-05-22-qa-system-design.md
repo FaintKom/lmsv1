@@ -84,7 +84,7 @@ Idempotent script run inside the backend container after `alembic upgrade head`.
 Creates:
 - **4 users** with deterministic UUIDs via `uuid.uuid5(NAMESPACE_QA, "qa-student")` etc.
   - `qa-student@test.local`, `qa-teacher@test.local`, `qa-methodist@test.local`, `qa-admin@test.local`
-  - All share password `QaTest2026!`
+  - All share password `qa-test-not-for-prod`
 - **1 organization** `qa-org` (deterministic UUID).
 - **1 course** `qa-course` with 1 module and 1 lesson, owned by `qa-teacher`.
 - **24 exercises**, one of each type from `ExerciseType` enum, with `minimalConfig` loaded from `qa/exercise-fixtures.json` (the shared fixture file, see 5.3).

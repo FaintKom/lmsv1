@@ -8,10 +8,10 @@ const API_URL = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
  * with is_methodist=True (no separate enum value).
  */
 const CREDS = {
-  student:   { email: "qa-student@qa.example.com",   password: "QaTest2026!" },
-  teacher:   { email: "qa-teacher@qa.example.com",   password: "QaTest2026!" },
-  methodist: { email: "qa-methodist@qa.example.com", password: "QaTest2026!" },
-  admin:     { email: "qa-admin@qa.example.com",     password: "QaTest2026!" },
+  student:   { email: "qa-student@qa.example.com",   password: "qa-test-not-for-prod" },
+  teacher:   { email: "qa-teacher@qa.example.com",   password: "qa-test-not-for-prod" },
+  methodist: { email: "qa-methodist@qa.example.com", password: "qa-test-not-for-prod" },
+  admin:     { email: "qa-admin@qa.example.com",     password: "qa-test-not-for-prod" },
 } as const;
 
 export type QaRole = keyof typeof CREDS;

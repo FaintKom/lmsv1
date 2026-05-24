@@ -9,7 +9,7 @@ Preconditions (responsibility of the runner - CI workflow or local dev):
   1. `docker compose -f docker-compose.qa.yml up -d --wait`
   2. `python scripts/seed_qa.py` has run against that stack
   3. The 4 QA users (qa-{student,teacher,methodist,admin}@qa.example.com /
-     QaTest2026!) exist and are active.
+     qa-test-not-for-prod) exist and are active.
 
 Run from inside the backend container (CI does this):
 
@@ -54,10 +54,10 @@ QA_MODULE_ID = qa_uuid("qa-module")
 QA_LESSON_ID = qa_uuid("qa-lesson")
 
 QA_USERS: dict[str, tuple[str, str]] = {
-    "student":   ("qa-student@qa.example.com",   "QaTest2026!"),
-    "teacher":   ("qa-teacher@qa.example.com",   "QaTest2026!"),
-    "methodist": ("qa-methodist@qa.example.com", "QaTest2026!"),
-    "admin":     ("qa-admin@qa.example.com",     "QaTest2026!"),
+    "student":   ("qa-student@qa.example.com",   "qa-test-not-for-prod"),
+    "teacher":   ("qa-teacher@qa.example.com",   "qa-test-not-for-prod"),
+    "methodist": ("qa-methodist@qa.example.com", "qa-test-not-for-prod"),
+    "admin":     ("qa-admin@qa.example.com",     "qa-test-not-for-prod"),
 }
 
 
