@@ -62,6 +62,7 @@ import { FileUploadV2 } from "@/components/exercises/v2/file-upload-v2";
 import { ScormPackageV2 } from "@/components/exercises/v2/scorm-v2";
 import { WhiteboardV2 } from "@/components/exercises/v2/whiteboard-v2";
 import { ProbabilityWheelV2 } from "@/components/exercises/v2/probability-wheel-v2";
+import { AreaModelV2 } from "@/components/exercises/v2/area-model-v2";
 
 export type V2ExerciseType =
   | "quiz"
@@ -106,7 +107,8 @@ export type V2ExerciseType =
   | "file-upload"
   | "scorm"
   | "whiteboard"
-  | "probability-wheel";
+  | "probability-wheel"
+  | "area-model";
 
 export interface V2Step {
   type: V2ExerciseType;
@@ -176,6 +178,7 @@ const REGISTRY: Record<V2ExerciseType, React.ComponentType<any>> = {
   "scorm": ScormPackageV2,
   "whiteboard": WhiteboardV2,
   "probability-wheel": ProbabilityWheelV2,
+  "area-model": AreaModelV2,
 };
 
 export function V2LessonRunner({
