@@ -60,6 +60,7 @@ import { VennTextV2 } from "@/components/exercises/v2/venn-text-v2";
 import { MapPinDropV2 } from "@/components/exercises/v2/map-pin-v2";
 import { FileUploadV2 } from "@/components/exercises/v2/file-upload-v2";
 import { ScormPackageV2 } from "@/components/exercises/v2/scorm-v2";
+import { WhiteboardV2 } from "@/components/exercises/v2/whiteboard-v2";
 
 export type V2ExerciseType =
   | "quiz"
@@ -102,7 +103,8 @@ export type V2ExerciseType =
   | "venn-text"
   | "map-pin"
   | "file-upload"
-  | "scorm";
+  | "scorm"
+  | "whiteboard";
 
 export interface V2Step {
   type: V2ExerciseType;
@@ -170,6 +172,7 @@ const REGISTRY: Record<V2ExerciseType, React.ComponentType<any>> = {
   "map-pin": MapPinDropV2,
   "file-upload": FileUploadV2,
   "scorm": ScormPackageV2,
+  "whiteboard": WhiteboardV2,
 };
 
 export function V2LessonRunner({
