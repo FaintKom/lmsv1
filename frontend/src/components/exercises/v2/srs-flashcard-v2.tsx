@@ -29,6 +29,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface SRSCard {
   front: string;
@@ -92,11 +93,10 @@ interface ButtonMeta {
   textColor: string;
 }
 
-const BUTTONS: ButtonMeta[] = [
+const BUTTON_STYLES: Omit<ButtonMeta, "label">[] = [
   {
     rating: Rating.Again,
     key: "again",
-    label: "Again",
     color: "var(--coral-500)",
     shadow: "var(--coral-700)",
     textColor: "#fff",
@@ -104,7 +104,6 @@ const BUTTONS: ButtonMeta[] = [
   {
     rating: Rating.Hard,
     key: "hard",
-    label: "Hard",
     color: "var(--sun-400)",
     shadow: "var(--sun-500)",
     textColor: "var(--ink-900)",
@@ -112,7 +111,6 @@ const BUTTONS: ButtonMeta[] = [
   {
     rating: Rating.Good,
     key: "good",
-    label: "Good",
     color: "var(--green-600)",
     shadow: "var(--green-700)",
     textColor: "#fff",
@@ -120,7 +118,6 @@ const BUTTONS: ButtonMeta[] = [
   {
     rating: Rating.Easy,
     key: "easy",
-    label: "Easy",
     color: "var(--green-500)",
     shadow: "var(--green-700)",
     textColor: "#fff",
@@ -184,15 +181,31 @@ export function SRSFlashcardV2({
   cards,
   initialSchedule,
   fsrsParams,
-  eyebrowPrefix = "DECK",
-  frontLabel = "FRONT",
-  backLabel = "BACK",
-  title = "Review",
+  eyebrowPrefix,
+  frontLabel,
+  backLabel,
+  title,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: SRSFlashcardV2Props) {
+  const { t } = useTranslation();
   const scheduler = useMemo(() => fsrs(fsrsParams), [fsrsParams]);
+  const resolvedEyebrowPrefix = eyebrowPrefix ?? t("exercise.deck");
+  const resolvedFrontLabel = frontLabel ?? t("exercise.front");
+  const resolvedBackLabel = backLabel ?? t("exercise.back");
+  const resolvedTitle = title ?? t("exercise.srsFlashcard.title");
+  const BUTTONS: ButtonMeta[] = BUTTON_STYLES.map((b) => ({
+    ...b,
+    label:
+      b.key === "again"
+        ? t("exercise.again")
+        : b.key === "hard"
+          ? t("exercise.hard")
+          : b.key === "good"
+            ? t("exercise.good")
+            : t("exercise.easy"),
+  }));
 
   // Card state per index — lazy hydrated from initialSchedule or empty.
   const [cardStates, setCardStates] = useState<Card[]>(() =>
@@ -252,7 +265,12 @@ export function SRSFlashcardV2({
 
   const known = stats.good + stats.easy;
   const feedback: LessonFeedback | null = done
-    ? { kind: "ok", msg: `Deck complete — ${known}/${cards.length} known.` }
+    ? {
+        kind: "ok",
+        msg: t("exercise.srsFlashcard.deckComplete")
+          .replace("{known}", String(known))
+          .replace("{total}", String(cards.length)),
+      }
     : null;
 
   const handleContinue = () => {
@@ -274,8 +292,8 @@ export function SRSFlashcardV2({
       {layer}
       <LessonShell
         streak={streak}
-        eyebrow={`${eyebrowPrefix} ${done ? "DONE" : `${idx + 1} OF ${cards.length}`}`}
-        title={title}
+        eyebrow={`${resolvedEyebrowPrefix} ${done ? t("exercise.deckDone") : t("exercise.deckCardOf").replace("{n}", String(idx + 1)).replace("{total}", String(cards.length))}`}
+        title={resolvedTitle}
         feedback={feedback}
         onContinue={handleContinue}
         canCheck={false}
@@ -306,7 +324,7 @@ export function SRSFlashcardV2({
                 style={{ position: "absolute", top: 14, left: 14 }}
                 className="gp-eyebrow"
               >
-                {flipped ? backLabel : frontLabel}
+                {flipped ? resolvedBackLabel : resolvedFrontLabel}
               </div>
               <div style={{ textAlign: "center", padding: 24 }}>
                 {!flipped ? (
@@ -328,7 +346,7 @@ export function SRSFlashcardV2({
                         color: "var(--ink-400)",
                       }}
                     >
-                      Tap to flip
+                      {t("exercise.tapToFlip")}
                     </div>
                   </>
                 ) : (

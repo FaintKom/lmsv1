@@ -17,6 +17,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ScaleState {
   leftX: number;
@@ -111,7 +112,7 @@ export function EquationBalanceV2({
   target,
   explain,
   eyebrow,
-  title = "Isolate x — keep both sides equal",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
@@ -125,6 +126,7 @@ export function EquationBalanceV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const subtractWeight = (n = 1) => {
     if (feedback || state.leftW < n || state.rightW < n) return;
@@ -154,7 +156,7 @@ export function EquationBalanceV2({
     if (eqState(state, target)) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Balanced." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.gotIt") : t("exercise.gotIt"),
         explain,
       });
       setStreak((s) => s + 1);
@@ -169,14 +171,14 @@ export function EquationBalanceV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Not isolated yet.",
+        msg: t("exercise.equationBalance.notIsolated"),
         explain,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not there yet — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -207,7 +209,7 @@ export function EquationBalanceV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.equationBalance.title")}
         feedback={feedback}
         canCheck={true}
         onCheck={handleCheck}
@@ -259,7 +261,7 @@ export function EquationBalanceV2({
                 gap: 6,
               }}
             >
-              <div className="gp-eyebrow">Left</div>
+              <div className="gp-eyebrow">{t("exercise.equationBalance.left")}</div>
               {renderItems("x", state.leftX, "var(--green-600)", "var(--green-700)")}
               {renderItems("w", state.leftW, "var(--sun-400)", "var(--sun-500)")}
             </div>
@@ -277,7 +279,7 @@ export function EquationBalanceV2({
                 gap: 6,
               }}
             >
-              <div className="gp-eyebrow">Right</div>
+              <div className="gp-eyebrow">{t("exercise.equationBalance.right")}</div>
               {renderItems("x", state.rightX, "var(--green-600)", "var(--green-700)")}
               {renderItems("w", state.rightW, "var(--sun-400)", "var(--sun-500)")}
             </div>

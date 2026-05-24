@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface TablePatternV2Props {
   xValues: number[];
@@ -65,12 +66,13 @@ export function TablePatternV2({
   ruleAccepted,
   ruleDisplay,
   eyebrow,
-  title = "Fill the blanks and name the rule",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: TablePatternV2Props) {
+  const { t } = useTranslation();
   const [vals, setVals] = useState<Record<number, string>>({});
   const [results, setResults] = useState<Record<number, boolean>>({});
   const [rule, setRule] = useState("");
@@ -105,7 +107,7 @@ export function TablePatternV2({
     if (wrongCount === 0 && ruleOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Pattern decoded." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.tablePattern.patternDecoded") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -118,17 +120,18 @@ export function TablePatternV2({
     setTimeout(() => setLostHeart(false), 500);
     let msg: string;
     if (wrongCount === 0) {
-      msg = "Numbers correct — but the rule isn't right yet.";
+      msg = t("exercise.tablePattern.numbersOkButRule");
     } else {
-      msg = `${wrongCount} number${wrongCount === 1 ? "" : "s"} wrong.`;
+      msg = (wrongCount === 1 ? t("exercise.tablePattern.wrongOne") : t("exercise.tablePattern.wrongMany")).replace("{n}", String(wrongCount));
     }
     if (remaining <= 0) {
       setFeedback({ kind: "no", msg, correct: ruleDisplay });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
       });
     }
   };
@@ -157,7 +160,7 @@ export function TablePatternV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.tablePattern.title")}
         feedback={feedback}
         canCheck={allFilled && rule.trim().length > 0}
         onCheck={handleCheck}
@@ -251,7 +254,7 @@ export function TablePatternV2({
             </div>
           </div>
           <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-            What's the rule?
+            {t("exercise.tablePattern.whatsTheRule")}
           </div>
           <input
             value={rule}

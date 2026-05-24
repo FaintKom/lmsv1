@@ -20,6 +20,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface SolverState {
   left: string;
@@ -62,11 +63,12 @@ export function EquationSolverV2({
   initial,
   steps,
   eyebrow,
-  title = "Pick the next move",
+  title,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: EquationSolverV2Props) {
+  const { t } = useTranslation();
   const [chain, setChain] = useState<ChainRow[]>([
     { ...initial, op: null },
   ]);
@@ -88,7 +90,7 @@ export function EquationSolverV2({
     setChain([...chain, { left: opt.after.left, right: opt.after.right, op: opt.label }]);
     if (step === steps.length - 1) {
       setTimeout(() => {
-        setFeedback({ kind: "ok", msg: "Solved!" });
+        setFeedback({ kind: "ok", msg: t("exercise.equationSolver.solved") });
         setStreak((s) => s + 1);
         fire();
       }, 250);
@@ -111,7 +113,7 @@ export function EquationSolverV2({
       <LessonShell
         streak={streak}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.equationSolver.title")}
         feedback={feedback}
         canCheck={false}
         onCheck={() => {}}

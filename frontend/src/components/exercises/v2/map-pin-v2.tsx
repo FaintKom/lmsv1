@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface MapPinDropV2Props {
   /** Target location as percent of map (0-100, both axes). */
@@ -51,12 +52,13 @@ export function MapPinDropV2({
   correctHint,
   aspectRatio = "1.4 / 1",
   eyebrow,
-  title = "Drop a pin",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: MapPinDropV2Props) {
+  const { t } = useTranslation();
   const [pin, setPin] = useState<{ x: number; y: number } | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -80,7 +82,7 @@ export function MapPinDropV2({
     if (dist <= tolerance) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Right on target." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.mapPin.rightOnTarget") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -94,14 +96,14 @@ export function MapPinDropV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Off by quite a bit.",
+        msg: t("exercise.mapPin.offByABit"),
         correct: correctHint,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Off by quite a bit — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.mapPin.offByABitAttempt") : t("exercise.mapPin.offByABitAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -130,7 +132,7 @@ export function MapPinDropV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.mapPin.title")}
         feedback={feedback}
         canCheck={!!pin}
         onCheck={handleCheck}
@@ -202,8 +204,8 @@ export function MapPinDropV2({
           }}
         >
           {!pin
-            ? "Tap anywhere on the map"
-            : `Pin at (${Math.round(pin.x)}%, ${Math.round(pin.y)}%)`}
+            ? t("exercise.mapPin.tapAnywhere")
+            : t("exercise.mapPin.pinAt").replace("{x}", String(Math.round(pin.x))).replace("{y}", String(Math.round(pin.y)))}
         </div>
       </LessonShell>
     </div>

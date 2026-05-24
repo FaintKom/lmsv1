@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface World3DV2Props {
   size?: number;
@@ -83,7 +84,7 @@ export function World3DV2({
   start,
   goal,
   eyebrow,
-  title = "Walk to the flag",
+  title,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
@@ -93,6 +94,7 @@ export function World3DV2({
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const TILE = 38;
   const projX = (r: number, c: number) => (c - r) * TILE * 0.85;
@@ -109,7 +111,7 @@ export function World3DV2({
       setTimeout(() => {
         setFeedback({
           kind: "ok",
-          msg: `Reached the goal in ${steps + 1} steps.`,
+          msg: t("exercise.world3d.reachedInSteps").replace("{n}", String(steps + 1)),
         });
         setStreak((s) => s + 1);
         fire();
@@ -131,7 +133,7 @@ export function World3DV2({
       <LessonShell
         streak={streak}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.world3d.title")}
         feedback={feedback}
         canCheck={false}
         showSkip={false}
@@ -237,7 +239,7 @@ export function World3DV2({
                 fontSize: 11,
               }}
             >
-              STEPS · {steps}
+              {t("exercise.world3d.steps")} · {steps}
             </div>
           </div>
           <div

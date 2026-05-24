@@ -21,6 +21,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ScormSlide {
   title: string;
@@ -61,11 +62,12 @@ export function ScormPackageV2({
   packageName = "module.zip",
   version,
   eyebrow,
-  title = "Module",
+  title,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: ScormPackageV2Props) {
+  const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
   const [done, setDone] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -82,7 +84,7 @@ export function ScormPackageV2({
       setDone(true);
       setFeedback({
         kind: "ok",
-        msg: `Module complete — score ${finalScore}/${scoreMax}.`,
+        msg: t("exercise.scorm.moduleComplete").replace("{score}", String(finalScore)).replace("{max}", String(scoreMax)),
       });
       setStreak((s) => s + 1);
       fire();
@@ -107,7 +109,7 @@ export function ScormPackageV2({
       <LessonShell
         hideStats
         eyebrow={eyebrow ?? version}
-        title={title}
+        title={title ?? t("exercise.scorm.title")}
         feedback={feedback}
         canCheck={false}
         onCheck={() => {}}
@@ -183,7 +185,7 @@ export function ScormPackageV2({
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <div className="gp-eyebrow">
-                      Slide {idx + 1} of {slides.length}
+                      {t("exercise.scorm.slideOf").replace("{n}", String(idx + 1)).replace("{total}", String(slides.length))}
                     </div>
                     <h3 style={{ margin: "6px 0 0", fontSize: 19, fontWeight: 800 }}>
                       {slide.title}
@@ -196,8 +198,7 @@ export function ScormPackageV2({
                         maxWidth: 320,
                       }}
                     >
-                      Slide content rendered by SCORM module. The LMS only
-                      tracks completion and score.
+                      {t("exercise.scorm.slideContentDesc")}
                     </p>
                   </div>
                   <button
@@ -206,7 +207,7 @@ export function ScormPackageV2({
                     className="gp-btn"
                     style={{ padding: "10px 24px", fontSize: 13 }}
                   >
-                    Next slide →
+                    {t("exercise.scorm.nextSlide")}
                   </button>
                 </>
               ) : (
@@ -234,7 +235,7 @@ export function ScormPackageV2({
                         color: "var(--green-800)",
                       }}
                     >
-                      Module complete
+                      {t("exercise.scorm.moduleCompleteHeader")}
                     </h3>
                     <p
                       style={{
@@ -243,7 +244,7 @@ export function ScormPackageV2({
                         marginTop: 6,
                       }}
                     >
-                      Score reported back to LMS: {finalScore}/{scoreMax}
+                      {t("exercise.scorm.scoreReported").replace("{score}", String(finalScore)).replace("{max}", String(scoreMax))}
                     </p>
                   </div>
                 </>

@@ -16,6 +16,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface McMathV2Props {
   /** Lead-in copy shown above the expression. */
@@ -45,7 +46,7 @@ export function McMathV2({
   correct,
   explain,
   eyebrow,
-  title = "Which is equivalent?",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
@@ -58,12 +59,13 @@ export function McMathV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const handleCheck = () => {
     if (pick === correct) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Right." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.mcMath.right") : t("exercise.gotIt"),
         explain,
       });
       setStreak((s) => s + 1);
@@ -78,7 +80,7 @@ export function McMathV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: options[correct],
         explain,
       });
@@ -86,7 +88,7 @@ export function McMathV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -115,7 +117,7 @@ export function McMathV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.mcMath.title")}
         feedback={feedback}
         canCheck={pick !== null}
         onCheck={handleCheck}

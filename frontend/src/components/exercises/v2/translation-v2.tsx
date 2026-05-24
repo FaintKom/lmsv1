@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface TranslationV2Props {
   source: string;
@@ -53,13 +54,14 @@ export function TranslationV2({
   correct,
   hint,
   eyebrow,
-  title = "Translate this sentence",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onSpeak,
   onQuit,
   onFinish,
 }: TranslationV2Props) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -74,7 +76,7 @@ export function TranslationV2({
     if (isOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "¡Excelente!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.translation.excellent") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -88,7 +90,7 @@ export function TranslationV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct,
         explain: hint,
       });
@@ -96,7 +98,7 @@ export function TranslationV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `Close, but not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.translation.closeAttemptLeft") : t("exercise.translation.closeAttemptsLeft")).replace("{n}", String(remaining)),
         explain: hint,
       });
     }
@@ -125,7 +127,7 @@ export function TranslationV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.translation.title")}
         feedback={feedback}
         canCheck={text.trim().length > 0}
         onCheck={handleCheck}
@@ -145,7 +147,7 @@ export function TranslationV2({
           <button
             type="button"
             onClick={onSpeak}
-            aria-label="Play audio"
+            aria-label={t("exercise.playAudio")}
             style={{
               width: 56,
               height: 56,
@@ -186,7 +188,7 @@ export function TranslationV2({
         </div>
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
           <div className="gp-eyebrow" style={{ marginBottom: 8 }}>
-            {targetLang} · YOUR ANSWER
+            {targetLang} · {t("exercise.yourAnswer")}
           </div>
           <textarea
             className={
@@ -196,7 +198,7 @@ export function TranslationV2({
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={!!feedback}
-            placeholder={`Type the ${targetLang} translation…`}
+            placeholder={t("exercise.translation.typeTheTranslation").replace("{lang}", targetLang)}
             style={{
               minHeight: 96,
               resize: "none",
@@ -230,7 +232,7 @@ export function TranslationV2({
                 }}
               >
                 <Lightbulb size={16} />
-                Hint
+                {t("exercise.hint")}
               </button>
               {showHint && (
                 <span

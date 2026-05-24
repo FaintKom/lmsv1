@@ -17,6 +17,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ScatterPoint {
   x: number;
@@ -60,12 +61,13 @@ export function ScatterPlotV2({
   mTolerance = 0.3,
   bTolerance = 1.0,
   eyebrow,
-  title = "Drag the line to fit the data",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: ScatterPlotV2Props) {
+  const { t } = useTranslation();
   const toX = (v: number) => PAD.l + (v / xMax) * PLOTW;
   const toY = (v: number) => PAD.t + PLOTH - (v / yMax) * PLOTH;
   const fromX = (px: number) =>
@@ -103,7 +105,7 @@ export function ScatterPlotV2({
     ) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Great line of best fit." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.scatterPlot.greatLineOfFit") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -114,18 +116,18 @@ export function ScatterPlotV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    const explain = `Best fit is near y ≈ ${target.m}x + ${target.b}`;
+    const explain = t("exercise.scatterPlot.bestFitNear").replace("{m}", String(target.m)).replace("{b}", String(target.b));
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Line doesn't fit well yet.",
+        msg: t("exercise.scatterPlot.lineDoesntFit"),
         explain,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Line doesn't fit well yet — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.scatterPlot.lineDoesntFitAttempt") : t("exercise.scatterPlot.lineDoesntFitAttempts")).replace("{n}", String(remaining)),
         explain,
       });
     }
@@ -158,7 +160,7 @@ export function ScatterPlotV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.scatterPlot.title")}
         feedback={feedback}
         canCheck={true}
         onCheck={handleCheck}
@@ -310,7 +312,7 @@ export function ScatterPlotV2({
                 textAlign: "center",
               }}
             >
-              <div className="gp-eyebrow">your line</div>
+              <div className="gp-eyebrow">{t("exercise.scatterPlot.yourLine")}</div>
               <div
                 style={{
                   fontFamily: "var(--font-mono)",

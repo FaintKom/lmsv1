@@ -20,6 +20,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export type RobotBlockType = "forward" | "turn-right" | "turn-left";
 
@@ -102,12 +103,13 @@ export function Robot2DV2({
   paletteBlocks = ["forward", "turn-right", "turn-left"],
   starter = [],
   eyebrow,
-  title = "Drive the robot to the goal",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: Robot2DV2Props) {
+  const { t } = useTranslation();
   const [robot, setRobot] = useState<RobotPos>(start);
   const [collected, setCollected] = useState<Record<number, boolean>>({});
   const [blocks, setBlocks] = useState<RobotBlock[]>(starter);
@@ -157,8 +159,8 @@ export function Robot2DV2({
         kind: "ok",
         msg:
           coins.length > 0
-            ? "Reached the goal with all coins!"
-            : "Reached the goal!",
+            ? t("exercise.robot2d.reachedAllCoins")
+            : t("exercise.robot2d.reachedGoal"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -170,18 +172,19 @@ export function Robot2DV2({
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
     const msg = reachedGoal
-      ? "Reached the goal — but missed a coin."
-      : "Robot didn't reach the goal.";
+      ? t("exercise.robot2d.reachedMissedCoin")
+      : t("exercise.robot2d.didntReachGoal");
     const explain = reachedGoal
-      ? "Collect every coin on the way."
-      : `Goal is at row ${goal.r}, col ${goal.c}.`;
+      ? t("exercise.robot2d.collectEveryCoin")
+      : t("exercise.robot2d.goalAt").replace("{r}", String(goal.r)).replace("{c}", String(goal.c));
     if (remaining <= 0) {
       setFeedback({ kind: "no", msg, explain });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
         explain,
       });
     }
@@ -227,11 +230,11 @@ export function Robot2DV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.robot2d.title")}
         feedback={feedback}
         canCheck={blocks.length > 0 && !running}
         onCheck={runProgram}
-        checkLabel={running ? "Running…" : "Run"}
+        checkLabel={running ? t("exercise.robot2d.runningLabel") : t("exercise.robot2d.runLabel")}
         showSkip={false}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}

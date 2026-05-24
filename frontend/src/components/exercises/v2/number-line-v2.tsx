@@ -17,6 +17,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface NumberLineV2Props {
   min: number;
@@ -63,6 +64,7 @@ export function NumberLineV2({
   const [streak, setStreak] = useState(initialStreak);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const tol = tolerance ?? step / 2;
 
@@ -86,7 +88,7 @@ export function NumberLineV2({
     if (Math.abs(pos - correct) <= tol) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Marker placed exactly." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.numberLine.placedExactly") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -100,14 +102,15 @@ export function NumberLineV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `You placed it at ${pos}.`,
+        msg: t("exercise.numberLine.placedAt").replace("{pos}", String(pos)),
         correct: String(correct),
       });
       setStreak(0);
     } else {
+      const tmpl = remaining === 1 ? t("exercise.numberLine.placedAtAttempt") : t("exercise.numberLine.placedAtAttempts");
       setFeedback({
         kind: "no",
-        msg: `You placed it at ${pos} — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: tmpl.replace("{pos}", String(pos)).replace("{n}", String(remaining)),
       });
     }
   };
@@ -138,7 +141,7 @@ export function NumberLineV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title ?? prompt ?? "Place the marker"}
+        title={title ?? prompt ?? t("exercise.numberLine.title")}
         feedback={feedback}
         canCheck={true}
         onCheck={handleCheck}

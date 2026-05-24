@@ -16,6 +16,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { GridAxes } from "@/components/exercises/v2/_grid-axes";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface CoordinatePlaneTarget {
   x: number;
@@ -47,12 +48,13 @@ export function CoordinatePlaneV2({
   targets,
   range = 6,
   eyebrow,
-  title = "Place each point at its coordinates",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: CoordinatePlaneV2Props) {
+  const { t } = useTranslation();
   const scale = (SIZE - PAD * 2) / (range * 2);
   const toX = (v: number) => PAD + (v + range) * scale;
   const toY = (v: number) => PAD + (range - v) * scale;
@@ -92,8 +94,8 @@ export function CoordinatePlaneV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `All ${targets.length} points are spot on.`
-            : "Got it!",
+            ? t("exercise.coordinatePlane.allSpotOn").replace("{n}", String(targets.length))
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -107,14 +109,14 @@ export function CoordinatePlaneV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Some points are off.",
-        correct: targets.map((t) => `${t.label}(${t.x},${t.y})`).join(" · "),
+        msg: t("exercise.coordinatePlane.somePointsOff"),
+        correct: targets.map((tg) => `${tg.label}(${tg.x},${tg.y})`).join(" · "),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Some points are off — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.coordinatePlane.somePointsOffAttempt") : t("exercise.coordinatePlane.somePointsOffAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -146,7 +148,7 @@ export function CoordinatePlaneV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.coordinatePlane.title")}
         feedback={feedback}
         canCheck={true}
         onCheck={handleCheck}
@@ -177,11 +179,11 @@ export function CoordinatePlaneV2({
             <GridAxes range={range} size={SIZE} pad={PAD} />
             {feedback &&
               feedback.kind !== "ok" &&
-              targets.map((t, i) => (
+              targets.map((tg, i) => (
                 <g key={"t" + i}>
                   <circle
-                    cx={toX(t.x)}
-                    cy={toY(t.y)}
+                    cx={toX(tg.x)}
+                    cy={toY(tg.y)}
                     r="12"
                     fill="none"
                     stroke={COLORS[i % COLORS.length]}
@@ -193,9 +195,9 @@ export function CoordinatePlaneV2({
                 </g>
               ))}
             {pts.map((p, i) => {
-              const t = targets[i];
-              const isOk = !!feedback && p.x === t.x && p.y === t.y;
-              const isNo = !!feedback && (p.x !== t.x || p.y !== t.y);
+              const tg = targets[i];
+              const isOk = !!feedback && p.x === tg.x && p.y === tg.y;
+              const isNo = !!feedback && (p.x !== tg.x || p.y !== tg.y);
               const fill = isOk
                 ? "var(--green-600)"
                 : isNo
@@ -217,7 +219,7 @@ export function CoordinatePlaneV2({
                     fill="#fff"
                     fontWeight="800"
                   >
-                    {t.label}
+                    {tg.label}
                   </text>
                 </g>
               );
@@ -225,10 +227,10 @@ export function CoordinatePlaneV2({
           </svg>
           <div>
             <div className="gp-eyebrow" style={{ marginBottom: 10 }}>
-              Place these points
+              {t("exercise.coordinatePlane.placeThesePoints")}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {targets.map((t, i) => {
+              {targets.map((tg, i) => {
                 const p = pts[i];
                 return (
                   <div
@@ -257,7 +259,7 @@ export function CoordinatePlaneV2({
                         fontSize: 12,
                       }}
                     >
-                      {t.label}
+                      {tg.label}
                     </span>
                     <span
                       style={{
@@ -267,7 +269,7 @@ export function CoordinatePlaneV2({
                         color: "var(--ink-900)",
                       }}
                     >
-                      ({t.x}, {t.y})
+                      ({tg.x}, {tg.y})
                     </span>
                     <span
                       style={{
@@ -277,7 +279,7 @@ export function CoordinatePlaneV2({
                         color: "var(--ink-400)",
                       }}
                     >
-                      now ({p.x},{p.y})
+                      {t("exercise.coordinatePlane.now")} ({p.x},{p.y})
                     </span>
                   </div>
                 );

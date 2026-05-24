@@ -15,6 +15,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export type VennRegion = "a_only" | "intersection" | "b_only" | "neither";
 
@@ -54,12 +55,13 @@ export function VennTextV2({
   setB,
   answers,
   eyebrow,
-  title = "Describe each region in your own words",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: VennTextV2Props) {
+  const { t } = useTranslation();
   const [vals, setVals] = useState<Partial<Record<VennRegion, string>>>({});
   const [results, setResults] = useState<Partial<Record<VennRegion, boolean>>>(
     {}
@@ -80,8 +82,8 @@ export function VennTextV2({
     for (const k of keys) {
       const got = normalize(vals[k] || "");
       const target = normalize(answers[k] || "");
-      const terms = target.split(" ").filter((t) => t.length > 2);
-      const matched = terms.filter((t) => got.includes(t)).length;
+      const terms = target.split(" ").filter((term) => term.length > 2);
+      const matched = terms.filter((term) => got.includes(term)).length;
       const ok = matched >= Math.max(1, Math.floor(terms.length * 0.5));
       res[k] = ok;
       if (!ok) wrong++;
@@ -92,8 +94,8 @@ export function VennTextV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? "Good descriptions of each region."
-            : "Got it!",
+            ? t("exercise.vennText.goodDescriptions")
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -107,14 +109,15 @@ export function VennTextV2({
     const explain = (Object.entries(answers) as [VennRegion, string][])
       .map(([k, v]) => `${k}: "${v}"`)
       .join(" · ");
-    const msg = `${wrong} region${wrong === 1 ? "" : "s"} off.`;
+    const msg = (wrong === 1 ? t("exercise.vennText.regionsOffOne") : t("exercise.vennText.regionsOffMany")).replace("{n}", String(wrong));
     if (remaining <= 0) {
       setFeedback({ kind: "no", msg, explain });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
       });
     }
   };
@@ -150,7 +153,7 @@ export function VennTextV2({
           value={vals[key] || ""}
           disabled={!!feedback}
           onChange={(e) => setVals({ ...vals, [key]: e.target.value })}
-          placeholder="describe…"
+          placeholder={t("exercise.vennText.placeholder")}
           style={{
             width: "100%",
             height: 48,
@@ -185,7 +188,7 @@ export function VennTextV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.vennText.title")}
         feedback={feedback}
         canCheck={allFilled}
         onCheck={handleCheck}

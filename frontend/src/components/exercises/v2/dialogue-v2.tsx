@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface DialogueNpcMessage {
   speaker: string;
@@ -55,12 +56,13 @@ export function DialogueV2({
   options,
   prompt,
   eyebrow,
-  title = "Pick the right reply",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: DialogueV2Props) {
+  const { t } = useTranslation();
   const [pick, setPick] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -76,7 +78,7 @@ export function DialogueV2({
     if (opt?.correct) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Buena respuesta." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.dialogue.goodReply") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -90,14 +92,15 @@ export function DialogueV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: prompt ?? "Wrong reply.",
+        msg: prompt ?? t("exercise.dialogue.wrongReply"),
         correct: correctOpt?.text,
       });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${prompt ?? "Wrong reply."} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${prompt ?? t("exercise.dialogue.wrongReply")} ${attemptsMsg}`,
       });
     }
   };
@@ -126,7 +129,7 @@ export function DialogueV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.dialogue.title")}
         feedback={feedback}
         canCheck={pick !== null}
         onCheck={handleCheck}
@@ -216,7 +219,7 @@ export function DialogueV2({
           className="gp-eyebrow"
           style={{ textAlign: "center", marginBottom: 10 }}
         >
-          Choose your reply
+          {t("exercise.chooseYourReply")}
         </div>
         <div
           style={{

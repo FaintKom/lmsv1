@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export type VennRegion = "a_only" | "intersection" | "b_only" | "neither";
 
@@ -75,6 +76,7 @@ export function VennDiagramV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const blanks = Object.keys(answers) as VennRegion[];
   const allFilled = blanks.every((k) => (vals[k] || "").trim().length > 0);
@@ -94,8 +96,10 @@ export function VennDiagramV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `Regions add up${total !== undefined ? ` to ${total}` : ""}.`
-            : "Got it!",
+            ? total !== undefined
+              ? t("exercise.vennDiagram.regionsAddUpTo").replace("{total}", String(total))
+              : t("exercise.vennDiagram.regionsAddUp")
+            : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -106,18 +110,19 @@ export function VennDiagramV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    const msg = `${wrong} region${wrong === 1 ? "" : "s"} wrong.`;
+    const msg = (wrong === 1 ? t("exercise.vennDiagram.wrongOne") : t("exercise.vennDiagram.wrongMany")).replace("{n}", String(wrong));
     const explain =
       total !== undefined
-        ? `All four regions must sum to the total (${total}).`
-        : "All four regions together cover the universe.";
+        ? t("exercise.vennDiagram.explainSumToTotal").replace("{total}", String(total))
+        : t("exercise.vennDiagram.explainCoverUniverse");
     if (remaining <= 0) {
       setFeedback({ kind: "no", msg, explain });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
         explain,
       });
     }
@@ -245,7 +250,7 @@ export function VennDiagramV2({
                 fontWeight="600"
                 letterSpacing="0.08em"
               >
-                UNIVERSE · {total}
+                {t("exercise.vennDiagram.universe")} · {total}
               </text>
             )}
             <circle
@@ -300,7 +305,7 @@ export function VennDiagramV2({
               textAnchor="middle"
               fontWeight="600"
             >
-              NEITHER
+              {t("exercise.vennDiagram.neither")}
             </text>
           </svg>
           {prompt && (

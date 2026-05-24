@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ReadingV2Props {
   passage: string;
@@ -47,13 +48,14 @@ export function ReadingV2({
   correct,
   hint,
   eyebrow,
-  title = "Read & answer",
-  passageLabel = "Passage",
+  title,
+  passageLabel,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: ReadingV2Props) {
+  const { t } = useTranslation();
   const [pick, setPick] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -66,7 +68,7 @@ export function ReadingV2({
     if (pick === correct) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Right." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.reading.right") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -80,7 +82,7 @@ export function ReadingV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: options[correct],
         explain: hint,
       });
@@ -88,7 +90,7 @@ export function ReadingV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `Not quite — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
         explain: hint,
       });
     }
@@ -118,7 +120,7 @@ export function ReadingV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.reading.title")}
         feedback={feedback}
         canCheck={pick !== null}
         onCheck={handleCheck}
@@ -147,7 +149,7 @@ export function ReadingV2({
             }}
           >
             <div className="gp-eyebrow" style={{ marginBottom: 8 }}>
-              {passageLabel}
+              {passageLabel ?? t("exercise.passage")}
             </div>
             <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{passage}</p>
           </div>

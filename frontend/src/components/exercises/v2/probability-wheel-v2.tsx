@@ -21,6 +21,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface WheelSegment {
   label: string;
@@ -86,6 +87,7 @@ export function ProbabilityWheelV2({
   const [streak, setStreak] = useState(initialStreak);
   const timerRef = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const totalWeight = segments.reduce((sum, s) => sum + (s.weight ?? 1), 0);
 
@@ -138,11 +140,17 @@ export function ProbabilityWheelV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `${pick} came up most — ${maxCount}/${spins} times.`
-            : "Got it!",
+            ? t("exercise.probabilityWheel.cameUpMost")
+                .replace("{label}", pick)
+                .replace("{count}", String(maxCount))
+                .replace("{total}", String(spins))
+            : t("exercise.gotIt"),
         explain:
           totalWeightLabel.label !== pick
-            ? `(Theoretical favorite was "${totalWeightLabel.label}" with weight ${totalWeightLabel.weight ?? 1}/${totalWeight}.)`
+            ? t("exercise.probabilityWheel.theoreticalFavorite")
+                .replace("{label}", totalWeightLabel.label)
+                .replace("{weight}", String(totalWeightLabel.weight ?? 1))
+                .replace("{total}", String(totalWeight))
             : undefined,
       });
       setStreak((s) => s + 1);
@@ -157,13 +165,15 @@ export function ProbabilityWheelV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `Most frequent was "${winners.join(" / ")}" (${maxCount}).`,
+        msg: t("exercise.probabilityWheel.mostFrequentWas")
+          .replace("{label}", winners.join(" / "))
+          .replace("{count}", String(maxCount)),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Try again — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.probabilityWheel.tryAgainAttempt") : t("exercise.probabilityWheel.tryAgainAttempts")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -196,8 +206,8 @@ export function ProbabilityWheelV2({
         title={
           title ?? (
             <>
-              Spin {targetSpins} times, then pick the{" "}
-              <span className="gp-mark">most frequent</span> segment
+              {t("exercise.probabilityWheel.spinTimesAndPick").replace("{n}", String(targetSpins))}{" "}
+              <span className="gp-mark">{t("exercise.probabilityWheel.mostFrequent")}</span> {t("exercise.probabilityWheel.segment")}
             </>
           )
         }
@@ -293,14 +303,14 @@ export function ProbabilityWheelV2({
                 fontSize: 13,
               }}
             >
-              {spinning ? "Spinning…" : reachedTarget ? "Done" : "Spin"}
+              {spinning ? t("exercise.probabilityWheel.spinning") : reachedTarget ? t("exercise.probabilityWheel.done") : t("exercise.probabilityWheel.spin")}
             </button>
           </div>
           {/* Tally + picker */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
               <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-                Spins · {spins} / {targetSpins}
+                {t("exercise.probabilityWheel.spins")} · {spins} / {targetSpins}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {segments.map((s) => {
@@ -386,7 +396,7 @@ export function ProbabilityWheelV2({
                     fontFamily: "var(--font-sans)",
                   }}
                 >
-                  Pick the most-frequent segment.
+                  {t("exercise.probabilityWheel.pickMostFrequent")}
                 </div>
               )}
             </div>

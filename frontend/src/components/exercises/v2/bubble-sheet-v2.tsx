@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface BubbleSheetQuestion {
   /** 1-based question number shown in the badge. */
@@ -47,12 +48,13 @@ export interface BubbleSheetV2Props {
 export function BubbleSheetV2({
   questions,
   eyebrow,
-  title = "Fill in the bubble for each answer",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: BubbleSheetV2Props) {
+  const { t } = useTranslation();
   const [ans, setAns] = useState<Record<number, number>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -72,8 +74,8 @@ export function BubbleSheetV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `${score}/${questions.length} — perfect score.`
-            : `${score}/${questions.length} — got there!`,
+            ? t("exercise.perfectScore").replace("{score}", String(score)).replace("{total}", String(questions.length))
+            : t("exercise.gotThere").replace("{score}", String(score)).replace("{total}", String(questions.length)),
       });
       setStreak((s) => s + 1);
       setRevealCorrect(true);
@@ -88,16 +90,16 @@ export function BubbleSheetV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `${score}/${questions.length} correct.`,
-        explain: "Out of attempts — correct answers shown below.",
+        msg: t("exercise.scoreCorrect").replace("{score}", String(score)).replace("{total}", String(questions.length)),
+        explain: t("exercise.outOfAttemptsCorrectShown"),
       });
       setStreak(0);
       setRevealCorrect(true);
     } else {
       setFeedback({
         kind: "no",
-        msg: `${score}/${questions.length} correct.`,
-        explain: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left — fix the wrong ones.`,
+        msg: t("exercise.scoreCorrect").replace("{score}", String(score)).replace("{total}", String(questions.length)),
+        explain: (remaining === 1 ? t("exercise.fixWrongOneLeft") : t("exercise.fixWrongOnes")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -134,7 +136,7 @@ export function BubbleSheetV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.bubbleSheet.title")}
         feedback={feedback}
         canCheck={allAnswered}
         onCheck={handleCheck}

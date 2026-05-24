@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface MatchingPair {
   left: string;
@@ -47,7 +48,7 @@ function shuffle<T>(arr: T[]): T[] {
 export function MatchingV2({
   pairs,
   eyebrow,
-  title = "Tap the matching pairs",
+  title,
   maxAttemptsPerTask,
   streak: initialStreak = 0,
   onQuit,
@@ -67,6 +68,7 @@ export function MatchingV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   // Resolve a tap pair as soon as both sides are picked.
   useEffect(() => {
@@ -78,7 +80,7 @@ export function MatchingV2({
       setPickedR(null);
       if (Object.keys(nm).length === pairs.length) {
         setTimeout(() => {
-          setFeedback({ kind: "ok", msg: "All matched!" });
+          setFeedback({ kind: "ok", msg: t("exercise.matching.allMatched") });
           setStreak((s) => s + 1);
           fire();
         }, 300);
@@ -98,7 +100,7 @@ export function MatchingV2({
       if (remaining <= 0) {
         setFeedback({
           kind: "no",
-          msg: "Out of attempts.",
+          msg: t("exercise.outOfAttempts"),
           correct: pairs.map((p) => `${p.left} → ${p.right}`).join(", "),
         });
         setStreak(0);
@@ -137,7 +139,7 @@ export function MatchingV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.matching.title")}
         feedback={feedback}
         canCheck={false}
         showSkip={false}

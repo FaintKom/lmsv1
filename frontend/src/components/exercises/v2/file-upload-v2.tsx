@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface FileUploadResult {
   ok: boolean;
@@ -46,19 +47,13 @@ export interface FileUploadV2Props {
   }) => void;
 }
 
-const defaultStubSubmit = async (): Promise<FileUploadResult> => ({
-  ok: true,
-  msg: "Uploaded — awaiting review.",
-  explain: "Your teacher will leave feedback within 48h.",
-});
-
 export function FileUploadV2({
   accept = ".pdf,.docx,.txt",
-  maxLabel = "or click to browse · max 25 MB",
-  onSubmit = defaultStubSubmit,
+  maxLabel,
+  onSubmit,
   eyebrow,
-  title = "Upload your file",
-  dropLabel = "Drop a PDF, DOCX, or TXT here",
+  title,
+  dropLabel,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
@@ -70,6 +65,9 @@ export function FileUploadV2({
   const [streak, setStreak] = useState(initialStreak);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
+  const dropLabelText = dropLabel ?? t("exercise.fileUpload.dropLabel");
+  const maxLabelText = maxLabel ?? t("exercise.fileUpload.maxLabel");
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -78,11 +76,18 @@ export function FileUploadV2({
     if (f) setFile(f);
   };
 
+  const defaultSubmit = async (): Promise<FileUploadResult> => ({
+    ok: true,
+    msg: t("exercise.uploadedAwaitingReview"),
+    explain: t("exercise.teacherFeedback48h"),
+  });
+
   const handleSubmit = async () => {
     if (!file) return;
     setSubmitting(true);
     try {
-      const r = await onSubmit(file);
+      const submitter = onSubmit ?? defaultSubmit;
+      const r = await submitter(file);
       setFeedback({
         kind: r.ok ? "ok" : "no",
         msg: r.msg,
@@ -111,11 +116,11 @@ export function FileUploadV2({
       <LessonShell
         streak={streak}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.fileUpload.title")}
         feedback={feedback}
         canCheck={!!file && !submitting}
         onCheck={handleSubmit}
-        checkLabel={submitting ? "Uploading…" : "Submit"}
+        checkLabel={submitting ? t("exercise.uploading") : t("exercise.submit")}
         showSkip={false}
         onContinue={handleContinue}
         onQuit={onQuit}
@@ -160,7 +165,7 @@ export function FileUploadV2({
                 color: "var(--ink-900)",
               }}
             >
-              {file ? file.name : dropLabel}
+              {file ? file.name : dropLabelText}
             </div>
             <div
               style={{
@@ -170,8 +175,8 @@ export function FileUploadV2({
               }}
             >
               {file
-                ? `${(file.size / 1024).toFixed(1)} KB · ready`
-                : maxLabel}
+                ? `${(file.size / 1024).toFixed(1)} KB · ${t("exercise.fileUpload.ready")}`
+                : maxLabelText}
             </div>
             <input
               ref={inputRef}
@@ -240,7 +245,7 @@ export function FileUploadV2({
                   if (!feedback) setFile(null);
                 }}
                 disabled={!!feedback}
-                aria-label="Remove file"
+                aria-label={t("exercise.removeFile")}
                 style={{
                   background: "transparent",
                   border: "none",

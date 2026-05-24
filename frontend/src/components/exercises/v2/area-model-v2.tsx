@@ -21,6 +21,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface AreaModelV2Props {
   a: number;
@@ -67,6 +68,7 @@ export function AreaModelV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const expectedTotal = a * b;
   const expectedCell = (r: number, c: number) => splits.b[r] * splits.a[c];
@@ -97,11 +99,12 @@ export function AreaModelV2({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? `${a} × ${b} = ${expectedTotal}.`
-            : "Got it!",
-        explain: `${splits.a.join(" + ")} × ${splits.b.join(" + ")} = sum of all ${
-          splits.a.length * splits.b.length
-        } partial products.`,
+            ? t("exercise.areaModel.aTimesBEquals").replace("{a}", String(a)).replace("{b}", String(b)).replace("{n}", String(expectedTotal))
+            : t("exercise.gotIt"),
+        explain: t("exercise.areaModel.partialProductsExplain")
+          .replace("{aParts}", splits.a.join(" + "))
+          .replace("{bParts}", splits.b.join(" + "))
+          .replace("{n}", String(splits.a.length * splits.b.length)),
       });
       setStreak((s) => s + 1);
       fire();
@@ -114,9 +117,9 @@ export function AreaModelV2({
     setTimeout(() => setLostHeart(false), 500);
     const msg = !tOk
       ? wrong > 0
-        ? `${wrong} cell${wrong === 1 ? "" : "s"} off and the total is wrong.`
-        : "Cells are right, but the total isn't."
-      : `${wrong} cell${wrong === 1 ? "" : "s"} off.`;
+        ? (wrong === 1 ? t("exercise.areaModel.cellsOffOne") : t("exercise.areaModel.cellsOffMany")).replace("{n}", String(wrong))
+        : t("exercise.areaModel.cellsRightTotalWrong")
+      : (wrong === 1 ? t("exercise.areaModel.cellsOffOnlyOne") : t("exercise.areaModel.cellsOffOnlyMany")).replace("{n}", String(wrong));
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
@@ -125,9 +128,10 @@ export function AreaModelV2({
       });
       setStreak(0);
     } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
       setFeedback({
         kind: "no",
-        msg: `${msg} ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: `${msg} ${attemptsMsg}`,
       });
     }
   };
@@ -158,7 +162,7 @@ export function AreaModelV2({
         title={
           title ?? (
             <>
-              Fill the area model for{" "}
+              {t("exercise.areaModel.fillForA")}{" "}
               <span
                 className="gp-mark"
                 style={{ fontFamily: "var(--font-mono)" }}
@@ -363,7 +367,7 @@ export function AreaModelV2({
               fontFamily: "var(--font-mono)",
             }}
           >
-            Each cell = (row × col). Total = sum of cells.
+            {t("exercise.areaModel.cellRowCol")}
           </div>
         </div>
       </LessonShell>

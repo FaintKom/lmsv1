@@ -18,6 +18,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface SortCategory {
   id: string;
@@ -64,12 +65,13 @@ export function CardSortV2({
   categories,
   cards,
   eyebrow,
-  title = "Sort each card into its column",
+  title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: CardSortV2Props) {
+  const { t } = useTranslation();
   const palette = categories.map((c, i) => ({
     color: c.color ?? DEFAULTS[i % DEFAULTS.length].color,
     border: c.border ?? DEFAULTS[i % DEFAULTS.length].border,
@@ -99,7 +101,7 @@ export function CardSortV2({
     if (wrong === 0) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "All sorted correctly!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.cardSort.allSortedCorrectly") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -113,7 +115,7 @@ export function CardSortV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `${wrong} card${wrong === 1 ? "" : "s"} in the wrong column.`,
+        msg: (wrong === 1 ? t("exercise.cardSort.wrongCardOne") : t("exercise.cardSort.wrongCardMany")).replace("{n}", String(wrong)),
         correct: cards
           .map(
             (c) =>
@@ -123,9 +125,10 @@ export function CardSortV2({
       });
       setStreak(0);
     } else {
+      const tmpl = remaining === 1 ? t("exercise.cardSort.wrongOneLeft") : t("exercise.cardSort.wrongAttempts");
       setFeedback({
         kind: "no",
-        msg: `${wrong} in the wrong column — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: tmpl.replace("{n}", String(wrong)).replace("{r}", String(remaining)),
       });
     }
   };
@@ -157,7 +160,7 @@ export function CardSortV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.cardSort.title")}
         feedback={feedback}
         canCheck={allPlaced}
         onCheck={handleCheck}
@@ -265,7 +268,7 @@ export function CardSortV2({
           >
             {unsorted.length === 0 ? (
               <span style={{ color: "var(--ink-400)", fontSize: 13 }}>
-                All placed — hit Check.
+                {t("exercise.allPlacedHitCheck")}
               </span>
             ) : (
               unsorted.map((cd) => (

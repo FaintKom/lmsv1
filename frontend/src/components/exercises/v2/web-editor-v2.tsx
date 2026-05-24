@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface WebEditorCode {
   html: string;
@@ -58,13 +59,14 @@ export function WebEditorV2({
   starter,
   requirements,
   eyebrow,
-  title = "Build it",
+  title,
   previewBodyStyle = DEFAULT_PREVIEW_BODY,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
 }: WebEditorV2Props) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("html");
   const [code, setCode] = useState<WebEditorCode>(starter);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -87,7 +89,7 @@ export function WebEditorV2({
     if (allOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "All requirements met!" : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.webEditor.allRequirementsMet") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -101,14 +103,14 @@ export function WebEditorV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
-        explain: "Review the requirements panel.",
+        msg: t("exercise.outOfAttempts"),
+        explain: t("exercise.webEditor.reviewRequirements"),
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
-        msg: `Check the requirements panel — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.webEditor.checkRequirementsAttemptLeft") : t("exercise.webEditor.checkRequirementsAttemptsLeft")).replace("{n}", String(remaining)),
       });
     }
   };
@@ -141,11 +143,11 @@ export function WebEditorV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.webEditor.title")}
         feedback={feedback}
         canCheck={true}
         onCheck={handleCheck}
-        checkLabel="Submit"
+        checkLabel={t("exercise.submit")}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
@@ -176,11 +178,11 @@ export function WebEditorV2({
                 borderBottom: "1px solid var(--ink-100)",
               }}
             >
-              {(["html", "css", "js"] as Tab[]).map((t) => (
+              {(["html", "css", "js"] as Tab[]).map((tb) => (
                 <button
-                  key={t}
+                  key={tb}
                   type="button"
-                  onClick={() => setTab(t)}
+                  onClick={() => setTab(tb)}
                   style={{
                     background: "transparent",
                     border: "none",
@@ -189,15 +191,15 @@ export function WebEditorV2({
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
-                    color: tab === t ? "var(--green-700)" : "var(--ink-400)",
+                    color: tab === tb ? "var(--green-700)" : "var(--ink-400)",
                     borderBottom:
-                      tab === t
+                      tab === tb
                         ? "2px solid var(--green-600)"
                         : "2px solid transparent",
                     textTransform: "lowercase",
                   }}
                 >
-                  {t}
+                  {tb}
                 </button>
               ))}
               <span
@@ -293,7 +295,7 @@ export function WebEditorV2({
                     color: "var(--ink-400)",
                   }}
                 >
-                  preview
+                  {t("exercise.preview")}
                 </span>
               </div>
               <iframe
@@ -319,7 +321,7 @@ export function WebEditorV2({
                 gap: 6,
               }}
             >
-              <div className="gp-eyebrow">Requirements</div>
+              <div className="gp-eyebrow">{t("exercise.requirements")}</div>
               {reqStates.map((r, i) => (
                 <div
                   key={i}

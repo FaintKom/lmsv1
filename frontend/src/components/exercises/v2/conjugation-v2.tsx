@@ -19,6 +19,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface ConjugationRow {
   pronoun: string;
@@ -54,6 +55,7 @@ export function ConjugationV2({
   onQuit,
   onFinish,
 }: ConjugationV2Props) {
+  const { t } = useTranslation();
   const [vals, setVals] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -69,7 +71,7 @@ export function ConjugationV2({
     if (isOk) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Conjugación perfecta." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.conjugation.perfect") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -84,14 +86,15 @@ export function ConjugationV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: `${wrong.length} form${wrong.length === 1 ? "" : "s"} off.`,
+        msg: (wrong.length === 1 ? t("exercise.conjugation.formOff") : t("exercise.conjugation.formsOff")).replace("{n}", String(wrong.length)),
         explain: rows.map((r) => `${r.pronoun} → ${r.correct}`).join("  ·  "),
       });
       setStreak(0);
     } else {
+      const tmpl = wrong.length === 1 ? t("exercise.conjugation.formOffAttemptLeft") : t("exercise.conjugation.formsOffAttemptsLeft");
       setFeedback({
         kind: "no",
-        msg: `${wrong.length} form${wrong.length === 1 ? "" : "s"} off — ${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: tmpl.replace("{n}", String(wrong.length)).replace("{r}", String(remaining)),
       });
     }
   };
@@ -122,7 +125,7 @@ export function ConjugationV2({
         eyebrow={eyebrow ?? `${tense.toUpperCase()}`}
         title={
           <>
-            Conjugate{" "}
+            {t("exercise.conjugation.title")}{" "}
             <span
               className="gp-mark"
               style={{

@@ -14,6 +14,7 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { useTranslation } from "@/lib/i18n/context";
 
 export interface OrderingV2Props {
   /** Items in the CORRECT order. They are displayed shuffled. */
@@ -39,7 +40,7 @@ function shuffle<T>(arr: T[]): T[] {
 export function OrderingV2({
   items,
   eyebrow,
-  title = "Drag the steps into the right order",
+  title,
   hint,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
@@ -55,6 +56,7 @@ export function OrderingV2({
   const [streak, setStreak] = useState(initialStreak);
   const dragIdx = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
+  const { t } = useTranslation();
 
   const onDragStart = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
     dragIdx.current = i;
@@ -78,7 +80,7 @@ export function OrderingV2({
     if (isCorrect) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? "Perfect order." : "Got it!",
+        msg: usedAttempts === 0 ? t("exercise.ordering.perfectOrder") : t("exercise.gotIt"),
       });
       setStreak((s) => s + 1);
       fire();
@@ -92,7 +94,7 @@ export function OrderingV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: "Out of attempts.",
+        msg: t("exercise.outOfAttempts"),
         correct: items.join(" → "),
         explain: hint,
       });
@@ -100,7 +102,7 @@ export function OrderingV2({
     } else {
       setFeedback({
         kind: "no",
-        msg: `${remaining} ${remaining === 1 ? "attempt" : "attempts"} left.`,
+        msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
         explain: hint,
       });
     }
@@ -129,7 +131,7 @@ export function OrderingV2({
         streak={streak}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title}
+        title={title ?? t("exercise.ordering.title")}
         feedback={feedback}
         canCheck={!feedback}
         onCheck={handleCheck}
