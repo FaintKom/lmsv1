@@ -30,7 +30,7 @@ export default function AdminUsersPage() {
 
  const fetchUsers = () => {
  apiClient
- .get("/admin/users/")
+ .get("/admin/users")
  .then(({ data }) => setUsers(data))
  .catch(() => {})
  .finally(() => setLoading(false));
@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
  e.preventDefault();
  setSubmitting(true);
  try {
- await apiClient.post("/admin/users/", form);
+ await apiClient.post("/admin/users", form);
  setForm({ full_name: "", email: "", password: "", role: "student" });
  setShowForm(false);
  toast.success("User created successfully");
@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
  const handleDelete = async (userId: string) => {
  if (!(await confirm({ message: "Are you sure you want to delete this user?", variant: "danger", confirmLabel: "Delete" }))) return;
  try {
- await apiClient.delete(`/admin/users/${userId}/`);
+ await apiClient.delete(`/admin/users/${userId}`);
  toast.success("User deleted");
  fetchUsers();
  } catch {
@@ -79,7 +79,7 @@ export default function AdminUsersPage() {
 
  const handleRoleChange = async (userId: string, newRole: string) => {
  try {
- await apiClient.put(`/admin/users/${userId}/`, { role: newRole });
+ await apiClient.put(`/admin/users/${userId}`, { role: newRole });
  toast.success("Role updated");
  fetchUsers();
  } catch {
@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
 
  const handleOrgChange = async (userId: string, newOrgId: string) => {
  try {
- await apiClient.put(`/admin/users/${userId}/`, { org_id: newOrgId });
+ await apiClient.put(`/admin/users/${userId}`, { org_id: newOrgId });
  toast.success("Organization updated");
  fetchUsers();
  } catch {
@@ -99,7 +99,7 @@ export default function AdminUsersPage() {
 
  const handleToggleActive = async (userId: string, isActive: boolean) => {
  try {
- await apiClient.put(`/admin/users/${userId}/`, { is_active: !isActive });
+ await apiClient.put(`/admin/users/${userId}`, { is_active: !isActive });
  fetchUsers();
  } catch {
  toast.error("Failed to update status");
@@ -108,7 +108,7 @@ export default function AdminUsersPage() {
 
  const handleToggleMethodist = async (userId: string, isMethodist: boolean) => {
  try {
- await apiClient.put(`/admin/users/${userId}/`, { is_methodist: !isMethodist });
+ await apiClient.put(`/admin/users/${userId}`, { is_methodist: !isMethodist });
  toast.success(!isMethodist ? "Methodist role granted" : "Methodist role revoked");
  fetchUsers();
  } catch {
