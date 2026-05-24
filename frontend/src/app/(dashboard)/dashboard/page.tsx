@@ -278,13 +278,6 @@ export default function DashboardPage() {
  </div>
  <ArrowRight className="h-4 w-4 text-ink-300" />
  </Link>
- <Link href="/knowledge" className="flex items-center justify-between rounded-[10px] border border-border p-4 transition-all hover:border-green-300 hover:bg-surface-2">
- <div className="flex items-center gap-3">
- <Sparkles className="h-5 w-5 text-text-subtle" />
- <span className="text-sm font-semibold text-text">Explore Knowledge Base</span>
- </div>
- <ArrowRight className="h-4 w-4 text-ink-300" />
- </Link>
  {enrolledCourses.length === 0 && (
  <div className="flex flex-col items-center py-6 text-center">
  <div className="mb-3 rounded-full bg-ink-100 p-3">
