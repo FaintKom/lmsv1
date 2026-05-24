@@ -7,7 +7,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -397,13 +397,66 @@ async def update_course_admin(
     return {"ok": True}
 
 
+async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> dict:
+    """Programmatically clear all FK references to users.id before deleting the row.
+
+    Production DB may have FK constraints created WITHOUT ON DELETE CASCADE/SET NULL
+    (predates migration b3c4d5e6f7a8 or added via create_all without ALTER).
+    This function introspects pg_constraint at runtime, finds every FK pointing
+    to users(id), and either DELETEs (NOT NULL columns) or UPDATEs to NULL
+    (nullable columns) the referencing rows.
+
+    Returns a summary dict of {table.column: rows_affected} for logging.
+    """
+    rows = await db.execute(
+        text(
+            """
+            SELECT
+              c.conname                          AS constraint_name,
+              tn.nspname || '.' || tc.relname    AS child_table,
+              ta.attname                         AS child_column,
+              ta.attnotnull                      AS not_null,
+              c.confdeltype                      AS on_delete
+            FROM pg_constraint c
+            JOIN pg_class tc       ON tc.oid = c.conrelid
+            JOIN pg_namespace tn   ON tn.oid = tc.relnamespace
+            JOIN pg_class rc       ON rc.oid = c.confrelid
+            JOIN pg_namespace rn   ON rn.oid = rc.relnamespace
+            JOIN pg_attribute ta   ON ta.attrelid = c.conrelid AND ta.attnum = c.conkey[1]
+            JOIN pg_attribute ra   ON ra.attrelid = c.confrelid AND ra.attnum = c.confkey[1]
+            WHERE c.contype = 'f'
+              AND rc.relname = 'users'
+              AND ra.attname = 'id'
+              AND rn.nspname = 'public'
+            """
+        )
+    )
+    summary: dict[str, int] = {}
+    for row in rows.mappings().all():
+        table = row["child_table"]
+        col = row["child_column"]
+        on_delete = row["on_delete"]  # 'a'=NO ACTION, 'r'=RESTRICT, 'c'=CASCADE, 'n'=SET NULL, 'd'=SET DEFAULT
+        # If FK already has CASCADE/SET NULL/SET DEFAULT, Postgres handles it. Skip.
+        if on_delete in ("c", "n", "d"):
+            continue
+        # confdeltype 'a' or 'r' — must clear manually.
+        not_null = row["not_null"]
+        if not_null:
+            stmt = text(f'DELETE FROM {table} WHERE "{col}" = :uid')
+        else:
+            stmt = text(f'UPDATE {table} SET "{col}" = NULL WHERE "{col}" = :uid')
+        res = await db.execute(stmt, {"uid": user_id})
+        if res.rowcount:
+            summary[f"{table}.{col}"] = res.rowcount
+    return summary
+
+
 @router.delete("/users/{user_id}")
 async def delete_user_endpoint(
     user_id: uuid.UUID,
     admin: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    from fastapi import HTTPException
     from sqlalchemy.exc import IntegrityError
 
     query = select(User).where(User.id == user_id, *_user_org_filter(admin))
@@ -414,16 +467,16 @@ async def delete_user_endpoint(
     if target.id == admin.id:
         raise HTTPException(400, "Cannot delete yourself")
     try:
+        summary = await _cascade_delete_user_refs(db, user_id)
         await db.delete(target)
         await db.flush()
     except IntegrityError as e:
         raise HTTPException(
             400,
-            f"Cannot delete user: linked records exist (FK constraint). "
-            f"Use POST /admin/users/{{id}}/password to rotate credentials instead, "
-            f"or set is_active=false to disable login. Original error: {e.orig}",
-        )
-    return {"ok": True}
+            f"Cannot delete user: residual FK constraint blocked deletion "
+            f"even after manual cascade. Original error: {e.orig}",
+        ) from e
+    return {"ok": True, "cascaded": summary}
 
 
 @router.post("/users/{user_id}/password")
