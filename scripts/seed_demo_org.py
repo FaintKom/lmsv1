@@ -211,7 +211,7 @@ MATH_COURSE = {
                             "config": {"passing_score": 70},
                             "questions": [
                                 {
-                                    "text": "What is the numerator of \\(\\frac{3}{8}\\)?",
+                                    "text": "What is the numerator of $\\frac{3}{8}$?",
                                     "options": [
                                         {"text": "3", "is_correct": True},
                                         {"text": "8", "is_correct": False},
@@ -222,9 +222,9 @@ MATH_COURSE = {
                                 {
                                     "text": "Which fraction is a proper fraction?",
                                     "options": [
-                                        {"text": "\\(\\frac{7}{4}\\)", "is_correct": False},
-                                        {"text": "\\(\\frac{2}{5}\\)", "is_correct": True},
-                                        {"text": "\\(\\frac{9}{9}\\)", "is_correct": False},
+                                        {"text": "$\\frac{7}{4}$", "is_correct": False},
+                                        {"text": "$\\frac{2}{5}$", "is_correct": True},
+                                        {"text": "$\\frac{9}{9}$", "is_correct": False},
                                     ],
                                     "points": 1,
                                 },
@@ -927,6 +927,123 @@ async def _upsert_exercise(
     return ex
 
 
+def _inline_md(s: str) -> str:
+    """Inline markdown -> HTML: **bold**, *italic*, `code`. Leaves $ math alone."""
+    import re as _re
+    s = _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+    s = _re.sub(r"(?<![\\\w*])\*([^*\n]+?)\*(?!\w)", r"<em>\1</em>", s)
+    s = _re.sub(r"`([^`]+?)`", r"<code>\1</code>", s)
+    return s
+
+
+def _md_to_html(md: str) -> str:
+    """Tiny markdown -> HTML converter for the subset used by seed lessons.
+
+    Supports headings (## / ###), bold/italic, unordered lists, blockquotes,
+    fenced code blocks (```), GFM tables, and paragraphs. Leaves `$...$`
+    and `$$...$$` untouched so the frontend HtmlWithMath renderer can
+    KaTeX-process them. We emit HTML (not markdown) because the renderer
+    routes any block that contains `$` to a math-only path that ignores
+    markdown syntax — pre-rendering keeps both markdown formatting and
+    KaTeX math working.
+    """
+    import re as _re
+    lines = md.split("\n")
+    out: list[str] = []
+    in_code = False
+    code_lang = ""
+    code_buf: list[str] = []
+    in_list = False
+    in_table = False
+    table_header_done = False
+    para_buf: list[str] = []
+
+    def flush_para() -> None:
+        nonlocal para_buf
+        if para_buf:
+            text = " ".join(para_buf).strip()
+            if text:
+                out.append(f"<p>{_inline_md(text)}</p>")
+            para_buf = []
+
+    def flush_list() -> None:
+        nonlocal in_list
+        if in_list:
+            out.append("</ul>")
+            in_list = False
+
+    def flush_table() -> None:
+        nonlocal in_table, table_header_done
+        if in_table:
+            out.append("</tbody></table>")
+            in_table = False
+            table_header_done = False
+
+    for raw in lines:
+        line = raw.rstrip()
+        if in_code:
+            if line.startswith("```"):
+                escaped = "\n".join(code_buf).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                out.append(f'<pre><code class="language-{code_lang}">{escaped}</code></pre>')
+                in_code = False
+                code_lang = ""
+                code_buf = []
+            else:
+                code_buf.append(line)
+            continue
+        if line.startswith("```"):
+            flush_para(); flush_list(); flush_table()
+            in_code = True
+            code_lang = line[3:].strip() or "text"
+            continue
+        if not line.strip():
+            flush_para(); flush_list(); flush_table()
+            continue
+        if line.startswith("### "):
+            flush_para(); flush_list(); flush_table()
+            out.append(f"<h3>{_inline_md(line[4:])}</h3>")
+            continue
+        if line.startswith("## "):
+            flush_para(); flush_list(); flush_table()
+            out.append(f"<h2>{_inline_md(line[3:])}</h2>")
+            continue
+        if line.startswith("> "):
+            flush_para(); flush_list(); flush_table()
+            out.append(f"<blockquote>{_inline_md(line[2:])}</blockquote>")
+            continue
+        if line.startswith("- "):
+            flush_para(); flush_table()
+            if not in_list:
+                out.append("<ul>")
+                in_list = True
+            out.append(f"<li>{_inline_md(line[2:])}</li>")
+            continue
+        if "|" in line and line.strip().startswith("|"):
+            flush_para(); flush_list()
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if not in_table:
+                out.append('<table class="md-table"><thead><tr>')
+                out.extend(f"<th>{_inline_md(c)}</th>" for c in cells)
+                out.append("</tr></thead><tbody>")
+                in_table = True
+                table_header_done = False
+                continue
+            if not table_header_done and all(_re.fullmatch(r"-+:?|:?-+:?", c) for c in cells):
+                table_header_done = True
+                continue
+            out.append("<tr>")
+            out.extend(f"<td>{_inline_md(c)}</td>" for c in cells)
+            out.append("</tr>")
+            continue
+        flush_list(); flush_table()
+        para_buf.append(line.strip())
+
+    flush_para(); flush_list(); flush_table()
+    if in_code:
+        out.append("<pre><code>" + "\n".join(code_buf) + "</code></pre>")
+    return "\n".join(out)
+
+
 def _blocks_for(text_md: str, video_url: str | None, exercise_ids: list[uuid.UUID],
                 lesson_slug: str) -> list[dict]:
     """Build a v2 blocks array for a lesson."""
@@ -937,8 +1054,8 @@ def _blocks_for(text_md: str, video_url: str | None, exercise_ids: list[uuid.UUI
         "type": "text",
         "sort_order": order,
         "page": 1,
-        "body": text_md,
-        "format": "markdown",
+        "body": _md_to_html(text_md),
+        "format": "html",
     })
     order += 1
     if video_url:
