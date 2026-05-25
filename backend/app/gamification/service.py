@@ -2,10 +2,11 @@ import uuid
 from datetime import date, datetime, timezone
 
 from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
-from app.gamification.models import Badge, UserBadge, UserStreak
+from app.gamification.models import Badge, RoomItem, UserBadge, UserRoomEquip, UserStreak
 from app.progress.models import LessonProgress, LessonStatus
 
 # XP rewards
@@ -324,3 +325,222 @@ async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) 
 async def get_leagues_info() -> list[dict]:
     """Return league tier information."""
     return LEAGUES
+
+
+# ─── Room (My Room feature) ─────────────────────────────────────────────
+
+# Slots whose item placement can be moved via the Layout d-pad.
+ROOM_MOVABLE_SLOTS: set[str] = {"bed", "desk", "dresser", "shelf", "shelfwall"}
+
+# Axis constraints per movable slot — wall-mounted shelf only slides along Z.
+ROOM_MOVE_AXES: dict[str, set[str]] = {
+    "bed": {"x", "z"},
+    "desk": {"x", "z"},
+    "dresser": {"x", "z"},
+    "shelf": {"x", "z"},
+    "shelfwall": {"z"},
+}
+
+# Ties: when a parent slot's item moves, the child slot's offset is overridden
+# to match (frontend handles compositing — backend just stores raw offsets).
+# Listed here for completeness; not enforced server-side.
+ROOM_TIES: dict[str, list[str]] = {
+    "bed": ["plushie"],
+    "desk": ["monitor", "chair"],
+    "dresser": ["trophy"],
+}
+
+
+# Catalog seed data — kept in lockstep with the alembic migration so a fresh
+# DB started via Base.metadata.create_all (the _run_setup fallback path) also
+# gets the catalog populated.
+ROOM_DEFAULT_CATALOG: list[dict] = [
+    # walls
+    {"id": "wall-lavender", "slot": "wall", "group_name": "Walls", "name": "Lavender", "price": 0, "is_default": True, "swatch": "#a48dc8", "color_hex": "a48dc8", "floor_type": None},
+    {"id": "wall-mint", "slot": "wall", "group_name": "Walls", "name": "Mint", "price": 120, "is_default": False, "swatch": "#65c8b3", "color_hex": "65c8b3", "floor_type": None},
+    {"id": "wall-coral", "slot": "wall", "group_name": "Walls", "name": "Coral", "price": 120, "is_default": False, "swatch": "#f2a48d", "color_hex": "f2a48d", "floor_type": None},
+    {"id": "wall-sage", "slot": "wall", "group_name": "Walls", "name": "Sage", "price": 120, "is_default": False, "swatch": "#b4ccaa", "color_hex": "b4ccaa", "floor_type": None},
+    {"id": "wall-sky", "slot": "wall", "group_name": "Walls", "name": "Sky", "price": 180, "is_default": False, "swatch": "#a9c8d9", "color_hex": "a9c8d9", "floor_type": None},
+    {"id": "wall-sun", "slot": "wall", "group_name": "Walls", "name": "Sun", "price": 200, "is_default": False, "swatch": "#f2d878", "color_hex": "f2d878", "floor_type": None},
+    # floors
+    {"id": "floor-wood", "slot": "floor", "group_name": "Floor", "name": "Light wood", "price": 0, "is_default": True, "swatch": "#d9a26a", "color_hex": None, "floor_type": "wood"},
+    {"id": "floor-tile", "slot": "floor", "group_name": "Floor", "name": "Cream tile", "price": 150, "is_default": False, "swatch": "#e8e1ce", "color_hex": None, "floor_type": "tile"},
+    {"id": "floor-carpet", "slot": "floor", "group_name": "Floor", "name": "Coral rug", "price": 250, "is_default": False, "swatch": "#ffae9a", "color_hex": None, "floor_type": "carpet"},
+    {"id": "floor-moss", "slot": "floor", "group_name": "Floor", "name": "Moss grass", "price": 320, "is_default": False, "swatch": "#7fb069", "color_hex": None, "floor_type": "moss"},
+    # furniture
+    {"id": "bed-basic", "slot": "bed", "group_name": "Furniture", "name": "Wooden bed", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "bed-kids", "slot": "bed", "group_name": "Furniture", "name": "Kids bed", "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "bed-double", "slot": "bed", "group_name": "Furniture", "name": "Double bed", "price": 600, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "desk-wood", "slot": "desk", "group_name": "Furniture", "name": "Wooden desk", "price": 220, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "desk-white", "slot": "desk", "group_name": "Furniture", "name": "Studio desk", "price": 400, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "dresser-blue", "slot": "dresser", "group_name": "Furniture", "name": "Mint dresser", "price": 280, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "dresser-cream", "slot": "dresser", "group_name": "Furniture", "name": "Cream dresser", "price": 280, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "shelf-tall", "slot": "shelf", "group_name": "Furniture", "name": "Tall bookshelf", "price": 360, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "shelf-wall", "slot": "shelfwall", "group_name": "Furniture", "name": "Wall shelf", "price": 180, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "cabinet", "slot": "cabinet", "group_name": "Furniture", "name": "Sun cabinet", "price": 240, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "sofa", "slot": "sofa", "group_name": "Furniture", "name": "Cream sofa", "price": 480, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "coffee-table", "slot": "coffee", "group_name": "Furniture", "name": "Coffee table", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "arcade", "slot": "arcade", "group_name": "Furniture", "name": "Retro arcade", "price": 950, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # decor
+    {"id": "chair", "slot": "chair", "group_name": "Decor", "name": "Desk chair", "price": 120, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "monitor", "slot": "monitor", "group_name": "Decor", "name": "Monitor", "price": 280, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "lamp", "slot": "lamp", "group_name": "Decor", "name": "Floor lamp", "price": 150, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "plant", "slot": "plant", "group_name": "Decor", "name": "Potted plant", "price": 80, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "rug-teal", "slot": "rug", "group_name": "Decor", "name": "Teal rug", "price": 140, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "rug-warm", "slot": "rug", "group_name": "Decor", "name": "Warm rug", "price": 140, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "rug-mint", "slot": "rug", "group_name": "Decor", "name": "Mint rug", "price": 140, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "pictures", "slot": "pictures", "group_name": "Decor", "name": "Picture wall", "price": 100, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "window", "slot": "window", "group_name": "Decor", "name": "Window", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "plushie", "slot": "plushie", "group_name": "Decor", "name": "Bunny plushie", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "trophy", "slot": "trophy", "group_name": "Decor", "name": "Trophy", "price": 220, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "clock", "slot": "clock", "group_name": "Decor", "name": "Wall clock", "price": 90, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+]
+
+
+async def seed_room_catalog(db: AsyncSession) -> None:
+    """Idempotent catalog seed. Inserts any missing rows; never touches existing
+    ones (so owners can hand-tune prices via SQL without losing edits on restart).
+    """
+    existing = await db.execute(select(RoomItem.id))
+    have = set(existing.scalars().all())
+    if len(have) >= len(ROOM_DEFAULT_CATALOG):
+        return
+    for row in ROOM_DEFAULT_CATALOG:
+        if row["id"] in have:
+            continue
+        db.add(RoomItem(i18n_key=f"room.item.{row['id']}", **row))
+    await db.flush()
+
+
+async def _get_total_xp(db: AsyncSession, user_id: uuid.UUID) -> int:
+    result = await db.execute(select(UserStreak.total_xp).where(UserStreak.user_id == user_id))
+    xp = result.scalar()
+    return int(xp or 0)
+
+
+async def _ensure_defaults_equipped(db: AsyncSession, user_id: uuid.UUID) -> None:
+    """First time a user opens /my-room, populate their equips with every
+    is_default item. Idempotent — skips slots the user already has rows for.
+    """
+    existing = await db.execute(
+        select(UserRoomEquip.slot).where(UserRoomEquip.user_id == user_id)
+    )
+    have_slots = set(existing.scalars().all())
+
+    defaults = await db.execute(select(RoomItem).where(RoomItem.is_default.is_(True)))
+    for item in defaults.scalars().all():
+        if item.slot in have_slots:
+            continue
+        db.add(UserRoomEquip(user_id=user_id, slot=item.slot, item_id=item.id))
+    await db.flush()
+
+
+async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
+    """Return wallet + equipped map + full catalog for the student."""
+    await seed_room_catalog(db)
+    await _ensure_defaults_equipped(db, user_id)
+
+    wallet = await _get_total_xp(db, user_id)
+
+    equips_result = await db.execute(
+        select(UserRoomEquip).where(UserRoomEquip.user_id == user_id)
+    )
+    equipped = {
+        e.slot: {"item_id": e.item_id, "offset_dx": e.offset_dx, "offset_dz": e.offset_dz}
+        for e in equips_result.scalars().all()
+    }
+
+    catalog_result = await db.execute(select(RoomItem).order_by(RoomItem.price, RoomItem.id))
+    catalog = catalog_result.scalars().all()
+
+    return {"wallet": wallet, "equipped": equipped, "catalog": catalog}
+
+
+class RoomEquipError(Exception):
+    """Raised when an equip request fails validation (locked, slot mismatch)."""
+
+    def __init__(self, code: str, message: str):
+        self.code = code
+        self.message = message
+        super().__init__(message)
+
+
+async def equip_room_item(
+    db: AsyncSession, user_id: uuid.UUID, slot: str, item_id: str | None
+) -> UserRoomEquip:
+    """Equip an item in a slot, or pass item_id=None to toggle the slot off.
+
+    Validates:
+      - item exists and matches slot,
+      - user's total_xp >= item.price (else 'locked').
+    """
+    if item_id is None:
+        # Toggling off — always allowed.
+        equip = await _upsert_equip(db, user_id, slot, None)
+        return equip
+
+    item_result = await db.execute(select(RoomItem).where(RoomItem.id == item_id))
+    item = item_result.scalar_one_or_none()
+    if item is None:
+        raise RoomEquipError("item_not_found", f"Unknown item '{item_id}'")
+    if item.slot != slot:
+        raise RoomEquipError(
+            "slot_mismatch",
+            f"Item '{item_id}' belongs to slot '{item.slot}', not '{slot}'",
+        )
+
+    xp = await _get_total_xp(db, user_id)
+    if xp < item.price:
+        raise RoomEquipError(
+            "locked", f"Need {item.price} XP to equip '{item_id}' (have {xp})"
+        )
+
+    return await _upsert_equip(db, user_id, slot, item_id)
+
+
+async def set_room_layout(
+    db: AsyncSession, user_id: uuid.UUID, slot: str, dx: int, dz: int
+) -> UserRoomEquip:
+    """Set the layout offset for a slot. Slot must be movable; dx/dz clamped."""
+    if slot not in ROOM_MOVABLE_SLOTS:
+        raise RoomEquipError("slot_not_movable", f"Slot '{slot}' cannot be moved")
+
+    axes = ROOM_MOVE_AXES.get(slot, set())
+    safe_dx = max(-12, min(12, dx)) if "x" in axes else 0
+    safe_dz = max(-12, min(12, dz)) if "z" in axes else 0
+
+    existing = await db.execute(
+        select(UserRoomEquip).where(
+            UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot
+        )
+    )
+    equip = existing.scalar_one_or_none()
+    if equip is None:
+        equip = UserRoomEquip(
+            user_id=user_id, slot=slot, item_id=None, offset_dx=safe_dx, offset_dz=safe_dz
+        )
+        db.add(equip)
+    else:
+        equip.offset_dx = safe_dx
+        equip.offset_dz = safe_dz
+    await db.flush()
+    return equip
+
+
+async def _upsert_equip(
+    db: AsyncSession, user_id: uuid.UUID, slot: str, item_id: str | None
+) -> UserRoomEquip:
+    """Insert-or-update the (user_id, slot) row, preserving any existing offset."""
+    existing = await db.execute(
+        select(UserRoomEquip).where(
+            UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot
+        )
+    )
+    equip = existing.scalar_one_or_none()
+    if equip is None:
+        equip = UserRoomEquip(user_id=user_id, slot=slot, item_id=item_id)
+        db.add(equip)
+    else:
+        equip.item_id = item_id
+    await db.flush()
+    return equip
