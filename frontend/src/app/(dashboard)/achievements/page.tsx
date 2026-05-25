@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCard } from "@/components/gamification/badge-card";
+import { LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
 import { useTranslation } from "@/lib/i18n/context";
 import {
  Trophy, Flame, Medal, Star, Zap, TrendingUp,
@@ -209,7 +210,7 @@ function AchievementsTab({
  <CardContent className="p-0">
  <div className="flex flex-col sm:flex-row">
  <div className="flex items-center gap-4 p-6" style={{ background: `${league.color}15` }}>
- <span className="text-5xl">{league.icon}</span>
+ <LeagueMark kind={leagueKindFromName(league.name)} size={56} />
  <div>
  <p className="text-xs font-medium uppercase tracking-wider text-text-muted ">Current League</p>
  <p className="text-2xl font-bold" style={{ color: league.color === "#FFD700" ? "#B8860B" : league.color === "#C0C0C0" ? "#6B7280" : league.color }}>
@@ -316,7 +317,7 @@ function AchievementsTab({
  key={badge.id}
  name={badge.name}
  description={badge.description}
- icon={badge.icon}
+ criteriaKey={badge.criteria_key}
  earned={badge.earned}
  earnedAt={badge.earned_at}
  />
@@ -356,7 +357,13 @@ function AchievementsTab({
  <div className="min-w-0 flex-1">
  <div className="flex items-center gap-1.5">
  <p className="truncate text-sm font-medium text-ink-700 ">{entry.user_name}</p>
- {entry.league && <span className="text-xs" title={entry.league.name}>{entry.league.icon}</span>}
+ {entry.league && (
+ <LeagueMark
+ kind={leagueKindFromName(entry.league.name)}
+ size={14}
+ className="inline-block align-middle"
+ />
+ )}
  </div>
  <p className="text-xs text-text-muted ">
  {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges

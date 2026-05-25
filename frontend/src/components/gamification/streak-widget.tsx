@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Flame, Star } from "lucide-react";
+import { LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
 
 export function StreakWidget() {
  const [streak, setStreak] = useState(0);
  const [longest, setLongest] = useState(0);
  const [xp, setXp] = useState(0);
- const [league, setLeague] = useState<{ name: string; icon: string } | null>(null);
+ const [league, setLeague] = useState<{ name: string } | null>(null);
 
  useEffect(() => {
  apiClient
@@ -37,7 +38,13 @@ export function StreakWidget() {
  {xp > 0 && (
  <span className="flex items-center gap-0.5 text-xs font-medium text-warning-fg">
  <Star className="h-2.5 w-2.5" /> {xp} XP
- {league && <span className="ml-0.5">{league.icon}</span>}
+ {league && (
+ <LeagueMark
+ kind={leagueKindFromName(league.name)}
+ size={14}
+ className="ml-0.5 inline-block align-middle"
+ />
+ )}
  </span>
  )}
  </div>

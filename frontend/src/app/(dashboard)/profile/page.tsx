@@ -8,6 +8,7 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LangCode } from "@/components/gamification/lang-code";
 import {
  Save,
  User,
@@ -533,18 +534,13 @@ export default function ProfilePage() {
  <CardContent>
  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
  {LOCALES.map((l) => (
- <button
+ <LangCode
  key={l.code}
+ code={l.code}
+ label={l.name}
+ active={locale === l.code}
  onClick={() => setLocale(l.code as Locale)}
- className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
- locale === l.code
- ? "border-primary bg-success-soft text-success-fg ring-1 ring-primary-soft "
- : "border-border-strong text-text-muted hover:border-ink-300 hover:bg-surface-2 "
- }`}
- >
- <span className="text-base">{l.flag}</span>
- <span>{l.name}</span>
- </button>
+ />
  ))}
  </div>
  </CardContent>

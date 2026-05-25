@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Flame, Medal, Star, Trophy, Zap } from "lucide-react";
+import { Flame, Star, Zap } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
+import { LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
+import { RankMedal } from "@/components/gamification/rank-medal";
 
 interface LeagueInfo {
  name: string;
@@ -29,37 +31,12 @@ interface LeaderboardEntry {
  league: LeagueInfo | null;
 }
 
-const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string; icon: string }> = {
- bronze: {
- bg: "bg-sun-100 ",
- text: "text-warning-fg ",
- border: "border-warning ",
- icon: "\uD83E\uDD49",
- },
- silver: {
- bg: "bg-ink-100 ",
- text: "text-text-muted ",
- border: "border-ink-300 ",
- icon: "\uD83E\uDD48",
- },
- gold: {
- bg: "bg-sun-100 ",
- text: "text-warning-fg ",
- border: "border-warning ",
- icon: "\uD83E\uDD47",
- },
- platinum: {
- bg: "bg-info-soft ",
- text: "text-info-fg ",
- border: "border-info ",
- icon: "\uD83D\uDC8E",
- },
- diamond: {
- bg: " ",
- text: "text-text ",
- border: "border-border ",
- icon: "\u2B50",
- },
+const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
+ bronze: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
+ silver: { bg: "bg-ink-100 ", text: "text-text-muted ", border: "border-ink-300 " },
+ gold: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
+ platinum: { bg: "bg-info-soft ", text: "text-info-fg ", border: "border-info " },
+ diamond: { bg: " ", text: "text-text ", border: "border-border " },
 };
 
 function getLeagueStyle(league: LeagueInfo | null) {
@@ -76,9 +53,9 @@ function getRankStyle(rank: number) {
 }
 
 function getRankIcon(rank: number) {
- if (rank === 1) return <Trophy className="h-4 w-4" />;
- if (rank === 2) return <Medal className="h-4 w-4" />;
- if (rank === 3) return <Medal className="h-4 w-4" />;
+ if (rank === 1 || rank === 2 || rank === 3) {
+ return <RankMedal rank={rank as 1 | 2 | 3} size={20} />;
+ }
  return null;
 }
 
@@ -181,7 +158,8 @@ export default function LeaderboardPage() {
  <span
  className={`inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-[10px] font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
  >
- {leagueStyle.icon} {entry.league.name}
+ <LeagueMark kind={leagueKindFromName(entry.league.name)} size={12} className="inline-block" />
+ {entry.league.name}
  </span>
  )}
  {entry.current_streak > 0 && (
@@ -223,7 +201,6 @@ function PodiumCard({
 }) {
  const leagueStyle = getLeagueStyle(entry.league);
  const heights = { 1: "h-36", 2: "h-28", 3: "h-24" };
- const medalEmoji = rank === 1 ? "\uD83E\uDD47" : rank === 2 ? "\uD83E\uDD48" : "\uD83E\uDD49";
 
  return (
  <div className={`flex flex-col items-center ${isFirst ? "mb-4" : ""}`}>
@@ -235,7 +212,9 @@ function PodiumCard({
  >
  {entry.user_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
- <span className="absolute -bottom-1 -right-1 text-lg">{medalEmoji}</span>
+ <span className="absolute -bottom-1 -right-1">
+ <RankMedal rank={rank as 1 | 2 | 3} size={22} />
+ </span>
  </div>
  <p className="max-w-[100px] truncate text-center text-xs font-semibold text-text ">
  {entry.user_name}
@@ -244,7 +223,8 @@ function PodiumCard({
  <span
  className={`mt-1 inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-[9px] font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
  >
- {leagueStyle.icon} {entry.league.name}
+ <LeagueMark kind={leagueKindFromName(entry.league.name)} size={11} className="inline-block" />
+ {entry.league.name}
  </span>
  )}
  <div className="mt-1 flex items-center gap-0.5 text-xs font-bold text-warning-fg ">
