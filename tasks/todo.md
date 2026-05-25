@@ -9,18 +9,18 @@
 
 Перевод lms из mono-app в multi-service universal education platform (любой K12/university предмет со стандартным skill-set). Текущий статус: **только дизайн-доки, кода ещё нет**.
 
-См. [`tasks/research/2026-05-23-universal-platform-architecture/00-INDEX.md`](research/2026-05-23-universal-platform-architecture/00-INDEX.md) — 6 файлов: audit текущей архитектуры, спецификации серверa, разбор aimath + aimath-curriculum, предложенная 4-сервисная архитектура (SAS/KGS/LGS/LMS), шаблонная подсистема для plans/tasks/decks.
+См. [`tasks/research/2026-05-23-universal-platform-architecture/00-INDEX.md`](research/2026-05-23-universal-platform-architecture/00-INDEX.md) — 6 файлов: audit текущей архитектуры, спецификации серверa, разбор external lesson generator + external curriculum service, предложенная 4-сервисная архитектура (SAS/KGS/LGS/LMS), шаблонная подсистема для plans/tasks/decks.
 
 Решения, зафиксированные на этом этапе:
 - Cloud LLM only (текущий Hetzner CX22 не тянет полезный local LLM)
 - Template-first generation (~8× экономия cloud LLM vs zero-shot)
 - 4 сервиса: SAS (sortation block) + KGS (knowledge graph + BKT) + LGS (lesson generator) + LMS (UI/ops)
-- Aimath-curriculum production-grade — берём BKT, EM-калибровку, LessonFixture как есть, math-specific бьём в plugin
+- External curriculum service production-grade — берём BKT, EM-калибровку, LessonFixture как есть, math-specific бьём в plugin
 - Pluggable mastery model (BKT/FSRS/Rubric/DKT/IRT) — strategy registry, не if/else
 - Subject = YAML manifest + plugin = 2-4 недели на новый предмет
 
 Открытые вопросы (next session):
-- Fork aimath-curriculum в lms-monorepo или отдельный package?
+- Fork external curriculum service в lms-monorepo или отдельный package?
 - Methodist UI: extend lms `(admin)` или Vite+React SAS standalone?
 - Миграция lms `app/skills/` / `app/learning_paths/` / `app/exercises/` в KGS-owned модели без поломки текущих юзеров
 - Subject manifest schema — нужен отдельный design pass
@@ -88,8 +88,8 @@
       [`docs/DEPLOY_DEMO.md`](../docs/DEPLOY_DEMO.md): pull → flip
       `DEMO_MODE_ENABLED=true` в `/opt/lms/.env` → rebuild backend →
       `docker compose exec backend python scripts/seed_demo_org.py`.
-      Контекст контакта: сооснователь — Mikhail Khotyakov (aimathic, Lyzeum 2).
-      Текущий стек: EduRouter (£50/мес), Google Classroom, aimathic (math
+      Контекст контакта: сооснователь — Mikhail Khotyakov (external math tutor, Lyzeum 2).
+      Текущий стек: EduRouter (£50/мес), Google Classroom, external math tutor (math
       homework), Google Meet, Luma, Telegram. Боли: фрагментация инструментов,
       нет единой системы упражнений/ДЗ/прогресса по non-math предметам,
       сертификаты вручную. Оффер: бесплатный доступ, помощь с миграцией.

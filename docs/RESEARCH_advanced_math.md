@@ -9,7 +9,7 @@ future iterations after this push lands.
 
 The todo lists eight specific advanced-math topics that GrassLMS should
 support well enough to validate with the УУ (Teachers for Ukrainian Kids)
-mathematics teachers, who currently use **aimathic** for HW.
+mathematics teachers, who currently use **external math tutor** for HW.
 
 1. Quadratic equations with variable substitution (bi-quadratic etc.)
 2. Rational equations (fractional, with domain checks)
@@ -38,7 +38,7 @@ Surveyed approaches at several institutions:
 - **Khan Academy / Brilliant**: Per-step hint trees with CAS validation
   of intermediate states. This is the closest analogue to the
   `math_stepwise` type we built in F4.
-- **aimathic** (what УУ already uses): textual problem statement → free-
+- **external math tutor** (what УУ already uses): textual problem statement → free-
   form student solution → tutor / GPT review. No symbolic gate.
 
 **Conclusion:** the Khan-Academy / Brilliant pattern is the right north
@@ -79,7 +79,7 @@ endpoint returning SVG via SymPy's `plot` to PNG (or a small Plotly
 component in React if we want interactivity).
 
 Rationale: linear-system algebra is the most common request from the УУ
-math teachers per the todo notes; their existing aimathic does not draw
+math teachers per the todo notes; their existing external math tutor does not draw
 the geometric intersection point. A clean visual would be a real
 differentiator.
 
@@ -123,7 +123,7 @@ After F1–F5 land they get:
    exercises for English, history, art, physics, etc. — the single
    biggest gap in their current toolchain.
 2. `math_stepwise` + mathlive + SymPy (F3 + F4) — math problems
-   comparable to aimathic, but inside one unified system that also
+   comparable to external math tutor, but inside one unified system that also
    holds their non-math content.
 3. Course export / re-import (F5) — they can hand a portable bundle to
    collaborators or back up the courseware.

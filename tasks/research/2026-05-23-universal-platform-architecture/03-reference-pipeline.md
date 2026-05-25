@@ -1,6 +1,6 @@
-# aimath project — pipeline summary
+# external lesson generator project — pipeline summary
 
-Location: `F:\Algonova\aimath`. Deployed at `aimath.grasslms.online` (shared Hetzner box, separate container `aimath-backend`).
+Location: `[external generator repo]`. Deployed at `[external subdomain]` (shared Hetzner box, separate container `external-backend`).
 
 ## What it is
 
@@ -23,7 +23,7 @@ backend/                FastAPI app, routes in backend/routes/
     feedback.py         teacher comments on slides
     generate.py         trigger deck generation via OpenRouter
     themes.py, plans.py, admin.py
-  data/aimath.db        SQLite (created on boot, gitignored)
+  data/external.db        SQLite (created on boot, gitignored)
 
 site/                   static frontend, mounted in same container
   slides/
@@ -80,7 +80,7 @@ Teacher opens `viewer.html?deck=<slug>`, presses `F` or icon on right — drawer
 
 ## Project context
 
-MathProjectAI / Algoritmika team. Active Dec 2025 – Mar 2026. ~2000 tasks tagged with Cambridge skills, ~1300 tagged by LLM with hard rules. Tutor rating ~7/10. Documented in detail in `F:\Algonova\aimath\PROJECT_OVERVIEW.md`.
+[external team]. Active Dec 2025 – Mar 2026. ~2000 tasks tagged with Cambridge skills, ~1300 tagged by LLM with hard rules. Tutor rating ~7/10. Documented in detail in `[external generator repo]\PROJECT_OVERVIEW.md`.
 
 Main authors of pieces we care about:
 - **Dmitrii Zausaev** — product/data lead, graph architecture

@@ -18,7 +18,7 @@ Source: live SSH read-only inspection at `root@204.168.165.41`.
 
 - prod lms: `lms-db-1`, `lms-backend-1`, `lms-frontend-1`, `lms-nginx-1`, `lms-sandbox-1`, `lms-redis-1`, `lms-cloudflared-1`
 - staging lms: `lms-staging-backend-1`, `lms-staging-frontend-1`, `lms-staging-db-1`, `lms-staging-redis-1`, `lms-staging-sandbox-1`
-- aimath: `aimath-backend`
+- external lesson generator: `external-backend`
 - other: `topdown-rpg`
 
 Total 14 containers. Resource budget for any new service is **very tight**.
@@ -37,15 +37,15 @@ This server cannot meaningfully host a local LLM for lesson generation. Math (CP
 | Llama 3.1 8B Q4 | ~5 GB | **won't fit** | 4.5 GB |
 | Mistral 7B Q4 | ~4.5 GB | **won't fit** | 4.2 GB |
 
-For aimath-style lesson generation (~5-10 k tokens output) on Qwen 3B at 2 tok/s: **40-80 minutes per lesson**. Plus the 3 B model fails reliably on JSON-valid output for the 15-rule validator.
+For external lesson generator-style lesson generation (~5-10 k tokens output) on Qwen 3B at 2 tok/s: **40-80 minutes per lesson**. Plus the 3 B model fails reliably on JSON-valid output for the 15-rule validator.
 
 The current Ollama `qwen2.5:3b` in `lms-sandbox` is wired for **student chat helper** (short replies), not lesson generation. It's the right tool for that job, wrong for this one.
 
 ---
 
-## What aimath already does
+## What external lesson generator already does
 
-`F:\Algonova\aimath` does **not** use local LLM:
+`[external generator repo]` does **not** use local LLM:
 - Pipeline: Fixture → Prompt → **OpenRouter (cloud)** → Validate → Render
 - Client-side validator (15 rules) on 1600×900 canvas
 - Prompts in 5 languages (en/ru/id/es/az)
@@ -61,11 +61,11 @@ The team already chose cloud LLM for generation. This is the right call for curr
 ### Option A — Cloud LLM, no local (RECOMMENDED)
 - **OpenRouter** or **Anthropic API direct**
 - Claude 3.5 Sonnet: ~$3 input / $15 output per 1 M tokens
-- One aimath-style lesson = ~15-30 k tokens = **$0.10-0.30 / lesson**
+- One external lesson generator-style lesson = ~15-30 k tokens = **$0.10-0.30 / lesson**
 - 1000 lessons/month = $100-300/month
 - Speed: 30-60 s per lesson
 - Quality: production-grade
-- Architecture: aimath already wired this way
+- Architecture: external lesson generator already wired this way
 
 ### Option B — upgrade to Hetzner CPX31
 - 8 vCPU AMD, 16 GB RAM, ~15 EUR/month (+11 over current)
@@ -90,11 +90,11 @@ The team already chose cloud LLM for generation. This is the right call for curr
 
 ## Recommendation
 
-1. **Do not put a local LLM on this server.** Aimath is correct.
-2. Reproduce aimath pipeline in lms: `Fixture (lesson spec) → Prompt template → cloud LLM → Pydantic validator → Store`. Pydantic exercise schemas already exist in `app/exercises/`.
+1. **Do not put a local LLM on this server.** External lesson generator is correct.
+2. Reproduce external lesson generator pipeline in lms: `Fixture (lesson spec) → Prompt template → cloud LLM → Pydantic validator → Store`. Pydantic exercise schemas already exist in `app/exercises/`.
 3. **Generate in chunks** — parallelise theory + N exercises + summary via `asyncio.gather`. Cuts a 60 s sequential generation to 15-20 s.
 4. **Reuse SSE streaming** in `app/ai/router.py` for progress UI.
-5. **OpenRouter gateway** — model becomes a single env var. Copy aimath's pattern.
+5. **OpenRouter gateway** — model becomes a single env var. Copy external lesson generator's pattern.
 6. **Add a worker container** (Arq, ~50 MB RAM) for the generation queue. Redis already running.
 7. When traffic grows past ~5000 lessons/month, revisit Option B / D.
 
