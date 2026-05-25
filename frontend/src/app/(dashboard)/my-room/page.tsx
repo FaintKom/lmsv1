@@ -4,6 +4,7 @@ import { useRef } from "react";
 
 import { RoomCanvas, type RoomCanvasHandle } from "@/components/room/room-canvas";
 import { SceneHud } from "@/components/room/scene-hud";
+import { ShopPanel } from "@/components/room/shop-panel";
 import { useRoomState } from "@/hooks/use-room";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -40,22 +41,9 @@ export default function MyRoomPage() {
         />
       </div>
 
-      {/* Shop placeholder — Sprint C wires the real panel */}
-      <aside className="border-t border-ink-100 bg-paper-2 p-6 lg:border-l lg:border-t-0">
-        <div className="rounded-lg border-2 border-dashed border-ink-200 p-8 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-subtle">
-            Sprint C
-          </p>
-          <p className="mt-2 text-sm font-semibold text-ink-700">
-            {t("room.shop.comingSoon")}
-          </p>
-          <p className="mt-3 text-xs text-text-muted">
-            Wallet: <span className="font-bold tabular-nums">{state.wallet}</span> XP
-          </p>
-          <p className="mt-1 text-xs text-text-muted">
-            {state.catalog.length} items in catalog
-          </p>
-        </div>
+      {/* Shop */}
+      <aside className="overflow-y-auto border-t border-ink-100 bg-paper-2 lg:border-l lg:border-t-0">
+        <ShopPanel state={state} />
       </aside>
     </div>
   );
