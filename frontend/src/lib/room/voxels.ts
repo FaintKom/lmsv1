@@ -128,7 +128,7 @@ export function flooring(type: FloorType, w = 14, d = 14): THREE.Group {
   return g;
 }
 
-export function walls(color = COL.lavender, w = 14, d = 14, h = 12): THREE.Group {
+export function walls(color: number = COL.lavender, w = 14, d = 14, h = 12): THREE.Group {
   const g = new THREE.Group();
   // left wall (x = 0 face)
   vbox(g, -0.6, 0, 0, 0.6, h, d, color);

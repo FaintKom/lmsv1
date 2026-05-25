@@ -27,6 +27,7 @@ import {
  Library,
  Calculator,
  Plug,
+ Home,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -81,6 +82,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
+ { href: "/my-room", label: t("nav.myRoom"), icon: Home },
  { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
  { href: "/meetings", label: t("nav.meetings"), icon: Video },
  ];
