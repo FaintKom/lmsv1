@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
 import { toast } from "sonner";
+import { MathRenderer, containsMath } from "@/components/common/math-renderer";
+
+function MaybeMath({ text }: { text: string }) {
+ return containsMath(text) ? <MathRenderer content={text} /> : <>{text}</>;
+}
 
 interface QuizOption {
  id: string;
@@ -200,7 +205,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  {i + 1}
  </span>
  <div className="flex-1">
- <p className="text-sm font-medium text-ink-700">{q.question_text}</p>
+ <p className="text-sm font-medium text-ink-700"><MaybeMath text={q.question_text} /></p>
  <span className="text-[10px] text-text-subtle">{q.points} point{q.points > 1 ? "s" : ""}</span>
  </div>
  </div>
@@ -226,7 +231,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  >
  {String.fromCharCode(65 + optIndex)}
  </span>
- {opt.text}
+ <MaybeMath text={opt.text} />
  </button>
  ))}
  </div>
