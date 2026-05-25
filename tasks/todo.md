@@ -79,17 +79,20 @@
       SAT prep-центров — DM в LinkedIn, оффер 3 месяца бесплатно
       за testimonial + cohort observation. Целевой сегмент описан в
       `marketing/target-segment.md`.
-- [ ] **P1-20.** Outreach к Teachers for Ukrainian Kids (УУ) — волонтёрский
-      проект для украинских детей, ~30+ учителей, курсы по математике,
-      английскому, творчеству, физике, истории. Контакт: Tali Green
-      (@green_mammy в Telegram), руководитель проекта. Сооснователь —
-      Mikhail Khotyakov (aimathic, Lyzeum 2). Сейчас используют EduRouter
-      (админка, £50/мес), Google Classroom (начинают), aimathic (ДЗ по
-      математике), Google Meet, Luma, Telegram. Боли: фрагментация
-      инструментов, нет единой системы упражнений/ДЗ/прогресса для всех
-      предметов кроме математики, сертификаты вручную, материалы разбросаны.
-      GrassLMS закрывает всё + бесплатно + UI на украинском/русском/английском.
-      Предложить: бесплатный доступ, помощь с миграцией, demo.
+- [ ] **P1-20.** Отправить Tali Green (@green_mammy, Teachers for Ukrainian Kids,
+      ~30 учителей) ссылку на demo: https://grasslms.online/demo + краткое
+      сопроводительное письмо. Demo-стек готов (2026-05-25):
+      `scripts/seed_demo_org.py` создаёт "GrassLMS Demo" org с 3 курсами
+      (Math 5 / English B1 / CS Web Basics), реальным прогрессом, ДЗ, XP,
+      сертификатом. Запуск в проде по runbook
+      [`docs/DEPLOY_DEMO.md`](../docs/DEPLOY_DEMO.md): pull → flip
+      `DEMO_MODE_ENABLED=true` в `/opt/lms/.env` → rebuild backend →
+      `docker compose exec backend python scripts/seed_demo_org.py`.
+      Контекст контакта: сооснователь — Mikhail Khotyakov (aimathic, Lyzeum 2).
+      Текущий стек: EduRouter (£50/мес), Google Classroom, aimathic (math
+      homework), Google Meet, Luma, Telegram. Боли: фрагментация инструментов,
+      нет единой системы упражнений/ДЗ/прогресса по non-math предметам,
+      сертификаты вручную. Оффер: бесплатный доступ, помощь с миграцией.
 
 ## Уборка после инцидента 2026-05-04 (некритично, не блокирует работу)
 
