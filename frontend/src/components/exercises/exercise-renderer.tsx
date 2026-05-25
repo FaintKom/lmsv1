@@ -9,6 +9,11 @@ import { toast } from "sonner";
 import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
+import { MathRenderer, containsMath } from "@/components/common/math-renderer";
+
+function MaybeMath({ text }: { text: string }) {
+ return containsMath(text) ? <MathRenderer content={text} /> : <>{text}</>;
+}
 import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
 import OrderingExercise from "@/components/submissions/exercises/ordering";
@@ -691,7 +696,7 @@ function QuizExercise({
  {questions.map((q, qi) => (
  <div key={q.id}>
  <p className="mb-3 text-sm font-medium text-ink-700 ">
- {qi + 1}. {q.question_text}
+ {qi + 1}. <MaybeMath text={q.question_text} />
  </p>
  <div className="space-y-2">
  {(q.options || []).map((opt, oi) => (
@@ -711,7 +716,7 @@ function QuizExercise({
  onChange={() => handleSelect(q.id, opt.text)}
  className="h-4 w-4 text-primary"
  />
- {opt.text}
+ <MaybeMath text={opt.text} />
  </label>
  ))}
  </div>
