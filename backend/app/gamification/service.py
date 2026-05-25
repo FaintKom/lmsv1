@@ -2,7 +2,6 @@ import uuid
 from datetime import date, datetime, timezone
 
 from sqlalchemy import func, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
