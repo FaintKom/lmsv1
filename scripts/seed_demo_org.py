@@ -875,29 +875,42 @@ async def _upsert_exercise(
     spec: dict,
     sort_order: int,
 ) -> Exercise:
-    """Create or fetch an Exercise (+ Question / TestCase children)."""
+    """Create or refresh an Exercise (+ Question / TestCase children).
+
+    On re-run we OVERWRITE title/config/sort_order on existing exercises
+    and rebuild their children — that way content edits in this file
+    propagate to prod on the next seed.
+    """
     ex_id = did(f"{course_slug}/{lesson_slug}/{spec['slug']}")
     existing = await db.get(Exercise, ex_id)
-    if existing is not None:
-        return existing
 
     prefix = EXERCISE_TYPE_PREFIX.get(spec["type"].value, "X")
-    # Display_id must be unique globally — suffix with hex slice of UUID.
     suffix = ex_id.hex[:6].upper()
     display_id = f"{org.slug}-{prefix}-{suffix}"
 
-    ex = Exercise(
-        id=ex_id,
-        lesson_id=lesson.id,
-        org_id=org.id,
-        display_id=display_id,
-        exercise_type=spec["type"],
-        title=spec["title"],
-        config=spec.get("config", {}),
-        sort_order=sort_order,
-    )
-    db.add(ex)
-    await db.flush()
+    if existing is not None:
+        existing.title = spec["title"]
+        existing.config = spec.get("config", {})
+        existing.sort_order = sort_order
+        # Clear and rebuild children
+        from sqlalchemy import delete as sa_delete
+        await db.execute(sa_delete(Question).where(Question.exercise_id == existing.id))
+        await db.execute(sa_delete(TestCase).where(TestCase.exercise_id == existing.id))
+        await db.flush()
+        ex = existing
+    else:
+        ex = Exercise(
+            id=ex_id,
+            lesson_id=lesson.id,
+            org_id=org.id,
+            display_id=display_id,
+            exercise_type=spec["type"],
+            title=spec["title"],
+            config=spec.get("config", {}),
+            sort_order=sort_order,
+        )
+        db.add(ex)
+        await db.flush()
 
     for j, q in enumerate(spec.get("questions") or []):
         question = Question(
