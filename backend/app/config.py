@@ -89,8 +89,8 @@ class Settings(BaseSettings):
     # default. When on, also set the demo account emails below; the
     # endpoint will authenticate into whichever one the caller asks for.
     demo_mode_enabled: bool = False
-    demo_student_email: str = "student@grasslms.online"
-    demo_teacher_email: str = "teacher@grasslms.online"
+    demo_student_email: str = "demo-student@grasslms.online"
+    demo_teacher_email: str = "demo-teacher@grasslms.online"
 
     # File storage backend: "local" (default) or "s3" (S3-compatible).
     # When "s3", the S3_* settings below must be filled in. Switching

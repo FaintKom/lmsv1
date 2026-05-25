@@ -74,7 +74,7 @@ export function LandingHeader() {
  </div>
  <div className="flex items-center gap-3">
  <HeaderLocaleSwitcher />
- <Link href="/demo">
+ <Link href="/demo?role=student">
  <Button variant="ghost" size="sm">
  Try Demo
  </Button>

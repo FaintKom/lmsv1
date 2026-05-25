@@ -1,6 +1,6 @@
 # Universal Education Platform — proposed architecture
 
-Generalises current `lms` + `aimath` + `aimath-curriculum` for any K12-through-university subject that has standards-based skill sets (Cambridge K12, CCSS, IB, CEFR, NGSS, national curricula, Bloom-aligned higher-ed outcomes).
+Generalises current `lms` + `external lesson generator` + `external curriculum service` for any K12-through-university subject that has standards-based skill sets (Cambridge K12, CCSS, IB, CEFR, NGSS, national curricula, Bloom-aligned higher-ed outcomes).
 
 ## Four bounded contexts (services)
 
@@ -18,7 +18,7 @@ Generalises current `lms` + `aimath` + `aimath-curriculum` for any K12-through-u
 
 ### Why 4, not 3
 
-Authoring (slow, batch, LLM-extract, methodist review) and runtime graph (fast, BKT updates, lesson queries) have **different SLOs and rhythm**. Combining them complicates both. `aimath-curriculum` already de facto splits models into `AUTHORING / STRUCTURE / RUNTIME` — the boundary is already there.
+Authoring (slow, batch, LLM-extract, methodist review) and runtime graph (fast, BKT updates, lesson queries) have **different SLOs and rhythm**. Combining them complicates both. `external curriculum service` already de facto splits models into `AUTHORING / STRUCTURE / RUNTIME` — the boundary is already there.
 
 **Budget compromise:** merge SAS+KGS into one service with two Postgres schemas (`authoring`, `published`) and split later. The model boundary already exists.
 
@@ -69,7 +69,7 @@ FastAPI + Postgres + pgvector + Arq + MinIO/S3. SQLAdmin or React admin.
 
 **Owns:** published graph + student state + mastery models + LessonFixture composer.
 
-### Extensions on top of aimath-curriculum (multi-subject)
+### Extensions on top of external curriculum service (multi-subject)
 
 #### Subject as first-class entity
 
@@ -189,7 +189,7 @@ The existing `lms` becomes a **thin client** to KGS/LGS:
 
 ### Lesson player
 
-Already exists in aimath's `viewer.html` — moves into lms as iframe or React component. Receives deck JSON from LGS.
+Already exists in external lesson generator's `viewer.html` — moves into lms as iframe or React component. Receives deck JSON from LGS.
 
 ### Analytics
 
@@ -202,7 +202,7 @@ Already exists in aimath's `viewer.html` — moves into lms as iframe or React c
 
 ### LessonFixture (KGS → LGS) — extended
 
-Take `aimath-curriculum.LessonFixture` **as-is**, add:
+Take `external curriculum service.LessonFixture` **as-is**, add:
 - `subject_code`
 - `language` (replaces single `Lang`)
 - `layout_set_id` + `widget_set_id`
@@ -306,8 +306,8 @@ universal-edu-platform/
 ├── services/
 │   ├── lms/                      ← existing F:\lms (thin client)
 │   ├── sas/                      ← new, sortation block
-│   ├── kgs/                      ← from aimath-curriculum, generalised
-│   └── lgs/                      ← from aimath, generalised
+│   ├── kgs/                      ← from external curriculum service, generalised
+│   └── lgs/                      ← from external lesson generator, generalised
 ├── plugins/
 │   ├── math_k12_v1/              ← prompts + layouts + widgets + validators
 │   ├── physics_g7_g11_v1/
@@ -324,9 +324,9 @@ universal-edu-platform/
 
 | # | Stage | Duration | Result |
 |---|---|---|---|
-| 0 | Generalise aimath-curriculum → KGS skeleton (Subject + MasteryModel registry) | 1-2 wks | KGS as a service with math plugin |
+| 0 | Generalise external curriculum service → KGS skeleton (Subject + MasteryModel registry) | 1-2 wks | KGS as a service with math plugin |
 | 1 | Split lms ↔ KGS (REST API contract, JWT shared) | 1-2 wks | lms reads next-skill from KGS |
-| 2 | Generalise aimath → LGS (plugin layout) | 1-2 wks | LGS accepts fixture, renders deck |
+| 2 | Generalise external lesson generator → LGS (plugin layout) | 1-2 wks | LGS accepts fixture, renders deck |
 | 3 | Migration: AI lesson generation on one subject (math K-3) end-to-end | 2-3 wks | working pipeline in production |
 | 4 | Build SAS (sortation block) — ingest + extract + dedupe | 3-4 wks | methodist imports Cambridge G4 |
 | 5 | Cross-mapping (Cambridge ↔ CCSS ↔ Merdeka) | 2 wks | mapping ready in SAS |

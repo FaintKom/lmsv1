@@ -7,6 +7,7 @@ import { BookOpen, Loader2, Play, Users } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
+import LocaleSwitcher from "@/components/layout/locale-switcher";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -76,11 +77,14 @@ function DemoRunner() {
  </div>
  <span className="text-xl font-bold text-text ">GrassLMS</span>
  </Link>
+ <div className="flex items-center gap-2">
+ <LocaleSwitcher />
  <Link href="/login">
  <Button variant="ghost" size="sm">
  {t("demo.signIn")}
  </Button>
  </Link>
+ </div>
  </div>
  </header>
 

@@ -408,7 +408,7 @@ export default function Home() {
  <ArrowRight className="h-5 w-5" />
  </Button>
  </Link>
- <Link href="/demo">
+ <Link href="/demo?role=student">
  <Button variant="outline" size="lg">
  {t("landing.ctaTryDemo")}
  </Button>

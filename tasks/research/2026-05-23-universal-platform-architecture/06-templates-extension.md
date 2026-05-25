@@ -50,7 +50,7 @@ Builds on `05-universal-platform-design.md`. Core principle: **LLM fills templat
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│  LAYOUT TEMPLATES (deck visuals — aimath has 24)        │
+│  LAYOUT TEMPLATES (deck visuals — external lesson generator has 24)        │
 │  - math_introduction_with_widget                        │
 │  - language_dialogue_audio_visual                       │
 │  - physics_simulation_canvas                            │
@@ -126,7 +126,7 @@ class SkillSelector(BaseModel):
 | **Direct Instruction** | I_do_modeling → We_do_guided → You_do_practice (per skill) | basic skills, weak students |
 | **Backwards Design (UbD)** | desired_results → evidence → learning_plan | unit-level, project |
 | **Worked Example Fading** | worked → faded_partial → faded_more → independent | cognitive load reduction |
-| **Cambridge Method** | check_prior → introduce → demonstrate → practice → reflect | aimath-curriculum default |
+| **Cambridge Method** | check_prior → introduce → demonstrate → practice → reflect | external curriculum service default |
 
 Each = YAML manifest + LLM instruction stub. **Methodist picks + customises, never writes from scratch.**
 
@@ -162,7 +162,7 @@ class TaskTemplate(BaseModel):
     # Misconceptions this template probes
     targets_misconceptions: list[str]
 
-    # Variant generation rules (inherited from aimath-curriculum)
+    # Variant generation rules (inherited from external curriculum service)
     variant_constraints: VariantConstraints
 
     version: int = 1
@@ -268,7 +268,7 @@ class SlotSpec(BaseModel):
     ├─ slide_theory_N   (LLM × N parallel)
     ├─ pick variants from TaskBank (no LLM!)
     └─ slide_summary    (LLM call)
-[5] Validate canvas-fit (aimath validator)
+[5] Validate canvas-fit (external lesson generator validator)
 [6] Cache deck + return
 ```
 

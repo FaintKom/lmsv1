@@ -1,6 +1,6 @@
-# aimath-curriculum — skill graph + BKT + LessonFixture
+# external curriculum service — skill graph + BKT + LessonFixture
 
-Location: `F:\Algonova\aimath-curriculum`. Standalone service. **Status:** v1.0 — 45 modules, 212 topics, **200 skills across G1-G3**, generated reproducibly by `scripts/build_curriculum_from_docx.py`. G4 placeholder. Production-grade ITS (Intelligent Tutoring System) architecture.
+Location: `[external curriculum repo]`. Standalone service. **Status:** v1.0 — 45 modules, 212 topics, **200 skills across G1-G3**, generated reproducibly by `scripts/build_curriculum_from_docx.py`. G4 placeholder. Production-grade ITS (Intelligent Tutoring System) architecture.
 
 ## What it owns
 
@@ -9,7 +9,7 @@ Location: `F:\Algonova\aimath-curriculum`. Standalone service. **Status:** v1.0 
 - **Lesson assembly** — composes a `LessonFixture` for the generator: target skills, prereq snapshots, student snapshot, task distribution, position in module.
 - **Authoring layer** — YAML/JSON canonical data + lifecycle ops (`rename`, `merge`, `split`, `deprecate`).
 
-It does **not** generate decks (that's aimath dashboard) and does **not** measure runtime solvability (lesson player). It is the **curriculum source of truth**.
+It does **not** generate decks (that's external lesson generator dashboard) and does **not** measure runtime solvability (lesson player). It is the **curriculum source of truth**.
 
 ---
 
@@ -218,7 +218,7 @@ This is **stronger than 95 % of EdTech**. Squirrel AI / ALEKS / Century.tech do 
 
 ## Relation to current lms
 
-| lms | aimath-curriculum |
+| lms | external curriculum service |
 |---|---|
 | `app/skills/` (flat) | graph with hard/soft prereqs + Q-matrix |
 | `app/exercises/` (8 types) | TaskSeed with 28 formats + variant constraints |
@@ -226,7 +226,7 @@ This is **stronger than 95 % of EdTech**. Squirrel AI / ALEKS / Century.tech do 
 | (none) | **BKT + EM calibration + microcycles** |
 | (none) | LessonFixture contract |
 
-Key insight: **the brain for AI lesson generation already exists on this machine**, just not in lms. Aimath = renderer (24 layouts × 12 widgets). Need to connect: `aimath-curriculum.LessonFixture` → prompt → cloud LLM → aimath validator → aimath viewer.
+Key insight: **the brain for AI lesson generation already exists on this machine**, just not in lms. External lesson generator = renderer (24 layouts × 12 widgets). Need to connect: `external curriculum service.LessonFixture` → prompt → cloud LLM → external lesson generator validator → external lesson generator viewer.
 
 ## What to take into universal KGS as-is
 
@@ -243,3 +243,105 @@ Key insight: **the brain for AI lesson generation already exists on this machine
 - `CRAStage` (math-specific) → move into math plugin
 - `ModuleSection` enum (numbers/geometry/...) → subject manifest
 - `Representation` enum (ten_frame/...) → widget set per plugin
+
+---
+
+## Gaps from external deck (added 2026-05-25)
+
+Findings from external curriculum-graph architecture deck. Three concrete
+additions worth absorbing into our work.
+
+### 1. Validation pipeline (most useful gap)
+
+We have no CI/quality gate that proves the graph is well-formed and aligned
+with real curriculum/exams. Deck proposes four automatable checks:
+
+| Check | What it asserts | How |
+|---|---|---|
+| **DAG** | No cycles in prerequisites | networkx `is_directed_acyclic_graph` — must pass before any modeling work runs |
+| **Curriculum coverage 100 %** | Every official curriculum skill maps to exactly one graph skill, no graph skill is used for two curriculum skills | LLM auto-maps `(country, grade) → curriculum_skill_list` against `skill_name + description` |
+| **Graph coverage ≥ 80 %** per grade | At least 80 % of the graph is used somewhere in the per-grade curriculum — otherwise mastery model is trained on sparse signal | Set-cover query over the curriculum→graph mapping |
+| **Exam coverage ≥ 1** | Every exam question maps to at least one graph skill; surfaces missing strands (e.g. "no geometry coverage") | LLM scores each exam item against the graph; flag items with zero matches |
+
+We already enforce DAG implicitly via `visited` in `next_skill_for_student`,
+but the other three are new. Pipeline lives next to `scripts/build_curriculum_from_docx.py`
+and runs in CI on every graph change.
+
+### 2. Skill-sizing heuristic
+
+> A skill is **right-sized** if 3–10 exercises take a student from
+> not-knowing to knowing.
+
+Operational test for methodist authoring:
+- **More than 10 exercises needed** → split the skill (too coarse, mastery
+  signal will be noisy because students reach proficiency in different
+  sub-skills at different times).
+- **Fewer than 3 exercises needed** → merge with neighbour (too fine, BKT
+  needs at least 3–5 attempts to converge).
+
+Sanity-check our 200 skills with this lens during next curriculum review.
+
+### 3. Skill-density benchmark
+
+Established graphs land in 60–200 skills per grade. Industry anchors:
+
+| Source | Scope | Skills/grade |
+|---|---|---|
+| Common Core (US) | K–5, ~200 standards | 60–80 |
+| Math Academy | K–12+, ~2 500 topics | ~190 |
+| XES3G5M (China K-12) | 865 KCs | ~65 |
+| **Our G1–G3** | 200 skills total | **~67/grade** |
+
+We sit in the lower end of the established range — appropriate for v1.0.
+Don't grow past ~120/grade without explicit reason (more skills ≠ better
+mastery model; signal-to-noise drops).
+
+### 4. Country-view layer (for multi-country expansion)
+
+Industry pattern (Khan Academy, IXL, DreamBox, Matific in 50+ countries):
+**one master graph + one country-view override layer**.
+
+```
+country_view:
+  skill_id        required
+  country_code    required  (ISO 3166-1 alpha-2)
+  grade           required  (per-country sequencing)
+  description           optional  (override)
+  long_description      optional  (override)
+  example_exercises     optional  (override)
+```
+
+Most skills inherit from base — override only where it matters (currency,
+units, decimal separator, naming conventions, grade placement). Examples:
+
+- **AZ**: "read money amounts" → manat / qəpik, `12,50 manat`, `,` decimal.
+- **ID**: "read money amounts" → Rupiah, `Rp 12.000,-` format, `.` thousands / `,` decimal.
+- "add fractions with unlike denominators" → base description works
+  globally, no override.
+
+We currently have `external_ids: dict[str, list[str]]` (cambridge / ccss /
+…) which handles **standards alignment** but not **per-country adaptation**.
+If/when we expand beyond a single country, add the country-view layer
+without touching the base graph.
+
+### 5. LLM-context field separation
+
+Deck separates two long-form fields per skill:
+
+- **`description`** — 1–2 sentences. Used in student-facing UI, methodist
+  search, teacher dashboard.
+- **`long_description`** — chapter-length (a textbook chapter, not a
+  sentence). Used by LLM as **context** during lesson/problem generation.
+
+We have `methodology_text` + `llm_instruction_text` + `student_facing_label`
++ `teacher_short_description`. The `llm_instruction_text` mixes
+"instructions for the generator" with "subject-matter context the generator
+should know" — and is typically short. Worth splitting:
+
+- `llm_instruction_text` → keep, but trim to actual prompt instructions
+  ("vary numbers, keep strategy, prefer concrete representation").
+- New `llm_context_text` → chapter-length explanation of the concept,
+  worked examples, common misconceptions. Reused across many tasks; iterated
+  without DB migration. This is what the deck calls `long_description`.
+
+Cheap win — single new column, populate lazily as the LLM-pipeline matures.
