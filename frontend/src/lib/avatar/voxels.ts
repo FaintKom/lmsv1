@@ -168,9 +168,15 @@ export function buildFace(variant: string): THREE.Group {
     default: {
       box(g, -0.4, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
       box(g, 0.2, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
-      box(g, -0.3, 5.5, eyeZ, 0.6, 0.1, 0.05, COL.coral);
-      box(g, -0.4, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
-      box(g, 0.3, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      // Smile pixel pattern (10 cols × 2 rows, cell=0.1):
+      //   . . X . . . . X . .   top row y=5.5  (corners lifted up)
+      //   . . . X X X X . . .   bot row y=5.4  (mouth bottom curve)
+      box(g, -0.3, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral); // top col 2
+      box(g, 0.2, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral); // top col 7
+      box(g, -0.2, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 3
+      box(g, -0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 4
+      box(g, 0.0, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 5
+      box(g, 0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 6
       return g;
     }
   }
