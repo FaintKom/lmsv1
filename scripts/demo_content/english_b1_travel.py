@@ -194,7 +194,10 @@ COURSE = {
             ],
         },
         {
-            "slug": "m2-hotel-restaurant",
+            # Slug kept as `m2-restaurant` (matches the original seed) so
+            # the existing module row is updated in place rather than a new
+            # uuid5-derived module being created alongside the orphan one.
+            "slug": "m2-restaurant",
             "title": "Hotel & Restaurant",
             "lessons": [
                 {

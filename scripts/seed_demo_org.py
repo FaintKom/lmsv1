@@ -570,6 +570,22 @@ async def upsert_course(
         course.description = spec["description"]
         course.category = spec["category"]
 
+    # Remove orphan modules whose uuid5 isn't in the current spec — happens
+    # when a module slug is renamed between runs. Cascade removes the
+    # nested lessons/exercises/progress rows via FK.
+    expected_module_ids = {
+        did(f"module/{spec['slug']}/{m['slug']}")
+        for m in spec["modules"]
+    }
+    existing_modules = (await db.execute(
+        select(Module).where(Module.course_id == course.id)
+    )).scalars().all()
+    for m in existing_modules:
+        if m.id not in expected_module_ids:
+            await db.delete(m)
+    if existing_modules:
+        await db.flush()
+
     for m_idx, m_spec in enumerate(spec["modules"]):
         module_id = did(f"module/{spec['slug']}/{m_spec['slug']}")
         module = await db.get(Module, module_id)
