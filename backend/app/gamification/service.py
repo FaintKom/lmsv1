@@ -329,15 +329,37 @@ async def get_leagues_info() -> list[dict]:
 # ─── Room (My Room feature) ─────────────────────────────────────────────
 
 # Slots whose item placement can be moved via the Layout d-pad.
-ROOM_MOVABLE_SLOTS: set[str] = {"bed", "desk", "dresser", "shelf", "shelfwall"}
+ROOM_MOVABLE_SLOTS: set[str] = {
+    # floor furniture
+    "bed", "desk", "dresser", "shelf", "rug", "plant",
+    "lamp", "sofa", "coffee", "arcade",
+    # left-wall mounted
+    "shelfwall", "cabinet",
+    # back-wall mounted
+    "pictures", "window", "clock",
+}
 
-# Axis constraints per movable slot — wall-mounted shelf only slides along Z.
+# Axis constraints per movable slot — wall-mounted items lose the axis
+# that would lift them off the wall.
 ROOM_MOVE_AXES: dict[str, set[str]] = {
+    # floor furniture (free in x + z)
     "bed": {"x", "z"},
     "desk": {"x", "z"},
     "dresser": {"x", "z"},
     "shelf": {"x", "z"},
+    "rug": {"x", "z"},
+    "plant": {"x", "z"},
+    "lamp": {"x", "z"},
+    "sofa": {"x", "z"},
+    "coffee": {"x", "z"},
+    "arcade": {"x", "z"},
+    # left-wall mounted (slide along z, x locked to wall)
     "shelfwall": {"z"},
+    "cabinet": {"z"},
+    # back-wall mounted (slide along x, z locked to wall)
+    "pictures": {"x"},
+    "window": {"x"},
+    "clock": {"x"},
 }
 
 # Ties: when a parent slot's item moves, the child slot's offset is overridden

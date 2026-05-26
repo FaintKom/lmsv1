@@ -62,23 +62,49 @@ export const TIES: Record<string, readonly string[]> = {
 
 /** Slots whose item placement can be moved via the Layout d-pad. */
 export const MOVABLE_SLOTS: readonly string[] = [
+  // floor furniture (free in x + z)
   "bed",
   "desk",
   "dresser",
   "shelf",
+  "rug",
+  "plant",
+  "lamp",
+  "sofa",
+  "coffee",
+  "arcade",
+  // left-wall mounted (slide along z, x locked to wall)
   "shelfwall",
+  "cabinet",
+  // back-wall mounted (slide along x, z locked to wall)
+  "pictures",
+  "window",
+  "clock",
 ];
 
 export type MoveAxis = "x" | "z";
 
 /**
- * Axis constraints per movable slot. The wall-mounted shelf only slides
- * along Z (cannot leave the wall plane).
+ * Axis constraints per movable slot. Wall-mounted items lose the axis that
+ * would lift them off the wall.
  */
 export const MOVE_AXES: Record<string, readonly MoveAxis[]> = {
+  // floor furniture
   bed: ["x", "z"],
   desk: ["x", "z"],
   dresser: ["x", "z"],
   shelf: ["x", "z"],
+  rug: ["x", "z"],
+  plant: ["x", "z"],
+  lamp: ["x", "z"],
+  sofa: ["x", "z"],
+  coffee: ["x", "z"],
+  arcade: ["x", "z"],
+  // left-wall mounted
   shelfwall: ["z"],
+  cabinet: ["z"],
+  // back-wall mounted
+  pictures: ["x"],
+  window: ["x"],
+  clock: ["x"],
 };

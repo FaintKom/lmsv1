@@ -66,7 +66,8 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // r183 deprecated PCFSoftShadowMap; PCFShadowMap looks nearly identical.
+    renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const scene = new THREE.Scene();
 
