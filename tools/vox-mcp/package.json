@@ -1,0 +1,22 @@
+{
+  "name": "vox-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Headless .vox toolkit exposed as a Model Context Protocol server. Read, edit, transform, render, and compare MagicaVoxel files programmatically.",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "selftest": "node dist/server.js --self-test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "canvas": "^2.11.2",
+    "parse-magica-voxel": "^2.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2"
+  }
+}

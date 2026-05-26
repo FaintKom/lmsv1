@@ -1,0 +1,12 @@
+# Dev convenience — build the image and exec into it interactively.
+# For actual MCP wiring, see README.md.
+services:
+  vox-mcp:
+    build: .
+    image: vox-mcp:latest
+    stdin_open: true
+    tty: false
+    volumes:
+      - F:/lms-assets/MagicaVoxel/vox:/data/vox
+      - F:/lms/frontend/public/voxels:/data/public
+      - F:/lms-assets/voxels/exported:/data/exported:ro
