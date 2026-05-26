@@ -83,9 +83,13 @@ export function buildHair(variant: string): THREE.Group {
     case "avatar-hair-short":
     default: {
       const c = 0x6b4422;
-      box(g, -0.9, 6.6, -0.7, 1.8, 0.3, 1.3, c);
-      box(g, -0.9, 6.3, -0.7, 1.8, 0.3, 0.2, c);
-      box(g, -0.9, 6.3, 0.4, 1.8, 0.3, 0.2, c);
+      // top cap
+      box(g, -0.9, 6.6, -0.7, 1.8, 0.4, 1.4, c);
+      // wrap-around to cover the full head, not just thin strips
+      box(g, -0.9, 5.6, -0.75, 1.8, 1.0, 0.2, c); // back face
+      box(g, -0.9, 5.6, 0.55, 1.8, 1.0, 0.2, c); // front bangs
+      box(g, -0.95, 5.6, -0.5, 0.2, 1.0, 1.1, c); // left side
+      box(g, 0.75, 5.6, -0.5, 0.2, 1.0, 1.1, c); // right side
       return g;
     }
   }
@@ -205,9 +209,12 @@ export function buildOutfit(variant: string): THREE.Group {
     case "avatar-outfit-tshirt":
     default: {
       const c = COL.blue;
+      // torso
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.45, 2.5, -0.5, 0.65, 1.0, 1.0, c);
-      box(g, 0.8, 2.5, -0.5, 0.65, 1.0, 1.0, c);
+      // sleeves cover the WHOLE arm so the skin underneath isn't exposed
+      box(g, -1.5, 2.3, -0.55, 0.7, 2.3, 1.1, c);
+      box(g, 0.8, 2.3, -0.55, 0.7, 2.3, 1.1, c);
+      // pants
       box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
       box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
       return g;

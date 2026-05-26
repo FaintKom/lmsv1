@@ -219,8 +219,9 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         // Floor clamp: avatar feet never below y = 0.
         const finalY = Math.max(0, dy * VOX);
         g.position.set((AVATAR_POS.x + dx) * VOX, finalY, (AVATAR_POS.z + dz) * VOX);
-        // Base rotation -π/4 keeps the avatar facing the camera by default.
-        g.rotation.y = -Math.PI / 4 + (rotDeg * Math.PI) / 180;
+        // Face is drawn on the -Z side of the head; rotate π so it points
+        // +Z toward the default camera position (which orbits +X+Z).
+        g.rotation.y = Math.PI + (rotDeg * Math.PI) / 180;
         scene.add(g);
         avatarGroup = g;
       },

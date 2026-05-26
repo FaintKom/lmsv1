@@ -23,16 +23,20 @@ export const SLOT_PLACEMENT: Record<string, SlotPlacement> = {
   monitor: { x: 2, y: 3.2, z: 0.4, rot: 0 },
   chair: { x: 2.4, y: 0, z: 4, rot: Math.PI },
 
-  // against the LEFT wall (x=0)
+  // against the LEFT wall (x=0). Wall-mounted ones get a small nudge into
+  // the room so their flush face doesn't z-fight the wall slab.
   dresser: { x: 0, y: 0, z: 11.5, rot: HALF_PI },
   shelf: { x: 0, y: 0, z: 13, rot: HALF_PI },
-  shelfwall: { x: 0, y: 7.5, z: 6, rot: HALF_PI },
-  cabinet: { x: 0, y: 6, z: 4, rot: HALF_PI },
+  shelfwall: { x: 0.05, y: 7.5, z: 6, rot: HALF_PI },
+  cabinet: { x: 0.05, y: 6, z: 4, rot: HALF_PI },
 
-  // back-wall mounted decor
-  pictures: { x: 1.6, y: 7.5, z: -0.45, rot: 0 },
-  window: { x: 8.5, y: 5.2, z: -0.3, rot: 0 },
-  clock: { x: 14, y: 8, z: 3, rot: NEG_HALF_PI },
+  // back-wall mounted decor -- sit fully in front of the wall face (z >= 0.4
+  // for the window since its outer frame is 0.3 voxels thick) so we never
+  // z-fight the wall slab (which spans z = -0.6 .. 0).
+  pictures: { x: 1.6, y: 7.5, z: 0.1, rot: 0 },
+  window: { x: 8.5, y: 5.2, z: 0.4, rot: 0 },
+  // Clock moved from the (non-existent) right wall to the left wall.
+  clock: { x: 0.1, y: 8, z: 3, rot: HALF_PI },
 
   // floor / freestanding
   rug: { x: 4.5, y: 0, z: 5.5, rot: 0 },

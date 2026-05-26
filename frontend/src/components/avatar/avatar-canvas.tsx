@@ -69,6 +69,9 @@ export function AvatarCanvas({ state }: AvatarCanvasProps) {
       disposeAvatar();
       const g = buildAvatar(eq);
       g.position.set(0, 0, 0);
+      // Face is drawn on the -Z side of the head; rotate π so it faces +Z
+      // (toward the default camera position at +X+Z).
+      g.rotation.y = Math.PI;
       scene.add(g);
       avatarGroup = g;
     }

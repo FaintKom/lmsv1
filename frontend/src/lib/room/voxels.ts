@@ -162,9 +162,11 @@ export function buildBed(variant: BedVariant = "basic"): THREE.Group {
     variant === "kids" ? COL.coral : variant === "double" ? COL.lavender : COL.green;
   vbox(g, 0.2, 2.8, 2.4, 4.6, 0.2, 5.4, blanket);
   vbox(g, 0.2, 2.8, 7.4, 4.6, 0.35, 0.6, darker(blanket));
+  // Polka dots on the blanket. Lift them well above y=3.0 (blanket top) so
+  // they don't z-fight that face.
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 3; c++) {
-      vbox(g, 1.0 + c * 1.4, 3.02, 3.0 + r * 1.2, 0.25, 0.04, 0.25, darker(blanket, 0.65));
+      vbox(g, 1.0 + c * 1.4, 3.08, 3.0 + r * 1.2, 0.25, 0.05, 0.25, darker(blanket, 0.65));
     }
   }
   vbox(g, 0.5, 2.85, 0.4, 4.0, 0.55, 1.4, COL.white);
