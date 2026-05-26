@@ -73,7 +73,15 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     // Local alias retains narrowing inside nested closures (Three.js callbacks).
     const canvas: HTMLCanvasElement = canvasEl;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      // Logarithmic depth buffer reduces z-fighting where build* helpers
+      // stack voxel boxes that share faces or overlap (bed base/frame,
+      // lamp post through shade, hair strips over skull).
+      logarithmicDepthBuffer: true,
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     // r183 deprecated PCFSoftShadowMap; PCFShadowMap looks nearly identical.
@@ -81,7 +89,10 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
 
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+    // Tighter near/far ratio (0.5..50 = 100×) gives much better depth
+    // precision than prior 0.1..100 (1000×), further cutting z-fight on
+    // overlapping voxel boxes. Scene fits in ~15 world units so 50 is plenty.
+    const camera = new THREE.PerspectiveCamera(28, 1, 0.5, 50);
     const cam = { ...INITIAL_CAMERA };
 
     function placeCamera(): void {
