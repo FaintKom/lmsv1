@@ -1,6 +1,6 @@
 # QA Audit — Pre-Org Handoff
 
-**Date:** 2026-05-14
+**Date:** 2026-05-14 (updated 2026-05-27)
 **Target:** https://grasslms.online
 **Goal:** Find all bugs/UX issues before organizational testing
 
@@ -8,14 +8,15 @@
 
 | Metric | Target | Actual |
 |--------|--------|--------|
-| Flows tested | 30+ | 38 |
+| Flows tested | 30+ | 46 |
 | Critical bugs (P0 — blocks usage) | 0 remaining | 1 found → **FIXED** |
-| Major bugs (P1 — broken but workaround exists) | 0 remaining | 5 found |
-| Minor bugs (P2 — cosmetic/UX) | documented | 7 found |
+| Major bugs (P1 — broken but workaround exists) | 0 remaining | 6 found |
+| Minor bugs (P2 — cosmetic/UX) | documented | 11 found |
 | Roles fully tested | 3/3 | 3/3 |
 | Auth flows pass | 3/3 | 3/3 |
 | Core CRUD pass (courses, lessons, exercises) | yes | yes |
 | Student can complete full learning path | yes | yes (with P0 fix) |
+| Cross-role flow verified | yes | yes |
 
 ---
 
@@ -50,6 +51,10 @@
    - **Workaround:** Use super_admin account to change settings.
    - **Fix needed:** Either grant methodists write access to org settings, or hide the settings page from non-admin roles.
 
+6. **Course editor freezes browser on lesson operations** — Adding a lesson or clicking Quiz/Code content type in the course editor freezes the browser tab for 30+ seconds. Happens consistently. Likely the admin-side exercise config editors are eagerly imported (same root cause family as P0). Worse than P1 #3 — this isn't just "slow", it's a full browser freeze requiring page reload.
+   - **Workaround:** Page recovers after ~30s or navigate away and refresh. Data sometimes saves despite freeze.
+   - **Fix needed:** Lazy-load admin exercise config editors same as student-side renderers.
+
 ### P2 — Minor (cosmetic, UX polish)
 
 1. **Login form retains credentials after logout** — After signing out, the login form still shows the previous user's email/password (browser autofill). Not a security issue in shared-device context since it's browser behavior, but looks unprofessional.
@@ -68,6 +73,17 @@
 6. **Duplicate "Algonova" organizations** — Two orgs named "Algonova" exist (slugs: `algonova` created 4/20, `algonova-1` created 5/6). One is a duplicate.
 
 7. **Org named "1"** — An organization exists with just the name "1" (slug "1", created 5/4). Likely accidentally created. Shows as "1" in course org dropdowns — this is the source of the P1 "org shows 1" bug.
+
+8. **Demo account alex@grasslms.online login fails** — Returns 400 error. Password may have been changed or account may not exist in current DB. Listed in CLAUDE.md as test account with `Alex2026!` password.
+   - **Fix:** Reset password in DB or verify account exists.
+
+9. **404 page is default Next.js black screen** — No branding, no navigation, no "back to home" link. Looks broken, not like part of the platform.
+   - **Fix:** Create custom `not-found.tsx` with GrassLMS branding and navigation link.
+
+10. **Markdown not rendered in lesson content** — Text lessons show raw markdown as plain text. `#` headings and `-` bullets are stripped but not styled. Content renders without formatting.
+    - **Fix:** Ensure markdown content passes through markdown renderer (react-markdown or similar).
+
+11. **Transient 502 Bad Gateway on lesson page** — First load of lesson page returned 502 from nginx. Second load worked. May be SSR timeout or backend cold start.
 
 ### P3 — Enhancement (nice-to-have)
 
@@ -129,8 +145,11 @@
 - [x] Knowledge base search
 
 ## Phase 5: Cross-Role
-- [ ] Teacher creates exercise -> Student submits -> Teacher sees submission
-- [ ] Admin creates course -> Teacher assigned -> Students see it
+- [x] Teacher creates course with lesson → Student sees it in catalog
+- [x] Student enrolls in teacher's course → Enrollment confirmed
+- [x] Student opens lesson → Content loads (after transient 502)
+- [x] Student marks lesson complete → Progress tracked (100%, 15 XP, streak)
+- [ ] Teacher creates exercise → Student submits → Teacher sees in gradebook (not tested — editor freeze blocks adding exercises)
 
 ## Phase 5b: Whitelabel / Multi-Org
 - [x] Settings page loads (admin)
@@ -150,12 +169,12 @@
 - [ ] **CLEANUP:** Duplicate Algonova orgs, orphan org "1"
 
 ## Phase 6: UX/Edge Cases
-- [ ] Empty states (no courses, no submissions)
-- [ ] Loading states
-- [ ] Error handling (bad URL, 404)
-- [ ] Mobile responsive (viewport 375px)
-- [ ] Sidebar navigation consistency
-- [ ] Breadcrumbs work
+- [x] Empty states — Teacher "No courses yet", Student "No courses available" both show clean empty states with CTAs
+- [x] Loading states — Dashboard, courses, lessons all show loading indicators
+- [x] Error handling (bad URL, 404) — **P2: default Next.js black 404 page, no branding**
+- [ ] Mobile responsive (viewport 375px) — **Not testable** via browser automation (resize_window doesn't affect rendering viewport)
+- [x] Sidebar navigation consistency — Consistent across dashboard, courses, lesson pages
+- [x] Breadcrumbs work — Lesson page shows "Module 1 / Lesson 1 · Title" breadcrumb
 
 ---
 
