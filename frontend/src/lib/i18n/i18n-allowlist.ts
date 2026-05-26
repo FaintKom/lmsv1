@@ -143,6 +143,7 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/gamification/league-mark.tsx",
   "src/components/gamification/rank-medal.tsx",
   "src/components/gamification/streak-widget.tsx",
+  "src/components/providers/query-provider.tsx",
   "src/components/room/item-preview.tsx",
   "src/components/room/room-canvas.tsx",
   "src/components/landing/interactive-demo.tsx",
