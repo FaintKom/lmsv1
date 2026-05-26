@@ -70,3 +70,19 @@ export const CATALOG_BUILDERS: Record<string, ItemBuilder> = {
 
 /** Item ids that render via {@link CATALOG_BUILDERS}. */
 export type BuildableItemId = keyof typeof CATALOG_BUILDERS;
+
+/**
+ * Items that should render from a MagicaVoxel .vox file instead of the inline
+ * build* function. Scene's setSlot checks this first; if a path is present, it
+ * async-loads via vox-loader and substitutes the resulting group for the
+ * hand-coded geometry.
+ *
+ * .vox files live in `frontend/public/voxels/` and are served as static assets.
+ */
+export const VOX_ITEMS: Record<string, string> = {
+  monitor: "/voxels/poc-monitor.vox",
+  sofa: "/voxels/poc-sofa.vox",
+  plant: "/voxels/poc-plant.vox",
+  chair: "/voxels/poc-office-chair.vox",
+  "desk-wood": "/voxels/poc-desk.vox",
+};

@@ -8,8 +8,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-import { CATALOG_BUILDERS } from "@/lib/room/catalog";
+import { CATALOG_BUILDERS, VOX_ITEMS } from "@/lib/room/catalog";
 import { MOVE_AXES, SLOT_PLACEMENT } from "@/lib/room/placement";
+import { loadVoxModel } from "@/lib/room/vox-loader";
 import {
   COL,
   type FloorType,
@@ -135,6 +136,9 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     let floorGroup: THREE.Group | null = null;
     let avatarGroup: THREE.Group | null = null;
     const slotGroups = new Map<string, THREE.Group>();
+    // Per-slot monotonic counter so async vox loads can be invalidated when
+    // the user equips a different item before the previous load resolves.
+    const slotSeq = new Map<string, number>();
 
     // Where the avatar stands inside the room (centre-front, on the rug).
     // Voxel coords; converted to world via VOX in the place-call below.
@@ -200,6 +204,26 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
           slotGroups.delete(slot);
         }
         if (!itemId) return; // slot toggled off
+
+        const voxUrl = VOX_ITEMS[itemId];
+        if (voxUrl) {
+          // Bump a sequence number so a still-in-flight load for a different
+          // item id doesn't land after a newer one.
+          const seq = (slotSeq.get(slot) ?? 0) + 1;
+          slotSeq.set(slot, seq);
+          loadVoxModel(voxUrl)
+            .then((group) => {
+              if (slotSeq.get(slot) !== seq) return; // superseded
+              placeSlot(slot, group, dx, dy, dz, rotDeg);
+              scene.add(group);
+              slotGroups.set(slot, group);
+            })
+            .catch((err) => {
+              console.error(`vox load failed for ${itemId}:`, err);
+            });
+          return;
+        }
+
         const builder = CATALOG_BUILDERS[itemId];
         if (!builder) {
           // Wall, floor, and avatar item ids end up here -- they're handled
