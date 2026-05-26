@@ -183,9 +183,10 @@ async def test_layout_clamps_to_12(
 async def test_layout_non_movable_slot_returns_422(
     client: AsyncClient, _seeded_catalog, rich_student
 ):
+    # `monitor` is tied to its parent (desk) -- never independently movable.
     resp = await client.post(
         "/api/v1/gamification/room/layout",
-        json={"slot": "lamp", "offset_dx": 1, "offset_dz": 1},
+        json={"slot": "monitor", "offset_dx": 1, "offset_dz": 1},
         headers=auth_header(rich_student),
     )
     assert resp.status_code == 422
