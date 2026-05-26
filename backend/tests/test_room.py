@@ -236,10 +236,10 @@ async def test_equip_avatar_item_under_threshold_returns_403(
 
 
 @pytest.mark.asyncio
-async def test_layout_shelfwall_locks_x_axis(
+async def test_layout_shelfwall_now_free_in_x(
     client: AsyncClient, _seeded_catalog, rich_student
 ):
-    """shelfwall is wall-mounted -- x movement must be ignored, only z applied."""
+    """User explicitly allowed clipping through walls; shelfwall has full freedom."""
     resp = await client.post(
         "/api/v1/gamification/room/layout",
         json={"slot": "shelfwall", "offset_dx": 5, "offset_dz": 3, "offset_rot": 0},
@@ -247,8 +247,29 @@ async def test_layout_shelfwall_locks_x_axis(
     )
     assert resp.status_code == 200
     shelfwall = resp.json()["equipped"]["shelfwall"]
-    assert shelfwall["offset_dx"] == 0  # x axis ignored for wall mount
+    assert shelfwall["offset_dx"] == 5
     assert shelfwall["offset_dz"] == 3
+
+
+@pytest.mark.asyncio
+async def test_layout_y_axis_clamped(
+    client: AsyncClient, _seeded_catalog, rich_student
+):
+    """offset_dy stored within [-24, 24]; Pydantic Field rejects out-of-range."""
+    resp = await client.post(
+        "/api/v1/gamification/room/layout",
+        json={"slot": "bed", "offset_dx": 0, "offset_dy": 10, "offset_dz": 0, "offset_rot": 0},
+        headers=auth_header(rich_student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["equipped"]["bed"]["offset_dy"] == 10
+
+    bad = await client.post(
+        "/api/v1/gamification/room/layout",
+        json={"slot": "bed", "offset_dx": 0, "offset_dy": 999, "offset_dz": 0},
+        headers=auth_header(rich_student),
+    )
+    assert bad.status_code == 422
 
 
 @pytest.mark.asyncio

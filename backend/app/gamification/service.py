@@ -343,19 +343,19 @@ ROOM_MOVABLE_SLOTS: set[str] = {
     "avatar",
 }
 
-# Axis constraints — wall items still lose the axis that would lift them
-# off the wall. Everything else gets full x + z (rotation always allowed).
-_FULL = {"x", "z"}
-_WALL_LEFT = {"z"}  # shelfwall, cabinet: slide along z only
-_WALL_BACK = {"x"}  # pictures, window, clock: slide along x only
+# Axis constraints — every slot can now move freely on x, y, z. Wall
+# clipping is allowed (per user request); floor clipping is prevented
+# client-side by Math.max(0, pos.y + dy) at render time.
+_FULL = {"x", "y", "z"}
 ROOM_MOVE_AXES: dict[str, set[str]] = {
-    "bed": _FULL, "desk": _FULL, "dresser": _FULL, "shelf": _FULL,
-    "rug": _FULL, "plant": _FULL, "lamp": _FULL, "sofa": _FULL,
-    "coffee": _FULL, "arcade": _FULL,
-    "shelfwall": _WALL_LEFT, "cabinet": _WALL_LEFT,
-    "pictures": _WALL_BACK, "window": _WALL_BACK, "clock": _WALL_BACK,
-    "monitor": _FULL, "chair": _FULL, "plushie": _FULL, "trophy": _FULL,
-    "avatar": _FULL,
+    slot: _FULL
+    for slot in (
+        "bed", "desk", "dresser", "shelf", "rug", "plant",
+        "lamp", "sofa", "coffee", "arcade",
+        "shelfwall", "cabinet", "pictures", "window", "clock",
+        "monitor", "chair", "plushie", "trophy",
+        "avatar",
+    )
 }
 
 # Ties: when a parent slot's item moves, the child slot's offset is overridden
@@ -509,6 +509,7 @@ async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
         e.slot: {
             "item_id": e.item_id,
             "offset_dx": e.offset_dx,
+            "offset_dy": e.offset_dy,
             "offset_dz": e.offset_dz,
             "offset_rot": e.offset_rot,
         }
@@ -570,15 +571,17 @@ async def set_room_layout(
     dx: int,
     dz: int,
     rot: int = 0,
+    dy: int = 0,
 ) -> UserRoomEquip:
     """Set the layout offset + rotation for a slot. Slot must be movable;
-    dx/dz clamped; rot normalised to [0, 360)."""
+    dx/dz clamped to [-12, 12]; dy clamped to [-24, 24]; rot mod 360."""
     if slot not in ROOM_MOVABLE_SLOTS:
         raise RoomEquipError("slot_not_movable", f"Slot '{slot}' cannot be moved")
 
     axes = ROOM_MOVE_AXES.get(slot, set())
     safe_dx = max(-12, min(12, dx)) if "x" in axes else 0
     safe_dz = max(-12, min(12, dz)) if "z" in axes else 0
+    safe_dy = max(-24, min(24, dy)) if "y" in axes else 0
     safe_rot = int(rot) % 360
 
     existing = await db.execute(
@@ -593,12 +596,14 @@ async def set_room_layout(
             slot=slot,
             item_id=None,
             offset_dx=safe_dx,
+            offset_dy=safe_dy,
             offset_dz=safe_dz,
             offset_rot=safe_rot,
         )
         db.add(equip)
     else:
         equip.offset_dx = safe_dx
+        equip.offset_dy = safe_dy
         equip.offset_dz = safe_dz
         equip.offset_rot = safe_rot
     await db.flush()

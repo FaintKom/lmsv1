@@ -6,6 +6,8 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
+  ChevronsDown,
+  ChevronsUp,
   Circle,
   RotateCcw,
   RotateCw,
@@ -41,28 +43,40 @@ export function LayoutDPad({ state }: LayoutDPadProps) {
   const selected = selectedSlot ? state.equipped[selectedSlot] : null;
   const axes = selectedSlot ? MOVE_AXES[selectedSlot] ?? [] : [];
 
-  function send(dx: number, dz: number, rot: number): void {
+  function send(dx: number, dy: number, dz: number, rot: number): void {
     if (!selectedSlot) return;
     setLayout.mutate({
       slot: selectedSlot,
       offset_dx: dx,
+      offset_dy: dy,
       offset_dz: dz,
       offset_rot: ((rot % 360) + 360) % 360,
     });
   }
 
+  function cur() {
+    return selected ?? { offset_dx: 0, offset_dy: 0, offset_dz: 0, offset_rot: 0 };
+  }
+
   function move(deltaDx: number, deltaDz: number): void {
     if (!selectedSlot) return;
-    const cur = selected ?? { offset_dx: 0, offset_dz: 0, offset_rot: 0 };
-    const newDx = clamp((cur.offset_dx ?? 0) + deltaDx, -12, 12);
-    const newDz = clamp((cur.offset_dz ?? 0) + deltaDz, -12, 12);
-    send(newDx, newDz, cur.offset_rot ?? 0);
+    const c = cur();
+    const newDx = clamp((c.offset_dx ?? 0) + deltaDx, -12, 12);
+    const newDz = clamp((c.offset_dz ?? 0) + deltaDz, -12, 12);
+    send(newDx, c.offset_dy ?? 0, newDz, c.offset_rot ?? 0);
+  }
+
+  function lift(deltaDy: number): void {
+    if (!selectedSlot) return;
+    const c = cur();
+    const newDy = clamp((c.offset_dy ?? 0) + deltaDy, -24, 24);
+    send(c.offset_dx ?? 0, newDy, c.offset_dz ?? 0, c.offset_rot ?? 0);
   }
 
   function rotate(deltaDeg: number): void {
     if (!selectedSlot) return;
-    const cur = selected ?? { offset_dx: 0, offset_dz: 0, offset_rot: 0 };
-    send(cur.offset_dx ?? 0, cur.offset_dz ?? 0, (cur.offset_rot ?? 0) + deltaDeg);
+    const c = cur();
+    send(c.offset_dx ?? 0, c.offset_dy ?? 0, c.offset_dz ?? 0, (c.offset_rot ?? 0) + deltaDeg);
   }
 
   function reset(): void {
@@ -70,6 +84,7 @@ export function LayoutDPad({ state }: LayoutDPadProps) {
     setLayout.mutate({
       slot: selectedSlot,
       offset_dx: 0,
+      offset_dy: 0,
       offset_dz: 0,
       offset_rot: 0,
     });
@@ -84,9 +99,10 @@ export function LayoutDPad({ state }: LayoutDPadProps) {
           const equip = state.equipped[slot];
           const isSelected = slot === selectedSlot;
           const dx = equip?.offset_dx ?? 0;
+          const dy = equip?.offset_dy ?? 0;
           const dz = equip?.offset_dz ?? 0;
           const rot = equip?.offset_rot ?? 0;
-          const moved = dx !== 0 || dz !== 0 || rot !== 0;
+          const moved = dx !== 0 || dy !== 0 || dz !== 0 || rot !== 0;
 
           if (slot === "avatar") {
             return (
@@ -102,7 +118,7 @@ export function LayoutDPad({ state }: LayoutDPadProps) {
                 }
                 deltaLabel={
                   moved
-                    ? `Δ +${dx}, +${dz}${rot ? `, ${rot}°` : ""}`
+                    ? `Δ +${dx}, +${dy}, +${dz}${rot ? `, ${rot}°` : ""}`
                     : t("room.layout.default")
                 }
                 moved={moved}
@@ -183,6 +199,22 @@ export function LayoutDPad({ state }: LayoutDPadProps) {
           </DPadButton>
         </div>
 
+        <div className="flex flex-col gap-1">
+          <DPadButton
+            disabled={!selectedSlot || !axes.includes("y")}
+            ariaLabel={t("room.layout.dpad.liftUp")}
+            onClick={() => lift(1)}
+          >
+            <ChevronsUp className="h-4 w-4" />
+          </DPadButton>
+          <DPadButton
+            disabled={!selectedSlot || !axes.includes("y")}
+            ariaLabel={t("room.layout.dpad.liftDown")}
+            onClick={() => lift(-1)}
+          >
+            <ChevronsDown className="h-4 w-4" />
+          </DPadButton>
+        </div>
         <div className="flex flex-col gap-1">
           <DPadButton
             disabled={!selectedSlot}

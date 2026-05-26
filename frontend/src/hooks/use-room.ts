@@ -39,6 +39,7 @@ export function useEquipItem() {
         const existing = previous.equipped[payload.slot] ?? {
           item_id: null,
           offset_dx: 0,
+          offset_dy: 0,
           offset_dz: 0,
           offset_rot: 0,
         };
@@ -78,6 +79,7 @@ export function useSetLayout() {
         const existing = previous.equipped[payload.slot] ?? {
           item_id: null,
           offset_dx: 0,
+          offset_dy: 0,
           offset_dz: 0,
           offset_rot: 0,
         };
@@ -88,6 +90,7 @@ export function useSetLayout() {
             [payload.slot]: {
               ...existing,
               offset_dx: payload.offset_dx,
+              offset_dy: payload.offset_dy,
               offset_dz: payload.offset_dz,
               offset_rot: payload.offset_rot,
             },

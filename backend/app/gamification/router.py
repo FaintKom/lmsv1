@@ -100,7 +100,13 @@ async def room_layout_endpoint(
 ):
     try:
         await set_room_layout(
-            db, user.id, body.slot, body.offset_dx, body.offset_dz, body.offset_rot
+            db,
+            user.id,
+            body.slot,
+            body.offset_dx,
+            body.offset_dz,
+            body.offset_rot,
+            body.offset_dy,
         )
     except RoomEquipError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, exc.message) from exc

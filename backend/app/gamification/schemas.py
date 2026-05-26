@@ -66,6 +66,7 @@ class RoomItemResponse(BaseModel):
 class RoomEquipOffset(BaseModel):
     item_id: str | None = None
     offset_dx: int = 0
+    offset_dy: int = 0
     offset_dz: int = 0
     offset_rot: int = 0
 
@@ -84,6 +85,7 @@ class RoomEquipRequest(BaseModel):
 class RoomLayoutRequest(BaseModel):
     slot: str = Field(min_length=1, max_length=40)
     offset_dx: int = Field(ge=-12, le=12)
+    offset_dy: int = Field(default=0, ge=-24, le=24)
     offset_dz: int = Field(ge=-12, le=12)
     # Rotation in degrees; server normalizes mod 360.
     offset_rot: int = 0

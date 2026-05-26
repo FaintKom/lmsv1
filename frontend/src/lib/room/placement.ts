@@ -88,34 +88,17 @@ export const MOVABLE_SLOTS: readonly string[] = [
   "avatar",
 ];
 
-export type MoveAxis = "x" | "z";
+export type MoveAxis = "x" | "y" | "z";
 
 /**
- * Axis constraints per movable slot. Wall-mounted items lose the axis that
- * would lift them off the wall. Rotation is always allowed.
+ * Axis constraints per movable slot. Everything has full freedom now --
+ * walls are explicitly allowed to be clipped through (per user request);
+ * floor clipping is prevented at render time by clamping y >= 0.
  */
-export const MOVE_AXES: Record<string, readonly MoveAxis[]> = {
-  bed: ["x", "z"],
-  desk: ["x", "z"],
-  dresser: ["x", "z"],
-  shelf: ["x", "z"],
-  rug: ["x", "z"],
-  plant: ["x", "z"],
-  lamp: ["x", "z"],
-  sofa: ["x", "z"],
-  coffee: ["x", "z"],
-  arcade: ["x", "z"],
-  shelfwall: ["z"],
-  cabinet: ["z"],
-  pictures: ["x"],
-  window: ["x"],
-  clock: ["x"],
-  monitor: ["x", "z"],
-  chair: ["x", "z"],
-  plushie: ["x", "z"],
-  trophy: ["x", "z"],
-  avatar: ["x", "z"],
-};
+const FULL_AXES: readonly MoveAxis[] = ["x", "y", "z"];
+export const MOVE_AXES: Record<string, readonly MoveAxis[]> = Object.fromEntries(
+  MOVABLE_SLOTS.map((slot) => [slot, FULL_AXES]),
+);
 
 /** Per-click rotation step in degrees. */
 export const ROT_STEP_DEG = 10;

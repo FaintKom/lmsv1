@@ -41,8 +41,15 @@ const INITIAL_CAMERA = {
 export interface RoomSceneApi {
   setWall: (colorHex: string | null | undefined) => void;
   setFloor: (type: FloorType) => void;
-  setSlot: (slot: string, itemId: string | null, dx: number, dz: number, rotDeg: number) => void;
-  setAvatar: (equip: AvatarEquip, dx: number, dz: number, rotDeg: number) => void;
+  setSlot: (
+    slot: string,
+    itemId: string | null,
+    dx: number,
+    dy: number,
+    dz: number,
+    rotDeg: number,
+  ) => void;
+  setAvatar: (equip: AvatarEquip, dx: number, dy: number, dz: number, rotDeg: number) => void;
   resetCamera: () => void;
   zoom: (delta: number) => void;
 }
@@ -151,6 +158,7 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       slot: string,
       group: THREE.Group,
       dx: number,
+      dy: number,
       dz: number,
       rotDeg: number,
     ): void {
@@ -159,7 +167,10 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       const axes = MOVE_AXES[slot] ?? [];
       const useDx = axes.includes("x") ? dx : 0;
       const useDz = axes.includes("z") ? dz : 0;
-      group.position.set((pos.x + useDx) * VOX, pos.y * VOX, (pos.z + useDz) * VOX);
+      const useDy = axes.includes("y") ? dy : 0;
+      // Floor clamp: never let an item dip below y = 0.
+      const finalY = Math.max(0, (pos.y + useDy) * VOX);
+      group.position.set((pos.x + useDx) * VOX, finalY, (pos.z + useDz) * VOX);
       group.rotation.set(0, pos.rot + (rotDeg * Math.PI) / 180, 0);
     }
 
@@ -182,7 +193,7 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         floorGroup = flooring(type);
         scene.add(floorGroup);
       },
-      setSlot: (slot, itemId, dx, dz, rotDeg) => {
+      setSlot: (slot, itemId, dx, dy, dz, rotDeg) => {
         const existing = slotGroups.get(slot);
         if (existing) {
           disposeGroup(existing);
@@ -196,16 +207,18 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
           return;
         }
         const group = builder();
-        placeSlot(slot, group, dx, dz, rotDeg);
+        placeSlot(slot, group, dx, dy, dz, rotDeg);
         scene.add(group);
         slotGroups.set(slot, group);
       },
-      setAvatar: (equip, dx, dz, rotDeg) => {
+      setAvatar: (equip, dx, dy, dz, rotDeg) => {
         if (avatarGroup) {
           disposeGroup(avatarGroup);
         }
         const g = buildAvatar(equip);
-        g.position.set((AVATAR_POS.x + dx) * VOX, 0, (AVATAR_POS.z + dz) * VOX);
+        // Floor clamp: avatar feet never below y = 0.
+        const finalY = Math.max(0, dy * VOX);
+        g.position.set((AVATAR_POS.x + dx) * VOX, finalY, (AVATAR_POS.z + dz) * VOX);
         // Base rotation -π/4 keeps the avatar facing the camera by default.
         g.rotation.y = -Math.PI / 4 + (rotDeg * Math.PI) / 180;
         scene.add(g);

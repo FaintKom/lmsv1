@@ -80,6 +80,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
 
   const avatarOffset = state.equipped.avatar ?? {
     offset_dx: 0,
+    offset_dy: 0,
     offset_dz: 0,
     offset_rot: 0,
   };
@@ -88,6 +89,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
     api.setAvatar(
       avatarEquip,
       avatarOffset.offset_dx,
+      avatarOffset.offset_dy,
       avatarOffset.offset_dz,
       avatarOffset.offset_rot,
     );
@@ -96,6 +98,7 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
     api,
     avatarEquip,
     avatarOffset.offset_dx,
+    avatarOffset.offset_dy,
     avatarOffset.offset_dz,
     avatarOffset.offset_rot,
   ]);
@@ -127,6 +130,7 @@ function syncSlots(api: RoomSceneApi, state: RoomState): void {
       slot,
       payload.item_id,
       payload.offset_dx,
+      payload.offset_dy ?? 0,
       payload.offset_dz,
       payload.offset_rot ?? 0,
     );

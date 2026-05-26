@@ -102,6 +102,7 @@ class UserRoomEquip(Base):
         String(60), ForeignKey("room_items.id", ondelete="SET NULL"), nullable=True
     )
     offset_dx: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    offset_dy: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     offset_dz: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     # Rotation around the Y axis, in degrees, in [0, 360). Snapped to 10° client-side.
     offset_rot: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
