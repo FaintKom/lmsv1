@@ -205,15 +205,18 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         }
         if (!itemId) return; // slot toggled off
 
-        const voxUrl = VOX_ITEMS[itemId];
-        if (voxUrl) {
+        const voxDef = VOX_ITEMS[itemId];
+        if (voxDef) {
           // Bump a sequence number so a still-in-flight load for a different
           // item id doesn't land after a newer one.
           const seq = (slotSeq.get(slot) ?? 0) + 1;
           slotSeq.set(slot, seq);
-          loadVoxModel(voxUrl)
+          loadVoxModel(voxDef.url)
             .then((group) => {
               if (slotSeq.get(slot) !== seq) return; // superseded
+              if (voxDef.scale && voxDef.scale !== 1) {
+                group.scale.setScalar(voxDef.scale);
+              }
               placeSlot(slot, group, dx, dy, dz, rotDeg);
               scene.add(group);
               slotGroups.set(slot, group);

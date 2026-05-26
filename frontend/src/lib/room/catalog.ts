@@ -78,11 +78,19 @@ export type BuildableItemId = keyof typeof CATALOG_BUILDERS;
  * hand-coded geometry.
  *
  * .vox files live in `frontend/public/voxels/` and are served as static assets.
+ *
+ * `scale` is an optional uniform multiplier applied to the loaded group AFTER
+ * placement. Use it when a source model is bigger/smaller than our room scale.
+ * Default 1.0.
  */
-export const VOX_ITEMS: Record<string, string> = {
-  monitor: "/voxels/poc-monitor.vox",
-  sofa: "/voxels/poc-sofa.vox",
-  plant: "/voxels/poc-plant.vox",
-  chair: "/voxels/poc-office-chair.vox",
-  "desk-wood": "/voxels/poc-desk.vox",
+export interface VoxItemDef {
+  url: string;
+  scale?: number;
+}
+
+export const VOX_ITEMS: Record<string, VoxItemDef> = {
+  // No items wired yet — the POC office-pack models were 50–76 voxels per
+  // side (5–8 world units) and intentionally monochrome gray, which didn't
+  // fit a 5.6-wide room. Loader infrastructure stays in place; add entries
+  // here once we have correctly-sized colourful source models.
 };
