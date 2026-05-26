@@ -33,41 +33,98 @@ function box(
 
 // ── core body ──────────────────────────────────────────────────────────
 
-export function buildBoyBody(): THREE.Group {
+/**
+ * Which body parts to draw. Avatar accessories don't always fully envelop
+ * the underlying skin — when they don't, the skin would peek through or
+ * z-fight. So the body builder takes a hint from the equipped outfit and
+ * OMITS the parts that get covered. Head, neck, hands and ears are
+ * always drawn (no outfit covers them).
+ *
+ *  - `legs: false` drops both legs entirely.
+ *  - `legs: "calf-only"` keeps only the mid-calf segment (y=0.4..1.0)
+ *    so sport shorts + socks show bare skin between them.
+ *  - `upperArms: false` drops both upper-arm boxes (long-sleeve outfits).
+ *  - `torso: false` drops the torso box (any outfit with a top covers it).
+ */
+export interface BodyOpts {
+  legs?: boolean | "calf-only";
+  upperArms?: boolean;
+  torso?: boolean;
+}
+
+const FULL_BODY: Required<BodyOpts> = {
+  legs: true,
+  upperArms: true,
+  torso: true,
+};
+
+/** Map an outfit id to the body parts it covers (so skin doesn't show). */
+export function bodyOptsForOutfit(outfit: string | null | undefined): BodyOpts {
+  if (!outfit) return FULL_BODY;
+  switch (outfit) {
+    case "avatar-outfit-cozy":
+    case "avatar-outfit-hoodie":
+    case "avatar-outfit-suit":
+      // Long sleeves + full pants — drop everything covered.
+      return { legs: false, upperArms: false, torso: false };
+    case "avatar-outfit-tshirt":
+    case "avatar-outfit-dress":
+      // Short sleeves cover only the shoulder cap; upper arm stays visible
+      // (sleeve sits above the upper-arm box). Pants/skirt covers all legs.
+      return { legs: false, upperArms: true, torso: false };
+    case "avatar-outfit-sport":
+      // Shorts cover the upper leg, socks cover the foot — keep the calf.
+      return { legs: "calf-only", upperArms: true, torso: false };
+    default:
+      return FULL_BODY;
+  }
+}
+
+function emitLegs(g: THREE.Group, lx: number, w: number, legs: BodyOpts["legs"]): void {
+  if (legs === false) return;
+  if (legs === "calf-only") {
+    box(g, lx, 0.4, -0.4, w, 0.6, 0.8, SKIN);
+    box(g, 0.0, 0.4, -0.4, w, 0.6, 0.8, SKIN);
+    return;
+  }
+  box(g, lx, 0, -0.4, w, 2.2, 0.8, SKIN);
+  box(g, 0.0, 0, -0.4, w, 2.2, 0.8, SKIN);
+}
+
+export function buildBoyBody(opts: BodyOpts = FULL_BODY): THREE.Group {
   const g = new THREE.Group();
-  // Legs — split at x=0 (touch but don't overlap).
-  box(g, -0.6, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
-  box(g, 0.0, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
-  // Torso (square shoulders).
-  box(g, -0.85, 2.2, -0.5, 1.7, 2.4, 1.0, SKIN);
-  // Arms (upper): outside torso x range.
-  box(g, -1.45, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
-  box(g, 0.85, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
-  // Hands: BELOW arms (y=2.3..2.8), x entirely outside torso.
+  emitLegs(g, -0.6, 0.6, opts.legs ?? true);
+  if (opts.torso ?? true) {
+    box(g, -0.85, 2.2, -0.5, 1.7, 2.4, 1.0, SKIN);
+  }
+  if (opts.upperArms ?? true) {
+    box(g, -1.45, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
+    box(g, 0.85, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
+  }
+  // Hands.
   box(g, -1.45, 2.3, -0.5, 0.6, 0.5, 1.0, SKIN_DARK);
   box(g, 0.85, 2.3, -0.5, 0.6, 0.5, 1.0, SKIN_DARK);
   // Neck.
   box(g, -0.3, 4.6, -0.3, 0.6, 0.4, 0.6, SKIN_DARK);
-  // Head: jaw + crown.
+  // Head.
   box(g, -0.7, 5.0, -0.55, 1.4, 0.7, 1.1, SKIN);
   box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN);
-  // Ears — OUTSIDE crown x range.
+  // Ears.
   box(g, -0.95, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
   box(g, 0.8, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
   return g;
 }
 
-export function buildGirlBody(): THREE.Group {
+export function buildGirlBody(opts: BodyOpts = FULL_BODY): THREE.Group {
   const g = new THREE.Group();
-  // Legs.
-  box(g, -0.55, 0, -0.4, 0.55, 2.2, 0.8, SKIN);
-  box(g, 0.0, 0, -0.4, 0.55, 2.2, 0.8, SKIN);
-  // Torso above legs — narrower than boy's (no flare; cleanly outside the
-  // hand x range -1.3..-0.75 and 0.75..1.30 by exactly 0 voxels — flush).
-  box(g, -0.75, 2.2, -0.5, 1.5, 2.4, 1.0, SKIN);
-  // Slim arms.
-  box(g, -1.3, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
-  box(g, 0.75, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
+  emitLegs(g, -0.55, 0.55, opts.legs ?? true);
+  if (opts.torso ?? true) {
+    box(g, -0.75, 2.2, -0.5, 1.5, 2.4, 1.0, SKIN);
+  }
+  if (opts.upperArms ?? true) {
+    box(g, -1.3, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
+    box(g, 0.75, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
+  }
   // Hands.
   box(g, -1.3, 2.3, -0.5, 0.55, 0.5, 0.95, SKIN_DARK);
   box(g, 0.75, 2.3, -0.5, 0.55, 0.5, 0.95, SKIN_DARK);
@@ -82,9 +139,15 @@ export function buildGirlBody(): THREE.Group {
   return g;
 }
 
-export function buildBody(variant: string): THREE.Group {
-  if (variant === "avatar-body-girl") return buildGirlBody();
-  return buildBoyBody();
+/**
+ * Dispatcher. `outfit` optional — when given, the body omits parts that
+ * the outfit covers so the two layers don't z-fight (legs under pants,
+ * torso under shirt, upper arms under sleeves).
+ */
+export function buildBody(variant: string, outfit?: string | null): THREE.Group {
+  const opts = bodyOptsForOutfit(outfit);
+  if (variant === "avatar-body-girl") return buildGirlBody(opts);
+  return buildBoyBody(opts);
 }
 
 // ── hair ──────────────────────────────────────────────────────────────
@@ -601,8 +664,11 @@ export interface AvatarEquip {
 
 export function buildAvatar(equip: AvatarEquip): THREE.Group {
   const g = new THREE.Group();
-  g.add(buildBody(equip.body ?? "avatar-body-boy"));
-  g.add(buildOutfit(equip.outfit ?? "avatar-outfit-tshirt"));
+  const outfit = equip.outfit ?? "avatar-outfit-tshirt";
+  // Pass the outfit through so the body omits the parts the outfit covers
+  // (no more skin showing through pants / shirt).
+  g.add(buildBody(equip.body ?? "avatar-body-boy", outfit));
+  g.add(buildOutfit(outfit));
   g.add(buildFace(equip.face ?? "avatar-face-smile"));
   g.add(buildHair(equip.hair ?? "avatar-hair-short"));
   g.add(buildHat(equip.hat ?? null));
