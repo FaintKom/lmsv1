@@ -67,11 +67,12 @@ class RoomEquipOffset(BaseModel):
     item_id: str | None = None
     offset_dx: int = 0
     offset_dz: int = 0
+    offset_rot: int = 0
 
 
 class RoomStateResponse(BaseModel):
     wallet: int  # total_xp (acts as wallet — never decremented)
-    equipped: dict[str, RoomEquipOffset]  # slot -> {item_id, offset_dx, offset_dz}
+    equipped: dict[str, RoomEquipOffset]  # slot -> {item_id, offset_dx, offset_dz, offset_rot}
     catalog: list[RoomItemResponse]
 
 
@@ -84,7 +85,5 @@ class RoomLayoutRequest(BaseModel):
     slot: str = Field(min_length=1, max_length=40)
     offset_dx: int = Field(ge=-12, le=12)
     offset_dz: int = Field(ge=-12, le=12)
-    # Rotation in degrees; server normalizes mod 360.
-    offset_rot: int = 0
     # Rotation in degrees; server normalizes mod 360.
     offset_rot: int = 0
