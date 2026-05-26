@@ -27,8 +27,6 @@ import {
  Library,
  Calculator,
  Plug,
- Home,
- UserCircle,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -82,9 +80,8 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  { href: "/courses", label: t("nav.courses"), icon: BookOpen },
  { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
+ // My room + My avatar live as tabs inside /achievements now.
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
- { href: "/my-room", label: t("nav.myRoom"), icon: Home },
- { href: "/my-avatar", label: t("nav.myAvatar"), icon: UserCircle },
  { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
  { href: "/meetings", label: t("nav.meetings"), icon: Video },
  ];

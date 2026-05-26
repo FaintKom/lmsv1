@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCard } from "@/components/gamification/badge-card";
@@ -8,7 +9,7 @@ import { LeagueMark, leagueKindFromName } from "@/components/gamification/league
 import { useTranslation } from "@/lib/i18n/context";
 import {
  Trophy, Flame, Medal, Star, Zap, TrendingUp,
- Award, Download, Loader2,
+ Award, Download, Loader2, Home, UserCircle,
 } from "lucide-react";
 import {
  RadarChart,
@@ -19,6 +20,12 @@ import {
  ResponsiveContainer,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { RoomCanvas, type RoomCanvasHandle } from "@/components/room/room-canvas";
+import { SceneHud } from "@/components/room/scene-hud";
+import { ShopPanel } from "@/components/room/shop-panel";
+import { AvatarBuilderPanel } from "@/components/avatar/avatar-builder-panel";
+import { AvatarCanvas } from "@/components/avatar/avatar-canvas";
+import { useRoomState } from "@/hooks/use-room";
 
 /* ── Interfaces ── */
 interface BadgeData {
@@ -88,12 +95,22 @@ const CATEGORY_COLORS: Record<string, string> = {
  language: "text-primary bg-primary-soft ",
 };
 
-type Tab = "achievements" | "certificates" | "skills";
+type Tab = "achievements" | "certificates" | "skills" | "room" | "avatar";
+
+/** Tabs that swap the 3D scene + panel layout — they need full page width. */
+const FULL_WIDTH_TABS: Tab[] = ["room", "avatar"];
 
 /* ── Page ── */
+const VALID_TABS: Tab[] = ["achievements", "certificates", "skills", "room", "avatar"];
+
 export default function AchievementsPage() {
  const { t } = useTranslation();
- const [tab, setTab] = useState<Tab>("achievements");
+ const searchParams = useSearchParams();
+ const initialTab = useMemo<Tab>(() => {
+   const qp = searchParams?.get("tab");
+   return qp && VALID_TABS.includes(qp as Tab) ? (qp as Tab) : "achievements";
+ }, [searchParams]);
+ const [tab, setTab] = useState<Tab>(initialTab);
  const [loading, setLoading] = useState(true);
 
  // Achievements state
@@ -141,11 +158,15 @@ export default function AchievementsPage() {
  { key: "achievements", label: t("nav.achievements") || "Achievements", icon: <Trophy className="h-4 w-4" /> },
  { key: "certificates", label: t("nav.certificates") || "Certificates", icon: <Award className="h-4 w-4" /> },
  { key: "skills", label: t("nav.skills") || "Skills", icon: <Zap className="h-4 w-4" /> },
+ { key: "room", label: t("nav.myRoom") || "My room", icon: <Home className="h-4 w-4" /> },
+ { key: "avatar", label: t("nav.myAvatar") || "My avatar", icon: <UserCircle className="h-4 w-4" /> },
  ];
 
+ const isFullWidth = FULL_WIDTH_TABS.includes(tab);
+
  return (
- <div className="mx-auto max-w-6xl">
- <div className="mb-6">
+ <div className={isFullWidth ? "" : "mx-auto max-w-6xl"}>
+ <div className={cn("mb-6", isFullWidth && "mx-auto max-w-6xl px-4 lg:px-6")}>
  <h1 className="text-2xl font-bold text-text ">
  {t("nav.achievements") || "Achievements"}
  </h1>
@@ -155,22 +176,25 @@ export default function AchievementsPage() {
  </div>
 
  {/* Tabs */}
- <div className="mb-6 flex gap-1 rounded-lg bg-ink-100 p-1 " role="tablist">
- {tabs.map((t) => (
+ <div className={cn(
+ "mb-6 flex flex-wrap gap-1 rounded-lg bg-ink-100 p-1",
+ isFullWidth && "mx-auto max-w-6xl px-4 lg:px-6"
+ )} role="tablist">
+ {tabs.map((tb) => (
  <button
- key={t.key}
+ key={tb.key}
  role="tab"
- aria-selected={tab === t.key}
- onClick={() => setTab(t.key)}
+ aria-selected={tab === tb.key}
+ onClick={() => setTab(tb.key)}
  className={cn(
- "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
- tab === t.key
+ "flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
+ tab === tb.key
  ? "bg-paper-2 text-success-fg shadow-sm "
  : "text-text-muted hover:text-ink-700 "
  )}
  >
- {t.icon}
- {t.label}
+ {tb.icon}
+ {tb.label}
  </button>
  ))}
  </div>
@@ -185,6 +209,98 @@ export default function AchievementsPage() {
  {tab === "skills" && (
  <SkillsTab skills={skills} radarData={radarData} />
  )}
+ {tab === "room" && <RoomTab />}
+ {tab === "avatar" && <AvatarTab />}
+ </div>
+ );
+}
+
+/* ── Room Tab ── */
+function RoomTab() {
+ const { t } = useTranslation();
+ const { data: state, isLoading, isError } = useRoomState();
+ const canvasRef = useRef<RoomCanvasHandle | null>(null);
+
+ if (isLoading) {
+ return (
+ <div className="grid min-h-[60vh] place-items-center text-sm text-text-muted">
+ {t("room.loading")}
+ </div>
+ );
+ }
+
+ if (isError || !state) {
+ return (
+ <div className="grid min-h-[60vh] place-items-center text-sm text-coral-700">
+ {t("room.error")}
+ </div>
+ );
+ }
+
+ return (
+ <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-0 lg:grid-cols-[1fr_380px]">
+ <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
+ <RoomCanvas ref={canvasRef} state={state} />
+ <SceneHud
+ onReset={() => canvasRef.current?.resetCamera()}
+ onZoomIn={() => canvasRef.current?.zoomIn()}
+ onZoomOut={() => canvasRef.current?.zoomOut()}
+ />
+ </div>
+ <aside className="overflow-y-auto border-t border-ink-100 bg-paper-2 lg:border-l lg:border-t-0">
+ <ShopPanel state={state} />
+ </aside>
+ </div>
+ );
+}
+
+/* ── Avatar Tab ── */
+function AvatarTab() {
+ const { t } = useTranslation();
+ const { data: state, isLoading, isError } = useRoomState();
+
+ if (isLoading) {
+ return (
+ <div className="grid min-h-[60vh] place-items-center text-sm text-text-muted">
+ {t("room.loading")}
+ </div>
+ );
+ }
+
+ if (isError || !state) {
+ return (
+ <div className="grid min-h-[60vh] place-items-center text-sm text-coral-700">
+ {t("room.error")}
+ </div>
+ );
+ }
+
+ return (
+ <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-0 lg:grid-cols-[1fr_380px]">
+ <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
+ <AvatarCanvas state={state} />
+ <div className="pointer-events-none absolute left-6 top-6 max-w-md">
+ <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-gray-500">
+ {t("nav.achievements")} · {t("nav.myAvatar")}
+ </p>
+ <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-ink-700">
+ {t("avatar.welcomePrefix")}{" "}
+ <span
+ className="inline-block rounded-[6px] px-2 py-0 text-ink-900"
+ style={{
+ background: "#ffe9a3",
+ transform: "rotate(-1.5deg)",
+ display: "inline-block",
+ }}
+ >
+ {t("avatar.welcomeHighlight")}
+ </span>
+ </h1>
+ </div>
+ </div>
+ <aside className="overflow-y-auto border-t border-ink-100 bg-paper-2 lg:border-l lg:border-t-0">
+ <AvatarBuilderPanel state={state} />
+ </aside>
  </div>
  );
 }

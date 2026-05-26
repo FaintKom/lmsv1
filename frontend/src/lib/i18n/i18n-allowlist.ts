@@ -72,6 +72,10 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/(admin)/layout.tsx",
   "src/app/(auth)/layout.tsx",
   "src/app/(dashboard)/layout.tsx",
+  // my-room + my-avatar are pure redirect stubs — they bounce to
+  // /achievements?tab=room|avatar. No user-visible strings, so no i18n.
+  "src/app/(dashboard)/my-avatar/page.tsx",
+  "src/app/(dashboard)/my-room/page.tsx",
   "src/app/(dashboard)/parent/children/page.tsx",
   "src/app/(print)/courses/[courseId]/print/page.tsx",
   "src/app/(print)/layout.tsx",
