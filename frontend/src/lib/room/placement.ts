@@ -60,9 +60,9 @@ export const TIES: Record<string, readonly string[]> = {
   dresser: ["trophy"],
 };
 
-/** Slots whose item placement can be moved via the Layout d-pad. */
+/** Slots that can be moved via the Layout d-pad. */
 export const MOVABLE_SLOTS: readonly string[] = [
-  // floor furniture (free in x + z)
+  // floor furniture
   "bed",
   "desk",
   "dresser",
@@ -73,23 +73,28 @@ export const MOVABLE_SLOTS: readonly string[] = [
   "sofa",
   "coffee",
   "arcade",
-  // left-wall mounted (slide along z, x locked to wall)
+  // wall-mounted
   "shelfwall",
   "cabinet",
-  // back-wall mounted (slide along x, z locked to wall)
   "pictures",
   "window",
   "clock",
+  // previously tied (now independently movable)
+  "monitor",
+  "chair",
+  "plushie",
+  "trophy",
+  // virtual slot for the avatar character
+  "avatar",
 ];
 
 export type MoveAxis = "x" | "z";
 
 /**
  * Axis constraints per movable slot. Wall-mounted items lose the axis that
- * would lift them off the wall.
+ * would lift them off the wall. Rotation is always allowed.
  */
 export const MOVE_AXES: Record<string, readonly MoveAxis[]> = {
-  // floor furniture
   bed: ["x", "z"],
   desk: ["x", "z"],
   dresser: ["x", "z"],
@@ -100,11 +105,17 @@ export const MOVE_AXES: Record<string, readonly MoveAxis[]> = {
   sofa: ["x", "z"],
   coffee: ["x", "z"],
   arcade: ["x", "z"],
-  // left-wall mounted
   shelfwall: ["z"],
   cabinet: ["z"],
-  // back-wall mounted
   pictures: ["x"],
   window: ["x"],
   clock: ["x"],
+  monitor: ["x", "z"],
+  chair: ["x", "z"],
+  plushie: ["x", "z"],
+  trophy: ["x", "z"],
+  avatar: ["x", "z"],
 };
+
+/** Per-click rotation step in degrees. */
+export const ROT_STEP_DEG = 10;

@@ -41,8 +41,8 @@ const INITIAL_CAMERA = {
 export interface RoomSceneApi {
   setWall: (colorHex: string | null | undefined) => void;
   setFloor: (type: FloorType) => void;
-  setSlot: (slot: string, itemId: string | null, dx: number, dz: number) => void;
-  setAvatar: (equip: AvatarEquip) => void;
+  setSlot: (slot: string, itemId: string | null, dx: number, dz: number, rotDeg: number) => void;
+  setAvatar: (equip: AvatarEquip, dx: number, dz: number, rotDeg: number) => void;
   resetCamera: () => void;
   zoom: (delta: number) => void;
 }
@@ -147,14 +147,20 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       g.parent?.remove(g);
     }
 
-    function placeSlot(slot: string, group: THREE.Group, dx: number, dz: number): void {
+    function placeSlot(
+      slot: string,
+      group: THREE.Group,
+      dx: number,
+      dz: number,
+      rotDeg: number,
+    ): void {
       const pos = SLOT_PLACEMENT[slot];
       if (!pos) return;
       const axes = MOVE_AXES[slot] ?? [];
       const useDx = axes.includes("x") ? dx : 0;
       const useDz = axes.includes("z") ? dz : 0;
       group.position.set((pos.x + useDx) * VOX, pos.y * VOX, (pos.z + useDz) * VOX);
-      group.rotation.set(0, pos.rot, 0);
+      group.rotation.set(0, pos.rot + (rotDeg * Math.PI) / 180, 0);
     }
 
     const api: RoomSceneApi = {
@@ -176,7 +182,7 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         floorGroup = flooring(type);
         scene.add(floorGroup);
       },
-      setSlot: (slot, itemId, dx, dz) => {
+      setSlot: (slot, itemId, dx, dz, rotDeg) => {
         const existing = slotGroups.get(slot);
         if (existing) {
           disposeGroup(existing);
@@ -190,17 +196,18 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
           return;
         }
         const group = builder();
-        placeSlot(slot, group, dx, dz);
+        placeSlot(slot, group, dx, dz, rotDeg);
         scene.add(group);
         slotGroups.set(slot, group);
       },
-      setAvatar: (equip) => {
+      setAvatar: (equip, dx, dz, rotDeg) => {
         if (avatarGroup) {
           disposeGroup(avatarGroup);
         }
         const g = buildAvatar(equip);
-        g.position.set(AVATAR_POS.x * VOX, 0, AVATAR_POS.z * VOX);
-        g.rotation.y = -Math.PI / 4; // face camera
+        g.position.set((AVATAR_POS.x + dx) * VOX, 0, (AVATAR_POS.z + dz) * VOX);
+        // Base rotation -π/4 keeps the avatar facing the camera by default.
+        g.rotation.y = -Math.PI / 4 + (rotDeg * Math.PI) / 180;
         scene.add(g);
         avatarGroup = g;
       },

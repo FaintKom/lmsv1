@@ -5,7 +5,6 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "rea
 import type { RoomState } from "@/lib/api/room";
 import { AVATAR_EQUIP_KEY, AVATAR_SLOTS, type AvatarSlot } from "@/lib/avatar/catalog";
 import type { AvatarEquip } from "@/lib/avatar/voxels";
-import { TIES } from "@/lib/room/placement";
 import type { FloorType } from "@/lib/room/voxels";
 
 import { useRoomScene, type RoomSceneApi } from "./use-room-scene";
@@ -79,10 +78,27 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
     return out;
   }, [state.equipped]);
 
+  const avatarOffset = state.equipped.avatar ?? {
+    offset_dx: 0,
+    offset_dz: 0,
+    offset_rot: 0,
+  };
   useEffect(() => {
     if (!ready || !api) return;
-    api.setAvatar(avatarEquip);
-  }, [ready, api, avatarEquip]);
+    api.setAvatar(
+      avatarEquip,
+      avatarOffset.offset_dx,
+      avatarOffset.offset_dz,
+      avatarOffset.offset_rot,
+    );
+  }, [
+    ready,
+    api,
+    avatarEquip,
+    avatarOffset.offset_dx,
+    avatarOffset.offset_dz,
+    avatarOffset.offset_rot,
+  ]);
 
   return (
     <canvas
@@ -97,29 +113,22 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
 });
 
 /**
- * Walk every slot in the equipped map (except wall/floor) and push it into the
- * scene with its composed offset. Tied children inherit their parent's offset.
+ * Walk every slot in the equipped map (except wall/floor/avatar*) and push
+ * it into the scene with its raw offset + rotation. Every item is now
+ * independently positionable (the old TIES inheritance was removed by the
+ * "all items movable" change).
  */
 function syncSlots(api: RoomSceneApi, state: RoomState): void {
-  // Map child slot → parent slot for quick lookup.
-  const parentOf = new Map<string, string>();
-  for (const [parent, children] of Object.entries(TIES)) {
-    for (const child of children) parentOf.set(child, parent);
-  }
-
   for (const [slot, payload] of Object.entries(state.equipped)) {
     if (slot === "wall" || slot === "floor") continue;
-    if (slot.startsWith("avatar_")) continue; // handled by setAvatar
-    const parent = parentOf.get(slot);
-    let dx = payload.offset_dx;
-    let dz = payload.offset_dz;
-    if (parent) {
-      const parentEquip = state.equipped[parent];
-      if (parentEquip) {
-        dx = parentEquip.offset_dx;
-        dz = parentEquip.offset_dz;
-      }
-    }
-    api.setSlot(slot, payload.item_id, dx, dz);
+    if (slot === "avatar") continue; // virtual slot for avatar position
+    if (slot.startsWith("avatar_")) continue; // avatar parts handled separately
+    api.setSlot(
+      slot,
+      payload.item_id,
+      payload.offset_dx,
+      payload.offset_dz,
+      payload.offset_rot ?? 0,
+    );
   }
 }

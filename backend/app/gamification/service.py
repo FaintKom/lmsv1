@@ -328,38 +328,34 @@ async def get_leagues_info() -> list[dict]:
 
 # ─── Room (My Room feature) ─────────────────────────────────────────────
 
-# Slots whose item placement can be moved via the Layout d-pad.
+# Slots that can be moved via the Layout d-pad. Every slot the user owns
+# is movable now, including tied items (monitor/chair/plushie/trophy) and
+# the virtual 'avatar' slot for the character itself.
 ROOM_MOVABLE_SLOTS: set[str] = {
     # floor furniture
     "bed", "desk", "dresser", "shelf", "rug", "plant",
     "lamp", "sofa", "coffee", "arcade",
-    # left-wall mounted
-    "shelfwall", "cabinet",
-    # back-wall mounted
-    "pictures", "window", "clock",
+    # wall-mounted
+    "shelfwall", "cabinet", "pictures", "window", "clock",
+    # previously tied (now independently movable)
+    "monitor", "chair", "plushie", "trophy",
+    # virtual slot for the avatar
+    "avatar",
 }
 
-# Axis constraints per movable slot — wall-mounted items lose the axis
-# that would lift them off the wall.
+# Axis constraints — wall items still lose the axis that would lift them
+# off the wall. Everything else gets full x + z (rotation always allowed).
+_FULL = {"x", "z"}
+_WALL_LEFT = {"z"}  # shelfwall, cabinet: slide along z only
+_WALL_BACK = {"x"}  # pictures, window, clock: slide along x only
 ROOM_MOVE_AXES: dict[str, set[str]] = {
-    # floor furniture (free in x + z)
-    "bed": {"x", "z"},
-    "desk": {"x", "z"},
-    "dresser": {"x", "z"},
-    "shelf": {"x", "z"},
-    "rug": {"x", "z"},
-    "plant": {"x", "z"},
-    "lamp": {"x", "z"},
-    "sofa": {"x", "z"},
-    "coffee": {"x", "z"},
-    "arcade": {"x", "z"},
-    # left-wall mounted (slide along z, x locked to wall)
-    "shelfwall": {"z"},
-    "cabinet": {"z"},
-    # back-wall mounted (slide along x, z locked to wall)
-    "pictures": {"x"},
-    "window": {"x"},
-    "clock": {"x"},
+    "bed": _FULL, "desk": _FULL, "dresser": _FULL, "shelf": _FULL,
+    "rug": _FULL, "plant": _FULL, "lamp": _FULL, "sofa": _FULL,
+    "coffee": _FULL, "arcade": _FULL,
+    "shelfwall": _WALL_LEFT, "cabinet": _WALL_LEFT,
+    "pictures": _WALL_BACK, "window": _WALL_BACK, "clock": _WALL_BACK,
+    "monitor": _FULL, "chair": _FULL, "plushie": _FULL, "trophy": _FULL,
+    "avatar": _FULL,
 }
 
 # Ties: when a parent slot's item moves, the child slot's offset is overridden
@@ -510,7 +506,12 @@ async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
         select(UserRoomEquip).where(UserRoomEquip.user_id == user_id)
     )
     equipped = {
-        e.slot: {"item_id": e.item_id, "offset_dx": e.offset_dx, "offset_dz": e.offset_dz}
+        e.slot: {
+            "item_id": e.item_id,
+            "offset_dx": e.offset_dx,
+            "offset_dz": e.offset_dz,
+            "offset_rot": e.offset_rot,
+        }
         for e in equips_result.scalars().all()
     }
 
@@ -563,15 +564,22 @@ async def equip_room_item(
 
 
 async def set_room_layout(
-    db: AsyncSession, user_id: uuid.UUID, slot: str, dx: int, dz: int
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    slot: str,
+    dx: int,
+    dz: int,
+    rot: int = 0,
 ) -> UserRoomEquip:
-    """Set the layout offset for a slot. Slot must be movable; dx/dz clamped."""
+    """Set the layout offset + rotation for a slot. Slot must be movable;
+    dx/dz clamped; rot normalised to [0, 360)."""
     if slot not in ROOM_MOVABLE_SLOTS:
         raise RoomEquipError("slot_not_movable", f"Slot '{slot}' cannot be moved")
 
     axes = ROOM_MOVE_AXES.get(slot, set())
     safe_dx = max(-12, min(12, dx)) if "x" in axes else 0
     safe_dz = max(-12, min(12, dz)) if "z" in axes else 0
+    safe_rot = int(rot) % 360
 
     existing = await db.execute(
         select(UserRoomEquip).where(
@@ -581,12 +589,18 @@ async def set_room_layout(
     equip = existing.scalar_one_or_none()
     if equip is None:
         equip = UserRoomEquip(
-            user_id=user_id, slot=slot, item_id=None, offset_dx=safe_dx, offset_dz=safe_dz
+            user_id=user_id,
+            slot=slot,
+            item_id=None,
+            offset_dx=safe_dx,
+            offset_dz=safe_dz,
+            offset_rot=safe_rot,
         )
         db.add(equip)
     else:
         equip.offset_dx = safe_dx
         equip.offset_dz = safe_dz
+        equip.offset_rot = safe_rot
     await db.flush()
     return equip
 

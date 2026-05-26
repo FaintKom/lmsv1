@@ -23,6 +23,8 @@ export interface RoomEquipOffset {
   item_id: string | null;
   offset_dx: number;
   offset_dz: number;
+  /** Rotation around Y, degrees in [0, 360). */
+  offset_rot: number;
 }
 
 export interface RoomState {
@@ -40,6 +42,7 @@ export interface RoomLayoutPayload {
   slot: string;
   offset_dx: number;
   offset_dz: number;
+  offset_rot: number;
 }
 
 export async function fetchRoomState(): Promise<RoomState> {

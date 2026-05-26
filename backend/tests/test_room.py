@@ -183,10 +183,10 @@ async def test_layout_clamps_to_12(
 async def test_layout_non_movable_slot_returns_422(
     client: AsyncClient, _seeded_catalog, rich_student
 ):
-    # `monitor` is tied to its parent (desk) -- never independently movable.
+    # `wall` is a slot but isn't in ROOM_MOVABLE_SLOTS (you don't drag walls).
     resp = await client.post(
         "/api/v1/gamification/room/layout",
-        json={"slot": "monitor", "offset_dx": 1, "offset_dz": 1},
+        json={"slot": "wall", "offset_dx": 1, "offset_dz": 1},
         headers=auth_header(rich_student),
     )
     assert resp.status_code == 422
@@ -242,10 +242,41 @@ async def test_layout_shelfwall_locks_x_axis(
     """shelfwall is wall-mounted -- x movement must be ignored, only z applied."""
     resp = await client.post(
         "/api/v1/gamification/room/layout",
-        json={"slot": "shelfwall", "offset_dx": 5, "offset_dz": 3},
+        json={"slot": "shelfwall", "offset_dx": 5, "offset_dz": 3, "offset_rot": 0},
         headers=auth_header(rich_student),
     )
     assert resp.status_code == 200
     shelfwall = resp.json()["equipped"]["shelfwall"]
     assert shelfwall["offset_dx"] == 0  # x axis ignored for wall mount
     assert shelfwall["offset_dz"] == 3
+
+
+@pytest.mark.asyncio
+async def test_layout_rotation_normalized(
+    client: AsyncClient, _seeded_catalog, rich_student
+):
+    """offset_rot is stored mod 360."""
+    resp = await client.post(
+        "/api/v1/gamification/room/layout",
+        json={"slot": "bed", "offset_dx": 0, "offset_dz": 0, "offset_rot": 730},
+        headers=auth_header(rich_student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["equipped"]["bed"]["offset_rot"] == 10  # 730 % 360 = 10
+
+
+@pytest.mark.asyncio
+async def test_layout_avatar_virtual_slot(
+    client: AsyncClient, _seeded_catalog, rich_student
+):
+    """The 'avatar' slot is movable + rotatable even though no item_id is bound."""
+    resp = await client.post(
+        "/api/v1/gamification/room/layout",
+        json={"slot": "avatar", "offset_dx": 3, "offset_dz": -2, "offset_rot": 90},
+        headers=auth_header(rich_student),
+    )
+    assert resp.status_code == 200
+    avatar = resp.json()["equipped"]["avatar"]
+    assert avatar["offset_dx"] == 3
+    assert avatar["offset_dz"] == -2
+    assert avatar["offset_rot"] == 90

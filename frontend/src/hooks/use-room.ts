@@ -40,6 +40,7 @@ export function useEquipItem() {
           item_id: null,
           offset_dx: 0,
           offset_dz: 0,
+          offset_rot: 0,
         };
         qc.setQueryData<RoomState>(ROOM_QUERY_KEY, {
           ...previous,
@@ -78,6 +79,7 @@ export function useSetLayout() {
           item_id: null,
           offset_dx: 0,
           offset_dz: 0,
+          offset_rot: 0,
         };
         qc.setQueryData<RoomState>(ROOM_QUERY_KEY, {
           ...previous,
@@ -87,6 +89,7 @@ export function useSetLayout() {
               ...existing,
               offset_dx: payload.offset_dx,
               offset_dz: payload.offset_dz,
+              offset_rot: payload.offset_rot,
             },
           },
         });

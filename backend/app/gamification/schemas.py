@@ -84,3 +84,7 @@ class RoomLayoutRequest(BaseModel):
     slot: str = Field(min_length=1, max_length=40)
     offset_dx: int = Field(ge=-12, le=12)
     offset_dz: int = Field(ge=-12, le=12)
+    # Rotation in degrees; server normalizes mod 360.
+    offset_rot: int = 0
+    # Rotation in degrees; server normalizes mod 360.
+    offset_rot: int = 0
