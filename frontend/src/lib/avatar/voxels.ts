@@ -33,15 +33,25 @@ function box(
 
 export function buildBoyBody(): THREE.Group {
   const g = new THREE.Group();
+  // legs (single box each — outfit covers them)
   box(g, -0.6, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
   box(g, 0.0, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
+  // torso (square shoulders, broad chest)
   box(g, -0.85, 2.2, -0.5, 1.7, 2.4, 1.0, SKIN);
-  box(g, -1.45, 2.3, -0.45, 0.6, 2.2, 0.9, SKIN);
-  box(g, 0.85, 2.3, -0.45, 0.6, 2.2, 0.9, SKIN);
+  // arms (upper) — shorter so hand fits below
+  box(g, -1.45, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
+  box(g, 0.85, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
+  // hands (slightly bigger than wrist for silhouette readability)
+  box(g, -1.5, 2.3, -0.5, 0.7, 0.5, 1.0, SKIN_DARK);
+  box(g, 0.8, 2.3, -0.5, 0.7, 0.5, 1.0, SKIN_DARK);
+  // neck
   box(g, -0.3, 4.6, -0.3, 0.6, 0.4, 0.6, SKIN_DARK);
-  box(g, -0.8, 5.0, -0.6, 1.6, 1.7, 1.2, SKIN);
-  box(g, -0.9, 5.5, -0.4, 0.1, 0.4, 0.5, SKIN);
-  box(g, 0.8, 5.5, -0.4, 0.1, 0.4, 0.5, SKIN);
+  // head: jaw narrower than crown (chin taper) — two stacked boxes
+  box(g, -0.7, 5.0, -0.55, 1.4, 0.7, 1.1, SKIN); // jaw
+  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN); // crown / upper head
+  // ears
+  box(g, -0.9, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
+  box(g, 0.8, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
   return g;
 }
 
@@ -54,15 +64,20 @@ export function buildGirlBody(): THREE.Group {
   box(g, -0.85, 1.9, -0.5, 1.7, 0.5, 1.0, SKIN);
   // narrower torso
   box(g, -0.75, 2.4, -0.5, 1.5, 2.2, 1.0, SKIN);
-  // slimmer arms
-  box(g, -1.3, 2.5, -0.45, 0.55, 2.0, 0.85, SKIN);
-  box(g, 0.75, 2.5, -0.45, 0.55, 2.0, 0.85, SKIN);
+  // slimmer arms (upper)
+  box(g, -1.3, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
+  box(g, 0.75, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
+  // hands
+  box(g, -1.35, 2.3, -0.5, 0.65, 0.5, 0.95, SKIN_DARK);
+  box(g, 0.7, 2.3, -0.5, 0.65, 0.5, 0.95, SKIN_DARK);
   // thinner neck
   box(g, -0.25, 4.6, -0.3, 0.5, 0.4, 0.6, SKIN_DARK);
-  // head (same)
-  box(g, -0.8, 5.0, -0.6, 1.6, 1.7, 1.2, SKIN);
-  box(g, -0.9, 5.5, -0.4, 0.1, 0.4, 0.5, SKIN);
-  box(g, 0.8, 5.5, -0.4, 0.1, 0.4, 0.5, SKIN);
+  // head: jaw narrower than crown (softer for girl: more taper)
+  box(g, -0.65, 5.0, -0.55, 1.3, 0.7, 1.1, SKIN); // jaw (narrower than boy)
+  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN); // crown
+  // ears
+  box(g, -0.9, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
+  box(g, 0.8, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
   return g;
 }
 
@@ -188,10 +203,14 @@ export function buildOutfit(variant: string): THREE.Group {
   const g = new THREE.Group();
   switch (variant) {
     case "avatar-outfit-cozy": {
+      // chunky sweater: long sleeves to wrist, ribbed cuffs
       const c = COL.cream;
+      const cuff = darker(c, 0.85);
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.45, 2.3, -0.5, 0.65, 2.3, 1.0, c);
-      box(g, 0.8, 2.3, -0.5, 0.65, 2.3, 1.0, c);
+      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c); // long left sleeve
+      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c); // long right sleeve
+      box(g, -1.5, 2.7, -0.52, 0.7, 0.18, 1.02, cuff); // left cuff
+      box(g, 0.8, 2.7, -0.52, 0.7, 0.18, 1.02, cuff); // right cuff
       box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.woodMid);
       box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.woodMid);
       return g;
@@ -199,19 +218,29 @@ export function buildOutfit(variant: string): THREE.Group {
     case "avatar-outfit-hoodie": {
       const c = 0x4a9b66;
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.45, 2.3, -0.5, 0.65, 2.3, 1.0, c);
-      box(g, 0.8, 2.3, -0.5, 0.65, 2.3, 1.0, c);
-      box(g, -0.85, 4.3, -0.7, 1.7, 0.5, 1.3, c);
+      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, -0.85, 4.3, -0.7, 1.7, 0.5, 1.3, c); // hood collar
+      // drawstrings down the chest
+      box(g, -0.25, 2.5, -0.62, 0.05, 1.0, 0.05, COL.white);
+      box(g, 0.2, 2.5, -0.62, 0.05, 1.0, 0.05, COL.white);
+      // kangaroo pocket
+      box(g, -0.55, 2.6, -0.62, 1.1, 0.55, 0.06, darker(c, 0.85));
       box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.charcoal);
       box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.charcoal);
       return g;
     }
     case "avatar-outfit-dress": {
       const c = 0xff7a5c;
+      // short sleeves (just shoulders)
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.0, 0.5, -0.65, 2.0, 1.8, 1.3, c);
-      box(g, -1.45, 2.7, -0.5, 0.65, 1.5, 1.0, c);
-      box(g, 0.8, 2.7, -0.5, 0.65, 1.5, 1.0, c);
+      box(g, -1.45, 3.9, -0.5, 0.65, 0.75, 1.0, c);
+      box(g, 0.8, 3.9, -0.5, 0.65, 0.75, 1.0, c);
+      // flared skirt (wider at bottom)
+      box(g, -0.95, 1.5, -0.6, 1.9, 0.7, 1.2, c);
+      box(g, -1.05, 0.5, -0.7, 2.1, 1.0, 1.4, c);
+      // waist sash
+      box(g, -0.9, 2.0, -0.6, 1.8, 0.2, 1.2, darker(c, 0.7));
       return g;
     }
     case "avatar-outfit-sport": {
@@ -219,21 +248,43 @@ export function buildOutfit(variant: string): THREE.Group {
       const bottom = COL.charcoal;
       const stripe = COL.sun;
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, top);
-      box(g, -1.45, 2.3, -0.5, 0.65, 2.3, 1.0, top);
-      box(g, 0.8, 2.3, -0.5, 0.65, 2.3, 1.0, top);
-      box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, bottom);
-      box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, bottom);
-      box(g, -0.55, 0.4, -0.5, 0.05, 1.6, 0.05, stripe);
-      box(g, 0.45, 0.4, -0.5, 0.05, 1.6, 0.05, stripe);
+      // short sleeves
+      box(g, -1.45, 3.9, -0.5, 0.65, 0.75, 1.0, top);
+      box(g, 0.8, 3.9, -0.5, 0.65, 0.75, 1.0, top);
+      // chest stripe
+      box(g, -0.85, 3.3, -0.62, 1.7, 0.18, 0.06, stripe);
+      // shorts (not full pants — sport look)
+      box(g, -0.6, 1.0, -0.45, 0.7, 1.3, 0.9, bottom);
+      box(g, -0.05, 1.0, -0.45, 0.7, 1.3, 0.9, bottom);
+      // socks
+      box(g, -0.6, 0, -0.45, 0.7, 0.4, 0.9, COL.white);
+      box(g, -0.05, 0, -0.45, 0.7, 0.4, 0.9, COL.white);
+      // side stripes on shorts
+      box(g, -0.62, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
+      box(g, 0.62, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
       return g;
     }
     case "avatar-outfit-suit": {
       const c = COL.charcoal;
+      // jacket torso + lapels
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -0.05, 2.3, -0.6, 0.1, 2.0, 0.06, COL.white);
-      box(g, -0.1, 4.3, -0.6, 0.2, 0.15, 0.06, COL.red);
-      box(g, -1.45, 2.3, -0.5, 0.65, 2.3, 1.0, c);
-      box(g, 0.8, 2.3, -0.5, 0.65, 2.3, 1.0, c);
+      box(g, -0.55, 4.0, -0.62, 0.3, 0.6, 0.06, darker(c, 0.6)); // left lapel
+      box(g, 0.25, 4.0, -0.62, 0.3, 0.6, 0.06, darker(c, 0.6)); // right lapel
+      // shirt placket
+      box(g, -0.08, 2.3, -0.62, 0.16, 2.0, 0.06, COL.white);
+      // tie
+      box(g, -0.1, 4.3, -0.62, 0.2, 0.15, 0.06, COL.red);
+      box(g, -0.08, 3.0, -0.62, 0.16, 1.3, 0.07, COL.red);
+      box(g, -0.1, 2.8, -0.62, 0.2, 0.25, 0.07, COL.red);
+      // pocket square
+      box(g, -0.6, 3.7, -0.62, 0.2, 0.1, 0.06, COL.white);
+      // long sleeves
+      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c);
+      // shirt cuffs
+      box(g, -1.5, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
+      box(g, 0.8, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
+      // dress pants
       box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, c);
       box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, c);
       return g;
@@ -243,12 +294,17 @@ export function buildOutfit(variant: string): THREE.Group {
       const c = COL.blue;
       // torso
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      // sleeves cover the WHOLE arm so the skin underneath isn't exposed
-      box(g, -1.5, 2.3, -0.55, 0.7, 2.3, 1.1, c);
-      box(g, 0.8, 2.3, -0.55, 0.7, 2.3, 1.1, c);
+      // SHORT sleeves (just over shoulder) — exposes forearm skin
+      box(g, -1.5, 3.85, -0.55, 0.7, 0.8, 1.1, c);
+      box(g, 0.8, 3.85, -0.55, 0.7, 0.8, 1.1, c);
+      // neckline accent
+      box(g, -0.35, 4.55, -0.6, 0.7, 0.1, 0.06, darker(c, 0.75));
       // pants
       box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
       box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
+      // belt
+      box(g, -0.65, 2.15, -0.5, 1.4, 0.18, 1.0, COL.woodDark);
+      box(g, -0.06, 2.18, -0.62, 0.12, 0.14, 0.06, COL.sun); // buckle
       return g;
     }
   }
