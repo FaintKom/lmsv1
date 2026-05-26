@@ -1,14 +1,19 @@
 """Seed the public "GrassLMS Demo" organization.
 
-Creates a populated sandbox tenant referenced by `/auth/demo-login` (gated by
-`settings.demo_mode_enabled`). Prospects hit https://grasslms.online/demo,
-click "Try as student", and land on a dashboard that already shows three
+Creates a populated sandbox tenant referenced by `/auth/demo-login` (gated
+by `settings.demo_mode_enabled`). Prospects hit https://grasslms.online/demo,
+click "Try as student", and land on a dashboard that already shows
 enrolled courses with realistic progress, assignments, XP, badges and a
 certificate — not the empty state a brand-new account would see.
 
+The course content (text, exercises, structure) lives in the
+``scripts/demo_content/`` package — one Python file per course. This
+script is purely orchestration: org, users, courses, enrollments,
+progress, assignments, gamification, calendar, certificates.
+
 Idempotent: re-running does not duplicate rows. All IDs derive from
 `uuid.uuid5(NAMESPACE_DEMO, slug)` so the same row is upserted each time.
-Lesson content blocks are always overwritten so edits in this file
+Lesson content blocks are always overwritten so edits in course files
 propagate on re-run; user-created data in the demo org (vandalism by
 prospects) is left alone except for fields explicitly normalised here.
 
@@ -27,9 +32,13 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-_BACKEND_ROOT = Path(__file__).resolve().parent.parent / "backend"
-if str(_BACKEND_ROOT) not in sys.path:
-    sys.path.insert(0, str(_BACKEND_ROOT))
+# Add backend to path (for app.* imports) and scripts/ itself (for the
+# demo_content sub-package).
+_SCRIPTS_ROOT = Path(__file__).resolve().parent
+_BACKEND_ROOT = _SCRIPTS_ROOT.parent / "backend"
+for p in (_BACKEND_ROOT, _SCRIPTS_ROOT):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -77,6 +86,8 @@ from app.exercises.models import EXERCISE_TYPE_PREFIX, Exercise, ExerciseType
 from app.gamification.models import Badge, UserBadge, UserStreak
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
 from app.sandbox.models import TestCase
+
+from demo_content import ALL_COURSES
 
 NAMESPACE_DEMO = uuid.UUID("d3d3d3d3-1111-2222-3333-444444444444")
 DEMO_PASSWORD = "demo-public-not-secret"  # noqa: S105 — public sandbox creds
@@ -163,707 +174,23 @@ async def upsert_users(db: AsyncSession, org: Organization) -> dict[str, User]:
     return users
 
 
-# ─── Course content ────────────────────────────────────────────────────────
-
-# Each course definition is a pure dict so the file stays scannable. Helpers
-# below walk these structures and translate them into rows. Lesson "blocks"
-# uses the V2 content schema (see backend/app/courses/service.py
-# normalize_lesson_content); exercises are *separate* rows and lesson blocks
-# of type "exercise" carry the exercise's UUID.
-
-MATH_COURSE = {
-    "slug": "math-5-fractions",
-    "title": "Math 5: Fractions & Decimals",
-    "description": (
-        "A hands-on grade-5 unit on fractions and decimals. Mix of "
-        "explainer videos, step-by-step problems, and quick quizzes."
-    ),
-    "category": "Mathematics",
-    "modules": [
-        {
-            "slug": "m1-fractions",
-            "title": "Fractions Basics",
-            "lessons": [
-                {
-                    "slug": "l1-what-is-a-fraction",
-                    "title": "What is a fraction?",
-                    "duration": 12,
-                    "text_md": (
-                        "## What is a fraction?\n\n"
-                        "A **fraction** represents a part of a whole. We write "
-                        "a fraction as $\\frac{a}{b}$ where $a$ is the "
-                        "*numerator* (how many parts) and $b$ is the "
-                        "*denominator* (how many equal parts the whole is "
-                        "divided into).\n\n"
-                        "### Examples\n\n"
-                        "- $\\frac{1}{2}$ — one half\n"
-                        "- $\\frac{3}{4}$ — three quarters\n"
-                        "- $\\frac{5}{8}$ — five eighths\n\n"
-                        "> A fraction whose numerator is smaller than its "
-                        "denominator (like $\\frac{2}{3}$) is called a "
-                        "**proper fraction**."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-fraction-quiz",
-                            "type": ExerciseType.quiz,
-                            "title": "Quick fraction check",
-                            "config": {"passing_score": 70},
-                            "questions": [
-                                {
-                                    "text": "What is the numerator of $\\frac{3}{8}$?",
-                                    "options": [
-                                        {"text": "3", "is_correct": True},
-                                        {"text": "8", "is_correct": False},
-                                        {"text": "11", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                                {
-                                    "text": "Which fraction is a proper fraction?",
-                                    "options": [
-                                        {"text": "$\\frac{7}{4}$", "is_correct": False},
-                                        {"text": "$\\frac{2}{5}$", "is_correct": True},
-                                        {"text": "$\\frac{9}{9}$", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    "slug": "l2-adding-fractions",
-                    "title": "Adding fractions with the same denominator",
-                    "duration": 15,
-                    "text_md": (
-                        "## Adding fractions (same denominator)\n\n"
-                        "When two fractions share a denominator, simply add "
-                        "the numerators and keep the denominator:\n\n"
-                        "$$\\frac{a}{c} + \\frac{b}{c} = \\frac{a+b}{c}$$\n\n"
-                        "### Worked example\n\n"
-                        "$$\\frac{2}{7} + \\frac{3}{7} = \\frac{5}{7}$$\n\n"
-                        "Try the step-by-step exercise below — the system "
-                        "will check each intermediate step."
-                    ),
-                    "video": "https://www.youtube.com/embed/52ZlXsFJULI",
-                    "exercises": [
-                        {
-                            "slug": "ex-add-fractions-step",
-                            "type": ExerciseType.math_stepwise,
-                            "title": "Solve: 1/4 + 2/4",
-                            "config": {
-                                "problem": "1/4 + 2/4",
-                                "variable": "x",
-                                "max_steps": 3,
-                                "final_answer": "3/4",
-                                "validate_steps": False,
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l3-comparing-fractions",
-                    "title": "Comparing fractions",
-                    "duration": 10,
-                    "text_md": (
-                        "## Comparing fractions\n\n"
-                        "With the **same denominator**, the bigger numerator "
-                        "wins: $\\frac{3}{5} > \\frac{2}{5}$.\n\n"
-                        "With the **same numerator**, the *smaller* "
-                        "denominator wins (you're splitting the whole into "
-                        "fewer, larger pieces): $\\frac{1}{3} > \\frac{1}{5}$.\n\n"
-                        "For everything else, find a common denominator."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-compare-truefalse",
-                            "type": ExerciseType.true_false,
-                            "title": "True or false: 1/3 > 1/4",
-                            "config": {
-                                "statement": "1/3 is greater than 1/4.",
-                                "correct_answer": True,
-                            },
-                        },
-                        {
-                            "slug": "ex-compare-match",
-                            "type": ExerciseType.matching,
-                            "title": "Match each fraction to its decimal",
-                            "config": {
-                                "pairs": [
-                                    {"left": "1/2", "right": "0.5"},
-                                    {"left": "1/4", "right": "0.25"},
-                                    {"left": "3/4", "right": "0.75"},
-                                    {"left": "1/5", "right": "0.2"},
-                                ],
-                                "shuffle": True,
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "slug": "m2-decimals",
-            "title": "Decimals",
-            "lessons": [
-                {
-                    "slug": "l4-fraction-to-decimal",
-                    "title": "From fractions to decimals",
-                    "duration": 12,
-                    "text_md": (
-                        "## Converting fractions to decimals\n\n"
-                        "Every fraction can be written as a decimal by "
-                        "dividing the numerator by the denominator.\n\n"
-                        "| Fraction | Decimal |\n"
-                        "|---|---|\n"
-                        "| 1/2 | 0.5 |\n"
-                        "| 1/4 | 0.25 |\n"
-                        "| 3/8 | 0.375 |\n"
-                        "| 1/3 | 0.333… |\n"
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-fill-decimal",
-                            "type": ExerciseType.fill_blanks,
-                            "title": "Complete the decimal",
-                            "config": {
-                                "text": "The fraction 1/2 written as a decimal is ___.",
-                                "blanks": ["0.5"],
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l5-decimal-arithmetic",
-                    "title": "Decimal arithmetic",
-                    "duration": 14,
-                    "text_md": (
-                        "## Adding and subtracting decimals\n\n"
-                        "Line up the decimal points and add column by column.\n\n"
-                        "$$2.5 + 1.7 = 4.2$$\n\n"
-                        "Watch out for missing trailing zeros: $2.5$ is the "
-                        "same as $2.50$."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-decimal-add-step",
-                            "type": ExerciseType.math_stepwise,
-                            "title": "Solve: 2.5 + 1.7",
-                            "config": {
-                                "problem": "2.5 + 1.7",
-                                "variable": "x",
-                                "max_steps": 2,
-                                "final_answer": "4.2",
-                                "validate_steps": False,
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l6-word-problems",
-                    "title": "Word problems",
-                    "duration": 18,
-                    "text_md": (
-                        "## Putting it all together\n\n"
-                        "Real-world problems often hide a fraction or decimal "
-                        "behind everyday words. Practise spotting them."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-word-quiz",
-                            "type": ExerciseType.quiz,
-                            "title": "Word-problem mini-quiz",
-                            "config": {"passing_score": 60},
-                            "questions": [
-                                {
-                                    "text": "A pizza is cut into 8 equal slices. You eat 3. What fraction did you eat?",
-                                    "options": [
-                                        {"text": "3/8", "is_correct": True},
-                                        {"text": "5/8", "is_correct": False},
-                                        {"text": "3/11", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                                {
-                                    "text": "A bottle holds 0.75 litres. How much is that as a fraction of a litre?",
-                                    "options": [
-                                        {"text": "3/4", "is_correct": True},
-                                        {"text": "7/5", "is_correct": False},
-                                        {"text": "75/10", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-}
-
-
-ENGLISH_COURSE = {
-    "slug": "english-b1-travel",
-    "title": "English B1: Travel & Conversation",
-    "description": (
-        "Functional English for travellers at the intermediate (B1) level. "
-        "Vocabulary, set phrases and listening tasks for airports, hotels "
-        "and restaurants."
-    ),
-    "category": "Languages",
-    "modules": [
-        {
-            "slug": "m1-airport",
-            "title": "At the Airport",
-            "lessons": [
-                {
-                    "slug": "l1-airport-vocab",
-                    "title": "Airport vocabulary",
-                    "duration": 10,
-                    "text_md": (
-                        "## Key airport words\n\n"
-                        "Before you fly, get comfortable with these terms:\n\n"
-                        "- **Boarding pass** — the ticket that lets you board the plane\n"
-                        "- **Check-in** — the desk where you drop off luggage and confirm your seat\n"
-                        "- **Gate** — the door you walk through to reach the aircraft\n"
-                        "- **Departure / Arrival** — leaving / coming in\n"
-                        "- **Layover** — a stop between two flights\n"
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-airport-srs",
-                            "type": ExerciseType.srs_flashcard,
-                            "title": "Airport flashcards",
-                            "config": {
-                                "cards": [
-                                    {"front": "Boarding pass", "back": "The ticket that lets you board the plane"},
-                                    {"front": "Check-in", "back": "The desk where you drop off luggage"},
-                                    {"front": "Gate", "back": "The door you walk through to reach the aircraft"},
-                                    {"front": "Layover", "back": "A stop between two flights"},
-                                ],
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l2-airport-phrases",
-                    "title": "Common phrases",
-                    "duration": 12,
-                    "text_md": (
-                        "## Phrases that get you through security\n\n"
-                        "- \"I'd like a window seat, please.\"\n"
-                        "- \"Is this the gate for flight BA 217?\"\n"
-                        "- \"Do I need to remove my laptop from the bag?\"\n"
-                        "- \"My flight has been delayed.\"\n"
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-airport-sentence",
-                            "type": ExerciseType.sentence_builder,
-                            "title": "Build the sentence",
-                            "config": {
-                                "words": ["I", "would", "like", "a", "window", "seat"],
-                                "correct_order": ["I", "would", "like", "a", "window", "seat"],
-                                "distractors": ["please", "the"],
-                                "instructions": "Arrange the words into a polite request.",
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l3-listening",
-                    "title": "Listening: a delayed flight",
-                    "duration": 15,
-                    "text_md": (
-                        "## Practise listening\n\n"
-                        "Watch the short announcement clip, then answer the "
-                        "comprehension question below."
-                    ),
-                    "video": "https://www.youtube.com/embed/3z9zKvP6mMQ",
-                    "exercises": [
-                        {
-                            "slug": "ex-airport-reading",
-                            "type": ExerciseType.reading,
-                            "title": "Comprehension",
-                            "config": {
-                                "passage": (
-                                    "Attention passengers on flight BA 217 to London. "
-                                    "Your flight has been delayed by approximately one hour "
-                                    "due to weather conditions. New boarding time is 15:30. "
-                                    "We apologise for the inconvenience."
-                                ),
-                                "questions": [
-                                    {
-                                        "question": "Why is the flight delayed?",
-                                        "type": "multiple_choice",
-                                        "options": ["Weather", "Technical issue", "Crew shortage"],
-                                        "correct_answer": "Weather",
-                                    },
-                                    {
-                                        "question": "What is the new boarding time?",
-                                        "type": "multiple_choice",
-                                        "options": ["14:30", "15:30", "16:30"],
-                                        "correct_answer": "15:30",
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "slug": "m2-restaurant",
-            "title": "Restaurant & Hotel",
-            "lessons": [
-                {
-                    "slug": "l4-ordering-food",
-                    "title": "Ordering food",
-                    "duration": 12,
-                    "text_md": (
-                        "## At a restaurant\n\n"
-                        "Polite ways to order:\n\n"
-                        "- \"Could I have the …, please?\"\n"
-                        "- \"I'll have the …\"\n"
-                        "- \"What would you recommend?\"\n"
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-food-dialogue",
-                            "type": ExerciseType.dialogue,
-                            "title": "Ordering coffee",
-                            "config": {
-                                "context": "You walk into a café.",
-                                "messages": [
-                                    {"speaker": "Barista", "text": "Hi! What can I get you?"},
-                                    {
-                                        "speaker": "You",
-                                        "text": "",
-                                        "options": [
-                                            "A flat white, please.",
-                                            "Coffee.",
-                                            "Give me coffee now.",
-                                        ],
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l5-hotel",
-                    "title": "Hotel check-in",
-                    "duration": 10,
-                    "text_md": (
-                        "## At the front desk\n\n"
-                        "Useful translations to practise."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-hotel-translation",
-                            "type": ExerciseType.translation,
-                            "title": "Translate the request",
-                            "config": {
-                                "source_text": "I have a reservation under the name Thompson.",
-                                "source_language": "en",
-                                "target_language": "es",
-                                "accepted_answers": [
-                                    "Tengo una reserva a nombre de Thompson.",
-                                    "Tengo una reserva a nombre Thompson.",
-                                ],
-                                "case_sensitive": False,
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l6-menu",
-                    "title": "Reading menus",
-                    "duration": 12,
-                    "text_md": (
-                        "## Reading a menu\n\n"
-                        "Practise scanning a menu for dietary info."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-menu-reading",
-                            "type": ExerciseType.reading,
-                            "title": "Menu comprehension",
-                            "config": {
-                                "passage": (
-                                    "STARTERS — Tomato soup (v) £6 · Smoked salmon £9. "
-                                    "MAINS — Grilled chicken £14 · Mushroom risotto (v) £12 · "
-                                    "Beef burger £15. DESSERTS — Apple pie £6 · Sorbet (vg) £5."
-                                ),
-                                "questions": [
-                                    {
-                                        "question": "Which main course is vegetarian?",
-                                        "type": "multiple_choice",
-                                        "options": ["Grilled chicken", "Mushroom risotto", "Beef burger"],
-                                        "correct_answer": "Mushroom risotto",
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-}
-
-
-CS_COURSE = {
-    "slug": "cs-web-basics",
-    "title": "Computer Science: Web Basics",
-    "description": (
-        "Get hands-on with HTML, CSS and JavaScript. Live preview, "
-        "auto-graded code challenges, no install required."
-    ),
-    "category": "Computer Science",
-    "modules": [
-        {
-            "slug": "m1-html-css",
-            "title": "HTML & CSS",
-            "lessons": [
-                {
-                    "slug": "l1-html-elements",
-                    "title": "HTML elements",
-                    "duration": 12,
-                    "text_md": (
-                        "## What is HTML?\n\n"
-                        "**HTML** (HyperText Markup Language) is the skeleton "
-                        "of every web page. Pages are built from *elements*, "
-                        "written between angle brackets.\n\n"
-                        "```html\n"
-                        "<h1>Hello, world!</h1>\n"
-                        "<p>This is a paragraph.</p>\n"
-                        "<a href=\"/about\">About us</a>\n"
-                        "```\n\n"
-                        "Common elements: `h1`–`h6` (headings), `p` "
-                        "(paragraph), `a` (link), `img` (image), `ul` / `li` "
-                        "(lists), `div` and `span` (generic containers)."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-html-quiz",
-                            "type": ExerciseType.quiz,
-                            "title": "HTML basics",
-                            "config": {"passing_score": 70},
-                            "questions": [
-                                {
-                                    "text": "Which element creates a top-level heading?",
-                                    "options": [
-                                        {"text": "<h1>", "is_correct": True},
-                                        {"text": "<p>", "is_correct": False},
-                                        {"text": "<head>", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                                {
-                                    "text": "Which attribute makes <a> point somewhere?",
-                                    "options": [
-                                        {"text": "src", "is_correct": False},
-                                        {"text": "href", "is_correct": True},
-                                        {"text": "link", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    "slug": "l2-css-basics",
-                    "title": "CSS basics: make it red",
-                    "duration": 15,
-                    "text_md": (
-                        "## CSS in two lines\n\n"
-                        "**CSS** describes how elements look. The simplest "
-                        "rule has a selector and a single property:\n\n"
-                        "```css\n"
-                        "p { color: red; }\n"
-                        "```\n\n"
-                        "Try it in the live editor below — change the colour "
-                        "of the paragraph and see the preview update."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-css-red",
-                            "type": ExerciseType.web_editor,
-                            "title": "Make the paragraph red",
-                            "config": {
-                                "description": "Style the <p> element so its text is red.",
-                                "starter_html": "<p>Hello, world!</p>",
-                                "starter_css": "p {\n  /* your code here */\n}",
-                                "starter_js": "",
-                                "requirements": [
-                                    "The <p> element must have color: red",
-                                ],
-                            },
-                        },
-                    ],
-                },
-                {
-                    "slug": "l3-layout",
-                    "title": "Layout with flexbox",
-                    "duration": 18,
-                    "text_md": (
-                        "## Flexbox\n\n"
-                        "Flexbox arranges items along a single axis. The "
-                        "parent element becomes a *flex container* with "
-                        "`display: flex`:\n\n"
-                        "```css\n"
-                        ".row { display: flex; gap: 1rem; }\n"
-                        "```\n\n"
-                        "Children become flex items, sitting side-by-side."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-flex-row",
-                            "type": ExerciseType.web_editor,
-                            "title": "Lay out three boxes in a row",
-                            "config": {
-                                "description": "Make the three boxes sit side-by-side using flexbox.",
-                                "starter_html": "<div class=\"row\">\n  <div class=\"box\">A</div>\n  <div class=\"box\">B</div>\n  <div class=\"box\">C</div>\n</div>",
-                                "starter_css": ".row {\n  /* your code here */\n}\n.box { padding: 1rem; background: #6ee7b7; }",
-                                "starter_js": "",
-                                "requirements": [
-                                    ".row must use display: flex",
-                                ],
-                            },
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            "slug": "m2-js",
-            "title": "JavaScript fundamentals",
-            "lessons": [
-                {
-                    "slug": "l4-js-variables",
-                    "title": "Variables & types",
-                    "duration": 12,
-                    "text_md": (
-                        "## Declaring variables\n\n"
-                        "Modern JS uses `let` (re-assignable) and `const` "
-                        "(write-once). Avoid `var`.\n\n"
-                        "```js\n"
-                        "const name = 'Alex';\n"
-                        "let score = 0;\n"
-                        "score = score + 10;\n"
-                        "```\n\n"
-                        "Primitive types: `string`, `number`, `boolean`, "
-                        "`null`, `undefined`."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-js-types-quiz",
-                            "type": ExerciseType.quiz,
-                            "title": "Type check",
-                            "config": {"passing_score": 70},
-                            "questions": [
-                                {
-                                    "text": "Which keyword declares a value that won't change?",
-                                    "options": [
-                                        {"text": "let", "is_correct": False},
-                                        {"text": "const", "is_correct": True},
-                                        {"text": "var", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                                {
-                                    "text": "What is the type of true?",
-                                    "options": [
-                                        {"text": "string", "is_correct": False},
-                                        {"text": "boolean", "is_correct": True},
-                                        {"text": "number", "is_correct": False},
-                                    ],
-                                    "points": 1,
-                                },
-                            ],
-                        },
-                    ],
-                },
-                {
-                    "slug": "l5-functions",
-                    "title": "Functions: write add()",
-                    "duration": 18,
-                    "text_md": (
-                        "## Functions\n\n"
-                        "A function packages a piece of logic so you can reuse it.\n\n"
-                        "```python\n"
-                        "def add(a, b):\n"
-                        "    return a + b\n"
-                        "```\n\n"
-                        "Below, complete the `add` function so the auto-grader "
-                        "passes every test case."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-add-fn",
-                            "type": ExerciseType.code_challenge,
-                            "title": "Write add(a, b)",
-                            "config": {
-                                "language": "python",
-                                "starter_code": "def add(a, b):\n    # return the sum of a and b\n    pass\n\nif __name__ == '__main__':\n    a, b = map(int, input().split())\n    print(add(a, b))\n",
-                                "solution_code": "def add(a, b):\n    return a + b\n\nif __name__ == '__main__':\n    a, b = map(int, input().split())\n    print(add(a, b))\n",
-                                "time_limit_seconds": 5,
-                                "memory_limit_mb": 128,
-                            },
-                            "test_cases": [
-                                {"input": "1 2", "expected_output": "3", "is_hidden": False},
-                                {"input": "10 -3", "expected_output": "7", "is_hidden": False},
-                                {"input": "0 0", "expected_output": "0", "is_hidden": True},
-                                {"input": "-5 -5", "expected_output": "-10", "is_hidden": True},
-                            ],
-                        },
-                    ],
-                },
-                {
-                    "slug": "l6-arrays",
-                    "title": "Working with arrays",
-                    "duration": 18,
-                    "text_md": (
-                        "## Arrays\n\n"
-                        "An array is an ordered list of values. Common "
-                        "operations: indexing, length, iteration, sum.\n\n"
-                        "Complete `sum_list` so it returns the sum of every "
-                        "number in the input list."
-                    ),
-                    "exercises": [
-                        {
-                            "slug": "ex-sum-list",
-                            "type": ExerciseType.code_challenge,
-                            "title": "sum_list(nums)",
-                            "config": {
-                                "language": "python",
-                                "starter_code": "def sum_list(nums):\n    # return the sum\n    pass\n\nif __name__ == '__main__':\n    nums = list(map(int, input().split()))\n    print(sum_list(nums))\n",
-                                "solution_code": "def sum_list(nums):\n    return sum(nums)\n\nif __name__ == '__main__':\n    nums = list(map(int, input().split()))\n    print(sum_list(nums))\n",
-                                "time_limit_seconds": 5,
-                                "memory_limit_mb": 128,
-                            },
-                            "test_cases": [
-                                {"input": "1 2 3", "expected_output": "6", "is_hidden": False},
-                                {"input": "10", "expected_output": "10", "is_hidden": False},
-                                {"input": "-1 1 -2 2", "expected_output": "0", "is_hidden": True},
-                            ],
-                        },
-                    ],
-                },
-            ],
-        },
-    ],
-}
-
-
-ALL_COURSES = [MATH_COURSE, ENGLISH_COURSE, CS_COURSE]
-
-
 # ─── Builders ───────────────────────────────────────────────────────────────
+
+
+def _coerce_exercise_type(value) -> ExerciseType:
+    """Accept either an ``ExerciseType`` or a string and return the enum."""
+    if isinstance(value, ExerciseType):
+        return value
+    if isinstance(value, str):
+        try:
+            return ExerciseType(value)
+        except ValueError as exc:
+            raise ValueError(
+                f"Unknown exercise type {value!r}. "
+                f"Valid: {', '.join(t.value for t in ExerciseType)}"
+            ) from exc
+    raise TypeError(f"Exercise type must be ExerciseType or str, got {type(value)}")
+
 
 async def _upsert_exercise(
     db: AsyncSession,
@@ -882,9 +209,10 @@ async def _upsert_exercise(
     propagate to prod on the next seed.
     """
     ex_id = did(f"{course_slug}/{lesson_slug}/{spec['slug']}")
+    ex_type = _coerce_exercise_type(spec["type"])
     existing = await db.get(Exercise, ex_id)
 
-    prefix = EXERCISE_TYPE_PREFIX.get(spec["type"].value, "X")
+    prefix = EXERCISE_TYPE_PREFIX.get(ex_type.value, "X")
     suffix = ex_id.hex[:6].upper()
     display_id = f"{org.slug}-{prefix}-{suffix}"
 
@@ -892,6 +220,7 @@ async def _upsert_exercise(
         existing.title = spec["title"]
         existing.config = spec.get("config", {})
         existing.sort_order = sort_order
+        existing.exercise_type = ex_type
         # Clear and rebuild children
         from sqlalchemy import delete as sa_delete
         await db.execute(sa_delete(Question).where(Question.exercise_id == existing.id))
@@ -904,7 +233,7 @@ async def _upsert_exercise(
             lesson_id=lesson.id,
             org_id=org.id,
             display_id=display_id,
-            exercise_type=spec["type"],
+            exercise_type=ex_type,
             title=spec["title"],
             config=spec.get("config", {}),
             sort_order=sort_order,
@@ -952,13 +281,13 @@ def _inline_md(s: str) -> str:
 def _md_to_html(md: str) -> str:
     """Tiny markdown -> HTML converter for the subset used by seed lessons.
 
-    Supports headings (## / ###), bold/italic, unordered lists, blockquotes,
-    fenced code blocks (```), GFM tables, and paragraphs. Leaves `$...$`
-    and `$$...$$` untouched so the frontend HtmlWithMath renderer can
-    KaTeX-process them. We emit HTML (not markdown) because the renderer
-    routes any block that contains `$` to a math-only path that ignores
-    markdown syntax — pre-rendering keeps both markdown formatting and
-    KaTeX math working.
+    Supports headings (## / ###), bold/italic, ordered (1. / 2. …) and
+    unordered (- …) lists, blockquotes, fenced code blocks (```), GFM
+    tables, and paragraphs. Leaves ``$...$`` and ``$$...$$`` untouched so
+    the frontend HtmlWithMath renderer can KaTeX-process them. Emits HTML
+    (not markdown) because the renderer routes any block that contains
+    ``$`` to a math-only path that ignores markdown syntax —
+    pre-rendering keeps both markdown formatting and KaTeX math working.
     """
     import re as _re
     lines = md.split("\n")
@@ -966,7 +295,8 @@ def _md_to_html(md: str) -> str:
     in_code = False
     code_lang = ""
     code_buf: list[str] = []
-    in_list = False
+    in_ul = False
+    in_ol = False
     in_table = False
     table_header_done = False
     para_buf: list[str] = []
@@ -979,11 +309,14 @@ def _md_to_html(md: str) -> str:
                 out.append(f"<p>{_inline_md(text)}</p>")
             para_buf = []
 
-    def flush_list() -> None:
-        nonlocal in_list
-        if in_list:
+    def flush_lists() -> None:
+        nonlocal in_ul, in_ol
+        if in_ul:
             out.append("</ul>")
-            in_list = False
+            in_ul = False
+        if in_ol:
+            out.append("</ol>")
+            in_ol = False
 
     def flush_table() -> None:
         nonlocal in_table, table_header_done
@@ -991,6 +324,8 @@ def _md_to_html(md: str) -> str:
             out.append("</tbody></table>")
             in_table = False
             table_header_done = False
+
+    ol_pattern = _re.compile(r"^(\d+)\.\s+(.*)$")
 
     for raw in lines:
         line = raw.rstrip()
@@ -1005,34 +340,44 @@ def _md_to_html(md: str) -> str:
                 code_buf.append(line)
             continue
         if line.startswith("```"):
-            flush_para(); flush_list(); flush_table()
+            flush_para(); flush_lists(); flush_table()
             in_code = True
             code_lang = line[3:].strip() or "text"
             continue
         if not line.strip():
-            flush_para(); flush_list(); flush_table()
+            flush_para(); flush_lists(); flush_table()
             continue
         if line.startswith("### "):
-            flush_para(); flush_list(); flush_table()
+            flush_para(); flush_lists(); flush_table()
             out.append(f"<h3>{_inline_md(line[4:])}</h3>")
             continue
         if line.startswith("## "):
-            flush_para(); flush_list(); flush_table()
+            flush_para(); flush_lists(); flush_table()
             out.append(f"<h2>{_inline_md(line[3:])}</h2>")
             continue
         if line.startswith("> "):
-            flush_para(); flush_list(); flush_table()
+            flush_para(); flush_lists(); flush_table()
             out.append(f"<blockquote>{_inline_md(line[2:])}</blockquote>")
             continue
         if line.startswith("- "):
             flush_para(); flush_table()
-            if not in_list:
-                out.append("<ul>")
-                in_list = True
+            if in_ol:
+                out.append("</ol>"); in_ol = False
+            if not in_ul:
+                out.append("<ul>"); in_ul = True
             out.append(f"<li>{_inline_md(line[2:])}</li>")
             continue
+        m = ol_pattern.match(line)
+        if m:
+            flush_para(); flush_table()
+            if in_ul:
+                out.append("</ul>"); in_ul = False
+            if not in_ol:
+                out.append("<ol>"); in_ol = True
+            out.append(f"<li>{_inline_md(m.group(2))}</li>")
+            continue
         if "|" in line and line.strip().startswith("|"):
-            flush_para(); flush_list()
+            flush_para(); flush_lists()
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             if not in_table:
                 out.append('<table class="md-table"><thead><tr>')
@@ -1048,10 +393,10 @@ def _md_to_html(md: str) -> str:
             out.extend(f"<td>{_inline_md(c)}</td>" for c in cells)
             out.append("</tr>")
             continue
-        flush_list(); flush_table()
+        flush_lists(); flush_table()
         para_buf.append(line.strip())
 
-    flush_para(); flush_list(); flush_table()
+    flush_para(); flush_lists(); flush_table()
     if in_code:
         out.append("<pre><code>" + "\n".join(code_buf) + "</code></pre>")
     return "\n".join(out)
@@ -1110,6 +455,11 @@ async def upsert_course(
         )
         db.add(course)
         await db.flush()
+    else:
+        # Refresh metadata on re-run so content edits propagate.
+        course.title = spec["title"]
+        course.description = spec["description"]
+        course.category = spec["category"]
 
     for m_idx, m_spec in enumerate(spec["modules"]):
         module_id = did(f"module/{spec['slug']}/{m_spec['slug']}")
@@ -1123,6 +473,9 @@ async def upsert_course(
             )
             db.add(module)
             await db.flush()
+        else:
+            module.title = m_spec["title"]
+            module.sort_order = m_idx
 
         for l_idx, l_spec in enumerate(m_spec["lessons"]):
             lesson_id = did(f"lesson/{spec['slug']}/{l_spec['slug']}")
@@ -1138,6 +491,10 @@ async def upsert_course(
                 )
                 db.add(lesson)
                 await db.flush()
+            else:
+                lesson.title = l_spec["title"]
+                lesson.sort_order = l_idx
+                lesson.duration_minutes = l_spec.get("duration")
 
             ex_ids: list[uuid.UUID] = []
             for ex_idx, ex_spec in enumerate(l_spec.get("exercises") or []):
@@ -1171,19 +528,24 @@ async def upsert_course(
 # ─── Enrollments, progress, assignments, gamification, calendar, certs ─────
 
 # Progress targets per (course_slug, student_slug):
-# 100% = mark every lesson completed
-#  60% = first 4 of 6 lessons completed, next in_progress
-#  20% = first 1 of 6 lessons completed, next in_progress
+#   100% = mark every lesson completed
+#    60% = first ~4 of 6 lessons completed, next in_progress
+#    20% = first ~1 of 6 lessons completed, next in_progress
 PROGRESS_PLAN = [
-    # demo-student: one fully done, one mid, one early
+    # demo-student: a finished course, two mid-progress, two early
     ("math-5-fractions", "demo-student", 100.0, 6),
     ("english-b1-travel", "demo-student", 60.0, 4),
-    ("cs-web-basics", "demo-student", 20.0, 1),
-    # extras — spread across courses for gradebook variety
+    ("python-basics", "demo-student", 20.0, 1),
+    ("spanish-a1-first-words", "demo-student", 10.0, 0),
+    ("math-7-algebra", "demo-student", 40.0, 2),
+    # other students — spread for gradebook variety
     ("math-5-fractions", "demo-s2", 80.0, 5),
-    ("math-5-fractions", "demo-s3", 40.0, 2),
-    ("english-b1-travel", "demo-s4", 50.0, 3),
-    ("cs-web-basics", "demo-s5", 30.0, 2),
+    ("math-7-algebra", "demo-s2", 30.0, 2),
+    ("english-b1-travel", "demo-s3", 50.0, 3),
+    ("spanish-a1-first-words", "demo-s4", 70.0, 4),
+    ("python-basics", "demo-s5", 30.0, 2),
+    ("web-html-css", "demo-s5", 50.0, 3),
+    ("web-html-css", "demo-s2", 20.0, 1),
 ]
 
 
@@ -1252,8 +614,8 @@ ASSIGNMENT_PLAN = [
         "title": "Mini-project: fractions in the kitchen",
         "description": (
             "Photograph or describe three real-world fractions you find in "
-            "your kitchen (e.g. half a pizza, a quarter cup). Submit a short "
-            "write-up of 100–150 words."
+            "your kitchen (e.g. half a pizza, a quarter cup). Submit a "
+            "short write-up of 100–150 words."
         ),
         "due_offset_days": -2,
         "max_score": 100,
@@ -1288,14 +650,52 @@ ASSIGNMENT_PLAN = [
         },
     },
     {
-        "slug": "cs-portfolio-page",
-        "course_slug": "cs-web-basics",
+        "slug": "spanish-shopping-list",
+        "course_slug": "spanish-a1-first-words",
+        "title": "Make a Spanish shopping list",
+        "description": (
+            "Write a shopping list of 8 items in Spanish, then translate "
+            "each to English. Submit as a single text or photo."
+        ),
+        "due_offset_days": 5,
+        "max_score": 100,
+        "submission": None,
+    },
+    {
+        "slug": "algebra-real-world",
+        "course_slug": "math-7-algebra",
+        "title": "Linear equation in the real world",
+        "description": (
+            "Find one real-world example where a linear equation describes "
+            "a relationship (phone plan, taxi fare, savings goal…). "
+            "Identify slope and intercept. 150 words."
+        ),
+        "due_offset_days": 6,
+        "max_score": 100,
+        "submission": None,
+    },
+    {
+        "slug": "python-fizzbuzz",
+        "course_slug": "python-basics",
+        "title": "FizzBuzz challenge (upload .py file)",
+        "description": (
+            "Write a Python program that prints numbers 1 to 100. For "
+            "multiples of 3 print 'Fizz', for multiples of 5 print 'Buzz', "
+            "for multiples of both print 'FizzBuzz'. Upload your .py file."
+        ),
+        "due_offset_days": 5,
+        "max_score": 100,
+        "submission": None,
+    },
+    {
+        "slug": "web-portfolio-page",
+        "course_slug": "web-html-css",
         "title": "Build your portfolio landing page",
         "description": (
-            "Use only HTML + CSS to build a single-page introduction (name, "
-            "bio, 3 projects). Submit the HTML file."
+            "Use only HTML + CSS to build a single-page introduction "
+            "(name, bio, 3 projects). Submit the HTML file."
         ),
-        "due_offset_days": 3,
+        "due_offset_days": 7,
         "max_score": 100,
         "submission": None,
     },
@@ -1330,6 +730,8 @@ async def upsert_assignments(
             await db.flush()
         else:
             assignment = existing
+            assignment.title = plan["title"]
+            assignment.description = plan["description"]
             assignment.due_date = due
 
         sub_plan = plan["submission"]
@@ -1372,6 +774,12 @@ BADGES = [
     {"slug": "math-whiz", "name": "Math Whiz",
      "description": "Finish an entire math course.", "icon": "🧮",
      "criteria_key": "course_complete_math"},
+    {"slug": "polyglot", "name": "Polyglot",
+     "description": "Start two language courses.", "icon": "🌍",
+     "criteria_key": "languages_2"},
+    {"slug": "code-novice", "name": "Code Novice",
+     "description": "Solve your first coding challenge.", "icon": "💻",
+     "criteria_key": "first_code"},
 ]
 
 
@@ -1397,7 +805,12 @@ async def upsert_gamification(
     await db.flush()
 
     student = users["demo-student"]
-    for slug, days_ago in [("first-lesson", 18), ("week-warrior", 2)]:
+    for slug, days_ago in [
+        ("first-lesson", 18),
+        ("week-warrior", 2),
+        ("math-whiz", 1),
+        ("polyglot", 5),
+    ]:
         ub_id = did(f"userbadge/{student.id}/{slug}")
         existing_ub = await db.get(UserBadge, ub_id)
         if not existing_ub:
@@ -1418,13 +831,13 @@ async def upsert_gamification(
             current_streak=5,
             longest_streak=12,
             last_activity_date=TODAY,
-            total_xp=320,
+            total_xp=540,
         ))
     else:
         streak.current_streak = 5
         streak.longest_streak = 12
         streak.last_activity_date = TODAY
-        streak.total_xp = 320
+        streak.total_xp = 540
     await db.flush()
 
 
@@ -1433,14 +846,26 @@ CALENDAR_EVENTS = [
      "title": "Live Q&A: fractions vs decimals", "type": EventType.lesson,
      "start_offset_hours": 28, "duration_min": 60,
      "description": "Bring your tricky problems!"},
-    {"slug": "cs-deadline", "course_slug": "cs-web-basics",
+    {"slug": "algebra-live", "course_slug": "math-7-algebra",
+     "title": "Algebra office hours", "type": EventType.meeting,
+     "start_offset_hours": 52, "duration_min": 45,
+     "description": "Drop in with any algebra question."},
+    {"slug": "spanish-club", "course_slug": "spanish-a1-first-words",
+     "title": "Spanish conversation club", "type": EventType.meeting,
+     "start_offset_hours": 76, "duration_min": 30,
+     "description": "Practise café phrases in pairs."},
+    {"slug": "web-deadline", "course_slug": "web-html-css",
      "title": "Portfolio page due", "type": EventType.deadline,
-     "start_offset_hours": 72, "duration_min": 0,
+     "start_offset_hours": 168, "duration_min": 0,
      "description": "Submit your HTML/CSS portfolio."},
     {"slug": "english-deadline", "course_slug": "english-b1-travel",
      "title": "Restaurant role-play due", "type": EventType.deadline,
      "start_offset_hours": 96, "duration_min": 0,
      "description": "Voice memo, 60 seconds."},
+    {"slug": "python-deadline", "course_slug": "python-basics",
+     "title": "FizzBuzz due", "type": EventType.deadline,
+     "start_offset_hours": 120, "duration_min": 0,
+     "description": "Upload your .py solution."},
     {"slug": "office-hours", "course_slug": None,
      "title": "Open office hours", "type": EventType.meeting,
      "start_offset_hours": 48, "duration_min": 30,
@@ -1474,6 +899,8 @@ async def upsert_calendar(
         else:
             existing.start_time = start
             existing.end_time = end
+            existing.title = ev["title"]
+            existing.description = ev["description"]
     await db.flush()
 
 
