@@ -28,6 +28,7 @@ import {
  Calculator,
  Plug,
  Home,
+ UserCircle,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -83,6 +84,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
  { href: "/my-room", label: t("nav.myRoom"), icon: Home },
+ { href: "/my-avatar", label: t("nav.myAvatar"), icon: UserCircle },
  { href: "/calendar", label: t("nav.calendar"), icon: Calendar },
  { href: "/meetings", label: t("nav.meetings"), icon: Video },
  ];

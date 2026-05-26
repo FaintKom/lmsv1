@@ -15,6 +15,8 @@ export interface RoomCatalogItem {
   swatch: string | null;
   color_hex: string | null;
   floor_type: string | null;
+  /** 'room' (furniture/decor) or 'avatar' (character parts). */
+  item_type: "room" | "avatar";
 }
 
 export interface RoomEquipOffset {

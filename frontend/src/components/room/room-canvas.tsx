@@ -3,6 +3,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 
 import type { RoomState } from "@/lib/api/room";
+import { AVATAR_EQUIP_KEY, AVATAR_SLOTS, type AvatarSlot } from "@/lib/avatar/catalog";
+import type { AvatarEquip } from "@/lib/avatar/voxels";
 import { TIES } from "@/lib/room/placement";
 import type { FloorType } from "@/lib/room/voxels";
 
@@ -67,6 +69,21 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
     syncSlots(api, state);
   }, [ready, api, state]);
 
+  // Avatar — rebuild whenever an avatar slot changes.
+  const avatarEquip = useMemo<AvatarEquip>(() => {
+    const out: AvatarEquip = {};
+    for (const slot of AVATAR_SLOTS) {
+      const key = AVATAR_EQUIP_KEY[slot as AvatarSlot];
+      out[key] = state.equipped[slot]?.item_id ?? null;
+    }
+    return out;
+  }, [state.equipped]);
+
+  useEffect(() => {
+    if (!ready || !api) return;
+    api.setAvatar(avatarEquip);
+  }, [ready, api, avatarEquip]);
+
   return (
     <canvas
       ref={canvasRef}
@@ -92,6 +109,7 @@ function syncSlots(api: RoomSceneApi, state: RoomState): void {
 
   for (const [slot, payload] of Object.entries(state.equipped)) {
     if (slot === "wall" || slot === "floor") continue;
+    if (slot.startsWith("avatar_")) continue; // handled by setAvatar
     const parent = parentOf.get(slot);
     let dx = payload.offset_dx;
     let dz = payload.offset_dz;

@@ -74,6 +74,11 @@ class RoomItem(Base):
     swatch: Mapped[str | None] = mapped_column(String(20), nullable=True)
     color_hex: Mapped[str | None] = mapped_column(String(8), nullable=True)
     floor_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # 'room' (existing room furniture/decor) or 'avatar' (character parts).
+    # Frontend filters the shared catalog by this flag.
+    item_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="room", server_default="room", index=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

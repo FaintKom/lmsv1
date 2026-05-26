@@ -193,6 +193,49 @@ async def test_layout_non_movable_slot_returns_422(
 
 
 @pytest.mark.asyncio
+async def test_avatar_defaults_auto_equipped(
+    client: AsyncClient, _seeded_catalog, rich_student
+):
+    """Avatar slots with is_default=True should auto-equip on first GET."""
+    resp = await client.get(
+        "/api/v1/gamification/room/state", headers=auth_header(rich_student)
+    )
+    assert resp.status_code == 200
+    equipped = resp.json()["equipped"]
+    assert equipped.get("avatar_hair", {}).get("item_id") == "avatar-hair-short"
+    assert equipped.get("avatar_face", {}).get("item_id") == "avatar-face-smile"
+    assert equipped.get("avatar_outfit", {}).get("item_id") == "avatar-outfit-tshirt"
+    # No default accessory — slot stays empty.
+    assert "avatar_accessory" not in equipped
+
+
+@pytest.mark.asyncio
+async def test_avatar_item_appears_in_catalog_with_item_type(
+    client: AsyncClient, _seeded_catalog, rich_student
+):
+    resp = await client.get(
+        "/api/v1/gamification/room/state", headers=auth_header(rich_student)
+    )
+    catalog = resp.json()["catalog"]
+    avatar_items = [i for i in catalog if i["item_type"] == "avatar"]
+    assert len(avatar_items) >= 20
+    room_items = [i for i in catalog if i["item_type"] == "room"]
+    assert len(room_items) >= 30
+
+
+@pytest.mark.asyncio
+async def test_equip_avatar_item_under_threshold_returns_403(
+    client: AsyncClient, _seeded_catalog, poor_student
+):
+    resp = await client.post(
+        "/api/v1/gamification/room/equip",
+        json={"slot": "avatar_accessory", "item_id": "avatar-acc-pet"},  # 500 XP, poor has 50
+        headers=auth_header(poor_student),
+    )
+    assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_layout_shelfwall_locks_x_axis(
     client: AsyncClient, _seeded_catalog, rich_student
 ):

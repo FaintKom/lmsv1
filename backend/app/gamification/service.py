@@ -418,18 +418,61 @@ ROOM_DEFAULT_CATALOG: list[dict] = [
 ]
 
 
+# Avatar parts — same row shape as room items but seeded with item_type='avatar'
+# so the frontend can split the shared catalog into two views.
+ROOM_AVATAR_CATALOG: list[dict] = [
+    # hair
+    {"id": "avatar-hair-short", "slot": "avatar_hair", "group_name": "Hair", "name": "Short brown", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hair-bald", "slot": "avatar_hair", "group_name": "Hair", "name": "Bald", "price": 50, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hair-long", "slot": "avatar_hair", "group_name": "Hair", "name": "Long blonde", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hair-curly", "slot": "avatar_hair", "group_name": "Hair", "name": "Curly red", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hair-bun", "slot": "avatar_hair", "group_name": "Hair", "name": "Top bun", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hair-mohawk", "slot": "avatar_hair", "group_name": "Hair", "name": "Mohawk", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # face
+    {"id": "avatar-face-smile", "slot": "avatar_face", "group_name": "Face", "name": "Smile", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-face-wink", "slot": "avatar_face", "group_name": "Face", "name": "Wink", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-face-blush", "slot": "avatar_face", "group_name": "Face", "name": "Blush", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-face-cool", "slot": "avatar_face", "group_name": "Face", "name": "Sunglasses", "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-face-determined", "slot": "avatar_face", "group_name": "Face", "name": "Determined", "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-face-glasses", "slot": "avatar_face", "group_name": "Face", "name": "Round glasses", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # outfit
+    {"id": "avatar-outfit-tshirt", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Blue t-shirt", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-outfit-cozy", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Cozy sweater", "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-outfit-hoodie", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Green hoodie", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-outfit-dress", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Coral dress", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-outfit-sport", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Sport kit", "price": 250, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-outfit-suit", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Formal suit", "price": 400, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # accessory (no default — slot starts empty)
+    {"id": "avatar-acc-book", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Book", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-acc-backpack", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Backpack", "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-acc-headphones", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Headphones", "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-acc-cape", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Hero cape", "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-acc-pet", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Mini pet", "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+]
+
+# Slots that belong to the My Avatar feature.
+ROOM_AVATAR_SLOTS: set[str] = {
+    "avatar_hair", "avatar_face", "avatar_outfit", "avatar_accessory",
+}
+
+
 async def seed_room_catalog(db: AsyncSession) -> None:
     """Idempotent catalog seed. Inserts any missing rows; never touches existing
     ones (so owners can hand-tune prices via SQL without losing edits on restart).
     """
     existing = await db.execute(select(RoomItem.id))
     have = set(existing.scalars().all())
-    if len(have) >= len(ROOM_DEFAULT_CATALOG):
+    total = len(ROOM_DEFAULT_CATALOG) + len(ROOM_AVATAR_CATALOG)
+    if len(have) >= total:
         return
     for row in ROOM_DEFAULT_CATALOG:
         if row["id"] in have:
             continue
-        db.add(RoomItem(i18n_key=f"room.item.{row['id']}", **row))
+        db.add(RoomItem(i18n_key=f"room.item.{row['id']}", item_type="room", **row))
+    for row in ROOM_AVATAR_CATALOG:
+        if row["id"] in have:
+            continue
+        db.add(RoomItem(i18n_key=f"room.item.{row['id']}", item_type="avatar", **row))
     await db.flush()
 
 

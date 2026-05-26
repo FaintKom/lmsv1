@@ -58,6 +58,7 @@ class RoomItemResponse(BaseModel):
     swatch: str | None = None
     color_hex: str | None = None
     floor_type: str | None = None
+    item_type: str = "room"
 
     model_config = {"from_attributes": True}
 

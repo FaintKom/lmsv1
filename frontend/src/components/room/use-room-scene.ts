@@ -18,6 +18,7 @@ import {
   vbox,
   walls,
 } from "@/lib/room/voxels";
+import { type AvatarEquip, buildAvatar } from "@/lib/avatar/voxels";
 
 const THETA_BASE = Math.PI / 4;
 const THETA_RANGE = Math.PI / 4.5;
@@ -41,6 +42,7 @@ export interface RoomSceneApi {
   setWall: (colorHex: string | null | undefined) => void;
   setFloor: (type: FloorType) => void;
   setSlot: (slot: string, itemId: string | null, dx: number, dz: number) => void;
+  setAvatar: (equip: AvatarEquip) => void;
   resetCamera: () => void;
   zoom: (delta: number) => void;
 }
@@ -124,7 +126,12 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     // ── room shell + slot groups (mutable across updates) ────────────
     let wallsGroup: THREE.Group | null = null;
     let floorGroup: THREE.Group | null = null;
+    let avatarGroup: THREE.Group | null = null;
     const slotGroups = new Map<string, THREE.Group>();
+
+    // Where the avatar stands inside the room (centre-front, on the rug).
+    // Voxel coords; converted to world via VOX in the place-call below.
+    const AVATAR_POS = { x: 7, z: 7 };
 
     function disposeGroup(g: THREE.Group): void {
       g.traverse((obj) => {
@@ -178,14 +185,24 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         if (!itemId) return; // slot toggled off
         const builder = CATALOG_BUILDERS[itemId];
         if (!builder) {
-          // Wall and floor item ids end up here -- they're handled by
-          // setWall/setFloor separately. Unknown items just no-op.
+          // Wall, floor, and avatar item ids end up here -- they're handled
+          // by setWall/setFloor/setAvatar separately. Unknown items just no-op.
           return;
         }
         const group = builder();
         placeSlot(slot, group, dx, dz);
         scene.add(group);
         slotGroups.set(slot, group);
+      },
+      setAvatar: (equip) => {
+        if (avatarGroup) {
+          disposeGroup(avatarGroup);
+        }
+        const g = buildAvatar(equip);
+        g.position.set(AVATAR_POS.x * VOX, 0, AVATAR_POS.z * VOX);
+        g.rotation.y = -Math.PI / 4; // face camera
+        scene.add(g);
+        avatarGroup = g;
       },
       resetCamera: () => {
         cam.theta = INITIAL_CAMERA.theta;
@@ -273,6 +290,7 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       canvas.removeEventListener("wheel", onWheel);
       if (wallsGroup) disposeGroup(wallsGroup);
       if (floorGroup) disposeGroup(floorGroup);
+      if (avatarGroup) disposeGroup(avatarGroup);
       slotGroups.forEach(disposeGroup);
       slotGroups.clear();
       disposeGroup(baseGroup);
