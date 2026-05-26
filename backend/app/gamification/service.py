@@ -444,11 +444,49 @@ ROOM_AVATAR_CATALOG: list[dict] = [
     {"id": "avatar-acc-headphones", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Headphones", "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "avatar-acc-cape", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Hero cape", "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "avatar-acc-pet", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Mini pet", "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # body (boy + girl base shapes)
+    {"id": "avatar-body-boy",  "slot": "avatar_body", "group_name": "Body", "name": "Boy",  "price": 0, "is_default": True,  "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-body-girl", "slot": "avatar_body", "group_name": "Body", "name": "Girl", "price": 0, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # hat
+    {"id": "avatar-hat-cap",      "slot": "avatar_hat", "group_name": "Hat", "name": "Baseball cap", "price": 80,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hat-beanie",   "slot": "avatar_hat", "group_name": "Hat", "name": "Beanie",       "price": 60,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hat-wizard",   "slot": "avatar_hat", "group_name": "Hat", "name": "Wizard hat",   "price": 250, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hat-crown",    "slot": "avatar_hat", "group_name": "Hat", "name": "Party crown",  "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hat-chef",     "slot": "avatar_hat", "group_name": "Hat", "name": "Chef hat",     "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hat-graduate", "slot": "avatar_hat", "group_name": "Hat", "name": "Graduate cap", "price": 220, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # glasses
+    {"id": "avatar-glasses-round",   "slot": "avatar_glasses", "group_name": "Glasses", "name": "Round glasses", "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-glasses-shades",  "slot": "avatar_glasses", "group_name": "Glasses", "name": "Sunglasses",    "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-glasses-monocle", "slot": "avatar_glasses", "group_name": "Glasses", "name": "Monocle",       "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-glasses-ski",     "slot": "avatar_glasses", "group_name": "Glasses", "name": "Ski goggles",   "price": 160, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-glasses-3d",      "slot": "avatar_glasses", "group_name": "Glasses", "name": "3D glasses",    "price": 90,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # back
+    {"id": "avatar-back-backpack", "slot": "avatar_back", "group_name": "Back", "name": "Backpack",     "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-back-cape",     "slot": "avatar_back", "group_name": "Back", "name": "Hero cape",    "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-back-wings",    "slot": "avatar_back", "group_name": "Back", "name": "Angel wings",  "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-back-quiver",   "slot": "avatar_back", "group_name": "Back", "name": "Arrow quiver", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-back-jetpack",  "slot": "avatar_back", "group_name": "Back", "name": "Jetpack",      "price": 450, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # hand
+    {"id": "avatar-hand-book",       "slot": "avatar_hand", "group_name": "Hand", "name": "Book",       "price": 80,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hand-sword",      "slot": "avatar_hand", "group_name": "Hand", "name": "Sword",      "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hand-pet",        "slot": "avatar_hand", "group_name": "Hand", "name": "Mini pet",   "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hand-flower",     "slot": "avatar_hand", "group_name": "Hand", "name": "Flower",     "price": 60,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hand-balloon",    "slot": "avatar_hand", "group_name": "Hand", "name": "Balloon",    "price": 90,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "avatar-hand-controller", "slot": "avatar_hand", "group_name": "Hand", "name": "Controller", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
 ]
 
 # Slots that belong to the My Avatar feature.
 ROOM_AVATAR_SLOTS: set[str] = {
-    "avatar_hair", "avatar_face", "avatar_outfit", "avatar_accessory",
+    "avatar_body",
+    "avatar_hair",
+    "avatar_face",
+    "avatar_outfit",
+    "avatar_hat",
+    "avatar_glasses",
+    "avatar_back",
+    "avatar_hand",
+    # legacy single-slot accessory -- kept for backwards compat
+    "avatar_accessory",
 }
 
 

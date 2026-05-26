@@ -11,14 +11,26 @@ import { WalletPill } from "@/components/room/wallet-pill";
 
 import { AvatarItemPreview } from "./avatar-item-preview";
 
-type TabId = "Hair" | "Face" | "Outfit" | "Accessory";
+type TabId = "Body" | "Hair" | "Face" | "Outfit" | "Hat" | "Glasses" | "Back" | "Hand";
 
 const TABS: { id: TabId; key: string; slot: string }[] = [
+  { id: "Body", key: "room.tab.body", slot: "avatar_body" },
   { id: "Hair", key: "room.tab.hair", slot: "avatar_hair" },
   { id: "Face", key: "room.tab.face", slot: "avatar_face" },
   { id: "Outfit", key: "room.tab.outfit", slot: "avatar_outfit" },
-  { id: "Accessory", key: "room.tab.accessory", slot: "avatar_accessory" },
+  { id: "Hat", key: "room.tab.hat", slot: "avatar_hat" },
+  { id: "Glasses", key: "room.tab.glasses", slot: "avatar_glasses" },
+  { id: "Back", key: "room.tab.back", slot: "avatar_back" },
+  { id: "Hand", key: "room.tab.hand", slot: "avatar_hand" },
 ];
+
+/** Slots whose default behaviour is "wear nothing" — re-clicking unequips. */
+const TOGGLABLE_AVATAR_SLOTS = new Set([
+  "avatar_hat",
+  "avatar_glasses",
+  "avatar_back",
+  "avatar_hand",
+]);
 
 interface AvatarBuilderPanelProps {
   state: RoomState;
@@ -51,8 +63,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
   function onClick(item: RoomCatalogItem, status: Status): void {
     if (status === "locked") return;
     if (status === "equipped") {
-      // Allow toggle-off only for accessory (other slots always need something equipped).
-      if (item.slot === "avatar_accessory") {
+      if (TOGGLABLE_AVATAR_SLOTS.has(item.slot)) {
         equip.mutate({ slot: item.slot, item_id: null });
       }
       return;
@@ -64,14 +75,14 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
     <div className="flex h-full flex-col gap-4 p-5">
       <WalletPill wallet={state.wallet} />
 
-      <div className="flex gap-0 border-b border-ink-100">
+      <div className="flex gap-0 overflow-x-auto border-b border-ink-100 scrollbar-thin">
         {TABS.map((tabDef) => (
           <button
             key={tabDef.id}
             type="button"
             onClick={() => setTab(tabDef.id)}
             className={cn(
-              "relative flex-1 py-2 text-[12px] font-semibold transition-colors",
+              "relative shrink-0 px-3 py-2 text-[12px] font-semibold transition-colors",
               tab === tabDef.id ? "text-green-700" : "text-text-muted hover:text-ink-700",
             )}
           >
