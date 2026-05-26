@@ -5,6 +5,11 @@ interface SentenceBuilderConfig {
  words?: string[];
  correct_order?: string[];
  distractors?: string[];
+ // word_bank is what the backend ships to students — pre-shuffled pool of
+ // the correct words + distractors. `correct_order` is stripped from the
+ // student-facing response so the answer can't be read off the wire, which
+ // means without word_bank the only words available would be distractors.
+ word_bank?: string[];
  instructions?: string;
 }
 
@@ -24,6 +29,12 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  const allWords = useMemo(() => {
+ // Prefer the server-provided `word_bank` (already includes correct words +
+ // distractors, pre-shuffled). Fall back to `correct_order + distractors`
+ // for admin previews where the answer hasn't been stripped.
+ if (config.word_bank && config.word_bank.length > 0) {
+ return shuffle(config.word_bank);
+ }
  const words = [...(config.correct_order || []), ...(config.distractors || [])];
  return shuffle(words);
  // eslint-disable-next-line react-hooks/exhaustive-deps

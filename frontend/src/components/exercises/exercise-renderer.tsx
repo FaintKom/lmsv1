@@ -9,11 +9,7 @@ import { toast } from "sonner";
 import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
-import { MathRenderer, containsMath } from "@/components/common/math-renderer";
-
-function MaybeMath({ text }: { text: string }) {
- return containsMath(text) ? <MathRenderer content={text} /> : <>{text}</>;
-}
+import { MaybeMath } from "@/components/common/math-renderer";
 import Editor from "@monaco-editor/react";
 import MatchingExercise from "@/components/submissions/exercises/matching";
 import OrderingExercise from "@/components/submissions/exercises/ordering";

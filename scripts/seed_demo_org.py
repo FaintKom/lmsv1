@@ -278,16 +278,69 @@ def _inline_md(s: str) -> str:
     return s
 
 
+CALLOUT_STYLES = {
+    "tip": {
+        "border": "#f59e0b", "bg": "#fffbeb",
+        "header_color": "#92400e", "body_color": "#78350f",
+        "icon": "💡", "default_title": "Tip",
+    },
+    "note": {
+        "border": "#3b82f6", "bg": "#eff6ff",
+        "header_color": "#1e40af", "body_color": "#1e3a8a",
+        "icon": "ℹ️", "default_title": "Note",
+    },
+    "warning": {
+        "border": "#ef4444", "bg": "#fef2f2",
+        "header_color": "#991b1b", "body_color": "#7f1d1d",
+        "icon": "⚠️", "default_title": "Warning",
+    },
+    "example": {
+        "border": "#10b981", "bg": "#ecfdf5",
+        "header_color": "#065f46", "body_color": "#064e3b",
+        "icon": "📘", "default_title": "Worked example",
+    },
+}
+
+
+def _render_callout(kind: str, title: str, body_md: str) -> str:
+    """Render a ::: callout block as a self-contained styled <aside>.
+
+    Uses inline styles so the result survives any prose-plugin or HTML
+    sanitiser that strips classes.
+    """
+    style = CALLOUT_STYLES.get(kind, CALLOUT_STYLES["note"])
+    inner_html = _md_to_html(body_md.strip())
+    display_title = title.strip() or style["default_title"]
+    return (
+        f'<aside style="margin:1.25rem 0;padding:1rem 1.25rem;'
+        f'border-left:4px solid {style["border"]};background:{style["bg"]};'
+        f'border-radius:8px;">'
+        f'<div style="font-weight:600;color:{style["header_color"]};'
+        f'margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">'
+        f'<span style="font-size:1.25em;line-height:1;">{style["icon"]}</span>'
+        f'<span>{_inline_md(display_title)}</span>'
+        f'</div>'
+        f'<div style="color:{style["body_color"]};font-size:0.95em;'
+        f'line-height:1.65;">{inner_html}</div>'
+        f'</aside>'
+    )
+
+
 def _md_to_html(md: str) -> str:
     """Tiny markdown -> HTML converter for the subset used by seed lessons.
 
     Supports headings (## / ###), bold/italic, ordered (1. / 2. …) and
     unordered (- …) lists, blockquotes, fenced code blocks (```), GFM
-    tables, and paragraphs. Leaves ``$...$`` and ``$$...$$`` untouched so
-    the frontend HtmlWithMath renderer can KaTeX-process them. Emits HTML
-    (not markdown) because the renderer routes any block that contains
-    ``$`` to a math-only path that ignores markdown syntax —
-    pre-rendering keeps both markdown formatting and KaTeX math working.
+    tables, paragraphs, horizontal rules (---), and callout blocks
+    (``:::tip``, ``:::note``, ``:::warning``, ``:::example``). Leaves
+    ``$...$`` / ``$$...$$`` untouched for KaTeX. Emits HTML so the
+    renderer's math-block path doesn't ignore markdown formatting.
+
+    Callout syntax::
+
+        :::tip Pronunciation tip
+        Body lines here, can contain **bold**, lists, etc.
+        :::
     """
     import re as _re
     lines = md.split("\n")
@@ -300,6 +353,11 @@ def _md_to_html(md: str) -> str:
     in_table = False
     table_header_done = False
     para_buf: list[str] = []
+    in_callout = False
+    callout_kind = ""
+    callout_title = ""
+    callout_buf: list[str] = []
+    callout_open_re = _re.compile(r"^:::\s*(tip|note|warning|example)\s*(.*)$")
 
     def flush_para() -> None:
         nonlocal para_buf
@@ -329,6 +387,25 @@ def _md_to_html(md: str) -> str:
 
     for raw in lines:
         line = raw.rstrip()
+        # Inside a callout, buffer everything until matching `:::` line.
+        if in_callout:
+            if line.strip() == ":::":
+                out.append(_render_callout(callout_kind, callout_title, "\n".join(callout_buf)))
+                in_callout = False
+                callout_kind = ""
+                callout_title = ""
+                callout_buf = []
+            else:
+                callout_buf.append(line)
+            continue
+        m_callout = callout_open_re.match(line)
+        if m_callout:
+            flush_para(); flush_lists(); flush_table()
+            in_callout = True
+            callout_kind = m_callout.group(1)
+            callout_title = m_callout.group(2) or ""
+            callout_buf = []
+            continue
         if in_code:
             if line.startswith("```"):
                 escaped = "\n".join(code_buf).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -343,6 +420,10 @@ def _md_to_html(md: str) -> str:
             flush_para(); flush_lists(); flush_table()
             in_code = True
             code_lang = line[3:].strip() or "text"
+            continue
+        if line.strip() == "---":
+            flush_para(); flush_lists(); flush_table()
+            out.append('<hr style="margin:1.5rem 0;border:0;border-top:1px solid #e5e7eb;">')
             continue
         if not line.strip():
             flush_para(); flush_lists(); flush_table()
@@ -399,6 +480,9 @@ def _md_to_html(md: str) -> str:
     flush_para(); flush_lists(); flush_table()
     if in_code:
         out.append("<pre><code>" + "\n".join(code_buf) + "</code></pre>")
+    if in_callout:
+        # Unclosed callout — render what we have so content isn't lost.
+        out.append(_render_callout(callout_kind, callout_title, "\n".join(callout_buf)))
     return "\n".join(out)
 
 
@@ -435,6 +519,31 @@ def _blocks_for(text_md: str, video_url: str | None, exercise_ids: list[uuid.UUI
         })
         order += 1
     return blocks
+
+
+async def delete_orphan_courses(
+    db: AsyncSession, org: Organization, keep_slugs: set[str],
+) -> list[str]:
+    """Delete demo-org courses whose slug is not in the current ALL_COURSES set.
+
+    Scoped strictly to ``org.id`` so production user content in other
+    organisations is never touched. FK CASCADE on courses removes
+    modules, lessons, exercises, enrollments, lesson_progress,
+    assignments, assignment_submissions, calendar_events, certificates
+    and related submissions automatically (see backend models).
+    """
+    result = await db.execute(
+        select(Course).where(Course.org_id == org.id)
+    )
+    deleted: list[str] = []
+    for course in result.scalars().all():
+        if course.slug in keep_slugs:
+            continue
+        deleted.append(f"{course.slug} ({course.id})")
+        await db.delete(course)
+    if deleted:
+        await db.flush()
+    return deleted
 
 
 async def upsert_course(
@@ -931,6 +1040,11 @@ async def main() -> int:
         users = await upsert_users(db, org)
         teacher = users["demo-teacher"]
 
+        keep_slugs = {spec["slug"] for spec in ALL_COURSES}
+        orphans = await delete_orphan_courses(db, org, keep_slugs)
+        if orphans:
+            print(f"REMOVED_ORPHANS={len(orphans)}: " + ", ".join(orphans))
+
         courses: dict[str, Course] = {}
         for spec in ALL_COURSES:
             courses[spec["slug"]] = await upsert_course(db, org, teacher, spec)
@@ -947,7 +1061,8 @@ async def main() -> int:
         print(f"DEMO_COURSES={','.join(str(c.id) for c in courses.values())}")
         print(
             f"OK: org={org.id} users={len(users)} courses={len(courses)} "
-            f"badges={len(BADGES)} events={len(CALENDAR_EVENTS)}"
+            f"badges={len(BADGES)} events={len(CALENDAR_EVENTS)} "
+            f"orphans_removed={len(orphans)}"
         )
     return 0
 

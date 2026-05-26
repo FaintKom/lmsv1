@@ -47,7 +47,11 @@ COURSE = {
                         "name = input()\n"
                         "print(f\"Hello, {name}!\")\n"
                         "```\n\n"
-                        "`f\"...\"` is an **f-string** — anything in `{}` is replaced by its value."
+                        ":::tip f-strings\n"
+                        "`f\"...\"` is an **f-string**. Anything in `{}` is replaced by its "
+                        "value — `f\"2 + 2 = {2 + 2}\"` prints `2 + 2 = 4`. You can even put "
+                        "function calls inside the braces.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {
@@ -121,8 +125,11 @@ COURSE = {
                         "else:\n"
                         "    print(\"negative\")\n"
                         "```\n\n"
-                        "### Indentation matters\n\n"
-                        "Python uses indentation (4 spaces) to mark blocks. No `{}`.\n\n"
+                        ":::warning Indentation matters\n"
+                        "Python uses **indentation** (4 spaces) to mark blocks. No `{}`. "
+                        "Mixing tabs and spaces, or indenting by 3 spaces in one line and 4 "
+                        "in the next, will raise an `IndentationError`.\n"
+                        ":::\n\n"
                         "### Comparison operators\n\n"
                         "`==` equal · `!=` not equal · `<` `>` `<=` `>=`\n\n"
                         "### Combining conditions\n\n"

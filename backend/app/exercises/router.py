@@ -316,13 +316,23 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
             q.correct_answer = None
     if resp.test_cases:
         resp.test_cases = [tc for tc in resp.test_cases if not tc.is_hidden]
-    # Strip solution from config but keep shuffled blanks as word bank
+    # Strip solution from config but keep shuffled blanks / sentence words
+    # as a `word_bank` so the renderer has something to display.
     if resp.config:
         import random
         blanks = resp.config.get("blanks")
+        correct_order = resp.config.get("correct_order")
+        distractors = resp.config.get("distractors") or []
         resp.config = {k: v for k, v in resp.config.items() if k not in ("solution_code", "correct_order", "blanks", "correct_answer")}
         if blanks:
             shuffled = list(blanks)
             random.shuffle(shuffled)
             resp.config["word_bank"] = shuffled
+        elif correct_order is not None:
+            # sentence_builder — the renderer used to reach for `correct_order`
+            # directly, which we just stripped. Provide a shuffled pool
+            # (correct words + distractors) under `word_bank` instead.
+            pool = list(correct_order) + list(distractors)
+            random.shuffle(pool)
+            resp.config["word_bank"] = pool
     return resp

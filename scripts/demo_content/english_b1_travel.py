@@ -38,8 +38,11 @@ COURSE = {
                         "- **Departure / Arrival** — leaving / coming in\n"
                         "- **Layover** — a stop between two flights\n"
                         "- **Delayed / Cancelled** — late / not happening\n\n"
-                        "> **Tip:** *gate* and *terminal* are different. A terminal is the building; "
-                        "a gate is one of many doors inside it."
+                        ":::tip Gate vs terminal\n"
+                        "*Gate* and *terminal* are different. A terminal is the **building**; "
+                        "a gate is one of many **doors** inside it. \"Gate B14\" is inside "
+                        "Terminal 2.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {
@@ -94,8 +97,11 @@ COURSE = {
                         "- \"My flight has been delayed.\"\n"
                         "- \"I missed my connection.\"\n"
                         "- \"My bag didn't arrive.\"\n\n"
-                        "> Notice the modal **could** / **would** — these turn a command "
-                        "(*Give me a window seat*) into a polite request."
+                        ":::note Politeness matters\n"
+                        "Notice the modal **could** / **would** — they turn a command "
+                        "(*Give me a window seat*) into a polite request. Native speakers "
+                        "use these everywhere, even with friends.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {
@@ -156,20 +162,29 @@ COURSE = {
                                     {
                                         "question": "Why is the flight delayed?",
                                         "type": "multiple_choice",
-                                        "options": ["Weather conditions", "Technical issue", "Crew shortage"],
-                                        "correct_answer": "Weather conditions",
+                                        "options": [
+                                            {"id": "a", "text": "Weather conditions", "is_correct": True},
+                                            {"id": "b", "text": "Technical issue", "is_correct": False},
+                                            {"id": "c", "text": "Crew shortage", "is_correct": False},
+                                        ],
                                     },
                                     {
                                         "question": "What is the new boarding time?",
                                         "type": "multiple_choice",
-                                        "options": ["14:30", "15:30", "16:30"],
-                                        "correct_answer": "15:30",
+                                        "options": [
+                                            {"id": "a", "text": "14:30", "is_correct": False},
+                                            {"id": "b", "text": "15:30", "is_correct": True},
+                                            {"id": "c", "text": "16:30", "is_correct": False},
+                                        ],
                                     },
                                     {
                                         "question": "From which gate will the flight board?",
                                         "type": "multiple_choice",
-                                        "options": ["A14", "B14", "C14"],
-                                        "correct_answer": "B14",
+                                        "options": [
+                                            {"id": "a", "text": "A14", "is_correct": False},
+                                            {"id": "b", "text": "B14", "is_correct": True},
+                                            {"id": "c", "text": "C14", "is_correct": False},
+                                        ],
                                     },
                                 ],
                             },
@@ -198,7 +213,10 @@ COURSE = {
                         "- In the UK, you usually pay at the table; in the US, you ask for the **check** "
                         "(or **bill** in the UK).\n"
                         "- Tipping varies: ~15% in the US, ~10% in the UK, often included on the bill in Europe.\n\n"
-                        "> Try the dialogue below — a barista will ask what you want."
+                        ":::example Order in the dialogue below\n"
+                        "A barista will ask what you want. Pick the most polite line — short "
+                        "and natural beats long and stiff.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {
@@ -308,20 +326,30 @@ COURSE = {
                                     {
                                         "question": "Which main course is vegetarian?",
                                         "type": "multiple_choice",
-                                        "options": ["Grilled chicken", "Mushroom risotto", "Beef burger", "Sea bass"],
-                                        "correct_answer": "Mushroom risotto",
+                                        "options": [
+                                            {"id": "a", "text": "Grilled chicken", "is_correct": False},
+                                            {"id": "b", "text": "Mushroom risotto", "is_correct": True},
+                                            {"id": "c", "text": "Beef burger", "is_correct": False},
+                                            {"id": "d", "text": "Sea bass", "is_correct": False},
+                                        ],
                                     },
                                     {
                                         "question": "Which dessert is suitable for a vegan?",
                                         "type": "multiple_choice",
-                                        "options": ["Apple pie", "Sorbet", "Chocolate brownie"],
-                                        "correct_answer": "Sorbet",
+                                        "options": [
+                                            {"id": "a", "text": "Apple pie", "is_correct": False},
+                                            {"id": "b", "text": "Sorbet", "is_correct": True},
+                                            {"id": "c", "text": "Chocolate brownie", "is_correct": False},
+                                        ],
                                     },
                                     {
                                         "question": "How much is the most expensive starter?",
                                         "type": "multiple_choice",
-                                        "options": ["£6", "£7", "£9"],
-                                        "correct_answer": "£9",
+                                        "options": [
+                                            {"id": "a", "text": "£6", "is_correct": False},
+                                            {"id": "b", "text": "£7", "is_correct": False},
+                                            {"id": "c", "text": "£9", "is_correct": True},
+                                        ],
                                     },
                                 ],
                             },

@@ -36,9 +36,11 @@ COURSE = {
                         "- **¿Cómo está?** — *How are you?* (formal, to a stranger)\n"
                         "- **Muy bien, gracias.** — *Very well, thank you.*\n"
                         "- **¿Y tú?** — *And you?*\n\n"
-                        "> **Pronunciation tip:** the `¿` and `¡` are upside-down marks used at the "
-                        "**start** of a question or exclamation. They don't change pronunciation — they "
-                        "just tell you what's coming."
+                        ":::tip Pronunciation tip\n"
+                        "The `¿` and `¡` are upside-down marks used at the **start** of a "
+                        "question or exclamation. They don't change pronunciation — they just "
+                        "tell your eyes what's coming.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {
@@ -107,7 +109,11 @@ COURSE = {
                         "### 11 to 20\n\n"
                         "- 11 once · 12 doce · 13 trece · 14 catorce · 15 quince\n"
                         "- 16 dieciséis · 17 diecisiete · 18 dieciocho · 19 diecinueve · 20 veinte\n\n"
-                        "> Spot the pattern in **dieci-** + a number 6-9: that's *ten and six*, *ten and seven*…"
+                        ":::tip Spot the pattern\n"
+                        "From 16 to 19 Spanish uses **dieci-** + a digit. *Dieciséis* = "
+                        "*ten and six*, *diecisiete* = *ten and seven*. Once you see it, "
+                        "remembering the lot becomes one rule, not five.\n"
+                        ":::"
                     ),
                     "exercises": [
                         {

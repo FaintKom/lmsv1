@@ -24,6 +24,28 @@ export function MathRenderer({ content, className }: MathRendererProps) {
  );
 }
 
+// Mirrors scripts/seed_demo_org.py::_inline_md so seed content renders identically.
+function renderInlineMd(s: string): string {
+ return s
+   .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+   .replace(/(?<![\\\w*])\*([^*\n]+?)\*(?!\w)/g, "<em>$1</em>")
+   .replace(/`([^`]+?)`/g, "<code>$1</code>");
+}
+
+/**
+ * Renders short text that may contain inline markdown and/or LaTeX math.
+ * Used for quiz question text and option labels where content authors mix
+ * `**bold**`, `*em*`, `` `code` `` and `$x^2$`.
+ */
+export function MaybeMath({ text, className }: { text: string; className?: string }) {
+ const html = useMemo(() => {
+   if (!text) return "";
+   const withMd = renderInlineMd(text);
+   return containsMath(text) ? renderMath(withMd) : withMd;
+ }, [text]);
+ return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 function renderMath(text: string): string {
  if (!text) return "";
 

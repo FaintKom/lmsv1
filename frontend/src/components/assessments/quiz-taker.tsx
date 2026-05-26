@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
 import { toast } from "sonner";
-import { MathRenderer, containsMath } from "@/components/common/math-renderer";
-
-function MaybeMath({ text }: { text: string }) {
- return containsMath(text) ? <MathRenderer content={text} /> : <>{text}</>;
-}
+import { MaybeMath } from "@/components/common/math-renderer";
 
 interface QuizOption {
  id: string;
