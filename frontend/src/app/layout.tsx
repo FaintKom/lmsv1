@@ -5,6 +5,7 @@ import { I18nProvider } from "@/lib/i18n/context";
 import { Toaster } from "@/components/ui/toaster";
 import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { QueryProvider } from "@/components/providers/query-provider";
 import CookieConsent from "@/components/cookie-consent";
 
 const manrope = Manrope({
@@ -50,6 +51,7 @@ export default function RootLayout({
  <link rel="apple-touch-icon" href="/icon-192.png" />
  </head>
  <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
+ <QueryProvider>
  <I18nProvider>
  <ConfirmProvider>
  <ErrorBoundary>
@@ -57,6 +59,7 @@ export default function RootLayout({
  </ErrorBoundary>
  </ConfirmProvider>
  </I18nProvider>
+ </QueryProvider>
  <Toaster />
  <CookieConsent />
  </body>
