@@ -1,11 +1,14 @@
 /**
  * Voxel character builder for the My Avatar feature.
  *
- * The character is centered around the origin in voxel coordinates:
- *   feet at y=0, head top around y=7.5.
- *   width spans roughly x = -1 .. +1 (body) with arms outside that.
+ * Character is centred on origin in voxel coordinates: feet y=0, head
+ * top ~y=7.5. Body width spans roughly x=-1..+1 (arms outside).
  *
- * Each builder returns a THREE.Group. buildAvatar() stacks them.
+ * STRICT RULE: within a single builder no two boxes may share volume.
+ * Boxes can touch a face but never overlap. Decoration must protrude
+ * past the surface it decorates, never sit inside it. Frames around
+ * inserts split into strips with the insert filling the centre hole.
+ * Enforced by scripts/detect-overlaps.ts.
  */
 import * as THREE from "three";
 
@@ -14,7 +17,6 @@ import { COL, VOX, darker, vbox } from "@/lib/room/voxels";
 const SKIN = 0xe8b89a;
 const SKIN_DARK = darker(SKIN, 0.85);
 
-// Helper: vbox positioned relative to (0,0,0) origin of the character group.
 function box(
   g: THREE.Group,
   x: number,
@@ -29,55 +31,54 @@ function box(
   vbox(g, x, y, z, w, h, d, color, opts);
 }
 
-// ── core body (skin layer, accessories overlay on top) ────────────────
+// ── core body ──────────────────────────────────────────────────────────
 
 export function buildBoyBody(): THREE.Group {
   const g = new THREE.Group();
-  // legs (single box each — outfit covers them)
+  // Legs — split at x=0 (touch but don't overlap).
   box(g, -0.6, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
   box(g, 0.0, 0, -0.4, 0.6, 2.2, 0.8, SKIN);
-  // torso (square shoulders, broad chest)
+  // Torso (square shoulders).
   box(g, -0.85, 2.2, -0.5, 1.7, 2.4, 1.0, SKIN);
-  // arms (upper) — shorter so hand fits below
+  // Arms (upper): outside torso x range.
   box(g, -1.45, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
   box(g, 0.85, 2.8, -0.45, 0.6, 1.7, 0.9, SKIN);
-  // hands (slightly bigger than wrist for silhouette readability)
-  box(g, -1.5, 2.3, -0.5, 0.7, 0.5, 1.0, SKIN_DARK);
-  box(g, 0.8, 2.3, -0.5, 0.7, 0.5, 1.0, SKIN_DARK);
-  // neck
+  // Hands: BELOW arms (y=2.3..2.8), x entirely outside torso.
+  box(g, -1.45, 2.3, -0.5, 0.6, 0.5, 1.0, SKIN_DARK);
+  box(g, 0.85, 2.3, -0.5, 0.6, 0.5, 1.0, SKIN_DARK);
+  // Neck.
   box(g, -0.3, 4.6, -0.3, 0.6, 0.4, 0.6, SKIN_DARK);
-  // head: jaw narrower than crown (chin taper) — two stacked boxes
-  box(g, -0.7, 5.0, -0.55, 1.4, 0.7, 1.1, SKIN); // jaw
-  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN); // crown / upper head
-  // ears
-  box(g, -0.9, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
-  box(g, 0.8, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
+  // Head: jaw + crown.
+  box(g, -0.7, 5.0, -0.55, 1.4, 0.7, 1.1, SKIN);
+  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN);
+  // Ears — OUTSIDE crown x range.
+  box(g, -0.95, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
+  box(g, 0.8, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
   return g;
 }
 
 export function buildGirlBody(): THREE.Group {
   const g = new THREE.Group();
-  // legs closer together
+  // Legs.
   box(g, -0.55, 0, -0.4, 0.55, 2.2, 0.8, SKIN);
   box(g, 0.0, 0, -0.4, 0.55, 2.2, 0.8, SKIN);
-  // hip flare hint
-  box(g, -0.85, 1.9, -0.5, 1.7, 0.5, 1.0, SKIN);
-  // narrower torso
-  box(g, -0.75, 2.4, -0.5, 1.5, 2.2, 1.0, SKIN);
-  // slimmer arms (upper)
+  // Torso above legs — narrower than boy's (no flare; cleanly outside the
+  // hand x range -1.3..-0.75 and 0.75..1.30 by exactly 0 voxels — flush).
+  box(g, -0.75, 2.2, -0.5, 1.5, 2.4, 1.0, SKIN);
+  // Slim arms.
   box(g, -1.3, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
   box(g, 0.75, 2.8, -0.45, 0.55, 1.7, 0.85, SKIN);
-  // hands
-  box(g, -1.35, 2.3, -0.5, 0.65, 0.5, 0.95, SKIN_DARK);
-  box(g, 0.7, 2.3, -0.5, 0.65, 0.5, 0.95, SKIN_DARK);
-  // thinner neck
+  // Hands.
+  box(g, -1.3, 2.3, -0.5, 0.55, 0.5, 0.95, SKIN_DARK);
+  box(g, 0.75, 2.3, -0.5, 0.55, 0.5, 0.95, SKIN_DARK);
+  // Neck.
   box(g, -0.25, 4.6, -0.3, 0.5, 0.4, 0.6, SKIN_DARK);
-  // head: jaw narrower than crown (softer for girl: more taper)
-  box(g, -0.65, 5.0, -0.55, 1.3, 0.7, 1.1, SKIN); // jaw (narrower than boy)
-  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN); // crown
-  // ears
-  box(g, -0.9, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
-  box(g, 0.8, 5.7, -0.4, 0.1, 0.5, 0.5, SKIN);
+  // Head.
+  box(g, -0.65, 5.0, -0.55, 1.3, 0.7, 1.1, SKIN);
+  box(g, -0.8, 5.7, -0.6, 1.6, 1.0, 1.2, SKIN);
+  // Ears.
+  box(g, -0.95, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
+  box(g, 0.8, 5.9, -0.3, 0.15, 0.6, 0.6, SKIN);
   return g;
 }
 
@@ -86,7 +87,7 @@ export function buildBody(variant: string): THREE.Group {
   return buildBoyBody();
 }
 
-// ── hair (6 variants) ──────────────────────────────────────────────────
+// ── hair ──────────────────────────────────────────────────────────────
 
 export function buildHair(variant: string): THREE.Group {
   const g = new THREE.Group();
@@ -95,48 +96,58 @@ export function buildHair(variant: string): THREE.Group {
       return g;
     case "avatar-hair-long": {
       const c = 0xf5d272;
+      // Top cap above crown (y=6.7..7.0).
       box(g, -0.9, 6.7, -0.7, 1.8, 0.3, 1.3, c);
-      box(g, -0.9, 4.4, -0.7, 0.3, 2.5, 1.2, c);
-      box(g, 0.6, 4.4, -0.7, 0.3, 2.5, 1.2, c);
-      box(g, -0.7, 6.6, -0.7, 1.4, 0.5, 0.2, c);
+      // Bangs IN FRONT of crown (z=-0.7..-0.6, just outside crown z=-0.6).
+      box(g, -0.7, 6.3, -0.7, 1.4, 0.4, 0.1, c);
+      // Side curtains OUTSIDE crown x (crown x=-0.8..0.8).
+      box(g, -1.0, 4.4, -0.7, 0.2, 2.3, 1.3, c);
+      box(g, 0.8, 4.4, -0.7, 0.2, 2.3, 1.3, c);
       return g;
     }
     case "avatar-hair-curly": {
       const c = 0xc94335;
-      box(g, -1.0, 6.5, -0.7, 2.0, 0.7, 1.3, c);
-      box(g, -1.0, 5.8, -0.7, 0.3, 0.8, 1.2, c);
-      box(g, 0.7, 5.8, -0.7, 0.3, 0.8, 1.2, c);
-      box(g, -0.4, 7.1, -0.3, 0.8, 0.4, 0.6, c);
+      // Cap above crown.
+      box(g, -1.0, 6.7, -0.7, 2.0, 0.5, 1.3, c);
+      // Side tufts OUTSIDE crown x range.
+      box(g, -1.05, 5.8, -0.7, 0.25, 0.9, 1.3, c);
+      box(g, 0.8, 5.8, -0.7, 0.25, 0.9, 1.3, c);
+      // Top pouf ABOVE cap top y=7.2.
+      box(g, -0.4, 7.2, -0.3, 0.8, 0.4, 0.6, c);
       return g;
     }
     case "avatar-hair-bun": {
       const c = 0x6b4422;
-      box(g, -0.9, 6.6, -0.7, 1.8, 0.3, 1.3, c);
+      box(g, -0.9, 6.7, -0.7, 1.8, 0.3, 1.3, c);
       box(g, -0.45, 7.0, -0.05, 0.9, 0.7, 0.6, c);
       return g;
     }
     case "avatar-hair-mohawk": {
       const c = 0xff7a5c;
-      box(g, -0.25, 6.7, -0.3, 0.5, 1.2, 0.6, c);
-      box(g, -0.15, 7.7, -0.2, 0.3, 0.4, 0.4, c);
+      // Main strip.
+      box(g, -0.25, 6.7, -0.3, 0.5, 0.8, 0.6, c);
+      // Tip ABOVE main strip top y=7.5.
+      box(g, -0.15, 7.5, -0.2, 0.3, 0.4, 0.4, c);
       return g;
     }
     case "avatar-hair-short":
     default: {
       const c = 0x6b4422;
-      // top cap
-      box(g, -0.9, 6.6, -0.7, 1.8, 0.4, 1.4, c);
-      // wrap-around to cover the full head, not just thin strips
-      box(g, -0.9, 5.6, -0.75, 1.8, 1.0, 0.2, c); // back face
-      box(g, -0.9, 5.6, 0.55, 1.8, 1.0, 0.2, c); // front bangs
-      box(g, -0.95, 5.6, -0.5, 0.2, 1.0, 1.1, c); // left side
-      box(g, 0.75, 5.6, -0.5, 0.2, 1.0, 1.1, c); // right side
+      // Top cap (above crown y=6.7).
+      box(g, -0.9, 6.7, -0.7, 1.8, 0.4, 1.4, c);
+      // Wrap-around. To avoid corner overlap, sides span the FULL z range
+      // (z=-0.7..0.7), front+back are SHORTER in x (start at -0.75 vs side
+      // ends at -0.75) so they don't share volume with sides.
+      box(g, -0.75, 5.6, -0.7, 1.5, 1.1, 0.1, c); // back strip (z=-0.7..-0.6)
+      box(g, -0.75, 5.6, 0.6, 1.5, 1.1, 0.1, c); // front bangs (z=0.6..0.7)
+      box(g, -0.9, 5.6, -0.6, 0.15, 1.1, 1.2, c); // left side
+      box(g, 0.75, 5.6, -0.6, 0.15, 1.1, 1.2, c); // right side
       return g;
     }
   }
 }
 
-// ── face (6 variants) ──────────────────────────────────────────────────
+// ── face ──────────────────────────────────────────────────────────────
 
 export function buildFace(variant: string): THREE.Group {
   const g = new THREE.Group();
@@ -157,14 +168,17 @@ export function buildFace(variant: string): THREE.Group {
       return g;
     }
     case "avatar-face-cool": {
-      box(g, -0.65, 5.95, eyeZ, 1.3, 0.35, 0.07, COL.black);
-      box(g, -0.05, 6.05, eyeZ, 0.1, 0.05, 0.07, COL.black);
+      box(g, -0.65, 5.95, eyeZ, 1.3, 0.35, 0.05, COL.black);
+      // Bridge IN FRONT of shades.
+      box(g, -0.05, 6.05, eyeZ - 0.05, 0.1, 0.05, 0.05, COL.black);
       box(g, -0.25, 5.5, eyeZ, 0.5, 0.1, 0.05, COL.charcoal);
       return g;
     }
     case "avatar-face-determined": {
-      box(g, -0.5, 6.05, eyeZ, 0.3, 0.05, 0.05, COL.black);
-      box(g, 0.2, 6.05, eyeZ, 0.3, 0.05, 0.05, COL.black);
+      // Eyebrows ABOVE eyes.
+      box(g, -0.5, 6.25, eyeZ, 0.3, 0.05, 0.05, COL.black);
+      box(g, 0.2, 6.25, eyeZ, 0.3, 0.05, 0.05, COL.black);
+      // Eyes.
       box(g, -0.4, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
       box(g, 0.2, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
       box(g, -0.3, 5.5, eyeZ, 0.6, 0.08, 0.05, COL.charcoal);
@@ -173,8 +187,10 @@ export function buildFace(variant: string): THREE.Group {
     case "avatar-face-glasses": {
       box(g, -0.5, 5.9, eyeZ, 0.45, 0.4, 0.05, COL.black);
       box(g, 0.05, 5.9, eyeZ, 0.45, 0.4, 0.05, COL.black);
-      box(g, -0.42, 5.98, eyeZ + 0.02, 0.3, 0.25, 0.03, 0x9fc6d9, { transparent: true, opacity: 0.5 });
-      box(g, 0.13, 5.98, eyeZ + 0.02, 0.3, 0.25, 0.03, 0x9fc6d9, { transparent: true, opacity: 0.5 });
+      // Lenses IN FRONT of frames (not inside).
+      box(g, -0.42, 5.98, eyeZ - 0.05, 0.3, 0.25, 0.04, 0x9fc6d9, { transparent: true, opacity: 0.5 });
+      box(g, 0.13, 5.98, eyeZ - 0.05, 0.3, 0.25, 0.04, 0x9fc6d9, { transparent: true, opacity: 0.5 });
+      // Bridge BETWEEN frames (x=-0.05..0.05).
       box(g, -0.05, 6.0, eyeZ, 0.1, 0.05, 0.05, COL.black);
       box(g, -0.2, 5.5, eyeZ, 0.4, 0.1, 0.05, COL.coral);
       return g;
@@ -183,64 +199,66 @@ export function buildFace(variant: string): THREE.Group {
     default: {
       box(g, -0.4, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
       box(g, 0.2, 6.0, eyeZ, 0.2, 0.2, 0.05, COL.black);
-      // Smile pixel pattern (10 cols × 2 rows, cell=0.1):
-      //   . . X . . . . X . .   top row y=5.5  (corners lifted up)
-      //   . . . X X X X . . .   bot row y=5.4  (mouth bottom curve)
-      box(g, -0.3, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral); // top col 2
-      box(g, 0.2, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral); // top col 7
-      box(g, -0.2, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 3
-      box(g, -0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 4
-      box(g, 0.0, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 5
-      box(g, 0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral); // bot col 6
+      box(g, -0.3, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      box(g, 0.2, 5.5, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      box(g, -0.2, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      box(g, -0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      box(g, 0.0, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
+      box(g, 0.1, 5.4, eyeZ, 0.1, 0.1, 0.05, COL.coral);
       return g;
     }
   }
 }
 
-// ── outfit (6 variants) ────────────────────────────────────────────────
+// ── outfit ────────────────────────────────────────────────────────────
 
 export function buildOutfit(variant: string): THREE.Group {
   const g = new THREE.Group();
   switch (variant) {
     case "avatar-outfit-cozy": {
-      // chunky sweater: long sleeves to wrist, ribbed cuffs
       const c = COL.cream;
       const cuff = darker(c, 0.85);
-      box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c); // long left sleeve
-      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c); // long right sleeve
-      box(g, -1.5, 2.7, -0.52, 0.7, 0.18, 1.02, cuff); // left cuff
-      box(g, 0.8, 2.7, -0.52, 0.7, 0.18, 1.02, cuff); // right cuff
-      box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.woodMid);
-      box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.woodMid);
+      box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c); // torso
+      box(g, -1.55, 2.85, -0.5, 0.7, 1.85, 1.0, c); // left sleeve
+      box(g, 0.85, 2.85, -0.5, 0.7, 1.85, 1.0, c); // right sleeve
+      box(g, -1.55, 2.7, -0.52, 0.7, 0.15, 1.02, cuff); // left cuff
+      box(g, 0.85, 2.7, -0.52, 0.7, 0.15, 1.02, cuff); // right cuff
+      // Pants touch at x=0, no overlap (w=0.6 each).
+      box(g, -0.6, 0, -0.45, 0.6, 2.2, 0.9, COL.woodMid);
+      box(g, 0.0, 0, -0.45, 0.6, 2.2, 0.9, COL.woodMid);
       return g;
     }
     case "avatar-outfit-hoodie": {
       const c = 0x4a9b66;
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c);
-      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c);
-      box(g, -0.85, 4.3, -0.7, 1.7, 0.5, 1.3, c); // hood collar
-      // drawstrings down the chest
+      box(g, -1.55, 2.85, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, 0.85, 2.85, -0.5, 0.7, 1.85, 1.0, c);
+      // Hood collar ABOVE torso (y=4.7..5.1).
+      box(g, -0.85, 4.7, -0.7, 1.7, 0.4, 1.3, c);
+      // Drawstrings + pocket protrude forward of torso (z=-0.62..-0.55).
       box(g, -0.25, 2.5, -0.62, 0.05, 1.0, 0.05, COL.white);
       box(g, 0.2, 2.5, -0.62, 0.05, 1.0, 0.05, COL.white);
-      // kangaroo pocket
-      box(g, -0.55, 2.6, -0.62, 1.1, 0.55, 0.06, darker(c, 0.85));
-      box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.charcoal);
-      box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.charcoal);
+      // Pocket — single horizontal strip protruding forward, in y range
+      // BELOW drawstring top y=3.5 and ABOVE pant top y=2.2 (y=2.3..2.5).
+      box(g, -0.55, 2.3, -0.62, 1.1, 0.15, 0.06, darker(c, 0.85));
+      // Pants.
+      box(g, -0.6, 0, -0.45, 0.6, 2.2, 0.9, COL.charcoal);
+      box(g, 0.0, 0, -0.45, 0.6, 2.2, 0.9, COL.charcoal);
       return g;
     }
     case "avatar-outfit-dress": {
       const c = 0xff7a5c;
-      // short sleeves (just shoulders)
+      // Bodice.
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -1.45, 3.9, -0.5, 0.65, 0.75, 1.0, c);
-      box(g, 0.8, 3.9, -0.5, 0.65, 0.75, 1.0, c);
-      // flared skirt (wider at bottom)
+      // Short shoulder sleeves (y above hand top 2.8).
+      box(g, -1.5, 3.95, -0.5, 0.65, 0.7, 1.0, c);
+      box(g, 0.85, 3.95, -0.5, 0.65, 0.7, 1.0, c);
+      // Skirt tiers BELOW bodice (bodice y=2.2..4.7). Tier 1 y=1.5..2.2,
+      // tier 2 y=0.5..1.5 — flush stacked.
       box(g, -0.95, 1.5, -0.6, 1.9, 0.7, 1.2, c);
       box(g, -1.05, 0.5, -0.7, 2.1, 1.0, 1.4, c);
-      // waist sash
-      box(g, -0.9, 2.0, -0.6, 1.8, 0.2, 1.2, darker(c, 0.7));
+      // Waist sash protrudes IN FRONT of bodice (z=-0.61..-0.55).
+      box(g, -0.85, 2.2, -0.61, 1.7, 0.2, 0.06, darker(c, 0.7));
       return g;
     }
     case "avatar-outfit-sport": {
@@ -248,83 +266,81 @@ export function buildOutfit(variant: string): THREE.Group {
       const bottom = COL.charcoal;
       const stripe = COL.sun;
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, top);
-      // short sleeves
-      box(g, -1.45, 3.9, -0.5, 0.65, 0.75, 1.0, top);
-      box(g, 0.8, 3.9, -0.5, 0.65, 0.75, 1.0, top);
-      // chest stripe
-      box(g, -0.85, 3.3, -0.62, 1.7, 0.18, 0.06, stripe);
-      // shorts (not full pants — sport look)
-      box(g, -0.6, 1.0, -0.45, 0.7, 1.3, 0.9, bottom);
-      box(g, -0.05, 1.0, -0.45, 0.7, 1.3, 0.9, bottom);
-      // socks
-      box(g, -0.6, 0, -0.45, 0.7, 0.4, 0.9, COL.white);
-      box(g, -0.05, 0, -0.45, 0.7, 0.4, 0.9, COL.white);
-      // side stripes on shorts
-      box(g, -0.62, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
-      box(g, 0.62, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
+      box(g, -1.5, 3.95, -0.5, 0.65, 0.7, 1.0, top);
+      box(g, 0.85, 3.95, -0.5, 0.65, 0.7, 1.0, top);
+      // Chest stripe IN FRONT of torso.
+      box(g, -0.85, 3.3, -0.61, 1.7, 0.18, 0.06, stripe);
+      // Shorts (touch at x=0).
+      box(g, -0.6, 1.0, -0.45, 0.6, 1.2, 0.9, bottom);
+      box(g, 0.0, 1.0, -0.45, 0.6, 1.2, 0.9, bottom);
+      // Socks (touch at x=0).
+      box(g, -0.6, 0, -0.45, 0.6, 0.4, 0.9, COL.white);
+      box(g, 0.0, 0, -0.45, 0.6, 0.4, 0.9, COL.white);
+      // Side stripes OUTSIDE shorts x range.
+      box(g, -0.65, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
+      box(g, 0.6, 1.1, -0.5, 0.05, 1.1, 0.05, stripe);
       return g;
     }
     case "avatar-outfit-suit": {
       const c = COL.charcoal;
-      // jacket torso + lapels
+      // Jacket torso.
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      box(g, -0.55, 4.0, -0.62, 0.3, 0.6, 0.06, darker(c, 0.6)); // left lapel
-      box(g, 0.25, 4.0, -0.62, 0.3, 0.6, 0.06, darker(c, 0.6)); // right lapel
-      // shirt placket
-      box(g, -0.08, 2.3, -0.62, 0.16, 2.0, 0.06, COL.white);
-      // tie
-      box(g, -0.1, 4.3, -0.62, 0.2, 0.15, 0.06, COL.red);
-      box(g, -0.08, 3.0, -0.62, 0.16, 1.3, 0.07, COL.red);
-      box(g, -0.1, 2.8, -0.62, 0.2, 0.25, 0.07, COL.red);
-      // pocket square
-      box(g, -0.6, 3.7, -0.62, 0.2, 0.1, 0.06, COL.white);
-      // long sleeves
-      box(g, -1.5, 2.8, -0.5, 0.7, 1.85, 1.0, c);
-      box(g, 0.8, 2.8, -0.5, 0.7, 1.85, 1.0, c);
-      // shirt cuffs
-      box(g, -1.5, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
-      box(g, 0.8, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
-      // dress pants
-      box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, c);
-      box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, c);
+      // Lapels protrude forward of jacket (z=-0.61..-0.55).
+      box(g, -0.55, 4.0, -0.61, 0.3, 0.6, 0.06, darker(c, 0.6));
+      box(g, 0.25, 4.0, -0.61, 0.3, 0.6, 0.06, darker(c, 0.6));
+      // Shirt placket further forward (z=-0.67..-0.61).
+      box(g, -0.08, 2.3, -0.67, 0.16, 1.7, 0.06, COL.white);
+      // Tie protrudes further forward of placket (z=-0.73..-0.67).
+      box(g, -0.1, 4.0, -0.73, 0.2, 0.15, 0.06, COL.red);
+      box(g, -0.08, 2.8, -0.73, 0.16, 1.2, 0.06, COL.red);
+      // Pocket square in front of jacket, separate y from lapels.
+      box(g, -0.6, 3.7, -0.61, 0.2, 0.1, 0.06, COL.white);
+      // Sleeves + cuffs.
+      box(g, -1.55, 2.85, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, 0.85, 2.85, -0.5, 0.7, 1.85, 1.0, c);
+      box(g, -1.55, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
+      box(g, 0.85, 2.7, -0.52, 0.7, 0.15, 1.02, COL.white);
+      // Dress pants (touch at x=0).
+      box(g, -0.6, 0, -0.45, 0.6, 2.2, 0.9, c);
+      box(g, 0.0, 0, -0.45, 0.6, 2.2, 0.9, c);
       return g;
     }
     case "avatar-outfit-tshirt":
     default: {
       const c = COL.blue;
-      // torso
       box(g, -0.85, 2.2, -0.55, 1.7, 2.5, 1.1, c);
-      // SHORT sleeves (just over shoulder) — exposes forearm skin
-      box(g, -1.5, 3.85, -0.55, 0.7, 0.8, 1.1, c);
-      box(g, 0.8, 3.85, -0.55, 0.7, 0.8, 1.1, c);
-      // neckline accent
-      box(g, -0.35, 4.55, -0.6, 0.7, 0.1, 0.06, darker(c, 0.75));
-      // pants
-      box(g, -0.6, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
-      box(g, -0.05, 0, -0.45, 0.7, 2.3, 0.9, COL.woodDark);
-      // belt
-      box(g, -0.65, 2.15, -0.5, 1.4, 0.18, 1.0, COL.woodDark);
-      box(g, -0.06, 2.18, -0.62, 0.12, 0.14, 0.06, COL.sun); // buckle
+      box(g, -1.55, 3.85, -0.55, 0.7, 0.8, 1.1, c);
+      box(g, 0.85, 3.85, -0.55, 0.7, 0.8, 1.1, c);
+      // Neckline accent protrudes forward.
+      box(g, -0.35, 4.55, -0.61, 0.7, 0.1, 0.06, darker(c, 0.75));
+      // Pants (touch at x=0).
+      box(g, -0.6, 0, -0.45, 0.6, 2.2, 0.9, COL.woodDark);
+      box(g, 0.0, 0, -0.45, 0.6, 2.2, 0.9, COL.woodDark);
+      // Belt protrudes forward of torso (z=-0.61..-0.55).
+      box(g, -0.6, 2.1, -0.61, 1.2, 0.15, 0.06, COL.woodDark);
+      // Buckle even further forward.
+      box(g, -0.06, 2.13, -0.67, 0.12, 0.11, 0.06, COL.sun);
       return g;
     }
   }
 }
 
-// ── accessory (5 variants, slot may be empty) ──────────────────────────
+// ── accessory ──────────────────────────────────────────────────────────
 
 export function buildAccessory(variant: string | null): THREE.Group {
   const g = new THREE.Group();
   if (!variant) return g;
   switch (variant) {
     case "avatar-acc-book": {
-      box(g, -0.7, 2.3, 0.6, 0.7, 0.5, 0.7, COL.red);
-      box(g, -0.65, 2.55, 0.65, 0.6, 0.05, 0.6, COL.white);
+      // Cover, pages on top (no nesting).
+      box(g, -0.7, 2.3, 0.6, 0.7, 0.5, 0.25, COL.red);
+      box(g, -0.7, 2.8, 0.6, 0.7, 0.05, 0.25, COL.white);
       return g;
     }
     case "avatar-acc-backpack": {
       box(g, -0.75, 2.4, 0.55, 1.5, 2.0, 0.5, COL.coral);
-      box(g, -0.55, 2.5, 0.55, 0.4, 0.4, 0.06, COL.cream);
-      box(g, 0.15, 2.5, 0.55, 0.4, 0.4, 0.06, COL.cream);
+      box(g, -0.55, 2.5, 0.49, 0.4, 0.4, 0.06, COL.cream);
+      box(g, 0.15, 2.5, 0.49, 0.4, 0.4, 0.06, COL.cream);
       return g;
     }
     case "avatar-acc-headphones": {
@@ -335,8 +351,9 @@ export function buildAccessory(variant: string | null): THREE.Group {
     }
     case "avatar-acc-cape": {
       const c = 0xc94335;
-      box(g, -1.0, 2.0, 0.5, 2.0, 3.0, 0.1, c);
-      box(g, -0.95, 4.6, 0.45, 1.9, 0.3, 0.2, COL.sun);
+      box(g, -1.0, 2.0, 0.5, 2.0, 2.5, 0.1, c);
+      // Trim ABOVE cape top y=4.5.
+      box(g, -0.95, 4.5, 0.45, 1.9, 0.3, 0.2, COL.sun);
       return g;
     }
     case "avatar-acc-pet": {
@@ -344,73 +361,78 @@ export function buildAccessory(variant: string | null): THREE.Group {
       box(g, 1.4, 0.6, 0.5, 0.7, 0.6, 0.5, COL.white);
       box(g, 1.55, 1.2, 0.55, 0.15, 0.3, 0.15, COL.white);
       box(g, 1.85, 1.2, 0.55, 0.15, 0.3, 0.15, COL.white);
-      box(g, 1.55, 0.85, 0.42, 0.1, 0.1, 0.04, COL.black);
-      box(g, 1.85, 0.85, 0.42, 0.1, 0.1, 0.04, COL.black);
+      box(g, 1.55, 0.85, 0.45, 0.1, 0.1, 0.05, COL.black);
+      box(g, 1.85, 0.85, 0.45, 0.1, 0.1, 0.05, COL.black);
       return g;
     }
   }
   return g;
 }
 
-// ── hat (6 variants) ──────────────────────────────────────────────────
+// ── hat ──────────────────────────────────────────────────────────────
 
 export function buildHat(variant: string | null): THREE.Group {
   const g = new THREE.Group();
   if (!variant) return g;
   switch (variant) {
     case "avatar-hat-cap": {
-      // baseball cap with brim
+      // Cap body + brim. Brim OUTSIDE cap z range (cap z=-0.6..0.6, brim
+      // z=-1.0..-0.6).
       box(g, -0.9, 6.7, -0.6, 1.8, 0.4, 1.2, COL.red);
-      box(g, -0.9, 6.7, -1.0, 1.8, 0.2, 0.5, COL.red); // brim front
+      box(g, -0.9, 6.7, -1.0, 1.8, 0.2, 0.4, COL.red);
       return g;
     }
     case "avatar-hat-beanie": {
-      box(g, -0.95, 6.5, -0.65, 1.9, 0.7, 1.3, COL.charcoal);
-      box(g, -0.95, 6.4, -0.65, 1.9, 0.15, 1.3, 0xc94335); // accent band
-      box(g, -0.15, 7.2, -0.05, 0.3, 0.3, 0.3, 0xc94335); // pom
+      // Body BELOW pom-pom. Accent band BELOW body (y=6.5..6.65 vs body
+      // y=6.65..7.2).
+      box(g, -0.95, 6.65, -0.65, 1.9, 0.55, 1.3, COL.charcoal);
+      box(g, -0.95, 6.5, -0.65, 1.9, 0.15, 1.3, 0xc94335);
+      box(g, -0.15, 7.2, -0.05, 0.3, 0.3, 0.3, 0xc94335);
       return g;
     }
     case "avatar-hat-wizard": {
       const c = 0x4a3b8b;
-      box(g, -1.0, 6.7, -0.7, 2.0, 0.3, 1.4, c); // brim
-      box(g, -0.6, 7.0, -0.4, 1.2, 0.7, 0.8, c); // base
-      box(g, -0.35, 7.7, -0.2, 0.7, 0.6, 0.5, c); // mid
-      box(g, -0.15, 8.3, -0.1, 0.3, 0.5, 0.3, c); // tip
-      box(g, -0.1, 8.8, -0.05, 0.2, 0.2, 0.2, COL.sun); // star tip
+      box(g, -1.0, 6.7, -0.7, 2.0, 0.3, 1.4, c);
+      box(g, -0.6, 7.0, -0.4, 1.2, 0.7, 0.8, c);
+      box(g, -0.35, 7.7, -0.2, 0.7, 0.6, 0.5, c);
+      box(g, -0.15, 8.3, -0.1, 0.3, 0.5, 0.3, c);
+      box(g, -0.1, 8.8, -0.05, 0.2, 0.2, 0.2, COL.sun);
       return g;
     }
     case "avatar-hat-crown": {
       const c = COL.sun;
-      box(g, -0.9, 6.7, -0.65, 1.8, 0.4, 1.3, c); // band
-      // 4 spikes
+      box(g, -0.9, 6.7, -0.65, 1.8, 0.4, 1.3, c);
+      // 6 spikes ABOVE band.
       box(g, -0.85, 7.1, -0.6, 0.25, 0.5, 0.25, c);
       box(g, -0.15, 7.1, -0.6, 0.25, 0.6, 0.25, c);
       box(g, 0.6, 7.1, -0.6, 0.25, 0.5, 0.25, c);
       box(g, -0.85, 7.1, 0.4, 0.25, 0.5, 0.25, c);
       box(g, -0.15, 7.1, 0.4, 0.25, 0.6, 0.25, c);
       box(g, 0.6, 7.1, 0.4, 0.25, 0.5, 0.25, c);
-      // jewel
-      box(g, -0.1, 7.0, -0.7, 0.2, 0.15, 0.1, 0xff3050);
+      // Jewel IN FRONT of band (z=-0.75..-0.65).
+      box(g, -0.1, 6.85, -0.75, 0.2, 0.15, 0.1, 0xff3050);
       return g;
     }
     case "avatar-hat-chef": {
-      box(g, -0.95, 6.7, -0.7, 1.9, 0.3, 1.4, COL.white); // band
-      box(g, -1.1, 7.0, -0.8, 2.2, 0.9, 1.6, COL.white); // puffy top
+      box(g, -0.95, 6.7, -0.7, 1.9, 0.3, 1.4, COL.white);
+      box(g, -1.1, 7.0, -0.8, 2.2, 0.9, 1.6, COL.white);
       return g;
     }
     case "avatar-hat-graduate": {
-      box(g, -0.85, 6.65, -0.6, 1.7, 0.3, 1.2, COL.charcoal); // skullcap
-      box(g, -1.15, 6.95, -0.95, 2.3, 0.15, 1.9, COL.charcoal); // flat board
-      // tassel
-      box(g, 1.1, 6.95, -0.95, 0.05, 0.05, 0.6, 0xffd84d);
-      box(g, 1.05, 6.55, -0.45, 0.15, 0.4, 0.1, 0xffd84d);
+      box(g, -0.85, 6.65, -0.6, 1.7, 0.3, 1.2, COL.charcoal);
+      box(g, -1.15, 6.95, -0.95, 2.3, 0.15, 1.9, COL.charcoal);
+      // Tassel string ABOVE board (y=7.1..7.5), bell hangs BELOW board
+      // edge (y=6.4..6.6) at x OUTSIDE skullcap (skullcap x=-0.85..0.85,
+      // bell at x=0.95..1.10).
+      box(g, 1.0, 7.1, -0.85, 0.06, 0.4, 0.06, 0xffd84d);
+      box(g, 0.95, 6.4, -0.55, 0.15, 0.2, 0.15, 0xffd84d);
       return g;
     }
   }
   return g;
 }
 
-// ── glasses (5 variants) ──────────────────────────────────────────────
+// ── glasses ────────────────────────────────────────────────────────────
 
 export function buildGlasses(variant: string | null): THREE.Group {
   const g = new THREE.Group();
@@ -421,31 +443,30 @@ export function buildGlasses(variant: string | null): THREE.Group {
       box(g, -0.5, 5.9, eyeZ, 0.45, 0.4, 0.04, COL.black);
       box(g, 0.05, 5.9, eyeZ, 0.45, 0.4, 0.04, COL.black);
       box(g, -0.05, 6.0, eyeZ, 0.1, 0.05, 0.04, COL.black);
-      // clear lenses
-      box(g, -0.42, 5.98, eyeZ + 0.01, 0.3, 0.25, 0.02, 0x9fc6d9, { transparent: true, opacity: 0.4 });
-      box(g, 0.13, 5.98, eyeZ + 0.01, 0.3, 0.25, 0.02, 0x9fc6d9, { transparent: true, opacity: 0.4 });
+      // Lenses IN FRONT of frames.
+      box(g, -0.42, 5.98, eyeZ - 0.04, 0.3, 0.25, 0.04, 0x9fc6d9, { transparent: true, opacity: 0.4 });
+      box(g, 0.13, 5.98, eyeZ - 0.04, 0.3, 0.25, 0.04, 0x9fc6d9, { transparent: true, opacity: 0.4 });
       return g;
     }
     case "avatar-glasses-shades": {
       box(g, -0.65, 5.95, eyeZ, 1.3, 0.35, 0.05, COL.black);
-      box(g, -0.05, 6.05, eyeZ, 0.1, 0.05, 0.05, COL.black);
+      // Bridge IN FRONT of shades.
+      box(g, -0.05, 6.05, eyeZ - 0.05, 0.1, 0.05, 0.05, COL.black);
       return g;
     }
     case "avatar-glasses-monocle": {
-      // ring on right eye only
+      // Ring as 4 strips (no nested cuboid).
       box(g, 0.05, 5.85, eyeZ, 0.05, 0.5, 0.04, COL.sun);
       box(g, 0.5, 5.85, eyeZ, 0.05, 0.5, 0.04, COL.sun);
-      box(g, 0.05, 5.85, eyeZ, 0.5, 0.05, 0.04, COL.sun);
-      box(g, 0.05, 6.3, eyeZ, 0.5, 0.05, 0.04, COL.sun);
-      // chain
-      box(g, 0.5, 5.5, eyeZ, 0.03, 0.4, 0.04, COL.sun);
+      box(g, 0.1, 5.85, eyeZ, 0.4, 0.05, 0.04, COL.sun);
+      box(g, 0.1, 6.3, eyeZ, 0.4, 0.05, 0.04, COL.sun);
+      box(g, 0.5, 5.5, eyeZ, 0.03, 0.35, 0.04, COL.sun);
       return g;
     }
     case "avatar-glasses-ski": {
-      // big single visor
       box(g, -0.7, 5.85, eyeZ, 1.4, 0.5, 0.06, 0x111111);
-      box(g, -0.65, 5.9, eyeZ + 0.01, 1.3, 0.4, 0.04, 0x55ddff, { transparent: true, opacity: 0.6 });
-      // strap visible on sides
+      // Tinted lens IN FRONT of frame (z=-0.71..-0.66).
+      box(g, -0.65, 5.9, eyeZ - 0.05, 1.3, 0.4, 0.05, 0x55ddff, { transparent: true, opacity: 0.6 });
       box(g, -1.0, 5.95, -0.3, 0.05, 0.3, 1.0, COL.coral);
       box(g, 0.95, 5.95, -0.3, 0.05, 0.3, 1.0, COL.coral);
       return g;
@@ -460,7 +481,7 @@ export function buildGlasses(variant: string | null): THREE.Group {
   return g;
 }
 
-// ── back (5 variants) ─────────────────────────────────────────────────
+// ── back ──────────────────────────────────────────────────────────────
 
 export function buildBack(variant: string | null): THREE.Group {
   const g = new THREE.Group();
@@ -468,42 +489,40 @@ export function buildBack(variant: string | null): THREE.Group {
   switch (variant) {
     case "avatar-back-backpack": {
       box(g, -0.8, 2.4, 0.55, 1.6, 2.0, 0.5, COL.coral);
-      box(g, -0.55, 2.5, 0.55, 0.4, 0.4, 0.06, COL.cream);
-      box(g, 0.15, 2.5, 0.55, 0.4, 0.4, 0.06, COL.cream);
-      // straps over shoulders
+      // Pockets IN FRONT of backpack (z=0.49..0.55).
+      box(g, -0.55, 2.5, 0.49, 0.4, 0.4, 0.06, COL.cream);
+      box(g, 0.15, 2.5, 0.49, 0.4, 0.4, 0.06, COL.cream);
+      // Straps over shoulders (FRONT of avatar).
       box(g, -0.7, 2.4, -0.4, 0.15, 2.1, 0.15, COL.coral);
       box(g, 0.55, 2.4, -0.4, 0.15, 2.1, 0.15, COL.coral);
       return g;
     }
     case "avatar-back-cape": {
+      // Cape body + trim ABOVE cape top.
       box(g, -1.0, 1.5, 0.5, 2.0, 3.2, 0.1, 0xc94335);
-      box(g, -0.95, 4.6, 0.45, 1.9, 0.3, 0.2, COL.sun);
+      box(g, -0.95, 4.7, 0.45, 1.9, 0.3, 0.2, COL.sun);
       return g;
     }
     case "avatar-back-wings": {
       const c = COL.white;
-      // left wing
       box(g, -1.7, 3.0, 0.4, 0.7, 1.8, 0.1, c);
       box(g, -2.0, 3.5, 0.4, 0.3, 1.0, 0.1, c);
-      // right wing
       box(g, 1.0, 3.0, 0.4, 0.7, 1.8, 0.1, c);
       box(g, 1.7, 3.5, 0.4, 0.3, 1.0, 0.1, c);
       return g;
     }
     case "avatar-back-quiver": {
+      // Quiver body. Feathers ABOVE quiver top y=5.0.
       box(g, 0.6, 2.6, 0.55, 0.5, 2.4, 0.5, COL.woodDark);
-      // arrow feathers sticking out top
-      box(g, 0.65, 4.7, 0.55, 0.1, 0.4, 0.1, COL.coral);
-      box(g, 0.8, 4.7, 0.55, 0.1, 0.4, 0.1, 0xffd84d);
-      box(g, 0.95, 4.7, 0.55, 0.1, 0.4, 0.1, COL.green);
+      box(g, 0.65, 5.0, 0.55, 0.1, 0.4, 0.1, COL.coral);
+      box(g, 0.8, 5.0, 0.55, 0.1, 0.4, 0.1, 0xffd84d);
+      box(g, 0.95, 5.0, 0.55, 0.1, 0.4, 0.1, COL.green);
       return g;
     }
     case "avatar-back-jetpack": {
       box(g, -0.5, 2.5, 0.55, 1.0, 2.0, 0.6, COL.metal);
-      // nozzles
       box(g, -0.4, 2.3, 0.6, 0.3, 0.2, 0.3, COL.charcoal);
       box(g, 0.1, 2.3, 0.6, 0.3, 0.2, 0.3, COL.charcoal);
-      // flame
       box(g, -0.35, 1.9, 0.65, 0.2, 0.4, 0.2, 0xff7700, { transparent: true, opacity: 0.85 });
       box(g, 0.15, 1.9, 0.65, 0.2, 0.4, 0.2, 0xff7700, { transparent: true, opacity: 0.85 });
       return g;
@@ -512,50 +531,54 @@ export function buildBack(variant: string | null): THREE.Group {
   return g;
 }
 
-// ── hand-held (6 variants) ────────────────────────────────────────────
+// ── hand-held ──────────────────────────────────────────────────────────
 
 export function buildHand(variant: string | null): THREE.Group {
   const g = new THREE.Group();
   if (!variant) return g;
-  // Held by right hand at world x ~ 1.0..1.4, y ~ 2.4 (waist)
   switch (variant) {
     case "avatar-hand-book": {
       box(g, 1.1, 2.4, 0.5, 0.7, 0.5, 0.7, 0xc94335);
-      box(g, 1.12, 2.65, 0.55, 0.6, 0.05, 0.6, COL.white);
+      // Pages ABOVE cover top y=2.9.
+      box(g, 1.12, 2.9, 0.55, 0.6, 0.05, 0.6, COL.white);
       return g;
     }
     case "avatar-hand-sword": {
-      box(g, 1.15, 2.4, -0.1, 0.15, 2.5, 0.15, COL.metal); // blade
-      box(g, 1.1, 2.3, -0.15, 0.25, 0.15, 0.25, COL.sun); // guard
-      box(g, 1.12, 2.0, -0.12, 0.2, 0.4, 0.2, COL.woodDark); // grip
+      // Pommel BELOW grip, grip BELOW guard, guard BELOW blade. All
+      // flush-stacked along y, no overlap.
+      box(g, 1.12, 1.85, -0.12, 0.2, 0.15, 0.2, COL.metal); // pommel
+      box(g, 1.12, 2.0, -0.12, 0.2, 0.3, 0.2, COL.woodDark); // grip
+      box(g, 1.1, 2.3, -0.15, 0.25, 0.1, 0.25, COL.sun); // guard
+      box(g, 1.15, 2.4, -0.1, 0.15, 2.4, 0.15, COL.metal); // blade
       return g;
     }
     case "avatar-hand-pet": {
-      // tiny cat at right side
       box(g, 1.5, 0, 0, 0.8, 0.6, 1.0, COL.white);
       box(g, 1.4, 0.6, 0.5, 0.7, 0.6, 0.5, COL.white);
       box(g, 1.55, 1.2, 0.55, 0.15, 0.3, 0.15, COL.white);
       box(g, 1.85, 1.2, 0.55, 0.15, 0.3, 0.15, COL.white);
-      box(g, 1.55, 0.85, 0.42, 0.1, 0.1, 0.04, COL.black);
-      box(g, 1.85, 0.85, 0.42, 0.1, 0.1, 0.04, COL.black);
+      box(g, 1.55, 0.85, 0.45, 0.1, 0.1, 0.05, COL.black);
+      box(g, 1.85, 0.85, 0.45, 0.1, 0.1, 0.05, COL.black);
       return g;
     }
     case "avatar-hand-flower": {
-      box(g, 1.2, 2.4, -0.05, 0.1, 1.3, 0.1, COL.leafDark); // stem
-      box(g, 1.0, 3.7, -0.15, 0.5, 0.3, 0.3, 0xff8fa6); // petals
-      box(g, 1.15, 3.85, -0.05, 0.2, 0.2, 0.1, COL.sun); // center
+      box(g, 1.2, 2.4, -0.05, 0.1, 1.3, 0.1, COL.leafDark);
+      box(g, 1.0, 3.7, -0.15, 0.5, 0.3, 0.3, 0xff8fa6);
+      // Center ABOVE petals top y=4.0.
+      box(g, 1.15, 4.0, -0.05, 0.2, 0.2, 0.1, COL.sun);
       return g;
     }
     case "avatar-hand-balloon": {
-      box(g, 1.2, 2.4, -0.05, 0.03, 2.5, 0.03, COL.charcoal); // string
-      box(g, 0.9, 4.9, -0.3, 0.7, 0.8, 0.6, 0xff3060); // balloon
+      box(g, 1.2, 2.4, -0.05, 0.03, 2.5, 0.03, COL.charcoal);
+      box(g, 0.9, 4.9, -0.3, 0.7, 0.8, 0.6, 0xff3060);
       return g;
     }
     case "avatar-hand-controller": {
       box(g, 0.9, 2.3, 0.45, 1.0, 0.4, 0.5, COL.charcoal);
-      box(g, 1.0, 2.45, 0.5, 0.15, 0.15, 0.05, COL.coral);
-      box(g, 1.25, 2.45, 0.5, 0.15, 0.15, 0.05, COL.sun);
-      box(g, 1.55, 2.45, 0.5, 0.15, 0.15, 0.05, COL.green);
+      // Buttons ABOVE controller top y=2.7.
+      box(g, 1.0, 2.7, 0.5, 0.15, 0.1, 0.05, COL.coral);
+      box(g, 1.25, 2.7, 0.5, 0.15, 0.1, 0.05, COL.sun);
+      box(g, 1.55, 2.7, 0.5, 0.15, 0.1, 0.05, COL.green);
       return g;
     }
   }
@@ -573,26 +596,19 @@ export interface AvatarEquip {
   glasses?: string | null;
   back?: string | null;
   hand?: string | null;
-  /** Legacy single-slot accessory; ignored when new layered slots are used. */
   accessory?: string | null;
 }
 
-/**
- * Stack body + hair + face + outfit + 4 accessory layers into a single group.
- * Defaults: boy body, short brown hair, smile, blue t-shirt, no accessories.
- */
 export function buildAvatar(equip: AvatarEquip): THREE.Group {
   const g = new THREE.Group();
   g.add(buildBody(equip.body ?? "avatar-body-boy"));
   g.add(buildOutfit(equip.outfit ?? "avatar-outfit-tshirt"));
   g.add(buildFace(equip.face ?? "avatar-face-smile"));
   g.add(buildHair(equip.hair ?? "avatar-hair-short"));
-  // New layered accessory slots
   g.add(buildHat(equip.hat ?? null));
   g.add(buildGlasses(equip.glasses ?? null));
   g.add(buildBack(equip.back ?? null));
   g.add(buildHand(equip.hand ?? null));
-  // Legacy single accessory (kept for backwards compat with old equips)
   g.add(buildAccessory(equip.accessory ?? null));
   return g;
 }
