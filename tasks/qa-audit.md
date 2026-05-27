@@ -1,6 +1,6 @@
 # QA Audit — Pre-Org Handoff
 
-**Date:** 2026-05-14 (updated 2026-05-27)
+**Date:** 2026-05-14 (updated 2026-05-27, deployed 2026-05-27)
 **Target:** https://grasslms.online
 **Goal:** Find all bugs/UX issues before organizational testing
 
@@ -28,7 +28,7 @@
    - **Root cause:** 14 exercise components + Monaco Editor imported statically; only 4 used `next/dynamic`.
    - **Fix:** Converted all 18 exercise imports to `next/dynamic` lazy loading. Each component now loads on-demand only when its exercise type appears on the page.
    - **File:** `frontend/src/components/exercises/exercise-renderer.tsx`
-   - **Verified:** Build passes, lesson page loads without freeze, no console errors.
+   - **Verified:** Build passes, lesson page loads without freeze, no console errors. Deployed to prod 2026-05-27.
 
 ### P1 — Major (broken feature, workaround exists)
 
@@ -51,9 +51,11 @@
    - **Workaround:** Use super_admin account to change settings.
    - **Fix needed:** Either grant methodists write access to org settings, or hide the settings page from non-admin roles.
 
-6. **Course editor freezes browser on lesson operations** — Adding a lesson or clicking Quiz/Code content type in the course editor freezes the browser tab for 30+ seconds. Happens consistently. Likely the admin-side exercise config editors are eagerly imported (same root cause family as P0). Worse than P1 #3 — this isn't just "slow", it's a full browser freeze requiring page reload.
-   - **Workaround:** Page recovers after ~30s or navigate away and refresh. Data sometimes saves despite freeze.
-   - **Fix needed:** Lazy-load admin exercise config editors same as student-side renderers.
+6. **[PARTIAL FIX] Course editor freezes browser on lesson operations** — Adding a lesson or clicking Quiz/Code content type in the course editor freezes the browser tab for 30+ seconds. Root cause: QuizBuilder, ChallengeBuilder, FileUploadConfig, InteractiveBuilder imported statically.
+   - **Fix applied:** Converted all 4 builders + BlockEditor to `next/dynamic` lazy imports.
+   - **Result:** "Add Lesson" button now responds instantly (was 30s+ freeze). Quiz/Code content type selection still slow (~30s) but page recovers without reload. Initial page load also slow (~30s) — likely due to 2130-line single component + VPS cold-start.
+   - **Remaining:** Page component is 2130 lines — needs splitting into smaller components for better performance. Also consider server-side caching or preloading.
+   - **Verified on prod:** 2026-05-27
 
 ### P2 — Minor (cosmetic, UX polish)
 
@@ -77,8 +79,9 @@
 8. **Demo account alex@grasslms.online login fails** — Returns 400 error. Password may have been changed or account may not exist in current DB. Listed in CLAUDE.md as test account with `Alex2026!` password.
    - **Fix:** Reset password in DB or verify account exists.
 
-9. **404 page is default Next.js black screen** — No branding, no navigation, no "back to home" link. Looks broken, not like part of the platform.
-   - **Fix:** Create custom `not-found.tsx` with GrassLMS branding and navigation link.
+9. **[FIXED] 404 page is default Next.js black screen** — No branding, no navigation, no "back to home" link.
+   - **Fix:** Created custom `not-found.tsx` with GrassLMS branding, "404" heading, and "Back to Dashboard" link.
+   - **Verified on prod:** 2026-05-27 — branded 404 page renders correctly.
 
 10. **Markdown not rendered in lesson content** — Text lessons show raw markdown as plain text. `#` headings and `-` bullets are stripped but not styled. Content renders without formatting.
     - **Fix:** Ensure markdown content passes through markdown renderer (react-markdown or similar).
