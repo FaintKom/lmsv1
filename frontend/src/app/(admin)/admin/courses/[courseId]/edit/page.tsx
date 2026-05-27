@@ -52,16 +52,38 @@ import {
  Video,
 } from "lucide-react";
 import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
-import QuizBuilder from "@/components/assessments/quiz-builder";
-import ChallengeBuilder from "@/components/code-editor/challenge-builder";
-import FileUploadConfig from "@/components/submissions/file-upload-config";
-import InteractiveBuilder from "@/components/submissions/interactive-builder";
 import dynamic from "next/dynamic";
 import { markdownToTiptap } from "@/components/editor/utils/markdown-to-tiptap";
 import {
  EXERCISE_TYPE_LABELS as EXERCISE_TYPE_LABELS_FULL,
  EXERCISE_TYPES_META,
 } from "@/lib/api/exercises";
+
+const BuilderLoading = () => (
+ <div className="flex h-[200px] items-center justify-center rounded-lg border border-border-strong">
+   <p className="text-sm text-text-subtle">Loading...</p>
+ </div>
+);
+
+const QuizBuilder = dynamic(
+ () => import("@/components/assessments/quiz-builder"),
+ { ssr: false, loading: BuilderLoading }
+);
+
+const ChallengeBuilder = dynamic(
+ () => import("@/components/code-editor/challenge-builder"),
+ { ssr: false, loading: BuilderLoading }
+);
+
+const FileUploadConfig = dynamic(
+ () => import("@/components/submissions/file-upload-config"),
+ { ssr: false, loading: BuilderLoading }
+);
+
+const InteractiveBuilder = dynamic(
+ () => import("@/components/submissions/interactive-builder"),
+ { ssr: false, loading: BuilderLoading }
+);
 
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
