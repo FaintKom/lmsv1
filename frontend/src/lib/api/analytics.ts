@@ -56,7 +56,7 @@ export type DashboardUpdatePayload = Partial<DashboardCreatePayload>;
 // ── CRUD ──────────────────────────────────────────────────────────────
 
 export async function listDashboards(scope?: DashboardScope): Promise<DashboardResponse[]> {
-  const { data } = await apiClient.get<DashboardResponse[]>("/api/v1/admin/dashboards", {
+  const { data } = await apiClient.get<DashboardResponse[]>("/admin/dashboards", {
     params: scope ? { scope } : undefined,
   });
   return data;
@@ -66,7 +66,7 @@ export async function createDashboard(
   body: DashboardCreatePayload,
 ): Promise<DashboardResponse> {
   const { data } = await apiClient.post<DashboardResponse>(
-    "/api/v1/admin/dashboards",
+    "/admin/dashboards",
     body,
   );
   return data;
@@ -74,7 +74,7 @@ export async function createDashboard(
 
 export async function getDashboard(id: string): Promise<DashboardResponse> {
   const { data } = await apiClient.get<DashboardResponse>(
-    `/api/v1/admin/dashboards/${id}`,
+    `/admin/dashboards/${id}`,
   );
   return data;
 }
@@ -84,14 +84,14 @@ export async function updateDashboard(
   body: DashboardUpdatePayload,
 ): Promise<DashboardResponse> {
   const { data } = await apiClient.patch<DashboardResponse>(
-    `/api/v1/admin/dashboards/${id}`,
+    `/admin/dashboards/${id}`,
     body,
   );
   return data;
 }
 
 export async function deleteDashboard(id: string): Promise<void> {
-  await apiClient.delete(`/api/v1/admin/dashboards/${id}`);
+  await apiClient.delete(`/admin/dashboards/${id}`);
 }
 
 // ── v2 analytics endpoints ────────────────────────────────────────────
@@ -117,7 +117,7 @@ export interface KpiDeltasResponse {
 
 export async function fetchKpiDeltas(days = 7): Promise<KpiDeltasResponse> {
   const { data } = await apiClient.get<KpiDeltasResponse>(
-    "/api/v1/admin/analytics/v2/kpi-deltas",
+    "/admin/analytics/v2/kpi-deltas",
     { params: { days } },
   );
   return data;
@@ -152,7 +152,7 @@ export async function fetchXpMovers(
   limit = 10,
 ): Promise<XpMoversResponse> {
   const { data } = await apiClient.get<XpMoversResponse>(
-    "/api/v1/admin/analytics/v2/xp-movers",
+    "/admin/analytics/v2/xp-movers",
     { params: { window_days: windowDays, limit } },
   );
   return data;
@@ -168,13 +168,14 @@ export async function fetchActivityTimeline(
   days = 30,
 ): Promise<ActivityTimelinePoint[]> {
   const { data } = await apiClient.get<ActivityTimelinePoint[]>(
-    "/api/v1/admin/analytics/v2/activity-timeline",
+    "/admin/analytics/v2/activity-timeline",
     { params: { days } },
   );
   return data;
 }
 
 export function analyticsReportUrl(format: "csv" | "pdf" = "csv", windowDays = 30): string {
+  // Full path here (not via apiClient) — used as <a href> for direct download.
   return `/api/v1/admin/analytics/report?format=${format}&window_days=${windowDays}`;
 }
 
@@ -190,7 +191,7 @@ export interface CourseEffectivenessRow {
 
 export async function fetchCourseEffectiveness(): Promise<CourseEffectivenessRow[]> {
   const { data } = await apiClient.get<CourseEffectivenessRow[]>(
-    "/api/v1/admin/analytics/v2/course-effectiveness",
+    "/admin/analytics/v2/course-effectiveness",
   );
   return data;
 }
@@ -207,7 +208,7 @@ export async function fetchExerciseDifficulty(
   courseId?: string,
 ): Promise<ExerciseDifficultyRow[]> {
   const { data } = await apiClient.get<ExerciseDifficultyRow[]>(
-    "/api/v1/admin/analytics/v2/exercise-difficulty",
+    "/admin/analytics/v2/exercise-difficulty",
     { params: courseId ? { course_id: courseId } : undefined },
   );
   return data;
@@ -226,7 +227,7 @@ export async function fetchStudentRisks(
   courseId?: string,
 ): Promise<StudentRiskRow[]> {
   const { data } = await apiClient.get<StudentRiskRow[]>(
-    "/api/v1/admin/analytics/v2/student-risks",
+    "/admin/analytics/v2/student-risks",
     { params: courseId ? { course_id: courseId } : undefined },
   );
   return data;
@@ -241,7 +242,7 @@ export interface AttendanceImpactResponse {
 
 export async function fetchAttendanceImpact(): Promise<AttendanceImpactResponse> {
   const { data } = await apiClient.get<AttendanceImpactResponse>(
-    "/api/v1/admin/analytics/v2/attendance-impact",
+    "/admin/analytics/v2/attendance-impact",
   );
   return data;
 }
@@ -256,7 +257,7 @@ export interface FunnelStep {
 
 export async function fetchLessonFunnel(courseId: string): Promise<FunnelStep[]> {
   const { data } = await apiClient.get<FunnelStep[]>(
-    `/api/v1/admin/analytics/v2/courses/${courseId}/funnel`,
+    `/admin/analytics/v2/courses/${courseId}/funnel`,
   );
   return data;
 }
