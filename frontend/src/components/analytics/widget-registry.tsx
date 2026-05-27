@@ -9,7 +9,11 @@
 import { ComponentType } from "react";
 
 import { ActivityTimelineWidget } from "./widgets/activity-timeline-widget";
+import { AttendanceImpactWidget } from "./widgets/attendance-impact-widget";
+import { CourseEffectivenessWidget } from "./widgets/course-effectiveness-widget";
+import { ExerciseDifficultyWidget } from "./widgets/exercise-difficulty-widget";
 import { KpiTileWidget } from "./widgets/kpi-tile-widget";
+import { StudentRisksWidget } from "./widgets/student-risks-widget";
 import { TopMoversWidget } from "./widgets/top-movers-widget";
 
 export interface WidgetProps {
@@ -51,6 +55,34 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     defaultSize: { w: 6, h: 5 },
     minSize: { w: 3, h: 3 },
     Component: TopMoversWidget,
+  },
+  "course-effectiveness": {
+    type: "course-effectiveness",
+    i18nKey: "analytics.widget.course_effectiveness",
+    defaultSize: { w: 8, h: 5 },
+    minSize: { w: 4, h: 3 },
+    Component: CourseEffectivenessWidget,
+  },
+  "exercise-difficulty": {
+    type: "exercise-difficulty",
+    i18nKey: "analytics.widget.exercise_difficulty",
+    defaultSize: { w: 8, h: 5 },
+    minSize: { w: 4, h: 3 },
+    Component: ExerciseDifficultyWidget,
+  },
+  "student-risks": {
+    type: "student-risks",
+    i18nKey: "analytics.widget.student_risks",
+    defaultSize: { w: 6, h: 5 },
+    minSize: { w: 3, h: 3 },
+    Component: StudentRisksWidget,
+  },
+  "attendance-impact": {
+    type: "attendance-impact",
+    i18nKey: "analytics.widget.attendance_impact",
+    defaultSize: { w: 6, h: 3 },
+    minSize: { w: 3, h: 2 },
+    Component: AttendanceImpactWidget,
   },
 };
 

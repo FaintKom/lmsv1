@@ -177,3 +177,71 @@ export async function fetchActivityTimeline(
 export function analyticsReportUrl(format: "csv" | "pdf" = "csv", windowDays = 30): string {
   return `/api/v1/admin/analytics/report?format=${format}&window_days=${windowDays}`;
 }
+
+// ── More v2 endpoints (Sprint A3) ────────────────────────────────────
+
+export interface CourseEffectivenessRow {
+  course_id: string;
+  course_title: string;
+  enrollments: number;
+  completion_rate: number;
+  avg_score: number | null;
+}
+
+export async function fetchCourseEffectiveness(): Promise<CourseEffectivenessRow[]> {
+  const { data } = await apiClient.get<CourseEffectivenessRow[]>(
+    "/api/v1/admin/analytics/v2/course-effectiveness",
+  );
+  return data;
+}
+
+export interface ExerciseDifficultyRow {
+  exercise_id: string;
+  title: string;
+  attempts: number;
+  pass_rate: number;
+  avg_score: number | null;
+}
+
+export async function fetchExerciseDifficulty(
+  courseId?: string,
+): Promise<ExerciseDifficultyRow[]> {
+  const { data } = await apiClient.get<ExerciseDifficultyRow[]>(
+    "/api/v1/admin/analytics/v2/exercise-difficulty",
+    { params: courseId ? { course_id: courseId } : undefined },
+  );
+  return data;
+}
+
+export interface StudentRiskRow {
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  risk_level: "high" | "medium" | "low";
+  risk_score: number;
+  last_active_days: number | null;
+}
+
+export async function fetchStudentRisks(
+  courseId?: string,
+): Promise<StudentRiskRow[]> {
+  const { data } = await apiClient.get<StudentRiskRow[]>(
+    "/api/v1/admin/analytics/v2/student-risks",
+    { params: courseId ? { course_id: courseId } : undefined },
+  );
+  return data;
+}
+
+export interface AttendanceImpactResponse {
+  high_attendance_avg_score: number | null;
+  low_attendance_avg_score: number | null;
+  correlation: number | null;
+  sample_size: number;
+}
+
+export async function fetchAttendanceImpact(): Promise<AttendanceImpactResponse> {
+  const { data } = await apiClient.get<AttendanceImpactResponse>(
+    "/api/v1/admin/analytics/v2/attendance-impact",
+  );
+  return data;
+}

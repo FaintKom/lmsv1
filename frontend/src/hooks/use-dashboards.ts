@@ -12,16 +12,24 @@ import { toast } from "sonner";
 
 import {
   type ActivityTimelinePoint,
+  type AttendanceImpactResponse,
+  type CourseEffectivenessRow,
   type DashboardCreatePayload,
   type DashboardResponse,
   type DashboardScope,
   type DashboardUpdatePayload,
+  type ExerciseDifficultyRow,
   type KpiDeltasResponse,
+  type StudentRiskRow,
   type XpMoversResponse,
   createDashboard,
   deleteDashboard,
   fetchActivityTimeline,
+  fetchAttendanceImpact,
+  fetchCourseEffectiveness,
+  fetchExerciseDifficulty,
   fetchKpiDeltas,
+  fetchStudentRisks,
   fetchXpMovers,
   getDashboard,
   listDashboards,
@@ -140,6 +148,38 @@ export function useActivityTimeline(days = 30) {
   return useQuery<ActivityTimelinePoint[]>({
     queryKey: ["analytics", "v2", "activity-timeline", days],
     queryFn: () => fetchActivityTimeline(days),
+    staleTime: 60_000,
+  });
+}
+
+export function useCourseEffectiveness() {
+  return useQuery<CourseEffectivenessRow[]>({
+    queryKey: ["analytics", "v2", "course-effectiveness"],
+    queryFn: fetchCourseEffectiveness,
+    staleTime: 60_000,
+  });
+}
+
+export function useExerciseDifficulty(courseId?: string) {
+  return useQuery<ExerciseDifficultyRow[]>({
+    queryKey: ["analytics", "v2", "exercise-difficulty", courseId ?? null],
+    queryFn: () => fetchExerciseDifficulty(courseId),
+    staleTime: 60_000,
+  });
+}
+
+export function useStudentRisks(courseId?: string) {
+  return useQuery<StudentRiskRow[]>({
+    queryKey: ["analytics", "v2", "student-risks", courseId ?? null],
+    queryFn: () => fetchStudentRisks(courseId),
+    staleTime: 60_000,
+  });
+}
+
+export function useAttendanceImpact() {
+  return useQuery<AttendanceImpactResponse>({
+    queryKey: ["analytics", "v2", "attendance-impact"],
+    queryFn: fetchAttendanceImpact,
     staleTime: 60_000,
   });
 }
