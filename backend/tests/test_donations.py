@@ -38,8 +38,13 @@ async def test_initiate_rate_limit_returns_429(client: AsyncClient, monkeypatch)
     """11th call within a minute triggers slowapi 429."""
     monkeypatch.setattr("app.donations.config.settings.oc_api_token", "fake")
 
+    counter = {"n": 0}
+
     async def fake_create(cfg, donation, success_url):
-        donation.oc_order_id = "x"
+        counter["n"] += 1
+        # Unique per call so the oc_order_id unique index doesn't fire
+        # across the 10 successful inserts the rate-limit test makes.
+        donation.oc_order_id = f"x-{counter['n']}"
         return "https://example.com/checkout"
 
     with patch("app.donations.router.create_oc_order", new=AsyncMock(side_effect=fake_create)):
