@@ -27,7 +27,7 @@ export function AttendanceImpactWidget(_props: WidgetProps) {
       <Tile
         label="Correlation"
         value={data.correlation}
-        formatter={(n) => n.toFixed(2)}
+        formatter={(n) => Number(n ?? 0).toFixed(2)}
       />
       <Tile
         label="Sample"
@@ -51,11 +51,11 @@ function Tile({ label, value, formatter }: TileProps) {
         {label}
       </div>
       <div className="text-2xl font-bold text-text mt-1">
-        {value === null
+        {value == null
           ? "—"
           : formatter
             ? formatter(value)
-            : value.toFixed(1)}
+            : Number(value).toFixed(1)}
       </div>
     </div>
   );

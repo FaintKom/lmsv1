@@ -21,7 +21,11 @@ interface TileSpec {
 
 const TILES: TileSpec[] = [
   { key: "submissions", label: "Submissions" },
-  { key: "avg_score", label: "Avg score", formatter: (n) => n.toFixed(1) },
+  {
+    key: "avg_score",
+    label: "Avg score",
+    formatter: (n) => Number(n ?? 0).toFixed(1),
+  },
   { key: "active_students", label: "Active students" },
   { key: "new_enrollments", label: "New enrollments" },
 ];
