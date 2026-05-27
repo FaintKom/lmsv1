@@ -245,3 +245,18 @@ export async function fetchAttendanceImpact(): Promise<AttendanceImpactResponse>
   );
   return data;
 }
+
+export interface FunnelStep {
+  lesson_id: string;
+  lesson_title: string;
+  reached: number;
+  completed: number;
+  drop_rate: number;
+}
+
+export async function fetchLessonFunnel(courseId: string): Promise<FunnelStep[]> {
+  const { data } = await apiClient.get<FunnelStep[]>(
+    `/api/v1/admin/analytics/v2/courses/${courseId}/funnel`,
+  );
+  return data;
+}

@@ -13,6 +13,7 @@ import { AttendanceImpactWidget } from "./widgets/attendance-impact-widget";
 import { CourseEffectivenessWidget } from "./widgets/course-effectiveness-widget";
 import { ExerciseDifficultyWidget } from "./widgets/exercise-difficulty-widget";
 import { KpiTileWidget } from "./widgets/kpi-tile-widget";
+import { LessonFunnelWidget } from "./widgets/lesson-funnel-widget";
 import { StudentRisksWidget } from "./widgets/student-risks-widget";
 import { TopMoversWidget } from "./widgets/top-movers-widget";
 
@@ -83,6 +84,13 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 3, h: 2 },
     Component: AttendanceImpactWidget,
+  },
+  "lesson-funnel": {
+    type: "lesson-funnel",
+    i18nKey: "analytics.widget.lesson_funnel",
+    defaultSize: { w: 8, h: 5 },
+    minSize: { w: 4, h: 3 },
+    Component: LessonFunnelWidget,
   },
 };
 

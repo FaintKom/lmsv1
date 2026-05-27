@@ -19,6 +19,7 @@ import {
   type DashboardScope,
   type DashboardUpdatePayload,
   type ExerciseDifficultyRow,
+  type FunnelStep,
   type KpiDeltasResponse,
   type StudentRiskRow,
   type XpMoversResponse,
@@ -29,6 +30,7 @@ import {
   fetchCourseEffectiveness,
   fetchExerciseDifficulty,
   fetchKpiDeltas,
+  fetchLessonFunnel,
   fetchStudentRisks,
   fetchXpMovers,
   getDashboard,
@@ -180,6 +182,15 @@ export function useAttendanceImpact() {
   return useQuery<AttendanceImpactResponse>({
     queryKey: ["analytics", "v2", "attendance-impact"],
     queryFn: fetchAttendanceImpact,
+    staleTime: 60_000,
+  });
+}
+
+export function useLessonFunnel(courseId: string | undefined) {
+  return useQuery<FunnelStep[]>({
+    queryKey: ["analytics", "v2", "lesson-funnel", courseId ?? "none"],
+    queryFn: () => fetchLessonFunnel(courseId as string),
+    enabled: Boolean(courseId),
     staleTime: 60_000,
   });
 }
