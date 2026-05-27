@@ -12,13 +12,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.admin.analytics_service import (
+    build_analytics_report_csv,
     get_activity_timeline,
     get_attendance_impact,
     get_course_effectiveness,
     get_exercise_difficulty,
+    get_kpi_deltas,
     get_lesson_funnel,
     get_overview_kpis,
     get_student_risks,
+    get_xp_movers,
 )
 from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.admin.service import get_dashboard_stats, get_detailed_analytics
@@ -1784,3 +1787,57 @@ async def analytics_attendance_impact(
     db: AsyncSession = Depends(get_db),
 ):
     return await get_attendance_impact(db, user)
+
+
+# ─── A1: Window-over-window KPI deltas + XP movers + on-demand report ─
+
+
+@router.get("/analytics/v2/kpi-deltas")
+async def analytics_kpi_deltas(
+    days: int = Query(7, ge=1, le=90),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Snapshot current window vs the equal-length prior window."""
+    return await get_kpi_deltas(db, user, days=days)
+
+
+@router.get("/analytics/v2/xp-movers")
+async def analytics_xp_movers(
+    window_days: int = Query(7, ge=1, le=90),
+    limit: int = Query(10, ge=1, le=100),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Top students by activity in window + decliners (active prior, silent now)."""
+    return await get_xp_movers(db, user, window_days=window_days, limit=limit)
+
+
+@router.get("/analytics/report")
+async def analytics_report(
+    window_days: int = Query(30, ge=1, le=90),
+    format: str = Query("csv", pattern="^(csv|pdf)$"),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Multi-section analytics report. Built on-demand, no scheduling."""
+    if format == "pdf":
+        # PDF wraps a future reportlab dep — not in v1 to keep deps tight.
+        raise HTTPException(
+            status_code=501,
+            detail={
+                "code": "pdf_not_implemented",
+                "message": "PDF export coming soon. Use format=csv for now.",
+            },
+        )
+
+    from datetime import datetime, timezone
+
+    csv_body = await build_analytics_report_csv(db, user, window_days=window_days)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    filename = f"analytics_report_{stamp}.csv"
+    return StreamingResponse(
+        io.StringIO(csv_body),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )

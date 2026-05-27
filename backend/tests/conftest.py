@@ -14,6 +14,7 @@ from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 import app.admin.models  # noqa
+import app.analytics.models  # noqa
 import app.assessments.models  # noqa
 import app.assignments.models  # noqa
 import app.attendance.models  # noqa

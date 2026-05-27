@@ -40,6 +40,7 @@ if settings.sentry_dsn:
         logging.getLogger(__name__).warning(f"Sentry init failed: {e}")
 from app.admin.router import router as admin_router
 from app.ai.router import router as ai_router
+from app.analytics.router import router as analytics_router
 from app.assessments.router import router as assessments_router
 from app.assignments.router import router as assignments_router
 from app.attendance.router import router as attendance_router
@@ -318,6 +319,7 @@ async def lifespan(app: FastAPI):
     import app.recording.models  # noqa
     import app.metered_billing.models  # noqa
     import app.feedback.models  # noqa
+    import app.analytics.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
@@ -457,6 +459,7 @@ def create_app() -> FastAPI:
     app.include_router(orgs_router, prefix="/api/v1", tags=["Organizations"])
     app.include_router(gamification_router, prefix="/api/v1/gamification", tags=["Gamification"])
     app.include_router(feedback_router, prefix="/api/v1", tags=["Feedback"])
+    app.include_router(analytics_router, prefix="/api/v1", tags=["Analytics Dashboards"])
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])

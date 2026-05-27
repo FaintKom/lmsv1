@@ -3,10 +3,12 @@
 All queries are org-scoped via _org_filter from the main service module.
 """
 
+import csv
+import io
 from datetime import date, datetime, timedelta, timezone
 from uuid import UUID
 
-from sqlalchemy import Date, case, cast, func, literal, select
+from sqlalchemy import Date, case, cast, desc, func, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.service import _org_filter
@@ -578,3 +580,333 @@ async def get_overview_kpis(
         "at_risk_medium": risk_counts["medium"],
         "at_risk_low": risk_counts["low"],
     }
+
+
+# ── KPI deltas (current window vs previous equal window) ─────────────
+
+
+def _pct_delta(current: float, previous: float) -> float | None:
+    """Return percentage change vs previous window.
+
+    Returns None when previous is zero (avoids the "infinite growth"
+    flag in the UI when there's no baseline to compare against).
+    """
+    if previous == 0:
+        return None
+    return round((current - previous) / previous * 100, 1)
+
+
+async def get_kpi_deltas(
+    db: AsyncSession,
+    user: User,
+    *,
+    days: int = 7,
+) -> dict:
+    """Snapshot KPIs for [now-days, now] vs [now-2*days, now-days].
+
+    Compared metrics:
+      - submissions count
+      - avg_score
+      - active distinct students
+      - new enrollments
+      - completed enrollments
+
+    Each metric returns ``{current, previous, delta_pct}``. ``delta_pct``
+    is None when the previous-window value is zero (no baseline).
+    """
+    if days < 1 or days > 90:
+        raise ValueError("days out of range [1, 90]")
+
+    now = datetime.now(timezone.utc)
+    window_a_start = now - timedelta(days=days)
+    window_b_start = now - timedelta(days=2 * days)
+
+    org_filters_user = _org_filter(User.org_id, user)
+    org_filters_course = _org_filter(Course.org_id, user)
+
+    async def _submissions(start: datetime, end: datetime) -> tuple[int, float]:
+        q = (
+            select(
+                func.count(ExerciseSubmission.id).label("cnt"),
+                func.avg(ExerciseSubmission.score).label("avg_score"),
+            )
+            .join(User, ExerciseSubmission.student_id == User.id)
+            .where(
+                ExerciseSubmission.submitted_at >= start,
+                ExerciseSubmission.submitted_at < end,
+                *org_filters_user,
+            )
+        )
+        row = (await db.execute(q)).one()
+        avg = float(row.avg_score) if row.avg_score is not None else 0.0
+        return int(row.cnt or 0), round(avg, 1)
+
+    async def _active_students(start: datetime, end: datetime) -> int:
+        q = (
+            select(func.count(func.distinct(ExerciseSubmission.student_id)))
+            .join(User, ExerciseSubmission.student_id == User.id)
+            .where(
+                ExerciseSubmission.submitted_at >= start,
+                ExerciseSubmission.submitted_at < end,
+                *org_filters_user,
+            )
+        )
+        return int((await db.execute(q)).scalar() or 0)
+
+    async def _new_enrollments(start: datetime, end: datetime) -> int:
+        q = (
+            select(func.count(Enrollment.id))
+            .join(Course, Enrollment.course_id == Course.id)
+            .where(
+                Enrollment.enrolled_at >= start,
+                Enrollment.enrolled_at < end,
+                *org_filters_course,
+            )
+        )
+        return int((await db.execute(q)).scalar() or 0)
+
+    async def _completed_enrollments(start: datetime, end: datetime) -> int:
+        q = (
+            select(func.count(Enrollment.id))
+            .join(Course, Enrollment.course_id == Course.id)
+            .where(
+                Enrollment.completed_at >= start,
+                Enrollment.completed_at < end,
+                *org_filters_course,
+            )
+        )
+        return int((await db.execute(q)).scalar() or 0)
+
+    cur_subs, cur_avg = await _submissions(window_a_start, now)
+    prev_subs, prev_avg = await _submissions(window_b_start, window_a_start)
+    cur_active = await _active_students(window_a_start, now)
+    prev_active = await _active_students(window_b_start, window_a_start)
+    cur_new = await _new_enrollments(window_a_start, now)
+    prev_new = await _new_enrollments(window_b_start, window_a_start)
+    cur_done = await _completed_enrollments(window_a_start, now)
+    prev_done = await _completed_enrollments(window_b_start, window_a_start)
+
+    return {
+        "window_days": days,
+        "current_window": {"start": window_a_start.isoformat(), "end": now.isoformat()},
+        "previous_window": {
+            "start": window_b_start.isoformat(),
+            "end": window_a_start.isoformat(),
+        },
+        "metrics": {
+            "submissions": {
+                "current": cur_subs,
+                "previous": prev_subs,
+                "delta_pct": _pct_delta(cur_subs, prev_subs),
+            },
+            "avg_score": {
+                "current": cur_avg,
+                "previous": prev_avg,
+                "delta_pct": _pct_delta(cur_avg, prev_avg),
+            },
+            "active_students": {
+                "current": cur_active,
+                "previous": prev_active,
+                "delta_pct": _pct_delta(cur_active, prev_active),
+            },
+            "new_enrollments": {
+                "current": cur_new,
+                "previous": prev_new,
+                "delta_pct": _pct_delta(cur_new, prev_new),
+            },
+            "completed_enrollments": {
+                "current": cur_done,
+                "previous": prev_done,
+                "delta_pct": _pct_delta(cur_done, prev_done),
+            },
+        },
+    }
+
+
+# ── XP movers ────────────────────────────────────────────────────────
+
+
+async def get_xp_movers(
+    db: AsyncSession,
+    user: User,
+    *,
+    window_days: int = 7,
+    limit: int = 10,
+) -> dict:
+    """Top students by submission activity in the window.
+
+    Since ``user_streaks.total_xp`` is cumulative (no per-event log
+    table yet), we proxy "XP movers" with submissions in the window:
+    activity (count) + sum of scores. This is the same signal XP
+    awards are derived from, so the ranking matches the leaderboard
+    spirit without needing a new ``xp_events`` table.
+
+    Future: when an XP event log lands, swap this for SUM(xp_delta)
+    in the window.
+    """
+    if window_days < 1 or window_days > 90:
+        raise ValueError("window_days out of range [1, 90]")
+    if limit < 1 or limit > 100:
+        raise ValueError("limit out of range [1, 100]")
+
+    now = datetime.now(timezone.utc)
+    start = now - timedelta(days=window_days)
+
+    org_filters = _org_filter(User.org_id, user)
+
+    movers_q = (
+        select(
+            User.id.label("user_id"),
+            User.email.label("email"),
+            User.full_name.label("full_name"),
+            func.count(ExerciseSubmission.id).label("submission_count"),
+            func.coalesce(func.sum(ExerciseSubmission.score), 0).label("score_sum"),
+            func.coalesce(func.avg(ExerciseSubmission.score), 0).label("avg_score"),
+        )
+        .join(ExerciseSubmission, ExerciseSubmission.student_id == User.id)
+        .where(
+            User.role == UserRole.student,
+            ExerciseSubmission.submitted_at >= start,
+            *org_filters,
+        )
+        .group_by(User.id, User.email, User.full_name)
+        .order_by(desc("score_sum"))
+        .limit(limit)
+    )
+
+    rows = (await db.execute(movers_q)).all()
+    movers = [
+        {
+            "user_id": r.user_id,
+            "email": r.email,
+            "full_name": r.full_name,
+            "submission_count": int(r.submission_count),
+            "score_sum": float(r.score_sum),
+            "avg_score": round(float(r.avg_score), 1),
+        }
+        for r in rows
+    ]
+
+    # Decliners: students who were active in the prior window but
+    # haven't submitted at all in the current one (proxy for "fell off").
+    prior_start = start - timedelta(days=window_days)
+    decliners_q = (
+        select(
+            User.id.label("user_id"),
+            User.email.label("email"),
+            User.full_name.label("full_name"),
+            func.count(ExerciseSubmission.id).label("prior_count"),
+        )
+        .join(ExerciseSubmission, ExerciseSubmission.student_id == User.id)
+        .where(
+            User.role == UserRole.student,
+            ExerciseSubmission.submitted_at >= prior_start,
+            ExerciseSubmission.submitted_at < start,
+            *org_filters,
+        )
+        .where(
+            ~User.id.in_(
+                select(ExerciseSubmission.student_id).where(
+                    ExerciseSubmission.submitted_at >= start
+                )
+            )
+        )
+        .group_by(User.id, User.email, User.full_name)
+        .order_by(desc("prior_count"))
+        .limit(limit)
+    )
+
+    decliner_rows = (await db.execute(decliners_q)).all()
+    decliners = [
+        {
+            "user_id": r.user_id,
+            "email": r.email,
+            "full_name": r.full_name,
+            "prior_count": int(r.prior_count),
+        }
+        for r in decliner_rows
+    ]
+
+    return {
+        "window_days": window_days,
+        "window_start": start.isoformat(),
+        "window_end": now.isoformat(),
+        "movers": movers,
+        "decliners": decliners,
+    }
+
+
+# ── Report builder (CSV) ─────────────────────────────────────────────
+
+
+async def build_analytics_report_csv(
+    db: AsyncSession,
+    user: User,
+    *,
+    window_days: int = 30,
+) -> str:
+    """Build a multi-section CSV combining KPIs + movers for export.
+
+    Section format (one table per topic, blank line between sections):
+
+      # KPIs
+      metric,current,previous,delta_pct
+      ...
+
+      # Top movers
+      user_id,email,name,submissions,score_sum,avg_score
+      ...
+
+      # Decliners
+      ...
+    """
+    deltas = await get_kpi_deltas(db, user, days=window_days)
+    movers = await get_xp_movers(db, user, window_days=window_days, limit=25)
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+
+    w.writerow([f"# Analytics report ({window_days}d window)"])
+    w.writerow([
+        "Generated at",
+        datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    ])
+    w.writerow([])
+
+    w.writerow(["# KPI deltas"])
+    w.writerow(["metric", "current", "previous", "delta_pct"])
+    for name, m in deltas["metrics"].items():
+        w.writerow([
+            name,
+            m["current"],
+            m["previous"],
+            "" if m["delta_pct"] is None else m["delta_pct"],
+        ])
+    w.writerow([])
+
+    w.writerow(["# Top movers"])
+    w.writerow([
+        "user_id", "email", "full_name", "submissions", "score_sum", "avg_score",
+    ])
+    for m in movers["movers"]:
+        w.writerow([
+            str(m["user_id"]),
+            m["email"],
+            m["full_name"] or "",
+            m["submission_count"],
+            m["score_sum"],
+            m["avg_score"],
+        ])
+    w.writerow([])
+
+    w.writerow(["# Decliners (active prior, silent now)"])
+    w.writerow(["user_id", "email", "full_name", "prior_submissions"])
+    for d in movers["decliners"]:
+        w.writerow([
+            str(d["user_id"]),
+            d["email"],
+            d["full_name"] or "",
+            d["prior_count"],
+        ])
+
+    return buf.getvalue()
