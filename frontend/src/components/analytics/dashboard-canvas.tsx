@@ -141,7 +141,7 @@ export function DashboardCanvas({ dashboard }: Props) {
         return (
           <div key={w.id} data-grid={widgetToLayout(w, meta.minSize)}>
             <WidgetCard
-              title={(w.props?.title as string | undefined) ?? meta.i18nKey}
+              title={(w.props?.title as string | undefined) ?? meta.label}
               onRemove={() => handleRemove(w.id)}
             >
               <Component props={w.props} />

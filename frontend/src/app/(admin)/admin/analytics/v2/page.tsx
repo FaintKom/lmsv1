@@ -339,7 +339,7 @@ function DashboardHeader({
                       setAddMenuOpen(false);
                     }}
                   >
-                    <span>{meta.i18nKey}</span>
+                    <span>{meta.label}</span>
                     <span className="text-xs text-text-muted">
                       {meta.defaultSize.w}×{meta.defaultSize.h}
                     </span>

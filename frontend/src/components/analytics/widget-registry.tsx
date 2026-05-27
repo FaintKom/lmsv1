@@ -25,7 +25,9 @@ export interface WidgetProps {
 export interface WidgetMeta {
   /** Stable type string persisted in DB. Never rename — would orphan dashboards. */
   type: string;
-  /** Display label (i18n key). */
+  /** Human-readable label shown in Add Widget menu + widget header. */
+  label: string;
+  /** i18n key for future translation phase. */
   i18nKey: string;
   /** Default grid size when added. */
   defaultSize: { w: number; h: number };
@@ -38,6 +40,7 @@ export interface WidgetMeta {
 export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   "kpi-tile": {
     type: "kpi-tile",
+    label: "KPI tiles",
     i18nKey: "analytics.widget.kpi_tile",
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 3, h: 2 },
@@ -45,6 +48,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "activity-timeline": {
     type: "activity-timeline",
+    label: "Activity timeline",
     i18nKey: "analytics.widget.activity_timeline",
     defaultSize: { w: 8, h: 4 },
     minSize: { w: 4, h: 3 },
@@ -52,6 +56,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "top-movers": {
     type: "top-movers",
+    label: "Top movers",
     i18nKey: "analytics.widget.top_movers",
     defaultSize: { w: 6, h: 5 },
     minSize: { w: 3, h: 3 },
@@ -59,6 +64,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "course-effectiveness": {
     type: "course-effectiveness",
+    label: "Course effectiveness",
     i18nKey: "analytics.widget.course_effectiveness",
     defaultSize: { w: 8, h: 5 },
     minSize: { w: 4, h: 3 },
@@ -66,6 +72,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "exercise-difficulty": {
     type: "exercise-difficulty",
+    label: "Exercise difficulty",
     i18nKey: "analytics.widget.exercise_difficulty",
     defaultSize: { w: 8, h: 5 },
     minSize: { w: 4, h: 3 },
@@ -73,6 +80,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "student-risks": {
     type: "student-risks",
+    label: "Student risks",
     i18nKey: "analytics.widget.student_risks",
     defaultSize: { w: 6, h: 5 },
     minSize: { w: 3, h: 3 },
@@ -80,6 +88,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "attendance-impact": {
     type: "attendance-impact",
+    label: "Attendance impact",
     i18nKey: "analytics.widget.attendance_impact",
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 3, h: 2 },
@@ -87,6 +96,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
   },
   "lesson-funnel": {
     type: "lesson-funnel",
+    label: "Lesson funnel",
     i18nKey: "analytics.widget.lesson_funnel",
     defaultSize: { w: 8, h: 5 },
     minSize: { w: 4, h: 3 },
