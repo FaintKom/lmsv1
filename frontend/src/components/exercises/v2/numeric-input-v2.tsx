@@ -19,6 +19,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface NumericInputExample {
   q: string;
@@ -213,7 +214,7 @@ export function NumericInputV2({
               color: "var(--ink-900)",
             }}
           >
-            {problem}
+            <MaybeMath text={problem} />
           </div>
           <input
             type="text"

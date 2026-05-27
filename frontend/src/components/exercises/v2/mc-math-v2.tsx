@@ -17,6 +17,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface McMathV2Props {
   /** Lead-in copy shown above the expression. */
@@ -138,7 +139,7 @@ export function McMathV2({
           >
             {prompt && (
               <span style={{ fontSize: 16, color: "var(--ink-500)" }}>
-                {prompt}
+                <MaybeMath text={prompt} />
               </span>
             )}
             <div
@@ -150,7 +151,7 @@ export function McMathV2({
                 marginTop: prompt ? 6 : 0,
               }}
             >
-              {expr}
+              <MaybeMath text={expr} />
             </div>
           </div>
           <div
@@ -180,7 +181,7 @@ export function McMathV2({
                   disabled={!!feedback}
                   onClick={() => setPick(i)}
                 >
-                  {opt}
+                  <MaybeMath text={opt} />
                 </button>
               );
             })}

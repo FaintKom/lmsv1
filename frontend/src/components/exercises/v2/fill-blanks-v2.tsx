@@ -24,6 +24,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface FillBlanksV2Props {
   /** Sentence template with `{{blank}}` markers — mutually exclusive with `parts`. */
@@ -184,7 +185,7 @@ export function FillBlanksV2({
           }}
         >
           {parts.map((p, i) => {
-            if (p !== null) return <span key={i}>{p}</span>;
+            if (p !== null) return <MaybeMath key={i} text={p} />;
             const si = parts.slice(0, i).filter((x) => x === null).length;
             const wi = slots[si];
             return (

@@ -21,6 +21,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface SolverState {
   left: string;
@@ -164,7 +165,7 @@ export function EquationSolverV2({
                     letterSpacing: "0.04em",
                   }}
                 >
-                  {row.left} = {row.right}
+                  <MaybeMath text={`${row.left} = ${row.right}`} />
                 </div>
               </div>
             ))}
@@ -180,7 +181,7 @@ export function EquationSolverV2({
                   fontWeight: 600,
                 }}
               >
-                {steps[step].label}
+                <MaybeMath text={steps[step].label} />
               </div>
               <div
                 style={{
@@ -202,7 +203,7 @@ export function EquationSolverV2({
                       animation: shake === opt.id ? "gp-shake 400ms" : "none",
                     }}
                   >
-                    {opt.label}
+                    <MaybeMath text={opt.label} />
                   </button>
                 ))}
               </div>

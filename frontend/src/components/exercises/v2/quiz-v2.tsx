@@ -31,6 +31,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface QuizV2Question {
   question_text: string;
@@ -161,7 +162,7 @@ export function QuizV2({
         totalSteps={questions.length}
         lostHeart={lostHeart}
         eyebrow={eyebrow}
-        title={title || q.question_text}
+        title={title ? title : <MaybeMath text={q.question_text} />}
         feedback={feedback}
         canCheck={pick !== null}
         onCheck={handleCheck}
@@ -211,7 +212,7 @@ export function QuizV2({
                   >
                     {i + 1}
                   </kbd>
-                  {opt.text}
+                  <MaybeMath text={opt.text} />
                 </span>
               </button>
             );

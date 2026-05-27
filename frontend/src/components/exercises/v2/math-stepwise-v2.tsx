@@ -20,6 +20,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import { MaybeMath } from "@/components/common/math-renderer";
 
 export interface MathStepwiseStep {
   /** Short label rendered to the left (e.g. "Step 1"). */
@@ -150,7 +151,7 @@ export function MathStepwiseV2({
               color: "var(--ink-900)",
             }}
           >
-            {problem}
+            <MaybeMath text={problem} />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
