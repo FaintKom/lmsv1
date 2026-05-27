@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  async redirects() {
+    return [
+      { source: "/pricing", destination: "/", permanent: false },
+    ];
+  },
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL;
     if (!backendUrl) return [];
