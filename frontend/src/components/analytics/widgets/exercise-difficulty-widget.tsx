@@ -31,22 +31,26 @@ export function ExerciseDifficultyWidget({ props }: WidgetProps) {
         {data.map((row) => (
           <tr key={row.exercise_id} className="border-t border-border">
             <td className="py-1.5 truncate max-w-[14rem]">{row.title}</td>
-            <td className="py-1.5 text-right">{row.attempts}</td>
+            <td className="py-1.5 text-right">{row.attempts ?? 0}</td>
             <td className="py-1.5 text-right">
-              <span
-                className={
-                  row.pass_rate < 50
-                    ? "text-danger"
-                    : row.pass_rate < 75
-                      ? "text-warning"
-                      : "text-success"
-                }
-              >
-                {row.pass_rate.toFixed(0)}%
-              </span>
+              {row.pass_rate == null ? (
+                "—"
+              ) : (
+                <span
+                  className={
+                    row.pass_rate < 50
+                      ? "text-danger"
+                      : row.pass_rate < 75
+                        ? "text-warning"
+                        : "text-success"
+                  }
+                >
+                  {Number(row.pass_rate).toFixed(0)}%
+                </span>
+              )}
             </td>
             <td className="py-1.5 text-right">
-              {row.avg_score === null ? "—" : row.avg_score.toFixed(1)}
+              {row.avg_score == null ? "—" : Number(row.avg_score).toFixed(1)}
             </td>
           </tr>
         ))}

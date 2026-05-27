@@ -31,12 +31,14 @@ export function CourseEffectivenessWidget(_props: WidgetProps) {
         {data.map((row) => (
           <tr key={row.course_id} className="border-t border-border">
             <td className="py-1.5 truncate max-w-[12rem]">{row.course_title}</td>
-            <td className="py-1.5 text-right">{row.enrollments}</td>
+            <td className="py-1.5 text-right">{row.enrollments ?? 0}</td>
             <td className="py-1.5 text-right">
-              {row.completion_rate.toFixed(1)}%
+              {row.completion_rate == null
+                ? "—"
+                : `${Number(row.completion_rate).toFixed(1)}%`}
             </td>
             <td className="py-1.5 text-right">
-              {row.avg_score === null ? "—" : row.avg_score.toFixed(1)}
+              {row.avg_score == null ? "—" : Number(row.avg_score).toFixed(1)}
             </td>
           </tr>
         ))}

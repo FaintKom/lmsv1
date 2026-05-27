@@ -42,8 +42,12 @@ export function TopMoversWidget({ props }: WidgetProps) {
                   <td className="py-1.5 truncate max-w-[10rem]">
                     {m.full_name || m.email}
                   </td>
-                  <td className="py-1.5 text-right">{m.submission_count}</td>
-                  <td className="py-1.5 text-right">{m.score_sum.toFixed(0)}</td>
+                  <td className="py-1.5 text-right">{m.submission_count ?? 0}</td>
+                  <td className="py-1.5 text-right">
+                    {m.score_sum == null
+                      ? "—"
+                      : Number(m.score_sum).toFixed(0)}
+                  </td>
                 </tr>
               ))}
             </tbody>

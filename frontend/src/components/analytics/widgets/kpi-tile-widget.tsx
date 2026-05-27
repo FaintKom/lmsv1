@@ -40,7 +40,12 @@ export function KpiTileWidget({ props }: WidgetProps) {
   return (
     <div className="grid grid-cols-2 gap-3 h-full">
       {TILES.map((t) => {
-        const m = data.metrics[t.key] as KpiMetric;
+        const m = (data.metrics?.[t.key] as KpiMetric | undefined) ?? {
+          current: 0,
+          previous: 0,
+          delta_pct: null,
+        };
+        const current = m.current ?? 0;
         return (
           <div
             key={t.key}
@@ -50,7 +55,7 @@ export function KpiTileWidget({ props }: WidgetProps) {
               {t.label}
             </div>
             <div className="text-2xl font-bold text-text mt-1">
-              {t.formatter ? t.formatter(m.current) : m.current}
+              {t.formatter ? t.formatter(current) : current}
             </div>
             <DeltaPill metric={m} />
           </div>
@@ -61,7 +66,7 @@ export function KpiTileWidget({ props }: WidgetProps) {
 }
 
 function DeltaPill({ metric }: { metric: KpiMetric }) {
-  if (metric.delta_pct === null) {
+  if (metric.delta_pct == null) {
     return (
       <div className="inline-flex items-center gap-1 text-xs text-text-muted mt-1">
         <Minus className="w-3 h-3" />

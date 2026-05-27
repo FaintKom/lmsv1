@@ -39,7 +39,8 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-full min-h-[160px]">
+      <ResponsiveContainer width="100%" height="100%" minWidth={50} minHeight={120}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
         <XAxis
@@ -72,6 +73,7 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
           dot={false}
         />
       </LineChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   );
 }
