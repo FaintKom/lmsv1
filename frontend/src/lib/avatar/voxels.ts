@@ -152,17 +152,41 @@ export function buildBody(variant: string, outfit?: string | null): THREE.Group 
 
 // ── hair ──────────────────────────────────────────────────────────────
 
-export function buildHair(variant: string): THREE.Group {
+/**
+ * Hair builder options.
+ *
+ *  - `noTopCap: true` skips the part of the hair sitting above the crown
+ *    (y >= 6.7). Used when a hat is equipped so hat geometry isn't
+ *    fighting hair geometry for the same skull-top voxels. For
+ *    bun + mohawk — where the entire visible silhouette IS that top
+ *    piece — the whole hair turns into a no-op when a hat is on.
+ */
+export interface HairOpts {
+  noTopCap?: boolean;
+}
+
+/** Map a hat slot to hair-rendering opts. */
+export function hairOptsForHat(hat: string | null | undefined): HairOpts {
+  if (!hat) return {};
+  return { noTopCap: true };
+}
+
+export function buildHair(variant: string, opts: HairOpts = {}): THREE.Group {
   const g = new THREE.Group();
+  const noTop = opts.noTopCap === true;
   switch (variant) {
     case "avatar-hair-bald":
       return g;
     case "avatar-hair-long": {
       const c = 0xf5d272;
-      // Top cap above crown (y=6.7..7.0).
-      box(g, -0.9, 6.7, -0.7, 1.8, 0.3, 1.3, c);
-      // Bangs IN FRONT of crown (z=-0.7..-0.6, just outside crown z=-0.6).
+      if (!noTop) {
+        // Top cap above crown.
+        box(g, -0.9, 6.7, -0.7, 1.8, 0.3, 1.3, c);
+      }
+      // Bangs IN FRONT of crown (z=-0.7..-0.6).
       box(g, -0.7, 6.3, -0.7, 1.4, 0.4, 0.1, c);
+      // Back fringe BEHIND crown (z=0.6..0.7) — was missing, scalp peeked.
+      box(g, -0.7, 6.3, 0.6, 1.4, 0.4, 0.1, c);
       // Side curtains OUTSIDE crown x (crown x=-0.8..0.8).
       box(g, -1.0, 4.4, -0.7, 0.2, 2.3, 1.3, c);
       box(g, 0.8, 4.4, -0.7, 0.2, 2.3, 1.3, c);
@@ -170,39 +194,54 @@ export function buildHair(variant: string): THREE.Group {
     }
     case "avatar-hair-curly": {
       const c = 0xc94335;
-      // Cap above crown.
-      box(g, -1.0, 6.7, -0.7, 2.0, 0.5, 1.3, c);
+      if (!noTop) {
+        // Top cap above crown.
+        box(g, -1.0, 6.7, -0.7, 2.0, 0.5, 1.3, c);
+        // Top pouf ABOVE cap top.
+        box(g, -0.4, 7.2, -0.3, 0.8, 0.4, 0.6, c);
+      }
       // Side tufts OUTSIDE crown x range.
       box(g, -1.05, 5.8, -0.7, 0.25, 0.9, 1.3, c);
       box(g, 0.8, 5.8, -0.7, 0.25, 0.9, 1.3, c);
-      // Top pouf ABOVE cap top y=7.2.
-      box(g, -0.4, 7.2, -0.3, 0.8, 0.4, 0.6, c);
+      // Front bangs — was missing; forehead skin showed through.
+      box(g, -0.8, 5.8, -0.7, 1.6, 0.9, 0.1, c);
+      // Back tuft — was missing.
+      box(g, -0.8, 5.8, 0.6, 1.6, 0.9, 0.1, c);
       return g;
     }
     case "avatar-hair-bun": {
       const c = 0x6b4422;
+      // When a hat is equipped the whole bun is hidden — the spheroid
+      // bun on top of a cap looks worse than just no hair.
+      if (noTop) return g;
+      // Cap above crown.
       box(g, -0.9, 6.7, -0.7, 1.8, 0.3, 1.3, c);
+      // Front fringe — was missing; forehead skin showed under the cap.
+      box(g, -0.7, 6.3, -0.7, 1.4, 0.4, 0.1, c);
+      // The bun itself, sitting on top of the cap toward the back.
       box(g, -0.45, 7.0, -0.05, 0.9, 0.7, 0.6, c);
       return g;
     }
     case "avatar-hair-mohawk": {
+      // Mohawk IS the top strip — no sensible geometry under a brim.
+      if (noTop) return g;
       const c = 0xff7a5c;
-      // Main strip.
       box(g, -0.25, 6.7, -0.3, 0.5, 0.8, 0.6, c);
-      // Tip ABOVE main strip top y=7.5.
       box(g, -0.15, 7.5, -0.2, 0.3, 0.4, 0.4, c);
       return g;
     }
     case "avatar-hair-short":
     default: {
       const c = 0x6b4422;
-      // Top cap (above crown y=6.7).
-      box(g, -0.9, 6.7, -0.7, 1.8, 0.4, 1.4, c);
+      if (!noTop) {
+        // Top cap (above crown y=6.7).
+        box(g, -0.9, 6.7, -0.7, 1.8, 0.4, 1.4, c);
+      }
       // Wrap-around. To avoid corner overlap, sides span the FULL z range
-      // (z=-0.7..0.7), front+back are SHORTER in x (start at -0.75 vs side
-      // ends at -0.75) so they don't share volume with sides.
-      box(g, -0.75, 5.6, -0.7, 1.5, 1.1, 0.1, c); // back strip (z=-0.7..-0.6)
-      box(g, -0.75, 5.6, 0.6, 1.5, 1.1, 0.1, c); // front bangs (z=0.6..0.7)
+      // (z=-0.7..0.7); front+back are SHORTER in x so they don't share
+      // volume with the sides.
+      box(g, -0.75, 5.6, -0.7, 1.5, 1.1, 0.1, c); // bangs (z=-0.7..-0.6)
+      box(g, -0.75, 5.6, 0.6, 1.5, 1.1, 0.1, c); // back (z=0.6..0.7)
       box(g, -0.9, 5.6, -0.6, 0.15, 1.1, 1.2, c); // left side
       box(g, 0.75, 5.6, -0.6, 0.15, 1.1, 1.2, c); // right side
       return g;
@@ -670,7 +709,10 @@ export function buildAvatar(equip: AvatarEquip): THREE.Group {
   g.add(buildBody(equip.body ?? "avatar-body-boy", outfit));
   g.add(buildOutfit(outfit));
   g.add(buildFace(equip.face ?? "avatar-face-smile"));
-  g.add(buildHair(equip.hair ?? "avatar-hair-short"));
+  // Hair learns about the hat — when a hat is equipped the hair drops
+  // its top-of-skull boxes so the hat sits flat instead of perching on
+  // top of a thick hair cap.
+  g.add(buildHair(equip.hair ?? "avatar-hair-short", hairOptsForHat(equip.hat)));
   g.add(buildHat(equip.hat ?? null));
   g.add(buildGlasses(equip.glasses ?? null));
   g.add(buildBack(equip.back ?? null));
