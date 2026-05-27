@@ -23,7 +23,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sympy import Eq, S, Symbol, expand, factor, simplify, solveset
+from sympy import Eq, Float, Integer, Rational, S, Symbol, expand, factor, simplify, solveset
 from sympy.parsing.sympy_parser import (
     convert_xor,
     implicit_multiplication_application,
@@ -50,6 +50,20 @@ _TR = standard_transformations + (
 
 _ALLOWED_NAMES = {
     c: Symbol(c) for c in "abcdefghijklmnopqrstuvwxyz"
+}
+
+# parse_expr() evaluates the tokenized AST with eval(); when global_dict is
+# empty, the eval can't find numeric wrappers (Integer/Float/Rational) it
+# needs to turn `4.5` into Float(4.5), and the whole call raises
+# `NameError: name 'Float' is not defined`. The previous "harden everything"
+# pass set `global_dict={}`, which broke parsing of any literal containing
+# a decimal or fraction. Restore the minimum types parse_expr requires for
+# arithmetic literals — no functions exposed, sanitiser still blocks names.
+_PARSE_GLOBAL_DICT: dict[str, object] = {
+    "Integer": Integer,
+    "Float": Float,
+    "Rational": Rational,
+    "Symbol": Symbol,
 }
 
 
@@ -82,11 +96,16 @@ def _parse(s: str):
         return parse_expr(
             s,
             local_dict=_ALLOWED_NAMES,
-            global_dict={},
+            global_dict=_PARSE_GLOBAL_DICT,
             transformations=_TR,
             evaluate=True,
         )
-    except (SyntaxError, ValueError, TypeError) as e:
+    except Exception as e:  # noqa: BLE001
+        # SymPy can raise TokenError, SympifyError, AttributeError, etc.
+        # that don't inherit from (SyntaxError, ValueError, TypeError).
+        # Catching the lot and returning 400 keeps the route from 500-ing
+        # on weird student input.
+        logger.info("math parse failed for %r: %s", s, e)
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Cannot parse '{s}': {e}")
 
 
