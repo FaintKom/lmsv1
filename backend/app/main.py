@@ -320,6 +320,7 @@ async def lifespan(app: FastAPI):
     import app.metered_billing.models  # noqa
     import app.feedback.models  # noqa
     import app.analytics.models  # noqa
+    import app.donations.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
