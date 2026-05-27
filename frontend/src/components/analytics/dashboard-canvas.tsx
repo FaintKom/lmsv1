@@ -15,6 +15,7 @@ import type { DashboardResponse, DashboardWidget } from "@/lib/api/analytics";
 
 import { WidgetCard } from "./widget-card";
 import { WIDGET_REGISTRY } from "./widget-registry";
+import { WidgetSettings } from "./widget-settings";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -34,6 +35,7 @@ export function DashboardCanvas({ dashboard }: Props) {
     () => dashboard.layout.widgets ?? [],
     [dashboard.layout.widgets],
   );
+  const [settingsFor, setSettingsFor] = useState<string | null>(null);
 
   const [localLayout, setLocalLayout] = useState<LayoutItem[]>(() =>
     widgets.map((w) => widgetToLayout(w)),
@@ -94,6 +96,19 @@ export function DashboardCanvas({ dashboard }: Props) {
     });
   };
 
+  const handleSaveProps = (
+    widgetId: string,
+    nextProps: Record<string, unknown>,
+  ) => {
+    const next = widgets.map((w) =>
+      w.id === widgetId ? { ...w, props: nextProps } : w,
+    );
+    update.mutate({
+      id: dashboard.id,
+      body: { layout: { widgets: next } },
+    });
+  };
+
   if (widgets.length === 0) {
     return (
       <div className="border-2 border-dashed border-border rounded-lg p-12 text-center text-text-muted">
@@ -138,14 +153,30 @@ export function DashboardCanvas({ dashboard }: Props) {
           );
         }
         const Component = meta.Component;
+        const isSettingsOpen = settingsFor === w.id;
         return (
           <div key={w.id} data-grid={widgetToLayout(w, meta.minSize)}>
-            <WidgetCard
-              title={(w.props?.title as string | undefined) ?? meta.label}
-              onRemove={() => handleRemove(w.id)}
-            >
-              <Component props={w.props} />
-            </WidgetCard>
+            <div className="relative h-full">
+              <WidgetCard
+                title={(w.props?.title as string | undefined) ?? meta.label}
+                onRemove={() => handleRemove(w.id)}
+                onConfigure={
+                  meta.configFields && meta.configFields.length > 0
+                    ? () => setSettingsFor(isSettingsOpen ? null : w.id)
+                    : undefined
+                }
+              >
+                <Component props={w.props} />
+              </WidgetCard>
+              {isSettingsOpen ? (
+                <WidgetSettings
+                  meta={meta}
+                  currentProps={w.props}
+                  onSave={(nextProps) => handleSaveProps(w.id, nextProps)}
+                  onClose={() => setSettingsFor(null)}
+                />
+              ) : null}
+            </div>
           </div>
         );
       })}

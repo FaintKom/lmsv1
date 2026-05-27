@@ -186,6 +186,23 @@ export function useAttendanceImpact() {
   });
 }
 
+export interface AdminCourse {
+  id: string;
+  title: string;
+}
+
+export function useAdminCourses() {
+  return useQuery<AdminCourse[]>({
+    queryKey: ["analytics", "admin-courses"],
+    queryFn: async () => {
+      const { default: apiClient } = await import("@/lib/api-client");
+      const { data } = await apiClient.get<AdminCourse[]>("/admin/courses");
+      return data;
+    },
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useLessonFunnel(courseId: string | undefined) {
   return useQuery<FunnelStep[]>({
     queryKey: ["analytics", "v2", "lesson-funnel", courseId ?? "none"],

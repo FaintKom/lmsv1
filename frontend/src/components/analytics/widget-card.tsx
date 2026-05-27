@@ -8,7 +8,7 @@
  * from DashboardCanvas, not from here, so child interactive content
  * inside CardContent stays clickable.
  */
-import { Loader2, X } from "lucide-react";
+import { Loader2, Settings as SettingsIcon, X } from "lucide-react";
 import { ReactNode } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,7 @@ interface Props {
   isLoading?: boolean;
   error?: Error | null;
   onRemove?: () => void;
+  onConfigure?: () => void;
   className?: string;
   /** Extra header content (filter pill, link, etc.) */
   headerAction?: ReactNode;
@@ -31,6 +32,7 @@ export function WidgetCard({
   isLoading,
   error,
   onRemove,
+  onConfigure,
   className,
   headerAction,
 }: Props) {
@@ -42,6 +44,19 @@ export function WidgetCard({
         </div>
         <div className="flex items-center gap-1">
           {headerAction}
+          {onConfigure ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onConfigure();
+              }}
+              className="p-1 rounded hover:bg-surface-2 text-text-muted hover:text-text"
+              aria-label="Widget settings"
+            >
+              <SettingsIcon className="w-4 h-4" />
+            </button>
+          ) : null}
           {onRemove ? (
             <button
               type="button"
