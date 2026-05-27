@@ -21,7 +21,7 @@ const POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
 const schema = z.object({
   amount: z
-    .number({ invalid_type_error: "Required" })
+    .number({ error: "Required" })
     .int()
     .min(1, { message: "min" })
     .max(10000, { message: "max" }),
