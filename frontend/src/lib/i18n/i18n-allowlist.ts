@@ -17,6 +17,7 @@
  * Paths are relative to frontend/ (e.g. `src/components/foo.tsx`).
  */
 export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
+  "src/app/(admin)/admin/analytics/v2/page.tsx",
   "src/app/(admin)/admin/billing/page.tsx",
   "src/app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors.tsx",
   "src/app/(admin)/admin/content-library/[exerciseId]/json-config-panel.tsx",
@@ -97,6 +98,12 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/code-editor/editor-layout.tsx",
   "src/components/common/auto-youtube.tsx",
   "src/components/common/content-renderer.tsx",
+  "src/components/analytics/dashboard-canvas.tsx",
+  "src/components/analytics/widget-card.tsx",
+  "src/components/analytics/widget-registry.tsx",
+  "src/components/analytics/widgets/activity-timeline-widget.tsx",
+  "src/components/analytics/widgets/kpi-tile-widget.tsx",
+  "src/components/analytics/widgets/top-movers-widget.tsx",
   "src/components/common/math-renderer.tsx",
   "src/components/common/youtube-embed.tsx",
   "src/components/cookie-consent.tsx",
