@@ -259,6 +259,18 @@ frontend/src/components/support/donation-form.test.tsx
 - **E2E** (optional, deferred to follow-up): Playwright flow without
   actually completing OC payment.
 
+### Direct crypto payment (alt channel, v1.1)
+
+A small "Or pay directly with crypto" section below the OC flow on `/support`:
+
+- Static USDT TRC-20 address (owner's Bybit wallet) shown with copy-to-clipboard button.
+- QR code generated client-side for the same address.
+- Disclaimer: "Direct crypto payments bypass our fiscal host. They are received as personal income and have different tax implications. For full transparency and tax-clean donations, use the buttons above."
+- No backend tracking (no webhook from Bybit, no in-app confirmation). Donor emails the maintainer the tx hash if they want acknowledgement.
+- Owner provides the wallet address at implementation time; store in env `NEXT_PUBLIC_BYBIT_USDT_ADDRESS` (public, non-sensitive).
+
+This is explicitly secondary to the OC flow because it lacks the legal buffer (see Constraints section). Surfaced for power users / crypto-native donors only.
+
 ## Out of scope (follow-ups)
 
 - GitHub Sponsors linking to the same OC Collective.
