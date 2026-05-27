@@ -193,10 +193,10 @@ async def update_dashboard(
     row = await db.scalar(
         select(AdminDashboard).where(AdminDashboard.id == dashboard_id)
     )
-    if row is None:
+    if row is None or not _can_write(user, row):
+        # Hide existence on cross-org / other-user reads to avoid
+        # leaking that an id exists in a different org.
         raise DashboardError("not_found", "Dashboard not found")
-    if not _can_write(user, row):
-        raise DashboardError("forbidden", "Cannot edit this dashboard")
 
     if body.view_scope is not None:
         check_scope_allowed(user, body.view_scope)
@@ -227,9 +227,7 @@ async def delete_dashboard(
     row = await db.scalar(
         select(AdminDashboard).where(AdminDashboard.id == dashboard_id)
     )
-    if row is None:
+    if row is None or not _can_write(user, row):
         raise DashboardError("not_found", "Dashboard not found")
-    if not _can_write(user, row):
-        raise DashboardError("forbidden", "Cannot delete this dashboard")
     await db.delete(row)
     await db.flush()
