@@ -11,6 +11,13 @@ import { Menu } from "lucide-react";
 // including admin/teacher/super_admin. Without this whitelist, admins hitting
 // /profile get bounced to /admin before they can see their profile settings.
 const ROUTES_AVAILABLE_TO_ALL_ROLES = new Set(["/profile"]);
+// Prefix-matched routes that staff should also be able to view.
+// Use this for any nested routes (e.g. /support and /support/thanks).
+const SHARED_ROUTE_PREFIXES = ["/support"];
+function isSharedRoutePath(pathname: string): boolean {
+ if (ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname)) return true;
+ return SHARED_ROUTE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
 
 export default function DashboardLayout({
  children,
@@ -68,7 +75,7 @@ export default function DashboardLayout({
  const isPreview = params.get("preview") === "true";
  const isStaffRole =
  user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
- const isSharedRoute = ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname);
+ const isSharedRoute = isSharedRoutePath(pathname);
  if (!isLoading && user && !isPreview && isStaffRole && !isSharedRoute) {
  router.push("/admin");
  }
@@ -91,7 +98,7 @@ export default function DashboardLayout({
  if (!isAuthenticated) return null;
  const isStaffRole =
  user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
- if (isStaffRole && !ROUTES_AVAILABLE_TO_ALL_ROLES.has(pathname)) return null;
+ if (isStaffRole && !isSharedRoutePath(pathname)) return null;
 
  return (
  <div className="flex h-screen bg-surface-2 ">
