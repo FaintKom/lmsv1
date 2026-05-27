@@ -130,6 +130,21 @@ export function DashboardCanvas({ dashboard }: Props) {
       gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [12, 12] }}
       dragConfig={{ handle: ".widget-drag-handle" }}
       onLayoutChange={(next) => {
+        // RGL fires this on every render; skip if nothing actually moved
+        // to break the setState→re-render→onLayoutChange loop (React #185).
+        const same =
+          next.length === localLayout.length &&
+          next.every((l) => {
+            const prev = localLayout.find((p) => p.i === l.i);
+            return (
+              prev &&
+              prev.x === l.x &&
+              prev.y === l.y &&
+              prev.w === l.w &&
+              prev.h === l.h
+            );
+          });
+        if (same) return;
         const arr = [...next];
         setLocalLayout(arr);
         scheduleSave(arr);
