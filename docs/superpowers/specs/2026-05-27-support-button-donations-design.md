@@ -95,7 +95,7 @@ optional conversion to TRY at VakıfBank rate
    - Subtitle: "Built and maintained by one person. No paid plans yet."
 2. **Donation form card**
    - Recurrence toggle: One-time | Monthly (One-time default)
-   - Amount grid: $5, $15, $50, custom input
+   - Amount grid: $5, $10, $15, $50, custom input
    - Optional fields: donor name, email, message
    - Anonymous checkbox: when checked, donor name and email are omitted from the `createOrder` payload and from the `/support/thanks` screen
    - Primary CTA: "Continue to payment →"
@@ -221,6 +221,7 @@ frontend/src/components/support/donation-form.test.tsx
 ### Form behaviour
 - `react-hook-form` with `zod` schema.
 - Amount min: 100 cents (USD 1.00). Max: 1000000 cents (USD 10000).
+- Suggested amounts grid: $5, $10, $15, $50 (mirrors OC Supporter tier).
 - On submit: call `donations.initiate()` → open `oc_checkout_url` in a
   popup with `window.open(url, "oc_checkout", "width=480,height=720")`.
 - Poll `/api/v1/donations/{id}` every 2 s for up to 10 minutes; on
