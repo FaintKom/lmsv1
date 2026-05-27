@@ -51,6 +51,7 @@ from app.courses.router import router as courses_router
 from app.discussions.router import router as discussions_router
 from app.exercises.router import router as exercises_router
 from app.export.router import router as export_router
+from app.feedback.router import router as feedback_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
 
@@ -316,6 +317,7 @@ async def lifespan(app: FastAPI):
     import app.team_projects.models  # noqa
     import app.recording.models  # noqa
     import app.metered_billing.models  # noqa
+    import app.feedback.models  # noqa
 
     # Phase 1: Quick DB connectivity check — just verify we CAN connect
     from app.db.session import engine
@@ -454,6 +456,7 @@ def create_app() -> FastAPI:
     app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["Notifications"])
     app.include_router(orgs_router, prefix="/api/v1", tags=["Organizations"])
     app.include_router(gamification_router, prefix="/api/v1/gamification", tags=["Gamification"])
+    app.include_router(feedback_router, prefix="/api/v1", tags=["Feedback"])
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])

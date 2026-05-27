@@ -26,6 +26,7 @@ import app.certificates.models  # noqa
 import app.courses.models  # noqa
 import app.discussions.models  # noqa
 import app.exercises.models  # noqa
+import app.feedback.models  # noqa
 import app.gamification.models  # noqa
 import app.learning_paths.models  # noqa
 import app.meetings.models  # noqa
