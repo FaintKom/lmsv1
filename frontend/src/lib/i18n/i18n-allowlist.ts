@@ -83,6 +83,9 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/cookies/page.tsx",
   "src/app/copyright/page.tsx",
   "src/app/layout.tsx",
+  // Custom 404 page is brand-adjacent (logo + generic copy). Not yet
+  // translated; same bucket as the legal pages below.
+  "src/app/not-found.tsx",
   "src/app/offline/page.tsx",
   "src/app/privacy/page.tsx",
   "src/app/refund/page.tsx",
