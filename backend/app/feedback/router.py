@@ -16,7 +16,7 @@ over union forward-refs (``Response | None``) under PEP 563.
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -76,6 +76,7 @@ def _require_admin(user: User) -> None:
 @limiter.limit("10/hour")
 async def create_feedback_endpoint(
     request: Request,
+    response: Response,
     body: FeedbackCreateRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
