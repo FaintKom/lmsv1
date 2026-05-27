@@ -23,8 +23,8 @@ const schema = z.object({
   amount: z
     .number({ error: "Required" })
     .int()
-    .min(1, { message: "min" })
-    .max(10000, { message: "max" }),
+    .min(1, "min")
+    .max(10000, "max"),
   recurrence: z.enum(["one_time", "monthly"]),
   donorName: z.string().max(120).optional().or(z.literal("")),
   donorEmail: z.string().email().optional().or(z.literal("")),
@@ -62,6 +62,7 @@ export function DonationForm() {
 
   const anonymous = watch("anonymous");
   const recurrence = watch("recurrence");
+  const amountReg = register("amount", { valueAsNumber: true });
 
   useEffect(() => {
     if (!pollingId) return;
@@ -162,67 +163,60 @@ export function DonationForm() {
         ))}
       </div>
 
-      <div>
-        <label className="block text-sm font-semibold text-text-muted">
-          {t("support.customAmountPlaceholder")}
-        </label>
+      <label className="block text-sm font-semibold text-text-muted">
+        <span className="block">{t("support.customAmountPlaceholder")}</span>
         <input
           type="number"
           min={1}
           max={10000}
           step={1}
-          {...register("amount", { valueAsNumber: true })}
+          {...amountReg}
           onChange={(e) => {
-            register("amount", { valueAsNumber: true }).onChange(e);
+            amountReg.onChange(e);
             setSelectedPreset(null);
           }}
           className="mt-1 w-full rounded-md border border-border bg-paper-2 px-3 py-2"
         />
-        {errors.amount?.message === "min" && (
-          <p className="text-xs text-coral-500">{t("support.amountTooSmall")}</p>
+        {errors.amount && (
+          <p className="text-xs text-coral-500">
+            {(watch("amount") ?? 0) > 10000
+              ? t("support.amountTooLarge")
+              : t("support.amountTooSmall")}
+          </p>
         )}
-        {errors.amount?.message === "max" && (
-          <p className="text-xs text-coral-500">{t("support.amountTooLarge")}</p>
-        )}
-      </div>
+      </label>
 
       {!anonymous && (
         <>
-          <div>
-            <label className="block text-sm font-semibold text-text-muted">
-              {t("support.donorNameLabel")}
-            </label>
+          <label className="block text-sm font-semibold text-text-muted">
+            <span className="block">{t("support.donorNameLabel")}</span>
             <input
               type="text"
               maxLength={120}
               {...register("donorName")}
               className="mt-1 w-full rounded-md border border-border bg-paper-2 px-3 py-2"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-text-muted">
-              {t("support.donorEmailLabel")}
-            </label>
+          </label>
+          <label className="block text-sm font-semibold text-text-muted">
+            <span className="block">{t("support.donorEmailLabel")}</span>
             <input
               type="email"
               {...register("donorEmail")}
               className="mt-1 w-full rounded-md border border-border bg-paper-2 px-3 py-2"
             />
-          </div>
+          </label>
         </>
       )}
 
-      <div>
-        <label className="block text-sm font-semibold text-text-muted">
-          {t("support.messageLabel")}
-        </label>
+      <label className="block text-sm font-semibold text-text-muted">
+        <span className="block">{t("support.messageLabel")}</span>
         <textarea
           maxLength={2000}
           rows={3}
           {...register("message")}
           className="mt-1 w-full rounded-md border border-border bg-paper-2 px-3 py-2"
         />
-      </div>
+      </label>
 
       <label className="flex items-center gap-2 text-sm text-ink-700">
         <input type="checkbox" {...register("anonymous")} />

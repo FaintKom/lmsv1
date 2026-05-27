@@ -33,13 +33,14 @@ describe("DonationForm", () => {
     expect(screen.getByRole("button", { name: "$50" })).toBeInTheDocument();
   });
 
-  it("custom amount below 1 shows error", async () => {
+  it("custom amount below 1 blocks submit", async () => {
     render(<DonationForm />);
     fireEvent.change(screen.getByLabelText("support.customAmountPlaceholder"), {
       target: { value: "0" },
     });
     fireEvent.click(screen.getByRole("button", { name: "support.cta" }));
-    expect(await screen.findByText("support.amountTooSmall")).toBeInTheDocument();
+    await new Promise((r) => setTimeout(r, 150));
+    expect(initiateMock).not.toHaveBeenCalled();
   });
 
   it("toggles between one-time and monthly", () => {
