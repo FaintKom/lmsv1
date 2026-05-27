@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     lemonsqueezy_enterprise_monthly_variant_id: str = ""
     lemonsqueezy_enterprise_yearly_variant_id: str = ""
 
+    # Open Collective — donations module
+    oc_api_token: str = ""
+    oc_webhook_secret: str = ""
+    oc_collective_slug: str = "grasslms"
+    oc_graphql_url: str = "https://api.opencollective.com/graphql/v2"
+    oc_success_url: str = ""  # e.g. https://grasslms.online/support/thanks
+
     # CORS
     cors_origins: str = "http://localhost:3000"
 
