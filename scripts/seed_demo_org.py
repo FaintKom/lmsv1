@@ -668,6 +668,8 @@ PROGRESS_PLAN = [
     ("math-7-algebra", "demo-s2", 30.0, 2),
     ("english-b1-travel", "demo-s3", 50.0, 3),
     ("spanish-a1-first-words", "demo-s4", 70.0, 4),
+    ("german-a1-first-words", "demo-student", 30.0, 2),
+    ("german-a1-first-words", "demo-s3", 50.0, 3),
     ("python-basics", "demo-s5", 30.0, 2),
     ("web-html-css", "demo-s5", 50.0, 3),
     ("web-html-css", "demo-s2", 20.0, 1),
