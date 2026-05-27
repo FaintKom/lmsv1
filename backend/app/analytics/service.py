@@ -13,6 +13,7 @@ the UI always lands on a single canonical dashboard.
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import and_, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +24,10 @@ from app.analytics.schemas import (
     DashboardUpdateRequest,
 )
 from app.auth.models import User, UserRole
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class DashboardError(Exception):
@@ -100,9 +105,11 @@ async def _clear_other_defaults(
         )
     )
     rows = (await db.execute(stmt)).scalars().all()
+    now = _now()
     for r in rows:
         if keep_id is None or r.id != keep_id:
             r.is_default = False
+            r.updated_at = now
 
 
 async def create_dashboard(
@@ -113,6 +120,7 @@ async def create_dashboard(
     require_dashboard_role(user)
     check_scope_allowed(user, body.view_scope)
 
+    now = _now()
     row = AdminDashboard(
         id=uuid.uuid4(),
         org_id=user.org_id,
@@ -122,6 +130,8 @@ async def create_dashboard(
         is_default=body.is_default,
         layout=body.layout,
         filters=body.filters,
+        created_at=now,
+        updated_at=now,
     )
     db.add(row)
     if body.is_default:
@@ -201,9 +211,11 @@ async def update_dashboard(
         row.is_default = body.is_default
         if body.is_default:
             scope = DashboardScope(row.view_scope)
+            row.updated_at = _now()
             await db.flush()
             await _clear_other_defaults(db, row.user_id, scope, row.id)
 
+    row.updated_at = _now()
     await db.flush()
     return row
 
