@@ -99,6 +99,7 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/common/auto-youtube.tsx",
   "src/components/common/content-renderer.tsx",
   "src/components/analytics/dashboard-canvas.tsx",
+  "src/components/analytics/dashboard-filter-bar.tsx",
   "src/components/analytics/widget-card.tsx",
   "src/components/analytics/widget-registry.tsx",
   "src/components/analytics/widget-settings.tsx",

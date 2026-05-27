@@ -13,6 +13,7 @@ import GridLayout, { LayoutItem, useContainerWidth } from "react-grid-layout";
 import { useUpdateDashboard } from "@/hooks/use-dashboards";
 import type { DashboardResponse, DashboardWidget } from "@/lib/api/analytics";
 
+import { rangeToDays } from "./dashboard-filter-bar";
 import { WidgetCard } from "./widget-card";
 import { WIDGET_REGISTRY } from "./widget-registry";
 import { WidgetSettings } from "./widget-settings";
@@ -169,6 +170,18 @@ export function DashboardCanvas({ dashboard }: Props) {
         }
         const Component = meta.Component;
         const isSettingsOpen = settingsFor === w.id;
+        // Merge dashboard-wide filters into per-widget props.
+        // Per-widget props win (allow override). Range defaults
+        // populate days/window_days; course filter populates course_id.
+        const filters = dashboard.filters ?? {};
+        const fallbackDays = rangeToDays(filters.range) ?? undefined;
+        const fallbackCourse = filters.course_ids?.[0];
+        const effectiveProps: Record<string, unknown> = {
+          ...(fallbackDays !== undefined ? { days: fallbackDays } : {}),
+          ...(fallbackDays !== undefined ? { window_days: fallbackDays } : {}),
+          ...(fallbackCourse ? { course_id: fallbackCourse } : {}),
+          ...(w.props ?? {}),
+        };
         return (
           <div key={w.id} data-grid={widgetToLayout(w, meta.minSize)}>
             <div className="relative h-full">
@@ -181,7 +194,7 @@ export function DashboardCanvas({ dashboard }: Props) {
                     : undefined
                 }
               >
-                <Component props={w.props} />
+                <Component props={effectiveProps} />
               </WidgetCard>
               {isSettingsOpen ? (
                 <WidgetSettings

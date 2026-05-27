@@ -56,8 +56,8 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
     type: "kpi-tile",
     label: "KPI tiles",
     i18nKey: "analytics.widget.kpi_tile",
-    defaultSize: { w: 6, h: 3 },
-    minSize: { w: 3, h: 2 },
+    defaultSize: { w: 6, h: 5 },
+    minSize: { w: 4, h: 4 },
     Component: KpiTileWidget,
     configFields: [
       {

@@ -12,6 +12,7 @@ import { Check, Loader2, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-rea
 import { useEffect, useMemo, useState } from "react";
 
 import { DashboardCanvas } from "@/components/analytics/dashboard-canvas";
+import { DashboardFilterBar } from "@/components/analytics/dashboard-filter-bar";
 import { WIDGET_REGISTRY } from "@/components/analytics/widget-registry";
 import { Button } from "@/components/ui/button";
 import {
@@ -164,6 +165,7 @@ export default function AnalyticsV2Page() {
           }
         }}
       />
+      <DashboardFilterBar dashboard={active} />
       <DashboardCanvas dashboard={active} />
     </div>
   );
