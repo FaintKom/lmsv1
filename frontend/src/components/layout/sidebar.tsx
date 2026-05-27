@@ -172,9 +172,16 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </p>
  <ul className="space-y-[2px]" role="list">
  {nav.map((item) => {
+ // Exact match for items that have nested specialised siblings
+ // (e.g. /admin/analytics + /admin/analytics/v2). Otherwise a parent
+ // entry highlights when the user is actually on a child route.
+ const hasSpecialisedChild = nav.some(
+ (other) => other.href !== item.href && other.href.startsWith(item.href + "/"),
+ );
  const isActive =
  pathname === item.href ||
- (item.href !== "/admin" &&
+ (!hasSpecialisedChild &&
+ item.href !== "/admin" &&
  item.href !== "/dashboard" &&
  pathname.startsWith(item.href));
  const tourAnchor = ({

@@ -45,7 +45,7 @@ const SEED_LAYOUT: DashboardWidget[] = [
 ];
 
 export default function AnalyticsV2Page() {
-  const { data: dashboards, isLoading } = useDashboards();
+  const { data: dashboards, isLoading, error } = useDashboards();
   const create = useCreateDashboard();
   const update = useUpdateDashboard();
   const remove = useDeleteDashboard();
@@ -72,6 +72,32 @@ export default function AnalyticsV2Page() {
       });
     }
   }, [isLoading, dashboards, bootstrapped, create]);
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-danger font-semibold mb-2">
+          Failed to load dashboards
+        </div>
+        <div className="text-sm text-text-muted whitespace-pre-wrap">
+          {(error as Error).message}
+        </div>
+      </div>
+    );
+  }
+
+  if (create.error) {
+    return (
+      <div className="p-6">
+        <div className="text-danger font-semibold mb-2">
+          Failed to bootstrap dashboard
+        </div>
+        <div className="text-sm text-text-muted whitespace-pre-wrap">
+          {(create.error as Error).message}
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading || !active) {
     return (
