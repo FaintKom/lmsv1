@@ -7,7 +7,7 @@ import json
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,6 +38,7 @@ router = APIRouter()
 @limiter.limit("10/minute")
 async def initiate_donation(
     request: Request,
+    response: Response,
     body: DonationInitiateRequest,
     db: AsyncSession = Depends(get_db),
 ) -> DonationInitiateResponse:
