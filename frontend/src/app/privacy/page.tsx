@@ -283,6 +283,12 @@ export default function PrivacyPolicyPage() {
  active systems.
  </li>
  <li>
+ <strong>Inactive Student Accounts:</strong> To minimize the data we hold on
+ children, a student account that remains inactive (no sign-in) for 24
+ consecutive months is automatically and permanently deleted, along with its
+ learning data. This purge runs on a regular schedule.
+ </li>
+ <li>
  <strong>Backups:</strong> Encrypted backups that may contain your data are retained for
  up to 90 days after deletion from active systems, after which they are purged.
  </li>
@@ -419,6 +425,11 @@ export default function PrivacyPolicyPage() {
  </a>
  . We will respond within 30 days. For school-managed student accounts, requests may need
  to be submitted through the school.
+ </p>
+ <p className="mt-2">
+ You may also permanently delete your own account at any time directly from your
+ profile settings. This erases your account and associated personal data from our
+ active systems immediately and cannot be undone.
  </p>
  </section>
 

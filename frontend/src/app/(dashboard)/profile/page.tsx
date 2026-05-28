@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 import { LOCALES, type Locale } from "@/lib/i18n/translations";
@@ -21,11 +22,15 @@ import {
  Bell,
  Download,
  Key,
+ Trash2,
+ AlertTriangle,
 } from "lucide-react";
 
 export default function ProfilePage() {
  const user = useAuthStore((s) => s.user);
  const fetchUser = useAuthStore((s) => s.fetchUser);
+ const logout = useAuthStore((s) => s.logout);
+ const router = useRouter();
  const { locale, setLocale, t } = useTranslation();
 
  const [editing, setEditing] = useState(false);
@@ -52,6 +57,28 @@ export default function ProfilePage() {
  // Email verification
  const [resendingVerification, setResendingVerification] = useState(false);
  const emailVerified = Boolean(user?.email_verified_at);
+
+ // Account deletion (GDPR self-service erasure)
+ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+ const [deletePassword, setDeletePassword] = useState("");
+ const [deleting, setDeleting] = useState(false);
+
+ const handleDeleteAccount = async (e: React.FormEvent) => {
+ e.preventDefault();
+ setDeleting(true);
+ try {
+ await apiClient.delete("/auth/me", { data: { password: deletePassword } });
+ toast.success("Your account and data have been permanently deleted");
+ logout();
+ router.push("/");
+ } catch (err: unknown) {
+ const e = err as { response?: { data?: { detail?: string } } };
+ toast.error(e?.response?.data?.detail || "Failed to delete account");
+ } finally {
+ setDeleting(false);
+ setDeletePassword("");
+ }
+ };
 
  // System feature flags — drives the "email disabled" disclaimer banner
  const [emailEnabled, setEmailEnabled] = useState<boolean | null>(null);
@@ -520,6 +547,74 @@ export default function ProfilePage() {
  <Download className="mr-1.5 h-4 w-4" />
  {exportingData ? "Exporting..." : "Download My Data"}
  </Button>
+ </CardContent>
+ </Card>
+
+ {/* Danger Zone — account deletion */}
+ <Card className="mb-6 border-danger">
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2 text-base text-danger-fg">
+ <AlertTriangle className="h-4 w-4" />
+ Delete Account
+ </CardTitle>
+ </CardHeader>
+ <CardContent>
+ {!showDeleteConfirm ? (
+ <>
+ <p className="mb-3 text-sm text-text-muted">
+ Permanently delete your account and all associated data. This action
+ cannot be undone.
+ </p>
+ <Button
+ variant="outline"
+ onClick={() => setShowDeleteConfirm(true)}
+ className="border-danger text-danger-fg hover:bg-danger-soft"
+ >
+ <Trash2 className="mr-1.5 h-4 w-4" />
+ Delete My Account
+ </Button>
+ </>
+ ) : (
+ <form onSubmit={handleDeleteAccount} className="space-y-4">
+ <div className="rounded-lg border border-danger bg-danger-soft px-4 py-3 text-sm text-danger-fg">
+ This permanently erases your account, progress, submissions, and all
+ personal data. It cannot be undone. Enter your password to confirm.
+ </div>
+ <div>
+ <label className="mb-1.5 block text-xs font-medium text-text-muted">
+ Password
+ </label>
+ <input
+ type="password"
+ value={deletePassword}
+ onChange={(e) => setDeletePassword(e.target.value)}
+ required
+ autoComplete="current-password"
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger-soft"
+ />
+ </div>
+ <div className="flex items-center gap-3">
+ <Button
+ type="submit"
+ disabled={deleting || !deletePassword}
+ className="bg-danger text-white hover:bg-danger-fg"
+ >
+ <Trash2 className="mr-1.5 h-4 w-4" />
+ {deleting ? "Deleting..." : "Permanently Delete"}
+ </Button>
+ <Button
+ type="button"
+ variant="outline"
+ onClick={() => {
+ setShowDeleteConfirm(false);
+ setDeletePassword("");
+ }}
+ >
+ Cancel
+ </Button>
+ </div>
+ </form>
+ )}
  </CardContent>
  </Card>
 

@@ -380,6 +380,12 @@ export default function TermsOfServicePage() {
  their data deleted after reasonable notice. We will attempt to notify the account
  administrator by email before terminating an inactive account.
  </p>
+ <p className="mt-2">
+ To limit the personal data we hold on minors, individual student accounts that remain
+ inactive for 24 consecutive months are automatically and permanently deleted, along
+ with their associated learning data. Account holders may also delete their own account
+ at any time from their profile settings.
+ </p>
  </section>
 
  {/* 13. Disclaimers */}
