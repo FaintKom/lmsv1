@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import dynamic from "next/dynamic";
 import katex from "katex";
 import "katex/dist/katex.min.css";
@@ -20,6 +20,34 @@ interface ContentRendererProps {
  body: string | Record<string, unknown>;
  format?: "markdown" | "html" | "tiptap";
 }
+
+/**
+ * Markdown sanitize schema. The default GitHub schema strips inline `style`,
+ * `class`/`id` and a few structural tags that design-system lesson markup
+ * relies on — recover them here. `<script>` / event handlers / `iframe` stay
+ * forbidden (default); authors needing embeds or widgets use an `html` block,
+ * which routes through `sanitizeHtml` / the sandboxed iframe instead.
+ */
+const markdownSchema = {
+ ...defaultSchema,
+ tagNames: [
+ ...(defaultSchema.tagNames || []),
+ "details",
+ "summary",
+ "figure",
+ "figcaption",
+ ],
+ attributes: {
+ ...defaultSchema.attributes,
+ "*": [
+ ...(defaultSchema.attributes?.["*"] || []),
+ "className",
+ "class",
+ "style",
+ "id",
+ ],
+ },
+};
 
 export function ContentRenderer({ body, format = "markdown" }: ContentRendererProps) {
  if (!body) {
@@ -64,7 +92,7 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
  return (
  <ReactMarkdown
  remarkPlugins={[remarkGfm]}
- rehypePlugins={[rehypeRaw, rehypeSanitize]}
+ rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
  >
  {text}
  </ReactMarkdown>

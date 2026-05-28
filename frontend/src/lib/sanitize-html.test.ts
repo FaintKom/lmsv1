@@ -35,6 +35,40 @@ describe("sanitizeHtml", () => {
     expect(out).toContain("<img");
   });
 
+  it("keeps a YouTube iframe embed and confines it with a sandbox", () => {
+    const out = sanitizeHtml(
+      '<iframe src="https://www.youtube.com/embed/abc123" allowfullscreen></iframe>',
+    );
+    expect(out).toContain("<iframe");
+    expect(out).toContain("youtube.com/embed/abc123");
+    expect(out).toContain("sandbox=");
+  });
+
+  it("keeps GeoGebra / Desmos embeds", () => {
+    expect(sanitizeHtml('<iframe src="https://www.geogebra.org/material/iframe/id/x"></iframe>'))
+      .toContain("<iframe");
+    expect(sanitizeHtml('<iframe src="https://www.desmos.com/calculator/abc"></iframe>'))
+      .toContain("<iframe");
+  });
+
+  it("strips an iframe pointing at a non-allowlisted host", () => {
+    const out = sanitizeHtml('<iframe src="https://evil.example.com/phish"></iframe>');
+    expect(out).not.toContain("<iframe");
+  });
+
+  it("strips a javascript: iframe src", () => {
+    const out = sanitizeHtml('<iframe src="javascript:alert(1)"></iframe>');
+    expect(out).not.toContain("<iframe");
+  });
+
+  it("drops srcdoc even on an allowlisted iframe", () => {
+    const out = sanitizeHtml(
+      '<iframe src="https://www.youtube.com/embed/x" srcdoc="<script>alert(1)</script>"></iframe>',
+    );
+    expect(out.toLowerCase()).not.toContain("srcdoc");
+    expect(out).not.toContain("<script");
+  });
+
   it("returns empty string for empty input", () => {
     expect(sanitizeHtml("")).toBe("");
   });
