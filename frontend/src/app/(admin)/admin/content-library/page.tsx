@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import apiClient from "@/lib/api-client";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 import type { Course } from "@/types/api";
 import {
  Library,
@@ -409,7 +410,7 @@ function TemplatesTab() {
 
  <p className="mb-1 text-sm text-text-muted ">
  {/* Render the prompt: backend message contains HTML-like markers */}
- <span dangerouslySetInnerHTML={{ __html: t("admin.contentLibrary.copyTemplatePrompt").replace("{title}", copyModal.title) }} />
+ <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("admin.contentLibrary.copyTemplatePrompt").replace("{title}", copyModal.title)) }} />
  </p>
  <p className="mb-4 text-xs text-text-subtle">
  {t("admin.contentLibrary.selectGroupsHint")}

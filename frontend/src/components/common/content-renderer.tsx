@@ -4,10 +4,12 @@ import { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import dynamic from "next/dynamic";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import { MathRenderer, containsMath } from "./math-renderer";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
@@ -62,7 +64,7 @@ export function ContentRenderer({ body, format = "markdown" }: ContentRendererPr
  return (
  <ReactMarkdown
  remarkPlugins={[remarkGfm]}
- rehypePlugins={[rehypeRaw]}
+ rehypePlugins={[rehypeRaw, rehypeSanitize]}
  >
  {text}
  </ReactMarkdown>
@@ -89,7 +91,7 @@ function normalizeLessonHtml(html: string): string {
 /** Render HTML with KaTeX math support. First inserts HTML, then processes $...$ and $$...$$ */
 function HtmlWithMath({ html }: { html: string }) {
  const ref = useRef<HTMLDivElement>(null);
- const normalized = normalizeLessonHtml(html);
+ const normalized = sanitizeHtml(normalizeLessonHtml(html));
 
  useEffect(() => {
  if (!ref.current) return;

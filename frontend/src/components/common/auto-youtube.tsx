@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { YouTubeEmbed } from "./youtube-embed";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 /**
  * Regex that matches YouTube URLs in text content.
@@ -111,7 +112,7 @@ export function AutoYouTube({ html }: AutoYouTubeProps) {
  return (
  <span
  key={`html-${i}`}
- dangerouslySetInnerHTML={{ __html: segment.content }}
+ dangerouslySetInnerHTML={{ __html: sanitizeHtml(segment.content) }}
  />
  );
  })}

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
+import { ContentRenderer } from "@/components/common/content-renderer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -1295,7 +1296,7 @@ export default function CourseEditorPage() {
  <div>
  <p className="mb-1 text-[10px] font-medium uppercase text-text-subtle">Preview</p>
  <div className="rounded-lg border border-border-strong bg-paper-2 p-4 overflow-auto max-h-[300px]">
- <div dangerouslySetInnerHTML={{ __html: block.body }} />
+ <ContentRenderer body={block.body} format="html" />
  </div>
  </div>
  )}
