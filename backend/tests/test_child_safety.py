@@ -85,7 +85,8 @@ async def test_register_teacher_needs_no_parental_consent(client, db):
 # #4a — self-service erasure (DELETE /auth/me)
 # ---------------------------------------------------------------------------
 async def test_delete_me_wrong_password_rejected(client, db, student):
-    r = await client.delete(
+    r = await client.request(
+        "DELETE",
         "/api/v1/auth/me",
         headers=auth_header(student),
         json={"password": "WrongPassword!"},
@@ -100,7 +101,8 @@ async def test_delete_me_wrong_password_rejected(client, db, student):
 
 async def test_delete_me_correct_password_erases(client, db, student):
     sid = student.id
-    r = await client.delete(
+    r = await client.request(
+        "DELETE",
         "/api/v1/auth/me",
         headers=auth_header(student),
         json={"password": "TestPass123!"},

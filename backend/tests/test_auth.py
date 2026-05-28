@@ -50,6 +50,7 @@ async def test_register_student_with_org(client: AsyncClient, org):
         "password": "StrongPass123!",
         "role": "student",
         "consent_accepted": True,
+        "parental_consent_accepted": True,
     })
     assert resp.status_code == 200
     assert resp.json()["user"]["role"] == "student"

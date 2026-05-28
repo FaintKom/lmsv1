@@ -330,6 +330,7 @@ class TestEmailVerification:
                 "password": "StudentPass1!",
                 "role": "student",
                 "consent_accepted": True,
+                "parental_consent_accepted": True,
             },
         )
         assert r.status_code == 200, r.text
