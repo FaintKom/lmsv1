@@ -39,7 +39,10 @@ export function DashboardCanvas({ dashboard }: Props) {
   const [settingsFor, setSettingsFor] = useState<string | null>(null);
 
   const [localLayout, setLocalLayout] = useState<LayoutItem[]>(() =>
-    widgets.map((w) => widgetToLayout(w)),
+    widgets.map((w) => {
+      const meta = WIDGET_REGISTRY[w.type];
+      return widgetToLayout(w, meta?.minSize);
+    }),
   );
 
   // Keep local layout in sync if server-side dashboard changes (e.g.
@@ -53,7 +56,10 @@ export function DashboardCanvas({ dashboard }: Props) {
         prevIds.size === nextIds.size &&
         [...prevIds].every((id) => nextIds.has(id));
       if (sameSet) return prev;
-      return widgets.map((w) => widgetToLayout(w));
+      return widgets.map((w) => {
+        const meta = WIDGET_REGISTRY[w.type];
+        return widgetToLayout(w, meta?.minSize);
+      });
     });
   }, [widgets]);
 
@@ -218,13 +224,18 @@ function widgetToLayout(
   w: DashboardWidget,
   minSize?: { w: number; h: number },
 ): LayoutItem {
+  // Clamp persisted w/h up to the current registry minSize so a
+  // widget saved before we bumped its minimum auto-grows instead of
+  // staying cropped on next render.
+  const minW = minSize?.w;
+  const minH = minSize?.h;
   return {
     i: w.id,
     x: w.x,
     y: w.y,
-    w: w.w,
-    h: w.h,
-    minW: minSize?.w,
-    minH: minSize?.h,
+    w: minW !== undefined ? Math.max(w.w, minW) : w.w,
+    h: minH !== undefined ? Math.max(w.h, minH) : w.h,
+    minW,
+    minH,
   };
 }
