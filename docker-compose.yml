@@ -35,6 +35,7 @@ services:
     networks:
       - backend-net
       - frontend-net
+      - sandbox-net
 
   frontend:
     build: ./frontend
@@ -55,8 +56,10 @@ services:
   sandbox:
     build: ./sandbox
     command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    # Egress-isolated (internal: true) so untrusted student code can't reach
+    # the internet. Only backend (also on sandbox-net) can call it.
     networks:
-      - backend-net
+      - sandbox-net
     deploy:
       resources:
         limits:
@@ -72,3 +75,5 @@ volumes:
 networks:
   backend-net:
   frontend-net:
+  sandbox-net:
+    internal: true

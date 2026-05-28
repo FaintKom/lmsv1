@@ -51,6 +51,7 @@ services:
       - uploads:/data/uploads
     networks:
       - internal
+      - sandbox-net
     restart: unless-stopped
     security_opt:
       - "no-new-privileges:true"
@@ -64,8 +65,11 @@ services:
   sandbox:
     build: ./sandbox
     command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    # Egress-isolated network (internal: true) so untrusted student code
+    # cannot reach the internet to exfiltrate data or phone home. Only the
+    # backend (which also joins sandbox-net) can call it.
     networks:
-      - internal
+      - sandbox-net
     deploy:
       resources:
         limits:
@@ -109,3 +113,5 @@ volumes:
 
 networks:
   internal:
+  sandbox-net:
+    internal: true
