@@ -420,6 +420,9 @@ async def _get_assignment_with_ownership(
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise NotFoundError("Assignment not found")
+    # super_admin is cross-org by design (mirrors require_role).
+    if user.role == UserRole.super_admin:
+        return assignment
     if assignment.org_id != user.org_id:
         raise ForbiddenError("Access denied")
     if user.role == UserRole.teacher and assignment.created_by != user.id:
