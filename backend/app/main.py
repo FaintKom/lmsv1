@@ -49,7 +49,6 @@ from app.billing.router import router as billing_router
 from app.calendar.router import router as calendar_router
 from app.certificates.router import router as certificates_router
 from app.courses.router import router as courses_router
-from app.discussions.router import router as discussions_router
 from app.donations.router import router as donations_router
 from app.exercises.router import router as exercises_router
 from app.export.router import router as export_router
@@ -456,7 +455,6 @@ def create_app() -> FastAPI:
     app.include_router(billing_router, prefix="/api/v1/billing", tags=["Billing"])
     app.include_router(admin_router, prefix="/api/v1/admin", tags=["Admin"])
     app.include_router(submissions_router, prefix="/api/v1/submissions", tags=["Submissions"])
-    app.include_router(discussions_router, prefix="/api/v1/discussions", tags=["Discussions"])
     app.include_router(donations_router, prefix="/api/v1/donations", tags=["Donations"])
     app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["Notifications"])
     app.include_router(orgs_router, prefix="/api/v1", tags=["Organizations"])

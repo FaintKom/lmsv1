@@ -97,28 +97,25 @@ async def test_mark_all_read(client: AsyncClient, student):
 
 
 # ─── Discussions ─────────────────────────────────────────────────────────
+# The discussions/comments router was unmounted for child-safety: it was an
+# unmoderated student-to-student free-text surface (no filter/flag/review
+# queue) and the frontend UI was already removed. The model/table is kept for
+# GDPR erasure, but the API must stay unreachable.
 
 
 @pytest.mark.asyncio
-async def test_post_comment(client: AsyncClient, student, teacher, org, db):
+async def test_comments_endpoint_removed(client: AsyncClient, student, teacher, org, db):
     course = await make_course(db, org, teacher)
     module = await make_module(db, course.id)
     lesson = await make_lesson(db, module.id)
-    resp = await client.post(
+    post = await client.post(
         f"/api/v1/discussions/lessons/{lesson.id}/comments",
         json={"body": "Great lesson!"},
         headers=auth_header(student),
     )
-    assert resp.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_list_comments(client: AsyncClient, student, teacher, org, db):
-    course = await make_course(db, org, teacher)
-    module = await make_module(db, course.id)
-    lesson = await make_lesson(db, module.id)
-    resp = await client.get(
+    assert post.status_code == 404
+    get = await client.get(
         f"/api/v1/discussions/lessons/{lesson.id}/comments",
         headers=auth_header(student),
     )
-    assert resp.status_code == 200
+    assert get.status_code == 404

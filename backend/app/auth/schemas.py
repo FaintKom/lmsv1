@@ -1,17 +1,26 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.common.profanity import contains_profanity
 
 
 class RegisterRequest(BaseModel):
     org_name: str = ""  # For teachers creating a new org
     org_id: str | None = None  # For students joining an existing org
-    full_name: str
+    full_name: str = Field(min_length=1, max_length=100)
     email: EmailStr
     password: str
     role: str = "teacher"  # "teacher" or "student"
     consent_accepted: bool = False
+
+    @field_validator("full_name")
+    @classmethod
+    def _full_name_no_profanity(cls, v: str) -> str:
+        if contains_profanity(v):
+            raise ValueError("Name contains inappropriate language")
+        return v
 
 
 class LoginRequest(BaseModel):
@@ -48,9 +57,16 @@ class UserResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    full_name: str | None = None
+    full_name: str | None = Field(None, min_length=1, max_length=100)
     avatar_url: str | None = None
-    bio: str | None = None
+    bio: str | None = Field(None, max_length=280)
+
+    @field_validator("full_name", "bio")
+    @classmethod
+    def _no_profanity(cls, v: str | None) -> str | None:
+        if v and contains_profanity(v):
+            raise ValueError("Text contains inappropriate language")
+        return v
 
 
 class InviteRequest(BaseModel):
