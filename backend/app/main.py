@@ -151,6 +151,11 @@ async def _run_setup():
             "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
             # P0-6: email verification
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP WITH TIME ZONE",
+            # Child safety: school-mediated parental consent + retention tracking
+            # (migration c1d2e3f4a5b6). Mirrored here as boot-time fallback.
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_at TIMESTAMP WITH TIME ZONE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_by UUID",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP WITH TIME ZONE",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).

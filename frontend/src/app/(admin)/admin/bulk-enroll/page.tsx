@@ -109,6 +109,7 @@ export default function BulkEnrollPage() {
  const [csvText, setCsvText] = useState("");
  const [csvFile, setCsvFile] = useState<File | null>(null);
  const [defaultPassword, setDefaultPassword] = useState("Welcome2026!");
+ const [parentalConsent, setParentalConsent] = useState(false);
  const [submitting, setSubmitting] = useState(false);
  const [enrollResult, setEnrollResult] = useState<BulkEnrollResponse | null>(null);
  const [importResult, setImportResult] = useState<BulkImportResponse | null>(null);
@@ -195,6 +196,10 @@ export default function BulkEnrollPage() {
  toast.error(t("admin.bulkEnroll.noValidRows"));
  return;
  }
+ if (!parentalConsent) {
+ toast.error(t("admin.bulkEnroll.parentalConsentRequired"));
+ return;
+ }
  setSubmitting(true);
  setEnrollResult(null);
  try {
@@ -204,6 +209,7 @@ export default function BulkEnrollPage() {
  course_id: courseId,
  rows: parsed,
  default_password: defaultPassword,
+ parental_consent: parentalConsent,
  }
  );
  setEnrollResult(data);
@@ -232,6 +238,10 @@ export default function BulkEnrollPage() {
  toast.error(t("admin.bulkEnroll.noValidRows"));
  return;
  }
+ if (!parentalConsent) {
+ toast.error(t("admin.bulkEnroll.parentalConsentRequired"));
+ return;
+ }
  setSubmitting(true);
  setImportResult(null);
  try {
@@ -242,14 +252,20 @@ export default function BulkEnrollPage() {
  csvFile ||
  new File([csvText], "import.csv", { type: "text/csv" });
  formData.append("file", fileToSend);
+
+ // group_id and parental_consent are query params on the backend.
+ const params: Record<string, string> = { parental_consent: "true" };
  if (groupId) {
- formData.append("group_id", groupId);
+ params.group_id = groupId;
  }
 
  const { data } = await apiClient.post<BulkImportResponse>(
  "/admin/bulk-import-students",
  formData,
- { headers: { "Content-Type": "multipart/form-data" } }
+ {
+ headers: { "Content-Type": "multipart/form-data" },
+ params,
+ }
  );
  setImportResult(data);
  if (data.errors.length === 0) {
@@ -515,6 +531,21 @@ export default function BulkEnrollPage() {
  </p>
  </CardContent>
  </Card>
+ )}
+
+ {/* Parental consent attestation */}
+ {parsed.length > 0 && (
+ <label className="mb-4 flex items-start gap-3 rounded-lg border border-border-strong bg-surface-2 px-4 py-3">
+ <input
+ type="checkbox"
+ checked={parentalConsent}
+ onChange={(e) => setParentalConsent(e.target.checked)}
+ className="mt-0.5 h-4 w-4 rounded border-border-strong"
+ />
+ <span className="text-sm text-text">
+ {t("admin.bulkEnroll.parentalConsentLabel")}
+ </span>
+ </label>
  )}
 
  {/* Submit button */}

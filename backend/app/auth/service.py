@@ -70,6 +70,18 @@ async def register(
     if not data.consent_accepted:
         raise BadRequestError("You must accept the Privacy Policy and Terms of Service")
 
+    # Child safety: a student account may only be created once the invite-holder
+    # attests that verifiable parental consent was obtained (school-mediated
+    # model). We record the timestamp; parental_consent_by stays null because no
+    # staff actor is present on this self-service path.
+    parental_consent_at = None
+    if user_role == UserRole.student:
+        if not data.parental_consent_accepted:
+            raise BadRequestError(
+                "A parent or guardian must confirm consent before a student account can be created"
+            )
+        parental_consent_at = datetime.now(tz=timezone.utc)
+
     # A teacher who self-registers a brand-new organization is the
     # founding user of that org, so promote them to admin. Without this,
     # a fresh school has no one who can manage members or billing.
@@ -84,6 +96,8 @@ async def register(
         role=user_role,
         consent_accepted_at=datetime.now(tz=timezone.utc),
         privacy_policy_version="1.0",
+        parental_consent_at=parental_consent_at,
+        last_active_at=datetime.now(tz=timezone.utc),
     )
     db.add(user)
     await db.flush()

@@ -50,6 +50,21 @@ class User(Base, IDMixin, TimestampMixin):
         DateTime(timezone=True), nullable=True
     )
     privacy_policy_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    # Child safety: school-mediated parental consent. For a child account the
+    # org admin/teacher (or invite-holder) attests that verifiable parental
+    # consent was obtained offline — we do NOT collect DOB. parental_consent_by
+    # is the staff user who attested (null when self-attested at signup).
+    parental_consent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    parental_consent_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    # Retention: bumped on every login/refresh so the purge job can find
+    # accounts dormant past the retention window (settings.data_retention_months).
+    last_active_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     # Null until the user clicks the verification link from their welcome email.
     # Enforcement is off by default (see settings.require_email_verification) so
     # deployments without SMTP configured keep working.

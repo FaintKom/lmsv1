@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # Sandbox
     sandbox_url: str = "http://localhost:8001"
 
+    # Data retention (child-safety / GDPR storage limitation). Student accounts
+    # dormant longer than this are purged by the scheduled retention job
+    # (app/scheduler.py). 0 disables the purge. Default 24 months.
+    data_retention_months: int = 24
+
     # Stripe
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""

@@ -23,9 +23,10 @@ from typing import Optional
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 
-from app.auth.models import RefreshToken
+from app.auth.models import RefreshToken, User, UserRole
+from app.config import settings
 from app.db.session import async_session_factory
 
 logger = logging.getLogger(__name__)
@@ -73,6 +74,45 @@ async def send_deadline_reminders() -> None:
     logger.debug("send_deadline_reminders: not implemented yet (stub)")
 
 
+async def purge_inactive_students() -> None:
+    """GDPR storage-limitation / child-safety retention purge.
+
+    Hard-deletes student accounts dormant longer than
+    ``settings.data_retention_months`` (0 disables). Dormancy is measured by
+    ``last_active_at``, falling back to ``created_at`` for legacy rows that
+    predate activity tracking. Reuses the same FK-clearing path as admin and
+    self-service erasure so deletion semantics never diverge. Idempotent.
+    """
+    months = settings.data_retention_months
+    if months <= 0:
+        return
+    cutoff = datetime.now(timezone.utc) - timedelta(days=months * 30)
+    async with async_session_factory() as session:
+        try:
+            from app.auth.erasure import cascade_delete_user_refs
+
+            stmt = select(User).where(
+                User.role == UserRole.student,
+                func.coalesce(User.last_active_at, User.created_at) < cutoff,
+            )
+            students = (await session.execute(stmt)).scalars().all()
+            purged = 0
+            for student in students:
+                await cascade_delete_user_refs(session, student.id)
+                await session.delete(student)
+                await session.flush()
+                purged += 1
+            await session.commit()
+            if purged:
+                logger.info(
+                    f"purge_inactive_students: purged {purged} student account(s) "
+                    f"dormant >{months} months"
+                )
+        except Exception as e:
+            logger.warning(f"purge_inactive_students failed: {e}")
+            await session.rollback()
+
+
 def start_scheduler() -> AsyncIOScheduler:
     """Create the scheduler, register jobs, start it. Idempotent."""
     global _scheduler
@@ -98,6 +138,17 @@ def start_scheduler() -> AsyncIOScheduler:
         send_deadline_reminders,
         CronTrigger(minute=15),
         id="send_deadline_reminders",
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=600,
+    )
+
+    # Daily at 03:30 UTC — retention purge of dormant student accounts. Runs
+    # after token cleanup (03:10) and before the 04:00 backup.
+    scheduler.add_job(
+        purge_inactive_students,
+        CronTrigger(hour=3, minute=30),
+        id="purge_inactive_students",
         max_instances=1,
         coalesce=True,
         misfire_grace_time=600,

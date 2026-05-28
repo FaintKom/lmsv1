@@ -17,6 +17,7 @@ from app.auth.models import (
 )
 from app.auth.schemas import (
     ChangePasswordRequest,
+    DeleteAccountRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
@@ -224,6 +225,9 @@ async def login_endpoint(
             "or request a new one."
         )
 
+    user.last_active_at = datetime.now(timezone.utc)
+    db.add(user)
+
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
 
@@ -267,6 +271,9 @@ async def refresh_endpoint(
     # token after this point is rejected (revoked_at is set).
     stored.revoked_at = datetime.now(timezone.utc)
     db.add(stored)
+
+    user.last_active_at = datetime.now(timezone.utc)
+    db.add(user)
 
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
@@ -466,6 +473,28 @@ async def change_password_endpoint(
     db.add(user)
     await db.flush()
     return {"message": "Password changed successfully"}
+
+
+@router.delete("/me")
+@limiter.limit("3/hour")
+async def delete_me_endpoint(
+    request: Request,
+    response: Response,
+    data: DeleteAccountRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """GDPR Art. 17 — irreversibly erase the caller's own account and all data.
+
+    Password re-auth required so a leaked access token can't wipe an account.
+    Reuses the same cascade-delete path as the admin hard-delete so the two
+    can never diverge. Rate-limited to slow brute-force against stolen tokens.
+    """
+    from app.auth.erasure import erase_user
+
+    if not verify_password(data.password, user.hashed_password):
+        raise BadRequestError("Password is incorrect")
+    return await erase_user(db, user)
 
 
 # ─── Email Preferences ─────────────────────────────────────────────────

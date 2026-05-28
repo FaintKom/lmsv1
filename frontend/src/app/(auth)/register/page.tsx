@@ -37,6 +37,7 @@ function RegisterForm() {
  password: "",
  role: "teacher" as "teacher" | "student",
  consent: false,
+ parentalConsent: false,
  });
  const [error, setError] = useState("");
  const [loading, setLoading] = useState(false);
@@ -86,11 +87,19 @@ function RegisterForm() {
  setError(t("consent.required"));
  return;
  }
+ if (form.role === "student" && !form.parentalConsent) {
+ setError(t("consent.parentalRequired"));
+ return;
+ }
  setError("");
  setLoading(true);
 
  try {
- await register({ ...form, consent_accepted: form.consent });
+ await register({
+ ...form,
+ consent_accepted: form.consent,
+ parental_consent_accepted: form.parentalConsent,
+ });
  if (form.role === "student") {
  router.push("/dashboard");
  } else {
@@ -211,6 +220,21 @@ function RegisterForm() {
  <Link href="/terms" className="font-medium text-primary hover:text-success-fg">{t("consent.terms")}</Link>
  </label>
  </div>
+
+ {form.role === "student" && (
+ <div className="flex items-start gap-2">
+ <input
+ id="reg-parental-consent"
+ type="checkbox"
+ checked={form.parentalConsent}
+ onChange={(e) => setForm((prev) => ({ ...prev, parentalConsent: e.target.checked }))}
+ className="mt-1 rounded border-ink-300 text-primary focus:ring-green-500"
+ />
+ <label htmlFor="reg-parental-consent" className="text-sm text-text-muted ">
+ {t("consent.parentalConfirm")}
+ </label>
+ </div>
+ )}
 
  <Button type="submit" className="w-full" disabled={loading}>
  <UserPlus className="h-4 w-4" />

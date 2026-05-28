@@ -36,6 +36,7 @@ interface AuthState {
  password: string;
  role: string;
  consent_accepted?: boolean;
+ parental_consent_accepted?: boolean;
  }) => Promise<void>;
  logout: () => void;
  fetchUser: () => Promise<void>;

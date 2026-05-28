@@ -14,6 +14,10 @@ class RegisterRequest(BaseModel):
     password: str
     role: str = "teacher"  # "teacher" or "student"
     consent_accepted: bool = False
+    # Child safety: for a student account the invite-holder attests that
+    # verifiable parental consent was obtained offline (school-mediated model,
+    # no DOB collected). Required when role == "student".
+    parental_consent_accepted: bool = False
 
     @field_validator("full_name")
     @classmethod
@@ -78,6 +82,12 @@ class InviteRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
+
+class DeleteAccountRequest(BaseModel):
+    # GDPR Art. 17: self-service erasure. Password re-auth guards against a
+    # stolen access token irreversibly wiping the account.
+    password: str
 
 
 class VerifyEmailRequest(BaseModel):

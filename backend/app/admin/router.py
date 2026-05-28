@@ -7,7 +7,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -400,101 +400,13 @@ async def update_course_admin(
     return {"ok": True}
 
 
-async def _cascade_delete_user_refs(db: AsyncSession, user_id: uuid.UUID) -> tuple[dict, list, list]:
-    """Clear ALL FK references to users.id ourselves before issuing the DELETE.
-
-    Why clear ALL (not only NO ACTION/RESTRICT)?
-    Production DB has pgvector-indexed tables (knowledge_entries). When Postgres
-    processes a user DELETE and triggers cascade SET NULL on knowledge_entries,
-    the per-row index maintenance pulls in `vector` opclass functions and fails
-    with `could not access file "$libdir/vector"` if the extension binary is
-    missing/broken. By pre-clearing the rows via plain UPDATE/DELETE (no
-    cascade), we keep the user DELETE itself a leaf operation: zero referencing
-    rows to act on, zero cascades, no vector ops needed.
-
-    Three-stage ladder for each FK (each stage in its own savepoint):
-      1. Try UPDATE -> NULL (nullable col) or DELETE row (NOT NULL col).
-      2. If (1) fails (e.g. pgvector index maintenance throws), DROP the FK
-         constraint itself so the upcoming user DELETE will not try to
-         cascade through it.
-      3. If (2) also fails, record both errors and continue.
-
-    Stage 2 is brutal — it removes referential integrity for that column
-    until owner re-adds the constraint via migration after fixing the
-    underlying issue (e.g. reinstalling pgvector). The trade-off is that
-    deleting a user becomes possible at all.
-
-    Returns (cleared, dropped_constraints, failures).
-    """
-    rows = await db.execute(
-        text(
-            """
-            SELECT
-              c.conname                          AS constraint_name,
-              tn.nspname || '.' || tc.relname    AS child_table,
-              ta.attname                         AS child_column,
-              ta.attnotnull                      AS not_null
-            FROM pg_constraint c
-            JOIN pg_class tc       ON tc.oid = c.conrelid
-            JOIN pg_namespace tn   ON tn.oid = tc.relnamespace
-            JOIN pg_class rc       ON rc.oid = c.confrelid
-            JOIN pg_namespace rn   ON rn.oid = rc.relnamespace
-            JOIN pg_attribute ta   ON ta.attrelid = c.conrelid AND ta.attnum = c.conkey[1]
-            JOIN pg_attribute ra   ON ra.attrelid = c.confrelid AND ra.attnum = c.confkey[1]
-            WHERE c.contype = 'f'
-              AND rc.relname = 'users'
-              AND ra.attname = 'id'
-              AND rn.nspname = 'public'
-            """
-        )
-    )
-    cleared: dict[str, int] = {}
-    dropped_constraints: list[str] = []
-    failures: list[str] = []
-    for row in rows.mappings().all():
-        table = row["child_table"]
-        col = row["child_column"]
-        constraint = row["constraint_name"]
-        not_null = row["not_null"]
-        if not_null:
-            stmt = text(f'DELETE FROM {table} WHERE "{col}" = :uid')
-        else:
-            stmt = text(f'UPDATE {table} SET "{col}" = NULL WHERE "{col}" = :uid')
-
-        # Stage 1: try to clear rows.
-        sp = await db.begin_nested()
-        try:
-            res = await db.execute(stmt, {"uid": user_id})
-            if res.rowcount:
-                cleared[f"{table}.{col}"] = res.rowcount
-            await sp.commit()
-            continue
-        except Exception as e:  # noqa: BLE001
-            await sp.rollback()
-            clear_err = f"{type(e).__name__}: {e}"
-
-        # Stage 2: drop the FK constraint so user DELETE won't cascade through it.
-        sp = await db.begin_nested()
-        try:
-            await db.execute(text(f'ALTER TABLE {table} DROP CONSTRAINT IF EXISTS "{constraint}"'))
-            await sp.commit()
-            dropped_constraints.append(f"{table}.{col} ({constraint})")
-            continue
-        except Exception as e:  # noqa: BLE001
-            await sp.rollback()
-            drop_err = f"{type(e).__name__}: {e}"
-
-        failures.append(f"{table}.{col}: clear={clear_err} drop={drop_err}")
-    return cleared, dropped_constraints, failures
-
-
 @router.delete("/users/{user_id}")
 async def delete_user_endpoint(
     user_id: uuid.UUID,
     admin: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy.exc import IntegrityError
+    from app.auth.erasure import erase_user
 
     query = select(User).where(User.id == user_id, *_user_org_filter(admin))
     result = await db.execute(query)
@@ -503,30 +415,7 @@ async def delete_user_endpoint(
         raise NotFoundError("User not found")
     if target.id == admin.id:
         raise HTTPException(400, "Cannot delete yourself")
-    cleared, dropped_constraints, failures = await _cascade_delete_user_refs(db, user_id)
-    try:
-        await db.delete(target)
-        await db.flush()
-    except IntegrityError as e:
-        raise HTTPException(
-            400,
-            f"Cannot delete user: residual FK blocked deletion. "
-            f"Cleared: {cleared}. Dropped constraints: {dropped_constraints}. "
-            f"Failures: {failures}. Original error: {e.orig}",
-        ) from e
-    except Exception as e:  # noqa: BLE001
-        raise HTTPException(
-            400,
-            f"Cannot delete user: {type(e).__name__}: {e}. "
-            f"Cleared: {cleared}. Dropped constraints: {dropped_constraints}. "
-            f"Failures: {failures}.",
-        ) from e
-    return {
-        "ok": True,
-        "cleared": cleared,
-        "dropped_constraints": dropped_constraints,
-        "preclear_failures": failures,
-    }
+    return await erase_user(db, target)
 
 
 @router.post("/users/{user_id}/password")
@@ -669,9 +558,18 @@ async def admin_bulk_enroll_endpoint(
     course_id_str = data.get("course_id")
     rows = data.get("rows")
     default_password = (data.get("default_password") or "").strip()
+    # Child safety: the importing staff member attests that verifiable parental
+    # consent was obtained offline for every student in the batch (school-mediated
+    # model, no DOB). Without it we will not create child accounts.
+    parental_consent = bool(data.get("parental_consent"))
 
     if not course_id_str or not isinstance(rows, list):
         raise HTTPException(400, "course_id and rows[] are required")
+    if not parental_consent:
+        raise HTTPException(
+            400,
+            "parental_consent must be confirmed before bulk-creating student accounts",
+        )
 
     try:
         course_id = uuid.UUID(course_id_str)
@@ -754,6 +652,11 @@ async def admin_bulk_enroll_endpoint(
                     is_active=True,
                     consent_accepted_at=datetime.now(timezone.utc),
                     privacy_policy_version="1.0",
+                    # School-mediated parental consent: the importing staff
+                    # member attested it for the batch (checked above).
+                    parental_consent_at=datetime.now(timezone.utc),
+                    parental_consent_by=admin.id,
+                    last_active_at=datetime.now(timezone.utc),
                     # Bulk-imported students are vouched for by the admin —
                     # auto-verified, same policy as invite-link registration.
                     email_verified_at=datetime.now(timezone.utc),
@@ -801,6 +704,7 @@ async def admin_bulk_enroll_endpoint(
 async def bulk_import_students(
     file: UploadFile,
     group_id: str | None = None,
+    parental_consent: bool = False,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
 ):
@@ -819,6 +723,14 @@ async def bulk_import_students(
 
     from app.admin.models import StudentGroup, StudentGroupMember
     from app.auth.security import hash_password
+
+    # Child safety: the importing staff member attests verifiable parental
+    # consent was obtained offline for the whole batch (school-mediated, no DOB).
+    if not parental_consent:
+        raise HTTPException(
+            400,
+            "parental_consent must be confirmed before bulk-creating student accounts",
+        )
 
     email_re = _re.compile(r"^[\w.+-]+@[\w-]+(\.[\w-]+)+$")
 
@@ -919,6 +831,9 @@ async def bulk_import_students(
                 is_active=True,
                 consent_accepted_at=datetime.now(timezone.utc),
                 privacy_policy_version="1.0",
+                parental_consent_at=datetime.now(timezone.utc),
+                parental_consent_by=user.id,
+                last_active_at=datetime.now(timezone.utc),
                 email_verified_at=datetime.now(timezone.utc),
             )
             db.add(new_user)
