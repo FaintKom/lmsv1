@@ -158,7 +158,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  ? "border-danger bg-danger-soft text-danger-fg "
  : isSelected
  ? "border-primary bg-success-soft text-text shadow-sm"
- : "border-border-strong text-ink-700 $1:border-primary hover:bg-success-soft/50 "
+ : "border-border-strong text-ink-700 hover:border-primary hover:bg-success-soft/50 "
  }
  disabled:cursor-default
  `}
@@ -231,7 +231,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={!allAnswered}
- className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 $1:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Submit Answers
  </button>

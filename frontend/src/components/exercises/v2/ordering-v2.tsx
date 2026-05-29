@@ -15,15 +15,22 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
 
 export interface OrderingV2Props {
-  /** Items in the CORRECT order. They are displayed shuffled. */
+  /** The draggable items. In preview these are the CORRECT order (grading
+   * compares position); live, this is the server's shuffled `word_bank` and
+   * grading is deferred to `onGrade` (which compares the chosen value
+   * sequence to the stripped `correct_order`). Displayed shuffled either way. */
   items: string[];
   eyebrow?: string;
   title?: string;
   hint?: string;
   maxAttemptsPerTask?: number;
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B);
+   * the chosen value sequence is sent as `{ order }`. */
+  onGrade?: V2GradeFn;
   onQuit?: () => void;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
 }
@@ -44,6 +51,7 @@ export function OrderingV2({
   hint,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
+  onGrade,
   onQuit,
   onFinish,
 }: OrderingV2Props) {
@@ -54,6 +62,7 @@ export function OrderingV2({
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const [checking, setChecking] = useState(false);
   const dragIdx = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
@@ -75,37 +84,65 @@ export function OrderingV2({
     dragIdx.current = null;
   };
 
-  const handleCheck = () => {
-    const isCorrect = order.every((v, i) => v === i);
-    if (isCorrect) {
+  const applyResult = (res: V2GradeResult) => {
+    if (res.correct) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.ordering.perfectOrder") : t("exercise.gotIt"),
+        explain: res.explain ?? hint,
       });
       setStreak((s) => s + 1);
       fire();
       return;
     }
-    const remaining = attemptsLeft - 1;
+    const remaining = res.attemptsRemaining ?? attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    if (remaining <= 0) {
+    if (res.maxReached || remaining <= 0) {
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: items.join(" → "),
-        explain: hint,
+        correct: res.correctAnswer ?? items.join(" → "),
+        explain: res.explain ?? hint,
       });
       setStreak(0);
     } else {
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
-        explain: hint,
+        explain: res.explain ?? hint,
       });
     }
+  };
+
+  const handleCheck = async () => {
+    if (checking) return;
+    // The chosen value sequence — what the server grades against
+    // `correct_order`. In preview, `items` is itself the correct order, so
+    // position equality (v === i) is the local check.
+    const values = order.map((idx) => items[idx]);
+
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res = await onGrade({ order: values });
+        applyResult(res);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+
+    // Preview / local grading.
+    applyResult({
+      correct: order.every((v, i) => v === i),
+      correctAnswer: items.join(" → "),
+      attemptsRemaining: attemptsLeft - 1,
+    });
   };
 
   const handleRetry = () => {

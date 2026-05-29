@@ -22,7 +22,7 @@ export function LangCode({ code, label, active = false, onClick }: LangCodeProps
       <span
         className={cn(
           "grid h-[22px] w-[30px] flex-shrink-0 place-items-center rounded-[5px] font-mono text-[10px] font-bold uppercase tracking-[0.08em]",
-          active ? "bg-green-600 text-white" : "bg-ink-100 text-ink-700",
+          active ? "bg-primary text-white" : "bg-ink-100 text-ink-700",
         )}
       >
         {code.toUpperCase().slice(0, 2)}

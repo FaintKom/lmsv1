@@ -762,7 +762,7 @@ function QuizExercise({
  <button
  onClick={handleSubmit}
  disabled={!allAnswered}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors $1:bg-primary-hover disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Quiz
  </button>
@@ -946,7 +946,7 @@ function CodeChallengeExercise({
  <select
  value={selectedLang}
  onChange={(e) => setSelectedLang(e.target.value)}
- className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 $1:border-primary focus:outline-none "
+ className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 hover:border-primary focus:outline-none "
  >
  {langs.map((l) => (
  <option key={l.key} value={l.key}>{l.name}</option>
@@ -1096,7 +1096,7 @@ function FileUploadExercise({
  return (
  <div className="space-y-4">
  <div
- className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-ink-300 bg-surface-2 px-6 py-10 text-center transition-colors $1:border-primary "
+ className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-ink-300 bg-surface-2 px-6 py-10 text-center transition-colors hover:border-primary "
  onDragOver={(e) => e.preventDefault()}
  onDrop={(e) => {
  e.preventDefault();
@@ -1128,7 +1128,7 @@ function FileUploadExercise({
  <button
  onClick={() => file && onUpload(file)}
  disabled={!file}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors $1:bg-primary-hover disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Upload File
  </button>

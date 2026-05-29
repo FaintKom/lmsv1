@@ -58,7 +58,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition-all duration-200 ${
  isSelected
  ? "border-primary bg-success-soft shadow-md "
- : "border-border-strong bg-paper-2 $1:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
+ : "border-border-strong bg-paper-2 hover:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
  }`}>
  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
  isSelected ? "bg-primary text-white" : "bg-ink-100 text-text-muted "
@@ -465,7 +465,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  {formatTime(breakTimeLeft)}
  </div>
 
- <Button onClick={startModule2} className="bg-primary $1:bg-primary-hover text-white">
+ <Button onClick={startModule2} className="bg-primary hover:bg-primary-hover text-white">
  Skip Break &rarr; Start Module 2
  </Button>
  </div>

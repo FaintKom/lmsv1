@@ -269,7 +269,7 @@ export default function AdminCoursesPage() {
  <select
  value={course.org_id}
  onChange={(e) => handleOrgChange(course.id, e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-surface-2 px-2 py-1.5 text-xs text-text-muted $1:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface-2 px-2 py-1.5 text-xs text-text-muted hover:border-primary focus:outline-none "
  >
  {orgs.map((o) => (
  <option key={o.id} value={o.id}>

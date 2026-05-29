@@ -82,7 +82,7 @@ export default function ParentDashboard() {
  <button
  type="submit"
  disabled={linking}
- className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white $1:bg-primary-hover disabled:opacity-50"
+ className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
  >
  {linking ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
  {t("parent.link")}

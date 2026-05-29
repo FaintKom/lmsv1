@@ -1229,7 +1229,7 @@ export default function CourseEditorPage() {
  page: parseInt(e.target.value) || 1,
  })
  }
- className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-[10px] focus:outline-none $1:border-primary"
+ className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-[10px] focus:outline-none hover:border-primary"
  />
  </label>
  <button
@@ -1392,7 +1392,7 @@ export default function CourseEditorPage() {
  <div className="flex flex-wrap items-center gap-2">
  <button
  onClick={() => handleAddBlock(lesson.id, "text")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted $1:border-primary hover:text-primary transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
  >
  <Plus className="h-3 w-3" /> Text
  </button>
@@ -1410,7 +1410,7 @@ export default function CourseEditorPage() {
  </button>
  <button
  onClick={() => handleAddBlock(lesson.id, "exercise")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted $1:border-primary hover:text-primary transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
  >
  <Plus className="h-3 w-3" /> Exercise
  </button>
@@ -1583,7 +1583,7 @@ export default function CourseEditorPage() {
  ) : (
  <button
  onClick={() => setAddingLessonToModule(module.id)}
- className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors $1:border-primary hover:text-primary"
+ className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
  Add Lesson
@@ -1882,7 +1882,7 @@ export default function CourseEditorPage() {
  ) : (
  <button
  onClick={() => setShowAddAssignment(true)}
- className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors $1:border-primary hover:text-primary"
+ className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
  Add Assignment

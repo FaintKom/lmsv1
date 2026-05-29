@@ -27,7 +27,7 @@ export default function TrueFalseExercise({
  className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-4 text-lg font-semibold transition-colors ${
  selected === true
  ? "border-primary bg-success-soft text-success-fg "
- : "border-border-strong text-text-muted $1:border-primary "
+ : "border-border-strong text-text-muted hover:border-primary "
  }`}
  >
  <Check className="h-5 w-5" />
@@ -50,7 +50,7 @@ export default function TrueFalseExercise({
  <button
  onClick={() => selected !== null && onSubmit({ answer: selected })}
  disabled={selected === null}
- className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors $1:bg-primary-hover disabled:opacity-50 "
+ className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Answer
  </button>

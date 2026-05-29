@@ -32,6 +32,8 @@ import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
+import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
+import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
@@ -59,6 +61,13 @@ export default function LessonViewerPage() {
  const { t } = useTranslation();
  const courseId = params.courseId as string;
  const lessonId = params.lessonId as string;
+
+ // Opt-in flag (`?v2=1`) to route Tier-A exercises through the V2 renderer.
+ // Read client-side to stay SSR-safe and avoid a Suspense boundary.
+ const [v2Flag, setV2Flag] = useState(false);
+ useEffect(() => {
+  setV2Flag(new URLSearchParams(window.location.search).get("v2") === "1");
+ }, []);
 
  const [course, setCourse] = useState<Course | null>(null);
  const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -414,7 +423,7 @@ export default function LessonViewerPage() {
                className={cn(
                 "flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-[9px] font-extrabold",
                 isActive
-                 ? "bg-green-600 text-white shadow-[0_0_0_3px_var(--green-100)]"
+                 ? "bg-primary text-white shadow-[0_0_0_3px_var(--green-100)]"
                  : isDone
                    ? "bg-green-500 text-white"
                    : "border-[1.5px] border-ink-200 bg-transparent"
@@ -530,15 +539,19 @@ export default function LessonViewerPage() {
         <h2 className="mx-auto max-w-[720px] text-[21px] font-bold tracking-tight text-text">
          {t("lesson.exercises")}
         </h2>
-        {orphaned.map((ex) => (
-         <ExerciseRenderer
-          key={ex.id}
-          exercise={ex as any}
-          courseId={courseId}
-          prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
-          nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
-         />
-        ))}
+        {orphaned.map((ex) =>
+         v2Flag && isV2LiveType(ex.exercise_type) ? (
+          <V2ExerciseLive key={ex.id} exercise={ex as any} />
+         ) : (
+          <ExerciseRenderer
+           key={ex.id}
+           exercise={ex as any}
+           courseId={courseId}
+           prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
+           nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
+          />
+         )
+        )}
        </div>
       );
      })()}
@@ -550,7 +563,7 @@ export default function LessonViewerPage() {
         <button
          onClick={handleComplete}
          disabled={completing}
-         className="btn-pop flex w-full items-center justify-center gap-2 rounded-[14px] bg-green-600 px-6 py-3.5 text-[13px] font-bold text-white disabled:opacity-50"
+         className="btn-pop flex w-full items-center justify-center gap-2 rounded-[14px] bg-primary px-6 py-3.5 text-[13px] font-bold text-white disabled:opacity-50"
          style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
         >
          <CheckCircle className="h-4 w-4" />
@@ -595,7 +608,7 @@ export default function LessonViewerPage() {
      {nextLesson ? (
       <Link
        href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-       className="btn-pop flex items-center gap-2.5 rounded-xl bg-green-600 px-3.5 py-2 text-[13px] font-bold text-white"
+       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-[13px] font-bold text-white"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
@@ -609,7 +622,7 @@ export default function LessonViewerPage() {
      ) : (
       <Link
        href={`/courses/${courseId}`}
-       className="btn-pop flex items-center gap-2 rounded-xl bg-green-600 px-3.5 py-2 text-[13px] font-bold text-white"
+       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-[13px] font-bold text-white"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <CheckCircle className="h-3.5 w-3.5" />
@@ -779,7 +792,7 @@ function PageNav({
       onClick={() => setCurrentPage(p)}
       className={cn(
        "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors",
-       p === currentPage ? "bg-green-600 text-white" : "text-text-muted hover:bg-ink-100"
+       p === currentPage ? "bg-primary text-white" : "text-text-muted hover:bg-ink-100"
       )}
      >
       {p}

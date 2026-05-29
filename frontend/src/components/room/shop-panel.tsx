@@ -76,7 +76,7 @@ export function ShopPanel({ state }: ShopPanelProps) {
           >
             {t(tabDef.key)}
             {tab === tabDef.id && (
-              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-green-600" />
+              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-primary" />
             )}
           </button>
         ))}

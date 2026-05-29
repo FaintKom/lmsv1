@@ -120,7 +120,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  ? "border-primary ring-2 ring-primary text-success-fg "
  : checked && results[card.id] === false
  ? "border-danger text-danger-fg "
- : "border-border-strong text-ink-700 $1:border-primary "
+ : "border-border-strong text-ink-700 hover:border-primary "
  }`}
  >
  {card.text}

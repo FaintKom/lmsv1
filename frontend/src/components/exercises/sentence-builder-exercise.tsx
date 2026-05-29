@@ -122,7 +122,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  ${
  submitted
  ? "bg-primary text-white cursor-default"
- : "bg-primary text-white $1:bg-primary-hover hover:shadow-md active:scale-95"
+ : "bg-primary text-white hover:bg-primary-hover hover:shadow-md active:scale-95"
  }
  `}
  >
@@ -157,7 +157,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  key={`p-${i}`}
  onClick={() => addWord(word, i)}
  disabled={submitted}
- className="rounded-lg border-2 border-border-strong bg-paper-2 px-4 py-2.5 text-sm font-semibold text-ink-700 transition-all duration-200 $1:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+ className="rounded-lg border-2 border-border-strong bg-paper-2 px-4 py-2.5 text-sm font-semibold text-ink-700 transition-all duration-200 hover:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
  >
  {word}
  </button>
@@ -172,7 +172,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={sentence.length === 0}
- className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 $1:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Check Sentence
  </button>

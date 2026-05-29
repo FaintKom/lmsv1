@@ -25,14 +25,17 @@ import {
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
 import { MaybeMath } from "@/components/common/math-renderer";
+import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
 
 export interface FillBlanksV2Props {
   /** Sentence template with `{{blank}}` markers — mutually exclusive with `parts`. */
   text?: string;
   /** Pre-parsed parts (strings + nulls for blank slots). */
   parts?: (string | null)[];
-  /** Correct answer for each blank, in order. */
-  blanks: string[];
+  /** Correct answer for each blank, in order. Required for local (preview)
+   * grading; omitted live — the server strips it and grades via `onGrade`.
+   * Slot count is derived from the template, not this array. */
+  blanks?: string[];
   /** All available words to choose from (must include the correct ones). */
   wordBank: string[];
   /** Optional eyebrow line. */
@@ -41,6 +44,9 @@ export interface FillBlanksV2Props {
   title?: string;
   maxAttemptsPerTask?: number;
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B);
+   * local `blanks` is ignored. */
+  onGrade?: V2GradeFn;
   onQuit?: () => void;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
 }
@@ -69,6 +75,7 @@ export function FillBlanksV2({
   title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
+  onGrade,
   onQuit,
   onFinish,
 }: FillBlanksV2Props) {
@@ -77,13 +84,23 @@ export function FillBlanksV2({
     [explicitParts, text]
   );
 
-  const [slots, setSlots] = useState<(number | null)[]>(() => blanks.map(() => null));
+  // Live config strips `blanks`, so slot count must come from the template
+  // (null markers in `parts`), not the stripped answer array.
+  const blankCount = useMemo(
+    () => parts.filter((p) => p === null).length,
+    [parts]
+  );
+
+  const [slots, setSlots] = useState<(number | null)[]>(() =>
+    Array.from({ length: blankCount }, () => null)
+  );
   const [used, setUsed] = useState<number[]>([]);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -104,31 +121,30 @@ export function FillBlanksV2({
     setUsed((u) => u.filter((x) => x !== wi));
   };
 
-  const handleCheck = () => {
-    const got = slots.map((s) => (s == null ? "" : wordBank[s]));
-    const isCorrect = got.every((w, i) => w === blanks[i]);
-
-    if (isCorrect) {
+  const applyResult = (res: V2GradeResult) => {
+    if (res.correct) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.fillBlanks.sweet") : t("exercise.gotIt"),
+        explain: res.explain,
       });
       setStreak((s) => s + 1);
       fire();
       return;
     }
 
-    const remaining = attemptsLeft - 1;
+    const remaining = res.attemptsRemaining ?? attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
 
-    if (remaining <= 0) {
+    if (res.maxReached || remaining <= 0) {
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: blanks.join(" · "),
+        correct: res.correctAnswer ?? blanks?.join(" · "),
+        explain: res.explain,
       });
       setStreak(0);
     } else {
@@ -139,9 +155,34 @@ export function FillBlanksV2({
     }
   };
 
+  const handleCheck = async () => {
+    if (checking) return;
+    const got = slots.map((s) => (s == null ? "" : wordBank[s]));
+
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res = await onGrade({ blanks: got });
+        applyResult(res);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+
+    // Preview / local grading.
+    applyResult({
+      correct: got.every((w, i) => w === blanks?.[i]),
+      correctAnswer: blanks?.join(" · "),
+      attemptsRemaining: attemptsLeft - 1,
+    });
+  };
+
   const handleRetry = () => {
     setFeedback(null);
-    setSlots(blanks.map(() => null));
+    setSlots(Array.from({ length: blankCount }, () => null));
     setUsed([]);
   };
 

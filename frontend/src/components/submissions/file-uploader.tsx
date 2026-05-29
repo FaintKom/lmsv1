@@ -106,7 +106,7 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
  className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
  dragOver
  ? "border-primary bg-success-soft"
- : "border-ink-300 $1:border-primary hover:bg-surface-2"
+ : "border-ink-300 hover:border-primary hover:bg-surface-2"
  }`}
  onClick={() => inputRef.current?.click()}
  >

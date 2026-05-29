@@ -556,7 +556,7 @@ function ExercisesTab() {
  placeholder={t("admin.contentLibrary.searchByTitleOrId")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  </div>
@@ -819,7 +819,7 @@ function AssignmentsTab() {
  );
 
  const inputClass =
- "w-full rounded-lg border border-border-strong bg-paper-2 py-2 px-3 text-sm text-ink-700 placeholder-ink-300 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft ";
+ "w-full rounded-lg border border-border-strong bg-paper-2 py-2 px-3 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft ";
 
  return (
  <>
@@ -834,7 +834,7 @@ function AssignmentsTab() {
  placeholder={t("admin.contentLibrary.searchAssignments")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none $1:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <Button onClick={() => setShowForm((v) => !v)}>

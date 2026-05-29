@@ -88,7 +88,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
           >
             {t(tabDef.key)}
             {tab === tabDef.id && (
-              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-green-600" />
+              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-primary" />
             )}
           </button>
         ))}
@@ -163,7 +163,7 @@ function AvatarCard({
 
       {isEquipped && (
         <span
-          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-green-600 text-white shadow"
+          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-primary text-white shadow"
           style={{ borderColor: "#fdfcf7" }}
         >
           <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -175,7 +175,7 @@ function AvatarCard({
 
 function StatusPill({ status, t }: { status: Status; t: (k: string) => string }) {
   const styles: Record<Status, string> = {
-    equipped: "bg-green-600 text-white",
+    equipped: "bg-primary text-white",
     owned: "bg-green-50 text-green-800",
     free: "bg-green-50 text-green-800",
     locked: "bg-ink-100 text-ink-500",

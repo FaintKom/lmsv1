@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
  <select
  value={u.role}
  onChange={(e) => handleRoleChange(u.id, e.target.value)}
- className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium $1:border-primary focus:outline-none"
+ className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary focus:outline-none"
  >
  <option value="student">student</option>
  <option value="teacher">teacher</option>
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
  <select
  value={u.org_id}
  onChange={(e) => handleOrgChange(u.id, e.target.value)}
- className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium $1:border-primary focus:outline-none"
+ className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary focus:outline-none"
  >
  {orgs.map((o) => (
  <option key={o.id} value={o.id}>

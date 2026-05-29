@@ -32,7 +32,7 @@ function DraggableWord({ id, word, isPlaced }: { id: string; word: string; isPla
  ref={setNodeRef}
  {...listeners}
  {...attributes}
- className={`cursor-grab select-none rounded-lg border-2 border-primary-soft bg-success-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-sm transition-all $1:border-primary hover:bg-primary-soft hover:shadow-md active:cursor-grabbing ${
+ className={`cursor-grab select-none rounded-lg border-2 border-primary-soft bg-success-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-sm transition-all hover:border-primary hover:bg-primary-soft hover:shadow-md active:cursor-grabbing ${
  isDragging ? "opacity-30" : ""
  }`}
  >
@@ -200,7 +200,7 @@ export default function FillBlanksExercise({
  <button
  onClick={() => onSubmit({ blanks: placements.map((p) => p || "") })}
  disabled={!allFilled}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors $1:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 "
  >
  Submit Answer
  </button>

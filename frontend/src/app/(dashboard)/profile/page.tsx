@@ -489,7 +489,7 @@ export default function ProfilePage() {
  onChange={(e) => setCurrentPassword(e.target.value)}
  required
  autoComplete="current-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 $1:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <div>
@@ -503,7 +503,7 @@ export default function ProfilePage() {
  required
  minLength={8}
  autoComplete="new-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 $1:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  <p className="mt-1 text-xs text-text-subtle ">
  Minimum 8 characters. Use a password manager.
@@ -520,7 +520,7 @@ export default function ProfilePage() {
  required
  minLength={8}
  autoComplete="new-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 $1:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <Button type="submit" disabled={changingPassword}>

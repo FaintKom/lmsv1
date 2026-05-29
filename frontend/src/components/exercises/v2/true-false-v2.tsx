@@ -15,11 +15,13 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
 
 export interface TrueFalseV2Props {
   statement: string;
-  /** The canonical answer. */
-  correctAnswer: boolean;
+  /** The canonical answer. Required for local (preview) grading; omitted
+   * live — the server grades via `onGrade`. */
+  correctAnswer?: boolean;
   /** Optional short explanation shown in the feedback sheet. */
   explain?: string;
   /** Optional eyebrow line. */
@@ -30,6 +32,9 @@ export interface TrueFalseV2Props {
   maxAttemptsPerTask?: number;
   /** External streak counter. */
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B);
+   * local `correctAnswer` is ignored. */
+  onGrade?: V2GradeFn;
   onQuit?: () => void;
   onFinish?: (result: {
     correct: boolean;
@@ -46,6 +51,7 @@ export function TrueFalseV2({
   title,
   maxAttemptsPerTask = 2,
   streak: initialStreak = 0,
+  onGrade,
   onQuit,
   onFinish,
 }: TrueFalseV2Props) {
@@ -55,36 +61,34 @@ export function TrueFalseV2({
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
-  const handleCheck = () => {
-    if (pick === null) return;
-    const isCorrect = pick === correctAnswer;
-
-    if (isCorrect) {
+  const applyResult = (res: V2GradeResult) => {
+    if (res.correct) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.trueFalse.right") : t("exercise.gotIt"),
-        explain,
+        explain: res.explain ?? explain,
       });
       setStreak((s) => s + 1);
       fire();
       return;
     }
 
-    const remaining = attemptsLeft - 1;
+    const remaining = res.attemptsRemaining ?? attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
 
-    if (remaining <= 0) {
+    if (res.maxReached || remaining <= 0) {
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: correctAnswer ? t("exercise.trueFalse.true") : t("exercise.trueFalse.false"),
-        explain,
+        correct: res.correctAnswer,
+        explain: res.explain ?? explain,
       });
       setStreak(0);
     } else {
@@ -93,6 +97,32 @@ export function TrueFalseV2({
         msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
       });
     }
+  };
+
+  const handleCheck = async () => {
+    if (pick === null || checking) return;
+
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res = await onGrade({ answer: pick });
+        applyResult(res);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+
+    // Preview / local grading.
+    applyResult({
+      correct: pick === correctAnswer,
+      correctAnswer: correctAnswer
+        ? t("exercise.trueFalse.true")
+        : t("exercise.trueFalse.false"),
+      attemptsRemaining: attemptsLeft - 1,
+    });
   };
 
   const handleRetry = () => {

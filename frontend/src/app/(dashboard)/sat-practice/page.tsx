@@ -99,7 +99,7 @@ export default function SATPracticePage() {
  {/* Test modes */}
  <div className="grid gap-4 sm:grid-cols-2">
  {/* Mini test */}
- <Card className="group cursor-pointer transition-all hover:shadow-lg $1:border-primary "
+ <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary "
  onClick={() => startTest(SAT_MINI_CONFIG)}>
  <CardContent className="p-6">
  <div className="flex items-center gap-3 mb-3">
@@ -119,7 +119,7 @@ export default function SATPracticePage() {
  </Card>
 
  {/* Full adaptive test */}
- <Card className="group cursor-pointer transition-all hover:shadow-lg $1:border-primary ring-2 ring-green-200 "
+ <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary ring-2 ring-green-200 "
  onClick={() => startTest(SAT_MATH_CONFIG)}>
  <CardContent className="p-6">
  <div className="flex items-center gap-3 mb-3">
@@ -157,7 +157,7 @@ export default function SATPracticePage() {
  <button
  key={domain}
  onClick={() => startDomainPractice(domain)}
- className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface-2 px-4 py-3 text-left transition-all $1:border-primary hover:shadow-sm "
+ className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface-2 px-4 py-3 text-left transition-all hover:border-primary hover:shadow-sm "
  >
  <div className="h-3 w-3 rounded-pill shrink-0" style={{ backgroundColor: DOMAIN_COLORS[domain] }} />
  <div className="flex-1 min-w-0">

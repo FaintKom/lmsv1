@@ -147,7 +147,7 @@ export function ProblemGenerator() {
  <button
  onClick={handleGenerate}
  disabled={loading}
- className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white $1:bg-primary-hover transition-colors disabled:opacity-50"
+ className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors disabled:opacity-50"
  >
  {loading && <Loader2 className="h-4 w-4 animate-spin" />}
  Generate
@@ -286,7 +286,7 @@ export function ProblemGenerator() {
  <button
  onClick={handleCheck}
  disabled={!allAnswered || checking}
- className="flex items-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white $1:bg-primary-hover transition-colors disabled:opacity-50"
+ className="flex items-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors disabled:opacity-50"
  >
  {checking && <Loader2 className="h-4 w-4 animate-spin" />}
  Check Answers ({Object.keys(userAnswers).filter(k => (userAnswers[Number(k)] || "").trim()).length}/{problems.length})

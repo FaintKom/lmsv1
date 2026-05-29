@@ -208,7 +208,7 @@ export default function AssignmentDetailPage() {
  <label className="mb-1 block text-sm font-medium text-ink-700 ">
  {t("assignment.attachFile")}
  </label>
- <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-ink-300 p-4 text-sm text-text-muted transition-colors $1:border-primary hover:text-primary ">
+ <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-ink-300 p-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary ">
  <Upload className="h-4 w-4" />
  {file ? file.name : t("assignment.chooseFile")}
  <input
@@ -227,7 +227,7 @@ export default function AssignmentDetailPage() {
  <button
  onClick={handleSubmit}
  disabled={submitting}
- className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors $1:bg-primary-hover disabled:opacity-50"
+ className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover disabled:opacity-50"
  >
  {submitting ? t("assignment.submitting") : submission ? t("assignment.resubmit") : t("assignment.submit")}
  </button>

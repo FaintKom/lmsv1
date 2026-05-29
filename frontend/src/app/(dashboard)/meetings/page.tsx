@@ -49,7 +49,7 @@ export default function MeetingsPage() {
  href={m.room_url}
  target="_blank"
  rel="noopener noreferrer"
- className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white $1:bg-primary-hover"
+ className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
  >
  <Video className="h-4 w-4" /> {t("meet.joinLesson")}
  </a>

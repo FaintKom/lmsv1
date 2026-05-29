@@ -93,7 +93,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  },
  default: {
  icon: "bg-primary-soft text-primary",
- button: "bg-primary $1:bg-primary-hover text-white",
+ button: "bg-primary hover:bg-primary-hover text-white",
  },
  };
 

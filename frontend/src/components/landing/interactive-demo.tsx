@@ -117,7 +117,7 @@ function PythonDemo() {
  />
  </div>
  <div className="mt-3 flex items-center gap-3">
- <Button size="sm" onClick={run} disabled={running} className="bg-primary $1:bg-primary-hover">
+ <Button size="sm" onClick={run} disabled={running} className="bg-primary hover:bg-primary-hover">
  {running ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-1 h-3.5 w-3.5" />}
  Run
  </Button>
@@ -181,7 +181,7 @@ function SATDemo() {
  ? "border-danger bg-danger-soft "
  : showResult && isCorrect
  ? "border-primary bg-success-soft/50 "
- : "border-border-strong bg-paper-2 $1:border-primary hover:shadow-sm "
+ : "border-border-strong bg-paper-2 hover:border-primary hover:shadow-sm "
  }`}
  >
  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
@@ -346,7 +346,7 @@ export function InteractiveDemo() {
  {/* CTA */}
  <div className="mt-8 text-center">
  <Link href="/register">
- <Button size="lg" className="bg-primary $1:bg-primary-hover">
+ <Button size="lg" className="bg-primary hover:bg-primary-hover">
  Want more? Create a free account
  <ArrowRight className="ml-2 h-4 w-4" />
  </Button>

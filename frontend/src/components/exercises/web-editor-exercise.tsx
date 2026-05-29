@@ -300,7 +300,7 @@ export default function WebEditorExercise({
  <button
  onClick={handleSubmit}
  disabled={isSubmitting}
- className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm $1:bg-primary-hover disabled:opacity-50 transition-colors"
+ className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover disabled:opacity-50 transition-colors"
  >
  <Send className="h-4 w-4" />
  {isSubmitting ? "Submitting..." : "Submit"}

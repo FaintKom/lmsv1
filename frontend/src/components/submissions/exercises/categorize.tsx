@@ -90,7 +90,7 @@ export default function CategorizeExercise({
  setDraggedItem(null);
  }
  }}
- className="min-h-[120px] rounded-lg border-2 border-dashed border-ink-300 p-4 transition-colors $1:border-primary "
+ className="min-h-[120px] rounded-lg border-2 border-dashed border-ink-300 p-4 transition-colors hover:border-primary "
  >
  <h4 className="mb-3 text-sm font-semibold text-ink-700 ">{cat.name}</h4>
  <div className="flex flex-wrap gap-1.5">
@@ -134,7 +134,7 @@ export default function CategorizeExercise({
  <button
  onClick={handleSubmit}
  disabled={totalAssigned < allItems.length}
- className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors $1:bg-primary-hover disabled:opacity-50 "
+ className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Answer
  </button>

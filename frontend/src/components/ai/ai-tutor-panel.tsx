@@ -257,14 +257,14 @@ export function AiTutorPanel({ context }: AiTutorPanelProps) {
  onKeyDown={handleKeyDown}
  placeholder={t("ai.placeholder")}
  rows={1}
- className="flex-1 resize-none rounded-lg border border-border-strong bg-surface-2 px-3 py-2.5 text-sm text-text placeholder-ink-300 $1:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="flex-1 resize-none rounded-lg border border-border-strong bg-surface-2 px-3 py-2.5 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  style={{ maxHeight: 80 }}
  disabled={isStreaming}
  />
  <button
  onClick={handleSend}
  disabled={!input.trim() || isStreaming}
- className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition-all $1:bg-primary-hover disabled:opacity-40 disabled:hover:bg-primary"
+ className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition-all hover:bg-primary-hover disabled:opacity-40 disabled:hover:bg-primary"
  >
  <Send className="h-4 w-4" />
  </button>

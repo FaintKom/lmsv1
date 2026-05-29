@@ -154,7 +154,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
  wrongChoice === choice.id
  ? "border-danger bg-danger-soft text-danger-fg animate-pulse "
- : "border-border-strong bg-paper-2 text-ink-700 $1:border-primary hover:bg-success-soft "
+ : "border-border-strong bg-paper-2 text-ink-700 hover:border-primary hover:bg-success-soft "
  }`}
  >
  {choice.label}

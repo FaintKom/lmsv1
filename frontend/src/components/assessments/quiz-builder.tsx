@@ -496,7 +496,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  setNewQuestion(emptyQuestion(questions.length));
  setShowAddQuestion(true);
  }}
- className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-3 text-sm font-medium text-text-subtle $1:border-primary hover:text-primary "
+ className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-3 text-sm font-medium text-text-subtle hover:border-primary hover:text-primary "
  >
  <Plus className="h-4 w-4" />
  Add Question

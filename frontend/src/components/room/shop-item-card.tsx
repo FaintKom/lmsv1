@@ -69,7 +69,7 @@ export function ShopItemCard({ item, status, onClick }: ShopItemCardProps) {
       {/* Corner check when equipped */}
       {isEquipped && (
         <span
-          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-green-600 text-white shadow"
+          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-primary text-white shadow"
           style={{ borderColor: "#fdfcf7" }}
         >
           <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -81,7 +81,7 @@ export function ShopItemCard({ item, status, onClick }: ShopItemCardProps) {
 
 function StatusPill({ status, t }: { status: CardStatus; t: (k: string) => string }) {
   const styles: Record<CardStatus, string> = {
-    equipped: "bg-green-600 text-white",
+    equipped: "bg-primary text-white",
     owned: "bg-green-50 text-green-800",
     buy: "bg-coral-50 text-coral-700",
     free: "bg-green-50 text-green-800",

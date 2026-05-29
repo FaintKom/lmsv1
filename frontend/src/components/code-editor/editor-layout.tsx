@@ -105,7 +105,7 @@ export function EditorLayout({
  <select
  value={selectedLang}
  onChange={(e) => setSelectedLang(e.target.value)}
- className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 $1:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  >
  {langs.map((l) => (
  <option key={l.key} value={l.key}>

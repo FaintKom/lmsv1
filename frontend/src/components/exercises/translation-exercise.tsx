@@ -194,7 +194,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={!answer.trim()}
- className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 $1:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Submit Translation
  </button>

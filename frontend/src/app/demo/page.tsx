@@ -112,7 +112,7 @@ function DemoRunner() {
  type="button"
  onClick={() => enterDemo("student")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition-all $1:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition-all hover:border-primary hover:shadow-md disabled:opacity-50 "
  >
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
  <Users className="h-7 w-7 text-primary " />
@@ -140,7 +140,7 @@ function DemoRunner() {
  type="button"
  onClick={() => enterDemo("teacher")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition-all $1:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition-all hover:border-primary hover:shadow-md disabled:opacity-50 "
  >
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
  <BookOpen className="h-7 w-7 text-primary " />

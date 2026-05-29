@@ -101,7 +101,7 @@ export default function SATReviewScreen({
  className={`flex h-11 w-11 items-center justify-center rounded-pill text-sm font-semibold transition-colors
  ${
  isAnswered
- ? "bg-primary text-white $1:bg-primary-hover "
+ ? "bg-primary text-white hover:bg-primary-hover "
  : "border-2 border-danger text-danger-fg hover:bg-danger-soft "
  }
  ${
@@ -140,7 +140,7 @@ export default function SATReviewScreen({
  className={`rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-colors ${
  confirmSubmit
  ? "bg-danger hover:bg-danger "
- : "bg-primary $1:bg-primary-hover "
+ : "bg-primary hover:bg-primary-hover "
  }`}
  >
  {confirmSubmit ? "Are you sure?" : "Submit Module"}

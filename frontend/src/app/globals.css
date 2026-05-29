@@ -62,9 +62,11 @@
  --color-border-strong: var(--ink-200);
  --color-border-focus: var(--green-500);
 
- --color-primary: var(--green-600);
- --color-primary-hover: var(--green-700);
- --color-primary-soft: var(--green-100);
+ /* Org branding (set at runtime in dashboard/admin layouts via --primary*)
+    overrides these when present; otherwise falls back to brand green. */
+ --color-primary: var(--primary, var(--green-600));
+ --color-primary-hover: var(--primary-dark, var(--green-700));
+ --color-primary-soft: var(--primary-light, var(--green-100));
  --color-primary-fg: #ffffff;
 
  --color-success: var(--green-600);
