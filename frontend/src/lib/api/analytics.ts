@@ -261,3 +261,36 @@ export async function fetchLessonFunnel(courseId: string): Promise<FunnelStep[]>
   );
   return data;
 }
+
+// ── Role-specific widgets ─────────────────────────────────────────────
+
+export interface ReviewQueueItem {
+  id: string;
+  assignment_id: string;
+  assignment_title: string;
+  student_name: string;
+  submitted_at: string;
+}
+
+export async function fetchReviewQueue(): Promise<ReviewQueueItem[]> {
+  const { data } = await apiClient.get<ReviewQueueItem[]>("/admin/review-queue");
+  return data;
+}
+
+export interface FacetCount {
+  value: string;
+  count: number;
+}
+
+export interface KnowledgeFacets {
+  type: FacetCount[];
+  stage: FacetCount[];
+  audience: FacetCount[];
+  mode: FacetCount[];
+  problems: FacetCount[];
+}
+
+export async function fetchKnowledgeFacets(): Promise<KnowledgeFacets> {
+  const { data } = await apiClient.get<KnowledgeFacets>("/knowledge/facets");
+  return data;
+}

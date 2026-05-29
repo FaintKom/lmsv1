@@ -20,7 +20,9 @@ import {
   type DashboardUpdatePayload,
   type ExerciseDifficultyRow,
   type FunnelStep,
+  type KnowledgeFacets,
   type KpiDeltasResponse,
+  type ReviewQueueItem,
   type StudentRiskRow,
   type XpMoversResponse,
   createDashboard,
@@ -29,8 +31,10 @@ import {
   fetchAttendanceImpact,
   fetchCourseEffectiveness,
   fetchExerciseDifficulty,
+  fetchKnowledgeFacets,
   fetchKpiDeltas,
   fetchLessonFunnel,
+  fetchReviewQueue,
   fetchStudentRisks,
   fetchXpMovers,
   getDashboard,
@@ -209,5 +213,21 @@ export function useLessonFunnel(courseId: string | undefined) {
     queryFn: () => fetchLessonFunnel(courseId as string),
     enabled: Boolean(courseId),
     staleTime: 60_000,
+  });
+}
+
+export function useReviewQueue() {
+  return useQuery<ReviewQueueItem[]>({
+    queryKey: ["analytics", "review-queue"],
+    queryFn: fetchReviewQueue,
+    staleTime: 60_000,
+  });
+}
+
+export function useKnowledgeFacets() {
+  return useQuery<KnowledgeFacets>({
+    queryKey: ["analytics", "knowledge-facets"],
+    queryFn: fetchKnowledgeFacets,
+    staleTime: 5 * 60_000,
   });
 }

@@ -12,8 +12,10 @@ import { ActivityTimelineWidget } from "./widgets/activity-timeline-widget";
 import { AttendanceImpactWidget } from "./widgets/attendance-impact-widget";
 import { CourseEffectivenessWidget } from "./widgets/course-effectiveness-widget";
 import { ExerciseDifficultyWidget } from "./widgets/exercise-difficulty-widget";
+import { KnowledgeCoverageWidget } from "./widgets/knowledge-coverage-widget";
 import { KpiTileWidget } from "./widgets/kpi-tile-widget";
 import { LessonFunnelWidget } from "./widgets/lesson-funnel-widget";
+import { ReviewQueueWidget } from "./widgets/review-queue-widget";
 import { StudentRisksWidget } from "./widgets/student-risks-widget";
 import { TopMoversWidget } from "./widgets/top-movers-widget";
 
@@ -189,6 +191,49 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
         label: "Course",
         type: "course",
         help: "Required — pick a course to populate the funnel.",
+      },
+    ],
+  },
+  "review-queue": {
+    type: "review-queue",
+    label: "Review queue",
+    i18nKey: "analytics.widget.review_queue",
+    defaultSize: { w: 4, h: 5 },
+    minSize: { w: 3, h: 3 },
+    Component: ReviewQueueWidget,
+    configFields: [
+      {
+        key: "limit",
+        label: "Rows",
+        type: "number",
+        default: 6,
+        min: 1,
+        max: 50,
+      },
+    ],
+  },
+  "knowledge-coverage": {
+    type: "knowledge-coverage",
+    label: "Knowledge coverage",
+    i18nKey: "analytics.widget.knowledge_coverage",
+    defaultSize: { w: 4, h: 5 },
+    minSize: { w: 3, h: 3 },
+    Component: KnowledgeCoverageWidget,
+    configFields: [
+      {
+        key: "facet",
+        label: "Facet",
+        type: "text",
+        default: "stage",
+        help: "One of: stage, type, audience, mode, problems.",
+      },
+      {
+        key: "limit",
+        label: "Rows",
+        type: "number",
+        default: 8,
+        min: 1,
+        max: 50,
       },
     ],
   },
