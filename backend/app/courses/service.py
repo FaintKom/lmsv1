@@ -72,16 +72,15 @@ def normalize_lesson_content(lesson_dict: dict, exercises: list = None) -> dict:
             })
             block_id += 1
 
-    # If no blocks were created, add empty text block
+    # If we extracted no blocks, this lesson uses a legacy type-specific
+    # builder (quiz / theory / code_challenge / file_upload / interactive)
+    # whose config the v2 block renderer can't represent. Leave the content
+    # UNTOUCHED so the lesson player falls back (content.version !== 2) to the
+    # legacy type-specific viewer (QuizTaker / TheoryViewer / InteractiveTaker /
+    # FileUploader / code editor). Overwriting it with an empty text block here
+    # made the student see a blank lesson for every non-text/video type.
     if not blocks:
-        blocks.append({
-            "id": "b0",
-            "type": "text",
-            "sort_order": 0,
-            "page": 1,
-            "body": "",
-            "format": "tiptap",
-        })
+        return lesson_dict
 
     lesson_dict["content"] = {
         "version": 2,
