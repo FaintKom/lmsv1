@@ -21,6 +21,7 @@ import {
  Bot,
  Calculator,
  Box,
+ Presentation,
  PanelLeftClose,
  PanelLeft,
  type LucideIcon,
@@ -34,6 +35,8 @@ import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
+import { TheoryViewer } from "@/components/theory/theory-viewer";
+import type { TheoryContent } from "@/lib/theory";
 import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
@@ -53,6 +56,7 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
  robot_2d: Bot,
  math_interactive: Calculator,
  world_3d: Box,
+ theory: Presentation,
 };
 
 export default function LessonViewerPage() {
@@ -895,6 +899,10 @@ function LegacyContent({
 
     {lesson.content_type === "interactive" && (
      <InteractiveTaker lessonId={lessonId} content={lesson.content} onComplete={onComplete} />
+    )}
+
+    {lesson.content_type === "theory" && (
+     <TheoryViewer content={lesson.content as TheoryContent} onContinue={onComplete} />
     )}
    </div>
   </>

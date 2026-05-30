@@ -51,6 +51,7 @@ import {
  ExternalLink,
  Clock,
  Video,
+ Presentation,
 } from "lucide-react";
 import type { Course, Module, Lesson, LessonBlock } from "@/types/api";
 import dynamic from "next/dynamic";
@@ -83,6 +84,11 @@ const FileUploadConfig = dynamic(
 
 const InteractiveBuilder = dynamic(
  () => import("@/components/submissions/interactive-builder"),
+ { ssr: false, loading: BuilderLoading }
+);
+
+const TheoryConfig = dynamic(
+ () => import("@/components/submissions/theory-config"),
  { ssr: false, loading: BuilderLoading }
 );
 
@@ -257,6 +263,7 @@ const CONTENT_TYPE_OPTIONS = [
  { value: "code_challenge", label: "Code", icon: Code },
  { value: "file_upload", label: "File Upload", icon: Upload },
  { value: "interactive", label: "Interactive", icon: Puzzle },
+ { value: "theory", label: "Theory", icon: Presentation },
 ];
 
 const TYPE_COLORS: Record<string, string> = {
@@ -266,6 +273,7 @@ const TYPE_COLORS: Record<string, string> = {
  code_challenge: "bg-success-soft text-primary border-primary-soft ",
  file_upload: "bg-sun-50 text-warning-fg border-warning ",
  interactive: "bg-success-soft text-primary border-primary-soft ",
+ theory: "bg-info-soft text-info-fg border-info ",
 };
 
 const TYPE_EXPANDED_BG: Record<string, string> = {
@@ -275,6 +283,7 @@ const TYPE_EXPANDED_BG: Record<string, string> = {
  code_challenge: "border-primary-soft bg-success-soft/30 ",
  file_upload: "border-warning bg-sun-50/30 ",
  interactive: "border-primary-soft bg-success-soft/30 ",
+ theory: "border-info bg-info-soft/30 ",
 };
 
 export default function CourseEditorPage() {
@@ -1453,6 +1462,15 @@ export default function CourseEditorPage() {
  )}
  {lesson.content_type === "interactive" && (
  <InteractiveBuilder
+ courseId={courseId}
+ moduleId={module.id}
+ lessonId={lesson.id}
+ initialContent={lesson.content || {}}
+ onSaved={() => fetchCourse()}
+ />
+ )}
+ {lesson.content_type === "theory" && (
+ <TheoryConfig
  courseId={courseId}
  moduleId={module.id}
  lessonId={lesson.id}

@@ -183,6 +183,7 @@ async def _run_setup():
             "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'robot_2d'",
             "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'math_interactive'",
             "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'world_3d'",
+            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'theory'",
         ]
         for stmt in enum_additions:
             try:

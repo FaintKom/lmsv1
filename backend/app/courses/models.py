@@ -24,6 +24,7 @@ class ContentType(str, enum.Enum):
     robot_2d = "robot_2d"
     math_interactive = "math_interactive"
     world_3d = "world_3d"
+    theory = "theory"
 
 
 class Course(Base, IDMixin, TimestampMixin):
