@@ -135,13 +135,21 @@ export default function InteractiveBuilder({
  setCategories([{ name: "", items: [""] }]);
  };
 
- // Count blanks in template
+ // Count blanks in the current template (pure derivation, render-safe).
  const blankCount = (textTemplate.match(/\{\{blank\}\}/g) || []).length;
- if (blanks.length !== blankCount) {
- const newBlanks = [...blanks];
- while (newBlanks.length < blankCount) newBlanks.push("");
- setBlanks(newBlanks.slice(0, blankCount));
- }
+
+ // Resize the blanks array to match the {{blank}} tokens in a new template.
+ // Driven by the textarea onChange (below) instead of during render.
+ const syncTemplate = (value: string) => {
+ setTextTemplate(value);
+ const count = (value.match(/\{\{blank\}\}/g) || []).length;
+ setBlanks((prev) => {
+ if (prev.length === count) return prev;
+ const next = [...prev];
+ while (next.length < count) next.push("");
+ return next.slice(0, count);
+ });
+ };
 
  return (
  <div className="space-y-4">
@@ -270,7 +278,7 @@ export default function InteractiveBuilder({
  </label>
  <textarea
  value={textTemplate}
- onChange={(e) => setTextTemplate(e.target.value)}
+ onChange={(e) => syncTemplate(e.target.value)}
  placeholder={"A {{blank}} is a named storage location."}
  rows={4}
  className="w-full rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
