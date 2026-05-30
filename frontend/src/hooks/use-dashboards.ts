@@ -14,6 +14,7 @@ import {
   type ActivityTimelinePoint,
   type AttendanceImpactResponse,
   type CourseEffectivenessRow,
+  type CourseTaskStats,
   type DashboardCreatePayload,
   type DashboardResponse,
   type DashboardScope,
@@ -30,6 +31,7 @@ import {
   fetchActivityTimeline,
   fetchAttendanceImpact,
   fetchCourseEffectiveness,
+  fetchCourseTaskStats,
   fetchExerciseDifficulty,
   fetchKnowledgeFacets,
   fetchKpiDeltas,
@@ -229,5 +231,14 @@ export function useKnowledgeFacets() {
     queryKey: ["analytics", "knowledge-facets"],
     queryFn: fetchKnowledgeFacets,
     staleTime: 5 * 60_000,
+  });
+}
+
+export function useCourseTaskStats(courseId: string | undefined) {
+  return useQuery<CourseTaskStats>({
+    queryKey: ["analytics", "task-stats", "course", courseId ?? "none"],
+    queryFn: () => fetchCourseTaskStats(courseId as string),
+    enabled: Boolean(courseId),
+    staleTime: 60_000,
   });
 }

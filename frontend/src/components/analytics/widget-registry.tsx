@@ -17,6 +17,7 @@ import { KpiTileWidget } from "./widgets/kpi-tile-widget";
 import { LessonFunnelWidget } from "./widgets/lesson-funnel-widget";
 import { ReviewQueueWidget } from "./widgets/review-queue-widget";
 import { StudentRisksWidget } from "./widgets/student-risks-widget";
+import { TaskPerformanceWidget } from "./widgets/task-performance-widget";
 import { TopMoversWidget } from "./widgets/top-movers-widget";
 
 export interface WidgetProps {
@@ -148,6 +149,23 @@ export const WIDGET_REGISTRY: Record<string, WidgetMeta> = {
         label: "Filter by course",
         type: "course",
         help: "Leave empty for all courses.",
+      },
+    ],
+  },
+  "task-performance": {
+    type: "task-performance",
+    label: "Task performance",
+    i18nKey: "analytics.widget.task_performance",
+    defaultSize: { w: 8, h: 6 },
+    minSize: { w: 5, h: 4 },
+    Component: TaskPerformanceWidget,
+    configFields: [
+      { key: "title", label: "Title", type: "text" },
+      {
+        key: "course_id",
+        label: "Course",
+        type: "course",
+        help: "Required — pick a course to load its task statistics.",
       },
     ],
   },

@@ -294,3 +294,56 @@ export async function fetchKnowledgeFacets(): Promise<KnowledgeFacets> {
   const { data } = await apiClient.get<KnowledgeFacets>("/knowledge/facets");
   return data;
 }
+
+// ── Task statistics (Phase 3) ─────────────────────────────────────────
+// Mirrors backend app/analytics/task_stats_schemas.py.
+
+export type TaskType = "exercise" | "quiz" | "assignment";
+
+export interface TaskStats {
+  task_id: string;
+  task_type: TaskType;
+  title: string;
+  course_id: string | null;
+  lesson_id: string | null;
+  total_submissions: number;
+  unique_students: number;
+  success_count: number;
+  failure_count: number;
+  pass_rate: number | null;
+  avg_attempts: number | null;
+  avg_time_spent_seconds: number | null;
+  median_time_spent_seconds: number | null;
+  completion_rate: number | null;
+}
+
+export interface CourseTaskStats {
+  course_id: string;
+  course_title: string;
+  enrolled_students: number;
+  tasks: TaskStats[];
+}
+
+export interface LessonTaskStats {
+  lesson_id: string;
+  lesson_title: string;
+  tasks: TaskStats[];
+}
+
+export async function fetchCourseTaskStats(
+  courseId: string,
+): Promise<CourseTaskStats> {
+  const { data } = await apiClient.get<CourseTaskStats>(
+    `/analytics/task-stats/courses/${courseId}`,
+  );
+  return data;
+}
+
+export async function fetchLessonTaskStats(
+  lessonId: string,
+): Promise<LessonTaskStats> {
+  const { data } = await apiClient.get<LessonTaskStats>(
+    `/analytics/task-stats/lessons/${lessonId}`,
+  );
+  return data;
+}
