@@ -98,7 +98,14 @@ export default function DashboardLayout({
  if (!isAuthenticated) return null;
  const isStaffRole =
  user?.role === "super_admin" || user?.role === "admin" || user?.role === "teacher";
- if (isStaffRole && !isSharedRoutePath(pathname)) return null;
+ // Staff are normally bounced to /admin (see effect above), but NOT in preview
+ // mode, where a teacher/admin views their own course as a learner would. The
+ // effect already exempts ?preview=true; this render guard must match it, else
+ // the learner route returns null and the teacher's "Preview" opens blank.
+ const isPreviewMode =
+ typeof window !== "undefined" &&
+ new URLSearchParams(window.location.search).get("preview") === "true";
+ if (isStaffRole && !isSharedRoutePath(pathname) && !isPreviewMode) return null;
 
  return (
  <div className="flex h-screen bg-surface-2 ">

@@ -77,6 +77,10 @@ export default function CourseDetailPage() {
     user?.role === "admin" ||
     user?.role === "teacher";
   const canAccessLessons = enrolled || canPreview;
+  // When staff preview their own (unenrolled) course, carry ?preview=true into
+  // the lesson links so the (dashboard) guard renders the lesson instead of
+  // bouncing staff to /admin.
+  const lessonPreviewSuffix = canPreview && !enrolled ? "?preview=true" : "";
 
   useEffect(() => {
     apiClient
@@ -197,7 +201,7 @@ export default function CourseDetailPage() {
                 </span>
                 {firstLessonId && (
                   <Link
-                    href={`/courses/${params.courseId}/lessons/${firstLessonId}`}
+                    href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
                     className="btn-pop inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-ink-900"
                     style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
                   >
@@ -250,7 +254,7 @@ export default function CourseDetailPage() {
                   return (
                     <li key={lesson.id}>
                       <Link
-                        href={`/courses/${params.courseId}/lessons/${lesson.id}`}
+                        href={`/courses/${params.courseId}/lessons/${lesson.id}${lessonPreviewSuffix}`}
                         className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-ink-50/50"
                       >
                         <div
