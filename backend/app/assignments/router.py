@@ -76,10 +76,15 @@ async def submit_assignment(
     assignment_id: uuid.UUID,
     content: str | None = Form(None),
     file: UploadFile | None = File(None),
+    # Time-on-task (Phase 2 analytics). Optional multipart field — older clients
+    # omit it and the submission still succeeds with timing left NULL.
+    elapsed_seconds: int | None = Form(None),
     user: User = Depends(require_role(UserRole.student)),
     db: AsyncSession = Depends(get_db),
 ):
-    sub = await service.submit_assignment(db, assignment_id, user, content, file)
+    sub = await service.submit_assignment(
+        db, assignment_id, user, content, file, elapsed_seconds=elapsed_seconds
+    )
     await db.commit()
     return SubmissionResponse(
         id=sub.id,

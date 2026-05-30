@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { MaybeMath } from "@/components/common/math-renderer";
+import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 
 interface QuizOption {
  id: string;
@@ -47,12 +48,16 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  const [submitting, setSubmitting] = useState(false);
  const [result, setResult] = useState<SubmissionResult | null>(null);
  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+ // Time-on-task timer (Phase 2 analytics). Started when the quiz loads and on
+ // each retry; read at submit time and sent as elapsed_seconds.
+ const timerRef = useRef<ExerciseTimer | null>(null);
 
  useEffect(() => {
  apiClient
  .get(`/assessments/lessons/${lessonId}/quiz`)
  .then(({ data }) => {
  setQuiz(data);
+ timerRef.current = startExerciseTimer();
  if (data.time_limit_minutes) {
  setTimeLeft(data.time_limit_minutes * 60);
  }
@@ -96,6 +101,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
 
  const { data } = await apiClient.post(`/assessments/quizzes/${quiz.id}/submit`, {
  answers: answersList,
+ elapsed_seconds: timerRef.current?.elapsedSeconds(),
  });
  setResult({ score: data.score, passed: data.passed });
  onComplete?.();
@@ -158,6 +164,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  onClick={() => {
  setResult(null);
  setAnswers({});
+ timerRef.current = startExerciseTimer();
  if (quiz.time_limit_minutes) {
  setTimeLeft(quiz.time_limit_minutes * 60);
  }

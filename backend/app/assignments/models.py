@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,6 +44,11 @@ class Assignment(Base, IDMixin, TimestampMixin):
 
 class AssignmentSubmission(Base, IDMixin, TimestampMixin):
     __tablename__ = "assignment_submissions"
+    __table_args__ = (
+        # Speeds up per-student lookups + the Phase 2 task-stats GROUP BY
+        # aggregates (assignment_submissions grouped by assignment + student).
+        Index("ix_assignment_submissions_assignment_student", "assignment_id", "student_id"),
+    )
 
     assignment_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("assignments.id", ondelete="CASCADE"), nullable=False
@@ -66,5 +71,14 @@ class AssignmentSubmission(Base, IDMixin, TimestampMixin):
     status: Mapped[AssignmentStatus] = mapped_column(
         Enum(AssignmentStatus), default=AssignmentStatus.pending
     )
+
+    # Per-attempt analytics (Phase 2: task statistics for methodists). Mirrors
+    # ExerciseSubmission. All nullable for backward-compat — clients that don't
+    # send elapsed_seconds leave timing NULL, older rows stay NULL. On resubmit
+    # the existing row is updated in place, so attempt_number reflects the latest
+    # resubmission count rather than a brand-new row.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    time_spent_seconds: Mapped[int | None] = mapped_column(Integer)
+    attempt_number: Mapped[int | None] = mapped_column(Integer)
 
     assignment: Mapped["Assignment"] = relationship(back_populates="submissions")

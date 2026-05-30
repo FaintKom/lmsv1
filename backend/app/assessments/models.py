@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Index, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,6 +51,11 @@ class Question(Base, IDMixin, TimestampMixin):
 
 class QuizSubmission(Base, IDMixin):
     __tablename__ = "quiz_submissions"
+    __table_args__ = (
+        # Speeds up the per-student attempt count + the Phase 2 task-stats
+        # GROUP BY aggregates (quiz_submissions grouped by quiz + student).
+        Index("ix_quiz_submissions_quiz_student", "quiz_id", "student_id"),
+    )
 
     quiz_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("quizzes.id", ondelete="CASCADE"), nullable=False
@@ -65,3 +70,10 @@ class QuizSubmission(Base, IDMixin):
         DateTime(timezone=True), nullable=False
     )
     graded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    # Per-attempt analytics (Phase 2: task statistics for methodists). Mirrors
+    # ExerciseSubmission. All nullable for backward-compat — clients that don't
+    # send elapsed_seconds leave timing NULL, older rows stay NULL.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    time_spent_seconds: Mapped[int | None] = mapped_column(Integer)
+    attempt_number: Mapped[int | None] = mapped_column(Integer)

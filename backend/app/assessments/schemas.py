@@ -43,6 +43,10 @@ class QuestionUpdate(BaseModel):
 
 class QuizSubmitRequest(BaseModel):
     answers: list[dict]  # [{question_id, selected_option or text}]
+    # Time-on-task (Phase 2 analytics). Optional — older clients omit it and the
+    # submission still succeeds with the timing fields left NULL. Clamped
+    # server-side to [0, 86400] (24h) to drop garbage / tab-switch inflation.
+    elapsed_seconds: int | None = None
 
 
 class QuizResponse(BaseModel):

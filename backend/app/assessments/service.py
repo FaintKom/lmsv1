@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +9,7 @@ from app.assessments.grading import grade_quiz
 from app.assessments.models import Question, Quiz, QuizSubmission
 from app.auth.models import User
 from app.common.exceptions import NotFoundError
+from app.common.timing import normalize_elapsed
 
 
 async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
@@ -111,12 +112,28 @@ async def delete_question(db: AsyncSession, question_id: uuid.UUID) -> None:
 
 
 async def submit_quiz(
-    db: AsyncSession, quiz_id: uuid.UUID, answers: list[dict], user: User
+    db: AsyncSession,
+    quiz_id: uuid.UUID,
+    answers: list[dict],
+    user: User,
+    elapsed_seconds: int | None = None,
 ) -> QuizSubmission:
     quiz = await get_quiz(db, quiz_id)
 
     score_percent, total_points = grade_quiz(quiz.questions, answers)
     passed = score_percent >= quiz.passing_score
+
+    now = datetime.now(timezone.utc)
+
+    # Stored attempt number = prior submission count + 1 (Phase 2 analytics).
+    prior_count = (
+        await db.execute(
+            select(func.count()).where(
+                QuizSubmission.quiz_id == quiz_id,
+                QuizSubmission.student_id == user.id,
+            )
+        )
+    ).scalar() or 0
 
     submission = QuizSubmission(
         quiz_id=quiz_id,
@@ -124,9 +141,15 @@ async def submit_quiz(
         answers=answers,
         score=score_percent,
         passed=passed,
-        submitted_at=datetime.now(timezone.utc),
-        graded_at=datetime.now(timezone.utc),
+        submitted_at=now,
+        graded_at=now,
+        attempt_number=prior_count + 1,
     )
+    # Time-on-task: clamp to [0, 24h]; leave NULL when the client omits it.
+    elapsed = normalize_elapsed(elapsed_seconds)
+    if elapsed is not None:
+        submission.time_spent_seconds = elapsed
+        submission.started_at = now - timedelta(seconds=elapsed)
     db.add(submission)
     await db.flush()
 

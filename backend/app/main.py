@@ -41,6 +41,7 @@ if settings.sentry_dsn:
 from app.admin.router import router as admin_router
 from app.ai.router import router as ai_router
 from app.analytics.router import router as analytics_router
+from app.analytics.task_stats_router import router as task_stats_router
 from app.assessments.router import router as assessments_router
 from app.assignments.router import router as assignments_router
 from app.attendance.router import router as attendance_router
@@ -161,6 +162,17 @@ async def _run_setup():
             "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
             "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
             "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
+            # Phase 2 task statistics: same time-on-task columns on quiz +
+            # assignment submissions, plus (task_id, student_id) indexes powering
+            # the task-stats aggregates (migration f4a5b6c7d8e9).
+            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
+            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
+            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
+            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
+            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
+            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
+            "CREATE INDEX IF NOT EXISTS ix_quiz_submissions_quiz_student ON quiz_submissions (quiz_id, student_id)",
+            "CREATE INDEX IF NOT EXISTS ix_assignment_submissions_assignment_student ON assignment_submissions (assignment_id, student_id)",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
@@ -472,6 +484,7 @@ def create_app() -> FastAPI:
     app.include_router(gamification_router, prefix="/api/v1/gamification", tags=["Gamification"])
     app.include_router(feedback_router, prefix="/api/v1", tags=["Feedback"])
     app.include_router(analytics_router, prefix="/api/v1", tags=["Analytics Dashboards"])
+    app.include_router(task_stats_router, prefix="/api/v1", tags=["Task Statistics"])
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])

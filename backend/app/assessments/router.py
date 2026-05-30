@@ -143,5 +143,7 @@ async def submit_quiz_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    submission = await submit_quiz(db, quiz_id, data.answers, user)
+    submission = await submit_quiz(
+        db, quiz_id, data.answers, user, elapsed_seconds=data.elapsed_seconds
+    )
     return SubmissionResponse.model_validate(submission)

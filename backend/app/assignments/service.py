@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -14,6 +14,7 @@ from app.common.file_validation import (
     UploadValidationError,
     validate_upload,
 )
+from app.common.timing import normalize_elapsed
 from app.config import settings
 from app.courses.models import Course
 from app.notifications.service import create_notification
@@ -208,6 +209,7 @@ async def submit_assignment(
     user: User,
     content: str | None = None,
     file: UploadFile | None = None,
+    elapsed_seconds: int | None = None,
 ) -> AssignmentSubmission:
     # Get assignment
     result = await db.execute(
@@ -262,6 +264,10 @@ async def submit_assignment(
 
     status = AssignmentStatus.late if is_late else AssignmentStatus.submitted
 
+    # Time-on-task (Phase 2 analytics): clamp to [0, 24h]; leave NULL when the
+    # client omits it (backward-compatible).
+    elapsed = normalize_elapsed(elapsed_seconds)
+
     if existing:
         existing.content = content
         existing.file_path = file_path or existing.file_path
@@ -272,6 +278,12 @@ async def submit_assignment(
         existing.feedback = None
         existing.graded_by = None
         existing.graded_at = None
+        # Resubmit reuses the row, so bump the stored attempt_number rather than
+        # leaving it at 1 (NULL on legacy rows counts as a prior attempt).
+        existing.attempt_number = (existing.attempt_number or 1) + 1
+        if elapsed is not None:
+            existing.time_spent_seconds = elapsed
+            existing.started_at = now - timedelta(seconds=elapsed)
         await db.flush()
         return existing
 
@@ -283,7 +295,11 @@ async def submit_assignment(
         original_filename=original_filename,
         submitted_at=now,
         status=status,
+        attempt_number=1,
     )
+    if elapsed is not None:
+        submission.time_spent_seconds = elapsed
+        submission.started_at = now - timedelta(seconds=elapsed)
     db.add(submission)
     await db.flush()
     return submission

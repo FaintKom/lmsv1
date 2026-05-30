@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "@/lib/i18n/context";
 import { ArrowLeft, Clock, CheckCircle, Upload, FileText, AlertCircle } from "lucide-react";
+import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import type { Assignment, AssignmentSubmission } from "@/types/api";
 
 function useTimeLeft() {
@@ -37,6 +38,9 @@ export default function AssignmentDetailPage() {
  const [file, setFile] = useState<File | null>(null);
  const [submitting, setSubmitting] = useState(false);
  const [error, setError] = useState("");
+ // Time-on-task timer (Phase 2 analytics). Started once the page mounts; read
+ // at submit time and sent as elapsed_seconds.
+ const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
 
  useEffect(() => {
  Promise.all([
@@ -63,6 +67,7 @@ export default function AssignmentDetailPage() {
  const formData = new FormData();
  if (content) formData.append("content", content);
  if (file) formData.append("file", file);
+ formData.append("elapsed_seconds", String(timerRef.current.elapsedSeconds()));
  const { data } = await apiClient.post(`/assignments/${assignmentId}/submit`, formData, {
  headers: { "Content-Type": "multipart/form-data" },
  });
