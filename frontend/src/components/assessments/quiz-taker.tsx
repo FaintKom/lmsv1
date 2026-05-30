@@ -85,7 +85,11 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  const answersList = Object.entries(answers).map(([questionId, value]) => {
  const question = quiz.questions.find((q) => q.id === questionId);
  if (question?.question_type === "multiple_choice") {
- return { question_id: questionId, selected_option: value };
+ // `value` is the selected option's id. The backend grader matches on
+ // option TEXT (grading.py: `opt.text == selected_option`), so resolve
+ // the id to its text — otherwise every MC answer scores 0.
+ const selected = question.options?.find((o) => String(o.id) === String(value));
+ return { question_id: questionId, selected_option: selected?.text ?? value };
  }
  return { question_id: questionId, text: value };
  });
