@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function CookieConsent() {
+ const { t } = useTranslation();
  const [visible, setVisible] = useState(false);
 
  useEffect(() => {
@@ -23,16 +25,16 @@ export default function CookieConsent() {
  <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-strong bg-paper-2 px-4 py-3 shadow-lg ">
  <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
  <p className="text-sm text-text-muted ">
- This site uses essential cookies for functionality only. No tracking cookies are used.{" "}
+ {t("cookie.message")}{" "}
  <Link href="/cookies" className="underline hover:text-ink-700 ">
- Learn more
+ {t("cookie.learnMore")}
  </Link>
  </p>
  <button
  onClick={handleAccept}
  className="shrink-0 rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
  >
- Got it
+ {t("cookie.accept")}
  </button>
  </div>
  </div>

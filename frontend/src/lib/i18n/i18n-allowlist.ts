@@ -114,7 +114,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/analytics/widgets/top-movers-widget.tsx",
   "src/components/common/math-renderer.tsx",
   "src/components/common/youtube-embed.tsx",
-  "src/components/cookie-consent.tsx",
   "src/components/courses/course-card.tsx",
   "src/components/discussions/comment-section.tsx",
   "src/components/editor/block-editor.tsx",

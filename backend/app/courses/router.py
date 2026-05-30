@@ -105,6 +105,55 @@ async def serve_image(filename: str):
     return FileResponse(filepath)
 
 
+# Presentation sources accepted for Theory blocks. Keynote (.key) is excluded:
+# rendering it needs a paid server-side conversion (CloudConvert/unoconv).
+THEORY_EXTENSIONS = {".pdf", ".pptx", ".ppt"}
+
+
+@router.post("/upload-theory")
+async def upload_theory(
+    file: UploadFile = File(...),
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Upload a PDF/PPTX deck for a theory lesson block."""
+    raw = await file.read()
+    try:
+        validated = validate_upload(
+            filename=file.filename,
+            data=raw,
+            allowed_extensions=THEORY_EXTENSIONS,
+            max_size_mb=50,
+            category=FileCategory.DOCUMENT,
+        )
+    except UploadValidationError as e:
+        raise HTTPException(400, str(e)) from e
+
+    upload_dir = os.path.join(settings.upload_dir, "theory")
+    os.makedirs(upload_dir, exist_ok=True)
+    filepath = os.path.join(upload_dir, validated.safe_name)
+
+    with open(filepath, "wb") as f:
+        f.write(validated.data)
+
+    url = f"/api/v1/courses/files/{validated.safe_name}"
+    display = os.path.basename((file.filename or "deck").replace("\\", "/"))
+    kind = "pdf" if validated.extension == ".pdf" else "pptx"
+    return {"url": url, "filename": display, "kind": kind}
+
+
+@router.get("/files/{filename}")
+async def serve_theory_file(filename: str):
+    """Serve an uploaded theory deck (PDF/PPTX)."""
+    if not re.match(r'^[a-f0-9]{32}\.(pdf|pptx|ppt)$', filename):
+        raise HTTPException(404, "Not found")
+
+    filepath = os.path.join(settings.upload_dir, "theory", filename)
+    if not os.path.exists(filepath):
+        raise HTTPException(404, "File not found")
+
+    return FileResponse(filepath)
+
+
 @router.get("/search", response_model=dict)
 async def search_endpoint(
     q: str = Query("", min_length=1),
