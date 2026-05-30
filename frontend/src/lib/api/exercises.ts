@@ -107,6 +107,10 @@ export interface ExerciseSubmission {
  graded_at: string | null;
  created_at: string;
  student_name?: string;
+ // Phase 1 time-on-task analytics (nullable for legacy rows / clients).
+ started_at?: string | null;
+ time_spent_seconds?: number | null;
+ attempt_number?: number | null;
 }
 
 export interface ExerciseListResponse {
@@ -220,6 +224,24 @@ export function getExerciseIcon(type: ExerciseType): LucideIcon {
 }
 
 export const ALL_EXERCISE_TYPES: ExerciseType[] = EXERCISE_TYPES_META.map((m) => m.value);
+
+/**
+ * Time-on-task helper (Phase 1 analytics). Call `startExerciseTimer()` when an
+ * exercise mounts/opens for the student; call `.elapsedSeconds()` at submit time
+ * and pass the result as `elapsed_seconds` in the submit payload. The backend
+ * clamps to [0, 24h], so light tab-switch inflation is tolerable; we don't try
+ * to pause on visibility change (deliberately simple — see Phase 1 spec).
+ */
+export interface ExerciseTimer {
+ elapsedSeconds: () => number;
+}
+
+export function startExerciseTimer(): ExerciseTimer {
+ const start = Date.now();
+ return {
+  elapsedSeconds: () => Math.max(0, Math.round((Date.now() - start) / 1000)),
+ };
+}
 
 export const exercisesApi = {
  list: (params?: {

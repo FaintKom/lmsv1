@@ -355,3 +355,92 @@ async def test_list_submissions(client: AsyncClient, teacher, org, db):
         headers=auth_header(teacher),
     )
     assert resp.status_code == 200
+
+
+# ─── Phase 1: time-on-task + attempt number ──────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_submit_stores_time_on_task(client: AsyncClient, student, teacher, org, db):
+    """elapsed_seconds is persisted as time_spent_seconds + started_at."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson.id, org.id)  # quiz (no questions)
+
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": [], "elapsed_seconds": 42},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["time_spent_seconds"] == 42
+    assert body["started_at"] is not None
+    assert body["attempt_number"] == 1
+
+
+@pytest.mark.asyncio
+async def test_submit_clamps_garbage_elapsed(client: AsyncClient, student, teacher, org, db):
+    """Negative elapsed clamps to 0; absurdly large clamps to 24h."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson.id, org.id)
+
+    neg = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": [], "elapsed_seconds": -100},
+        headers=auth_header(student),
+    )
+    assert neg.status_code == 200
+    assert neg.json()["time_spent_seconds"] == 0
+
+    huge = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": [], "elapsed_seconds": 999_999_999},
+        headers=auth_header(student),
+    )
+    assert huge.status_code == 200
+    assert huge.json()["time_spent_seconds"] == 24 * 60 * 60
+
+
+@pytest.mark.asyncio
+async def test_attempt_number_increments(client: AsyncClient, student, teacher, org, db):
+    """attempt_number increments across repeated submissions by the same student."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson.id, org.id)
+
+    nums = []
+    for _ in range(3):
+        resp = await client.post(
+            f"/api/v1/exercises/{ex.id}/submit",
+            json={"answers": [], "elapsed_seconds": 5},
+            headers=auth_header(student),
+        )
+        assert resp.status_code == 200
+        nums.append(resp.json()["attempt_number"])
+    assert nums == [1, 2, 3]
+
+
+@pytest.mark.asyncio
+async def test_submit_without_elapsed_still_succeeds(client: AsyncClient, student, teacher, org, db):
+    """Omitting elapsed_seconds (legacy clients) succeeds with NULL timing fields."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson.id, org.id)
+
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": []},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["time_spent_seconds"] is None
+    assert body["started_at"] is None
+    # attempt_number is still recorded even when timing is omitted
+    assert body["attempt_number"] == 1

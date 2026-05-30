@@ -16,8 +16,9 @@
  * Tier-B/C backend follow-ups.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import apiClient from "@/lib/api-client";
+import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
 import type { V2GradeFn, V2GradeResult, V2LiveType } from "@/lib/exercises/v2-adapter";
 import { TrueFalseV2 } from "@/components/exercises/v2/true-false-v2";
@@ -46,6 +47,8 @@ interface AttemptStatus {
 export function V2ExerciseLive({ exercise, onFinish, onQuit }: V2ExerciseLiveProps) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<AttemptStatus | null>(null);
+  // Time-on-task clock — armed once when this live exercise mounts.
+  const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
 
   useEffect(() => {
     let alive = true;
@@ -85,6 +88,7 @@ export function V2ExerciseLive({ exercise, onFinish, onQuit }: V2ExerciseLivePro
   const onGrade: V2GradeFn = async (answers) => {
     const res = await apiClient.post(`/exercises/${exercise.id}/submit`, {
       interactive_answers: answers,
+      elapsed_seconds: timerRef.current.elapsedSeconds(),
     });
     const d = res.data ?? {};
     const result: V2GradeResult = {

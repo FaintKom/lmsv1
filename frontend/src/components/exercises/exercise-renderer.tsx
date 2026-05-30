@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api-client";
+import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximize2, Minimize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
@@ -175,6 +176,10 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  const isGameType = FULLSCREEN_TYPES.has(exercise.exercise_type);
  const [fullscreen, setFullscreen] = useState(false); // never auto-open — let student read theory first
 
+ // Time-on-task: start the clock when this exercise mounts. Re-armed on mount;
+ // the elapsed value is injected into every submit payload (Phase 1 analytics).
+ const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
+
  // Attempt tracking
  const [attemptCount, setAttemptCount] = useState(0);
  const [maxAttempts, setMaxAttempts] = useState(exercise.max_attempts ?? 100);
@@ -223,7 +228,10 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  const handleSubmit = async (body: Record<string, unknown>) => {
  setSubmitting(true);
  try {
- const res = await apiClient.post(`/exercises/${exercise.id}/submit`, body);
+ const res = await apiClient.post(`/exercises/${exercise.id}/submit`, {
+ ...body,
+ elapsed_seconds: timerRef.current.elapsedSeconds(),
+ });
  setResult(res.data);
  setAttemptCount(res.data.attempt_number ?? attemptCount + 1);
  if (res.data.attempts_remaining != null) {
@@ -812,6 +820,9 @@ function CodeChallengeExercise({
  const [totalPassed, setTotalPassed] = useState(0);
  const [totalTests, setTotalTests] = useState(0);
  const [langs, setLangs] = useState<LangInfo[]>(FALLBACK_LANGS);
+ // Time-on-task clock — this component POSTs to /submit directly (it tells the
+ // parent _already_submitted), so it carries its own timer.
+ const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
 
  useEffect(() => {
  apiClient.get("/sandbox/languages").then(({ data }) => {
@@ -846,6 +857,7 @@ function CodeChallengeExercise({
  const { data } = await apiClient.post(`/exercises/${exerciseId}/submit`, {
  source_code: code,
  language: selectedLang,
+ elapsed_seconds: timerRef.current.elapsedSeconds(),
  });
  const testResults = data.results?.test_results || data.results || [];
  // Filter out hidden test cases from display

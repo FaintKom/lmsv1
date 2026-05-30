@@ -205,6 +205,10 @@ class SubmitExerciseRequest(BaseModel):
     game_result: dict | None = None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
     # Web editor (HTML/CSS/JS)
     web_code: dict | None = None  # {html, css, js}
+    # Time-on-task (Phase 1 analytics). Optional — older clients omit it and
+    # the submission still succeeds with the timing fields left NULL. Clamped
+    # server-side to [0, 86400] (24h) to drop garbage / tab-switch inflation.
+    elapsed_seconds: int | None = None
 
 
 class ExerciseSubmissionResponse(BaseModel):
@@ -227,7 +231,14 @@ class ExerciseSubmissionResponse(BaseModel):
     submitted_at: datetime
     graded_at: datetime | None = None
     created_at: datetime | None = None
-    # Attempt tracking (populated at response time, not stored in DB)
+    # Time-on-task analytics (Phase 1). started_at / time_spent_seconds come
+    # straight off the stored row; NULL for older submissions or clients that
+    # don't send elapsed_seconds.
+    started_at: datetime | None = None
+    time_spent_seconds: int | None = None
+    # Attempt tracking. attempt_number is now stored on the row at insert time
+    # (= prior attempt count + 1); the router still overrides it for the
+    # max-attempts-exhausted synthetic submission.
     attempt_number: int | None = None
     attempts_remaining: int | None = None
     max_attempts_reached: bool = False

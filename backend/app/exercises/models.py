@@ -149,5 +149,12 @@ class ExerciseSubmission(Base, IDMixin, TimestampMixin):
     )
     graded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    # Per-attempt analytics (Phase 1: task statistics for methodists).
+    # All nullable for backward-compat — older clients omit elapsed_seconds and
+    # rows created before this feature simply leave these NULL.
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    time_spent_seconds: Mapped[int | None] = mapped_column(Integer)
+    attempt_number: Mapped[int | None] = mapped_column(Integer)
+
     # Relationships
     exercise: Mapped["Exercise"] = relationship(back_populates="submissions")

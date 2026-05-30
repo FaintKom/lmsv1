@@ -156,6 +156,11 @@ async def _run_setup():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_at TIMESTAMP WITH TIME ZONE",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_by UUID",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP WITH TIME ZONE",
+            # Phase 1 task statistics for methodists: per-attempt time-on-task +
+            # attempt number on exercise submissions (migration e3f4a5b6c7d8).
+            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
+            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
+            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).

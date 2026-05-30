@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -330,6 +330,37 @@ async def _count_attempts(db: AsyncSession, exercise_id: uuid.UUID, student_id: 
     return result.scalar() or 0
 
 
+# Cap time-on-task at 24h to drop garbage (clock skew, tab left open overnight).
+_MAX_ELAPSED_SECONDS = 24 * 60 * 60
+
+
+def _normalize_elapsed(raw) -> int | None:
+    """Validate/clamp client-reported elapsed_seconds to [0, 24h]; None if absent/invalid."""
+    if raw is None:
+        return None
+    try:
+        secs = int(raw)
+    except (TypeError, ValueError):
+        return None
+    if secs < 0:
+        return 0
+    return min(secs, _MAX_ELAPSED_SECONDS)
+
+
+def _apply_timing(submission: ExerciseSubmission, data: dict, now: datetime) -> None:
+    """Stamp attempt_number + time-on-task onto a submission before flush.
+
+    Backward-compatible: when the client omits elapsed_seconds, started_at and
+    time_spent_seconds stay NULL. attempt_number is always set (>=1) so methodist
+    analytics can rely on it for new rows.
+    """
+    submission.attempt_number = data.get("_attempt_number")
+    elapsed = _normalize_elapsed(data.get("elapsed_seconds"))
+    if elapsed is not None:
+        submission.time_spent_seconds = elapsed
+        submission.started_at = now - timedelta(seconds=elapsed)
+
+
 def _get_correct_answer(exercise: Exercise) -> dict | None:
     """Extract correct answer from exercise config for answer reveal."""
     config = exercise.config or {}
@@ -433,6 +464,10 @@ async def submit_exercise(
     max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
     attempt_count = await _count_attempts(db, exercise_id, user.id)
 
+    # Stash the 1-based attempt number so each _submit_* helper can stamp it on
+    # the row via _apply_timing (stored explicitly, not just computed on the fly).
+    data["_attempt_number"] = attempt_count + 1
+
     if attempt_count >= max_att:
         # Max attempts reached — create a "completed" submission with correct answer
         correct = _get_correct_answer(exercise)
@@ -446,6 +481,7 @@ async def submit_exercise(
             submitted_at=now,
             graded_at=now,
         )
+        _apply_timing(submission, data, now)
         db.add(submission)
         await db.flush()
         sub = await _reload_submission(db, submission.id)
@@ -507,6 +543,7 @@ async def _submit_quiz(
         submitted_at=now,
         graded_at=now,
     )
+    _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 
@@ -579,6 +616,7 @@ async def _submit_code(
         submitted_at=now,
         graded_at=now,
     )
+    _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 
@@ -611,6 +649,7 @@ async def _submit_interactive(
         submitted_at=now,
         graded_at=now,
     )
+    _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 
@@ -667,6 +706,9 @@ async def upload_file_submission(
         mime_type=validated.verified_mime,
         submitted_at=now,
     )
+    # File uploads use a separate multipart endpoint with no elapsed_seconds, so
+    # only attempt_number is recorded here (time-on-task stays NULL by design).
+    submission.attempt_number = await _count_attempts(db, exercise_id, user.id) + 1
     db.add(submission)
     await db.flush()
 
@@ -747,6 +789,7 @@ async def _submit_game_level(
         submitted_at=now,
         graded_at=now,
     )
+    _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 
@@ -791,6 +834,7 @@ async def _submit_web_editor(
         status="submitted",
         submitted_at=now,
     )
+    _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 

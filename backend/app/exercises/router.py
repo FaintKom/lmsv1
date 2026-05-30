@@ -264,12 +264,14 @@ async def submit_exercise_endpoint(
         resp.max_attempts_reached = submission._max_attempts_reached  # type: ignore[attr-defined]
         resp.correct_answer = submission._correct_answer  # type: ignore[attr-defined]
     else:
-        # Normal submission — compute attempt info
+        # Normal submission — attempt_number is stamped on the row at insert
+        # time; only remaining/limit info is computed here.
         from app.exercises.service import _count_attempts, _get_exercise_with_relations
         exercise = await _get_exercise_with_relations(db, exercise_id)
         max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
         count = await _count_attempts(db, exercise_id, user.id)
-        resp.attempt_number = count
+        if resp.attempt_number is None:
+            resp.attempt_number = count
         resp.attempts_remaining = max(0, max_att - count)
         resp.max_attempts_reached = count >= max_att
 

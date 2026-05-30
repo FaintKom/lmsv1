@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Code2, Eye, Play, Send, RotateCcw, Maximize2, Minimize2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { toast } from "sonner";
 
 interface WebEditorConfig {
@@ -66,6 +67,7 @@ export default function WebEditorExercise({
  const [isSubmitting, setIsSubmitting] = useState(false);
  const [isExpanded, setIsExpanded] = useState(false);
  const [MonacoEditor, setMonacoEditor] = useState<React.ComponentType<Record<string, unknown>> | null>(null);
+ const timerRef = useRef<ExerciseTimer>(startExerciseTimer()); // time-on-task
  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
  // Load Monaco lazily
@@ -137,6 +139,7 @@ export default function WebEditorExercise({
  try {
  const { data } = await apiClient.post(`/exercises/${exerciseId}/submit`, {
  web_code: { html: htmlCode, css: cssCode, js: jsCode },
+ elapsed_seconds: timerRef.current.elapsedSeconds(),
  });
  toast.success("Code submitted!");
  onSubmit({ _already_submitted: true, ...data });
