@@ -123,20 +123,26 @@ class TestFileUploadValidation:
 
 
 class TestAuthRateLimit:
-    async def test_login_rate_limit_blocks_after_5_per_minute(
+    async def test_login_rate_limit_blocks_after_configured_limit(
         self, client: AsyncClient
     ):
+        from app.config import settings
+
+        # Derive the cap from config ("N/minute") so this test tracks the
+        # configured value instead of a hard-coded number.
+        limit = int(settings.auth_login_rate_limit.split("/")[0])
+
         # Use a unique email so the test doesn't share a counter with other
         # tests that also call /auth/login
         email = f"ratelimit-{uuid.uuid4().hex[:8]}@example.com"
         payload = {"email": email, "password": "wrong"}
 
-        # First 5 attempts: expect auth error (400), not rate limit
-        for i in range(5):
+        # First `limit` attempts: expect auth error (400), not rate limit
+        for i in range(limit):
             r = await client.post("/api/v1/auth/login", json=payload)
             assert r.status_code == 400, f"attempt {i + 1}: {r.status_code}"
 
-        # 6th attempt: rate-limited
+        # Next attempt over the limit: rate-limited
         r = await client.post("/api/v1/auth/login", json=payload)
         assert r.status_code == 429
         assert "rate limit" in r.text.lower()
