@@ -325,7 +325,10 @@ test("quiz: answers correctly and passes", async ({ page }) => {
     .first()
     .click();
   await page.getByRole("button", { name: /Submit Quiz/i }).click();
-  await expect(page.getByText(/Congratulations|passed this quiz/i)).toBeVisible({ timeout: 20_000 });
+  // The pass screen renders BOTH an <h3>Congratulations!</h3> and a
+  // <p>…passed this quiz.</p>, so the regex matches two nodes — use .first()
+  // to avoid a strict-mode "resolved to 2 elements" violation.
+  await expect(page.getByText(/Congratulations|passed this quiz/i).first()).toBeVisible({ timeout: 20_000 });
 });
 
 // ── CODE CHALLENGE ─────────────────────────────────────────────────────────
