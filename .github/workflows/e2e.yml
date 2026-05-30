@@ -1,0 +1,115 @@
+name: E2E (manual)
+
+# Manual end-to-end browser suite — NOT wired into the gating CI on purpose.
+#
+# Why manual (workflow_dispatch) instead of a job in ci.yml:
+#   The Playwright suite (frontend/e2e/all-content-types.spec.ts) drives real
+#   third-party embeds — the YouTube IFrame API (youtube.com), a Google Slides
+#   iframe (docs.google.com) — and heavy client editors (Monaco, KaTeX). Those
+#   external resources are classic CI-flake sources: a transient youtube.com
+#   slowdown would turn main red even though the app is fine. Per the team's
+#   "green-or-manual, never flaky-red" rule we expose this as an on-demand run
+#   a maintainer triggers (Actions tab -> "E2E (manual)" -> Run workflow), or
+#   via `gh workflow run e2e.yml`.
+#
+# It stands up the ephemeral QA stack (docker-compose.qa.yml): tmpfs Postgres +
+# redis + sandbox + backend + frontend, seeded by scripts/seed_qa.py with
+# deterministic, committed, NON-prod accounts (qa-teacher@/qa-student@qa.example.com,
+# password in seed_qa.py::QA_PASSWORD). No prod, no real secrets, nothing that
+# can touch grasslms.online. Artifacts (Playwright HTML report + traces/videos)
+# are uploaded on failure.
+
+on:
+  workflow_dispatch:
+    inputs:
+      grep:
+        description: "Playwright -g filter (e.g. 'quiz|file_upload'). Empty = whole suite."
+        required: false
+        default: ""
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright E2E (ephemeral QA stack)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    # Deterministic QA credentials — match scripts/seed_qa.py. NOT secrets.
+    env:
+      E2E_BASE_URL: http://localhost:3000
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      E2E_TEACHER_EMAIL: qa-teacher@qa.example.com
+      E2E_TEACHER_PASSWORD: qa-test-not-for-prod
+      E2E_STUDENT_EMAIL: qa-student@qa.example.com
+      E2E_STUDENT_PASSWORD: qa-test-not-for-prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build & start QA stack
+        run: docker compose -f docker-compose.qa.yml up -d --build --wait
+
+      - name: Show stack status
+        if: always()
+        run: docker compose -f docker-compose.qa.yml ps
+
+      - name: Apply migrations
+        run: docker compose -f docker-compose.qa.yml exec -T backend python -m alembic upgrade head
+
+      - name: Seed deterministic QA data
+        run: docker compose -f docker-compose.qa.yml exec -T backend python scripts/seed_qa.py
+
+      - name: Wait for backend /health/ready
+        run: |
+          for i in $(seq 1 40); do
+            CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health/ready || echo 000)
+            if [ "$CODE" = "200" ]; then echo "backend ready"; exit 0; fi
+            echo "attempt $i: /health/ready -> $CODE; retrying"; sleep 3
+          done
+          echo "::error::backend never became ready"; exit 1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps (for Playwright runner)
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright browser
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        working-directory: frontend
+        run: |
+          if [ -n "${{ github.event.inputs.grep }}" ]; then
+            npx playwright test e2e/all-content-types.spec.ts -g "${{ github.event.inputs.grep }}" --workers=1
+          else
+            npx playwright test e2e/all-content-types.spec.ts --workers=1
+          fi
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Dump backend logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.qa.yml logs --tail=200 backend frontend
+
+      - name: Tear down QA stack
+        if: always()
+        run: docker compose -f docker-compose.qa.yml down -v
