@@ -92,8 +92,12 @@ class Settings(BaseSettings):
     # Per-endpoint rate limits (slowapi syntax: "N/unit"). Overrideable via
     # env so QA / load tests can raise the cap without changing the code.
     # Defaults match the historical hard-coded values.
-    auth_login_rate_limit: str = "5/minute"
-    auth_register_rate_limit: str = "3/hour"
+    # Login/register are keyed per client IP. A whole school class often shares
+    # ONE public IP (NAT), so 30+ students hit login from the same IP at lesson
+    # start — limits must accommodate that. Bump these or override via env if a
+    # class is bigger. (Proper per-account login throttling is a follow-up.)
+    auth_login_rate_limit: str = "30/minute"
+    auth_register_rate_limit: str = "20/hour"
     auth_password_reset_rate_limit: str = "3/hour"
 
     # Demo mode — exposes POST /auth/demo-login that returns a session
