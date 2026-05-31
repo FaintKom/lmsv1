@@ -39,6 +39,8 @@ import { TheoryViewer } from "@/components/theory/theory-viewer";
 import type { TheoryContent } from "@/lib/theory";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
+import { useAuthStore } from "@/stores/auth-store";
+import { Printer } from "lucide-react";
 
 interface LessonProgressItem {
  lesson_id: string;
@@ -62,8 +64,18 @@ export default function LessonViewerPage() {
  const params = useParams();
  const router = useRouter();
  const { t } = useTranslation();
+ const user = useAuthStore((s) => s.user);
  const courseId = params.courseId as string;
  const lessonId = params.lessonId as string;
+
+ // Print / Save-as-PDF controls are for educators only — students never
+ // see the answer key or worksheet links.
+ const canPrint =
+  !!user &&
+  (user.role === "teacher" ||
+   user.role === "admin" ||
+   user.role === "super_admin" ||
+   user.is_methodist);
 
  // Opt-in flag (`?v2=1`) to route Tier-A exercises through the V2 renderer.
  // Read client-side to stay SSR-safe and avoid a Suspense boundary.
@@ -475,6 +487,28 @@ export default function LessonViewerPage() {
       <span className="font-bold text-text">{lesson.title}</span>
      </div>
      <div className="flex-1" />
+     {canPrint && (
+      <div className="flex items-center gap-1.5">
+       <Link
+        href={`/courses/${courseId}/lessons/${lessonId}/print?variant=student`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={t("print.worksheetHint")}
+        className="inline-flex items-center gap-1.5 rounded-pill bg-ink-50 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-ink-100 hover:text-text"
+       >
+        <Printer className="h-3 w-3" /> {t("print.worksheet")}
+       </Link>
+       <Link
+        href={`/courses/${courseId}/lessons/${lessonId}/print?variant=teacher`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={t("print.answerKeyHint")}
+        className="inline-flex items-center gap-1.5 rounded-pill bg-ink-50 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-ink-100 hover:text-text"
+       >
+        <Printer className="h-3 w-3" /> {t("print.answerKey")}
+       </Link>
+      </div>
+     )}
      {isCompleted && (
       <span className="inline-flex items-center gap-1.5 rounded-pill bg-green-100 px-3 py-1 text-[11px] font-bold text-green-800">
        <CheckCircle className="h-3 w-3" /> {t("lesson.done")}

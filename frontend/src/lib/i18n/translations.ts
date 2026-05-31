@@ -2221,6 +2221,23 @@ const en: TranslationMap = {
  "teamProjects.submitted": "Work submitted",
  "teamProjects.submitFailed": "Failed to submit work",
  "teamProjects.contentRequired": "Please enter your submission content.",
+ // Single-lesson print / save-as-PDF view
+ "print.button": "Print / Save as PDF",
+ "print.worksheet": "Worksheet",
+ "print.answerKey": "Answer key",
+ "print.worksheetHint": "Blank worksheet — answers hidden for students to fill in by hand.",
+ "print.answerKeyHint": "Answer key — correct answers and solutions are shown.",
+ "print.interactiveOnline": "Interactive content — available online only.",
+ "print.theoryOnline": "Slide deck — available online only.",
+ "print.videoOnline": "Video — available online only.",
+ "print.exercises": "Exercises",
+ "print.answer": "Answer",
+ "print.testCases": "Test cases:",
+ "print.hidden": "hidden",
+ "print.minutes": "min",
+ "print.loading": "Loading…",
+ "print.loadFailed": "Failed to load lesson.",
+ "print.cannotRender": "Cannot render",
 };
 
 const es: TranslationMap = {
@@ -4369,6 +4386,23 @@ const es: TranslationMap = {
  "teamProjects.submitted": "Trabajo entregado",
  "teamProjects.submitFailed": "No se pudo entregar el trabajo",
  "teamProjects.contentRequired": "Introduce el contenido de la entrega.",
+ // Vista de impresión / guardar como PDF de una lección
+ "print.button": "Imprimir / Guardar como PDF",
+ "print.worksheet": "Ficha de trabajo",
+ "print.answerKey": "Solucionario",
+ "print.worksheetHint": "Ficha en blanco — respuestas ocultas para que el alumnado las complete a mano.",
+ "print.answerKeyHint": "Solucionario — se muestran las respuestas y soluciones correctas.",
+ "print.interactiveOnline": "Contenido interactivo — disponible solo en línea.",
+ "print.theoryOnline": "Presentación de diapositivas — disponible solo en línea.",
+ "print.videoOnline": "Vídeo — disponible solo en línea.",
+ "print.exercises": "Ejercicios",
+ "print.answer": "Respuesta",
+ "print.testCases": "Casos de prueba:",
+ "print.hidden": "oculto",
+ "print.minutes": "min",
+ "print.loading": "Cargando…",
+ "print.loadFailed": "No se pudo cargar la lección.",
+ "print.cannotRender": "No se puede mostrar",
 };
 
 const ru: TranslationMap = {
@@ -6527,6 +6561,23 @@ const ru: TranslationMap = {
  "teamProjects.submitted": "Работа сдана",
  "teamProjects.submitFailed": "Не удалось сдать работу",
  "teamProjects.contentRequired": "Введите содержимое работы.",
+ // Печать / сохранение урока в PDF
+ "print.button": "Печать / Сохранить как PDF",
+ "print.worksheet": "Рабочий лист",
+ "print.answerKey": "Ключ с ответами",
+ "print.worksheetHint": "Пустой рабочий лист — ответы скрыты, ученики заполняют от руки.",
+ "print.answerKeyHint": "Ключ с ответами — показаны правильные ответы и решения.",
+ "print.interactiveOnline": "Интерактивный контент — доступен только онлайн.",
+ "print.theoryOnline": "Слайды — доступны только онлайн.",
+ "print.videoOnline": "Видео — доступно только онлайн.",
+ "print.exercises": "Задания",
+ "print.answer": "Ответ",
+ "print.testCases": "Тестовые случаи:",
+ "print.hidden": "скрыто",
+ "print.minutes": "мин",
+ "print.loading": "Загрузка…",
+ "print.loadFailed": "Не удалось загрузить урок.",
+ "print.cannotRender": "Невозможно отобразить",
 };
 
 const tr: TranslationMap = {
@@ -8678,6 +8729,23 @@ const tr: TranslationMap = {
  "teamProjects.submitted": "Çalışma gönderildi",
  "teamProjects.submitFailed": "Çalışma gönderilemedi",
  "teamProjects.contentRequired": "Lütfen gönderim içeriğini girin.",
+ // Tek ders yazdırma / PDF olarak kaydetme görünümü
+ "print.button": "Yazdır / PDF olarak kaydet",
+ "print.worksheet": "Çalışma kâğıdı",
+ "print.answerKey": "Cevap anahtarı",
+ "print.worksheetHint": "Boş çalışma kâğıdı — cevaplar gizli, öğrenciler elle doldurur.",
+ "print.answerKeyHint": "Cevap anahtarı — doğru cevaplar ve çözümler gösterilir.",
+ "print.interactiveOnline": "Etkileşimli içerik — yalnızca çevrimiçi kullanılabilir.",
+ "print.theoryOnline": "Slayt sunumu — yalnızca çevrimiçi kullanılabilir.",
+ "print.videoOnline": "Video — yalnızca çevrimiçi kullanılabilir.",
+ "print.exercises": "Alıştırmalar",
+ "print.answer": "Cevap",
+ "print.testCases": "Test durumları:",
+ "print.hidden": "gizli",
+ "print.minutes": "dk",
+ "print.loading": "Yükleniyor…",
+ "print.loadFailed": "Ders yüklenemedi.",
+ "print.cannotRender": "Görüntülenemiyor",
 };
 
 const de: TranslationMap = {
@@ -10888,6 +10956,23 @@ const de: TranslationMap = {
  "teamProjects.submitted": "Arbeit eingereicht",
  "teamProjects.submitFailed": "Arbeit konnte nicht eingereicht werden",
  "teamProjects.contentRequired": "Bitte gib den Inhalt deiner Einreichung ein.",
+ // Druck-/Als-PDF-Speichern-Ansicht einer einzelnen Lektion
+ "print.button": "Drucken / Als PDF speichern",
+ "print.worksheet": "Arbeitsblatt",
+ "print.answerKey": "Lösungsblatt",
+ "print.worksheetHint": "Leeres Arbeitsblatt — Lösungen ausgeblendet, von Lernenden handschriftlich auszufüllen.",
+ "print.answerKeyHint": "Lösungsblatt — richtige Antworten und Lösungen werden angezeigt.",
+ "print.interactiveOnline": "Interaktiver Inhalt — nur online verfügbar.",
+ "print.theoryOnline": "Foliensatz — nur online verfügbar.",
+ "print.videoOnline": "Video — nur online verfügbar.",
+ "print.exercises": "Übungen",
+ "print.answer": "Antwort",
+ "print.testCases": "Testfälle:",
+ "print.hidden": "verborgen",
+ "print.minutes": "Min.",
+ "print.loading": "Wird geladen…",
+ "print.loadFailed": "Lektion konnte nicht geladen werden.",
+ "print.cannotRender": "Kann nicht dargestellt werden",
 };
 
 const uk: TranslationMap = {
@@ -13098,6 +13183,23 @@ const uk: TranslationMap = {
  "teamProjects.submitted": "Роботу здано",
  "teamProjects.submitFailed": "Не вдалося здати роботу",
  "teamProjects.contentRequired": "Введіть вміст роботи.",
+ // Друк / збереження уроку у PDF
+ "print.button": "Друк / Зберегти як PDF",
+ "print.worksheet": "Робочий аркуш",
+ "print.answerKey": "Ключ із відповідями",
+ "print.worksheetHint": "Порожній робочий аркуш — відповіді приховані, учні заповнюють від руки.",
+ "print.answerKeyHint": "Ключ із відповідями — показано правильні відповіді та розв’язання.",
+ "print.interactiveOnline": "Інтерактивний контент — доступний лише онлайн.",
+ "print.theoryOnline": "Слайди — доступні лише онлайн.",
+ "print.videoOnline": "Відео — доступне лише онлайн.",
+ "print.exercises": "Завдання",
+ "print.answer": "Відповідь",
+ "print.testCases": "Тестові випадки:",
+ "print.hidden": "приховано",
+ "print.minutes": "хв",
+ "print.loading": "Завантаження…",
+ "print.loadFailed": "Не вдалося завантажити урок.",
+ "print.cannotRender": "Неможливо відобразити",
 };
 
 export const translations: Record<Locale, TranslationMap> = { en, es, ru, tr, de, uk };
