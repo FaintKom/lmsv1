@@ -47,6 +47,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="24" y="17" width="3" height="6" fill="#6b4422" />
         </svg>
       );
+    case "vox-monitor":
     case "monitor":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
@@ -55,6 +56,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="18" y="19" width="4" height="3" fill="#2a2a2a" />
         </svg>
       );
+    case "vox-drawers":
     case "dresser-blue":
     case "dresser-cream":
       return (
@@ -67,6 +69,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <circle cx="20" cy="21" r="1" fill="#6b4422" />
         </svg>
       );
+    case "vox-bookshelf":
     case "shelf-tall":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
@@ -135,6 +138,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="15" y="24" width="10" height="2" fill="#2a2a2a" />
         </svg>
       );
+    case "vox-plant":
     case "plant":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
@@ -201,6 +205,19 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="13" y="6" width="14" height="14" fill="#fff" />
           <line x1="20" y1="13" x2="20" y2="8" stroke="#2a2a2a" strokeWidth="1.4" />
           <line x1="20" y1="13" x2="24" y2="13" stroke="#2a2a2a" strokeWidth="1.4" />
+        </svg>
+      );
+    case "vox-keyboard":
+      return (
+        <svg viewBox="0 0 40 28" width="100%" height="100%">
+          <rect x="5" y="11" width="30" height="9" rx="1.5" fill="#2a2a2a" />
+          <rect x="7" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="11" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="15" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="19" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="23" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="27" y="13" width="3" height="2" fill="#8a8f95" />
+          <rect x="11" y="16" width="18" height="2" fill="#8a8f95" />
         </svg>
       );
     default:

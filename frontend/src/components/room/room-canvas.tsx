@@ -7,25 +7,39 @@ import { AVATAR_EQUIP_KEY, AVATAR_SLOTS, type AvatarSlot } from "@/lib/avatar/ca
 import type { AvatarEquip } from "@/lib/avatar/voxels";
 import type { FloorType } from "@/lib/room/voxels";
 
-import { useRoomScene, type RoomSceneApi } from "./use-room-scene";
+import {
+  type PlacedInstance,
+  type RoomSceneCallbacks,
+  useRoomScene,
+} from "./use-room-scene";
 
 interface RoomCanvasProps {
   state: RoomState;
+  /** Edit mode: allow clicking instances to select them. Default false (view). */
+  editable?: boolean;
+  /** Selection changed (id, or null when cleared). Movement is button-driven. */
+  onSelect?: (id: string | null) => void;
 }
 
-/** Imperative handle for the camera HUD buttons. */
+/** Imperative handle for the camera HUD buttons + selection sync. */
 export interface RoomCanvasHandle {
   resetCamera: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  setSelected: (id: string | null) => void;
 }
 
 export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function RoomCanvas(
-  { state },
+  { state, editable = false, onSelect },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { api, ready } = useRoomScene(canvasRef);
+  // Keep the latest callbacks in a ref so the scene reads them without remount.
+  const callbacksRef = useRef<RoomSceneCallbacks>({});
+  useEffect(() => {
+    callbacksRef.current = { onSelect };
+  }, [onSelect]);
+  const { api, ready } = useRoomScene(canvasRef, callbacksRef);
 
   useImperativeHandle(
     ref,
@@ -33,51 +47,61 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
       resetCamera: () => api?.resetCamera(),
       zoomIn: () => api?.zoom(-2),
       zoomOut: () => api?.zoom(2),
+      setSelected: (id: string | null) => api?.setSelected(id),
     }),
     [api],
   );
 
-  // Catalog lookups keyed by id (cheap; runs only when catalog changes).
   const byId = useMemo(() => {
     const map = new Map<string, RoomState["catalog"][number]>();
     for (const item of state.catalog) map.set(item.id, item);
     return map;
   }, [state.catalog]);
 
-  // Walls + floor sync — only when those slots change.
+  useEffect(() => {
+    if (ready && api) api.setEditable(editable);
+  }, [ready, api, editable]);
+
+  // Wall colour.
   const wallItemId = state.equipped.wall?.item_id ?? null;
   useEffect(() => {
-    if (!ready || !api) return;
-    if (!wallItemId) return;
-    const item = byId.get(wallItemId);
-    api.setWall(item?.color_hex ?? null);
+    if (!ready || !api || !wallItemId) return;
+    api.setWall(byId.get(wallItemId)?.color_hex ?? null);
   }, [ready, api, wallItemId, byId]);
 
+  // Floor type.
   const floorItemId = state.equipped.floor?.item_id ?? null;
   useEffect(() => {
-    if (!ready || !api) return;
-    if (!floorItemId) return;
-    const item = byId.get(floorItemId);
-    const type = (item?.floor_type ?? "wood") as FloorType;
-    api.setFloor(type);
+    if (!ready || !api || !floorItemId) return;
+    api.setFloor((byId.get(floorItemId)?.floor_type ?? "wood") as FloorType);
   }, [ready, api, floorItemId, byId]);
 
-  // Everything else — when equipped or offsets change.
+  // Freeform placed instances.
+  const placed = useMemo<PlacedInstance[]>(
+    () =>
+      state.placed.map((p) => ({
+        id: p.id,
+        itemId: p.item_id,
+        x: p.x,
+        y: p.y,
+        z: p.z,
+        rot: p.rot,
+        scale: p.scale,
+      })),
+    [state.placed],
+  );
   useEffect(() => {
-    if (!ready || !api) return;
-    syncSlots(api, state);
-  }, [ready, api, state]);
+    if (ready && api) api.setPlaced(placed);
+  }, [ready, api, placed]);
 
-  // Avatar — rebuild whenever an avatar slot changes.
+  // Avatar.
   const avatarEquip = useMemo<AvatarEquip>(() => {
     const out: AvatarEquip = {};
     for (const slot of AVATAR_SLOTS) {
-      const key = AVATAR_EQUIP_KEY[slot as AvatarSlot];
-      out[key] = state.equipped[slot]?.item_id ?? null;
+      out[AVATAR_EQUIP_KEY[slot as AvatarSlot]] = state.equipped[slot]?.item_id ?? null;
     }
     return out;
   }, [state.equipped]);
-
   const avatarOffset = state.equipped.avatar ?? {
     offset_dx: 0,
     offset_dy: 0,
@@ -108,31 +132,8 @@ export const RoomCanvas = forwardRef<RoomCanvasHandle, RoomCanvasProps>(function
       ref={canvasRef}
       className="h-full w-full touch-none select-none"
       style={{
-        background:
-          "radial-gradient(ellipse at 50% 70%, #efeae0 0%, #d6c9b6 100%)",
+        background: "radial-gradient(ellipse at 50% 70%, #efeae0 0%, #d6c9b6 100%)",
       }}
     />
   );
 });
-
-/**
- * Walk every slot in the equipped map (except wall/floor/avatar*) and push
- * it into the scene with its raw offset + rotation. Every item is now
- * independently positionable (the old TIES inheritance was removed by the
- * "all items movable" change).
- */
-function syncSlots(api: RoomSceneApi, state: RoomState): void {
-  for (const [slot, payload] of Object.entries(state.equipped)) {
-    if (slot === "wall" || slot === "floor") continue;
-    if (slot === "avatar") continue; // virtual slot for avatar position
-    if (slot.startsWith("avatar_")) continue; // avatar parts handled separately
-    api.setSlot(
-      slot,
-      payload.item_id,
-      payload.offset_dx,
-      payload.offset_dy ?? 0,
-      payload.offset_dz,
-      payload.offset_rot ?? 0,
-    );
-  }
-}

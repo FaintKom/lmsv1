@@ -43,3 +43,6 @@ htmlcov/
 
 # Local docker compose override
 docker-compose.override.yml
+
+# Local-only voxel asset gallery (downloaded models, not shipped)
+frontend/public/voxel-gallery/

@@ -71,10 +71,42 @@ class RoomEquipOffset(BaseModel):
     offset_rot: int = 0
 
 
+class PlacedItemResponse(BaseModel):
+    id: uuid.UUID
+    item_id: str
+    x: float
+    y: float
+    z: float
+    rot: float
+    scale: float
+
+    model_config = {"from_attributes": True}
+
+
 class RoomStateResponse(BaseModel):
     wallet: int  # total_xp (acts as wallet — never decremented)
     equipped: dict[str, RoomEquipOffset]  # slot -> {item_id, offset_dx, offset_dz, offset_rot}
     catalog: list[RoomItemResponse]
+    # Freeform furniture/decor instances (any count, anywhere). Avatar parts +
+    # wall/floor stay in `equipped`.
+    placed: list[PlacedItemResponse] = []
+
+
+class PlacedCreateRequest(BaseModel):
+    item_id: str = Field(min_length=1, max_length=60)
+    x: float = 7.0
+    y: float = 0.0
+    z: float = 7.0
+    rot: float = 0.0
+    scale: float = 1.0
+
+
+class PlacedUpdateRequest(BaseModel):
+    x: float
+    y: float
+    z: float
+    rot: float
+    scale: float = 1.0
 
 
 class RoomEquipRequest(BaseModel):

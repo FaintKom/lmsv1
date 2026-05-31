@@ -1,24 +1,23 @@
 /**
- * Imperative Three.js scene mount for the My Room feature.
+ * Imperative Three.js scene for the My Room feature — FREEFORM placement.
  *
- * Spec reference: design_handoff_student_room/design_files/room-app.jsx
- * lines 40-215. Camera arc is intentionally narrow so both visible walls
- * stay in frame -- do not widen the clamp ranges without re-tuning placement.
+ * The room is no longer a fixed set of slots. Furniture/decor are free
+ * instances (any count, anywhere) supplied via setPlaced(). Wall colour, floor
+ * type and the avatar stay singletons. Click an instance to select it (raycast)
+ * and drag it across the floor; rotate/scale/raise/delete are driven from React
+ * via setPlaced() re-renders. Selection + drag-commit are reported through the
+ * callbacks ref.
+ *
+ * Coordinates: instance x/y/z are in the room voxel grid (0..14), rendered ×VOX
+ * (0.4) to world units — the same space the old SLOT_PLACEMENT used. `scale` is
+ * a uniform multiplier (1 for code-built items; tuned values for .vox imports).
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import * as THREE from "three";
 
 import { CATALOG_BUILDERS, VOX_ITEMS } from "@/lib/room/catalog";
-import { MOVE_AXES, SLOT_PLACEMENT } from "@/lib/room/placement";
 import { loadVoxModel } from "@/lib/room/vox-loader";
-import {
-  COL,
-  type FloorType,
-  VOX,
-  flooring,
-  vbox,
-  walls,
-} from "@/lib/room/voxels";
+import { COL, type FloorType, VOX, flooring, vbox, walls } from "@/lib/room/voxels";
 import { type AvatarEquip, buildAvatar } from "@/lib/avatar/voxels";
 
 const THETA_BASE = Math.PI / 4;
@@ -31,78 +30,83 @@ const DIST_MIN = 10;
 const DIST_MAX = 26;
 
 const TARGET = new THREE.Vector3(2.8, 1.4, 2.8);
+const INITIAL_CAMERA = { theta: THETA_BASE, phi: Math.PI / 7, dist: 16 };
 
-const INITIAL_CAMERA = {
-  theta: THETA_BASE,
-  phi: Math.PI / 7,
-  dist: 16,
-};
+export interface PlacedInstance {
+  id: string;
+  itemId: string;
+  x: number;
+  y: number;
+  z: number;
+  rot: number;
+  scale: number;
+}
 
-/** Imperative handle the parent can use to drive the scene from React. */
+export interface RoomSceneCallbacks {
+  /** Fired when the user clicks an instance (id) or empty floor (null).
+   * Movement/rotation/scale are driven by buttons (React → setPlaced), so the
+   * scene only reports selection — dragging always orbits the camera. */
+  onSelect?: (id: string | null) => void;
+}
+
 export interface RoomSceneApi {
   setWall: (colorHex: string | null | undefined) => void;
   setFloor: (type: FloorType) => void;
-  setSlot: (
-    slot: string,
-    itemId: string | null,
-    dx: number,
-    dy: number,
-    dz: number,
-    rotDeg: number,
-  ) => void;
   setAvatar: (equip: AvatarEquip, dx: number, dy: number, dz: number, rotDeg: number) => void;
+  /** Reconcile the rendered instances with the given list (add/update/remove). */
+  setPlaced: (list: PlacedInstance[]) => void;
+  /** Highlight an instance (or clear with null). */
+  setSelected: (id: string | null) => void;
+  /** Toggle whether clicks select/drag instances (edit) or just orbit. */
+  setEditable: (editable: boolean) => void;
   resetCamera: () => void;
   zoom: (delta: number) => void;
 }
 
-/**
- * Mount a Three.js renderer into the canvas referenced by `canvasRef`.
- * Returns an imperative API + a ready flag so the caller can wait for
- * the scene before driving it.
- */
-export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null>): {
-  api: RoomSceneApi | null;
-  ready: boolean;
-} {
-  const apiRef = useRef<RoomSceneApi | null>(null);
+interface Slot {
+  group: THREE.Group;
+  inst: PlacedInstance;
+  seq: number;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+export function useRoomScene(
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  callbacksRef?: React.RefObject<RoomSceneCallbacks>,
+): { api: RoomSceneApi | null; ready: boolean } {
+  const [api, setApi] = useState<RoomSceneApi | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const canvasEl = canvasRef.current;
     if (!canvasEl) return;
-    // Local alias retains narrowing inside nested closures (Three.js callbacks).
     const canvas: HTMLCanvasElement = canvasEl;
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
-      // Logarithmic depth buffer reduces z-fighting where build* helpers
-      // stack voxel boxes that share faces or overlap (bed base/frame,
-      // lamp post through shade, hair strips over skull).
       logarithmicDepthBuffer: true,
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    // r183 deprecated PCFSoftShadowMap; PCFShadowMap looks nearly identical.
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const scene = new THREE.Scene();
-
-    // Tighter near/far ratio (0.5..50 = 100×) gives much better depth
-    // precision than prior 0.1..100 (1000×), further cutting z-fight on
-    // overlapping voxel boxes. Scene fits in ~15 world units so 50 is plenty.
     const camera = new THREE.PerspectiveCamera(28, 1, 0.5, 50);
     const cam = { ...INITIAL_CAMERA };
 
     function placeCamera(): void {
-      const x = TARGET.x + cam.dist * Math.sin(cam.theta) * Math.cos(cam.phi);
-      const y = TARGET.y + cam.dist * Math.sin(cam.phi);
-      const z = TARGET.z + cam.dist * Math.cos(cam.theta) * Math.cos(cam.phi);
-      camera.position.set(x, y, z);
+      camera.position.set(
+        TARGET.x + cam.dist * Math.sin(cam.theta) * Math.cos(cam.phi),
+        TARGET.y + cam.dist * Math.sin(cam.phi),
+        TARGET.z + cam.dist * Math.cos(cam.theta) * Math.cos(cam.phi),
+      );
       camera.lookAt(TARGET);
     }
-
     function resize(): void {
       const rect = canvas.getBoundingClientRect();
       const w = Math.max(1, Math.floor(rect.width));
@@ -112,7 +116,7 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       camera.updateProjectionMatrix();
     }
 
-    // Lights
+    // Lights (match the old room).
     scene.add(new THREE.AmbientLight(0xffffff, 0.55));
     const sun = new THREE.DirectionalLight(0xfff2cc, 1.05);
     sun.position.set(8, 14, 10);
@@ -127,7 +131,6 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     fill.position.set(-6, 8, -4);
     scene.add(fill);
 
-    // Ground shadow plane (catches shadow past room footprint)
     const shadowPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(60, 60),
       new THREE.ShadowMaterial({ opacity: 0.18 }),
@@ -137,63 +140,95 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     shadowPlane.receiveShadow = true;
     scene.add(shadowPlane);
 
-    // Wooden base plinth under the room (14 × 0.3 × 14 voxel box, color 0xe8c89e)
     const baseGroup = new THREE.Group();
     vbox(baseGroup, 0, -1.0, 0, 14, 0.3, 14, 0xe8c89e);
     scene.add(baseGroup);
 
-    // ── room shell + slot groups (mutable across updates) ────────────
+    // ── mutable scene state ──────────────────────────────────────────
     let wallsGroup: THREE.Group | null = null;
     let floorGroup: THREE.Group | null = null;
     let avatarGroup: THREE.Group | null = null;
-    const slotGroups = new Map<string, THREE.Group>();
-    // Per-slot monotonic counter so async vox loads can be invalidated when
-    // the user equips a different item before the previous load resolves.
-    const slotSeq = new Map<string, number>();
+    const slots = new Map<string, Slot>();
+    const seqOf = new Map<string, number>();
+    let selectedId: string | null = null;
+    let editable = true;
 
-    // Where the avatar stands inside the room (centre-front, on the rug).
-    // Voxel coords; converted to world via VOX in the place-call below.
     const AVATAR_POS = { x: 7, z: 7 };
+
+    // Selection ring (flat torus on the floor under the selected item).
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1, 0.06, 8, 40),
+      new THREE.MeshBasicMaterial({ color: 0x4caf50 }),
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.visible = false;
+    scene.add(ring);
 
     function disposeGroup(g: THREE.Group): void {
       g.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
+        if (obj instanceof THREE.Mesh || obj instanceof THREE.InstancedMesh) {
           obj.geometry.dispose();
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((m) => m.dispose());
-          } else {
-            obj.material.dispose();
-          }
+          const m = obj.material;
+          if (Array.isArray(m)) m.forEach((x) => x.dispose());
+          else m.dispose();
         }
       });
       g.parent?.remove(g);
     }
 
-    function placeSlot(
-      slot: string,
-      group: THREE.Group,
-      dx: number,
-      dy: number,
-      dz: number,
-      rotDeg: number,
-    ): void {
-      const pos = SLOT_PLACEMENT[slot];
-      if (!pos) return;
-      const axes = MOVE_AXES[slot] ?? [];
-      const useDx = axes.includes("x") ? dx : 0;
-      const useDz = axes.includes("z") ? dz : 0;
-      const useDy = axes.includes("y") ? dy : 0;
-      // Floor clamp: never let an item dip below y = 0.
-      const finalY = Math.max(0, (pos.y + useDy) * VOX);
-      group.position.set((pos.x + useDx) * VOX, finalY, (pos.z + useDz) * VOX);
-      group.rotation.set(0, pos.rot + (rotDeg * Math.PI) / 180, 0);
+    function applyTransform(group: THREE.Group, inst: PlacedInstance): void {
+      group.position.set(inst.x * VOX, Math.max(0, inst.y) * VOX, inst.z * VOX);
+      group.rotation.set(0, (inst.rot * Math.PI) / 180, 0);
+      group.scale.setScalar(inst.scale || 1);
+    }
+
+    function updateRing(): void {
+      const slot = selectedId ? slots.get(selectedId) : null;
+      if (!slot) {
+        ring.visible = false;
+        return;
+      }
+      const box = new THREE.Box3().setFromObject(slot.group);
+      const size = box.getSize(new THREE.Vector3());
+      const r = Math.max(0.4, Math.max(size.x, size.z) / 2 + 0.15);
+      ring.scale.set(r, r, 1);
+      ring.position.set(slot.group.position.x, 0.02, slot.group.position.z);
+      ring.visible = true;
+    }
+
+    function buildInstance(id: string, inst: PlacedInstance): void {
+      const voxDef = VOX_ITEMS[inst.itemId];
+      if (voxDef) {
+        const seq = (seqOf.get(id) ?? 0) + 1;
+        seqOf.set(id, seq);
+        loadVoxModel(voxDef.url)
+          .then((group) => {
+            if (seqOf.get(id) !== seq) {
+              disposeGroup(group);
+              return;
+            }
+            applyTransform(group, inst);
+            group.scale.multiplyScalar(voxDef.scale ?? 1);
+            group.userData.placedId = id;
+            scene.add(group);
+            slots.set(id, { group, inst, seq });
+            if (selectedId === id) updateRing();
+          })
+          .catch((err) => console.error(`vox load failed for ${inst.itemId}:`, err));
+        return;
+      }
+      const builder = CATALOG_BUILDERS[inst.itemId];
+      if (!builder) return; // unknown id — skip
+      const group = builder();
+      applyTransform(group, inst);
+      group.userData.placedId = id;
+      scene.add(group);
+      slots.set(id, { group, inst, seq: 0 });
     }
 
     const api: RoomSceneApi = {
       setWall: (colorHex) => {
-        if (wallsGroup) {
-          disposeGroup(wallsGroup);
-        }
+        if (wallsGroup) disposeGroup(wallsGroup);
         const color =
           typeof colorHex === "string" && colorHex.length >= 6
             ? parseInt(colorHex.slice(-6), 16)
@@ -202,71 +237,57 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         scene.add(wallsGroup);
       },
       setFloor: (type) => {
-        if (floorGroup) {
-          disposeGroup(floorGroup);
-        }
+        if (floorGroup) disposeGroup(floorGroup);
         floorGroup = flooring(type);
         scene.add(floorGroup);
       },
-      setSlot: (slot, itemId, dx, dy, dz, rotDeg) => {
-        const existing = slotGroups.get(slot);
-        if (existing) {
-          disposeGroup(existing);
-          slotGroups.delete(slot);
-        }
-        if (!itemId) return; // slot toggled off
-
-        const voxDef = VOX_ITEMS[itemId];
-        if (voxDef) {
-          // Bump a sequence number so a still-in-flight load for a different
-          // item id doesn't land after a newer one.
-          const seq = (slotSeq.get(slot) ?? 0) + 1;
-          slotSeq.set(slot, seq);
-          loadVoxModel(voxDef.url)
-            .then((group) => {
-              if (slotSeq.get(slot) !== seq) return; // superseded
-              if (voxDef.scale && voxDef.scale !== 1) {
-                group.scale.setScalar(voxDef.scale);
-              }
-              placeSlot(slot, group, dx, dy, dz, rotDeg);
-              scene.add(group);
-              slotGroups.set(slot, group);
-            })
-            .catch((err) => {
-              console.error(`vox load failed for ${itemId}:`, err);
-            });
-          return;
-        }
-
-        const builder = CATALOG_BUILDERS[itemId];
-        if (!builder) {
-          // Wall, floor, and avatar item ids end up here -- they're handled
-          // by setWall/setFloor/setAvatar separately. Unknown items just no-op.
-          return;
-        }
-        const group = builder();
-        placeSlot(slot, group, dx, dy, dz, rotDeg);
-        scene.add(group);
-        slotGroups.set(slot, group);
-      },
       setAvatar: (equip, dx, dy, dz, rotDeg) => {
-        if (avatarGroup) {
-          disposeGroup(avatarGroup);
-        }
+        if (avatarGroup) disposeGroup(avatarGroup);
         const g = buildAvatar(equip);
-        // Floor clamp: avatar feet never below y = 0.
         const finalY = Math.max(0, dy * VOX);
         g.position.set((AVATAR_POS.x + dx) * VOX, finalY, (AVATAR_POS.z + dz) * VOX);
-        // Face is drawn on the -Z side of the head; rotate π so it points
-        // +Z toward the default camera position (which orbits +X+Z).
         g.rotation.y = Math.PI + (rotDeg * Math.PI) / 180;
         scene.add(g);
         avatarGroup = g;
       },
+      setPlaced: (list) => {
+        const wanted = new Set(list.map((i) => i.id));
+        for (const [id, slot] of [...slots.entries()]) {
+          if (!wanted.has(id)) {
+            disposeGroup(slot.group);
+            slots.delete(id);
+            seqOf.delete(id);
+          }
+        }
+        for (const inst of list) {
+          const existing = slots.get(inst.id);
+          if (!existing) {
+            buildInstance(inst.id, inst);
+          } else if (existing.inst.itemId !== inst.itemId) {
+            disposeGroup(existing.group);
+            slots.delete(inst.id);
+            buildInstance(inst.id, inst);
+          } else {
+            existing.inst = inst;
+            applyTransform(existing.group, inst);
+          }
+        }
+        if (selectedId && !wanted.has(selectedId)) selectedId = null;
+        updateRing();
+      },
+      setSelected: (id) => {
+        selectedId = id;
+        updateRing();
+      },
+      setEditable: (v) => {
+        editable = v;
+        if (!editable) {
+          selectedId = null;
+          updateRing();
+        }
+      },
       resetCamera: () => {
-        cam.theta = INITIAL_CAMERA.theta;
-        cam.phi = INITIAL_CAMERA.phi;
-        cam.dist = INITIAL_CAMERA.dist;
+        Object.assign(cam, INITIAL_CAMERA);
         placeCamera();
       },
       zoom: (delta) => {
@@ -274,24 +295,48 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
         placeCamera();
       },
     };
-    apiRef.current = api;
+    // Publish the imperative handle once the scene exists (init, runs once).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setApi(api);
 
-    // ── pointer + wheel handlers ─────────────────────────────────────
+    // ── pointer handling: drag = orbit; click = select instance / deselect ──
+    // Movement etc. is button-driven (React → setPlaced), so we never drag
+    // items here — a plain click picks what the button panel acts on.
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
     let dragging = false;
+    let candidateId: string | null = null;
     let lastX = 0;
     let lastY = 0;
+    let moved = false;
+
+    function pickId(e: PointerEvent): string | null {
+      const rect = canvas.getBoundingClientRect();
+      ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      const groups = [...slots.values()].map((s) => s.group);
+      const hits = raycaster.intersectObjects(groups, true);
+      if (hits.length === 0) return null;
+      let obj: THREE.Object3D | null = hits[0].object;
+      while (obj && !obj.userData.placedId) obj = obj.parent;
+      return (obj?.userData.placedId as string) ?? null;
+    }
 
     function onPointerDown(e: PointerEvent): void {
-      dragging = true;
+      canvas.setPointerCapture(e.pointerId);
       lastX = e.clientX;
       lastY = e.clientY;
-      canvas.setPointerCapture(e.pointerId);
+      moved = false;
+      dragging = true;
+      candidateId = editable ? pickId(e) : null;
     }
 
     function onPointerMove(e: PointerEvent): void {
       if (!dragging) return;
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
       lastX = e.clientX;
       lastY = e.clientY;
       cam.theta = clamp(cam.theta - dx * 0.005, THETA_MIN, THETA_MAX);
@@ -299,13 +344,21 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       placeCamera();
     }
 
-    function onPointerUp(e: PointerEvent): void {
-      dragging = false;
+    function endDrag(e: PointerEvent): void {
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch {
-        // pointer wasn't captured (lost on tab blur etc.) -- ignore
+        /* ignore */
       }
+      const wasDragging = dragging;
+      dragging = false;
+      // A click (no real movement) in edit mode selects what's under it.
+      if (wasDragging && !moved && editable) {
+        selectedId = candidateId;
+        updateRing();
+        callbacksRef?.current?.onSelect?.(candidateId);
+      }
+      candidateId = null;
     }
 
     function onWheel(e: WheelEvent): void {
@@ -316,11 +369,10 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
 
     canvas.addEventListener("pointerdown", onPointerDown);
     canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerup", onPointerUp);
-    canvas.addEventListener("pointercancel", onPointerUp);
+    canvas.addEventListener("pointerup", endDrag);
+    canvas.addEventListener("pointercancel", endDrag);
     canvas.addEventListener("wheel", onWheel, { passive: false });
 
-    // ── resize observer + initial layout ─────────────────────────────
     resize();
     placeCamera();
     const resizeObs = new ResizeObserver(() => {
@@ -329,14 +381,12 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
     });
     resizeObs.observe(canvas);
 
-    // ── render loop ──────────────────────────────────────────────────
     let raf = 0;
     function loop(): void {
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     }
     loop();
-
     setReady(true);
 
     return () => {
@@ -344,24 +394,20 @@ export function useRoomScene(canvasRef: React.RefObject<HTMLCanvasElement | null
       resizeObs.disconnect();
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerup", onPointerUp);
-      canvas.removeEventListener("pointercancel", onPointerUp);
+      canvas.removeEventListener("pointerup", endDrag);
+      canvas.removeEventListener("pointercancel", endDrag);
       canvas.removeEventListener("wheel", onWheel);
       if (wallsGroup) disposeGroup(wallsGroup);
       if (floorGroup) disposeGroup(floorGroup);
       if (avatarGroup) disposeGroup(avatarGroup);
-      slotGroups.forEach(disposeGroup);
-      slotGroups.clear();
+      slots.forEach((s) => disposeGroup(s.group));
+      slots.clear();
       disposeGroup(baseGroup);
       renderer.dispose();
-      apiRef.current = null;
+      setApi(null);
       setReady(false);
     };
-  }, [canvasRef]);
+  }, [canvasRef, callbacksRef]);
 
-  return { api: apiRef.current, ready };
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+  return { api, ready };
 }

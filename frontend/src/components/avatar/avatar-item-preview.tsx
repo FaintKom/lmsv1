@@ -370,14 +370,6 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
           <line x1="20" y1="8" x2="20" y2="22" stroke="#fff" strokeWidth="1" />
         </svg>
       );
-    case "avatar-hand-sword":
-      return (
-        <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <rect x="19" y="3" width="2" height="16" fill="#8a8f95" />
-          <rect x="16" y="19" width="8" height="2" fill="#ffd84d" />
-          <rect x="18" y="21" width="4" height="4" fill="#6b4422" />
-        </svg>
-      );
     case "avatar-hand-pet":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">

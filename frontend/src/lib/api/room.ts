@@ -28,10 +28,39 @@ export interface RoomEquipOffset {
   offset_rot: number;
 }
 
+/** A freely-placed furniture/decor instance (freeform room). */
+export interface PlacedItem {
+  id: string;
+  item_id: string;
+  x: number;
+  y: number;
+  z: number;
+  rot: number;
+  scale: number;
+}
+
 export interface RoomState {
   wallet: number;
   equipped: Record<string, RoomEquipOffset>;
   catalog: RoomCatalogItem[];
+  placed: PlacedItem[];
+}
+
+export interface PlacedCreatePayload {
+  item_id: string;
+  x?: number;
+  y?: number;
+  z?: number;
+  rot?: number;
+  scale?: number;
+}
+
+export interface PlacedUpdatePayload {
+  x: number;
+  y: number;
+  z: number;
+  rot: number;
+  scale: number;
 }
 
 export interface RoomEquipPayload {
@@ -59,5 +88,23 @@ export async function equipRoomItem(payload: RoomEquipPayload): Promise<RoomStat
 
 export async function setRoomLayout(payload: RoomLayoutPayload): Promise<RoomState> {
   const { data } = await apiClient.post<RoomState>("/gamification/room/layout", payload);
+  return data;
+}
+
+export async function placeRoomItem(payload: PlacedCreatePayload): Promise<RoomState> {
+  const { data } = await apiClient.post<RoomState>("/gamification/room/placed", payload);
+  return data;
+}
+
+export async function updatePlacedItem(
+  id: string,
+  payload: PlacedUpdatePayload,
+): Promise<RoomState> {
+  const { data } = await apiClient.patch<RoomState>(`/gamification/room/placed/${id}`, payload);
+  return data;
+}
+
+export async function removePlacedItem(id: string): Promise<RoomState> {
+  const { data } = await apiClient.delete<RoomState>(`/gamification/room/placed/${id}`);
   return data;
 }

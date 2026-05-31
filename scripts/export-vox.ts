@@ -347,7 +347,6 @@ const ITEMS: Item[] = [
   // avatar hand
   ...[
     "avatar-hand-book",
-    "avatar-hand-sword",
     "avatar-hand-pet",
     "avatar-hand-flower",
     "avatar-hand-balloon",
