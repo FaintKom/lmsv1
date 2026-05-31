@@ -69,6 +69,7 @@ from app.progress.router import router as progress_router
 from app.recommendations.router import router as recommendations_router
 from app.recording.router import router as recording_router
 from app.sandbox.router import router as sandbox_router
+from app.schedule.router import router as schedule_router
 from app.scorm.router import router as scorm_router
 from app.scorm_import.router import router as scorm_import_router
 from app.skills.router import router as skills_router
@@ -336,6 +337,7 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.journal.models  # noqa
+    import app.schedule.models  # noqa
     import app.scorm.models  # noqa
     import app.scorm_import.models  # noqa
     import app.peer_review.models  # noqa
@@ -501,6 +503,7 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(journal_router, prefix="/api/v1", tags=["Journal"])
+    app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["Schedule"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
     app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])

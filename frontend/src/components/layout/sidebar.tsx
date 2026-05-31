@@ -31,6 +31,7 @@ import {
  MessagesSquare,
  FolderKanban,
  CalendarCheck,
+ CalendarClock,
  BookOpenCheck,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
@@ -92,6 +93,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  { href: "/peer-review", label: t("nav.peerReview"), icon: MessagesSquare },
  { href: "/team-projects", label: t("nav.teamProjects"), icon: FolderKanban },
  { href: "/attendance", label: t("nav.attendance"), icon: CalendarCheck },
+ { href: "/schedule", label: t("nav.schedule"), icon: CalendarClock },
  ];
 
  const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
@@ -107,6 +109,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isMenuVisible("team_projects") ? [{ href: "/admin/team-projects", label: t("nav.teamProjects"), icon: FolderKanban }] : []),
  ...(isMenuVisible("attendance") ? [{ href: "/admin/attendance", label: t("nav.attendance"), icon: CalendarCheck }] : []),
  ...(isMenuVisible("journal") ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }] : []),
+ ...(isMenuVisible("schedule") ? [{ href: "/admin/schedule", label: t("nav.schedule"), icon: CalendarClock }] : []),
  ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
  ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),

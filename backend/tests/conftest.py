@@ -38,6 +38,7 @@ import app.peer_review.models  # noqa
 import app.progress.models  # noqa
 import app.recording.models  # noqa
 import app.sandbox.models  # noqa
+import app.schedule.models  # noqa
 import app.scorm.models  # noqa
 import app.skills.models  # noqa
 import app.submissions.models  # noqa
