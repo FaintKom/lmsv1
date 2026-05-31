@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     # deployment via env. Starting implementation, not legal advice.
     digital_consent_age: int = 16
 
+    # Grace period (days) added beyond a ParentConsentToken's expiry before a
+    # never-confirmed, consent-pending minor account is hard-deleted by the
+    # scheduled purge job (app/scheduler.py). GDPR storage-limitation: don't
+    # retain data for minors who were never onboarded. 0 purges as soon as the
+    # token is expired. Default 7 days of slack beyond the 7-day token expiry.
+    unconfirmed_consent_grace_days: int = 7
+
     # Stripe
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""

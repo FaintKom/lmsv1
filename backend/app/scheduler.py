@@ -25,7 +25,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import delete, func, select
 
-from app.auth.models import RefreshToken, User, UserRole
+from app.auth.models import ParentConsentToken, RefreshToken, User, UserRole
 from app.config import settings
 from app.db.session import async_session_factory
 
@@ -113,6 +113,70 @@ async def purge_inactive_students() -> None:
             await session.rollback()
 
 
+async def _purge_unconfirmed_consent_accounts(session) -> int:
+    """Core purge logic, parametrised on the session so it is unit-testable.
+
+    Hard-deletes consent-pending minor accounts whose verifiable-consent window
+    has lapsed: ``is_active=False`` AND ``parental_consent_at IS NULL`` AND there
+    exists at least one ``ParentConsentToken`` for the user that is past its
+    expiry by more than ``settings.unconfirmed_consent_grace_days`` and was never
+    used/confirmed. Reuses the shared FK-clearing erasure path. Returns the count
+    purged. Caller owns commit/rollback.
+    """
+    from app.auth.erasure import cascade_delete_user_refs
+
+    now = datetime.now(timezone.utc)
+    grace_cutoff = now - timedelta(days=settings.unconfirmed_consent_grace_days)
+
+    # Users awaiting consent that have a never-confirmed token expired past the
+    # grace cutoff. The EXISTS keeps it a per-user decision even if a user
+    # somehow has multiple tokens.
+    pending_token = select(ParentConsentToken.id).where(
+        ParentConsentToken.user_id == User.id,
+        ParentConsentToken.used.is_(False),
+        ParentConsentToken.confirmed_at.is_(None),
+        ParentConsentToken.expires_at < grace_cutoff,
+    )
+    stmt = select(User).where(
+        User.is_active.is_(False),
+        User.parental_consent_at.is_(None),
+        pending_token.exists(),
+    )
+    users = (await session.execute(stmt)).scalars().all()
+    purged = 0
+    for user in users:
+        await cascade_delete_user_refs(session, user.id)
+        await session.delete(user)
+        await session.flush()
+        purged += 1
+    return purged
+
+
+async def purge_unconfirmed_consent_accounts() -> None:
+    """GDPR storage-limitation purge of never-onboarded minor signups.
+
+    The age gate (verifiable parental consent, GDPR Art. 8) creates an INACTIVE
+    student account plus a ``ParentConsentToken`` when a minor registers. If the
+    parent never confirms, the account lingers as ``is_active=False`` /
+    ``parental_consent_at IS NULL`` forever. This job hard-deletes such accounts
+    once their token has been expired for more than
+    ``settings.unconfirmed_consent_grace_days``. GDPR-positive: we don't retain
+    data for minors who were never onboarded. Idempotent — safe to re-run.
+    """
+    async with async_session_factory() as session:
+        try:
+            purged = await _purge_unconfirmed_consent_accounts(session)
+            await session.commit()
+            if purged:
+                logger.info(
+                    f"purge_unconfirmed_consent_accounts: purged {purged} "
+                    f"never-confirmed consent-pending minor account(s)"
+                )
+        except Exception as e:
+            logger.warning(f"purge_unconfirmed_consent_accounts failed: {e}")
+            await session.rollback()
+
+
 def start_scheduler() -> AsyncIOScheduler:
     """Create the scheduler, register jobs, start it. Idempotent."""
     global _scheduler
@@ -149,6 +213,18 @@ def start_scheduler() -> AsyncIOScheduler:
         purge_inactive_students,
         CronTrigger(hour=3, minute=30),
         id="purge_inactive_students",
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=600,
+    )
+
+    # Daily at 03:40 UTC — purge never-confirmed consent-pending minor signups
+    # whose consent token has been expired past the grace period. Runs after the
+    # dormant-student purge (03:30) and before the 04:00 backup.
+    scheduler.add_job(
+        purge_unconfirmed_consent_accounts,
+        CronTrigger(hour=3, minute=40),
+        id="purge_unconfirmed_consent_accounts",
         max_instances=1,
         coalesce=True,
         misfire_grace_time=600,
