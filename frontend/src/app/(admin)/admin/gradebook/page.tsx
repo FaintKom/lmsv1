@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table2, Download } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import QuizSubmissionBreakdown from "@/components/assessments/quiz-submission-breakdown";
 
 interface CourseOption {
  id: string;
@@ -19,6 +20,8 @@ interface GradebookColumn {
  type: string;
  title: string;
  max_score: number;
+ // Present only on quiz columns — enables opening the per-question breakdown.
+ quiz_id?: string;
 }
 
 interface GradebookStudent {
@@ -58,6 +61,8 @@ export default function GradebookPage() {
  const [data, setData] = useState<GradebookData | null>(null);
  const [loading, setLoading] = useState(false);
  const [loadingCourses, setLoadingCourses] = useState(true);
+ // Quiz cell click → open the per-question breakdown for that student.
+ const [review, setReview] = useState<{ quizId: string; studentId: string; studentName: string } | null>(null);
 
  useEffect(() => {
  apiClient
@@ -258,12 +263,31 @@ export default function GradebookPage() {
  </td>
  {data.columns.map((col) => {
  const val = data.rows[s.id]?.[col.id];
+ // Quiz cells with a recorded score open the per-question breakdown.
+ const reviewable = col.type === "quiz" && col.quiz_id && val != null;
  return (
  <td key={col.id} className="px-3 py-2.5 text-center">
  {val != null ? (
+ reviewable ? (
+ <button
+ type="button"
+ onClick={() =>
+ setReview({
+ quizId: col.quiz_id!,
+ studentId: s.id,
+ studentName: s.full_name,
+ })
+ }
+ title={t("admin.quizReview.openTitle")}
+ className={`inline-block min-w-[48px] cursor-pointer rounded-md px-2 py-0.5 text-xs font-medium underline-offset-2 transition-opacity hover:opacity-80 hover:underline ${scoreColor(val, col.max_score)}`}
+ >
+ {val}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
+ </button>
+ ) : (
  <span className={`inline-block min-w-[48px] rounded-md px-2 py-0.5 text-xs font-medium ${scoreColor(val, col.max_score)}`}>
  {val}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
  </span>
+ )
  ) : (
  <span className="text-xs text-ink-300 ">&mdash;</span>
  )}
@@ -307,6 +331,15 @@ export default function GradebookPage() {
  </table>
  </CardContent>
  </Card>
+ )}
+
+ {review && (
+ <QuizSubmissionBreakdown
+ quizId={review.quizId}
+ studentId={review.studentId}
+ studentName={review.studentName}
+ onClose={() => setReview(null)}
+ />
  )}
  </div>
  );

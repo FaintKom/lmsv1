@@ -1356,6 +1356,38 @@ async def gradebook_endpoint(
             for sid, score in result2.all():
                 rows[str(sid)][col_id] = round(float(score), 1) if score is not None else None
 
+    # --- Quizzes (legacy assessments) ---
+    # One column per quiz (a quiz is 1:1 with a lesson). The best score per
+    # student is shown; the column carries quiz_id so the frontend can open the
+    # per-question breakdown for that student's submission.
+    if lesson_ids:
+        from app.assessments.models import Quiz as Qz
+        from app.assessments.models import QuizSubmission as QzSub
+        result = await db.execute(
+            select(Qz).where(Qz.lesson_id.in_(lesson_ids))
+        )
+        quizzes = result.scalars().all()
+        for qz in quizzes:
+            col_id = f"quiz_{qz.id}"
+            columns.append({
+                "id": col_id,
+                "type": "quiz",
+                "title": qz.title,
+                "max_score": 100,
+                "quiz_id": str(qz.id),
+            })
+            # Quiz score is already a 0-100 percentage.
+            result2 = await db.execute(
+                select(QzSub.student_id, func.max(QzSub.score))
+                .where(
+                    QzSub.quiz_id == qz.id,
+                    QzSub.student_id.in_([uuid.UUID(s) for s in student_ids]),
+                )
+                .group_by(QzSub.student_id)
+            )
+            for sid, score in result2.all():
+                rows[str(sid)][col_id] = round(float(score), 1) if score is not None else None
+
     # --- Homework Assignments ---
     result = await db.execute(
         select(Assignment).where(Assignment.course_id == course_id)

@@ -79,3 +79,35 @@ class SubmissionResponse(BaseModel):
     submitted_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class QuestionBreakdown(BaseModel):
+    """Per-question grading detail for a teacher reviewing a submission."""
+
+    question_id: uuid.UUID
+    question_text: str
+    question_type: str
+    options: list[dict] | None = None
+    student_answer: str | None = None
+    correct_answer: str | None = None
+    is_correct: bool
+    points: int
+    points_earned: int
+
+
+class SubmissionBreakdownResponse(BaseModel):
+    """Full teacher-facing breakdown of a single quiz submission."""
+
+    submission_id: uuid.UUID
+    quiz_id: uuid.UUID
+    quiz_title: str
+    passing_score: int
+    student_id: uuid.UUID
+    student_name: str | None = None
+    student_email: str | None = None
+    score: float | None
+    passed: bool | None
+    submitted_at: datetime
+    total_points: int
+    earned_points: int
+    questions: list[QuestionBreakdown]

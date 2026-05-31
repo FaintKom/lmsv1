@@ -11,14 +11,17 @@ from app.assessments.schemas import (
     QuizResponse,
     QuizSubmitRequest,
     QuizUpdate,
+    SubmissionBreakdownResponse,
     SubmissionResponse,
 )
 from app.assessments.service import (
     add_question,
     create_quiz,
     delete_question,
+    get_latest_submission_breakdown,
     get_quiz,
     get_quiz_by_lesson,
+    get_submission_breakdown,
     submit_quiz,
     update_question,
     update_quiz,
@@ -147,3 +150,41 @@ async def submit_quiz_endpoint(
         db, quiz_id, data.answers, user, elapsed_seconds=data.elapsed_seconds
     )
     return SubmissionResponse.model_validate(submission)
+
+
+@router.get(
+    "/submissions/{submission_id}/breakdown",
+    response_model=SubmissionBreakdownResponse,
+)
+async def submission_breakdown_endpoint(
+    submission_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Teacher-facing per-question breakdown of a graded quiz submission.
+
+    RBAC (enforced in the service): the course-owning teacher, an org admin,
+    a methodist in the same org, or super_admin. Cross-org access is hidden
+    as 404; students/parents are blocked by ``require_role``.
+    """
+    breakdown = await get_submission_breakdown(db, submission_id, user)
+    return SubmissionBreakdownResponse.model_validate(breakdown)
+
+
+@router.get(
+    "/quizzes/{quiz_id}/students/{student_id}/breakdown",
+    response_model=SubmissionBreakdownResponse,
+)
+async def latest_submission_breakdown_endpoint(
+    quiz_id: uuid.UUID,
+    student_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Breakdown of a student's most-recent submission for a quiz.
+
+    Convenience for the gradebook, which addresses cells by (quiz, student).
+    Same RBAC as :func:`submission_breakdown_endpoint`.
+    """
+    breakdown = await get_latest_submission_breakdown(db, quiz_id, student_id, user)
+    return SubmissionBreakdownResponse.model_validate(breakdown)
