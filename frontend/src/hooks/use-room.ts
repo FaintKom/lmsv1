@@ -9,12 +9,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  type PlacedCreatePayload,
+  type PlacedUpdatePayload,
   type RoomEquipPayload,
   type RoomLayoutPayload,
   type RoomState,
   equipRoomItem,
   fetchRoomState,
+  placeRoomItem,
+  removePlacedItem,
   setRoomLayout,
+  updatePlacedItem,
 } from "@/lib/api/room";
 
 const ROOM_QUERY_KEY = ["gamification", "room", "state"] as const;
@@ -106,5 +111,40 @@ export function useSetLayout() {
     onSuccess: (state) => {
       qc.setQueryData(ROOM_QUERY_KEY, state);
     },
+  });
+}
+
+// ── Freeform placed items ───────────────────────────────────────────────
+
+export function useAddPlaced() {
+  const qc = useQueryClient();
+  return useMutation<RoomState, Error, PlacedCreatePayload>({
+    mutationFn: placeRoomItem,
+    onSuccess: (state) => qc.setQueryData(ROOM_QUERY_KEY, state),
+    onError: (err) => {
+      const message =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        err.message ||
+        "Failed to place item";
+      toast.error(message);
+    },
+  });
+}
+
+export function useUpdatePlaced() {
+  const qc = useQueryClient();
+  return useMutation<RoomState, Error, { id: string; patch: PlacedUpdatePayload }>({
+    mutationFn: ({ id, patch }) => updatePlacedItem(id, patch),
+    onSuccess: (state) => qc.setQueryData(ROOM_QUERY_KEY, state),
+    onError: (err) => toast.error(err.message || "Failed to move item"),
+  });
+}
+
+export function useDeletePlaced() {
+  const qc = useQueryClient();
+  return useMutation<RoomState, Error, string>({
+    mutationFn: removePlacedItem,
+    onSuccess: (state) => qc.setQueryData(ROOM_QUERY_KEY, state),
+    onError: (err) => toast.error(err.message || "Failed to remove item"),
   });
 }

@@ -5,6 +5,39 @@
 
 ---
 
+## Avatar chibi restyle + bed default nudge (2026-05-31)
+
+Branch: `feat/avatar-chibi-restyle`
+
+Owner decisions: art = **chibi cute** (big head ~44% height, stubby rounded body,
+big eyes; ref Crossy Road / Animal Crossing). Run = **fully autonomous**, all ~45
+items, ≤3 iterations each, no check-ins.
+
+- [x] Bed default coords +0+1 (placement.ts: bed z 0→1)
+- [x] Chibi anchor spec `A` in avatar/voxels.ts (source of truth)
+- [x] Boy + girl base bodies (chibi: head ~43% of 6.5-tall figure, stubby body)
+- [x] Face variants (big cute eyes; all 6 verified front view)
+- [x] Fitting-room harness `/avatar-fitting` (public dev route, 1 GL context, contact sheet, dev-guarded)
+- [x] Refit hair (6) / hats (6) / glasses (5) / outfits (6) / back (5) / hand (6) / accessory (5) — all screenshot-verified
+- [x] detect-overlaps clean + tsc + lint + vitest (voxels, i18n) all green
+- [ ] Commit + PR (awaiting owner go — global rule: commit/push only when asked)
+
+### Review
+- Chibi rewrite of `frontend/src/lib/avatar/voxels.ts` against a shared `A` anchor
+  spec. All 12 builder exports + signatures preserved (room scene, avatar canvas,
+  detect-overlaps, export-vox, vitest unchanged).
+- Iterations: hand-held items hidden behind the arm (z+) → moved in front of the
+  hand / outboard (book, sword, flower, controller); balloon raised to float above
+  the head. acc-book likewise. 2–3 passes per problem item.
+- Bodies kept gender-neutral (girl slightly narrower); gender read via hair/outfit
+  — standard voxel-avatar approach. Can add a distinct girl default if owner wants.
+- Room furniture untouched (per owner: avatars + clothing/accessories only). Bed
+  change is the +0+1 default-coordinate nudge only.
+- Dev harness at /avatar-fitting kept for future passes; 404s/no-ops in production,
+  allowlisted for the i18n ratchet. Remove before public-repo flip if undesired.
+
+---
+
 ## Research / Design — Universal Education Platform (2026-05-23)
 
 Перевод lms из mono-app в multi-service universal education platform (любой K12/university предмет со стандартным skill-set). Текущий статус: **только дизайн-доки, кода ещё нет**.

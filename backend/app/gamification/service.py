@@ -5,7 +5,14 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
-from app.gamification.models import Badge, RoomItem, UserBadge, UserRoomEquip, UserStreak
+from app.gamification.models import (
+    Badge,
+    RoomItem,
+    UserBadge,
+    UserRoomEquip,
+    UserRoomPlaced,
+    UserStreak,
+)
 from app.progress.models import LessonProgress, LessonStatus
 
 # XP rewards
@@ -411,6 +418,14 @@ ROOM_DEFAULT_CATALOG: list[dict] = [
     {"id": "plushie", "slot": "plushie", "group_name": "Decor", "name": "Bunny plushie", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "trophy", "slot": "trophy", "group_name": "Decor", "name": "Trophy", "price": 220, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "clock", "slot": "clock", "group_name": "Decor", "name": "Wall clock", "price": 90, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    # Imported voxel furniture (rendered from .vox via VOX_ITEMS on the frontend).
+    # Default + free: they make up the owner-curated starter room layout
+    # (positions in IMPORTED_DEFAULT_PLACEMENTS).
+    {"id": "vox-bookshelf", "slot": "shelf", "group_name": "Furniture", "name": "Bookshelf", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "vox-drawers", "slot": "dresser", "group_name": "Furniture", "name": "Drawers", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "vox-plant", "slot": "plant", "group_name": "Decor", "name": "Leafy plant", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "vox-monitor", "slot": "monitor", "group_name": "Furniture", "name": "Monitor", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {"id": "vox-keyboard", "slot": "keyboard", "group_name": "Furniture", "name": "Keyboard", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
 ]
 
 
@@ -468,7 +483,6 @@ ROOM_AVATAR_CATALOG: list[dict] = [
     {"id": "avatar-back-jetpack",  "slot": "avatar_back", "group_name": "Back", "name": "Jetpack",      "price": 450, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     # hand
     {"id": "avatar-hand-book",       "slot": "avatar_hand", "group_name": "Hand", "name": "Book",       "price": 80,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hand-sword",      "slot": "avatar_hand", "group_name": "Hand", "name": "Sword",      "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "avatar-hand-pet",        "slot": "avatar_hand", "group_name": "Hand", "name": "Mini pet",   "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "avatar-hand-flower",     "slot": "avatar_hand", "group_name": "Hand", "name": "Flower",     "price": 60,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
     {"id": "avatar-hand-balloon",    "slot": "avatar_hand", "group_name": "Hand", "name": "Balloon",    "price": 90,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
@@ -529,6 +543,11 @@ async def _ensure_defaults_equipped(db: AsyncSession, user_id: uuid.UUID) -> Non
     for item in defaults.scalars().all():
         if item.slot in have_slots:
             continue
+        # Furniture/decor defaults are seeded as freeform placed instances
+        # (_seed_default_placed). Only room settings (wall/floor) + avatar parts
+        # stay slot-based equips.
+        if item.slot not in ROOM_SETTING_SLOTS and item.slot not in ROOM_AVATAR_SLOTS:
+            continue
         db.add(UserRoomEquip(user_id=user_id, slot=item.slot, item_id=item.id))
     await db.flush()
 
@@ -536,7 +555,15 @@ async def _ensure_defaults_equipped(db: AsyncSession, user_id: uuid.UUID) -> Non
 async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
     """Return wallet + equipped map + full catalog for the student."""
     await seed_room_catalog(db)
+    # Detect a brand-new room BEFORE seeding so we only auto-furnish on the very
+    # first visit — a user who later empties their room is not re-furnished.
+    first_visit = not await _user_has_room_rows(db, user_id)
     await _ensure_defaults_equipped(db, user_id)
+    if first_visit:
+        await _seed_default_placed(db, user_id)
+    else:
+        # Existing users: migrate any old slot-based furniture to placed once.
+        await _migrate_slot_furniture_to_placed(db, user_id)
 
     wallet = await _get_total_xp(db, user_id)
 
@@ -557,7 +584,232 @@ async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
     catalog_result = await db.execute(select(RoomItem).order_by(RoomItem.price, RoomItem.id))
     catalog = catalog_result.scalars().all()
 
-    return {"wallet": wallet, "equipped": equipped, "catalog": catalog}
+    placed_result = await db.execute(
+        select(UserRoomPlaced)
+        .where(UserRoomPlaced.user_id == user_id)
+        .order_by(UserRoomPlaced.created_at)
+    )
+    placed = placed_result.scalars().all()
+
+    return {"wallet": wallet, "equipped": equipped, "catalog": catalog, "placed": placed}
+
+
+# ── Freeform placed items (room furniture/decor) ────────────────────────────
+
+# Room shell settings stay slot-based in user_room_equips; everything else that
+# is item_type='room' is freely placeable.
+ROOM_SETTING_SLOTS: set[str] = {"wall", "floor"}
+
+# Base placement per furniture slot (voxel grid, ×0.4 world at render), mirrors
+# the frontend SLOT_PLACEMENT. Used to seed a sensible default room layout as
+# freeform placed instances. (x, y, z, rot_degrees).
+DEFAULT_PLACEMENTS: dict[str, tuple[float, float, float, float]] = {
+    "bed": (8.5, 0, 1, 0),
+    "desk": (1, 0, 0, 0),
+    "monitor": (2, 3.2, 0.4, 0),
+    "chair": (2.4, 0, 4, 180),
+    "dresser": (0, 0, 11.5, 90),
+    "shelf": (0, 0, 13, 90),
+    "shelfwall": (0.05, 7.5, 6, 90),
+    "cabinet": (0.05, 6, 4, 90),
+    "pictures": (1.6, 7.5, 0.1, 0),
+    "window": (8.5, 5.2, 0.4, 0),
+    "clock": (0.1, 8, 3, 90),
+    "rug": (4.5, 0, 5.5, 0),
+    "plant": (11.5, 0, 9.5, 0),
+    "lamp": (12, 0, 11.5, 0),
+    "plushie": (11.5, 3.6, 1, -30),
+    "trophy": (0.6, 4.25, 10, 0),
+    "sofa": (5.5, 0, 10, 0),
+    "coffee": (7, 0, 7, 0),
+    "arcade": (11, 0, 3.6, -22.5),
+}
+
+# Owner-tuned positions for the imported .vox furniture (from /student-cabinet,
+# world units ÷0.4 → voxel grid). Keyed by item id so they override the generic
+# slot placement above.
+IMPORTED_DEFAULT_PLACEMENTS: dict[str, tuple[float, float, float, float]] = {
+    "vox-bookshelf": (1.25, 0, 11.75, 0),
+    "vox-drawers": (1.25, 0, 8.0, 0),
+    "vox-plant": (12.25, 0, 11.25, 0),
+    # Monitor + keyboard sit ON the default desk-wood (placed at (1,0,0), top
+    # at y≈3.2 vox, footprint x[1..6] z[0..3]).
+    "vox-monitor": (4.0, 3.2, 2.3, 0),
+    "vox-keyboard": (4.0, 3.2, 1.0, 0),
+}
+
+
+async def _user_has_room_rows(db: AsyncSession, user_id: uuid.UUID) -> bool:
+    """True if the user has any equip or placed row (i.e. their room exists)."""
+    eq = await db.execute(
+        select(UserRoomEquip.slot).where(UserRoomEquip.user_id == user_id).limit(1)
+    )
+    if eq.first() is not None:
+        return True
+    pl = await db.execute(
+        select(UserRoomPlaced.id).where(UserRoomPlaced.user_id == user_id).limit(1)
+    )
+    return pl.first() is not None
+
+
+async def _seed_default_placed(db: AsyncSession, user_id: uuid.UUID) -> None:
+    """Furnish a brand-new room: every is_default room furniture/decor item is
+    placed at its base layout position as a freeform instance. Wall/floor stay
+    equips (settings); avatar parts stay equips (slots)."""
+    defaults = await db.execute(
+        select(RoomItem).where(
+            RoomItem.is_default.is_(True), RoomItem.item_type == "room"
+        )
+    )
+    for item in defaults.scalars().all():
+        if item.slot in ROOM_SETTING_SLOTS:
+            continue
+        base = IMPORTED_DEFAULT_PLACEMENTS.get(item.id) or DEFAULT_PLACEMENTS.get(item.slot)
+        if base is None:
+            continue
+        x, y, z, rot = base
+        db.add(
+            UserRoomPlaced(
+                user_id=user_id, item_id=item.id, x=x, y=y, z=z, rot=rot, scale=1.0
+            )
+        )
+    await db.flush()
+
+
+async def _migrate_slot_furniture_to_placed(db: AsyncSession, user_id: uuid.UUID) -> None:
+    """One-time, self-healing: convert an existing user's slot-based furniture
+    equips into freeform placed instances (base placement + their saved offset),
+    then drop those equip rows. Wall/floor/avatar equips stay. No-op once done.
+    """
+    rows = await db.execute(
+        select(UserRoomEquip).where(
+            UserRoomEquip.user_id == user_id, UserRoomEquip.item_id.is_not(None)
+        )
+    )
+    to_drop = []
+    for e in rows.scalars().all():
+        if e.slot in ROOM_SETTING_SLOTS or e.slot in ROOM_AVATAR_SLOTS or e.slot == "avatar":
+            continue
+        base = DEFAULT_PLACEMENTS.get(e.slot)
+        if base is None:
+            continue
+        bx, by, bz, brot = base
+        db.add(
+            UserRoomPlaced(
+                user_id=user_id,
+                item_id=e.item_id,
+                x=bx + (e.offset_dx or 0),
+                y=by + (e.offset_dy or 0),
+                z=bz + (e.offset_dz or 0),
+                rot=(brot + (e.offset_rot or 0)) % 360,
+                scale=1.0,
+            )
+        )
+        to_drop.append(e)
+    for e in to_drop:
+        await db.delete(e)
+    if to_drop:
+        await db.flush()
+
+
+def _clampf(v: float, lo: float, hi: float) -> float:
+    return max(lo, min(hi, float(v)))
+
+
+async def add_placed_item(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    item_id: str,
+    x: float,
+    y: float,
+    z: float,
+    rot: float,
+    scale: float,
+) -> UserRoomPlaced:
+    """Place a new furniture/decor instance. Validates the item exists, is a
+    placeable room item (not avatar / wall / floor) and is affordable.
+    """
+    item_result = await db.execute(select(RoomItem).where(RoomItem.id == item_id))
+    item = item_result.scalar_one_or_none()
+    if item is None:
+        raise RoomEquipError("item_not_found", f"Unknown item '{item_id}'")
+    if item.item_type != "room" or item.slot in ROOM_SETTING_SLOTS:
+        raise RoomEquipError(
+            "not_placeable", f"Item '{item_id}' cannot be placed freely"
+        )
+
+    xp = await _get_total_xp(db, user_id)
+    if xp < item.price:
+        raise RoomEquipError(
+            "locked", f"Need {item.price} XP to use '{item_id}' (have {xp})"
+        )
+
+    # One copy per item: if it's already placed, return that instance (the
+    # caller selects it) instead of creating a duplicate.
+    existing = await db.execute(
+        select(UserRoomPlaced).where(
+            UserRoomPlaced.user_id == user_id, UserRoomPlaced.item_id == item_id
+        )
+    )
+    already = existing.scalar_one_or_none()
+    if already is not None:
+        return already
+
+    placed = UserRoomPlaced(
+        user_id=user_id,
+        item_id=item_id,
+        x=_clampf(x, -2, 16),
+        y=_clampf(y, 0, 16),
+        z=_clampf(z, -2, 16),
+        rot=float(rot) % 360,
+        scale=_clampf(scale, 0.05, 5),
+    )
+    db.add(placed)
+    await db.flush()
+    return placed
+
+
+async def update_placed_item(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    placed_id: uuid.UUID,
+    x: float,
+    y: float,
+    z: float,
+    rot: float,
+    scale: float,
+) -> UserRoomPlaced:
+    """Move / rotate / scale an existing instance the user owns."""
+    result = await db.execute(
+        select(UserRoomPlaced).where(
+            UserRoomPlaced.id == placed_id, UserRoomPlaced.user_id == user_id
+        )
+    )
+    placed = result.scalar_one_or_none()
+    if placed is None:
+        raise RoomEquipError("item_not_found", "Placed item not found")
+    placed.x = _clampf(x, -2, 16)
+    placed.y = _clampf(y, 0, 16)
+    placed.z = _clampf(z, -2, 16)
+    placed.rot = float(rot) % 360
+    placed.scale = _clampf(scale, 0.05, 5)
+    await db.flush()
+    return placed
+
+
+async def delete_placed_item(
+    db: AsyncSession, user_id: uuid.UUID, placed_id: uuid.UUID
+) -> None:
+    """Remove an instance the user owns (no-op if it isn't theirs)."""
+    result = await db.execute(
+        select(UserRoomPlaced).where(
+            UserRoomPlaced.id == placed_id, UserRoomPlaced.user_id == user_id
+        )
+    )
+    placed = result.scalar_one_or_none()
+    if placed is not None:
+        await db.delete(placed)
+        await db.flush()
 
 
 class RoomEquipError(Exception):

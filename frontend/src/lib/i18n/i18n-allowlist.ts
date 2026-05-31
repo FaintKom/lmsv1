@@ -80,6 +80,14 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/(print)/courses/[courseId]/print/page.tsx",
   "src/app/(print)/layout.tsx",
   "src/app/acceptable-use/page.tsx",
+  // Dev-only avatar fitting-room harness (not in nav, no-ops in production).
+  "src/app/avatar-fitting/page.tsx",
+  // Dev-only voxel asset gallery (browses downloaded .vox; no-ops in production).
+  "src/app/voxel-gallery/page.tsx",
+  // Dev-only freeform-room harness (mock state; no-ops in production).
+  "src/app/room-dev/page.tsx",
+  // Dev-only student-cabinet tuner (places imported .vox; no-ops in production).
+  "src/app/student-cabinet/page.tsx",
   "src/app/cookies/page.tsx",
   "src/app/copyright/page.tsx",
   "src/app/layout.tsx",

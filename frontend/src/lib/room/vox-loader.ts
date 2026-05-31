@@ -96,8 +96,15 @@ function cloneGroup(src: THREE.Group): THREE.Group {
       const cloned = new THREE.InstancedMesh(child.geometry, child.material, child.count);
       cloned.instanceMatrix.array.set(child.instanceMatrix.array);
       cloned.instanceMatrix.needsUpdate = true;
-      if (child.instanceColor && cloned.instanceColor) {
-        cloned.instanceColor.array.set(child.instanceColor.array);
+      // A freshly-constructed InstancedMesh has instanceColor === null, so we
+      // must CREATE the attribute on the clone before copying — the old guard
+      // `cloned.instanceColor && ...` was always false and silently dropped
+      // every model's palette (everything rendered material-default gray).
+      if (child.instanceColor) {
+        cloned.instanceColor = new THREE.InstancedBufferAttribute(
+          new Float32Array(child.instanceColor.array as ArrayLike<number>),
+          child.instanceColor.itemSize,
+        );
         cloned.instanceColor.needsUpdate = true;
       }
       cloned.castShadow = child.castShadow;

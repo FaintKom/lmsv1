@@ -5,6 +5,7 @@ from sqlalchemy import (
     Boolean,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     PrimaryKeyConstraint,
@@ -112,5 +113,36 @@ class UserRoomEquip(Base):
         server_default=func.now(),
         onupdate=lambda: datetime.now(),
     )
+
+
+class UserRoomPlaced(Base, IDMixin, TimestampMixin):
+    """A freely-placed room furniture/decor instance.
+
+    Unlike avatar parts (which stay slot-based in user_room_equips), room items
+    are placed freeform: any number, anywhere. Coordinates are in the ROOM voxel
+    grid (0..14, ×0.4 at render), matching the frontend SLOT_PLACEMENT space.
+    """
+
+    __tablename__ = "user_room_placed"
+    # One copy of each catalog item per user (freeform position, but no dupes).
+    __table_args__ = (
+        UniqueConstraint("user_id", "item_id", name="uq_user_room_placed_user_item"),
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    item_id: Mapped[str] = mapped_column(
+        String(60), ForeignKey("room_items.id", ondelete="CASCADE"), nullable=False
+    )
+    x: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default="0")
+    y: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default="0")
+    z: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default="0")
+    # Rotation around Y, degrees.
+    rot: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default="0")
+    scale: Mapped[float] = mapped_column(Float, nullable=False, default=1.0, server_default="1")
 
 

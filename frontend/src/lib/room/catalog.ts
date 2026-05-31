@@ -89,8 +89,12 @@ export interface VoxItemDef {
 }
 
 export const VOX_ITEMS: Record<string, VoxItemDef> = {
-  // No items wired yet — the POC office-pack models were 50–76 voxels per
-  // side (5–8 world units) and intentionally monochrome gray, which didn't
-  // fit a 5.6-wide room. Loader infrastructure stays in place; add entries
-  // here once we have correctly-sized colourful source models.
+  // Owner-selected imported furniture (2026-05-31). Scales were tuned in the
+  // /student-cabinet harness against the room's reference chair. The instance's
+  // own scale (default 1) multiplies on top of these.
+  "vox-bookshelf": { url: "/voxels/bookshelf.vox", scale: 0.48 },
+  "vox-drawers": { url: "/voxels/drawers.vox", scale: 0.48 },
+  "vox-plant": { url: "/voxels/plant.vox", scale: 0.48 },
+  "vox-monitor": { url: "/voxels/monitor.vox", scale: 0.4 },
+  "vox-keyboard": { url: "/voxels/keyboard.vox", scale: 0.48 },
 };

@@ -186,7 +186,6 @@ const builders: Record<string, () => THREE.Group> = {
   "back-quiver": () => buildBack("avatar-back-quiver"),
   "back-jetpack": () => buildBack("avatar-back-jetpack"),
   "hand-book": () => buildHand("avatar-hand-book"),
-  "hand-sword": () => buildHand("avatar-hand-sword"),
   "hand-pet": () => buildHand("avatar-hand-pet"),
   "hand-flower": () => buildHand("avatar-hand-flower"),
   "hand-balloon": () => buildHand("avatar-hand-balloon"),

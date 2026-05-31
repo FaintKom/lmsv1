@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,6 +9,9 @@ from app.db.session import get_db
 from app.gamification.schemas import (
     BadgeResponse,
     LeaderboardEntry,
+    PlacedCreateRequest,
+    PlacedItemResponse,
+    PlacedUpdateRequest,
     RoomEquipOffset,
     RoomEquipRequest,
     RoomItemResponse,
@@ -16,6 +21,8 @@ from app.gamification.schemas import (
 )
 from app.gamification.service import (
     RoomEquipError,
+    add_placed_item,
+    delete_placed_item,
     equip_room_item,
     get_leaderboard,
     get_leagues_info,
@@ -23,6 +30,7 @@ from app.gamification.service import (
     get_user_badges,
     get_user_streak,
     set_room_layout,
+    update_placed_item,
 )
 
 router = APIRouter()
@@ -72,6 +80,7 @@ async def room_state_endpoint(
             slot: RoomEquipOffset(**payload) for slot, payload in state["equipped"].items()
         },
         catalog=[RoomItemResponse.model_validate(item) for item in state["catalog"]],
+        placed=[PlacedItemResponse.model_validate(p) for p in state["placed"]],
     )
 
 
@@ -110,4 +119,52 @@ async def room_layout_endpoint(
         )
     except RoomEquipError as exc:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, exc.message) from exc
+    return await room_state_endpoint(user=user, db=db)
+
+
+# ─── Freeform placed items (room furniture/decor) ───────────────────────
+
+
+def _placed_error(exc: RoomEquipError) -> HTTPException:
+    if exc.code == "item_not_found":
+        return HTTPException(status.HTTP_404_NOT_FOUND, exc.message)
+    if exc.code == "locked":
+        return HTTPException(status.HTTP_403_FORBIDDEN, exc.message)
+    return HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, exc.message)
+
+
+@router.post("/room/placed", response_model=RoomStateResponse)
+async def room_place_endpoint(
+    body: PlacedCreateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await add_placed_item(db, user.id, body.item_id, body.x, body.y, body.z, body.rot, body.scale)
+    except RoomEquipError as exc:
+        raise _placed_error(exc) from exc
+    return await room_state_endpoint(user=user, db=db)
+
+
+@router.patch("/room/placed/{placed_id}", response_model=RoomStateResponse)
+async def room_place_update_endpoint(
+    placed_id: uuid.UUID,
+    body: PlacedUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        await update_placed_item(db, user.id, placed_id, body.x, body.y, body.z, body.rot, body.scale)
+    except RoomEquipError as exc:
+        raise _placed_error(exc) from exc
+    return await room_state_endpoint(user=user, db=db)
+
+
+@router.delete("/room/placed/{placed_id}", response_model=RoomStateResponse)
+async def room_place_delete_endpoint(
+    placed_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await delete_placed_item(db, user.id, placed_id)
     return await room_state_endpoint(user=user, db=db)

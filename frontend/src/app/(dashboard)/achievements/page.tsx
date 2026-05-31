@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCard } from "@/components/gamification/badge-card";
@@ -20,9 +20,7 @@ import {
  ResponsiveContainer,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { RoomCanvas, type RoomCanvasHandle } from "@/components/room/room-canvas";
-import { SceneHud } from "@/components/room/scene-hud";
-import { ShopPanel } from "@/components/room/shop-panel";
+import { RoomEditor } from "@/components/room/room-editor";
 import { AvatarBuilderPanel } from "@/components/avatar/avatar-builder-panel";
 import { AvatarCanvas } from "@/components/avatar/avatar-canvas";
 import { useRoomState } from "@/hooks/use-room";
@@ -215,11 +213,10 @@ export default function AchievementsPage() {
  );
 }
 
-/* ── Room Tab ── */
+/* ── Room Tab (freeform editor) ── */
 function RoomTab() {
  const { t } = useTranslation();
  const { data: state, isLoading, isError } = useRoomState();
- const canvasRef = useRef<RoomCanvasHandle | null>(null);
 
  if (isLoading) {
  return (
@@ -237,21 +234,7 @@ function RoomTab() {
  );
  }
 
- return (
- <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-0 lg:grid-cols-[1fr_380px]">
- <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
- <RoomCanvas ref={canvasRef} state={state} />
- <SceneHud
- onReset={() => canvasRef.current?.resetCamera()}
- onZoomIn={() => canvasRef.current?.zoomIn()}
- onZoomOut={() => canvasRef.current?.zoomOut()}
- />
- </div>
- <aside className="overflow-y-auto border-t border-ink-100 bg-paper-2 lg:border-l lg:border-t-0">
- <ShopPanel state={state} />
- </aside>
- </div>
- );
+ return <RoomEditor state={state} />;
 }
 
 /* ── Avatar Tab ── */
