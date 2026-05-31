@@ -32,6 +32,8 @@ def _translate(exc: TaskStatsError) -> HTTPException:
     code_to_status = {
         "not_found": status.HTTP_404_NOT_FOUND,
         "forbidden": status.HTTP_403_FORBIDDEN,
+        "invalid_range": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "range_too_long": status.HTTP_422_UNPROCESSABLE_ENTITY,
     }
     http_status = code_to_status.get(exc.code, status.HTTP_400_BAD_REQUEST)
     return HTTPException(
@@ -46,6 +48,12 @@ class SessionUpsertRequest(BaseModel):
     held: bool = True
     topic: str = Field(default="", max_length=500)
     notes: str | None = None
+
+
+class GenerateFromScheduleRequest(BaseModel):
+    course_id: uuid.UUID
+    from_date: date
+    to_date: date
 
 
 @router.get("/journal/sessions")
@@ -77,6 +85,25 @@ async def upsert_session(
             body.held,
             body.topic,
             body.notes,
+        )
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
+@router.post("/journal/generate-from-schedule")
+async def generate_from_schedule(
+    body: GenerateFromScheduleRequest,
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create journal days from the course's weekly timetable across a range."""
+    try:
+        return await journal_service.generate_from_schedule(
+            db,
+            user,
+            body.course_id,
+            body.from_date,
+            body.to_date,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc

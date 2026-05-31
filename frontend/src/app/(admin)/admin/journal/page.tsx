@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { BookOpenCheck, Loader2, Save } from "lucide-react";
+import { BookOpenCheck, CalendarClock, Loader2, Save } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
@@ -24,6 +24,7 @@ import {
   useJournalSessions,
   useJournalDay,
   useUpsertSession,
+  useGenerateFromSchedule,
   type DaySessionInfo,
 } from "@/lib/api/journal";
 
@@ -34,6 +35,12 @@ interface CourseOption {
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function isoPlusDays(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 export default function AdminJournalPage() {
@@ -53,6 +60,26 @@ export default function AdminJournalPage() {
   const sessionsQuery = useJournalSessions(courseId);
   const dayQuery = useJournalDay(courseId, selectedDate);
   const upsertMutation = useUpsertSession(courseId, selectedDate);
+  const generateMutation = useGenerateFromSchedule(courseId);
+
+  // Generate-from-schedule range (defaults: today .. today + 28 days).
+  const [genFrom, setGenFrom] = useState(todayISO());
+  const [genTo, setGenTo] = useState(isoPlusDays(28));
+
+  const handleGenerate = () => {
+    generateMutation.mutate(
+      { course_id: courseId, from_date: genFrom, to_date: genTo },
+      {
+        onSuccess: (res) =>
+          toast.success(
+            res.created > 0
+              ? t("journal.daysCreated").replace("{count}", String(res.created))
+              : t("journal.noDaysCreated"),
+          ),
+        onError: () => toast.error(t("journal.generateRangeTooLong")),
+      },
+    );
+  };
 
   // Session draft (held / topic / notes), hydrated from the day fetch using
   // the "adjust state during render" pattern (same as AttendanceMarker).
@@ -88,6 +115,13 @@ export default function AdminJournalPage() {
 
   const sessions = sessionsQuery.data?.sessions ?? [];
   const activity = dayQuery.data?.activity ?? [];
+  const scheduledSlots = dayQuery.data?.scheduled_slots ?? [];
+  const scheduledLabel = scheduledSlots
+    .map(
+      (s) =>
+        `${s.start_time}–${s.end_time}${s.location ? ` · ${s.location}` : ""}`,
+    )
+    .join(" · ");
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
@@ -136,6 +170,48 @@ export default function AdminJournalPage() {
         <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
           {/* Day list */}
           <div className="space-y-2">
+            {/* Generate days from the weekly schedule */}
+            <Card>
+              <CardContent className="space-y-2 p-3">
+                <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-subtle">
+                  <CalendarClock className="h-3.5 w-3.5 text-primary" />
+                  {t("journal.generateFromSchedule")}
+                </h2>
+                <div className="flex flex-wrap items-end gap-2">
+                  <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+                    {t("journal.from")}
+                    <input
+                      type="date"
+                      value={genFrom}
+                      onChange={(e) => setGenFrom(e.target.value)}
+                      className="rounded-lg border border-border-strong px-2 py-1.5 text-xs text-text"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+                    {t("journal.to")}
+                    <input
+                      type="date"
+                      value={genTo}
+                      onChange={(e) => setGenTo(e.target.value)}
+                      className="rounded-lg border border-border-strong px-2 py-1.5 text-xs text-text"
+                    />
+                  </label>
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={generateMutation.isPending}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                >
+                  {generateMutation.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CalendarClock className="h-3.5 w-3.5" />
+                  )}
+                  {t("journal.generate")}
+                </button>
+              </CardContent>
+            </Card>
+
             <h2 className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
               {t("journal.days")}
             </h2>
@@ -198,6 +274,17 @@ export default function AdminJournalPage() {
                 <h2 className="text-sm font-semibold text-text">
                   {t("journal.sessionSection")} · {selectedDate}
                 </h2>
+                {scheduledLabel ? (
+                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs text-text">
+                    <CalendarClock className="h-4 w-4 shrink-0 text-primary" />
+                    <span>
+                      <span className="font-semibold">
+                        {t("journal.scheduled")}:
+                      </span>{" "}
+                      {scheduledLabel}
+                    </span>
+                  </div>
+                ) : null}
                 <label className="flex items-center gap-2 text-sm text-text">
                   <input
                     type="checkbox"

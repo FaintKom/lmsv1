@@ -49,9 +49,27 @@ export interface DayActivityRow {
   assignments_done: number;
 }
 
+export interface ScheduledSlot {
+  start_time: string;
+  end_time: string;
+  location: string;
+}
+
 export interface DayResponse {
   session: DaySessionInfo | null;
+  scheduled_slots: ScheduledSlot[];
   activity: DayActivityRow[];
+}
+
+export interface GenerateFromScheduleRequest {
+  course_id: string;
+  from_date: string;
+  to_date: string;
+}
+
+export interface GenerateFromScheduleResponse {
+  created: number;
+  dates: string[];
 }
 
 export interface SessionUpsert {
@@ -93,6 +111,16 @@ export async function upsertSession(
   return data;
 }
 
+export async function generateFromSchedule(
+  body: GenerateFromScheduleRequest,
+): Promise<GenerateFromScheduleResponse> {
+  const { data } = await apiClient.post<GenerateFromScheduleResponse>(
+    "/journal/generate-from-schedule",
+    body,
+  );
+  return data;
+}
+
 // ── Query hooks ────────────────────────────────────────────────────────
 
 export function useJournalSessions(courseId: string) {
@@ -120,6 +148,17 @@ export function useUpsertSession(courseId: string, sessionDate: string) {
       qc.invalidateQueries({
         queryKey: ["journal", "day", courseId, sessionDate],
       });
+    },
+  });
+}
+
+export function useGenerateFromSchedule(courseId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: GenerateFromScheduleRequest) =>
+      generateFromSchedule(body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["journal", "sessions", courseId] });
     },
   });
 }

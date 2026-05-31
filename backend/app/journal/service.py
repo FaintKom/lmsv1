@@ -25,6 +25,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.analytics.task_stats_service import (
+    TaskStatsError,
     _authorize_course,
     require_stats_role,
 )
@@ -36,6 +37,11 @@ from app.courses.models import Lesson, Module
 from app.exercises.models import Exercise, ExerciseSubmission
 from app.journal.models import ClassSession
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
+from app.schedule.models import ScheduleSlot
+
+# Bound the work of generate-from-schedule so a teacher can't ask the backend
+# to walk an unbounded date range (one quarter is plenty for a "fill my term").
+MAX_GENERATE_SPAN_DAYS = 92
 
 
 def _day_bounds(day: date) -> tuple[datetime, datetime]:
@@ -58,6 +64,36 @@ def _session_dict(s: ClassSession | None) -> dict | None:
 
 def _empty_attendance() -> dict[str, int]:
     return {"present": 0, "late": 0, "absent": 0, "excused": 0, "total": 0}
+
+
+def _slot_dict(s: ScheduleSlot) -> dict[str, str]:
+    return {
+        "start_time": s.start_time.strftime("%H:%M"),
+        "end_time": s.end_time.strftime("%H:%M"),
+        "location": s.location or "",
+    }
+
+
+async def _scheduled_slots_for_day(
+    db: AsyncSession, course_id: uuid.UUID, day: date
+) -> list[dict[str, str]]:
+    """Active timetable slots for this course on ``day``'s weekday.
+
+    ``date.weekday()`` is Monday=0..Sunday=6 — the same convention as
+    ``ScheduleSlot.day_of_week`` — so no remapping is needed. One query, no N+1.
+    """
+    rows = (
+        await db.execute(
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.course_id == course_id,
+                ScheduleSlot.active.is_(True),
+                ScheduleSlot.day_of_week == day.weekday(),
+            )
+            .order_by(ScheduleSlot.start_time)
+        )
+    ).scalars().all()
+    return [_slot_dict(s) for s in rows]
 
 
 # ── Upsert ───────────────────────────────────────────────────────────────
@@ -180,6 +216,8 @@ async def get_day(
         )
     )
 
+    scheduled_slots = await _scheduled_slots_for_day(db, course_id, session_date)
+
     # Enrolled students of the course (id + name), stable ordering.
     student_rows = (
         await db.execute(
@@ -198,7 +236,11 @@ async def get_day(
 
     activity: list[dict] = []
     if not student_ids:
-        return {"session": _session_dict(session), "activity": activity}
+        return {
+            "session": _session_dict(session),
+            "scheduled_slots": scheduled_slots,
+            "activity": activity,
+        }
 
     start, end = _day_bounds(session_date)
 
@@ -243,7 +285,94 @@ async def get_day(
             }
         )
 
-    return {"session": _session_dict(session), "activity": activity}
+    return {
+        "session": _session_dict(session),
+        "scheduled_slots": scheduled_slots,
+        "activity": activity,
+    }
+
+
+# ── Generate days from the weekly schedule ─────────────────────────────────
+
+
+async def generate_from_schedule(
+    db: AsyncSession,
+    user: User,
+    course_id: uuid.UUID,
+    from_date: date,
+    to_date: date,
+) -> dict:
+    """Materialise journal rows from the timetable across a date range.
+
+    For each calendar date in ``[from_date, to_date]`` that has at least one
+    active :class:`ScheduleSlot` on its weekday and no existing
+    :class:`ClassSession`, create a held session (empty topic/notes). Existing
+    rows are never touched. Returns the count + ISO dates created.
+    """
+    require_stats_role(user)
+    course = await _authorize_course(db, user, course_id)
+
+    if to_date < from_date:
+        raise TaskStatsError("invalid_range", "to_date must be on or after from_date")
+    if (to_date - from_date).days + 1 > MAX_GENERATE_SPAN_DAYS:
+        raise TaskStatsError(
+            "range_too_long",
+            f"Range may span at most {MAX_GENERATE_SPAN_DAYS} days",
+        )
+
+    # Which weekdays have an active slot for this course? One query, then a set
+    # membership test per date — no per-date round-trip.
+    scheduled_weekdays = set(
+        (
+            await db.execute(
+                select(ScheduleSlot.day_of_week)
+                .where(
+                    ScheduleSlot.course_id == course_id,
+                    ScheduleSlot.active.is_(True),
+                )
+                .distinct()
+            )
+        ).scalars().all()
+    )
+
+    created_dates: list[str] = []
+    if not scheduled_weekdays:
+        return {"created": 0, "dates": created_dates}
+
+    # Dates in range that already have a journal row — fetched once.
+    existing_dates = set(
+        (
+            await db.execute(
+                select(ClassSession.session_date).where(
+                    ClassSession.course_id == course_id,
+                    ClassSession.session_date >= from_date,
+                    ClassSession.session_date <= to_date,
+                )
+            )
+        ).scalars().all()
+    )
+
+    day = from_date
+    while day <= to_date:
+        if day.weekday() in scheduled_weekdays and day not in existing_dates:
+            db.add(
+                ClassSession(
+                    org_id=course.org_id,
+                    course_id=course_id,
+                    session_date=day,
+                    held=True,
+                    topic="",
+                    notes=None,
+                    created_by=user.id,
+                )
+            )
+            created_dates.append(day.isoformat())
+        day += timedelta(days=1)
+
+    if created_dates:
+        await db.flush()
+
+    return {"created": len(created_dates), "dates": created_dates}
 
 
 async def _exercise_counts(
