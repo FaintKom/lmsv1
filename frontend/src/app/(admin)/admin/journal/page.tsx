@@ -14,7 +14,13 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { BookOpenCheck, CalendarClock, Loader2, Save } from "lucide-react";
+import {
+  BookOpenCheck,
+  CalendarClock,
+  Download,
+  Loader2,
+  Save,
+} from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
@@ -25,6 +31,7 @@ import {
   useJournalDay,
   useUpsertSession,
   useGenerateFromSchedule,
+  exportJournalCsv,
   type DaySessionInfo,
 } from "@/lib/api/journal";
 
@@ -79,6 +86,28 @@ export default function AdminJournalPage() {
         onError: () => toast.error(t("journal.generateRangeTooLong")),
       },
     );
+  };
+
+  // Export the register CSV over the same from/to range as generate.
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExportCsv = async () => {
+    if (!courseId) return;
+    setIsExporting(true);
+    try {
+      const blob = await exportJournalCsv(courseId, genFrom, genTo);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `journal-${genFrom}_${genTo}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("journal.exportFailed"));
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Session draft (held / topic / notes), hydrated from the day fetch using
@@ -208,6 +237,18 @@ export default function AdminJournalPage() {
                     <CalendarClock className="h-3.5 w-3.5" />
                   )}
                   {t("journal.generate")}
+                </button>
+                <button
+                  onClick={handleExportCsv}
+                  disabled={isExporting}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-border-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-ink-50 disabled:opacity-50"
+                >
+                  {isExporting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Download className="h-3.5 w-3.5" />
+                  )}
+                  {t("journal.exportCsv")}
                 </button>
               </CardContent>
             </Card>

@@ -10,7 +10,7 @@ from __future__ import annotations
 import uuid
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -107,6 +107,28 @@ async def generate_from_schedule(
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
+
+
+@router.get("/journal/export")
+async def export_register(
+    course_id: uuid.UUID = Query(...),
+    from_date: date = Query(...),
+    to_date: date = Query(...),
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Download a register CSV (sessions × enrolled students) over a range."""
+    try:
+        csv_text, filename = await journal_service.export_register_csv(
+            db, user, course_id, from_date, to_date
+        )
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/journal/day")

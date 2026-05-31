@@ -457,3 +457,154 @@ async def test_generate_from_schedule_cross_org_hidden(client, teacher, org, org
         headers=auth_header(other_admin),
     )
     assert resp.status_code == 404, resp.text
+
+
+# ── CSV export ───────────────────────────────────────────────────────────────
+
+
+def _parse_csv(text: str) -> list[list[str]]:
+    """Strip the UTF-8 BOM and parse the CSV body into rows."""
+    import csv as _csv
+    import io as _io
+
+    assert text.startswith("﻿"), "expected a UTF-8 BOM prefix"
+    return list(_csv.reader(_io.StringIO(text[1:])))
+
+
+@pytest.mark.asyncio
+async def test_export_csv_header_rows_and_attendance(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    # Two students; "Anna" sorts before "Boris" by full_name.
+    s1 = await _new_user(db, org, UserRole.student, suffix="anna")
+    s1.full_name = "Anna Student"
+    s2 = await _new_user(db, org, UserRole.student, suffix="boris")
+    s2.full_name = "Boris Student"
+    await db.flush()
+    await make_enrollment(db, course.id, s1.id)
+    await make_enrollment(db, course.id, s2.id)
+
+    # One session on DAY (Wed), held, with a topic.
+    db.add(ClassSession(
+        org_id=org.id, course_id=course.id, session_date=DAY,
+        held=True, topic="Intro, with comma",
+    ))
+    # Anna marked present with a note; Boris unmarked.
+    db.add(AttendanceRecord(
+        org_id=org.id, student_id=s1.id, course_id=course.id,
+        session_date=DAY, status=AttendanceStatus.present, note="On time",
+    ))
+    await db.flush()
+
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(course.id),
+            "from_date": DAY.isoformat(),
+            "to_date": DAY.isoformat(),
+        },
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.headers["content-type"].startswith("text/csv")
+    assert "attachment" in resp.headers["content-disposition"]
+    assert ".csv" in resp.headers["content-disposition"]
+
+    rows = _parse_csv(resp.text)
+    assert rows[0] == [
+        "Date", "Day of week", "Held", "Topic", "Student", "Attendance", "Note",
+    ]
+    # One session × two students → two data rows, ordered by name (Anna first).
+    assert len(rows) == 3
+    anna, boris = rows[1], rows[2]
+    assert anna == [
+        DAY.isoformat(), "Wed", "yes", "Intro, with comma",
+        "Anna Student", "present", "On time",
+    ]
+    # Boris has no attendance record → blank status + note.
+    assert boris == [
+        DAY.isoformat(), "Wed", "yes", "Intro, with comma",
+        "Boris Student", "", "",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_export_csv_no_sessions_header_only(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    student = await _new_user(db, org, UserRole.student)
+    await make_enrollment(db, course.id, student.id)
+
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(course.id),
+            "from_date": DAY.isoformat(),
+            "to_date": OTHER_DAY.isoformat(),
+        },
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    rows = _parse_csv(resp.text)
+    assert len(rows) == 1  # header only, no 404
+
+
+@pytest.mark.asyncio
+async def test_export_csv_rejects_bad_range(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+
+    # to < from.
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(course.id),
+            "from_date": OTHER_DAY.isoformat(),
+            "to_date": DAY.isoformat(),
+        },
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 422, resp.text
+
+    # span > 366 days.
+    start = date(2026, 1, 1)
+    too_far = start + timedelta(days=366)  # 367 days inclusive
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(course.id),
+            "from_date": start.isoformat(),
+            "to_date": too_far.isoformat(),
+        },
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 422, resp.text
+
+
+@pytest.mark.asyncio
+async def test_export_csv_rbac_and_org_isolation(client, teacher, org, org2, db):
+    colleague = await _new_user(db, org, UserRole.teacher, suffix="colleague")
+    course = await make_course(db, org, colleague)  # owned by colleague
+
+    # A teacher cannot export a colleague's course.
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(course.id),
+            "from_date": DAY.isoformat(),
+            "to_date": DAY.isoformat(),
+        },
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 403, resp.text
+
+    # Cross-org access is hidden as 404.
+    other_admin = await _new_user(db, org2, UserRole.admin, suffix="o2")
+    own_course = await make_course(db, org, teacher)
+    resp = await client.get(
+        "/api/v1/journal/export",
+        params={
+            "course_id": str(own_course.id),
+            "from_date": DAY.isoformat(),
+            "to_date": DAY.isoformat(),
+        },
+        headers=auth_header(other_admin),
+    )
+    assert resp.status_code == 404, resp.text

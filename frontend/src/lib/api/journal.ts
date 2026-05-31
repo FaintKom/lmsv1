@@ -121,6 +121,23 @@ export async function generateFromSchedule(
   return data;
 }
 
+/**
+ * Download the server-rendered register CSV (sessions × enrolled students)
+ * for a course over a date range. Returns the raw Blob so the caller can
+ * trigger a browser download.
+ */
+export async function exportJournalCsv(
+  courseId: string,
+  fromDate: string,
+  toDate: string,
+): Promise<Blob> {
+  const { data } = await apiClient.get<Blob>("/journal/export", {
+    params: { course_id: courseId, from_date: fromDate, to_date: toDate },
+    responseType: "blob",
+  });
+  return data;
+}
+
 // ── Query hooks ────────────────────────────────────────────────────────
 
 export function useJournalSessions(courseId: string) {

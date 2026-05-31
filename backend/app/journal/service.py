@@ -18,6 +18,8 @@ columns. Aggregation uses GROUP BY (no N+1), mirroring task_stats_service.
 """
 from __future__ import annotations
 
+import csv
+import io
 import uuid
 from datetime import date, datetime, time, timedelta, timezone
 
@@ -42,6 +44,24 @@ from app.schedule.models import ScheduleSlot
 # Bound the work of generate-from-schedule so a teacher can't ask the backend
 # to walk an unbounded date range (one quarter is plenty for a "fill my term").
 MAX_GENERATE_SPAN_DAYS = 92
+
+# Bound the export range to at most a year so a single request can't fan out
+# into an unbounded sessions × students grid.
+MAX_EXPORT_SPAN_DAYS = 366
+
+# Short English weekday labels (Monday=0..Sunday=6) — kept English on purpose:
+# the CSV is portable data, not UI, so its header/labels stay locale-stable.
+_WEEKDAY_LABELS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+_EXPORT_HEADER = (
+    "Date",
+    "Day of week",
+    "Held",
+    "Topic",
+    "Student",
+    "Attendance",
+    "Note",
+)
 
 
 def _day_bounds(day: date) -> tuple[datetime, datetime]:
@@ -373,6 +393,108 @@ async def generate_from_schedule(
         await db.flush()
 
     return {"created": len(created_dates), "dates": created_dates}
+
+
+# ── CSV register export ─────────────────────────────────────────────────────
+
+
+async def export_register_csv(
+    db: AsyncSession,
+    user: User,
+    course_id: uuid.UUID,
+    from_date: date,
+    to_date: date,
+) -> tuple[str, str]:
+    """Build an offline register CSV for a course over a date range.
+
+    One row per (held-or-not session × enrolled student) ordered by date then
+    student name. Columns: Date, Day of week, Held, Topic, Student, Attendance,
+    Note. All three sources (sessions, students, attendance) are fetched in a
+    single query each and joined in Python — no per-student/per-day round-trip.
+
+    Returns ``(csv_text, filename)``. The CSV text is prefixed with a UTF-8 BOM
+    so Excel detects the encoding; cells are quoted per RFC 4180 by ``csv``.
+    If no sessions fall in range, only the header row is returned.
+    """
+    require_stats_role(user)
+    course = await _authorize_course(db, user, course_id)
+
+    if to_date < from_date:
+        raise TaskStatsError("invalid_range", "to_date must be on or after from_date")
+    if (to_date - from_date).days + 1 > MAX_EXPORT_SPAN_DAYS:
+        raise TaskStatsError(
+            "range_too_long",
+            f"Range may span at most {MAX_EXPORT_SPAN_DAYS} days",
+        )
+
+    # Sessions in range, oldest first.
+    sessions = (
+        await db.execute(
+            select(ClassSession)
+            .where(
+                ClassSession.course_id == course_id,
+                ClassSession.session_date >= from_date,
+                ClassSession.session_date <= to_date,
+            )
+            .order_by(ClassSession.session_date)
+        )
+    ).scalars().all()
+
+    # Enrolled students (id + name), ordered by name — one query.
+    student_rows = (
+        await db.execute(
+            select(User.id, User.full_name)
+            .join(Enrollment, Enrollment.student_id == User.id)
+            .where(
+                Enrollment.course_id == course_id,
+                User.role == UserRole.student,
+                User.is_active.is_(True),
+            )
+            .distinct()
+            .order_by(User.full_name)
+        )
+    ).all()
+
+    # All attendance for the course in range — one query, indexed by
+    # (student_id, date) so we never query per student per day.
+    att_rows = (
+        await db.execute(
+            select(
+                AttendanceRecord.student_id,
+                AttendanceRecord.session_date,
+                AttendanceRecord.status,
+                AttendanceRecord.note,
+            ).where(
+                AttendanceRecord.course_id == course_id,
+                AttendanceRecord.org_id == course.org_id,
+                AttendanceRecord.session_date >= from_date,
+                AttendanceRecord.session_date <= to_date,
+            )
+        )
+    ).all()
+    att_by_key: dict[tuple[uuid.UUID, date], tuple[str, str]] = {}
+    for sid, sess_date, st, note in att_rows:
+        status_label = st.value if isinstance(st, AttendanceStatus) else str(st)
+        att_by_key[(sid, sess_date)] = (status_label, note or "")
+
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\r\n")
+    writer.writerow(_EXPORT_HEADER)
+    for s in sessions:
+        date_iso = s.session_date.isoformat()
+        weekday = _WEEKDAY_LABELS[s.session_date.weekday()]
+        held = "yes" if s.held else "no"
+        topic = s.topic or ""
+        for sid, name in student_rows:
+            status_label, note = att_by_key.get((sid, s.session_date), ("", ""))
+            writer.writerow(
+                [date_iso, weekday, held, topic, name or "", status_label, note]
+            )
+
+    csv_text = "﻿" + buf.getvalue()
+    slug = course.slug or str(course_id)
+    filename = f"journal-{slug}-{from_date.isoformat()}_{to_date.isoformat()}.csv"
+    return csv_text, filename
 
 
 async def _exercise_counts(
