@@ -421,22 +421,30 @@ async def delete_user_endpoint(
 @router.post("/users/{user_id}/password")
 async def reset_user_password_endpoint(
     user_id: uuid.UUID,
-    body: dict,
     admin: User = Depends(require_role(UserRole.admin)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Admin password reset for any user in the same org (or any user if super_admin).
+    """Trigger a password-reset email for a user in the same org (any user if super_admin).
 
-    Body: {"new_password": "..."} — must be >= 8 chars.
-    Returns {"ok": True} on success. Does NOT echo the new password back.
+    This deliberately does NOT set or return a plaintext password. Instead it
+    creates a one-time ``PasswordResetToken`` for the target user and emails
+    them a reset link (the same machinery as the self-service
+    ``/auth/forgot-password`` flow), so the new password is only ever known to
+    the user themselves.
+
+    RBAC: admin / super_admin only, org-isolated — a regular admin can only act
+    on users in their own org (``_user_org_filter``); super_admin can act on any
+    user. This preserves the previous authorization scope.
+
+    Returns ``{"email_sent": bool, "email": "..."}``. ``email_sent`` is False
+    when SMTP is not configured (``settings.email_enabled`` is off); the token
+    is still created so the caller can be told no email actually went out.
     """
-    from fastapi import HTTPException
+    from datetime import datetime, timedelta, timezone
 
-    from app.auth.security import hash_password
-
-    new_password = (body or {}).get("new_password", "")
-    if not isinstance(new_password, str) or len(new_password) < 8:
-        raise HTTPException(400, "new_password must be a string with at least 8 characters")
+    from app.auth.models import PasswordResetToken
+    from app.config import settings
+    from app.email.service import queue_email, send_password_reset
 
     query = select(User).where(User.id == user_id, *_user_org_filter(admin))
     result = await db.execute(query)
@@ -444,9 +452,33 @@ async def reset_user_password_endpoint(
     if not target:
         raise NotFoundError("User not found")
 
-    target.hashed_password = hash_password(new_password)
+    # Invalidate any outstanding reset tokens so only the freshly issued link is
+    # valid (mirrors /auth/forgot-password).
+    existing = await db.execute(
+        select(PasswordResetToken).where(
+            PasswordResetToken.user_id == target.id,
+            PasswordResetToken.used == False,  # noqa: E712
+        )
+    )
+    for t in existing.scalars().all():
+        t.used = True
+
+    token = str(uuid.uuid4())
+    db.add(
+        PasswordResetToken(
+            user_id=target.id,
+            token=token,
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        )
+    )
     await db.flush()
-    return {"ok": True}
+
+    email_sent = bool(settings.email_enabled)
+    if email_sent:
+        # Send off the request thread — failures are logged, never raised.
+        queue_email(send_password_reset, target.email, token)
+
+    return {"email_sent": email_sent, "email": target.email}
 
 
 @router.post("/enroll")

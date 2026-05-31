@@ -240,6 +240,179 @@ async def test_admin_cannot_delete_self(client: AsyncClient, admin):
     assert resp.status_code == 400
 
 
+# ─── Admin password reset (email link, no plaintext) ─────────────────────
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_sends_email_link(
+    client: AsyncClient, admin, student, db, monkeypatch
+):
+    """Admin reset creates a one-time token and triggers a reset email —
+    never returns or sets a plaintext password."""
+    from sqlalchemy import select
+
+    from app.auth.models import PasswordResetToken
+    from app.config import settings
+
+    # Pretend SMTP is configured so the endpoint reports email_sent=True and
+    # actually queues a send. Capture the send instead of hitting SMTP.
+    monkeypatch.setattr(settings, "email_enabled", True)
+    sent: list[tuple] = []
+    import app.email.service as email_service
+
+    def _fake_queue(func, *args, **kwargs):
+        sent.append((func.__name__, args, kwargs))
+
+    monkeypatch.setattr(email_service, "queue_email", _fake_queue)
+
+    resp = await client.post(
+        f"/api/v1/admin/users/{student.id}/password",
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["email_sent"] is True
+    assert body["email"] == student.email
+    # Response must NOT leak a password.
+    assert "new_password" not in body and "password" not in body
+
+    # A fresh, unused token now exists for the target user.
+    rows = (
+        await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.user_id == student.id,
+                PasswordResetToken.used == False,  # noqa: E712
+            )
+        )
+    ).scalars().all()
+    assert len(rows) == 1
+
+    # The reset email was queued with the token.
+    assert len(sent) == 1
+    fn_name, args, _ = sent[0]
+    assert fn_name == "send_password_reset"
+    assert args[0] == student.email
+    assert args[1] == rows[0].token
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_email_disabled_still_creates_token(
+    client: AsyncClient, admin, student, db, monkeypatch
+):
+    """With SMTP off, no email is sent but a token is still created and the
+    caller is told email_sent=False."""
+    from sqlalchemy import select
+
+    from app.auth.models import PasswordResetToken
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "email_enabled", False)
+
+    resp = await client.post(
+        f"/api/v1/admin/users/{student.id}/password",
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["email_sent"] is False
+
+    rows = (
+        await db.execute(
+            select(PasswordResetToken).where(PasswordResetToken.user_id == student.id)
+        )
+    ).scalars().all()
+    assert len(rows) == 1
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_invalidates_old_tokens(
+    client: AsyncClient, admin, student, db, monkeypatch
+):
+    """Issuing a new reset link marks any prior unused tokens as used."""
+    from datetime import datetime, timedelta, timezone
+
+    from sqlalchemy import select
+
+    from app.auth.models import PasswordResetToken
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "email_enabled", False)
+
+    stale = PasswordResetToken(
+        user_id=student.id,
+        token="stale-token-123",
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+    )
+    db.add(stale)
+    await db.flush()
+
+    resp = await client.post(
+        f"/api/v1/admin/users/{student.id}/password",
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+
+    refreshed = (
+        await db.execute(
+            select(PasswordResetToken).where(PasswordResetToken.token == "stale-token-123")
+        )
+    ).scalar_one()
+    assert refreshed.used is True
+
+    active = (
+        await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.user_id == student.id,
+                PasswordResetToken.used == False,  # noqa: E712
+            )
+        )
+    ).scalars().all()
+    assert len(active) == 1
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_super_admin_any_org(
+    client: AsyncClient, super_admin, admin2, monkeypatch
+):
+    """Super admin can reset a user in a different org."""
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "email_enabled", False)
+    resp = await client.post(
+        f"/api/v1/admin/users/{admin2.id}/password",
+        headers=auth_header(super_admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["email"] == admin2.email
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_cross_org_forbidden(
+    client: AsyncClient, admin, admin2, monkeypatch
+):
+    """A regular admin cannot reset a user belonging to another org (404)."""
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "email_enabled", False)
+    resp = await client.post(
+        f"/api/v1/admin/users/{admin2.id}/password",
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_admin_reset_password_student_and_teacher_forbidden(
+    client: AsyncClient, student, teacher
+):
+    """Students and teachers cannot use the admin reset endpoint."""
+    for actor in (student, teacher):
+        resp = await client.post(
+            f"/api/v1/admin/users/{student.id}/password",
+            headers=auth_header(actor),
+        )
+        assert resp.status_code == 403
+
+
 @pytest.mark.asyncio
 async def test_student_cannot_manage_users(client: AsyncClient, student):
     resp = await client.get("/api/v1/admin/users", headers=auth_header(student))

@@ -92,18 +92,20 @@ export default function AdminUsersPage() {
  };
 
  const handleResetPassword = async (userId: string, email: string) => {
- const pwd = window.prompt(
- t("admin.users.passwordResetPrompt").replace("{email}", email),
- ""
- );
- if (!pwd) return;
- if (pwd.length < 8) {
- toast.error(t("admin.users.passwordMinChars"));
+ if (
+ !(await confirm({
+ message: t("admin.users.passwordResetConfirm").replace("{email}", email),
+ confirmLabel: t("admin.users.sendResetLink"),
+ }))
+ )
  return;
- }
  try {
- await apiClient.post(`/admin/users/${userId}/password`, { new_password: pwd });
- toast.success(t("admin.users.passwordResetFor").replace("{email}", email));
+ const { data } = await apiClient.post(`/admin/users/${userId}/password`);
+ if (data?.email_sent === false) {
+ toast.error(t("admin.users.passwordResetEmailDisabled"));
+ } else {
+ toast.success(t("admin.users.passwordResetLinkSent").replace("{email}", email));
+ }
  } catch (err) {
  toast.error(describeError(err, t("admin.users.failedResetPassword")));
  }
