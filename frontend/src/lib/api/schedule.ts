@@ -19,6 +19,8 @@ export interface ScheduleSlot {
   location: string;
   note: string;
   active: boolean;
+  is_online: boolean;
+  room_url: string | null;
 }
 
 export interface SlotsResponse {
@@ -32,6 +34,7 @@ export interface SlotCreate {
   end_time: string;
   location?: string;
   note?: string;
+  is_online?: boolean;
 }
 
 export interface SlotUpdate {
@@ -41,6 +44,7 @@ export interface SlotUpdate {
   location?: string;
   note?: string;
   active?: boolean;
+  is_online?: boolean;
 }
 
 // ── Raw API functions ──────────────────────────────────────────────────

@@ -2340,6 +2340,8 @@ const en: TranslationMap = {
  "schedule.day.4": "Friday",
  "schedule.day.5": "Saturday",
  "schedule.day.6": "Sunday",
+ "schedule.online": "Online (Jitsi)",
+ "schedule.joinOnline": "Join online",
 };
 
 const es: TranslationMap = {
@@ -4607,6 +4609,8 @@ const es: TranslationMap = {
  "schedule.day.4": "Viernes",
  "schedule.day.5": "Sábado",
  "schedule.day.6": "Domingo",
+ "schedule.online": "En línea (Jitsi)",
+ "schedule.joinOnline": "Unirse en línea",
 };
 
 const ru: TranslationMap = {
@@ -6884,6 +6888,8 @@ const ru: TranslationMap = {
  "schedule.day.4": "Пятница",
  "schedule.day.5": "Суббота",
  "schedule.day.6": "Воскресенье",
+ "schedule.online": "Онлайн (Jitsi)",
+ "schedule.joinOnline": "Подключиться онлайн",
 };
 
 const tr: TranslationMap = {
@@ -9154,6 +9160,8 @@ const tr: TranslationMap = {
  "schedule.day.4": "Cuma",
  "schedule.day.5": "Cumartesi",
  "schedule.day.6": "Pazar",
+ "schedule.online": "Çevrimiçi (Jitsi)",
+ "schedule.joinOnline": "Çevrimiçi katıl",
 };
 
 const de: TranslationMap = {
@@ -11483,6 +11491,8 @@ const de: TranslationMap = {
  "schedule.day.4": "Freitag",
  "schedule.day.5": "Samstag",
  "schedule.day.6": "Sonntag",
+ "schedule.online": "Online (Jitsi)",
+ "schedule.joinOnline": "Online beitreten",
 };
 
 const uk: TranslationMap = {
@@ -13812,6 +13822,8 @@ const uk: TranslationMap = {
  "schedule.day.4": "П’ятниця",
  "schedule.day.5": "Субота",
  "schedule.day.6": "Неділя",
+ "schedule.online": "Онлайн (Jitsi)",
+ "schedule.joinOnline": "Приєднатися онлайн",
 };
 
 export const translations: Record<Locale, TranslationMap> = { en, es, ru, tr, de, uk };

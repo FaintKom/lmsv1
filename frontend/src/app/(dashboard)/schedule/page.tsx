@@ -1,17 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { CalendarClock, Loader2, MapPin } from "lucide-react";
+import { CalendarClock, Loader2, MapPin, Video } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
+import { buildJoinUrl } from "@/lib/meetings";
+import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMySchedule, type ScheduleSlot } from "@/lib/api/schedule";
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
+const HOST_ROLES = new Set(["teacher", "admin", "super_admin"]);
+
 export default function StudentSchedulePage() {
   const { t } = useTranslation();
   const { data, isLoading } = useMySchedule();
+  const user = useAuthStore((s) => s.user);
+  const isHost = !!user && HOST_ROLES.has(user.role);
 
   const byDay = useMemo(() => {
     const map: Record<number, ScheduleSlot[]> = {
@@ -71,6 +77,20 @@ export default function StudentSchedulePage() {
                         <MapPin className="h-3 w-3" />
                         {slot.location}
                       </span>
+                    )}
+                    {slot.is_online && slot.room_url && (
+                      <a
+                        href={buildJoinUrl(slot.room_url, {
+                          displayName: user?.full_name,
+                          isHost,
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover"
+                      >
+                        <Video className="h-3.5 w-3.5" />
+                        {t("schedule.joinOnline")}
+                      </a>
                     )}
                   </CardContent>
                 </Card>

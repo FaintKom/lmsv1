@@ -52,6 +52,7 @@ class ScheduleSlotCreate(BaseModel):
     end_time: time
     location: str = Field(default="", max_length=255)
     note: str = Field(default="", max_length=500)
+    is_online: bool = False
 
 
 class ScheduleSlotUpdate(BaseModel):
@@ -61,6 +62,7 @@ class ScheduleSlotUpdate(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     note: str | None = Field(default=None, max_length=500)
     active: bool | None = None
+    is_online: bool | None = None
 
 
 @router.get("/week")
@@ -116,6 +118,7 @@ async def create_slot(
             end_time=data.end_time,
             location=data.location,
             note=data.note,
+            is_online=data.is_online,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
@@ -140,6 +143,7 @@ async def update_slot(
             location=data.location,
             note=data.note,
             active=data.active,
+            is_online=data.is_online,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc

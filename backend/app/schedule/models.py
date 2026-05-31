@@ -39,6 +39,12 @@ class ScheduleSlot(Base, IDMixin, TimestampMixin):
     location: Mapped[str] = mapped_column(String(255), nullable=False, default="")
     note: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # When True the slot meets online via a derived Jitsi room (no stored URL;
+    # the room is deterministically derived from the slot id — see
+    # schedule.service.slot_room_url).
+    is_online: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
 
     __table_args__ = (
         Index("ix_schedule_slots_org_course", "org_id", "course_id"),

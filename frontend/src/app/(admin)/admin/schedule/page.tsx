@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CalendarClock, Loader2, MapPin, Pencil, Plus, Trash2, X } from "lucide-react";
+import { CalendarClock, Loader2, MapPin, Pencil, Plus, Trash2, Video, X } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { useTranslation } from "@/lib/i18n/context";
+import { buildJoinUrl } from "@/lib/meetings";
+import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   useCreateSlot,
@@ -14,6 +16,8 @@ import {
   useUpdateSlot,
   type ScheduleSlot,
 } from "@/lib/api/schedule";
+
+const HOST_ROLES = new Set(["teacher", "admin", "super_admin"]);
 
 interface CourseOption {
   id: string;
@@ -29,6 +33,7 @@ interface FormState {
   end_time: string;
   location: string;
   note: string;
+  is_online: boolean;
 }
 
 const EMPTY_FORM: FormState = {
@@ -38,10 +43,13 @@ const EMPTY_FORM: FormState = {
   end_time: "10:00",
   location: "",
   note: "",
+  is_online: false,
 };
 
 export default function AdminSchedulePage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const isHost = !!user && HOST_ROLES.has(user.role);
 
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -86,6 +94,7 @@ export default function AdminSchedulePage() {
       end_time: slot.end_time,
       location: slot.location,
       note: slot.note,
+      is_online: slot.is_online,
     });
   };
 
@@ -107,6 +116,7 @@ export default function AdminSchedulePage() {
             end_time: form.end_time,
             location: form.location,
             note: form.note,
+            is_online: form.is_online,
           },
         },
         {
@@ -126,6 +136,7 @@ export default function AdminSchedulePage() {
           end_time: form.end_time,
           location: form.location,
           note: form.note,
+          is_online: form.is_online,
         },
         {
           onSuccess: () => {
@@ -247,6 +258,17 @@ export default function AdminSchedulePage() {
                 className="min-w-[8rem] rounded-lg border border-border-strong px-3 py-2 text-sm"
               />
             </label>
+            <label className="flex items-center gap-2 pb-2 text-xs text-text-muted">
+              <input
+                type="checkbox"
+                checked={form.is_online}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, is_online: e.target.checked }))
+                }
+                className="h-4 w-4 rounded border-border-strong"
+              />
+              {t("schedule.online")}
+            </label>
             <div className="flex items-center gap-2">
               <button
                 type="submit"
@@ -305,6 +327,20 @@ export default function AdminSchedulePage() {
                           <MapPin className="h-3 w-3" />
                           {slot.location}
                         </div>
+                      )}
+                      {slot.is_online && slot.room_url && (
+                        <a
+                          href={buildJoinUrl(slot.room_url, {
+                            displayName: user?.full_name,
+                            isHost,
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                        >
+                          <Video className="h-3 w-3" />
+                          {t("schedule.joinOnline")}
+                        </a>
                       )}
                       <div className="flex gap-2 pt-1">
                         <button

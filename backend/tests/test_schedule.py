@@ -1,11 +1,24 @@
 """Weekly timetable (schedule) tests: CRUD, validation, RBAC, org isolation."""
+from sqlalchemy import func, select
+
 from app.auth.models import UserRole
+from app.notifications.models import Notification
 from tests.conftest import (
     _make_user,
     auth_header,
     make_course,
     make_enrollment,
 )
+
+
+async def _notif_count(db, user_id) -> int:
+    return (
+        await db.execute(
+            select(func.count(Notification.id)).where(
+                Notification.user_id == user_id
+            )
+        )
+    ).scalar() or 0
 
 
 def _slot_body(course_id, **over):
@@ -261,3 +274,140 @@ async def test_teacher_my_returns_own_course_slots(client, db, org, teacher):
     r = await client.get("/api/v1/schedule/my", headers=auth_header(teacher))
     assert r.status_code == 200, r.text
     assert len(r.json()["slots"]) == 1
+
+
+# ── online (Jitsi) slots ────────────────────────────────────────────────────
+
+
+async def test_offline_slot_has_no_room_url(client, db, org, teacher):
+    course = await make_course(db, org, teacher)
+    r = await client.post(
+        "/api/v1/schedule", json=_slot_body(course.id), headers=auth_header(teacher)
+    )
+    assert r.status_code == 201, r.text
+    slot = r.json()
+    assert slot["is_online"] is False
+    assert slot["room_url"] is None
+
+
+async def test_online_slot_round_trips_with_room_url(client, db, org, teacher):
+    course = await make_course(db, org, teacher)
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, is_online=True),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+    slot = r.json()
+    assert slot["is_online"] is True
+    assert slot["room_url"] == f"https://meet.jit.si/grasslms-slot-{slot['id'].replace('-', '')[:12]}"
+
+    # Reflected by the listing endpoints too.
+    listed = (
+        await client.get(
+            "/api/v1/schedule",
+            params={"course_id": str(course.id)},
+            headers=auth_header(teacher),
+        )
+    ).json()["slots"]
+    assert listed[0]["is_online"] is True
+    assert listed[0]["room_url"] == slot["room_url"]
+
+
+async def test_update_can_toggle_online(client, db, org, teacher):
+    course = await make_course(db, org, teacher)
+    created = (
+        await client.post(
+            "/api/v1/schedule", json=_slot_body(course.id), headers=auth_header(teacher)
+        )
+    ).json()
+    assert created["is_online"] is False
+
+    r = await client.put(
+        f"/api/v1/schedule/{created['id']}",
+        json={"is_online": True},
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["is_online"] is True
+    assert r.json()["room_url"] is not None
+
+
+# ── schedule-change notifications ───────────────────────────────────────────
+
+
+async def test_create_notifies_enrolled_students(client, db, org, teacher):
+    course = await make_course(db, org, teacher)
+    s1 = await _enrolled_student(db, org, course, 1)
+    s2 = await _enrolled_student(db, org, course, 2)
+
+    r = await client.post(
+        "/api/v1/schedule", json=_slot_body(course.id), headers=auth_header(teacher)
+    )
+    assert r.status_code == 201, r.text
+
+    assert await _notif_count(db, s1.id) == 1
+    assert await _notif_count(db, s2.id) == 1
+    # Notification points at the schedule page.
+    notif = (
+        await db.execute(
+            select(Notification).where(Notification.user_id == s1.id)
+        )
+    ).scalar_one()
+    assert notif.link == "/schedule"
+    assert course.title in notif.body
+
+
+async def test_update_and_delete_notify_enrolled_students(client, db, org, teacher):
+    course = await make_course(db, org, teacher)
+    s1 = await _enrolled_student(db, org, course, 1)
+
+    created = (
+        await client.post(
+            "/api/v1/schedule", json=_slot_body(course.id), headers=auth_header(teacher)
+        )
+    ).json()
+    assert await _notif_count(db, s1.id) == 1  # from create
+
+    r = await client.put(
+        f"/api/v1/schedule/{created['id']}",
+        json={"location": "Lab B"},
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 200, r.text
+    assert await _notif_count(db, s1.id) == 2  # + update
+
+    r = await client.delete(
+        f"/api/v1/schedule/{created['id']}", headers=auth_header(teacher)
+    )
+    assert r.status_code == 204, r.text
+    assert await _notif_count(db, s1.id) == 3  # + delete
+
+
+async def test_non_enrolled_student_not_notified(client, db, org, teacher):
+    enrolled_course = await make_course(db, org, teacher)
+    other_course = await make_course(db, org, teacher)
+    enrolled = await _enrolled_student(db, org, enrolled_course, 1)
+    # A student enrolled only in a DIFFERENT course.
+    bystander = await _enrolled_student(db, org, other_course, 2)
+
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(enrolled_course.id),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+
+    assert await _notif_count(db, enrolled.id) == 1
+    assert await _notif_count(db, bystander.id) == 0
+
+
+async def test_notify_does_not_break_other_org(client, db, org, org2, teacher, admin2):
+    """RBAC + org isolation unchanged; cross-org write still hidden as 404."""
+    other_course = await make_course(db, org2, admin2)
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(other_course.id),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 404, r.text

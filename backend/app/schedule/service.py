@@ -14,6 +14,7 @@ and "my" queries JOIN the course title in a single statement (no N+1).
 """
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import time
 
@@ -28,8 +29,22 @@ from app.analytics.task_stats_service import (
 )
 from app.auth.models import User, UserRole
 from app.courses.models import Course
+from app.email.service import queue_email, send_schedule_change
+from app.notifications.service import create_notification
 from app.progress.models import Enrollment
 from app.schedule.models import ScheduleSlot
+
+logger = logging.getLogger(__name__)
+
+
+def slot_room_url(slot_id: uuid.UUID) -> str:
+    """Derive the Jitsi Meet room URL for an online slot.
+
+    Mirrors ``meetings.service.generate_room_url`` but namespaced with a
+    ``-slot-`` segment so a slot room never collides with a live-meeting room.
+    The URL is deterministic (derived from the slot id), so nothing is stored.
+    """
+    return f"https://meet.jit.si/grasslms-slot-{slot_id.hex[:12]}"
 
 
 def _fmt_time(t: time | None) -> str | None:
@@ -49,6 +64,8 @@ def _slot_to_dict(slot: ScheduleSlot, course_title: str | None = None) -> dict:
         "location": slot.location or "",
         "note": slot.note or "",
         "active": slot.active,
+        "is_online": slot.is_online,
+        "room_url": slot_room_url(slot.id) if slot.is_online else None,
     }
 
 
@@ -127,6 +144,62 @@ async def my_schedule(db: AsyncSession, user: User) -> list[dict]:
     return [_slot_to_dict(slot, title) for slot, title in rows]
 
 
+# ── Change notifications ───────────────────────────────────────────────────
+
+
+async def _notify_schedule_change(db: AsyncSession, course: Course, change: str) -> None:
+    """Notify the course's enrolled students that its schedule changed.
+
+    ``change`` ∈ {"created", "updated", "removed"}. For each active enrolled
+    student we (1) create an in-app notification and (2) best-effort queue an
+    email. Recipients are fetched in a single JOIN (no N+1). Email is queued
+    via ``queue_email`` which is fully best-effort: it runs off the event loop
+    and swallows/logs any failure, and ``_send_email`` no-ops when
+    ``EMAIL_ENABLED`` is false — so notifying never breaks the CRUD request.
+
+    Notification text is concise English and is NOT localized (matching how
+    existing notifications store plain text).
+    """
+    rows = (
+        await db.execute(
+            select(User.id, User.email, User.full_name)
+            .join(Enrollment, Enrollment.student_id == User.id)
+            .where(
+                Enrollment.course_id == course.id,
+                User.role == UserRole.student,
+                User.is_active.is_(True),
+                User.email.isnot(None),
+            )
+        )
+    ).all()
+
+    verb = {
+        "created": "added to",
+        "updated": "updated for",
+        "removed": "removed from",
+    }.get(change, "updated for")
+    title = "Schedule updated"
+    body = f"The class schedule was {verb} {course.title}."
+
+    for user_id, email, full_name in rows:
+        await create_notification(
+            db,
+            user_id=user_id,
+            title=title,
+            body=body,
+            link="/schedule",
+        )
+        if email:
+            # Best-effort, never fatal: queue_email runs off-loop and logs
+            # failures; the send no-ops when EMAIL_ENABLED is false.
+            try:
+                queue_email(send_schedule_change, email, full_name or "", course.title)
+            except Exception:  # pragma: no cover - defensive, queue is non-throwing
+                logger.warning(
+                    "Failed to queue schedule-change email for %s", email
+                )
+
+
 # ── Writes ───────────────────────────────────────────────────────────────
 
 
@@ -140,6 +213,7 @@ async def create_slot(
     end_time: time,
     location: str = "",
     note: str = "",
+    is_online: bool = False,
 ) -> dict:
     require_stats_role(user)
     _validate_slot_fields(day_of_week, start_time, end_time)
@@ -154,9 +228,11 @@ async def create_slot(
         location=location or "",
         note=note or "",
         active=True,
+        is_online=bool(is_online),
     )
     db.add(slot)
     await db.flush()
+    await _notify_schedule_change(db, course, "created")
     return _slot_to_dict(slot, course.title)
 
 
@@ -182,6 +258,7 @@ async def update_slot(
     location: str | None = None,
     note: str | None = None,
     active: bool | None = None,
+    is_online: bool | None = None,
 ) -> dict:
     require_stats_role(user)
     slot = await _get_authorized_slot(db, user, slot_id)
@@ -200,17 +277,21 @@ async def update_slot(
         slot.note = note
     if active is not None:
         slot.active = active
+    if is_online is not None:
+        slot.is_online = is_online
     db.add(slot)
     await db.flush()
 
-    course_title = await db.scalar(
-        select(Course.title).where(Course.id == slot.course_id)
-    )
-    return _slot_to_dict(slot, course_title)
+    course = await db.scalar(select(Course).where(Course.id == slot.course_id))
+    await _notify_schedule_change(db, course, "updated")
+    return _slot_to_dict(slot, course.title if course else None)
 
 
 async def delete_slot(db: AsyncSession, user: User, slot_id: uuid.UUID) -> None:
     require_stats_role(user)
     slot = await _get_authorized_slot(db, user, slot_id)
+    course = await db.scalar(select(Course).where(Course.id == slot.course_id))
     await db.delete(slot)
     await db.flush()
+    if course is not None:
+        await _notify_schedule_change(db, course, "removed")

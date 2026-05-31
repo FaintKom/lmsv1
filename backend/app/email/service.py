@@ -215,6 +215,24 @@ def send_grade_notification(to_email: str, student_name: str, assignment_title: 
     return _send_email(to_email, f"Grade: {assignment_title}", _base_template(content))
 
 
+def send_schedule_change(to_email: str, student_name: str, course_title: str) -> bool:
+    """Notify an enrolled student that a course's class schedule changed."""
+    greeting = f"Hi {student_name}, " if student_name else ""
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Class schedule updated</h2>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      {greeting}your class schedule has changed for:
+    </p>
+    <div style="background-color:#f1f5f9;border-radius:8px;padding:16px;margin:0 0 16px;">
+      <p style="margin:0;color:#1e293b;font-size:16px;font-weight:600;">{course_title}</p>
+    </div>
+    <a href="{settings.app_url}/schedule" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      Check your schedule
+    </a>
+    """
+    return _send_email(to_email, f"Schedule updated: {course_title}", _base_template(content))
+
+
 def send_deadline_reminder(to_email: str, student_name: str, assignment_title: str, due_date: str) -> bool:
     """Remind student about upcoming deadline."""
     content = f"""

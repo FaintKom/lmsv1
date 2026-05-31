@@ -176,6 +176,9 @@ async def _run_setup():
             "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
             "CREATE INDEX IF NOT EXISTS ix_quiz_submissions_quiz_student ON quiz_submissions (quiz_id, student_id)",
             "CREATE INDEX IF NOT EXISTS ix_assignment_submissions_assignment_student ON assignment_submissions (assignment_id, student_id)",
+            # Optional Jitsi online slot (migration a7b8c9d0e1f2). create_all does
+            # NOT add columns to an existing table, so prod relies on this fallback.
+            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS is_online boolean NOT NULL DEFAULT false",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
