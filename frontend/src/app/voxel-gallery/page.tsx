@@ -19,7 +19,7 @@
  * Visit: /voxel-gallery            (all)
  *        /voxel-gallery?pack=consoles
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import * as THREE from "three";
 
@@ -34,7 +34,7 @@ interface ManifestItem {
 const CELL_W = 220;
 const CELL_H = 240;
 
-export default function VoxelGalleryPage() {
+function VoxelGalleryInner() {
   const params = useSearchParams();
   const packFilter = params?.get("pack") ?? null;
 
@@ -200,5 +200,13 @@ export default function VoxelGalleryPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function VoxelGalleryPage() {
+  return (
+    <Suspense fallback={null}>
+      <VoxelGalleryInner />
+    </Suspense>
   );
 }

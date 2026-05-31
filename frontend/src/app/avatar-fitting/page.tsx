@@ -19,7 +19,7 @@
  *
  * Visit: /avatar-fitting?cat=hair&view=three
  */
-import { useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import * as THREE from "three";
 
@@ -113,7 +113,7 @@ const VIEW_ANGLE: Record<View, { theta: number; phi: number }> = {
 const CELL_W = 240;
 const CELL_H = 300;
 
-export default function AvatarFittingPage() {
+function AvatarFittingInner() {
   const params = useSearchParams();
   const cat = params?.get("cat") ?? "bodies";
   const view = (params?.get("view") as View) ?? "three";
@@ -239,5 +239,13 @@ export default function AvatarFittingPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function AvatarFittingPage() {
+  return (
+    <Suspense fallback={null}>
+      <AvatarFittingInner />
+    </Suspense>
   );
 }
