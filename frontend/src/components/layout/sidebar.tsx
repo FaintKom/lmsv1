@@ -31,6 +31,7 @@ import {
  MessagesSquare,
  FolderKanban,
  CalendarCheck,
+ BookOpenCheck,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -105,6 +106,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isMenuVisible("peer_review") ? [{ href: "/admin/peer-review", label: t("nav.peerReview"), icon: MessagesSquare }] : []),
  ...(isMenuVisible("team_projects") ? [{ href: "/admin/team-projects", label: t("nav.teamProjects"), icon: FolderKanban }] : []),
  ...(isMenuVisible("attendance") ? [{ href: "/admin/attendance", label: t("nav.attendance"), icon: CalendarCheck }] : []),
+ ...(isMenuVisible("journal") ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }] : []),
  ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
  ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
