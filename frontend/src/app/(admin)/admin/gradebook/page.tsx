@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -258,7 +259,13 @@ export default function GradebookPage() {
  className={idx % 2 === 0 ? "bg-paper-2 " : "bg-surface-2/50 "}
  >
  <td className="sticky left-0 z-10 bg-inherit px-4 py-2.5 font-medium text-text ">
- <div className="truncate max-w-[200px]">{s.full_name}</div>
+ <Link
+ href={`/admin/students/${s.id}`}
+ title={t("admin.studentProfile.viewProfile")}
+ className="truncate max-w-[200px] block text-primary underline-offset-2 hover:underline"
+ >
+ {s.full_name}
+ </Link>
  <div className="truncate text-[11px] text-text-subtle ">{s.email}</div>
  </td>
  {data.columns.map((col) => {

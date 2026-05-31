@@ -25,6 +25,10 @@ from app.admin.analytics_service import (
 )
 from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.admin.service import get_dashboard_stats, get_detailed_analytics
+from app.admin.student_profile_service import (
+    StudentProfileError,
+    get_student_profile,
+)
 from app.auth.dependencies import require_role
 from app.auth.models import Organization, User, UserRole
 from app.auth.schemas import UserResponse
@@ -1306,6 +1310,39 @@ async def export_analytics_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=analytics_export.csv"},
     )
+
+
+# ─── Student Profile ─────────────────────────────────────────────────────
+
+
+@router.get("/students/{student_id}/profile")
+async def student_profile_endpoint(
+    student_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Aggregated single-student profile for staff.
+
+    Returns identity, per-course enrollments + progress, a submissions summary
+    across exercises/quizzes/assignments (counts, avg score, pass rate, avg
+    attempts, avg time) plus the recent-N submissions, gamification (xp/streak/
+    badges), and certificates.
+
+    RBAC (enforced in ``student_profile_service._authorize_student``):
+      - teacher → only students enrolled in one of the teacher's own courses
+      - methodist / admin → any student in their org
+      - super_admin → any student, any org
+      - cross-org (non-super) → 404 (existence hidden)
+      - student / parent → 403 (cannot reach this route — require_role blocks
+        them — and the service double-guards)
+    """
+    try:
+        return await get_student_profile(db, user, student_id)
+    except StudentProfileError as exc:
+        status_code = {"forbidden": 403, "not_found": 404, "bad_request": 400}.get(
+            exc.code, 400
+        )
+        raise HTTPException(status_code, detail=exc.message) from exc
 
 
 # ─── Gradebook ─────────────────────────────────────────────────────────
