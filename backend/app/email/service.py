@@ -124,6 +124,40 @@ def send_email_verification(to_email: str, full_name: str, token: str) -> bool:
     return _send_email(to_email, "Verify your GrassLMS email", _base_template(content))
 
 
+def send_parental_consent_request(parent_email: str, child_name: str, token: str) -> bool:
+    """Email a parent/guardian a verifiable-consent link for a minor's signup.
+
+    The link lands on the frontend consent page which POSTs the token to
+    /auth/parental-consent/confirm. Until the parent clicks it, the child's
+    account stays inactive (consent-pending).
+    """
+    consent_url = f"{settings.app_url}/parental-consent?token={token}"
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">A child wants to use GrassLMS</h2>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      Someone signed up for a GrassLMS learning account using the name
+      <strong>{child_name}</strong> and listed this address as their parent or
+      legal guardian. Because they are under the age at which they can consent on
+      their own, a parent or guardian must approve the account before it can be
+      used.
+    </p>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      If you are {child_name}'s parent or guardian and you agree to them using
+      GrassLMS, please confirm below. This link expires in 7 days.
+    </p>
+    <a href="{consent_url}" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      Grant Consent
+    </a>
+    <p style="margin:16px 0 0;color:#94a3b8;font-size:12px;">
+      If you did not expect this, or you do not consent, simply ignore this email
+      and the account will remain inactive.
+    </p>
+    """
+    return _send_email(
+        parent_email, "Parental consent needed for a GrassLMS account", _base_template(content)
+    )
+
+
 def send_password_reset(to_email: str, token: str) -> bool:
     """Send password reset email."""
     reset_url = f"{settings.app_url}/reset-password?token={token}"

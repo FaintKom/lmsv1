@@ -19,6 +19,7 @@ from app.auth.schemas import (
     ChangePasswordRequest,
     DeleteAccountRequest,
     LoginRequest,
+    ParentConsentConfirmRequest,
     RefreshRequest,
     RegisterRequest,
     ResendVerificationRequest,
@@ -34,7 +35,12 @@ from app.auth.security import (
     hash_password,
     verify_password,
 )
-from app.auth.service import authenticate, get_user_by_id, register
+from app.auth.service import (
+    authenticate,
+    confirm_parental_consent,
+    get_user_by_id,
+    register,
+)
 from app.common.exceptions import BadRequestError
 from app.common.rate_limit import limiter
 from app.config import settings
@@ -81,7 +87,7 @@ async def search_organizations(
     return [{"id": str(o.id), "name": o.name, "slug": o.slug} for o in orgs]
 
 
-@router.post("/register", response_model=TokenResponse)
+@router.post("/register")
 @limiter.limit(lambda: settings.auth_register_rate_limit)
 async def register_endpoint(
     request: Request,
@@ -89,7 +95,28 @@ async def register_endpoint(
     data: RegisterRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    user, org, org_was_created = await register(db, data)
+    user, org, org_was_created, consent_token = await register(db, data)
+
+    # Age gate: a minor account is created consent-pending (inactive, no tokens).
+    # Email the verifiable-consent link to the parent and return a pending
+    # payload — the frontend shows an "awaiting parental consent" screen and the
+    # student cannot log in until the parent clicks the link (account inactive).
+    if consent_token is not None:
+        try:
+            from app.email.service import queue_email, send_parental_consent_request
+            queue_email(
+                send_parental_consent_request,
+                consent_token.parent_email, user.full_name, consent_token.token,
+            )
+        except Exception:
+            pass
+        pending_user = UserResponse.model_validate(user)
+        pending_user.parental_consent_pending = True
+        return {
+            "parental_consent_pending": True,
+            "parent_email": consent_token.parent_email,
+            "user": pending_user.model_dump(),
+        }
 
     # Seed a demo course into the brand-new org so the admin lands on a
     # populated dashboard instead of an empty one. Best effort: failures
@@ -155,6 +182,32 @@ async def register_endpoint(
         refresh_token=refresh_token,
         user=UserResponse.model_validate(user),
     )
+
+
+@router.post("/parental-consent/confirm")
+@limiter.limit("10/hour")
+async def parental_consent_confirm_endpoint(
+    request: Request,
+    response: Response,
+    data: ParentConsentConfirmRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Parent clicks the emailed link → record verifiable consent + activate.
+
+    Single-hop confirmation: validates the token, sets the child's
+    parental_consent_at, links the parent (ParentChild + parental_consent_by),
+    and flips the child account active so they can log in. Rejects invalid,
+    already-used, or expired tokens with 400.
+
+    NOTE: this is a STARTING implementation of verifiable consent (email
+    confirmation to a self-asserted parent address). It is not a legal-compliance
+    guarantee — have a lawyer review the required verification strength.
+    """
+    child = await confirm_parental_consent(db, data.token)
+    return {
+        "message": "Parental consent confirmed. The student can now sign in.",
+        "student_id": str(child.id),
+    }
 
 
 class DemoLoginRequest(BaseModel):

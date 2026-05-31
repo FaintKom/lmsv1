@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     # (app/scheduler.py). 0 disables the purge. Default 24 months.
     data_retention_months: int = 24
 
+    # Age gate / verifiable parental consent (GDPR Art. 8). A NEW student whose
+    # self-reported date of birth puts them below this age cannot self-consent —
+    # registration creates a consent-pending (inactive) account and emails a
+    # verifiable-consent link to the parent/guardian. Germany's digital-consent
+    # age is 16 (the GDPR default; member states may set it 13–16). Override per
+    # deployment via env. Starting implementation, not legal advice.
+    digital_consent_age: int = 16
+
     # Stripe
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""

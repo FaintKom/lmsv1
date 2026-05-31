@@ -3,6 +3,7 @@ import io
 import secrets
 import string
 import uuid
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
@@ -36,6 +37,25 @@ from app.common.exceptions import NotFoundError
 from app.db.session import get_db
 
 router = APIRouter()
+
+
+def _parse_iso_dob(value) -> date | None:
+    """Best-effort parse of an optional ISO (YYYY-MM-DD) date of birth.
+
+    Returns None for empty / unparseable input so bulk import never fails a row
+    purely because of a malformed optional DOB — the field is supplementary, the
+    teacher attestation is the consent basis.
+    """
+    from datetime import datetime
+
+    if not value:
+        return None
+    if isinstance(value, date):
+        return value
+    try:
+        return datetime.strptime(str(value).strip(), "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return None
 
 
 # ─── Organization Management ──────────────────────────────────────────
@@ -643,6 +663,11 @@ async def admin_bulk_enroll_endpoint(
         email = (raw_row.get("email") or "").strip().lower()
         full_name = (raw_row.get("full_name") or raw_row.get("name") or "").strip()
         password = (raw_row.get("password") or default_password).strip()
+        # Age gate: optional per-row DOB (ISO YYYY-MM-DD). Backward-compatible —
+        # rows without it behave exactly as before. When present we record it on
+        # the account; the teacher attestation (parental_consent checkbox above)
+        # remains the consent basis for the school-mediated import path.
+        dob = _parse_iso_dob(raw_row.get("date_of_birth") or raw_row.get("dob"))
 
         if not email or not email_re.match(email):
             errors.append({"row": row_num, "email": email, "message": "Invalid email"})
@@ -696,6 +721,9 @@ async def admin_bulk_enroll_endpoint(
                     # Bulk-imported students are vouched for by the admin —
                     # auto-verified, same policy as invite-link registration.
                     email_verified_at=datetime.now(timezone.utc),
+                    # Recorded when provided; consent basis is the teacher's
+                    # attestation, so a minor here is not blocked.
+                    date_of_birth=dob,
                 )
                 db.add(user_row)
                 await db.flush()
@@ -818,6 +846,9 @@ async def bulk_import_students(
         email = row.get("email", "").lower()
         name = row.get("name") or row.get("full_name") or ""
         password = row.get("password", "")
+        # Optional DOB column (ISO YYYY-MM-DD). Backward-compatible: CSVs without
+        # it are unaffected. Teacher attestation remains the consent basis.
+        dob = _parse_iso_dob(row.get("date_of_birth") or row.get("dob"))
 
         if not email:
             errors.append(f"Row {row_num}: missing email")
@@ -871,6 +902,7 @@ async def bulk_import_students(
                 parental_consent_by=user.id,
                 last_active_at=datetime.now(timezone.utc),
                 email_verified_at=datetime.now(timezone.utc),
+                date_of_birth=dob,
             )
             db.add(new_user)
             await db.flush()

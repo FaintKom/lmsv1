@@ -22,6 +22,14 @@ interface User {
  org_branding?: OrgBranding;
 }
 
+// Result of register(): for a minor account the backend returns a
+// consent-pending payload with NO session tokens — the caller shows an
+// "awaiting parental consent" screen instead of redirecting into the app.
+export interface RegisterResult {
+ parental_consent_pending?: boolean;
+ parent_email?: string;
+}
+
 interface AuthState {
  user: User | null;
  branding: OrgBranding;
@@ -37,7 +45,9 @@ interface AuthState {
  role: string;
  consent_accepted?: boolean;
  parental_consent_accepted?: boolean;
- }) => Promise<void>;
+ date_of_birth?: string;
+ parent_email?: string;
+ }) => Promise<RegisterResult>;
  logout: () => void;
  fetchUser: () => Promise<void>;
 }
@@ -65,10 +75,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
  register: async (registerData) => {
  const { data } = await apiClient.post("/auth/register/", registerData);
+ // Minor account: no session issued — surface the pending state and DO NOT
+ // store tokens or mark the user authenticated.
+ if (data.parental_consent_pending) {
+ return {
+ parental_consent_pending: true,
+ parent_email: data.parent_email,
+ };
+ }
  localStorage.setItem("access_token", data.access_token);
  localStorage.setItem("refresh_token", data.refresh_token);
  const branding = data.user?.org_branding || DEFAULT_BRANDING;
  set({ user: data.user, branding, isAuthenticated: true, isLoading: false });
+ return {};
  },
 
  logout: () => {

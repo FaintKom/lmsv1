@@ -38,10 +38,34 @@ function RegisterForm() {
  role: "teacher" as "teacher" | "student",
  consent: false,
  parentalConsent: false,
+ date_of_birth: "",
+ parent_email: "",
  });
  const [error, setError] = useState("");
  const [loading, setLoading] = useState(false);
  const [inviteOrg, setInviteOrg] = useState<OrgOption | null>(null);
+ // Age gate (GDPR Art. 8 / German digital-consent age, default 16). Mirrors the
+ // backend settings.digital_consent_age. When the entered DOB makes the student
+ // a minor we reveal a parent-email field and route through verifiable consent.
+ const CONSENT_AGE = 16;
+ // Set once the parent-consent email has been queued so we can show the
+ // "awaiting parental consent" screen instead of redirecting into a session.
+ const [pendingParentEmail, setPendingParentEmail] = useState<string | null>(null);
+
+ const ageFromDob = (iso: string): number | null => {
+ if (!iso) return null;
+ const dob = new Date(iso);
+ if (Number.isNaN(dob.getTime())) return null;
+ const now = new Date();
+ let age = now.getFullYear() - dob.getFullYear();
+ const m = now.getMonth() - dob.getMonth();
+ if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+ return age;
+ };
+
+ const enteredAge = ageFromDob(form.date_of_birth);
+ const isMinor =
+ form.role === "student" && enteredAge !== null && enteredAge < CONSENT_AGE;
 
  // Org search state (for invite links)
  const [orgSearch, setOrgSearch] = useState("");
@@ -87,7 +111,14 @@ function RegisterForm() {
  setError(t("consent.required"));
  return;
  }
- if (form.role === "student" && !form.parentalConsent) {
+ // Minors route through verifiable parental consent: require a parent email
+ // and skip the self-attestation checkbox requirement (the parent confirms
+ // by email instead). Adult/unknown-age students keep the checkbox path.
+ if (isMinor && !form.parent_email.trim()) {
+ setError(t("consent.parentEmailRequired"));
+ return;
+ }
+ if (form.role === "student" && !isMinor && !form.parentalConsent) {
  setError(t("consent.parentalRequired"));
  return;
  }
@@ -95,11 +126,19 @@ function RegisterForm() {
  setLoading(true);
 
  try {
- await register({
+ const result = await register({
  ...form,
  consent_accepted: form.consent,
  parental_consent_accepted: form.parentalConsent,
+ date_of_birth: form.date_of_birth || undefined,
+ parent_email: isMinor ? form.parent_email : undefined,
  });
+ // Minor account is consent-pending: no session was issued. Show the
+ // "awaiting parental consent" screen instead of redirecting.
+ if (result?.parental_consent_pending) {
+ setPendingParentEmail(result.parent_email || form.parent_email);
+ return;
+ }
  if (form.role === "student") {
  router.push("/dashboard");
  } else {
@@ -116,6 +155,31 @@ function RegisterForm() {
 
  const update = (field: string, value: string) =>
  setForm((prev) => ({ ...prev, [field]: value }));
+
+ // Awaiting-parental-consent screen: shown after a minor signs up. The account
+ // exists but is inactive until the parent clicks the emailed link.
+ if (pendingParentEmail) {
+ return (
+ <div className="text-center">
+ <h1 className="mb-3 text-2xl font-bold text-text">
+ {t("consent.pendingTitle")}
+ </h1>
+ <p className="mb-4 text-sm text-text-muted">
+ {t("consent.pendingBody")}{" "}
+ <strong className="text-text">{pendingParentEmail}</strong>
+ </p>
+ <p className="mb-6 text-sm text-text-muted">
+ {t("consent.pendingHint")}
+ </p>
+ <Link
+ href="/login"
+ className="font-medium text-primary hover:text-success-fg"
+ >
+ {t("auth.signInLink")}
+ </Link>
+ </div>
+ );
+ }
 
  return (
  <div>
@@ -222,6 +286,47 @@ function RegisterForm() {
  </div>
 
  {form.role === "student" && (
+ <div>
+ <label htmlFor="reg-dob" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ {t("auth.dateOfBirth")}
+ </label>
+ <Input
+ id="reg-dob"
+ type="date"
+ value={form.date_of_birth}
+ onChange={(e) => update("date_of_birth", e.target.value)}
+ max={new Date().toISOString().split("T")[0]}
+ />
+ <p className="mt-1 text-xs text-text-muted">
+ {t("auth.dateOfBirthHelp")}
+ </p>
+ </div>
+ )}
+
+ {/* Minor: collect a parent/guardian email for verifiable consent. */}
+ {isMinor && (
+ <div className="rounded-lg border border-primary-soft bg-primary-soft/40 p-4">
+ <p className="mb-3 text-sm text-text-muted">
+ {t("consent.minorNotice")}
+ </p>
+ <label htmlFor="reg-parent-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ {t("auth.parentEmail")}
+ </label>
+ <Input
+ id="reg-parent-email"
+ type="email"
+ value={form.parent_email}
+ onChange={(e) => update("parent_email", e.target.value)}
+ placeholder="parent@example.com"
+ required
+ aria-required="true"
+ />
+ </div>
+ )}
+
+ {/* Self-attestation checkbox only for adult/unknown-age students;
+ minors are consented by their parent via the email link instead. */}
+ {form.role === "student" && !isMinor && (
  <div className="flex items-start gap-2">
  <input
  id="reg-parental-consent"

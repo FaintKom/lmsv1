@@ -157,6 +157,11 @@ async def _run_setup():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_at TIMESTAMP WITH TIME ZONE",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_by UUID",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP WITH TIME ZONE",
+            # Age gate + verifiable parental consent (migration x1y2z3a4b5c6).
+            # date_of_birth is NULL for existing rows (treated as adult/unknown,
+            # never locked out). The parent_consent_tokens table itself is created
+            # by Base.metadata.create_all from the model import below.
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth DATE",
             # Phase 1 task statistics for methodists: per-attempt time-on-task +
             # attempt number on exercise submissions (migration e3f4a5b6c7d8).
             "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",

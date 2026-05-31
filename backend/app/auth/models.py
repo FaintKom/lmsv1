@@ -1,12 +1,26 @@
 import enum
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, IDMixin, TimestampMixin
+
+
+def compute_age(dob: date | None, on: date | None = None) -> int | None:
+    """Return age in completed years for a date of birth.
+
+    Returns None when `dob` is None — existing accounts predate DOB collection
+    and must be treated as "unknown age" (i.e. not locked out, not forced
+    through the minor flow). `on` defaults to today's date.
+    """
+    if dob is None:
+        return None
+    if on is None:
+        on = datetime.now().date()
+    return on.year - dob.year - ((on.month, on.day) < (dob.month, dob.day))
 
 
 class UserRole(str, enum.Enum):
@@ -71,6 +85,12 @@ class User(Base, IDMixin, TimestampMixin):
     email_verified_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Age gate (GDPR Art. 8 / German digital-consent age). Collected for NEW
+    # student registrations so minors can be routed through verifiable parental
+    # consent. NULL for every pre-existing account and for self-registering
+    # staff — `compute_age(None)` returns None and such users are treated as
+    # adult/unknown so they are never locked out (backward-compatible).
+    date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     organization: Mapped["Organization"] = relationship(back_populates="users")
 
@@ -166,3 +186,35 @@ class RefreshToken(Base, IDMixin, TimestampMixin):
     # Optional audit info so we can show "active sessions" in future UI
     user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
     ip_address: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class ParentConsentToken(Base, IDMixin, TimestampMixin):
+    """Verifiable parental-consent token (GDPR Art. 8).
+
+    Issued when a NEW student registration self-reports a date of birth below
+    the digital-consent age (settings.digital_consent_age). The token is emailed
+    to the parent/guardian as a single-hop link; clicking it
+    (POST /auth/parental-consent/confirm) records verifiable consent: it sets
+    the child's `parental_consent_at`, links the parent via `ParentChild` +
+    `parental_consent_by`, and activates the (until-then inactive) child account.
+
+    This is a *starting* implementation of verifiable consent — email
+    confirmation by a self-asserted parent address. It is NOT a legal compliance
+    guarantee; a lawyer should review the chosen verification strength.
+    """
+
+    __tablename__ = "parent_consent_tokens"
+
+    # The child (student) awaiting consent.
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    # The parent/guardian email the consent request was sent to.
+    parent_email: Mapped[str] = mapped_column(String(255), nullable=False)
+    token: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Set when the parent clicks the link, mirrors users.parental_consent_at.
+    confirmed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )

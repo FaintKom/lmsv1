@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -15,9 +15,18 @@ class RegisterRequest(BaseModel):
     role: str = "teacher"  # "teacher" or "student"
     consent_accepted: bool = False
     # Child safety: for a student account the invite-holder attests that
-    # verifiable parental consent was obtained offline (school-mediated model,
-    # no DOB collected). Required when role == "student".
+    # verifiable parental consent was obtained offline (school-mediated model).
+    # Still accepted (backward-compatible). When date_of_birth shows the student
+    # is below settings.digital_consent_age, this self-attestation is NOT enough
+    # — the account is created consent-pending and a verifiable-consent email is
+    # sent to parent_email instead.
     parental_consent_accepted: bool = False
+    # Age gate. Optional & backward-compatible: omitting it preserves the legacy
+    # self-attestation path (the user is treated as adult/unknown age).
+    date_of_birth: date | None = None
+    # Required only when the DOB makes the student a minor; the verifiable
+    # consent request is emailed here.
+    parent_email: EmailStr | None = None
 
     @field_validator("full_name")
     @classmethod
@@ -25,6 +34,12 @@ class RegisterRequest(BaseModel):
         if contains_profanity(v):
             raise ValueError("Name contains inappropriate language")
         return v
+
+
+class ParentConsentConfirmRequest(BaseModel):
+    """Body for POST /auth/parental-consent/confirm — token from the email."""
+
+    token: str
 
 
 class LoginRequest(BaseModel):
@@ -56,6 +71,11 @@ class UserResponse(BaseModel):
     created_at: datetime | None = None
     consent_accepted_at: datetime | None = None
     email_verified_at: datetime | None = None
+    # True when this is a minor account still awaiting verifiable parental
+    # consent: the account exists but is inactive until the parent clicks the
+    # emailed link. The frontend uses this to show an "awaiting consent" screen
+    # instead of a normal session. Computed in the router (not a column).
+    parental_consent_pending: bool = False
 
     model_config = {"from_attributes": True}
 
