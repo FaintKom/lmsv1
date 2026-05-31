@@ -44,7 +44,6 @@ from app.analytics.task_stats_router import router as task_stats_router
 from app.assessments.router import router as assessments_router
 from app.assignments.router import router as assignments_router
 from app.attendance.router import router as attendance_router
-from app.journal.router import router as journal_router
 from app.auth.router import router as auth_router
 from app.billing.router import router as billing_router
 from app.calendar.router import router as calendar_router
@@ -56,6 +55,7 @@ from app.export.router import router as export_router
 from app.feedback.router import router as feedback_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
+from app.journal.router import router as journal_router
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
