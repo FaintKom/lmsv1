@@ -46,9 +46,10 @@ function formatDuration(seconds: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+// API returns pass_rate / completion_rate as 0–1 fractions, so scale to %.
 function formatPercent(value: number | null): string {
   if (value == null || Number.isNaN(value)) return "—";
-  return `${Number(value).toFixed(0)}%`;
+  return `${(Number(value) * 100).toFixed(0)}%`;
 }
 
 function formatNumber(value: number | null, digits = 1): string {
@@ -132,7 +133,7 @@ export function TaskPerformanceWidget({ props }: WidgetProps) {
           csvCell(r.task_type),
           csvCell(r.total_submissions),
           csvCell(r.unique_students),
-          csvCell(r.pass_rate == null ? "" : Number(r.pass_rate).toFixed(1)),
+          csvCell(r.pass_rate == null ? "" : `${(Number(r.pass_rate) * 100).toFixed(0)}%`),
           csvCell(r.avg_attempts == null ? "" : Number(r.avg_attempts).toFixed(2)),
           csvCell(formatDuration(r.avg_time_spent_seconds)),
           csvCell(r.success_count),
@@ -140,7 +141,7 @@ export function TaskPerformanceWidget({ props }: WidgetProps) {
           csvCell(
             r.completion_rate == null
               ? ""
-              : Number(r.completion_rate).toFixed(1),
+              : `${(Number(r.completion_rate) * 100).toFixed(0)}%`,
           ),
         ].join(","),
       ),
@@ -321,9 +322,9 @@ export function TaskPerformanceWidget({ props }: WidgetProps) {
                   ) : (
                     <span
                       className={
-                        row.pass_rate < 50
+                        row.pass_rate < 0.5
                           ? "text-danger"
-                          : row.pass_rate < 75
+                          : row.pass_rate < 0.75
                             ? "text-warning"
                             : "text-success"
                       }

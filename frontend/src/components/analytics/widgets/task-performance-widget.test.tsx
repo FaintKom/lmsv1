@@ -30,11 +30,11 @@ const SAMPLE: CourseTaskStats = {
       unique_students: 25,
       success_count: 40,
       failure_count: 10,
-      pass_rate: 80,
+      pass_rate: 0.8, // API returns 0–1 fractions
       avg_attempts: 1.4,
       avg_time_spent_seconds: 95, // → "1:35"
       median_time_spent_seconds: 80,
-      completion_rate: 83.3,
+      completion_rate: 0.833,
     },
     {
       task_id: "bbbbbbbb-0000-0000-0000-000000000002",
@@ -46,7 +46,7 @@ const SAMPLE: CourseTaskStats = {
       unique_students: 18,
       success_count: 8,
       failure_count: 12,
-      pass_rate: 40,
+      pass_rate: 0.4, // API returns 0–1 fractions
       avg_attempts: 2.1,
       avg_time_spent_seconds: null,
       median_time_spent_seconds: null,
