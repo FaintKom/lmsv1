@@ -13,11 +13,18 @@ from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.attendance.models import AttendanceRecord, AttendanceStatus
-from app.auth.dependencies import require_role
+from app.attendance.service import authorize_course, enrolled_students
+from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
+from app.courses.models import Course
 from app.db.session import get_db
 
 router = APIRouter()
+
+# Roles allowed to mark/manage attendance (roster, bulk upsert, summary).
+# Methodists are admin/teacher users with ``is_methodist`` set, so they pass
+# this gate; the org-vs-own-course scoping is enforced in the service layer.
+_MANAGER_ROLES = (UserRole.admin, UserRole.teacher)
 
 
 class AttendanceMark(BaseModel):
@@ -35,7 +42,7 @@ class BulkAttendanceMark(BaseModel):
 @router.post("/attendance")
 async def mark_attendance(
     data: BulkAttendanceMark,
-    teacher: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    teacher: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
     """Mark attendance for one or more students in one call."""
@@ -58,6 +65,11 @@ async def mark_attendance(
             except ValueError:
                 raise HTTPException(400, f"Invalid course_id: {rec.course_id}") from None
 
+        course_filter = (
+            AttendanceRecord.course_id == course_uuid
+            if course_uuid is not None
+            else AttendanceRecord.course_id.is_(None)
+        )
         existing = (
             await db.execute(
                 select(AttendanceRecord).where(
@@ -65,7 +77,7 @@ async def mark_attendance(
                         AttendanceRecord.student_id == student_uuid,
                         AttendanceRecord.session_date == rec.session_date,
                         AttendanceRecord.org_id == teacher.org_id,
-                        AttendanceRecord.course_id == course_uuid if course_uuid else True,
+                        course_filter,
                     )
                 )
             )
@@ -98,7 +110,7 @@ async def list_attendance(
     session_date: date | None = Query(None),
     course_id: str | None = Query(None),
     student_id: str | None = Query(None),
-    teacher: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    teacher: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
     """Query attendance records for the teacher's org."""
@@ -132,7 +144,7 @@ async def list_attendance(
 @router.get("/attendance/summary")
 async def attendance_summary(
     course_id: str | None = Query(None),
-    teacher: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    teacher: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
     """Per-student attendance summary (count by status)."""
@@ -153,4 +165,112 @@ async def attendance_summary(
         summary[sid][status_key] = summary[sid].get(status_key, 0) + 1
         summary[sid]["total"] += 1
 
+    # Attach display names so the UI can label rows without a second request.
+    names: dict[str, str] = {}
+    if summary:
+        name_rows = (
+            await db.execute(
+                select(User.id, User.full_name).where(
+                    User.id.in_([uuid.UUID(s) for s in summary])
+                )
+            )
+        ).all()
+        names = {str(uid): full_name for uid, full_name in name_rows}
+    for sid, counts in summary.items():
+        counts["student_name"] = names.get(sid, "")  # type: ignore[assignment]
+
     return {"summary": summary}
+
+
+@router.get("/attendance/roster")
+async def attendance_roster(
+    course_id: str = Query(...),
+    session_date: date = Query(...),
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Enrolled students of a course, pre-filled with any existing record.
+
+    For the given (course, date) each row carries the student's current
+    ``status`` and ``note`` (or ``None`` if not yet marked) so the marking
+    grid can hydrate. Authorization mirrors peer-review: teachers see only
+    their own courses, methodists/admins their whole org, super_admin anything.
+    """
+    try:
+        course_uuid = uuid.UUID(course_id)
+    except ValueError:
+        raise HTTPException(400, f"Invalid course_id: {course_id}") from None
+
+    course: Course = await authorize_course(db, user, course_uuid)
+    students = await enrolled_students(db, course_uuid)
+
+    existing_rows = (
+        await db.execute(
+            select(AttendanceRecord).where(
+                AttendanceRecord.course_id == course_uuid,
+                AttendanceRecord.session_date == session_date,
+                AttendanceRecord.org_id == course.org_id,
+            )
+        )
+    ).scalars().all()
+    by_student = {str(r.student_id): r for r in existing_rows}
+
+    roster = []
+    for sid, full_name in students:
+        rec = by_student.get(str(sid))
+        roster.append(
+            {
+                "student_id": str(sid),
+                "student_name": full_name,
+                "status": (
+                    rec.status.value
+                    if rec and hasattr(rec.status, "value")
+                    else (str(rec.status) if rec else None)
+                ),
+                "note": rec.note if rec else None,
+            }
+        )
+
+    return {
+        "course_id": str(course_uuid),
+        "session_date": session_date.isoformat(),
+        "roster": roster,
+    }
+
+
+@router.get("/attendance/my")
+async def my_attendance(
+    student: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """The current user's own attendance records, newest first.
+
+    Lets students (and their parents) see their own attendance history.
+    Org-scoped and locked to ``student_id == user.id`` so no one reads
+    another learner's record here.
+    """
+    rows = (
+        await db.execute(
+            select(AttendanceRecord, Course.title)
+            .outerjoin(Course, Course.id == AttendanceRecord.course_id)
+            .where(
+                AttendanceRecord.student_id == student.id,
+                AttendanceRecord.org_id == student.org_id,
+            )
+            .order_by(AttendanceRecord.session_date.desc())
+            .limit(500)
+        )
+    ).all()
+    return {
+        "records": [
+            {
+                "id": str(r.id),
+                "course_id": str(r.course_id) if r.course_id else None,
+                "course_title": course_title,
+                "session_date": r.session_date.isoformat() if r.session_date else None,
+                "status": r.status.value if hasattr(r.status, "value") else str(r.status),
+                "note": r.note,
+            }
+            for r, course_title in rows
+        ]
+    }
