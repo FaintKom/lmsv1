@@ -73,18 +73,25 @@ export default function GradebookPage() {
  .finally(() => setLoadingCourses(false));
  }, []);
 
- useEffect(() => {
- if (!courseId) {
+ // Selecting a course resets the grid and (re)loads it. Driving the fetch from
+ // the change handler — the place the course change is triggered — keeps it out
+ // of an effect, avoiding the set-state-in-effect anti-pattern. Behaviour is
+ // unchanged: clear old data, show the loading skeleton, then populate (or
+ // clear on error / empty selection).
+ const selectCourse = (nextCourseId: string) => {
+ setCourseId(nextCourseId);
  setData(null);
+ if (!nextCourseId) {
+ setLoading(false);
  return;
  }
  setLoading(true);
  apiClient
- .get(`/admin/gradebook?course_id=${courseId}`)
+ .get(`/admin/gradebook?course_id=${nextCourseId}`)
  .then(({ data }) => setData(data))
  .catch(() => setData(null))
  .finally(() => setLoading(false));
- }, [courseId]);
+ };
 
  const handleExport = () => {
  if (!courseId) return;
@@ -179,7 +186,7 @@ export default function GradebookPage() {
  <div className="mb-6">
  <select
  value={courseId}
- onChange={(e) => setCourseId(e.target.value)}
+ onChange={(e) => selectCourse(e.target.value)}
  className="rounded-lg border border-border-strong bg-paper-2 px-4 py-2.5 text-sm text-text focus:border-primary focus:outline-none "
  >
  <option value="">{t("admin.gradebook.selectCoursePlaceholder")}</option>
