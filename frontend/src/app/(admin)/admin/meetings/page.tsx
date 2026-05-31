@@ -7,11 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from "@/stores/auth-store";
 import { Video, Plus, X, Loader2, ExternalLink, StopCircle } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
+import { buildJoinUrl } from "@/lib/meetings";
 import type { Meeting } from "@/types/api";
+
+const HOST_ROLES = new Set(["teacher", "admin", "super_admin"]);
 
 export default function AdminMeetingsPage() {
  const user = useAuthStore((s) => s.user);
  const { t } = useTranslation();
+ const isHostOf = (m: Meeting) =>
+ !!user && (user.id === m.created_by || HOST_ROLES.has(user.role));
  const [meetings, setMeetings] = useState<Meeting[]>([]);
  const [loading, setLoading] = useState(true);
  const [showForm, setShowForm] = useState(false);
@@ -145,12 +150,12 @@ export default function AdminMeetingsPage() {
  </div>
  <div className="mt-3 flex gap-2">
  <a
- href={m.room_url}
+ href={buildJoinUrl(m.room_url, { displayName: user?.full_name, isHost: isHostOf(m) })}
  target="_blank"
  rel="noopener noreferrer"
  className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover"
  >
- <ExternalLink className="h-3.5 w-3.5" /> {t("meet.join")}
+ <ExternalLink className="h-3.5 w-3.5" /> {isHostOf(m) ? t("meet.startAsHost") : t("meet.join")}
  </a>
  <button
  onClick={() => handleEnd(m.id)}
@@ -159,6 +164,9 @@ export default function AdminMeetingsPage() {
  <StopCircle className="h-3.5 w-3.5" /> {t("meet.end")}
  </button>
  </div>
+ {isHostOf(m) && (
+ <p className="mt-2 text-xs text-text-subtle">{t("meet.hostHint")}</p>
+ )}
  </CardContent>
  </Card>
  ))}

@@ -527,13 +527,17 @@ export default function CourseEditorPage() {
  downloadBlob(data as Blob, `${slug}-teacher.pdf`);
  toast.success("Course PDF downloaded");
  } catch (e) {
- const err = e as { response?: { status?: number; data?: { detail?: string } } };
- if (err.response?.status === 503) {
- toast.error(
- "PDF export not yet enabled on the server (Playwright needs to be installed)."
- );
+ const err = e as { response?: { status?: number } };
+ const status = err.response?.status;
+ // 503 = server has no Playwright/Chromium (the prod image is
+ // intentionally lean). A missing response object means the request
+ // never landed (network failure / server unreachable). Both are
+ // non-actionable for the user, so steer them to the always-available
+ // JSON export rather than surfacing a raw error/stack.
+ if (status === 503 || !err.response) {
+ toast.error(t("admin.courseEdit.pdfExportUnavailable"));
  } else {
- toast.error(err.response?.data?.detail || "PDF export failed");
+ toast.error(t("admin.courseEdit.pdfExportFailed"));
  }
  }
  };
