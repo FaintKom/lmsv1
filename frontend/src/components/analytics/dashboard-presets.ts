@@ -48,7 +48,6 @@ const METHODIST_WIDGETS: DashboardWidget[] = [
   { id: "kpi-1", type: "kpi-tile", x: 8, y: 0, w: 4, h: 5, props: { days: 30 } },
   { id: "exdiff-1", type: "exercise-difficulty", x: 0, y: 5, w: 8, h: 5, props: {} },
   { id: "act-1", type: "activity-timeline", x: 8, y: 5, w: 4, h: 4, props: { days: 30 } },
-  { id: "kcov-1", type: "knowledge-coverage", x: 0, y: 10, w: 4, h: 5, props: { facet: "stage", limit: 8 } },
   { id: "taskperf-1", type: "task-performance", x: 0, y: 15, w: 8, h: 6, props: {} },
 ];
 

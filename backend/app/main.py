@@ -39,7 +39,6 @@ if settings.sentry_dsn:
     except Exception as e:
         logging.getLogger(__name__).warning(f"Sentry init failed: {e}")
 from app.admin.router import router as admin_router
-from app.ai.router import router as ai_router
 from app.analytics.router import router as analytics_router
 from app.analytics.task_stats_router import router as task_stats_router
 from app.assessments.router import router as assessments_router
@@ -56,8 +55,6 @@ from app.export.router import router as export_router
 from app.feedback.router import router as feedback_router
 from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
-
-# from app.knowledge.router import router as knowledge_router  # disabled: pgvector binary missing on prod DB, re-enable after server fix
 from app.learning_paths.router import router as learning_paths_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
@@ -67,7 +64,6 @@ from app.notifications.router import router as notifications_router
 from app.orgs.router import router as orgs_router
 from app.parent.router import router as parent_router
 from app.peer_review.router import router as peer_review_router
-from app.plagiarism.router import router as plagiarism_router
 from app.progress.router import router as progress_router
 from app.recommendations.router import router as recommendations_router
 from app.recording.router import router as recording_router
@@ -325,7 +321,6 @@ async def lifespan(app: FastAPI):
     import app.billing.models  # noqa
     import app.sandbox.models  # noqa
     import app.submissions.models  # noqa
-    import app.discussions.models  # noqa
     import app.notifications.models  # noqa
     import app.gamification.models  # noqa
     import app.certificates.models  # noqa
@@ -341,7 +336,6 @@ async def lifespan(app: FastAPI):
     import app.attendance.models  # noqa
     import app.scorm.models  # noqa
     import app.scorm_import.models  # noqa
-    import app.plagiarism.models  # noqa
     import app.peer_review.models  # noqa
     import app.team_projects.models  # noqa
     import app.recording.models  # noqa
@@ -497,12 +491,10 @@ def create_app() -> FastAPI:
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
     app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
-    # app.include_router(knowledge_router, prefix="/api/v1/knowledge", tags=["Knowledge"])  # disabled with knowledge_router import
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
     app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
     app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
-    app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI Tutor"])
     app.include_router(waitlist_router, prefix="/api/v1", tags=["Waitlist"])
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
@@ -510,7 +502,6 @@ def create_app() -> FastAPI:
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
     app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])
     app.include_router(export_router, prefix="/api/v1/courses", tags=["Course Export"])
-    app.include_router(plagiarism_router, prefix="/api/v1/admin/plagiarism", tags=["Plagiarism"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
     app.include_router(recording_router, prefix="/api/v1/recordings", tags=["Recordings"])

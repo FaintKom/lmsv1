@@ -25,7 +25,6 @@ import app.billing.models  # noqa
 import app.calendar.models  # noqa
 import app.certificates.models  # noqa
 import app.courses.models  # noqa
-import app.discussions.models  # noqa
 import app.donations.models  # noqa
 import app.exercises.models  # noqa
 import app.feedback.models  # noqa
@@ -35,7 +34,6 @@ import app.meetings.models  # noqa
 import app.metered_billing.models  # noqa
 import app.notifications.models  # noqa
 import app.peer_review.models  # noqa
-import app.plagiarism.models  # noqa
 import app.progress.models  # noqa
 import app.recording.models  # noqa
 import app.sandbox.models  # noqa

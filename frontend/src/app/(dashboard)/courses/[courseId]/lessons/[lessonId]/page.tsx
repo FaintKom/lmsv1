@@ -37,7 +37,6 @@ import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 import { TheoryViewer } from "@/components/theory/theory-viewer";
 import type { TheoryContent } from "@/lib/theory";
-import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 import { VideoPlayer } from "@/components/video-player";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -635,16 +634,6 @@ export default function LessonViewerPage() {
      )}
     </div>
    </div>
-
-   {/* AI Tutor */}
-   <AiTutorPanel
-    context={{
-     type: exercises.length > 0 ? "exercise" : "lesson",
-     lessonId,
-     lessonTitle: lesson?.title,
-     exerciseTitle: exercises[0]?.title,
-    }}
-   />
   </div>
  );
 }

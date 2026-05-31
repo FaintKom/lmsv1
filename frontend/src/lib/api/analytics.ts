@@ -277,24 +277,6 @@ export async function fetchReviewQueue(): Promise<ReviewQueueItem[]> {
   return data;
 }
 
-export interface FacetCount {
-  value: string;
-  count: number;
-}
-
-export interface KnowledgeFacets {
-  type: FacetCount[];
-  stage: FacetCount[];
-  audience: FacetCount[];
-  mode: FacetCount[];
-  problems: FacetCount[];
-}
-
-export async function fetchKnowledgeFacets(): Promise<KnowledgeFacets> {
-  const { data } = await apiClient.get<KnowledgeFacets>("/knowledge/facets");
-  return data;
-}
-
 // ── Task statistics (Phase 3) ─────────────────────────────────────────
 // Mirrors backend app/analytics/task_stats_schemas.py.
 

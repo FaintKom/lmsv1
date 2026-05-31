@@ -10,7 +10,6 @@ from app.assignments.models import AssignmentSubmission
 from app.auth.models import User
 from app.certificates.models import Certificate
 from app.courses.models import Course
-from app.discussions.models import Comment
 from app.gamification.models import UserBadge, UserStreak
 from app.learning_paths.models import LearningPathEnrollment
 from app.notifications.models import Notification
@@ -132,19 +131,6 @@ async def export_user_data(db: AsyncSession, user_id: uuid.UUID) -> dict:
         for i in result.scalars().all()
     ]
 
-    # Comments
-    result = await db.execute(
-        select(Comment).where(Comment.user_id == user_id)
-    )
-    comments = [
-        {
-            "lesson_id": str(c.lesson_id),
-            "content": c.content,
-            "created_at": c.created_at.isoformat() if c.created_at else None,
-        }
-        for c in result.scalars().all()
-    ]
-
     # Certificates
     result = await db.execute(
         select(Certificate).where(Certificate.user_id == user_id)
@@ -233,7 +219,6 @@ async def export_user_data(db: AsyncSession, user_id: uuid.UUID) -> dict:
         "code_submissions": code_submissions,
         "file_submissions": file_submissions,
         "interactive_submissions": interactive_submissions,
-        "comments": comments,
         "certificates": certificates,
         "gamification": gamification,
         "badges": badges,

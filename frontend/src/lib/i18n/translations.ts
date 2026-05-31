@@ -103,7 +103,6 @@ const en: TranslationMap = {
  "analytics.widget.attendance_impact": "Attendance impact",
  "analytics.widget.lesson_funnel": "Lesson funnel",
  "analytics.widget.review_queue": "Review queue",
- "analytics.widget.knowledge_coverage": "Knowledge coverage",
  "analytics.widget.task_performance": "Task performance",
  "analytics.loading": "Loading…",
  "analytics.taskPerf.pickCourse": "Pick a course in widget settings to load task statistics.",
@@ -447,14 +446,6 @@ const en: TranslationMap = {
  "assignment.submissionFailed": "Submission failed",
 
  // Comments
- "comments.title": "Discussion",
- "comments.write": "Write a comment...",
- "comments.send": "Send",
- "comments.reply": "Reply",
- "comments.delete": "Delete",
- "comments.noComments": "No comments yet. Be the first to start the discussion!",
- "comments.showReplies": "Show replies",
- "comments.hideReplies": "Hide replies",
 
  // Progress
  "progress.title": "My Progress",
@@ -757,16 +748,6 @@ const en: TranslationMap = {
  "sat.tipGuess": "Never leave blanks: No penalty for guessing. Always pick an answer.",
 
  // AI Tutor
- "ai.title": "AI Tutor",
- "ai.placeholder": "Ask me anything...",
- "ai.send": "Send",
- "ai.thinking": "Thinking...",
- "ai.welcome": "Hi! I'm your AI tutor. Ask me any question about this lesson or exercise.",
- "ai.rateLimit": "You've reached the message limit. Try again in an hour.",
- "ai.unavailable": "AI Tutor is temporarily unavailable.",
- "ai.remaining": "{count} messages left this hour",
- "ai.clear": "Clear chat",
- "ai.close": "Close",
 
  // Profile — Change password
  "profile.changePassword": "Change Password",
@@ -2250,7 +2231,6 @@ const es: TranslationMap = {
  "analytics.widget.attendance_impact": "Impacto de asistencia",
  "analytics.widget.lesson_funnel": "Embudo de lecciones",
  "analytics.widget.review_queue": "Cola de revisión",
- "analytics.widget.knowledge_coverage": "Cobertura de conocimiento",
  "analytics.widget.task_performance": "Rendimiento de tareas",
  "analytics.loading": "Cargando…",
  "analytics.taskPerf.pickCourse": "Elige un curso en los ajustes del widget para cargar las estadísticas de tareas.",
@@ -2578,14 +2558,6 @@ const es: TranslationMap = {
  "assignment.lateNotAllowed": "No se permiten entregas tardías para esta tarea.",
  "assignment.enterTextOrFile": "Por favor escribe texto o adjunta un archivo.",
  "assignment.submissionFailed": "Entrega fallida",
- "comments.title": "Discusión",
- "comments.write": "Escribe un comentario...",
- "comments.send": "Enviar",
- "comments.reply": "Responder",
- "comments.delete": "Eliminar",
- "comments.noComments": "Sin comentarios aún. ¡Sé el primero en iniciar la discusión!",
- "comments.showReplies": "Mostrar respuestas",
- "comments.hideReplies": "Ocultar respuestas",
  "progress.title": "Mi Progreso",
  "progress.overall": "Progreso General",
  "progress.coursesCompleted": "Cursos Completados",
@@ -2872,16 +2844,6 @@ const es: TranslationMap = {
  "sat.tipFlag": "Marca y avanza: Si te atascas 45+ segundos, márcala y vuelve después.",
  "sat.tipGuess": "No dejes espacios en blanco: No hay penalización por adivinar.",
 
- "ai.title": "Tutor IA",
- "ai.placeholder": "Pregúntame lo que quieras...",
- "ai.send": "Enviar",
- "ai.thinking": "Pensando...",
- "ai.welcome": "¡Hola! Soy tu tutor IA. Pregúntame sobre esta lección o ejercicio.",
- "ai.rateLimit": "Límite de mensajes alcanzado. Intenta en una hora.",
- "ai.unavailable": "El tutor IA no está disponible temporalmente.",
- "ai.remaining": "{count} mensajes restantes esta hora",
- "ai.clear": "Borrar chat",
- "ai.close": "Cerrar",
 
  // Common (admin-wide reusable actions/states)
  "common.create": "Crear",
@@ -4336,7 +4298,6 @@ const ru: TranslationMap = {
  "analytics.widget.attendance_impact": "Влияние посещаемости",
  "analytics.widget.lesson_funnel": "Воронка уроков",
  "analytics.widget.review_queue": "Очередь проверки",
- "analytics.widget.knowledge_coverage": "Покрытие базы знаний",
  "analytics.widget.task_performance": "Результаты по заданиям",
  "analytics.loading": "Загрузка…",
  "analytics.taskPerf.pickCourse": "Выберите курс в настройках виджета, чтобы загрузить статистику по заданиям.",
@@ -4664,12 +4625,6 @@ const ru: TranslationMap = {
  "assignment.lateNotAllowed": "Поздние сдачи для этого задания запрещены.",
  "assignment.enterTextOrFile": "Пожалуйста, введите текст или прикрепите файл.",
  "assignment.submissionFailed": "Не удалось сдать",
- "comments.title": "Обсуждение",
- "comments.write": "Напишите комментарий...",
- "comments.send": "Отправить",
- "comments.reply": "Ответить",
- "comments.delete": "Удалить",
- "comments.noComments": "Комментариев пока нет. Начните обсуждение первым!",
  "progress.title": "Мой прогресс",
  "progress.overall": "Общий прогресс",
  "progress.coursesCompleted": "Курсов завершено",
@@ -4935,20 +4890,8 @@ const ru: TranslationMap = {
  "sat.tipFlag": "Отмечай и двигайся: застрял на 45+ сек — отметь и вернись позже.",
  "sat.tipGuess": "Не оставляй пустых: штрафа за угадывание нет.",
 
- "ai.title": "ИИ-репетитор",
- "ai.placeholder": "Задай вопрос...",
- "ai.send": "Отправить",
- "ai.thinking": "Думаю...",
- "ai.welcome": "Привет! Я твой ИИ-репетитор. Спроси меня о чём угодно по уроку или заданию.",
- "ai.rateLimit": "Лимит сообщений исчерпан. Попробуй через час.",
- "ai.unavailable": "ИИ-репетитор временно недоступен.",
- "ai.remaining": "Осталось {count} сообщений в этом часе",
- "ai.clear": "Очистить чат",
- "ai.close": "Закрыть",
 
  // Comments (missing keys filled in P0-13)
- "comments.showReplies": "Показать ответы",
- "comments.hideReplies": "Скрыть ответы",
 
  // Profile — Change password (added in P0-1 / P0-6)
  "profile.changePassword": "Сменить пароль",
@@ -6432,7 +6375,6 @@ const tr: TranslationMap = {
  "analytics.widget.attendance_impact": "Devam etkisi",
  "analytics.widget.lesson_funnel": "Ders hunisi",
  "analytics.widget.review_queue": "İnceleme kuyruğu",
- "analytics.widget.knowledge_coverage": "Bilgi kapsamı",
  "analytics.widget.task_performance": "Görev performansı",
  "analytics.loading": "Yükleniyor…",
  "analytics.taskPerf.pickCourse": "Görev istatistiklerini yüklemek için bileşen ayarlarından bir kurs seçin.",
@@ -6760,14 +6702,6 @@ const tr: TranslationMap = {
  "assignment.lateNotAllowed": "Bu ödev için geç teslimlere izin verilmiyor.",
  "assignment.enterTextOrFile": "Lütfen metin girin veya bir dosya ekleyin.",
  "assignment.submissionFailed": "Teslim başarısız",
- "comments.title": "Tartışma",
- "comments.write": "Yorum yazın...",
- "comments.send": "Gönder",
- "comments.reply": "Yanıtla",
- "comments.delete": "Sil",
- "comments.noComments": "Henüz yorum yok. Tartışmayı ilk siz başlatın!",
- "comments.showReplies": "Yanıtları göster",
- "comments.hideReplies": "Yanıtları gizle",
  "progress.title": "İlerlemem",
  "progress.overall": "Genel İlerleme",
  "progress.coursesCompleted": "Tamamlanan Kurslar",
@@ -7047,16 +6981,6 @@ const tr: TranslationMap = {
  "sat.tipFlag": "İşaretle ve geç: 45+ sn takılırsan işaretle ve sonra dön.",
  "sat.tipGuess": "Boş bırakma: Tahmin için ceza yok. Her zaman bir cevap seç.",
 
- "ai.title": "Yapay Zeka Öğretmen",
- "ai.placeholder": "Bana bir şey sor...",
- "ai.send": "Gönder",
- "ai.thinking": "Düşünüyor...",
- "ai.welcome": "Merhaba! Ben yapay zeka öğretmeninizim. Bu ders veya alıştırma hakkında soru sorun.",
- "ai.rateLimit": "Mesaj limitine ulaştın. Bir saat sonra tekrar dene.",
- "ai.unavailable": "Yapay zeka öğretmen geçici olarak kullanılamıyor.",
- "ai.remaining": "Bu saat {count} mesaj kaldı",
- "ai.clear": "Sohbeti temizle",
- "ai.close": "Kapat",
 
  "verifyEmail.verifying": "E-postanız doğrulanıyor...",
  "verifyEmail.success": "E-posta doğrulandı",
@@ -8522,7 +8446,6 @@ const de: TranslationMap = {
  "analytics.widget.attendance_impact": "Anwesenheitseinfluss",
  "analytics.widget.lesson_funnel": "Lektions-Funnel",
  "analytics.widget.review_queue": "Prüf-Warteschlange",
- "analytics.widget.knowledge_coverage": "Wissensabdeckung",
  "analytics.widget.task_performance": "Aufgabenleistung",
  "analytics.loading": "Wird geladen…",
  "analytics.taskPerf.pickCourse": "Wählen Sie in den Widget-Einstellungen einen Kurs aus, um die Aufgabenstatistik zu laden.",
@@ -8866,14 +8789,6 @@ const de: TranslationMap = {
  "assignment.submissionFailed": "Einreichung fehlgeschlagen",
 
  // Comments
- "comments.title": "Diskussion",
- "comments.write": "Kommentar schreiben...",
- "comments.send": "Senden",
- "comments.reply": "Antworten",
- "comments.delete": "Löschen",
- "comments.noComments": "Noch keine Kommentare. Starten Sie die Diskussion!",
- "comments.showReplies": "Antworten anzeigen",
- "comments.hideReplies": "Antworten ausblenden",
 
  // Progress
  "progress.title": "Mein Fortschritt",
@@ -9176,16 +9091,6 @@ const de: TranslationMap = {
  "sat.tipGuess": "Nichts leer lassen: Es gibt keinen Abzug fürs Raten. Immer eine Antwort wählen.",
 
  // AI Tutor
- "ai.title": "KI-Tutor",
- "ai.placeholder": "Stellen Sie eine Frage...",
- "ai.send": "Senden",
- "ai.thinking": "Denkt nach...",
- "ai.welcome": "Hallo! Ich bin Ihr KI-Tutor. Stellen Sie mir Fragen zu dieser Lektion oder Übung.",
- "ai.rateLimit": "Nachrichtenlimit erreicht. Versuchen Sie es in einer Stunde erneut.",
- "ai.unavailable": "Der KI-Tutor ist vorübergehend nicht verfügbar.",
- "ai.remaining": "{count} Nachrichten in dieser Stunde übrig",
- "ai.clear": "Chat löschen",
- "ai.close": "Schließen",
 
  // Profile -- Change password
  "profile.changePassword": "Passwort ändern",
@@ -10670,7 +10575,6 @@ const uk: TranslationMap = {
  "analytics.widget.attendance_impact": "Вплив відвідуваності",
  "analytics.widget.lesson_funnel": "Воронка уроків",
  "analytics.widget.review_queue": "Черга перевірки",
- "analytics.widget.knowledge_coverage": "Покриття бази знань",
  "analytics.widget.task_performance": "Результати за завданнями",
  "analytics.loading": "Завантаження…",
  "analytics.taskPerf.pickCourse": "Виберіть курс у налаштуваннях віджета, щоб завантажити статистику завдань.",
@@ -11014,14 +10918,6 @@ const uk: TranslationMap = {
  "assignment.submissionFailed": "Не вдалося здати",
 
  // Comments
- "comments.title": "Обговорення",
- "comments.write": "Написати коментар...",
- "comments.send": "Надіслати",
- "comments.reply": "Відповісти",
- "comments.delete": "Видалити",
- "comments.noComments": "Коментарів поки що немає. Почніть обговорення першим!",
- "comments.showReplies": "Показати відповіді",
- "comments.hideReplies": "Приховати відповіді",
 
  // Progress
  "progress.title": "Мій прогрес",
@@ -11324,16 +11220,6 @@ const uk: TranslationMap = {
  "sat.tipGuess": "Не залишай порожніх: штрафу за вгадування немає. Завжди обирай відповідь.",
 
  // AI Tutor
- "ai.title": "ШІ-репетитор",
- "ai.placeholder": "Задайте запитання...",
- "ai.send": "Надіслати",
- "ai.thinking": "Думаю...",
- "ai.welcome": "Привіт! Я ваш ШІ-репетитор. Запитуйте мене будь-що про цей урок або вправу.",
- "ai.rateLimit": "Ліміт повідомлень вичерпано. Спробуйте через годину.",
- "ai.unavailable": "ШІ-репетитор тимчасово недоступний.",
- "ai.remaining": "Залишилось {count} повідомлень цієї години",
- "ai.clear": "Очистити чат",
- "ai.close": "Закрити",
 
  // Profile -- Change password
  "profile.changePassword": "Змінити пароль",

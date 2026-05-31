@@ -11,7 +11,6 @@ import { CheckCircle, XCircle, Upload, Loader2, Play, Send, ChevronDown, Maximiz
 import { useTranslation } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
 import { MaybeMath } from "@/components/common/math-renderer";
-import { AiTutorPanel } from "@/components/ai/ai-tutor-panel";
 
 const ExerciseLoading = () => <div className="flex items-center justify-center py-12 text-sm text-text-muted"><Loader2 className="mr-2 h-4 w-4 animate-spin" />Loading exercise...</div>;
 
@@ -370,14 +369,6 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  {exerciseContent}
  </div>
 
- {/* AI Tutor in fullscreen */}
- <AiTutorPanel
- context={{
- type: "exercise",
- exerciseId: exercise.id,
- exerciseTitle: exercise.title,
- }}
- />
  </div>,
  document.body
  )}

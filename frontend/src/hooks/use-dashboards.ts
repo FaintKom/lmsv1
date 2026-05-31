@@ -21,7 +21,6 @@ import {
   type DashboardUpdatePayload,
   type ExerciseDifficultyRow,
   type FunnelStep,
-  type KnowledgeFacets,
   type KpiDeltasResponse,
   type ReviewQueueItem,
   type StudentRiskRow,
@@ -33,7 +32,6 @@ import {
   fetchCourseEffectiveness,
   fetchCourseTaskStats,
   fetchExerciseDifficulty,
-  fetchKnowledgeFacets,
   fetchKpiDeltas,
   fetchLessonFunnel,
   fetchReviewQueue,
@@ -223,14 +221,6 @@ export function useReviewQueue() {
     queryKey: ["analytics", "review-queue"],
     queryFn: fetchReviewQueue,
     staleTime: 60_000,
-  });
-}
-
-export function useKnowledgeFacets() {
-  return useQuery<KnowledgeFacets>({
-    queryKey: ["analytics", "knowledge-facets"],
-    queryFn: fetchKnowledgeFacets,
-    staleTime: 5 * 60_000,
   });
 }
 
