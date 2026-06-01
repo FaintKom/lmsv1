@@ -36,6 +36,16 @@ class ClassSession(Base, IDMixin, TimestampMixin):
         nullable=False,
         index=True,
     )
+    # Phase B: optional link to the scheduling group (cohort of a course).
+    # Additive + nullable; the (course_id, session_date) unique row stays the
+    # source of truth for back-compat. When set, the session belongs to a
+    # specific group of that course.
+    group_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("student_groups.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     session_date: Mapped[date] = mapped_column(Date, nullable=False)
     held: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     topic: Mapped[str] = mapped_column(String(500), nullable=False, default="")

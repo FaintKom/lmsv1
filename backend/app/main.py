@@ -185,6 +185,22 @@ async def _run_setup():
             # import; create_all does NOT add columns to the existing
             # schedule_slots table, so the room_id link relies on this fallback.
             "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
+            # Phase B group-centric scheduling (migration g1h2i3j4k5l6).
+            # Extend StudentGroup into the design's scheduling group + link
+            # schedule_slots / class_sessions to a group. All additive + nullable;
+            # create_all does NOT add columns to the existing tables, so prod
+            # relies on these fallbacks.
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS course_id uuid REFERENCES courses(id) ON DELETE SET NULL",
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS teacher_id uuid REFERENCES users(id) ON DELETE SET NULL",
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS default_room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS status varchar(20) NOT NULL DEFAULT 'active'",
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS start_date date",
+            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS end_date date",
+            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
+            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
+            "CREATE INDEX IF NOT EXISTS ix_student_groups_course ON student_groups (course_id)",
+            "CREATE INDEX IF NOT EXISTS ix_schedule_slots_group ON schedule_slots (group_id)",
+            "CREATE INDEX IF NOT EXISTS ix_class_sessions_group_id ON class_sessions (group_id)",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
@@ -295,6 +311,22 @@ async def _run_setup():
                 logger.info("Default billing plans seeded")
         except Exception as e:
             logger.debug(f"Plan seeding: {e}")
+
+        # Phase B: idempotent group-centric scheduling backfill. Re-entrant —
+        # creates one default StudentGroup per course that has scheduling data
+        # but no group yet, links its slots/sessions, and backfills members from
+        # enrollment. Safe to run on every boot (all steps NULL/NOT-EXISTS
+        # guarded); best-effort so it never blocks startup.
+        try:
+            from app.db.session import async_session_factory
+            from app.journal.service import backfill_groups
+            async with async_session_factory() as session:
+                counters = await backfill_groups(session)
+                await session.commit()
+                if any(counters.values()):
+                    logger.info("Group backfill: %s", counters)
+        except Exception as e:
+            logger.debug(f"Group backfill: {e}")
 
         startup_state.ready = True
         logger.info(f"DB setup completed in {time.monotonic() - t0:.1f}s")

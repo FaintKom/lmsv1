@@ -95,6 +95,22 @@ async def db():
             from sqlalchemy import text as _text
             await conn.execute(_text("CREATE EXTENSION IF NOT EXISTS vector"))
             await conn.run_sync(Base.metadata.create_all)
+            # Phase B group-centric scheduling: create_all does NOT add columns
+            # to a pre-existing student_groups/schedule_slots/class_sessions
+            # table in a persistent local test DB. Mirror the _run_setup +
+            # migration ALTERs idempotently so both fresh (CI) and reused
+            # (local) databases carry the new columns.
+            for _stmt in (
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS course_id uuid REFERENCES courses(id) ON DELETE SET NULL",
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS teacher_id uuid REFERENCES users(id) ON DELETE SET NULL",
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS default_room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS status varchar(20) NOT NULL DEFAULT 'active'",
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS start_date date",
+                "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS end_date date",
+                "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
+                "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
+            ):
+                await conn.execute(_text(_stmt))
         _tables_created = True
 
     async with engine.connect() as conn:

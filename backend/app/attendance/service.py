@@ -70,3 +70,43 @@ async def enrolled_students(
         )
     ).all()
     return [(r[0], r[1]) for r in rows]
+
+
+async def authorize_group(
+    db: AsyncSession, user: User, group_id: uuid.UUID
+):
+    """Authorize a group via its course (Phase B) and return ``(course, group)``.
+
+    The group must be linked to a course (``course_id`` set); RBAC + org
+    isolation are enforced through :func:`authorize_course` on that course.
+    A missing / course-less group raises 404 (existence hidden).
+    """
+    from app.admin.models import StudentGroup
+
+    group = await db.scalar(select(StudentGroup).where(StudentGroup.id == group_id))
+    if group is None or group.course_id is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+    course = await authorize_course(db, user, group.course_id)
+    return course, group
+
+
+async def group_member_students(
+    db: AsyncSession, group_id: uuid.UUID
+) -> list[tuple[uuid.UUID, str]]:
+    """Active student members of a group as ``(id, full_name)`` pairs, name-sorted."""
+    from app.admin.models import StudentGroupMember
+
+    rows = (
+        await db.execute(
+            select(User.id, User.full_name)
+            .join(StudentGroupMember, StudentGroupMember.user_id == User.id)
+            .where(
+                StudentGroupMember.group_id == group_id,
+                User.role == UserRole.student,
+                User.is_active.is_(True),
+            )
+            .distinct()
+            .order_by(User.full_name)
+        )
+    ).all()
+    return [(r[0], r[1]) for r in rows]

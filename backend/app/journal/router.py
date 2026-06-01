@@ -59,12 +59,17 @@ class GenerateFromScheduleRequest(BaseModel):
 @router.get("/journal/sessions")
 async def list_sessions(
     course_id: uuid.UUID = Query(...),
+    group_id: uuid.UUID | None = Query(default=None),
     user: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """All journal days for a course (newest first) + attendance counts."""
+    """All journal days for a course (newest first) + attendance counts.
+
+    Optional ``group_id`` scopes the rows to a single group of the course
+    (falls back to the whole course when absent — current behavior).
+    """
     try:
-        return await journal_service.list_sessions(db, user, course_id)
+        return await journal_service.list_sessions(db, user, course_id, group_id=group_id)
     except TaskStatsError as exc:
         raise _translate(exc) from exc
 
@@ -135,15 +140,21 @@ async def export_register(
 async def get_today(
     date_: date | None = Query(default=None, alias="date"),
     course_id: uuid.UUID | None = Query(default=None),
+    group_id: uuid.UUID | None = Query(default=None),
     teacher_id: uuid.UUID | None = Query(default=None),
     user: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Daily agenda: scheduled slots for the day + session/attendance enrichment."""
+    """Daily agenda: scheduled slots for the day + session/attendance enrichment.
+
+    Optional ``group_id`` filters the agenda to slots of one group. When a slot
+    has a group, the agenda entry prefers the group's name + teacher; otherwise
+    it falls back to the course (current behavior).
+    """
     day = date_ or date.today()
     try:
         return await journal_service.get_today(
-            db, user, day, course_id=course_id, teacher_id=teacher_id
+            db, user, day, course_id=course_id, group_id=group_id, teacher_id=teacher_id
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
@@ -152,13 +163,17 @@ async def get_today(
 @router.get("/journal/room-board")
 async def get_room_board(
     date_: date | None = Query(default=None, alias="date"),
+    group_id: uuid.UUID | None = Query(default=None),
     user: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Rooms x that day's slots, with double-booking conflicts flagged."""
+    """Rooms x that day's slots, with double-booking conflicts flagged.
+
+    Optional ``group_id`` scopes the board to a single group's slots.
+    """
     day = date_ or date.today()
     try:
-        return await journal_service.get_room_board(db, user, day)
+        return await journal_service.get_room_board(db, user, day, group_id=group_id)
     except TaskStatsError as exc:
         raise _translate(exc) from exc
 
@@ -167,11 +182,18 @@ async def get_room_board(
 async def get_day(
     course_id: uuid.UUID = Query(...),
     session_date: date = Query(...),
+    group_id: uuid.UUID | None = Query(default=None),
     user: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Session row (or null) + per-enrolled-student activity for that day."""
+    """Session row (or null) + per-enrolled-student activity for that day.
+
+    Optional ``group_id`` scopes the roster to that group's members and the
+    session lookup to that group (falls back to course enrollment when absent).
+    """
     try:
-        return await journal_service.get_day(db, user, course_id, session_date)
+        return await journal_service.get_day(
+            db, user, course_id, session_date, group_id=group_id
+        )
     except TaskStatsError as exc:
         raise _translate(exc) from exc

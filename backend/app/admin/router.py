@@ -1014,6 +1014,101 @@ async def create_user_endpoint(
 # ─── Group Management ─────────────────────────────────────────────────
 
 
+def _group_to_dict(g, member_count: int) -> dict:
+    """Serialize a StudentGroup including the Phase B scheduling fields."""
+    return {
+        "id": str(g.id),
+        "name": g.name,
+        "description": g.description,
+        "course_id": str(g.course_id) if g.course_id else None,
+        "teacher_id": str(g.teacher_id) if g.teacher_id else None,
+        "default_room_id": str(g.default_room_id) if g.default_room_id else None,
+        "status": g.status,
+        "start_date": g.start_date.isoformat() if g.start_date else None,
+        "end_date": g.end_date.isoformat() if g.end_date else None,
+        "member_count": member_count,
+        "created_at": str(g.created_at),
+    }
+
+
+def _parse_optional_uuid(value, field: str) -> uuid.UUID | None:
+    """Parse an optional UUID payload field; '' / None → None."""
+    if value in (None, ""):
+        return None
+    if isinstance(value, uuid.UUID):
+        return value
+    try:
+        return uuid.UUID(str(value))
+    except (ValueError, TypeError):
+        raise HTTPException(400, f"Invalid {field}") from None
+
+
+def _parse_optional_date(value, field: str) -> date | None:
+    """Parse an optional ISO (YYYY-MM-DD) date; '' / None → None."""
+    if value in (None, ""):
+        return None
+    if isinstance(value, date):
+        return value
+    parsed = _parse_iso_dob(value)
+    if parsed is None:
+        raise HTTPException(400, f"Invalid {field} (use YYYY-MM-DD)")
+    return parsed
+
+
+_GROUP_STATUSES = ("planned", "active", "archived")
+
+
+async def _apply_group_scheduling_fields(db, admin, group, data) -> None:
+    """Validate + apply the optional Phase B scheduling fields onto ``group``.
+
+    Org isolation: course / teacher / room must belong to the admin's org
+    (super_admin may reference any). Only keys present in ``data`` are touched,
+    so PUT stays a partial update.
+    """
+    from app.courses.models import Course
+    from app.rooms.models import Room
+
+    def _org_filter(model):
+        return [] if admin.role == UserRole.super_admin else [model.org_id == group.org_id]
+
+    if "course_id" in data:
+        cid = _parse_optional_uuid(data.get("course_id"), "course_id")
+        if cid is not None:
+            course = (
+                await db.execute(select(Course).where(Course.id == cid, *_org_filter(Course)))
+            ).scalar_one_or_none()
+            if not course:
+                raise NotFoundError("Course not found")
+        group.course_id = cid
+    if "teacher_id" in data:
+        tid = _parse_optional_uuid(data.get("teacher_id"), "teacher_id")
+        if tid is not None:
+            teacher = (
+                await db.execute(select(User).where(User.id == tid, *_org_filter(User)))
+            ).scalar_one_or_none()
+            if not teacher:
+                raise NotFoundError("Teacher not found")
+        group.teacher_id = tid
+    if "default_room_id" in data:
+        rid = _parse_optional_uuid(data.get("default_room_id"), "default_room_id")
+        if rid is not None:
+            room = (
+                await db.execute(select(Room).where(Room.id == rid, *_org_filter(Room)))
+            ).scalar_one_or_none()
+            if not room:
+                raise NotFoundError("Room not found")
+        group.default_room_id = rid
+    if "status" in data and data.get("status") is not None:
+        status_val = str(data["status"]).strip().lower()
+        if status_val not in _GROUP_STATUSES:
+            raise HTTPException(400, f"status must be one of {_GROUP_STATUSES}")
+        group.status = status_val
+    if "start_date" in data:
+        group.start_date = _parse_optional_date(data.get("start_date"), "start_date")
+    if "end_date" in data:
+        group.end_date = _parse_optional_date(data.get("end_date"), "end_date")
+
+
 @router.get("/groups")
 async def list_groups_endpoint(
     admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
@@ -1029,16 +1124,7 @@ async def list_groups_endpoint(
         query = query.where(StudentGroup.org_id == admin.org_id)
     result = await db.execute(query.order_by(StudentGroup.created_at.desc()))
     groups = result.scalars().unique().all()
-    return [
-        {
-            "id": str(g.id),
-            "name": g.name,
-            "description": g.description,
-            "member_count": len(g.members),
-            "created_at": str(g.created_at),
-        }
-        for g in groups
-    ]
+    return [_group_to_dict(g, member_count=len(g.members)) for g in groups]
 
 
 @router.post("/organizations")
@@ -1084,7 +1170,13 @@ async def create_group_endpoint(
     admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create a new student group."""
+    """Create a new student group.
+
+    Phase B: accepts the optional scheduling fields (course_id, teacher_id,
+    default_room_id, status, start_date, end_date) so an admin can create
+    multiple cohorts per course and assign a teacher/room. All optional —
+    omitting them yields a plain (legacy) group.
+    """
     from app.admin.models import StudentGroup
     from app.billing.limits import check_group_limit
 
@@ -1095,9 +1187,10 @@ async def create_group_endpoint(
         name=data["name"],
         description=data.get("description"),
     )
+    await _apply_group_scheduling_fields(db, admin, group, data)
     db.add(group)
     await db.flush()
-    return {"id": str(group.id), "name": group.name}
+    return _group_to_dict(group, member_count=0)
 
 
 @router.put("/groups/{group_id}")
@@ -1107,10 +1200,19 @@ async def update_group_endpoint(
     admin: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Update group name/description."""
+    """Update group name/description + the Phase B scheduling fields.
+
+    Partial update: only keys present in the payload are changed.
+    """
+    from sqlalchemy.orm import selectinload
+
     from app.admin.models import StudentGroup
 
-    query = select(StudentGroup).where(StudentGroup.id == group_id)
+    query = (
+        select(StudentGroup)
+        .options(selectinload(StudentGroup.members))
+        .where(StudentGroup.id == group_id)
+    )
     if admin.role != UserRole.super_admin:
         query = query.where(StudentGroup.org_id == admin.org_id)
     result = await db.execute(query)
@@ -1122,8 +1224,9 @@ async def update_group_endpoint(
         group.name = data["name"]
     if "description" in data:
         group.description = data["description"]
+    await _apply_group_scheduling_fields(db, admin, group, data)
     await db.flush()
-    return {"id": str(group.id), "name": group.name}
+    return _group_to_dict(group, member_count=len(group.members))
 
 
 @router.delete("/groups/{group_id}")

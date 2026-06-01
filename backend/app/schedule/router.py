@@ -53,7 +53,10 @@ def _conflict(exc: RoomConflictError) -> HTTPException:
 
 
 class ScheduleSlotCreate(BaseModel):
-    course_id: uuid.UUID
+    # course_id is optional when a group_id is given (the slot's course is
+    # derived from the group). Exactly one of the two must identify the course.
+    course_id: uuid.UUID | None = None
+    group_id: uuid.UUID | None = None
     day_of_week: int = Field(ge=0, le=6)
     start_time: time
     end_time: time
@@ -64,6 +67,7 @@ class ScheduleSlotCreate(BaseModel):
 
 
 class ScheduleSlotUpdate(BaseModel):
+    group_id: uuid.UUID | None = None
     day_of_week: int | None = Field(default=None, ge=0, le=6)
     start_time: time | None = None
     end_time: time | None = None
@@ -123,6 +127,7 @@ async def create_slot(
             db,
             user,
             course_id=data.course_id,
+            group_id=data.group_id,
             day_of_week=data.day_of_week,
             start_time=data.start_time,
             end_time=data.end_time,
@@ -152,6 +157,8 @@ async def update_slot(
             db,
             user,
             slot_id,
+            group_id=data.group_id,
+            group_id_set="group_id" in data.model_fields_set,
             day_of_week=data.day_of_week,
             start_time=data.start_time,
             end_time=data.end_time,

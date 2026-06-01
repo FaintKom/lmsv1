@@ -24,8 +24,10 @@ import uuid
 from datetime import date, datetime, time, timedelta, timezone
 
 from sqlalchemy import func, select
+from sqlalchemy import update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.admin.models import StudentGroup, StudentGroupMember
 from app.analytics.task_stats_service import (
     TaskStatsError,
     _authorize_course,
@@ -83,6 +85,7 @@ def _session_dict(s: ClassSession | None) -> dict | None:
         "held": s.held,
         "topic": s.topic or "",
         "notes": s.notes,
+        "group_id": str(s.group_id) if s.group_id else None,
     }
 
 
@@ -118,6 +121,45 @@ async def _scheduled_slots_for_day(
         )
     ).scalars().all()
     return [_slot_dict(s) for s in rows]
+
+
+# ── Phase B group helpers ──────────────────────────────────────────────────
+
+
+async def _authorize_group(
+    db: AsyncSession, user: User, group_id: uuid.UUID, course_id: uuid.UUID
+) -> StudentGroup:
+    """Fetch a group and confirm it belongs to ``course_id`` + the caller may see it.
+
+    The group inherits the course's RBAC (already authorized by the caller), so
+    we only additionally check the group exists and is linked to this course.
+    """
+    group = await db.scalar(select(StudentGroup).where(StudentGroup.id == group_id))
+    if group is None:
+        raise TaskStatsError("not_found", "Group not found")
+    if group.course_id != course_id:
+        raise TaskStatsError("not_found", "Group not found")
+    return group
+
+
+async def _group_member_ids(
+    db: AsyncSession, group_id: uuid.UUID
+) -> list[uuid.UUID]:
+    """Active student user-ids that are members of the group, name-ordered."""
+    rows = (
+        await db.execute(
+            select(User.id, User.full_name)
+            .join(StudentGroupMember, StudentGroupMember.user_id == User.id)
+            .where(
+                StudentGroupMember.group_id == group_id,
+                User.role == UserRole.student,
+                User.is_active.is_(True),
+            )
+            .distinct()
+            .order_by(User.full_name)
+        )
+    ).all()
+    return [r[0] for r in rows]
 
 
 # ── Upsert ───────────────────────────────────────────────────────────────
@@ -168,22 +210,29 @@ async def upsert_session(
 
 
 async def list_sessions(
-    db: AsyncSession, user: User, course_id: uuid.UUID
+    db: AsyncSession,
+    user: User,
+    course_id: uuid.UUID,
+    *,
+    group_id: uuid.UUID | None = None,
 ) -> dict:
     """All journal rows for a course (newest first) + attendance counts.
 
     Attendance counts are pulled in a single grouped query keyed by
-    (session_date, status) so there is no per-session round-trip.
+    (session_date, status) so there is no per-session round-trip. An optional
+    ``group_id`` narrows the sessions to that group (falls back to the whole
+    course when absent).
     """
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
+    if group_id is not None:
+        await _authorize_group(db, user, group_id, course_id)
 
+    sess_stmt = select(ClassSession).where(ClassSession.course_id == course_id)
+    if group_id is not None:
+        sess_stmt = sess_stmt.where(ClassSession.group_id == group_id)
     sessions = (
-        await db.execute(
-            select(ClassSession)
-            .where(ClassSession.course_id == course_id)
-            .order_by(ClassSession.session_date.desc())
-        )
+        await db.execute(sess_stmt.order_by(ClassSession.session_date.desc()))
     ).scalars().all()
 
     # One grouped query: attendance counts per (date, status) for this course.
@@ -219,6 +268,7 @@ async def list_sessions(
     return {
         "course_id": str(course.id),
         "course_title": course.title,
+        "group_id": str(group_id) if group_id else None,
         "sessions": out,
     }
 
@@ -227,35 +277,62 @@ async def list_sessions(
 
 
 async def get_day(
-    db: AsyncSession, user: User, course_id: uuid.UUID, session_date: date
+    db: AsyncSession,
+    user: User,
+    course_id: uuid.UUID,
+    session_date: date,
+    *,
+    group_id: uuid.UUID | None = None,
 ) -> dict:
-    """Session row (or null) + per-enrolled-student activity for that day."""
+    """Session row (or null) + per-enrolled-student activity for that day.
+
+    When ``group_id`` is given the roster is that group's members and the
+    session lookup is scoped to the group; otherwise the roster is the course's
+    enrollment (current behavior).
+    """
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
+    if group_id is not None:
+        await _authorize_group(db, user, group_id, course_id)
 
-    session = await db.scalar(
-        select(ClassSession).where(
-            ClassSession.course_id == course_id,
-            ClassSession.session_date == session_date,
-        )
+    sess_stmt = select(ClassSession).where(
+        ClassSession.course_id == course_id,
+        ClassSession.session_date == session_date,
     )
+    if group_id is not None:
+        sess_stmt = sess_stmt.where(ClassSession.group_id == group_id)
+    session = await db.scalar(sess_stmt)
 
     scheduled_slots = await _scheduled_slots_for_day(db, course_id, session_date)
 
-    # Enrolled students of the course (id + name), stable ordering.
-    student_rows = (
-        await db.execute(
-            select(User.id, User.full_name)
-            .join(Enrollment, Enrollment.student_id == User.id)
-            .where(
-                Enrollment.course_id == course_id,
-                User.role == UserRole.student,
-                User.is_active.is_(True),
-            )
-            .distinct()
-            .order_by(User.full_name)
+    # Roster: group members when a group is given; else course enrollment.
+    if group_id is not None:
+        member_ids = await _group_member_ids(db, group_id)
+        student_rows = (
+            (
+                await db.execute(
+                    select(User.id, User.full_name)
+                    .where(User.id.in_(member_ids))
+                    .order_by(User.full_name)
+                )
+            ).all()
+            if member_ids
+            else []
         )
-    ).all()
+    else:
+        student_rows = (
+            await db.execute(
+                select(User.id, User.full_name)
+                .join(Enrollment, Enrollment.student_id == User.id)
+                .where(
+                    Enrollment.course_id == course_id,
+                    User.role == UserRole.student,
+                    User.is_active.is_(True),
+                )
+                .distinct()
+                .order_by(User.full_name)
+            )
+        ).all()
     student_ids = [r[0] for r in student_rows]
 
     activity: list[dict] = []
@@ -519,6 +596,7 @@ async def get_today(
     day: date,
     *,
     course_id: uuid.UUID | None = None,
+    group_id: uuid.UUID | None = None,
     teacher_id: uuid.UUID | None = None,
 ) -> dict:
     """The day's agenda: every active slot on ``day``'s weekday, in scope.
@@ -527,6 +605,10 @@ async def get_today(
     attendance (present / enrolled total) for that course+date. Sessions,
     attendance and enrollment counts are each batch-fetched once for the day's
     courses — no per-slot round-trip. Sorted by start_time.
+
+    Phase B: an optional ``group_id`` filters the agenda to one group's slots.
+    Each entry prefers the slot's group name + the group's teacher when the
+    slot is group-linked; otherwise it falls back to the course (unchanged).
     """
     require_stats_role(user)
 
@@ -547,29 +629,42 @@ async def get_today(
         return {"date": day.isoformat(), "agenda": []}
 
     # Active slots on this weekday for the in-scope courses (+ room name).
-    slot_rows = (
-        await db.execute(
-            select(ScheduleSlot, Room.name)
-            .outerjoin(Room, Room.id == ScheduleSlot.room_id)
-            .where(
-                ScheduleSlot.course_id.in_(course_ids),
-                ScheduleSlot.active.is_(True),
-                ScheduleSlot.day_of_week == day.weekday(),
-            )
-            .order_by(ScheduleSlot.start_time)
+    slot_stmt = (
+        select(ScheduleSlot, Room.name)
+        .outerjoin(Room, Room.id == ScheduleSlot.room_id)
+        .where(
+            ScheduleSlot.course_id.in_(course_ids),
+            ScheduleSlot.active.is_(True),
+            ScheduleSlot.day_of_week == day.weekday(),
         )
-    ).all()
+        .order_by(ScheduleSlot.start_time)
+    )
+    if group_id is not None:
+        slot_stmt = slot_stmt.where(ScheduleSlot.group_id == group_id)
+    slot_rows = (await db.execute(slot_stmt)).all()
     if not slot_rows:
         return {"date": day.isoformat(), "agenda": []}
 
     day_course_ids = list({s.course_id for s, _ in slot_rows})
+    day_group_ids = list({s.group_id for s, _ in slot_rows if s.group_id is not None})
 
-    # Teacher names (one query for the teachers referenced by the day's courses).
-    teacher_ids = {
+    # Groups referenced by the day's slots: name + teacher override.
+    group_by_id: dict[uuid.UUID, StudentGroup] = {}
+    if day_group_ids:
+        for g in (
+            await db.execute(
+                select(StudentGroup).where(StudentGroup.id.in_(day_group_ids))
+            )
+        ).scalars().all():
+            group_by_id[g.id] = g
+
+    # Teacher names: course teachers + group teachers, one query.
+    teacher_ids: set[uuid.UUID] = {
         teacher_by_course.get(cid)
         for cid in day_course_ids
         if teacher_by_course.get(cid) is not None
     }
+    teacher_ids |= {g.teacher_id for g in group_by_id.values() if g.teacher_id}
     teacher_names: dict[uuid.UUID, str] = {}
     if teacher_ids:
         for tid, name in (
@@ -579,7 +674,9 @@ async def get_today(
         ).all():
             teacher_names[tid] = name or ""
 
-    # ClassSession per course for this date — one query.
+    # ClassSession for this date — keyed by (course_id, group_id) so a
+    # group-linked slot matches its own session and a course-level slot matches
+    # the course-level (group_id NULL) session. One query.
     sessions = (
         await db.execute(
             select(ClassSession).where(
@@ -588,7 +685,9 @@ async def get_today(
             )
         )
     ).scalars().all()
-    session_by_course = {s.course_id: s for s in sessions}
+    session_by_key: dict[tuple[uuid.UUID, uuid.UUID | None], ClassSession] = {
+        (s.course_id, s.group_id): s for s in sessions
+    }
 
     # Enrolled (distinct student) count per course — one grouped query.
     enrolled_rows = (
@@ -602,6 +701,18 @@ async def get_today(
         )
     ).all()
     enrolled_by_course = {cid: n for cid, n in enrolled_rows}
+
+    # Member count per group (the group's roster size) — one grouped query.
+    member_count_by_group: dict[uuid.UUID, int] = {}
+    if day_group_ids:
+        for gid, n in (
+            await db.execute(
+                select(StudentGroupMember.group_id, func.count())
+                .where(StudentGroupMember.group_id.in_(day_group_ids))
+                .group_by(StudentGroupMember.group_id)
+            )
+        ).all():
+            member_count_by_group[gid] = n
 
     # Present-count per course for this date — one grouped query.
     present_rows = (
@@ -620,13 +731,27 @@ async def get_today(
     agenda: list[dict] = []
     for slot, room_name in slot_rows:
         cid = slot.course_id
-        sess = session_by_course.get(cid)
-        tid = teacher_by_course.get(cid)
+        gid = slot.group_id
+        group = group_by_id.get(gid) if gid else None
+        # Session matches the slot's group when group-linked; else course-level.
+        sess = session_by_key.get((cid, gid)) or (
+            session_by_key.get((cid, None)) if gid is None else None
+        )
+        # Prefer the group's teacher when the slot is group-linked.
+        tid = (group.teacher_id if group and group.teacher_id else teacher_by_course.get(cid))
+        # Prefer group name as the agenda title when group-linked.
+        title = group.name if group else titles.get(cid, "")
+        total = (
+            member_count_by_group.get(gid, 0) if gid else enrolled_by_course.get(cid, 0)
+        )
         agenda.append(
             {
                 "slot_id": str(slot.id),
                 "course_id": str(cid),
                 "course_title": titles.get(cid, ""),
+                "group_id": str(gid) if gid else None,
+                "group_name": group.name if group else None,
+                "title": title,
                 "teacher_id": str(tid) if tid else None,
                 "teacher_name": teacher_names.get(tid, "") if tid else "",
                 "start_time": slot.start_time.strftime("%H:%M"),
@@ -642,7 +767,7 @@ async def get_today(
                 ),
                 "attendance": {
                     "present": present_by_course.get(cid, 0),
-                    "total": enrolled_by_course.get(cid, 0),
+                    "total": total,
                 },
             }
         )
@@ -654,13 +779,17 @@ async def get_today(
 # ── Room board (rooms × that day's slots) ────────────────────────────────────
 
 
-async def get_room_board(db: AsyncSession, user: User, day: date) -> dict:
+async def get_room_board(
+    db: AsyncSession, user: User, day: date, *, group_id: uuid.UUID | None = None
+) -> dict:
     """Rooms in scope, each with its slots on ``day``, plus a conflicts list.
 
     Methodist/admin/super_admin see every org room; a plain teacher sees only
     the rooms used by their own courses' slots that day. ``conflicts`` lists
     every (room, overlapping pair) so the grid can highlight a double-booking.
     All data is fetched in a few batch queries — no per-room round-trip.
+
+    Phase B: an optional ``group_id`` scopes the board to a single group's slots.
     """
     require_stats_role(user)
     org_wide = _is_org_wide(user)
@@ -673,18 +802,19 @@ async def get_room_board(db: AsyncSession, user: User, day: date) -> dict:
         return {"date": day.isoformat(), "rooms": [], "conflicts": []}
 
     # Active slots on this weekday that occupy a managed room, in scope.
-    slot_rows = (
-        await db.execute(
-            select(ScheduleSlot)
-            .where(
-                ScheduleSlot.course_id.in_(course_ids),
-                ScheduleSlot.active.is_(True),
-                ScheduleSlot.day_of_week == day.weekday(),
-                ScheduleSlot.room_id.isnot(None),
-            )
-            .order_by(ScheduleSlot.start_time)
+    slot_stmt = (
+        select(ScheduleSlot)
+        .where(
+            ScheduleSlot.course_id.in_(course_ids),
+            ScheduleSlot.active.is_(True),
+            ScheduleSlot.day_of_week == day.weekday(),
+            ScheduleSlot.room_id.isnot(None),
         )
-    ).scalars().all()
+        .order_by(ScheduleSlot.start_time)
+    )
+    if group_id is not None:
+        slot_stmt = slot_stmt.where(ScheduleSlot.group_id == group_id)
+    slot_rows = (await db.execute(slot_stmt)).scalars().all()
 
     slots_by_room: dict[uuid.UUID, list[ScheduleSlot]] = {}
     for s in slot_rows:
@@ -836,3 +966,141 @@ async def _assignment_counts(
         )
     ).all()
     return {sid: n for sid, n in rows}
+
+
+# ── Phase B: idempotent group backfill ──────────────────────────────────────
+
+
+async def backfill_groups(db: AsyncSession) -> dict[str, int]:
+    """Backfill the group-centric scheduling model onto existing data.
+
+    Re-entrant + idempotent — safe to run on every boot. For each course that
+    has at least one ``schedule_slot`` or ``class_session`` but no
+    :class:`StudentGroup` carrying that ``course_id`` yet, it:
+
+      1. creates ONE default group ``{org_id, name=course.title,
+         course_id, teacher_id, status="active"}``;
+      2. links that course's schedule_slots + class_sessions to the group
+         (only rows where ``group_id IS NULL``);
+      3. backfills :class:`StudentGroupMember` from the course's enrollments
+         (one member per enrolled student, skipping duplicates).
+
+    Every step is guarded (``WHERE ... IS NULL`` / ``NOT EXISTS`` / existence
+    check) so a second run is a no-op. Returns a small counters dict for
+    logging/tests. Commits are the caller's responsibility (the boot path runs
+    inside its own session; tests use the rolled-back ``db`` fixture).
+    """
+    # Course ids that have scheduling data attached.
+    slot_course_ids = set(
+        (await db.execute(select(ScheduleSlot.course_id).distinct())).scalars().all()
+    )
+    session_course_ids = set(
+        (await db.execute(select(ClassSession.course_id).distinct())).scalars().all()
+    )
+    candidate_course_ids = slot_course_ids | session_course_ids
+    if not candidate_course_ids:
+        return {"groups_created": 0, "slots_linked": 0, "sessions_linked": 0, "members_added": 0}
+
+    # Courses that already have a group keyed on them — skip those.
+    courses_with_group = set(
+        (
+            await db.execute(
+                select(StudentGroup.course_id).where(
+                    StudentGroup.course_id.in_(candidate_course_ids)
+                )
+            )
+        ).scalars().all()
+    )
+    courses_needing_group = candidate_course_ids - courses_with_group
+
+    groups_created = 0
+    if courses_needing_group:
+        course_rows = (
+            await db.execute(
+                select(Course.id, Course.org_id, Course.title, Course.teacher_id).where(
+                    Course.id.in_(courses_needing_group)
+                )
+            )
+        ).all()
+        for cid, org_id, title, teacher_id in course_rows:
+            db.add(
+                StudentGroup(
+                    org_id=org_id,
+                    name=title or "Group",
+                    course_id=cid,
+                    teacher_id=teacher_id,
+                    status="active",
+                )
+            )
+            groups_created += 1
+        if groups_created:
+            await db.flush()
+
+    # Map course_id → default group id. With one group per course this is the
+    # group we just created (or a pre-existing one); pick the oldest stable.
+    group_rows = (
+        await db.execute(
+            select(StudentGroup.id, StudentGroup.course_id, StudentGroup.org_id)
+            .where(StudentGroup.course_id.in_(candidate_course_ids))
+            .order_by(StudentGroup.created_at.asc(), StudentGroup.id.asc())
+        )
+    ).all()
+    default_group_by_course: dict[uuid.UUID, uuid.UUID] = {}
+    group_org_by_id: dict[uuid.UUID, uuid.UUID] = {}
+    for gid, cid, org_id in group_rows:
+        group_org_by_id[gid] = org_id
+        # First row per course wins (oldest) → stable default group.
+        default_group_by_course.setdefault(cid, gid)
+
+    slots_linked = 0
+    sessions_linked = 0
+    members_added = 0
+    for cid, gid in default_group_by_course.items():
+        # Link slots with no group yet.
+        slot_res = await db.execute(
+            sa_update(ScheduleSlot)
+            .where(ScheduleSlot.course_id == cid, ScheduleSlot.group_id.is_(None))
+            .values(group_id=gid)
+        )
+        slots_linked += slot_res.rowcount or 0
+
+        # Link sessions with no group yet.
+        sess_res = await db.execute(
+            sa_update(ClassSession)
+            .where(ClassSession.course_id == cid, ClassSession.group_id.is_(None))
+            .values(group_id=gid)
+        )
+        sessions_linked += sess_res.rowcount or 0
+
+        # Backfill members from enrollment, skipping anyone already a member.
+        enrolled_ids = (
+            await db.execute(
+                select(Enrollment.student_id)
+                .where(Enrollment.course_id == cid)
+                .distinct()
+            )
+        ).scalars().all()
+        if enrolled_ids:
+            existing_member_ids = set(
+                (
+                    await db.execute(
+                        select(StudentGroupMember.user_id).where(
+                            StudentGroupMember.group_id == gid
+                        )
+                    )
+                ).scalars().all()
+            )
+            for sid in enrolled_ids:
+                if sid in existing_member_ids:
+                    continue
+                db.add(StudentGroupMember(group_id=gid, user_id=sid))
+                existing_member_ids.add(sid)
+                members_added += 1
+
+    await db.flush()
+    return {
+        "groups_created": groups_created,
+        "slots_linked": slots_linked,
+        "sessions_linked": sessions_linked,
+        "members_added": members_added,
+    }

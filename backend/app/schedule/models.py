@@ -32,6 +32,13 @@ class ScheduleSlot(Base, IDMixin, TimestampMixin):
         UUID(as_uuid=True), ForeignKey("courses.id", ondelete="CASCADE"),
         nullable=False,
     )
+    # Phase B: optional link to the scheduling group (a cohort of a course).
+    # Additive + nullable — course_id stays the source of truth for back-compat;
+    # when set, the slot belongs to a specific group of that course.
+    group_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("student_groups.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     # 0 = Monday … 6 = Sunday.
     day_of_week: Mapped[int] = mapped_column(Integer, nullable=False)
     start_time: Mapped[time] = mapped_column(Time, nullable=False)

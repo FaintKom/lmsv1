@@ -13,7 +13,12 @@ from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.attendance.models import AttendanceRecord, AttendanceStatus
-from app.attendance.service import authorize_course, enrolled_students
+from app.attendance.service import (
+    authorize_course,
+    authorize_group,
+    enrolled_students,
+    group_member_students,
+)
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.courses.models import Course
@@ -109,15 +114,32 @@ async def mark_attendance(
 async def list_attendance(
     session_date: date | None = Query(None),
     course_id: str | None = Query(None),
+    group_id: str | None = Query(None),
     student_id: str | None = Query(None),
     teacher: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Query attendance records for the teacher's org."""
+    """Query attendance records for the teacher's org.
+
+    Phase B: pass ``group_id`` to scope to a single group — the records are
+    restricted to that group's course and its member students (the group's
+    course is derived + authorized). Falls back to the plain ``course_id``
+    filter when absent (current behavior).
+    """
     q = select(AttendanceRecord).where(AttendanceRecord.org_id == teacher.org_id)
     if session_date:
         q = q.where(AttendanceRecord.session_date == session_date)
-    if course_id:
+    if group_id:
+        try:
+            group_uuid = uuid.UUID(group_id)
+        except ValueError:
+            raise HTTPException(400, f"Invalid group_id: {group_id}") from None
+        course, _group = await authorize_group(db, teacher, group_uuid)
+        member_ids = [sid for sid, _ in await group_member_students(db, group_uuid)]
+        q = q.where(AttendanceRecord.course_id == course.id)
+        # Restrict to member students; an empty group yields no records.
+        q = q.where(AttendanceRecord.student_id.in_(member_ids or [uuid.UUID(int=0)]))
+    elif course_id:
         q = q.where(AttendanceRecord.course_id == uuid.UUID(course_id))
     if student_id:
         q = q.where(AttendanceRecord.student_id == uuid.UUID(student_id))
@@ -184,25 +206,40 @@ async def attendance_summary(
 
 @router.get("/attendance/roster")
 async def attendance_roster(
-    course_id: str = Query(...),
     session_date: date = Query(...),
+    course_id: str | None = Query(None),
+    group_id: str | None = Query(None),
     user: User = Depends(require_role(*_MANAGER_ROLES)),
     db: AsyncSession = Depends(get_db),
 ):
-    """Enrolled students of a course, pre-filled with any existing record.
+    """Students of a course (or group), pre-filled with any existing record.
 
-    For the given (course, date) each row carries the student's current
+    For the given (course/group, date) each row carries the student's current
     ``status`` and ``note`` (or ``None`` if not yet marked) so the marking
     grid can hydrate. Authorization mirrors peer-review: teachers see only
     their own courses, methodists/admins their whole org, super_admin anything.
-    """
-    try:
-        course_uuid = uuid.UUID(course_id)
-    except ValueError:
-        raise HTTPException(400, f"Invalid course_id: {course_id}") from None
 
-    course: Course = await authorize_course(db, user, course_uuid)
-    students = await enrolled_students(db, course_uuid)
+    Phase B: pass ``group_id`` to scope the roster to that group's members
+    (the course is derived from the group); otherwise pass ``course_id`` for
+    the course's enrollment (current behavior).
+    """
+    if group_id:
+        try:
+            group_uuid = uuid.UUID(group_id)
+        except ValueError:
+            raise HTTPException(400, f"Invalid group_id: {group_id}") from None
+        course, _group = await authorize_group(db, user, group_uuid)
+        course_uuid = course.id
+        students = await group_member_students(db, group_uuid)
+    elif course_id:
+        try:
+            course_uuid = uuid.UUID(course_id)
+        except ValueError:
+            raise HTTPException(400, f"Invalid course_id: {course_id}") from None
+        course: Course = await authorize_course(db, user, course_uuid)
+        students = await enrolled_students(db, course_uuid)
+    else:
+        raise HTTPException(400, "course_id or group_id is required")
 
     existing_rows = (
         await db.execute(
@@ -233,6 +270,7 @@ async def attendance_roster(
 
     return {
         "course_id": str(course_uuid),
+        "group_id": str(group_id) if group_id else None,
         "session_date": session_date.isoformat(),
         "roster": roster,
     }

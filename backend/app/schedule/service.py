@@ -21,6 +21,7 @@ from datetime import time
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.admin.models import StudentGroup
 from app.analytics.task_stats_service import (
     TaskStatsError,
     _authorize_course,
@@ -74,6 +75,7 @@ def _slot_to_dict(
         "id": slot.id,
         "org_id": slot.org_id,
         "course_id": slot.course_id,
+        "group_id": slot.group_id,
         "course_title": course_title,
         "day_of_week": slot.day_of_week,
         "start_time": _fmt_time(slot.start_time),
@@ -112,6 +114,26 @@ async def _resolve_room(
     if room is None or room.org_id != org_id:
         raise TaskStatsError("bad_request", "Room not found in this organization")
     return room
+
+
+async def _resolve_group(
+    db: AsyncSession, user: User, group_id: uuid.UUID
+) -> StudentGroup:
+    """Validate a group + authorize the caller via its course (Phase B).
+
+    A group must carry a ``course_id`` to be schedulable (the slot's course is
+    derived from it). Authorization reuses ``_authorize_course`` so the group
+    inherits the course's RBAC + org isolation. Raises ``bad_request`` for a
+    missing / course-less group.
+    """
+    group = await db.scalar(select(StudentGroup).where(StudentGroup.id == group_id))
+    if group is None:
+        raise TaskStatsError("bad_request", "Group not found")
+    if group.course_id is None:
+        raise TaskStatsError("bad_request", "Group is not linked to a course")
+    # Authorize on the group's course (also enforces org isolation).
+    await _authorize_course(db, user, group.course_id)
+    return group
 
 
 async def find_room_conflicts(
@@ -290,7 +312,8 @@ async def create_slot(
     db: AsyncSession,
     user: User,
     *,
-    course_id: uuid.UUID,
+    course_id: uuid.UUID | None = None,
+    group_id: uuid.UUID | None = None,
     day_of_week: int,
     start_time: time,
     end_time: time,
@@ -302,6 +325,18 @@ async def create_slot(
 ) -> dict:
     require_stats_role(user)
     _validate_slot_fields(day_of_week, start_time, end_time)
+
+    # Phase B: a group_id identifies the course (its course_id wins). Otherwise
+    # course_id must be given. The two must agree when both are supplied.
+    if group_id is not None:
+        group = await _resolve_group(db, user, group_id)
+        if course_id is not None and course_id != group.course_id:
+            raise TaskStatsError(
+                "bad_request", "course_id does not match the group's course"
+            )
+        course_id = group.course_id
+    if course_id is None:
+        raise TaskStatsError("bad_request", "course_id or group_id is required")
     course = await _authorize_course(db, user, course_id)
 
     # Online slots meet in a derived Jitsi room and never occupy a physical room.
@@ -322,6 +357,7 @@ async def create_slot(
     slot = ScheduleSlot(
         org_id=course.org_id,
         course_id=course_id,
+        group_id=group_id,
         day_of_week=day_of_week,
         start_time=start_time,
         end_time=end_time,
@@ -356,6 +392,8 @@ async def update_slot(
     user: User,
     slot_id: uuid.UUID,
     *,
+    group_id: uuid.UUID | None = None,
+    group_id_set: bool = False,
     day_of_week: int | None = None,
     start_time: time | None = None,
     end_time: time | None = None,
@@ -369,6 +407,17 @@ async def update_slot(
 ) -> dict:
     require_stats_role(user)
     slot = await _get_authorized_slot(db, user, slot_id)
+
+    # Phase B: an explicit group_id payload re-points the slot. Setting a group
+    # also re-points the slot's course to the group's course; clearing (null)
+    # just drops the group link and keeps the existing course.
+    if group_id_set:
+        if group_id is not None:
+            group = await _resolve_group(db, user, group_id)
+            slot.group_id = group_id
+            slot.course_id = group.course_id
+        else:
+            slot.group_id = None
 
     new_day = day_of_week if day_of_week is not None else slot.day_of_week
     new_start = start_time if start_time is not None else slot.start_time
