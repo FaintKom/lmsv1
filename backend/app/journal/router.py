@@ -18,6 +18,7 @@ from app.analytics.task_stats_service import TaskStatsError
 from app.auth.dependencies import require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
+from app.journal import pacing_service
 from app.journal import service as journal_service
 
 router = APIRouter()
@@ -48,6 +49,9 @@ class SessionUpsertRequest(BaseModel):
     held: bool = True
     topic: str = Field(default="", max_length=500)
     notes: str | None = None
+    # Phase C: the curriculum topic actually covered this session (drives
+    # pacing). Optional; omitting it leaves the existing value untouched.
+    actual_topic_id: uuid.UUID | None = None
 
 
 class GenerateFromScheduleRequest(BaseModel):
@@ -90,6 +94,8 @@ async def upsert_session(
             body.held,
             body.topic,
             body.notes,
+            actual_topic_id=body.actual_topic_id,
+            actual_topic_set="actual_topic_id" in body.model_fields_set,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
@@ -195,5 +201,30 @@ async def get_day(
         return await journal_service.get_day(
             db, user, course_id, session_date, group_id=group_id
         )
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
+@router.get("/journal/pacing")
+async def get_pacing_board(
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Pacing board: every group in scope with progress/delta/badge + KPIs."""
+    try:
+        return await pacing_service.get_pacing_board(db, user)
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
+@router.get("/journal/pacing/{group_id}")
+async def get_pacing_timeline(
+    group_id: uuid.UUID,
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Pacing timeline: a group's course scope & sequence with coverage."""
+    try:
+        return await pacing_service.get_pacing_timeline(db, user, group_id)
     except TaskStatsError as exc:
         raise _translate(exc) from exc

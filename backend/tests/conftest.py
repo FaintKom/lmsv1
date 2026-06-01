@@ -25,6 +25,7 @@ import app.billing.models  # noqa
 import app.calendar.models  # noqa
 import app.certificates.models  # noqa
 import app.courses.models  # noqa
+import app.curriculum.models  # noqa
 import app.donations.models  # noqa
 import app.exercises.models  # noqa
 import app.feedback.models  # noqa
@@ -109,6 +110,9 @@ async def db():
                 "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS end_date date",
                 "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
                 "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
+                # Phase C curriculum scope & sequence: link sessions to topics.
+                "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS actual_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
+                "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS planned_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
             ):
                 await conn.execute(_text(_stmt))
         _tables_created = True

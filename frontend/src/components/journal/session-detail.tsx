@@ -31,6 +31,7 @@ import {
   useUpsertSession,
   type DaySessionInfo,
 } from "@/lib/api/journal";
+import { useCurriculum } from "@/lib/api/pacing";
 import { ATT_ORDER, ATT_STATUS, countsPresent } from "@/lib/journal-status";
 
 export interface SessionDetailProps {
@@ -59,11 +60,15 @@ export function SessionDetail({
   const rosterQuery = useRoster(courseId, date);
   const upsertMutation = useUpsertSession(courseId, date);
   const markMutation = useMarkBulk(courseId, date);
+  const curriculumQuery = useCurriculum(courseId);
+  const topics = curriculumQuery.data?.topics ?? [];
 
   // Session draft (held / topic), hydrated from the day fetch via the React
   // "adjust state during render" pattern.
   const [held, setHeld] = useState(true);
   const [topic, setTopic] = useState("");
+  const [actualTopicId, setActualTopicId] = useState("");
+  const [plannedTopicId, setPlannedTopicId] = useState<string | null>(null);
   const [hydratedKey, setHydratedKey] = useState<string | null>(null);
 
   const dayKey = `${courseId}|${date}|${dayQuery.dataUpdatedAt}`;
@@ -71,8 +76,16 @@ export function SessionDetail({
     const s: DaySessionInfo | null = dayQuery.data.session;
     setHeld(s ? s.held : true);
     setTopic(s ? s.topic : "");
+    setActualTopicId(s?.actual_topic_id ?? "");
+    setPlannedTopicId(s?.planned_topic_id ?? null);
     setHydratedKey(dayKey);
   }
+
+  // "planned: X" hint shows when the snapshot plan differs from what was done.
+  const plannedTopicTitle =
+    plannedTopicId && plannedTopicId !== actualTopicId
+      ? topics.find((tp) => tp.id === plannedTopicId)?.title ?? null
+      : null;
 
   // Attendance draft: studentId -> status. Seeded from the roster (statuses
   // already saved for this day), same hydrate-during-render approach.
@@ -121,6 +134,7 @@ export function SessionDetail({
         held,
         topic: topic.trim(),
         notes: null,
+        actual_topic_id: actualTopicId || null,
       });
       if (records.length > 0) await markMutation.mutateAsync(records);
       toast.success(t("journal.sessionSaved"));
@@ -209,6 +223,32 @@ export function SessionDetail({
               className="w-full rounded-[10px] border-[1.5px] border-ink-100 bg-surface px-3 py-2.5 text-sm text-ink-900"
             />
           </div>
+
+          {/* Actual curriculum topic (drives pacing) */}
+          {topics.length > 0 && (
+            <div className="mb-[18px]">
+              <div className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                {t("journal.actualTopic")}
+              </div>
+              <select
+                value={actualTopicId}
+                onChange={(e) => setActualTopicId(e.target.value)}
+                className="w-full rounded-[10px] border-[1.5px] border-ink-100 bg-surface px-3 py-2.5 text-sm text-ink-900"
+              >
+                <option value="">{t("journal.actualTopicNone")}</option>
+                {topics.map((tp) => (
+                  <option key={tp.id} value={tp.id}>
+                    {String(tp.position).padStart(2, "0")} · {tp.title}
+                  </option>
+                ))}
+              </select>
+              {plannedTopicTitle ? (
+                <p className="mt-1.5 text-[11px] font-semibold text-sun-700">
+                  {t("journal.plannedTopicHint")}: {plannedTopicTitle}
+                </p>
+              ) : null}
+            </div>
+          )}
 
           {/* Attendance */}
           <div className="mb-2.5 flex items-center justify-between">

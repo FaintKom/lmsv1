@@ -38,6 +38,8 @@ export interface DaySessionInfo {
   held: boolean;
   topic: string;
   notes: string | null;
+  actual_topic_id?: string | null;
+  planned_topic_id?: string | null;
 }
 
 export interface DayActivityRow {
@@ -78,6 +80,8 @@ export interface SessionUpsert {
   held: boolean;
   topic: string;
   notes: string | null;
+  /** Phase C: the curriculum topic actually covered (optional). */
+  actual_topic_id?: string | null;
 }
 
 export interface TodaySessionInfo {

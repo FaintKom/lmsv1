@@ -22,8 +22,10 @@ import { isAxiosError } from "axios";
 import {
   AlertTriangle,
   BookOpenCheck,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Download,
   Loader2,
   MapPin,
@@ -40,6 +42,14 @@ import { useTranslation } from "@/lib/i18n/context";
 import { buildJoinUrl } from "@/lib/meetings";
 import { Card, CardContent } from "@/components/ui/card";
 import { SessionDetail } from "@/components/journal/session-detail";
+import { PacingFlow } from "@/components/journal/pacing-flow";
+import {
+  useCurriculum,
+  useCreateTopic,
+  useUpdateTopic,
+  useDeleteTopic,
+  type CurriculumTopic,
+} from "@/lib/api/pacing";
 import {
   useJournalToday,
   useJournalSessions,
@@ -76,8 +86,8 @@ import {
   type RoomBoardRoom,
 } from "@/lib/api/rooms";
 
-type TabKey = "today" | "register" | "rooms" | "setup";
-const TABS: TabKey[] = ["today", "register", "rooms", "setup"];
+type TabKey = "today" | "register" | "program" | "rooms" | "setup";
+const TABS: TabKey[] = ["today", "register", "program", "rooms", "setup"];
 
 interface CourseOption {
   id: string;
@@ -174,6 +184,7 @@ function JournalModule() {
         <TodayTab courses={courses} isManager={isManager} />
       )}
       {activeTab === "register" && <RegisterTab courses={courses} />}
+      {activeTab === "program" && <PacingFlow />}
       {activeTab === "rooms" && <RoomsTab />}
       {activeTab === "setup" && (
         <SetupTab courses={courses} canManageRooms={isManager} />
@@ -1128,9 +1139,235 @@ interface SetupTabProps {
 
 function SetupTab({ courses, canManageRooms }: SetupTabProps) {
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-      <TimetablePanel courses={courses} />
-      <RoomsPanel canManage={canManageRooms} />
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <TimetablePanel courses={courses} />
+        <RoomsPanel canManage={canManageRooms} />
+      </div>
+      {canManageRooms && <CurriculumPanel courses={courses} />}
+    </div>
+  );
+}
+
+// ── Curriculum editor (course scope & sequence) ──────────────────────────────
+
+function CurriculumPanel({ courses }: { courses: CourseOption[] }) {
+  const { t } = useTranslation();
+  const [courseId, setCourseId] = useState("");
+  const curriculumQuery = useCurriculum(courseId);
+  const createTopic = useCreateTopic(courseId);
+  const updateTopic = useUpdateTopic(courseId);
+  const deleteTopic = useDeleteTopic(courseId);
+
+  const [newTitle, setNewTitle] = useState("");
+  const [newLessons, setNewLessons] = useState("1");
+
+  const topics = curriculumQuery.data?.topics ?? [];
+
+  const addTopic = async () => {
+    const title = newTitle.trim();
+    if (!courseId || !title) return;
+    try {
+      await createTopic.mutateAsync({
+        course_id: courseId,
+        title,
+        planned_lessons: Math.max(1, parseInt(newLessons, 10) || 1),
+      });
+      setNewTitle("");
+      setNewLessons("1");
+    } catch {
+      toast.error(t("journal.saveFailed"));
+    }
+  };
+
+  const move = async (topic: CurriculumTopic, dir: -1 | 1) => {
+    const target = topic.position + dir;
+    if (target < 1 || target > topics.length) return;
+    try {
+      await updateTopic.mutateAsync({
+        topicId: topic.id,
+        body: { position: target },
+      });
+    } catch {
+      toast.error(t("journal.saveFailed"));
+    }
+  };
+
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-5">
+        <div>
+          <h3 className="text-sm font-extrabold text-text">
+            {t("curriculum.title")}
+          </h3>
+          <p className="text-xs text-ink-400">{t("curriculum.subtitle")}</p>
+        </div>
+
+        <select
+          value={courseId}
+          onChange={(e) => setCourseId(e.target.value)}
+          className="w-full max-w-sm rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+        >
+          <option value="">{t("curriculum.pickCourse")}</option>
+          {courses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
+        </select>
+
+        {!courseId ? (
+          <p className="py-6 text-center text-sm text-ink-400">
+            {t("curriculum.pickCoursePrompt")}
+          </p>
+        ) : (
+          <>
+            <div className="divide-y divide-ink-50 rounded-lg border border-border">
+              {topics.length === 0 ? (
+                <p className="px-4 py-6 text-center text-sm text-ink-400">
+                  {t("curriculum.empty")}
+                </p>
+              ) : (
+                topics.map((topic, i) => (
+                  <CurriculumRow
+                    key={topic.id}
+                    topic={topic}
+                    isFirst={i === 0}
+                    isLast={i === topics.length - 1}
+                    onMoveUp={() => move(topic, -1)}
+                    onMoveDown={() => move(topic, 1)}
+                    onSave={(body) =>
+                      updateTopic
+                        .mutateAsync({ topicId: topic.id, body })
+                        .catch(() => toast.error(t("journal.saveFailed")))
+                    }
+                    onDelete={() =>
+                      deleteTopic
+                        .mutateAsync(topic.id)
+                        .catch(() => toast.error(t("journal.saveFailed")))
+                    }
+                  />
+                ))
+              )}
+            </div>
+
+            {/* Add topic */}
+            <div className="flex flex-wrap items-end gap-2">
+              <label className="flex-1 min-w-[180px] text-xs font-semibold text-ink-500">
+                {t("curriculum.topicTitle")}
+                <input
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder={t("curriculum.topicPlaceholder")}
+                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-normal text-text"
+                />
+              </label>
+              <label className="w-24 text-xs font-semibold text-ink-500">
+                {t("curriculum.lessons")}
+                <input
+                  type="number"
+                  min={1}
+                  value={newLessons}
+                  onChange={(e) => setNewLessons(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-normal text-text"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={addTopic}
+                disabled={!newTitle.trim() || createTopic.isPending}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-bold text-primary-fg disabled:opacity-50"
+              >
+                <Plus className="h-4 w-4" />
+                {t("curriculum.addTopic")}
+              </button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CurriculumRow({
+  topic,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
+  onSave,
+  onDelete,
+}: {
+  topic: CurriculumTopic;
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onSave: (body: { title?: string; planned_lessons?: number }) => void;
+  onDelete: () => void;
+}) {
+  const { t } = useTranslation();
+  const [title, setTitle] = useState(topic.title);
+  const [lessons, setLessons] = useState(String(topic.planned_lessons));
+
+  const commitTitle = () => {
+    const v = title.trim();
+    if (v && v !== topic.title) onSave({ title: v });
+  };
+  const commitLessons = () => {
+    const v = Math.max(1, parseInt(lessons, 10) || 1);
+    if (v !== topic.planned_lessons) onSave({ planned_lessons: v });
+  };
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2">
+      <span className="w-6 text-center font-mono text-[11px] font-bold text-ink-300">
+        {String(topic.position).padStart(2, "0")}
+      </span>
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onBlur={commitTitle}
+        className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1.5 py-1 text-sm font-semibold text-text hover:border-border focus:border-border-focus focus:outline-none"
+      />
+      <label className="flex items-center gap-1 text-[11px] text-ink-400">
+        <input
+          type="number"
+          min={1}
+          value={lessons}
+          onChange={(e) => setLessons(e.target.value)}
+          onBlur={commitLessons}
+          className="w-12 rounded border border-border bg-surface px-1.5 py-1 text-center text-xs text-text"
+          aria-label={t("curriculum.lessons")}
+        />
+        <span>{t("curriculum.lessonsShort")}</span>
+      </label>
+      <button
+        type="button"
+        onClick={onMoveUp}
+        disabled={isFirst}
+        aria-label={t("curriculum.moveUp")}
+        className="rounded p-1 text-ink-400 hover:bg-ink-50 disabled:opacity-30"
+      >
+        <ChevronUp className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={onMoveDown}
+        disabled={isLast}
+        aria-label={t("curriculum.moveDown")}
+        className="rounded p-1 text-ink-400 hover:bg-ink-50 disabled:opacity-30"
+      >
+        <ChevronDown className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={onDelete}
+        aria-label={t("curriculum.deleteTopic")}
+        className="rounded p-1 text-coral-500 hover:bg-coral-50"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
     </div>
   );
 }

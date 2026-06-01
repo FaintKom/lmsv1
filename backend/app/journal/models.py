@@ -46,6 +46,22 @@ class ClassSession(Base, IDMixin, TimestampMixin):
         nullable=True,
         index=True,
     )
+    # Phase C: what the session actually covered + the plan snapshot.
+    # ``actual_topic_id`` is the curriculum topic the group really did this
+    # session (drives pacing); ``planned_topic_id`` is the snapshot of the
+    # planned topic at generation time (drives plan-vs-actual drift). Both
+    # nullable + ON DELETE SET NULL so deleting a topic never orphans a session.
+    actual_topic_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("curriculum_topics.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    planned_topic_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("curriculum_topics.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     session_date: Mapped[date] = mapped_column(Date, nullable=False)
     held: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     topic: Mapped[str] = mapped_column(String(500), nullable=False, default="")

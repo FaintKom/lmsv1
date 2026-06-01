@@ -49,6 +49,7 @@ from app.billing.router import router as billing_router
 from app.calendar.router import router as calendar_router
 from app.certificates.router import router as certificates_router
 from app.courses.router import router as courses_router
+from app.curriculum.router import router as curriculum_router
 from app.donations.router import router as donations_router
 from app.exercises.router import router as exercises_router
 from app.export.router import router as export_router
@@ -201,6 +202,14 @@ async def _run_setup():
             "CREATE INDEX IF NOT EXISTS ix_student_groups_course ON student_groups (course_id)",
             "CREATE INDEX IF NOT EXISTS ix_schedule_slots_group ON schedule_slots (group_id)",
             "CREATE INDEX IF NOT EXISTS ix_class_sessions_group_id ON class_sessions (group_id)",
+            # Phase C curriculum scope & sequence + session topic links
+            # (migration cur1c0lum01). The curriculum_topics table itself is
+            # created by Base.metadata.create_all from the model import; these
+            # ALTERs add the two class_sessions FKs (create_all never alters
+            # existing tables). All additive + nullable, ON DELETE SET NULL.
+            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS actual_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
+            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS planned_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
+            "CREATE INDEX IF NOT EXISTS ix_class_sessions_actual_topic_id ON class_sessions (actual_topic_id)",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
@@ -378,6 +387,7 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.journal.models  # noqa
+    import app.curriculum.models  # noqa
     import app.rooms.models  # noqa
     import app.schedule.models  # noqa
     import app.scorm.models  # noqa
@@ -545,6 +555,7 @@ def create_app() -> FastAPI:
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(journal_router, prefix="/api/v1", tags=["Journal"])
+    app.include_router(curriculum_router, prefix="/api/v1", tags=["Curriculum"])
     app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["Schedule"])
     app.include_router(rooms_router, prefix="/api/v1/rooms", tags=["Rooms"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])

@@ -40,6 +40,7 @@ from app.assignments.models import Assignment, AssignmentSubmission
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
 from app.courses.models import Course, Lesson, Module
+from app.curriculum.models import CurriculumTopic
 from app.exercises.models import Exercise, ExerciseSubmission
 from app.journal.models import ClassSession
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
@@ -86,6 +87,8 @@ def _session_dict(s: ClassSession | None) -> dict | None:
         "topic": s.topic or "",
         "notes": s.notes,
         "group_id": str(s.group_id) if s.group_id else None,
+        "actual_topic_id": str(s.actual_topic_id) if s.actual_topic_id else None,
+        "planned_topic_id": str(s.planned_topic_id) if s.planned_topic_id else None,
     }
 
 
@@ -165,6 +168,17 @@ async def _group_member_ids(
 # ── Upsert ───────────────────────────────────────────────────────────────
 
 
+async def _validate_topic_for_course(
+    db: AsyncSession, course_id: uuid.UUID, topic_id: uuid.UUID
+) -> None:
+    """Confirm ``topic_id`` is a curriculum topic of ``course_id``."""
+    topic = await db.scalar(
+        select(CurriculumTopic).where(CurriculumTopic.id == topic_id)
+    )
+    if topic is None or topic.course_id != course_id:
+        raise TaskStatsError("not_found", "Curriculum topic not found for this course")
+
+
 async def upsert_session(
     db: AsyncSession,
     user: User,
@@ -173,10 +187,20 @@ async def upsert_session(
     held: bool,
     topic: str,
     notes: str | None,
+    *,
+    actual_topic_id: uuid.UUID | None = None,
+    actual_topic_set: bool = False,
 ) -> dict:
-    """Insert or update the (course, date) journal row."""
+    """Insert or update the (course, date) journal row.
+
+    ``actual_topic_id`` (Phase C) records which curriculum topic the session
+    actually covered — it drives pacing. ``actual_topic_set`` distinguishes
+    "clear it" (explicit null) from "leave untouched" on update.
+    """
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
+    if actual_topic_set and actual_topic_id is not None:
+        await _validate_topic_for_course(db, course_id, actual_topic_id)
 
     existing = await db.scalar(
         select(ClassSession).where(
@@ -188,6 +212,8 @@ async def upsert_session(
         existing.held = held
         existing.topic = (topic or "")[:500]
         existing.notes = notes
+        if actual_topic_set:
+            existing.actual_topic_id = actual_topic_id
         db.add(existing)
         await db.flush()
         return _session_dict(existing)  # type: ignore[return-value]
@@ -199,6 +225,7 @@ async def upsert_session(
         held=held,
         topic=(topic or "")[:500],
         notes=notes,
+        actual_topic_id=actual_topic_id if actual_topic_set else None,
         created_by=user.id,
     )
     db.add(created)
