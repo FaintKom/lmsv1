@@ -411,3 +411,166 @@ async def test_notify_does_not_break_other_org(client, db, org, org2, teacher, a
         headers=auth_header(teacher),
     )
     assert r.status_code == 404, r.text
+
+
+# ── room link + clash detection ──────────────────────────────────────────────
+
+
+async def _make_room(client, admin, name="Room 1"):
+    r = await client.post(
+        "/api/v1/rooms", json={"name": name}, headers=auth_header(admin)
+    )
+    assert r.status_code == 201, r.text
+    return r.json()
+
+
+async def test_slot_with_room_id_round_trips(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+    slot = r.json()
+    assert slot["room_id"] == room["id"]
+    assert slot["room_name"] == room["name"]
+    # Reflected by the listing endpoint too.
+    listed = (
+        await client.get(
+            "/api/v1/schedule",
+            params={"course_id": str(course.id)},
+            headers=auth_header(teacher),
+        )
+    ).json()["slots"]
+    assert listed[0]["room_id"] == room["id"]
+    assert listed[0]["room_name"] == room["name"]
+
+
+async def test_room_clash_returns_409(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    # First booking 09:00–10:30.
+    first = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),
+        headers=auth_header(teacher),
+    )
+    assert first.status_code == 201, first.text
+    # Overlapping 10:00–11:00 same room/day → conflict.
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(
+            course.id, room_id=room["id"], start_time="10:00", end_time="11:00"
+        ),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 409, r.text
+    detail = r.json()["detail"]
+    assert detail["code"] == "room_conflict"
+    assert len(detail["conflicts"]) == 1
+    assert detail["conflicts"][0]["slot_id"] == first.json()["id"]
+    assert detail["conflicts"][0]["course_title"] == course.title
+
+
+async def test_force_overrides_clash_with_warning(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),
+        headers=auth_header(teacher),
+    )
+    r = await client.post(
+        "/api/v1/schedule",
+        params={"force": "true"},
+        json=_slot_body(
+            course.id, room_id=room["id"], start_time="10:00", end_time="11:00"
+        ),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["warning"]["code"] == "room_conflict"
+    assert len(body["warning"]["conflicts"]) == 1
+
+
+async def test_non_overlapping_same_room_ok(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),  # 09:00–10:30
+        headers=auth_header(teacher),
+    )
+    # Touching edge: 10:30–11:30 does NOT overlap.
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(
+            course.id, room_id=room["id"], start_time="10:30", end_time="11:30"
+        ),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+
+
+async def test_same_room_different_day_ok(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"], day_of_week=0),
+        headers=auth_header(teacher),
+    )
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"], day_of_week=1),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+
+
+async def test_online_slot_skips_clash(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),
+        headers=auth_header(teacher),
+    )
+    # An online slot drops its room and never clashes.
+    r = await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"], is_online=True),
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["room_id"] is None
+    assert r.json()["is_online"] is True
+
+
+async def test_update_into_clash_returns_409(client, db, org, admin, teacher):
+    course = await make_course(db, org, teacher)
+    room = await _make_room(client, admin)
+    await client.post(
+        "/api/v1/schedule",
+        json=_slot_body(course.id, room_id=room["id"]),  # 09:00–10:30
+        headers=auth_header(teacher),
+    )
+    # Second slot in a different (free) window, no room.
+    second = (
+        await client.post(
+            "/api/v1/schedule",
+            json=_slot_body(course.id, start_time="14:00", end_time="15:00"),
+            headers=auth_header(teacher),
+        )
+    ).json()
+    # Move it into the booked room + overlapping window → 409.
+    r = await client.put(
+        f"/api/v1/schedule/{second['id']}",
+        json={"room_id": room["id"], "start_time": "10:00", "end_time": "11:00"},
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 409, r.text
+    assert r.json()["detail"]["code"] == "room_conflict"

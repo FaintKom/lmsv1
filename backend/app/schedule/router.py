@@ -27,7 +27,7 @@ from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.db.session import get_db
 from app.schedule import service as svc
-from app.schedule.service import TaskStatsError
+from app.schedule.service import RoomConflictError, TaskStatsError
 
 router = APIRouter()
 
@@ -45,12 +45,20 @@ def _translate(exc: TaskStatsError) -> HTTPException:
     )
 
 
+def _conflict(exc: RoomConflictError) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={"code": "room_conflict", "conflicts": exc.conflicts},
+    )
+
+
 class ScheduleSlotCreate(BaseModel):
     course_id: uuid.UUID
     day_of_week: int = Field(ge=0, le=6)
     start_time: time
     end_time: time
     location: str = Field(default="", max_length=255)
+    room_id: uuid.UUID | None = None
     note: str = Field(default="", max_length=500)
     is_online: bool = False
 
@@ -60,6 +68,7 @@ class ScheduleSlotUpdate(BaseModel):
     start_time: time | None = None
     end_time: time | None = None
     location: str | None = Field(default=None, max_length=255)
+    room_id: uuid.UUID | None = None
     note: str | None = Field(default=None, max_length=500)
     active: bool | None = None
     is_online: bool | None = None
@@ -105,6 +114,7 @@ async def list_slots(
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_slot(
     data: ScheduleSlotCreate,
+    force: bool = Query(False),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -117,9 +127,13 @@ async def create_slot(
             start_time=data.start_time,
             end_time=data.end_time,
             location=data.location,
+            room_id=data.room_id,
             note=data.note,
             is_online=data.is_online,
+            force=force,
         )
+    except RoomConflictError as exc:
+        raise _conflict(exc) from exc
     except TaskStatsError as exc:
         raise _translate(exc) from exc
     return slot
@@ -129,6 +143,7 @@ async def create_slot(
 async def update_slot(
     slot_id: uuid.UUID,
     data: ScheduleSlotUpdate,
+    force: bool = Query(False),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -141,10 +156,15 @@ async def update_slot(
             start_time=data.start_time,
             end_time=data.end_time,
             location=data.location,
+            room_id=data.room_id,
+            room_id_set="room_id" in data.model_fields_set,
             note=data.note,
             active=data.active,
             is_online=data.is_online,
+            force=force,
         )
+    except RoomConflictError as exc:
+        raise _conflict(exc) from exc
     except TaskStatsError as exc:
         raise _translate(exc) from exc
     return slot

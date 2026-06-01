@@ -131,6 +131,38 @@ async def export_register(
     )
 
 
+@router.get("/journal/today")
+async def get_today(
+    date_: date | None = Query(default=None, alias="date"),
+    course_id: uuid.UUID | None = Query(default=None),
+    teacher_id: uuid.UUID | None = Query(default=None),
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Daily agenda: scheduled slots for the day + session/attendance enrichment."""
+    day = date_ or date.today()
+    try:
+        return await journal_service.get_today(
+            db, user, day, course_id=course_id, teacher_id=teacher_id
+        )
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
+@router.get("/journal/room-board")
+async def get_room_board(
+    date_: date | None = Query(default=None, alias="date"),
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Rooms x that day's slots, with double-booking conflicts flagged."""
+    day = date_ or date.today()
+    try:
+        return await journal_service.get_room_board(db, user, day)
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
 @router.get("/journal/day")
 async def get_day(
     course_id: uuid.UUID = Query(...),

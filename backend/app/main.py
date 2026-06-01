@@ -68,6 +68,7 @@ from app.peer_review.router import router as peer_review_router
 from app.progress.router import router as progress_router
 from app.recommendations.router import router as recommendations_router
 from app.recording.router import router as recording_router
+from app.rooms.router import router as rooms_router
 from app.sandbox.router import router as sandbox_router
 from app.schedule.router import router as schedule_router
 from app.scorm.router import router as scorm_router
@@ -179,6 +180,11 @@ async def _run_setup():
             # Optional Jitsi online slot (migration a7b8c9d0e1f2). create_all does
             # NOT add columns to an existing table, so prod relies on this fallback.
             "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS is_online boolean NOT NULL DEFAULT false",
+            # Managed rooms + slot↔room link (migration f1a2b3c4d5e6). The rooms
+            # table itself is created by Base.metadata.create_all from the model
+            # import; create_all does NOT add columns to the existing
+            # schedule_slots table, so the room_id link relies on this fallback.
+            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
             # P2-11: backfill organization_memberships for existing users
             # who predate the multi-org feature. One row per user mirroring
             # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
@@ -340,6 +346,7 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.journal.models  # noqa
+    import app.rooms.models  # noqa
     import app.schedule.models  # noqa
     import app.scorm.models  # noqa
     import app.scorm_import.models  # noqa
@@ -507,6 +514,7 @@ def create_app() -> FastAPI:
     app.include_router(attendance_router, prefix="/api/v1", tags=["Attendance"])
     app.include_router(journal_router, prefix="/api/v1", tags=["Journal"])
     app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["Schedule"])
+    app.include_router(rooms_router, prefix="/api/v1/rooms", tags=["Rooms"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
     app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])

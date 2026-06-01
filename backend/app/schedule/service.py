@@ -32,9 +32,22 @@ from app.courses.models import Course
 from app.email.service import queue_email, send_schedule_change
 from app.notifications.service import create_notification
 from app.progress.models import Enrollment
+from app.rooms.models import Room
 from app.schedule.models import ScheduleSlot
 
 logger = logging.getLogger(__name__)
+
+
+class RoomConflictError(Exception):
+    """Raised when a slot's room is already booked for an overlapping window.
+
+    Carries the list of conflicting slots so the router can surface a 409 with
+    ``{code: "room_conflict", conflicts: [...]}``.
+    """
+
+    def __init__(self, conflicts: list[dict]):
+        super().__init__("room_conflict")
+        self.conflicts = conflicts
 
 
 def slot_room_url(slot_id: uuid.UUID) -> str:
@@ -52,7 +65,11 @@ def _fmt_time(t: time | None) -> str | None:
     return t.strftime("%H:%M") if t is not None else None
 
 
-def _slot_to_dict(slot: ScheduleSlot, course_title: str | None = None) -> dict:
+def _slot_to_dict(
+    slot: ScheduleSlot,
+    course_title: str | None = None,
+    room_name: str | None = None,
+) -> dict:
     return {
         "id": slot.id,
         "org_id": slot.org_id,
@@ -62,6 +79,8 @@ def _slot_to_dict(slot: ScheduleSlot, course_title: str | None = None) -> dict:
         "start_time": _fmt_time(slot.start_time),
         "end_time": _fmt_time(slot.end_time),
         "location": slot.location or "",
+        "room_id": slot.room_id,
+        "room_name": room_name,
         "note": slot.note or "",
         "active": slot.active,
         "is_online": slot.is_online,
@@ -76,6 +95,67 @@ def _validate_slot_fields(day_of_week: int, start_time: time, end_time: time) ->
         raise TaskStatsError("bad_request", "end_time must be after start_time")
 
 
+# ── Room clash detection ────────────────────────────────────────────────────
+
+
+async def _resolve_room(
+    db: AsyncSession, org_id: uuid.UUID, room_id: uuid.UUID | None
+) -> Room | None:
+    """Validate that ``room_id`` (if set) is a room in the same org.
+
+    Returns the Room or None. Raises ``bad_request`` if the room is missing or
+    belongs to a different org (org isolation).
+    """
+    if room_id is None:
+        return None
+    room = await db.scalar(select(Room).where(Room.id == room_id))
+    if room is None or room.org_id != org_id:
+        raise TaskStatsError("bad_request", "Room not found in this organization")
+    return room
+
+
+async def find_room_conflicts(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    room_id: uuid.UUID,
+    day_of_week: int,
+    start_time: time,
+    end_time: time,
+    exclude_slot_id: uuid.UUID | None = None,
+) -> list[dict]:
+    """Active slots booking the same room at an overlapping time on the same day.
+
+    Two intervals overlap iff ``start < other.end AND end > other.start`` (touching
+    edges, e.g. 09:00–10:00 and 10:00–11:00, do NOT overlap). Online slots have
+    no ``room_id`` and are therefore never returned. One query, no N+1.
+    """
+    stmt = (
+        select(ScheduleSlot, Course.title)
+        .join(Course, Course.id == ScheduleSlot.course_id)
+        .where(
+            ScheduleSlot.org_id == org_id,
+            ScheduleSlot.room_id == room_id,
+            ScheduleSlot.day_of_week == day_of_week,
+            ScheduleSlot.active.is_(True),
+            ScheduleSlot.start_time < end_time,
+            ScheduleSlot.end_time > start_time,
+        )
+        .order_by(ScheduleSlot.start_time)
+    )
+    if exclude_slot_id is not None:
+        stmt = stmt.where(ScheduleSlot.id != exclude_slot_id)
+    rows = (await db.execute(stmt)).all()
+    return [
+        {
+            "slot_id": str(slot.id),
+            "course_title": title,
+            "start_time": _fmt_time(slot.start_time),
+            "end_time": _fmt_time(slot.end_time),
+        }
+        for slot, title in rows
+    ]
+
+
 # ── Reads ────────────────────────────────────────────────────────────────
 
 
@@ -87,12 +167,13 @@ async def list_course_slots(
     course = await _authorize_course(db, user, course_id)
     rows = (
         await db.execute(
-            select(ScheduleSlot)
+            select(ScheduleSlot, Room.name)
+            .outerjoin(Room, Room.id == ScheduleSlot.room_id)
             .where(ScheduleSlot.course_id == course_id)
             .order_by(ScheduleSlot.day_of_week, ScheduleSlot.start_time)
         )
-    ).scalars().all()
-    return [_slot_to_dict(s, course.title) for s in rows]
+    ).all()
+    return [_slot_to_dict(s, course.title, room_name) for s, room_name in rows]
 
 
 async def list_week(db: AsyncSession, user: User) -> list[dict]:
@@ -103,15 +184,16 @@ async def list_week(db: AsyncSession, user: User) -> list[dict]:
     """
     require_stats_role(user)
     stmt = (
-        select(ScheduleSlot, Course.title)
+        select(ScheduleSlot, Course.title, Room.name)
         .join(Course, Course.id == ScheduleSlot.course_id)
+        .outerjoin(Room, Room.id == ScheduleSlot.room_id)
         .order_by(ScheduleSlot.day_of_week, ScheduleSlot.start_time)
     )
     scope = _course_scope_clause(user)
     if scope is not None:
         stmt = stmt.where(scope)
     rows = (await db.execute(stmt)).all()
-    return [_slot_to_dict(slot, title) for slot, title in rows]
+    return [_slot_to_dict(slot, title, room_name) for slot, title, room_name in rows]
 
 
 async def my_schedule(db: AsyncSession, user: User) -> list[dict]:
@@ -122,8 +204,9 @@ async def my_schedule(db: AsyncSession, user: User) -> list[dict]:
     Single JOIN includes the course title (no N+1).
     """
     stmt = (
-        select(ScheduleSlot, Course.title)
+        select(ScheduleSlot, Course.title, Room.name)
         .join(Course, Course.id == ScheduleSlot.course_id)
+        .outerjoin(Room, Room.id == ScheduleSlot.room_id)
         .order_by(ScheduleSlot.day_of_week, ScheduleSlot.start_time)
     )
 
@@ -141,7 +224,7 @@ async def my_schedule(db: AsyncSession, user: User) -> list[dict]:
             stmt = stmt.where(scope)
 
     rows = (await db.execute(stmt)).all()
-    return [_slot_to_dict(slot, title) for slot, title in rows]
+    return [_slot_to_dict(slot, title, room_name) for slot, title, room_name in rows]
 
 
 # ── Change notifications ───────────────────────────────────────────────────
@@ -212,12 +295,29 @@ async def create_slot(
     start_time: time,
     end_time: time,
     location: str = "",
+    room_id: uuid.UUID | None = None,
     note: str = "",
     is_online: bool = False,
+    force: bool = False,
 ) -> dict:
     require_stats_role(user)
     _validate_slot_fields(day_of_week, start_time, end_time)
     course = await _authorize_course(db, user, course_id)
+
+    # Online slots meet in a derived Jitsi room and never occupy a physical room.
+    if is_online:
+        room_id = None
+    room = await _resolve_room(db, course.org_id, room_id)
+
+    warning: dict | None = None
+    if room_id is not None:
+        conflicts = await find_room_conflicts(
+            db, course.org_id, room_id, day_of_week, start_time, end_time
+        )
+        if conflicts:
+            if not force:
+                raise RoomConflictError(conflicts)
+            warning = {"code": "room_conflict", "conflicts": conflicts}
 
     slot = ScheduleSlot(
         org_id=course.org_id,
@@ -226,6 +326,7 @@ async def create_slot(
         start_time=start_time,
         end_time=end_time,
         location=location or "",
+        room_id=room_id,
         note=note or "",
         active=True,
         is_online=bool(is_online),
@@ -233,7 +334,10 @@ async def create_slot(
     db.add(slot)
     await db.flush()
     await _notify_schedule_change(db, course, "created")
-    return _slot_to_dict(slot, course.title)
+    result = _slot_to_dict(slot, course.title, room.name if room else None)
+    if warning is not None:
+        result["warning"] = warning
+    return result
 
 
 async def _get_authorized_slot(
@@ -256,9 +360,12 @@ async def update_slot(
     start_time: time | None = None,
     end_time: time | None = None,
     location: str | None = None,
+    room_id: uuid.UUID | None = None,
+    room_id_set: bool = False,
     note: str | None = None,
     active: bool | None = None,
     is_online: bool | None = None,
+    force: bool = False,
 ) -> dict:
     require_stats_role(user)
     slot = await _get_authorized_slot(db, user, slot_id)
@@ -268,9 +375,37 @@ async def update_slot(
     new_end = end_time if end_time is not None else slot.end_time
     _validate_slot_fields(new_day, new_start, new_end)
 
+    new_online = is_online if is_online is not None else slot.is_online
+    # Resolve the effective room: an explicit room_id payload (incl. null) wins;
+    # otherwise keep the current link. Online slots never hold a physical room.
+    new_room_id = room_id if room_id_set else slot.room_id
+    if new_online:
+        new_room_id = None
+    room = await _resolve_room(db, slot.org_id, new_room_id)
+
+    new_active = active if active is not None else slot.active
+    warning: dict | None = None
+    # Only an active slot with a real room can clash; re-check on any field that
+    # affects the booking window or the room link.
+    if new_room_id is not None and new_active:
+        conflicts = await find_room_conflicts(
+            db,
+            slot.org_id,
+            new_room_id,
+            new_day,
+            new_start,
+            new_end,
+            exclude_slot_id=slot.id,
+        )
+        if conflicts:
+            if not force:
+                raise RoomConflictError(conflicts)
+            warning = {"code": "room_conflict", "conflicts": conflicts}
+
     slot.day_of_week = new_day
     slot.start_time = new_start
     slot.end_time = new_end
+    slot.room_id = new_room_id
     if location is not None:
         slot.location = location
     if note is not None:
@@ -283,8 +418,13 @@ async def update_slot(
     await db.flush()
 
     course = await db.scalar(select(Course).where(Course.id == slot.course_id))
+    result = _slot_to_dict(
+        slot, course.title if course else None, room.name if room else None
+    )
+    if warning is not None:
+        result["warning"] = warning
     await _notify_schedule_change(db, course, "updated")
-    return _slot_to_dict(slot, course.title if course else None)
+    return result
 
 
 async def delete_slot(db: AsyncSession, user: User, slot_id: uuid.UUID) -> None:

@@ -37,6 +37,11 @@ class ScheduleSlot(Base, IDMixin, TimestampMixin):
     start_time: Mapped[time] = mapped_column(Time, nullable=False)
     end_time: Mapped[time] = mapped_column(Time, nullable=False)
     location: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    # Optional link to a managed room (rooms.id). Kept alongside the free-text
+    # ``location`` for back-compat; when set it enables room-clash detection.
+    room_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("rooms.id", ondelete="SET NULL"), nullable=True
+    )
     note: Mapped[str] = mapped_column(String(500), nullable=False, default="")
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     # When True the slot meets online via a derived Jitsi room (no stored URL;

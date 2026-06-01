@@ -29,17 +29,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.analytics.task_stats_service import (
     TaskStatsError,
     _authorize_course,
+    _course_scope_clause,
+    _is_org_wide,
     require_stats_role,
 )
 from app.assessments.models import Quiz, QuizSubmission
 from app.assignments.models import Assignment, AssignmentSubmission
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
-from app.courses.models import Lesson, Module
+from app.courses.models import Course, Lesson, Module
 from app.exercises.models import Exercise, ExerciseSubmission
 from app.journal.models import ClassSession
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
+from app.rooms.models import Room
 from app.schedule.models import ScheduleSlot
+from app.schedule.service import slot_room_url
 
 # Bound the work of generate-from-schedule so a teacher can't ask the backend
 # to walk an unbounded date range (one quarter is plenty for a "fill my term").
@@ -495,6 +499,257 @@ async def export_register_csv(
     slug = course.slug or str(course_id)
     filename = f"journal-{slug}-{from_date.isoformat()}_{to_date.isoformat()}.csv"
     return csv_text, filename
+
+
+# ── Daily agenda (Today) ─────────────────────────────────────────────────────
+
+
+def _scope_courses_stmt(user: User):
+    """Course-id select narrowed to what the caller may see (None scope = all)."""
+    stmt = select(Course.id, Course.title, Course.teacher_id)
+    scope = _course_scope_clause(user)
+    if scope is not None:
+        stmt = stmt.where(scope)
+    return stmt
+
+
+async def get_today(
+    db: AsyncSession,
+    user: User,
+    day: date,
+    *,
+    course_id: uuid.UUID | None = None,
+    teacher_id: uuid.UUID | None = None,
+) -> dict:
+    """The day's agenda: every active slot on ``day``'s weekday, in scope.
+
+    Each entry is enriched with the matching ClassSession (held/topic) and
+    attendance (present / enrolled total) for that course+date. Sessions,
+    attendance and enrollment counts are each batch-fetched once for the day's
+    courses — no per-slot round-trip. Sorted by start_time.
+    """
+    require_stats_role(user)
+
+    # Resolve teacher names + scope in one pass over the caller-visible courses.
+    course_stmt = _scope_courses_stmt(user)
+    if course_id is not None:
+        course_stmt = course_stmt.where(Course.id == course_id)
+    # teacher_id filter is admin-only (org-wide reach); a plain teacher is
+    # already restricted to their own courses by the scope clause.
+    if teacher_id is not None and _is_org_wide(user):
+        course_stmt = course_stmt.where(Course.teacher_id == teacher_id)
+    course_rows = (await db.execute(course_stmt)).all()
+    course_ids = [r[0] for r in course_rows]
+    titles = {r[0]: r[1] for r in course_rows}
+    teacher_by_course = {r[0]: r[2] for r in course_rows}
+
+    if not course_ids:
+        return {"date": day.isoformat(), "agenda": []}
+
+    # Active slots on this weekday for the in-scope courses (+ room name).
+    slot_rows = (
+        await db.execute(
+            select(ScheduleSlot, Room.name)
+            .outerjoin(Room, Room.id == ScheduleSlot.room_id)
+            .where(
+                ScheduleSlot.course_id.in_(course_ids),
+                ScheduleSlot.active.is_(True),
+                ScheduleSlot.day_of_week == day.weekday(),
+            )
+            .order_by(ScheduleSlot.start_time)
+        )
+    ).all()
+    if not slot_rows:
+        return {"date": day.isoformat(), "agenda": []}
+
+    day_course_ids = list({s.course_id for s, _ in slot_rows})
+
+    # Teacher names (one query for the teachers referenced by the day's courses).
+    teacher_ids = {
+        teacher_by_course.get(cid)
+        for cid in day_course_ids
+        if teacher_by_course.get(cid) is not None
+    }
+    teacher_names: dict[uuid.UUID, str] = {}
+    if teacher_ids:
+        for tid, name in (
+            await db.execute(
+                select(User.id, User.full_name).where(User.id.in_(teacher_ids))
+            )
+        ).all():
+            teacher_names[tid] = name or ""
+
+    # ClassSession per course for this date — one query.
+    sessions = (
+        await db.execute(
+            select(ClassSession).where(
+                ClassSession.course_id.in_(day_course_ids),
+                ClassSession.session_date == day,
+            )
+        )
+    ).scalars().all()
+    session_by_course = {s.course_id: s for s in sessions}
+
+    # Enrolled (distinct student) count per course — one grouped query.
+    enrolled_rows = (
+        await db.execute(
+            select(
+                Enrollment.course_id,
+                func.count(func.distinct(Enrollment.student_id)),
+            )
+            .where(Enrollment.course_id.in_(day_course_ids))
+            .group_by(Enrollment.course_id)
+        )
+    ).all()
+    enrolled_by_course = {cid: n for cid, n in enrolled_rows}
+
+    # Present-count per course for this date — one grouped query.
+    present_rows = (
+        await db.execute(
+            select(AttendanceRecord.course_id, func.count())
+            .where(
+                AttendanceRecord.course_id.in_(day_course_ids),
+                AttendanceRecord.session_date == day,
+                AttendanceRecord.status == AttendanceStatus.present,
+            )
+            .group_by(AttendanceRecord.course_id)
+        )
+    ).all()
+    present_by_course = {cid: n for cid, n in present_rows}
+
+    agenda: list[dict] = []
+    for slot, room_name in slot_rows:
+        cid = slot.course_id
+        sess = session_by_course.get(cid)
+        tid = teacher_by_course.get(cid)
+        agenda.append(
+            {
+                "slot_id": str(slot.id),
+                "course_id": str(cid),
+                "course_title": titles.get(cid, ""),
+                "teacher_id": str(tid) if tid else None,
+                "teacher_name": teacher_names.get(tid, "") if tid else "",
+                "start_time": slot.start_time.strftime("%H:%M"),
+                "end_time": slot.end_time.strftime("%H:%M"),
+                "is_online": slot.is_online,
+                "room_id": str(slot.room_id) if slot.room_id else None,
+                "room_name": room_name or (slot.location or None),
+                "room_url": slot_room_url(slot.id) if slot.is_online else None,
+                "session": (
+                    {"held": sess.held, "topic": sess.topic or ""}
+                    if sess is not None
+                    else None
+                ),
+                "attendance": {
+                    "present": present_by_course.get(cid, 0),
+                    "total": enrolled_by_course.get(cid, 0),
+                },
+            }
+        )
+
+    agenda.sort(key=lambda a: a["start_time"])
+    return {"date": day.isoformat(), "agenda": agenda}
+
+
+# ── Room board (rooms × that day's slots) ────────────────────────────────────
+
+
+async def get_room_board(db: AsyncSession, user: User, day: date) -> dict:
+    """Rooms in scope, each with its slots on ``day``, plus a conflicts list.
+
+    Methodist/admin/super_admin see every org room; a plain teacher sees only
+    the rooms used by their own courses' slots that day. ``conflicts`` lists
+    every (room, overlapping pair) so the grid can highlight a double-booking.
+    All data is fetched in a few batch queries — no per-room round-trip.
+    """
+    require_stats_role(user)
+    org_wide = _is_org_wide(user)
+
+    # In-scope course ids (teacher → own; org-wide → all org courses).
+    course_rows = (await db.execute(_scope_courses_stmt(user))).all()
+    course_ids = [r[0] for r in course_rows]
+    titles = {r[0]: r[1] for r in course_rows}
+    if not course_ids:
+        return {"date": day.isoformat(), "rooms": [], "conflicts": []}
+
+    # Active slots on this weekday that occupy a managed room, in scope.
+    slot_rows = (
+        await db.execute(
+            select(ScheduleSlot)
+            .where(
+                ScheduleSlot.course_id.in_(course_ids),
+                ScheduleSlot.active.is_(True),
+                ScheduleSlot.day_of_week == day.weekday(),
+                ScheduleSlot.room_id.isnot(None),
+            )
+            .order_by(ScheduleSlot.start_time)
+        )
+    ).scalars().all()
+
+    slots_by_room: dict[uuid.UUID, list[ScheduleSlot]] = {}
+    for s in slot_rows:
+        slots_by_room.setdefault(s.room_id, []).append(s)
+
+    # Which rooms to show: methodist/admin → every room in their org (so an
+    # unused room still shows as free). teacher (own-course scope) + super_admin
+    # (cross-org) → only the rooms their in-scope slots actually use that day.
+    if org_wide and user.role != UserRole.super_admin and user.org_id is not None:
+        room_stmt = select(Room).where(Room.org_id == user.org_id)
+    else:
+        used = list(slots_by_room.keys())
+        room_stmt = select(Room).where(Room.id.in_(used)) if used else None
+    rooms = (
+        (await db.execute(room_stmt.order_by(Room.name))).scalars().all()
+        if room_stmt is not None
+        else []
+    )
+
+    out_rooms: list[dict] = []
+    conflicts: list[dict] = []
+    for room in rooms:
+        room_slots = sorted(
+            slots_by_room.get(room.id, []), key=lambda s: s.start_time
+        )
+        slot_dicts = [
+            {
+                "slot_id": str(s.id),
+                "course_id": str(s.course_id),
+                "course_title": titles.get(s.course_id, ""),
+                "start_time": s.start_time.strftime("%H:%M"),
+                "end_time": s.end_time.strftime("%H:%M"),
+            }
+            for s in room_slots
+        ]
+        # Pairwise overlap within this room → conflicts (touching edges OK).
+        for i in range(len(room_slots)):
+            a = room_slots[i]
+            for j in range(i + 1, len(room_slots)):
+                b = room_slots[j]
+                if a.start_time < b.end_time and a.end_time > b.start_time:
+                    conflicts.append(
+                        {
+                            "room_id": str(room.id),
+                            "room_name": room.name,
+                            "slot_ids": [str(a.id), str(b.id)],
+                            "start_time": max(a.start_time, b.start_time).strftime(
+                                "%H:%M"
+                            ),
+                            "end_time": min(a.end_time, b.end_time).strftime("%H:%M"),
+                        }
+                    )
+        out_rooms.append(
+            {
+                "room_id": str(room.id),
+                "room_name": room.name,
+                "site": room.site or "",
+                "capacity": room.capacity,
+                "active": room.active,
+                "slots": slot_dicts,
+                "utilization": len(slot_dicts),
+            }
+        )
+
+    return {"date": day.isoformat(), "rooms": out_rooms, "conflicts": conflicts}
 
 
 async def _exercise_counts(

@@ -608,3 +608,210 @@ async def test_export_csv_rbac_and_org_isolation(client, teacher, org, org2, db)
         headers=auth_header(other_admin),
     )
     assert resp.status_code == 404, resp.text
+
+
+# ── /journal/today ───────────────────────────────────────────────────────────
+
+
+async def _make_room(db, org, name="Room 1"):
+    from app.rooms.models import Room
+
+    room = Room(org_id=org.id, name=name, active=True)
+    db.add(room)
+    await db.flush()
+    return room
+
+
+async def _make_slot_full(
+    db, org, course, day_of_week, start, end, *, room_id=None, is_online=False
+):
+    slot = ScheduleSlot(
+        org_id=org.id,
+        course_id=course.id,
+        day_of_week=day_of_week,
+        start_time=start,
+        end_time=end,
+        location="",
+        room_id=room_id,
+        note="",
+        active=True,
+        is_online=is_online,
+    )
+    db.add(slot)
+    await db.flush()
+    return slot
+
+
+async def test_today_returns_scheduled_sessions_with_enrichment(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    s1 = await _new_user(db, org, UserRole.student, suffix="a")
+    s2 = await _new_user(db, org, UserRole.student, suffix="b")
+    await make_enrollment(db, course.id, s1.id)
+    await make_enrollment(db, course.id, s2.id)
+    room = await _make_room(db, org)
+    # DAY is a Wednesday (weekday 2).
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 30), room_id=room.id)
+    db.add(
+        ClassSession(
+            org_id=org.id,
+            course_id=course.id,
+            session_date=DAY,
+            held=True,
+            topic="Algebra",
+        )
+    )
+    db.add(
+        AttendanceRecord(
+            org_id=org.id,
+            student_id=s1.id,
+            course_id=course.id,
+            session_date=DAY,
+            status=AttendanceStatus.present,
+        )
+    )
+    db.add(
+        AttendanceRecord(
+            org_id=org.id,
+            student_id=s2.id,
+            course_id=course.id,
+            session_date=DAY,
+            status=AttendanceStatus.absent,
+        )
+    )
+    await db.flush()
+
+    r = await client.get(
+        "/api/v1/journal/today",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 200, r.text
+    agenda = r.json()["agenda"]
+    assert len(agenda) == 1
+    item = agenda[0]
+    assert item["course_id"] == str(course.id)
+    assert item["course_title"] == course.title
+    assert item["start_time"] == "09:00"
+    assert item["room_id"] == str(room.id)
+    assert item["room_name"] == "Room 1"
+    assert item["session"]["held"] is True
+    assert item["session"]["topic"] == "Algebra"
+    assert item["attendance"] == {"present": 1, "total": 2}
+
+
+async def test_today_empty_when_no_slots(client, teacher, org, db):
+    await make_course(db, org, teacher)
+    r = await client.get(
+        "/api/v1/journal/today",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(teacher),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["agenda"] == []
+
+
+async def test_today_sorted_by_start_time(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    await _make_slot_full(db, org, course, 2, time(14, 0), time(15, 0))
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 0))
+    r = await client.get(
+        "/api/v1/journal/today",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(teacher),
+    )
+    starts = [a["start_time"] for a in r.json()["agenda"]]
+    assert starts == ["09:00", "14:00"]
+
+
+async def test_today_null_session_when_no_journal_row(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 0))
+    r = await client.get(
+        "/api/v1/journal/today",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(teacher),
+    )
+    assert r.json()["agenda"][0]["session"] is None
+
+
+async def test_today_teacher_scope_vs_methodist(client, teacher, org, db):
+    # Course owned by a colleague; teacher should NOT see it, methodist should.
+    colleague = await _new_user(db, org, UserRole.teacher, suffix="c")
+    course = await make_course(db, org, colleague)
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 0))
+
+    teacher_agenda = (
+        await client.get(
+            "/api/v1/journal/today",
+            params={"date": DAY.isoformat()},
+            headers=auth_header(teacher),
+        )
+    ).json()["agenda"]
+    assert teacher_agenda == []
+
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True, suffix="m")
+    methodist_agenda = (
+        await client.get(
+            "/api/v1/journal/today",
+            params={"date": DAY.isoformat()},
+            headers=auth_header(methodist),
+        )
+    ).json()["agenda"]
+    assert len(methodist_agenda) == 1
+
+
+async def test_today_online_slot_has_room_url(client, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 0), is_online=True)
+    r = await client.get(
+        "/api/v1/journal/today",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(teacher),
+    )
+    item = r.json()["agenda"][0]
+    assert item["is_online"] is True
+    assert item["room_url"] is not None
+
+
+# ── /journal/room-board ──────────────────────────────────────────────────────
+
+
+async def test_room_board_flags_double_booking(client, org, db):
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True, suffix="m")
+    t = await _new_user(db, org, UserRole.teacher, suffix="t")
+    c1 = await make_course(db, org, t)
+    c2 = await make_course(db, org, t)
+    room = await _make_room(db, org)
+    # Two overlapping slots in the same room on DAY (Wed).
+    await _make_slot_full(db, org, c1, 2, time(9, 0), time(10, 30), room_id=room.id)
+    await _make_slot_full(db, org, c2, 2, time(10, 0), time(11, 0), room_id=room.id)
+
+    r = await client.get(
+        "/api/v1/journal/room-board",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(methodist),
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert len(body["conflicts"]) == 1
+    conflict = body["conflicts"][0]
+    assert conflict["room_id"] == str(room.id)
+    assert len(conflict["slot_ids"]) == 2
+    board_room = next(x for x in body["rooms"] if x["room_id"] == str(room.id))
+    assert board_room["utilization"] == 2
+    assert len(board_room["slots"]) == 2
+
+
+async def test_room_board_no_conflict_when_non_overlapping(client, org, db):
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True, suffix="m")
+    t = await _new_user(db, org, UserRole.teacher, suffix="t")
+    course = await make_course(db, org, t)
+    room = await _make_room(db, org)
+    await _make_slot_full(db, org, course, 2, time(9, 0), time(10, 0), room_id=room.id)
+    await _make_slot_full(db, org, course, 2, time(10, 0), time(11, 0), room_id=room.id)
+    r = await client.get(
+        "/api/v1/journal/room-board",
+        params={"date": DAY.isoformat()},
+        headers=auth_header(methodist),
+    )
+    assert r.json()["conflicts"] == []
