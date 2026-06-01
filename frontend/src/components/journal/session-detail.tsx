@@ -1,28 +1,37 @@
 "use client";
 
 /**
- * Session detail slide-over — the shared "open a session" panel used by the
- * unified Journal module (from the Today agenda, and later the Register matrix).
+ * Session detail slide-over — high-fidelity reskin (design handoff §2).
  *
- * It records whether the session was held + its topic/notes (upsert via
- * POST /journal/sessions), embeds the shared <AttendanceMarker/> for marking,
- * and shows the read-only "activity that day" table (GET /journal/day) with
- * each student name linking to their admin profile.
+ * Fixed right panel (470px) over a dimmed backdrop. Records whether the session
+ * was held (toggle pill) + its topic (upsert via POST /journal/sessions), marks
+ * attendance inline with P/L/A/E segments (optimistic, batched via POST
+ * /attendance), and shows the read-only "activity that day" rows (GET
+ * /journal/day) each linking to the student's admin profile.
+ *
+ * Save batches both writes: POST /attendance (the marked roster) and POST
+ * /journal/sessions (held + topic).
  */
 
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Loader2, Save, X } from "lucide-react";
+import { Check, ChevronRight, Loader2, MapPin, Video, X, Zap } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 import { Card, CardContent } from "@/components/ui/card";
-import { AttendanceMarker } from "@/components/attendance/attendance-marker";
+import {
+  useMarkBulk,
+  useRoster,
+  type AttendanceStatus,
+  type RosterRow,
+} from "@/lib/api/attendance";
 import {
   useJournalDay,
   useUpsertSession,
   type DaySessionInfo,
 } from "@/lib/api/journal";
+import { ATT_ORDER, ATT_STATUS, countsPresent } from "@/lib/journal-status";
 
 export interface SessionDetailProps {
   courseId: string;
@@ -47,13 +56,14 @@ export function SessionDetail({
   const { t } = useTranslation();
 
   const dayQuery = useJournalDay(courseId, date);
+  const rosterQuery = useRoster(courseId, date);
   const upsertMutation = useUpsertSession(courseId, date);
+  const markMutation = useMarkBulk(courseId, date);
 
-  // Session draft (held / topic / notes), hydrated from the day fetch using
-  // the "adjust state during render" pattern (same as AttendanceMarker).
+  // Session draft (held / topic), hydrated from the day fetch via the React
+  // "adjust state during render" pattern.
   const [held, setHeld] = useState(true);
   const [topic, setTopic] = useState("");
-  const [notes, setNotes] = useState("");
   const [hydratedKey, setHydratedKey] = useState<string | null>(null);
 
   const dayKey = `${courseId}|${date}|${dayQuery.dataUpdatedAt}`;
@@ -61,170 +71,278 @@ export function SessionDetail({
     const s: DaySessionInfo | null = dayQuery.data.session;
     setHeld(s ? s.held : true);
     setTopic(s ? s.topic : "");
-    setNotes(s ? (s.notes ?? "") : "");
     setHydratedKey(dayKey);
   }
 
-  const handleSaveSession = () => {
-    upsertMutation.mutate(
-      {
+  // Attendance draft: studentId -> status. Seeded from the roster (statuses
+  // already saved for this day), same hydrate-during-render approach.
+  const [att, setAtt] = useState<Record<string, AttendanceStatus | null>>({});
+  const [rosterKey, setRosterKey] = useState<unknown>(null);
+  if (rosterQuery.data && rosterKey !== rosterQuery.data) {
+    const next: Record<string, AttendanceStatus | null> = {};
+    for (const row of rosterQuery.data.roster) next[row.student_id] = row.status;
+    setRosterKey(rosterQuery.data);
+    setAtt(next);
+  }
+
+  const roster: RosterRow[] = rosterQuery.data?.roster ?? [];
+  const presentCount = roster.filter((r) => countsPresent(att[r.student_id] ?? null)).length;
+
+  const setStatus = (studentId: string, status: AttendanceStatus) =>
+    setAtt((a) => ({ ...a, [studentId]: status }));
+
+  const markAllPresent = () =>
+    setAtt(() => {
+      const next: Record<string, AttendanceStatus> = {};
+      for (const row of roster) next[row.student_id] = "present";
+      return next;
+    });
+
+  const saving = upsertMutation.isPending || markMutation.isPending;
+
+  const handleSave = async () => {
+    const records = roster
+      .map((row) => {
+        const status = att[row.student_id];
+        if (!status) return null;
+        return {
+          student_id: row.student_id,
+          course_id: courseId,
+          session_date: date,
+          status,
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    try {
+      await upsertMutation.mutateAsync({
         course_id: courseId,
         session_date: date,
         held,
         topic: topic.trim(),
-        notes: notes.trim() || null,
-      },
-      {
-        onSuccess: () => toast.success(t("journal.sessionSaved")),
-        onError: () => toast.error(t("journal.saveFailed")),
-      },
-    );
+        notes: null,
+      });
+      if (records.length > 0) await markMutation.mutateAsync(records);
+      toast.success(t("journal.sessionSaved"));
+      onClose();
+    } catch {
+      toast.error(t("journal.saveFailed"));
+    }
   };
 
   const activity = dayQuery.data?.activity ?? [];
 
-  const headerMeta = [timeLabel, isOnline ? t("journal.online") : roomLabel]
-    .filter(Boolean)
-    .join(" · ");
-
   return (
     <>
       <div
-        className="fixed inset-0 z-50 bg-ink-900/40"
+        className="fixed inset-0 z-50 bg-ink-900/35"
         onClick={onClose}
         aria-hidden="true"
       />
       <aside
         role="dialog"
         aria-modal="true"
-        className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-[460px] flex-col overflow-y-auto bg-surface p-5 shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-[470px] flex-col bg-paper font-sans shadow-2xl"
       >
-        <div className="mb-1 flex items-start justify-between gap-3">
-          <h2 className="text-lg font-bold text-text">
-            {courseTitle} · {date}
-          </h2>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 border-b border-ink-100 px-[22px] pb-3.5 pt-[18px]">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-extrabold text-ink-900">
+              {courseTitle}
+            </h2>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-ink-500">
+              {timeLabel ? <span className="font-mono">{timeLabel}</span> : null}
+              {timeLabel && (roomLabel || isOnline) ? <span>·</span> : null}
+              {isOnline ? (
+                <span className="inline-flex items-center gap-1 font-semibold text-info">
+                  <Video className="h-3.5 w-3.5" /> {t("journal.online")}
+                </span>
+              ) : roomLabel ? (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" /> {roomLabel}
+                </span>
+              ) : null}
+            </div>
+          </div>
           <button
             onClick={onClose}
             aria-label={t("journal.close")}
-            className="text-text-subtle transition-colors hover:text-text"
+            className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink-50 text-ink-500 transition-colors hover:text-text"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
-        {headerMeta ? (
-          <p className="mb-3 text-xs text-text-muted">{headerMeta}</p>
-        ) : null}
 
-        {/* Session held / topic / notes */}
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm text-text">
-            <input
-              type="checkbox"
-              checked={held}
-              onChange={(e) => setHeld(e.target.checked)}
-              className="h-4 w-4"
-            />
+        {/* Body (scroll) */}
+        <div className="flex-1 overflow-y-auto px-[22px] py-4">
+          {/* Held toggle */}
+          <label className="mb-3 flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-text">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={held}
+              aria-label={t("journal.sessionHeld")}
+              onClick={() => setHeld((h) => !h)}
+              className={`relative h-[22px] w-[38px] shrink-0 rounded-full transition-colors duration-150 ${
+                held ? "bg-green-600" : "bg-ink-200"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white transition-all duration-150 ${
+                  held ? "left-[18px]" : "left-0.5"
+                }`}
+              />
+            </button>
             {t("journal.sessionHeld")}
           </label>
-          <label className="flex flex-col gap-1 text-xs text-text-muted">
-            {t("journal.topic")}
+
+          {/* Topic */}
+          <div className="mb-[18px]">
+            <div className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              {t("journal.topic")}
+            </div>
             <input
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder={t("journal.topicPlaceholder")}
               maxLength={500}
-              className="rounded-lg border border-border-strong px-3 py-2 text-sm text-text"
+              className="w-full rounded-[10px] border-[1.5px] border-ink-100 bg-surface px-3 py-2.5 text-sm text-ink-900"
             />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-text-muted">
-            {t("journal.notes")}
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={t("journal.notesPlaceholder")}
-              rows={2}
-              className="rounded-lg border border-border-strong px-3 py-2 text-sm text-text"
-            />
-          </label>
-        </div>
-
-        {/* Attendance */}
-        <h3 className="mb-2 mt-5 text-sm font-semibold text-text">
-          {t("journal.attendanceSection")}
-        </h3>
-        <AttendanceMarker courseId={courseId} date={date} />
-
-        {/* Activity that day */}
-        <h3 className="mb-2 mt-5 text-sm font-semibold text-text">
-          {t("journal.activitySection")}
-        </h3>
-        {dayQuery.isLoading ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
           </div>
-        ) : activity.length === 0 ? (
-          <Card>
-            <CardContent className="py-6 text-center text-sm text-text-subtle">
-              {t("journal.noActivity")}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardContent className="space-y-1.5 p-3 text-xs">
-              {activity.map((row) => {
-                const counts = [
-                  row.lessons_completed.length
-                    ? `${row.lessons_completed.length} ${t("journal.lessonsShort")}`
-                    : null,
-                  row.exercises_done
-                    ? `${row.exercises_done} ${t("journal.exercisesShort")}`
-                    : null,
-                  row.quizzes_done
-                    ? `${row.quizzes_done} ${t("journal.quizzesShort")}`
-                    : null,
-                  row.assignments_done
-                    ? `${row.assignments_done} ${t("journal.assignmentsShort")}`
-                    : null,
-                ].filter(Boolean);
+
+          {/* Attendance */}
+          <div className="mb-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-extrabold text-text">
+                {t("journal.attendanceSection")}
+              </span>
+              <span className="text-xs font-semibold text-ink-400">
+                {presentCount}/{roster.length}
+              </span>
+            </div>
+            <button
+              onClick={markAllPresent}
+              disabled={roster.length === 0}
+              className="flex items-center gap-1 rounded-lg bg-green-50 px-2.5 py-1.5 text-[11.5px] font-bold text-green-700 hover:bg-green-100 disabled:opacity-50"
+            >
+              <Check className="h-3.5 w-3.5" />
+              {t("attendance.markAllPresent")}
+            </button>
+          </div>
+
+          {rosterQuery.isLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          ) : roster.length === 0 ? (
+            <p className="mb-5 rounded-[10px] bg-ink-50 py-4 text-center text-xs text-ink-400">
+              {t("attendance.noStudents")}
+            </p>
+          ) : (
+            <div className="mb-5 flex flex-col gap-1">
+              {roster.map((row) => {
+                const current = att[row.student_id] ?? null;
                 return (
                   <div
                     key={row.student_id}
-                    className="flex items-center justify-between gap-2"
+                    className="flex items-center gap-2 py-1"
                   >
-                    <Link
-                      href={`/admin/students/${row.student_id}`}
-                      className="font-medium text-primary underline-offset-2 hover:underline"
-                    >
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-text">
                       {row.student_name}
-                    </Link>
-                    <span className="text-text-muted">
-                      {counts.length > 0 ? counts.join(" · ") : "—"}
                     </span>
+                    {ATT_ORDER.map((s) => {
+                      const selected = current === s;
+                      const token = ATT_STATUS[s];
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setStatus(row.student_id, s)}
+                          title={t(`attendance.statusValue.${s}`)}
+                          aria-label={t(`attendance.statusValue.${s}`)}
+                          aria-pressed={selected}
+                          className={`h-7 w-[30px] rounded-md font-mono text-xs font-extrabold transition-colors ${
+                            selected
+                              ? token.cell
+                              : "bg-surface text-ink-300 shadow-[inset_0_0_0_1.5px_var(--ink-100)] hover:text-ink-500"
+                          }`}
+                        >
+                          {token.letter}
+                        </button>
+                      );
+                    })}
                   </div>
                 );
               })}
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          )}
 
-        {/* Footer actions */}
-        <div className="mt-6 flex justify-end gap-2">
+          {/* Activity that day */}
+          <div className="mb-2.5 flex items-center gap-1.5">
+            <Zap className="h-4 w-4 text-sun-500" fill="currentColor" />
+            <span className="text-sm font-extrabold text-text">
+              {t("journal.activitySection")}
+            </span>
+          </div>
+          {!held ? (
+            <div className="rounded-[10px] bg-ink-50 p-4 text-center text-xs text-ink-400">
+              {t("journal.activityNeedsHeld")}
+            </div>
+          ) : dayQuery.isLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          ) : activity.length === 0 ? (
+            <Card>
+              <CardContent className="py-6 text-center text-sm text-text-subtle">
+                {t("journal.noActivity")}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              {activity.map((row) => {
+                const exTotal =
+                  row.exercises_done + row.quizzes_done + row.assignments_done;
+                return (
+                  <Link
+                    key={row.student_id}
+                    href={`/admin/students/${row.student_id}`}
+                    className="flex items-center gap-2.5 rounded-[10px] border border-ink-100 bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
+                  >
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-green-50 text-[11px] font-extrabold text-green-800">
+                      {row.student_name.charAt(0)}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-text">
+                      {row.student_name}
+                    </span>
+                    <span className="font-mono text-[11px] font-semibold text-ink-400">
+                      {exTotal} {t("journal.exercisesShort")}
+                      {row.lessons_completed.length
+                        ? ` · ${row.lessons_completed.length} ${t("journal.lessonsShort")}`
+                        : ""}
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink-300" />
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-2.5 border-t border-ink-100 px-[22px] py-3.5">
           <button
             onClick={onClose}
-            className="rounded-lg border border-border-strong bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-ink-50"
+            className="rounded-[11px] border border-ink-100 bg-surface px-[18px] py-2.5 text-[13px] font-bold text-ink-700 hover:bg-ink-50"
           >
             {t("journal.cancel")}
           </button>
           <button
-            onClick={handleSaveSession}
-            disabled={upsertMutation.isPending}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 rounded-[11px] bg-green-600 px-[22px] py-2.5 text-[13px] font-bold text-white shadow-[0_4px_0_0_var(--green-700)] transition-transform hover:bg-green-700 active:translate-y-[2px] active:shadow-[0_2px_0_0_var(--green-700)] disabled:opacity-60"
           >
-            {upsertMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("journal.saveSession")}
           </button>
         </div>

@@ -49,9 +49,16 @@ import {
 } from "@/lib/api/journal";
 import {
   fetchRoster,
+  markBulk,
   type AttendanceStatus,
   type RosterRow,
 } from "@/lib/api/attendance";
+import {
+  ATT_STATUS,
+  countsPresent,
+  groupColor,
+  nextStatus,
+} from "@/lib/journal-status";
 import {
   useCourseSlots,
   useCreateSlot,
@@ -208,6 +215,14 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
 
   const agenda = todayQuery.data?.agenda ?? [];
 
+  // Mini-metrics: total lessons today, how many are marked (held + attendance
+  // taken), and how many still await marking.
+  const lessonsCount = agenda.length;
+  const markedCount = agenda.filter(
+    (r) => r.session !== null && r.attendance.total > 0,
+  ).length;
+  const awaitingCount = lessonsCount - markedCount;
+
   const dateLabel = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
     weekday: "long",
     day: "numeric",
@@ -287,6 +302,41 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
         )}
       </div>
 
+      {/* Mini-metrics */}
+      <div className="flex gap-2.5">
+        {[
+          {
+            key: "lessons",
+            label: t("journal.metricLessons"),
+            value: lessonsCount,
+            color: "text-ink-900",
+          },
+          {
+            key: "marked",
+            label: t("journal.metricMarked"),
+            value: markedCount,
+            color: "text-green-700",
+          },
+          {
+            key: "awaiting",
+            label: t("journal.metricAwaiting"),
+            value: awaitingCount,
+            color: "text-coral-700",
+          },
+        ].map((m) => (
+          <Card key={m.key} className="flex-1">
+            <CardContent className="flex items-center justify-between px-3.5 py-3">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                {m.label}
+              </span>
+              <span className={`text-2xl font-extrabold tracking-tight ${m.color}`}>
+                {m.value}
+              </span>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       {/* Agenda */}
       {todayQuery.isLoading ? (
         <div className="flex justify-center py-10">
@@ -299,18 +349,20 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {agenda.map((row) => (
+        <Card className="overflow-hidden p-0">
+          {agenda.map((row, i) => (
             <AgendaRow
               key={row.slot_id}
               row={row}
               date={date}
+              isFirst={i === 0}
               onOpen={() => setOpenRow(row)}
               onJoin={() => join(row)}
             />
           ))}
-        </div>
+        </Card>
       )}
+      <p className="text-[11.5px] text-ink-400">{t("journal.agendaHint")}</p>
 
       {openRow && (
         <SessionDetail
@@ -332,11 +384,12 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
 interface AgendaRowProps {
   row: TodayAgendaRow;
   date: string;
+  isFirst: boolean;
   onOpen: () => void;
   onJoin: () => void;
 }
 
-function AgendaRow({ row, date, onOpen, onJoin }: AgendaRowProps) {
+function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
   const { t } = useTranslation();
   const [topic, setTopic] = useState(row.session?.topic ?? "");
   const [savedTopic, setSavedTopic] = useState(row.session?.topic ?? "");
@@ -366,70 +419,107 @@ function AgendaRow({ row, date, onOpen, onJoin }: AgendaRowProps) {
   };
 
   const marked = row.attendance.total > 0 && row.session !== null;
+  const bar = groupColor(row.course_id);
 
   return (
-    <Card className="transition-colors hover:border-primary">
-      <CardContent className="flex flex-wrap items-center gap-3 p-3">
-        <div className="w-24 shrink-0 font-mono text-xs text-text-muted">
-          {row.start_time}–{row.end_time}
-        </div>
-        <div className="w-40 shrink-0 text-sm font-semibold text-text">
-          {row.course_title}
-        </div>
-        <div
-          className={`flex w-28 shrink-0 items-center gap-1 text-xs ${
-            row.is_online ? "font-semibold text-primary" : "text-text-muted"
-          }`}
-        >
-          {row.is_online ? (
-            <>
-              <Video className="h-3.5 w-3.5" /> {t("journal.online")}
-            </>
-          ) : row.room_name ? (
-            <>
-              <MapPin className="h-3.5 w-3.5" /> {row.room_name}
-            </>
-          ) : (
-            <span className="text-text-subtle">—</span>
-          )}
-        </div>
-        <input
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          onBlur={saveTopic}
-          placeholder={t("journal.topicPlaceholder")}
-          maxLength={500}
-          className="min-w-[8rem] flex-1 rounded-lg border border-border-strong px-2 py-1 text-xs text-text"
+    <div
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className={`grid cursor-pointer grid-cols-[84px_minmax(150px,1.3fr)_116px_minmax(120px,1fr)_132px] items-center gap-3.5 px-5 py-[15px] transition-colors hover:bg-ink-50 ${
+        isFirst ? "" : "border-t border-ink-50"
+      }`}
+    >
+      {/* Time */}
+      <span className="font-mono text-[12.5px] font-bold text-ink-700">
+        {row.start_time}–{row.end_time}
+      </span>
+
+      {/* Group color bar + course + teacher */}
+      <div className="flex min-w-0 items-center gap-2.5">
+        <span
+          className="h-9 w-2 shrink-0 rounded"
+          style={{ backgroundColor: bar }}
         />
-        <div
-          className={`w-24 shrink-0 text-center text-xs ${
-            marked ? "font-semibold text-primary" : "text-text-subtle"
-          }`}
-        >
-          {saving ? (
-            <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" />
-          ) : marked ? (
-            `● ${row.attendance.present}/${row.attendance.total}`
-          ) : (
-            `○ ${t("journal.notMarked")}`
-          )}
+        <div className="min-w-0">
+          <div className="truncate text-sm font-extrabold text-text">
+            {row.course_title}
+          </div>
+          {row.teacher_name ? (
+            <div className="truncate text-[11.5px] font-semibold text-ink-400">
+              {row.teacher_name}
+            </div>
+          ) : null}
         </div>
-        <button
-          onClick={onOpen}
-          className="shrink-0 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
-        >
-          {t("journal.takeAttendance")}
-        </button>
-        {row.is_online && row.room_url && (
+      </div>
+
+      {/* Room */}
+      <span
+        className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+          row.is_online ? "text-info" : "text-ink-500"
+        }`}
+      >
+        {row.is_online ? (
+          <>
+            <Video className="h-3.5 w-3.5" /> {t("journal.online")}
+          </>
+        ) : row.room_name ? (
+          <>
+            <MapPin className="h-3.5 w-3.5" /> {row.room_name}
+          </>
+        ) : (
+          <span className="text-ink-300">—</span>
+        )}
+      </span>
+
+      {/* Topic (inline-editable, upsert on blur). Clicks must not bubble to
+          the row open handler. */}
+      <input
+        value={topic}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        onChange={(e) => setTopic(e.target.value)}
+        onBlur={saveTopic}
+        placeholder={t("journal.topicPlaceholder")}
+        maxLength={500}
+        className="min-w-0 rounded-lg border border-ink-100 bg-surface px-2 py-1 text-[12.5px] text-ink-700"
+      />
+
+      {/* Status + chevron */}
+      <div className="flex items-center justify-end gap-3">
+        {saving ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-ink-400" />
+        ) : marked ? (
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-green-700">
+            <span className="h-2 w-2 rounded-full bg-green-600" />
+            {row.attendance.present}/{row.attendance.total}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-ink-400">
+            <span className="h-2 w-2 rounded-full border-2 border-ink-300" />
+            {t("journal.notMarked")}
+          </span>
+        )}
+        {row.is_online && row.room_url ? (
           <button
-            onClick={onJoin}
-            className="shrink-0 rounded-pill border border-primary px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onJoin();
+            }}
+            className="shrink-0 rounded-pill border border-primary px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10"
           >
             {t("journal.join")}
           </button>
-        )}
-      </CardContent>
-    </Card>
+        ) : null}
+        <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />
+      </div>
+    </div>
   );
 }
 
@@ -438,20 +528,6 @@ function AgendaRow({ row, date, onOpen, onJoin }: AgendaRowProps) {
 interface RegisterTabProps {
   courses: CourseOption[];
 }
-
-const CELL_STYLES: Record<AttendanceStatus, string> = {
-  present: "bg-success-soft text-success-fg",
-  late: "bg-warning-soft text-warning-fg",
-  absent: "bg-danger-soft text-danger-fg",
-  excused: "bg-ink-100 text-text-muted",
-};
-
-const CELL_LETTER: Record<AttendanceStatus, string> = {
-  present: "P",
-  late: "L",
-  absent: "A",
-  excused: "E",
-};
 
 interface AttendanceApiRecord {
   student_id: string;
@@ -472,6 +548,12 @@ function RegisterTab({ courses }: RegisterTabProps) {
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Optimistic cell overrides applied on top of fetched records:
+  // `studentId|date` -> status. Click cycles a cell and batch-upserts it.
+  const [overrides, setOverrides] = useState<Map<string, AttendanceStatus>>(
+    new Map(),
+  );
+
   const sessions = sessionsQuery.data?.sessions ?? [];
   const latestSessionDate =
     sessions.length > 0 ? sessions[sessions.length - 1].session_date : "";
@@ -480,10 +562,12 @@ function RegisterTab({ courses }: RegisterTabProps) {
     if (!courseId) {
       setStudents([]);
       setRecords([]);
+      setOverrides(new Map());
       return;
     }
     let cancelled = false;
     setLoading(true);
+    setOverrides(new Map());
     const rosterDate = latestSessionDate || todayISO();
     Promise.all([
       fetchRoster(courseId, rosterDate),
@@ -511,13 +595,75 @@ function RegisterTab({ courses }: RegisterTabProps) {
     // Re-assemble when the course or the latest known session date changes.
   }, [courseId, latestSessionDate]);
 
-  // Build the lookup: studentId|date -> status.
+  // Build the lookup: studentId|date -> status (fetched records, then any
+  // optimistic overrides on top).
   const cellMap = new Map<string, AttendanceStatus>();
   for (const r of records) {
     if (r.session_date)
       cellMap.set(`${r.student_id}|${r.session_date}`, r.status);
   }
+  for (const [k, v] of overrides) cellMap.set(k, v);
+
   const dates = sessions.map((s) => s.session_date);
+
+  // Click a cell → cycle P→L→A→E, apply optimistically, batch-upsert. On
+  // failure the override is rolled back.
+  const cycleCell = (studentId: string, date: string) => {
+    const key = `${studentId}|${date}`;
+    const current = cellMap.get(key) ?? null;
+    const next = nextStatus(current);
+    setOverrides((m) => {
+      const copy = new Map(m);
+      copy.set(key, next);
+      return copy;
+    });
+    markBulk([
+      { student_id: studentId, course_id: courseId, session_date: date, status: next },
+    ]).catch(() => {
+      setOverrides((m) => {
+        const copy = new Map(m);
+        if (current === null) copy.delete(key);
+        else copy.set(key, current);
+        return copy;
+      });
+      toast.error(t("journal.saveFailed"));
+    });
+  };
+
+  // Per-student attendance %, and a risk roll-up for the side panel.
+  const studentStats = students.map((stu) => {
+    let present = 0;
+    let absent = 0;
+    let late = 0;
+    for (const d of dates) {
+      const status = cellMap.get(`${stu.student_id}|${d}`) ?? null;
+      if (countsPresent(status)) present += 1;
+      if (status === "absent") absent += 1;
+      if (status === "late") late += 1;
+    }
+    const pct = dates.length ? Math.round((present / dates.length) * 100) : 0;
+    return { stu, present, absent, late, pct };
+  });
+  const avgPct = studentStats.length
+    ? Math.round(
+        studentStats.reduce((acc, s) => acc + s.pct, 0) / studentStats.length,
+      )
+    : 0;
+  const atRisk = studentStats
+    .filter((s) => s.pct < 85)
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 6);
+
+  // Per-date present totals for the table footer.
+  const colTotals = dates.map(
+    (d) =>
+      students.filter((stu) =>
+        countsPresent(cellMap.get(`${stu.student_id}|${d}`) ?? null),
+      ).length,
+  );
+
+  const pctColor = (p: number) =>
+    p >= 85 ? "bg-green-600" : p >= 70 ? "bg-sun-500" : "bg-coral-500";
 
   const handleExport = async () => {
     if (!courseId || dates.length === 0) return;
@@ -572,8 +718,6 @@ function RegisterTab({ courses }: RegisterTabProps) {
         </button>
       </div>
 
-      <p className="text-xs text-text-subtle">{t("journal.registerReadOnly")}</p>
-
       {!courseId ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-text-subtle">
@@ -591,60 +735,212 @@ function RegisterTab({ courses }: RegisterTabProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="overflow-auto rounded-xl border border-border bg-surface">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-text-subtle">
-                <th className="p-2 text-left">{t("journal.student")}</th>
-                {sessions.map((s) => (
-                  <th key={s.id} className="p-2 text-center font-medium">
-                    <div>{s.session_date.slice(5)}</div>
-                    {s.topic ? (
-                      <div className="max-w-[6rem] truncate font-normal text-text-subtle">
-                        {s.topic}
-                      </div>
-                    ) : null}
-                  </th>
-                ))}
-                <th className="p-2 text-center">Σ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((stu) => {
-                let present = 0;
-                const cells = dates.map((d) => {
-                  const status = cellMap.get(`${stu.student_id}|${d}`) ?? null;
-                  if (status === "present" || status === "late") present += 1;
-                  return status;
-                });
-                return (
-                  <tr key={stu.student_id} className="border-t border-border">
-                    <td className="p-2 font-medium text-text">
-                      {stu.student_name}
-                    </td>
-                    {cells.map((status, i) => (
-                      <td key={dates[i]} className="p-1 text-center">
-                        {status ? (
-                          <span
-                            className={`inline-block w-7 rounded py-1 font-semibold ${CELL_STYLES[status]}`}
+        <div className="grid gap-4 lg:grid-cols-[1fr_236px]">
+          {/* Matrix */}
+          <div className="flex min-w-0 flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <MatrixLegend />
+              <span className="text-[11.5px] text-ink-400">
+                {t("journal.clickCycleHint")}
+              </span>
+            </div>
+            <Card className="overflow-auto p-0">
+              <table className="w-full border-separate border-spacing-0 tabular-nums">
+                <thead>
+                  <tr>
+                    <th className="sticky left-0 top-0 z-30 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-ink-100 bg-surface p-3 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                      {t("journal.student")}
+                    </th>
+                    {dates.map((d) => {
+                      const wd = new Date(d + "T00:00:00").toLocaleDateString(
+                        undefined,
+                        { weekday: "short" },
+                      );
+                      return (
+                        <th
+                          key={d}
+                          className="sticky top-0 z-20 min-w-[52px] border-b-[1.5px] border-ink-100 bg-surface px-1 py-2"
+                        >
+                          <div className="text-xs font-extrabold text-ink-900">
+                            {d.slice(5)}
+                          </div>
+                          <div className="font-mono text-[9px] font-semibold text-ink-400">
+                            {wd}
+                          </div>
+                        </th>
+                      );
+                    })}
+                    <th className="sticky right-0 top-0 z-30 border-b-[1.5px] border-l-[1.5px] border-ink-100 bg-surface px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                      {t("journal.attShort")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studentStats.map(({ stu, pct }) => (
+                    <tr key={stu.student_id}>
+                      <td className="sticky left-0 z-10 h-[38px] whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-3.5 text-[13px] font-semibold text-ink-900">
+                        {stu.student_name}
+                      </td>
+                      {dates.map((d) => {
+                        const status =
+                          cellMap.get(`${stu.student_id}|${d}`) ?? null;
+                        const token = status ? ATT_STATUS[status] : null;
+                        return (
+                          <td
+                            key={d}
+                            className="border-b border-ink-50 p-[3px] text-center"
                           >
-                            {CELL_LETTER[status]}
+                            <button
+                              onClick={() => cycleCell(stu.student_id, d)}
+                              title={
+                                status
+                                  ? t(`attendance.statusValue.${status}`)
+                                  : t("journal.notMarked")
+                              }
+                              className={`h-[30px] w-full rounded-md font-mono text-xs font-extrabold transition-colors ${
+                                token
+                                  ? token.cell
+                                  : "bg-surface text-ink-300 hover:bg-ink-50"
+                              }`}
+                            >
+                              {token ? token.letter : "·"}
+                            </button>
+                          </td>
+                        );
+                      })}
+                      <td className="sticky right-0 z-10 border-b border-l-[1.5px] border-ink-50 border-l-ink-100 bg-surface px-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="h-1.5 w-[42px] overflow-hidden rounded-full bg-ink-100">
+                            <div
+                              className={`h-full ${pctColor(pct)}`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <span className="min-w-[30px] text-right text-xs font-extrabold text-ink-700">
+                            {pct}%
                           </span>
-                        ) : (
-                          <span className="text-text-subtle">·</span>
-                        )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td className="sticky left-0 z-10 border-r-[1.5px] border-t-[1.5px] border-ink-100 bg-ink-50 px-3.5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                      {t("journal.presentFrom")} {students.length}
+                    </td>
+                    {colTotals.map((tot, i) => (
+                      <td
+                        key={dates[i]}
+                        className={`border-t-[1.5px] border-ink-100 bg-ink-50 px-1 py-2.5 text-center text-xs font-extrabold ${
+                          tot >= students.length - 1
+                            ? "text-green-700"
+                            : tot <= students.length - 3
+                              ? "text-coral-700"
+                              : "text-ink-700"
+                        }`}
+                      >
+                        {tot}
                       </td>
                     ))}
-                    <td className="p-2 text-center text-text-muted">
-                      {present}/{dates.length}
-                    </td>
+                    <td className="sticky right-0 z-10 border-l-[1.5px] border-t-[1.5px] border-ink-100 bg-ink-50" />
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </tfoot>
+              </table>
+            </Card>
+          </div>
+
+          {/* Risk panel */}
+          <div className="flex flex-col gap-3">
+            <Card>
+              <CardContent className="px-4 py-4">
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                  {t("journal.avgAttendance")}
+                </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span
+                    className={`text-[34px] font-extrabold tracking-tight ${
+                      avgPct >= 85 ? "text-green-700" : "text-sun-700"
+                    }`}
+                  >
+                    {avgPct}%
+                  </span>
+                  <span className="text-xs font-bold text-ink-400">
+                    {t("journal.forPeriod")}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="px-4 py-4">
+                <div className="mb-3 flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5 text-coral-500" />
+                  <span className="text-[13px] font-extrabold text-text">
+                    {t("journal.atRisk")}
+                  </span>
+                  <span className="ml-auto font-mono text-[11px] font-bold text-ink-400">
+                    &lt; 85%
+                  </span>
+                </div>
+                {atRisk.length === 0 ? (
+                  <p className="text-xs text-ink-400">{t("journal.noAtRisk")}</p>
+                ) : (
+                  <div className="flex flex-col gap-2.5">
+                    {atRisk.map(({ stu, absent, late, pct }) => (
+                      <div
+                        key={stu.student_id}
+                        className="flex items-center gap-2.5"
+                      >
+                        <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-coral-50 text-xs font-extrabold text-coral-700">
+                          {stu.student_name.charAt(0)}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[12.5px] font-bold text-text">
+                            {stu.student_name}
+                          </div>
+                          <div className="text-[10.5px] font-semibold text-ink-400">
+                            {absent} {t("journal.missesShort")}
+                            {late ? ` · ${late} ${t("journal.latesShort")}` : ""}
+                          </div>
+                        </div>
+                        <span className="text-[13px] font-extrabold text-coral-700">
+                          {pct}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Attendance status legend (P/L/A/E chips + localized labels).
+function MatrixLegend() {
+  const { t } = useTranslation();
+  const order: AttendanceStatus[] = ["present", "late", "absent", "excused"];
+  return (
+    <div className="flex flex-wrap items-center gap-3.5">
+      {order.map((s) => {
+        const token = ATT_STATUS[s];
+        return (
+          <span
+            key={s}
+            className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-ink-500"
+          >
+            <span
+              className={`grid h-4 w-4 place-items-center rounded font-mono text-[10px] font-extrabold ${token.cell}`}
+            >
+              {token.letter}
+            </span>
+            {t(`attendance.statusValue.${s}`)}
+          </span>
+        );
+      })}
     </div>
   );
 }
