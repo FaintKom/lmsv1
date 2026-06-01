@@ -42,6 +42,7 @@ import app.rooms.models  # noqa
 import app.sandbox.models  # noqa
 import app.schedule.models  # noqa
 import app.scorm.models  # noqa
+import app.sites.models  # noqa
 import app.skills.models  # noqa
 import app.submissions.models  # noqa
 import app.team_projects.models  # noqa
@@ -113,6 +114,11 @@ async def db():
                 # Phase C curriculum scope & sequence: link sessions to topics.
                 "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS actual_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
                 "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS planned_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
+                # Phase E1: sites (branches) + offline/online rooms. ``sites`` is
+                # created by create_all; the additive rooms columns are not.
+                "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS kind varchar(16) NOT NULL DEFAULT 'offline'",
+                "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS meeting_url varchar(500)",
+                "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS site_id uuid REFERENCES sites(id) ON DELETE SET NULL",
             ):
                 await conn.execute(_text(_stmt))
         _tables_created = True

@@ -18,10 +18,10 @@ import logging
 import uuid
 from datetime import time
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.admin.models import StudentGroup
+from app.admin.models import StudentGroup, StudentGroupMember
 from app.analytics.task_stats_service import (
     TaskStatsError,
     _authorize_course,
@@ -40,15 +40,27 @@ logger = logging.getLogger(__name__)
 
 
 class RoomConflictError(Exception):
-    """Raised when a slot's room is already booked for an overlapping window.
+    """Raised when a slot clashes on its room and/or its teacher.
 
-    Carries the list of conflicting slots so the router can surface a 409 with
-    ``{code: "room_conflict", conflicts: [...]}``.
+    Carries two lists so the router can surface a 409 with both kinds of
+    conflict::
+
+        {code: "room_conflict",
+         conflicts: [...],            # room double-bookings (back-compat)
+         teacher_conflicts: [...]}    # same-teacher overlaps (Phase E1)
+
+    The ``conflicts`` key keeps its original name + meaning (room clashes) so
+    existing clients/tests are unaffected; ``teacher_conflicts`` is additive.
     """
 
-    def __init__(self, conflicts: list[dict]):
+    def __init__(
+        self,
+        conflicts: list[dict] | None = None,
+        teacher_conflicts: list[dict] | None = None,
+    ):
         super().__init__("room_conflict")
-        self.conflicts = conflicts
+        self.conflicts = conflicts or []
+        self.teacher_conflicts = teacher_conflicts or []
 
 
 def slot_room_url(slot_id: uuid.UUID) -> str:
@@ -169,6 +181,7 @@ async def find_room_conflicts(
     rows = (await db.execute(stmt)).all()
     return [
         {
+            "type": "room",
             "slot_id": str(slot.id),
             "course_title": title,
             "start_time": _fmt_time(slot.start_time),
@@ -176,6 +189,114 @@ async def find_room_conflicts(
         }
         for slot, title in rows
     ]
+
+
+async def find_teacher_conflicts(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    teacher_id: uuid.UUID,
+    day_of_week: int,
+    start_time: time,
+    end_time: time,
+    exclude_slot_id: uuid.UUID | None = None,
+) -> list[dict]:
+    """Active slots whose group's teacher is ``teacher_id`` and that overlap.
+
+    The teacher of a slot is the ``teacher_id`` of its linked
+    :class:`StudentGroup` (Phase B). A slot without a group, or whose group has
+    no teacher, contributes no teacher-clash. Same overlap rule as the room
+    check (touching edges OK) and scoped org-wide (a teacher is org-global, not
+    site-bound). One query, no N+1.
+    """
+    stmt = (
+        select(ScheduleSlot, Course.title)
+        .join(StudentGroup, StudentGroup.id == ScheduleSlot.group_id)
+        .join(Course, Course.id == ScheduleSlot.course_id)
+        .where(
+            ScheduleSlot.org_id == org_id,
+            StudentGroup.teacher_id == teacher_id,
+            ScheduleSlot.day_of_week == day_of_week,
+            ScheduleSlot.active.is_(True),
+            ScheduleSlot.start_time < end_time,
+            ScheduleSlot.end_time > start_time,
+        )
+        .order_by(ScheduleSlot.start_time)
+    )
+    if exclude_slot_id is not None:
+        stmt = stmt.where(ScheduleSlot.id != exclude_slot_id)
+    rows = (await db.execute(stmt)).all()
+    return [
+        {
+            "type": "teacher",
+            "slot_id": str(slot.id),
+            "course_title": title,
+            "start_time": _fmt_time(slot.start_time),
+            "end_time": _fmt_time(slot.end_time),
+        }
+        for slot, title in rows
+    ]
+
+
+async def _slot_teacher_id(
+    db: AsyncSession, group_id: uuid.UUID | None
+) -> uuid.UUID | None:
+    """Resolve the teacher for a slot from its group (None when unlinked)."""
+    if group_id is None:
+        return None
+    return await db.scalar(
+        select(StudentGroup.teacher_id).where(StudentGroup.id == group_id)
+    )
+
+
+async def _capacity_warning(
+    db: AsyncSession,
+    group_id: uuid.UUID | None,
+    room: Room | None,
+) -> dict | None:
+    """Soft capacity warning when a group's roster exceeds its room capacity.
+
+    Returns a warning dict (NOT an error) when the group has more active
+    members than ``room.capacity`` — capacity is a hint, never a hard block.
+    No group, no room, or a room with no capacity limit → no warning.
+    """
+    if group_id is None or room is None or room.capacity is None:
+        return None
+    member_count = (
+        await db.scalar(
+            select(func.count())
+            .select_from(StudentGroupMember)
+            .where(StudentGroupMember.group_id == group_id)
+        )
+    ) or 0
+    if member_count > room.capacity:
+        return {
+            "type": "capacity",
+            "members": int(member_count),
+            "capacity": int(room.capacity),
+            "room_id": str(room.id),
+            "room_name": room.name,
+        }
+    return None
+
+
+def _build_warnings(
+    room_conflicts: list[dict],
+    teacher_conflicts: list[dict],
+    capacity: dict | None,
+) -> list[dict]:
+    """Collect non-blocking warnings into one list (room/teacher under force, capacity).
+
+    Room/teacher entries are only present when the caller forced past a 409;
+    capacity is always soft (never blocks) so it is included whenever present.
+    """
+    warnings: list[dict] = []
+    if room_conflicts:
+        warnings.append({"type": "room", "conflicts": room_conflicts})
+    if teacher_conflicts:
+        warnings.append({"type": "teacher", "conflicts": teacher_conflicts})
+    if capacity is not None:
+        warnings.append(capacity)
+    return warnings
 
 
 # ── Reads ────────────────────────────────────────────────────────────────
@@ -344,15 +465,22 @@ async def create_slot(
         room_id = None
     room = await _resolve_room(db, course.org_id, room_id)
 
-    warning: dict | None = None
+    # Room clash (same room overlapping) + teacher double-booking (same teacher
+    # of the slot's group overlapping). Both are blocking 409s unless ``force``,
+    # in which case they downgrade to a warning on the created slot.
+    room_conflicts: list[dict] = []
     if room_id is not None:
-        conflicts = await find_room_conflicts(
+        room_conflicts = await find_room_conflicts(
             db, course.org_id, room_id, day_of_week, start_time, end_time
         )
-        if conflicts:
-            if not force:
-                raise RoomConflictError(conflicts)
-            warning = {"code": "room_conflict", "conflicts": conflicts}
+    teacher_id = await _slot_teacher_id(db, group_id)
+    teacher_conflicts: list[dict] = []
+    if teacher_id is not None:
+        teacher_conflicts = await find_teacher_conflicts(
+            db, course.org_id, teacher_id, day_of_week, start_time, end_time
+        )
+    if (room_conflicts or teacher_conflicts) and not force:
+        raise RoomConflictError(room_conflicts, teacher_conflicts)
 
     slot = ScheduleSlot(
         org_id=course.org_id,
@@ -371,8 +499,16 @@ async def create_slot(
     await db.flush()
     await _notify_schedule_change(db, course, "created")
     result = _slot_to_dict(slot, course.title, room.name if room else None)
-    if warning is not None:
-        result["warning"] = warning
+    warnings = _build_warnings(
+        room_conflicts if force else [],
+        teacher_conflicts if force else [],
+        await _capacity_warning(db, group_id, room),
+    )
+    if warnings:
+        result["warnings"] = warnings
+        # Back-compat: keep the legacy single ``warning`` for a room clash.
+        if force and room_conflicts:
+            result["warning"] = {"code": "room_conflict", "conflicts": room_conflicts}
     return result
 
 
@@ -433,23 +569,36 @@ async def update_slot(
     room = await _resolve_room(db, slot.org_id, new_room_id)
 
     new_active = active if active is not None else slot.active
-    warning: dict | None = None
-    # Only an active slot with a real room can clash; re-check on any field that
-    # affects the booking window or the room link.
-    if new_room_id is not None and new_active:
-        conflicts = await find_room_conflicts(
-            db,
-            slot.org_id,
-            new_room_id,
-            new_day,
-            new_start,
-            new_end,
-            exclude_slot_id=slot.id,
-        )
-        if conflicts:
-            if not force:
-                raise RoomConflictError(conflicts)
-            warning = {"code": "room_conflict", "conflicts": conflicts}
+    # Effective group after any re-point (slot.group_id already updated above).
+    new_group_id = slot.group_id
+    room_conflicts: list[dict] = []
+    teacher_conflicts: list[dict] = []
+    # Only an active slot can clash; re-check on any field that affects the
+    # booking window, the room link, or the group (→ teacher).
+    if new_active:
+        if new_room_id is not None:
+            room_conflicts = await find_room_conflicts(
+                db,
+                slot.org_id,
+                new_room_id,
+                new_day,
+                new_start,
+                new_end,
+                exclude_slot_id=slot.id,
+            )
+        teacher_id = await _slot_teacher_id(db, new_group_id)
+        if teacher_id is not None:
+            teacher_conflicts = await find_teacher_conflicts(
+                db,
+                slot.org_id,
+                teacher_id,
+                new_day,
+                new_start,
+                new_end,
+                exclude_slot_id=slot.id,
+            )
+    if (room_conflicts or teacher_conflicts) and not force:
+        raise RoomConflictError(room_conflicts, teacher_conflicts)
 
     slot.day_of_week = new_day
     slot.start_time = new_start
@@ -470,8 +619,15 @@ async def update_slot(
     result = _slot_to_dict(
         slot, course.title if course else None, room.name if room else None
     )
-    if warning is not None:
-        result["warning"] = warning
+    warnings = _build_warnings(
+        room_conflicts if force else [],
+        teacher_conflicts if force else [],
+        await _capacity_warning(db, new_group_id, room) if new_active else None,
+    )
+    if warnings:
+        result["warnings"] = warnings
+        if force and room_conflicts:
+            result["warning"] = {"code": "room_conflict", "conflicts": room_conflicts}
     await _notify_schedule_change(db, course, "updated")
     return result
 

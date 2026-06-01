@@ -1293,6 +1293,11 @@ async def get_room_board(
                 "room_id": str(room.id),
                 "room_name": room.name,
                 "site": room.site or "",
+                "site_id": str(room.site_id) if room.site_id else None,
+                "kind": room.kind or "offline",
+                # Phase E1: a UI badge — online rooms render a Video icon.
+                "video": (room.kind or "offline") == "online",
+                "meeting_url": room.meeting_url,
                 "capacity": room.capacity,
                 "active": room.active,
                 "slots": slot_dicts,

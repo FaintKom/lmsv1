@@ -74,6 +74,7 @@ from app.sandbox.router import router as sandbox_router
 from app.schedule.router import router as schedule_router
 from app.scorm.router import router as scorm_router
 from app.scorm_import.router import router as scorm_import_router
+from app.sites.router import router as sites_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router
@@ -186,6 +187,13 @@ async def _run_setup():
             # import; create_all does NOT add columns to the existing
             # schedule_slots table, so the room_id link relies on this fallback.
             "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
+            # Phase E1: sites (branches) + offline/online rooms (migration
+            # s1te5e1f2a3). The ``sites`` table is created by create_all from
+            # the model import; the additive ``rooms`` columns are NOT, so they
+            # rely on this fallback. site_id FK is ON DELETE SET NULL.
+            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS kind varchar(16) NOT NULL DEFAULT 'offline'",
+            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS meeting_url varchar(500)",
+            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS site_id uuid REFERENCES sites(id) ON DELETE SET NULL",
             # Phase B group-centric scheduling (migration g1h2i3j4k5l6).
             # Extend StudentGroup into the design's scheduling group + link
             # schedule_slots / class_sessions to a group. All additive + nullable;
@@ -388,6 +396,7 @@ async def lifespan(app: FastAPI):
     import app.attendance.models  # noqa
     import app.journal.models  # noqa
     import app.curriculum.models  # noqa
+    import app.sites.models  # noqa
     import app.rooms.models  # noqa
     import app.schedule.models  # noqa
     import app.scorm.models  # noqa
@@ -558,6 +567,7 @@ def create_app() -> FastAPI:
     app.include_router(curriculum_router, prefix="/api/v1", tags=["Curriculum"])
     app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["Schedule"])
     app.include_router(rooms_router, prefix="/api/v1/rooms", tags=["Rooms"])
+    app.include_router(sites_router, prefix="/api/v1/sites", tags=["Sites"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
     app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])

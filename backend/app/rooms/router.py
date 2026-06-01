@@ -43,6 +43,9 @@ class RoomCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     capacity: int | None = Field(default=None, ge=0)
     site: str = Field(default="", max_length=120)
+    kind: str = Field(default="offline", max_length=16)
+    meeting_url: str | None = Field(default=None, max_length=500)
+    site_id: uuid.UUID | None = None
 
 
 class RoomUpdate(BaseModel):
@@ -50,6 +53,9 @@ class RoomUpdate(BaseModel):
     capacity: int | None = Field(default=None, ge=0)
     site: str | None = Field(default=None, max_length=120)
     active: bool | None = None
+    kind: str | None = Field(default=None, max_length=16)
+    meeting_url: str | None = Field(default=None, max_length=500)
+    site_id: uuid.UUID | None = None
 
 
 @router.get("")
@@ -73,7 +79,14 @@ async def create_room(
 ):
     try:
         return await svc.create_room(
-            db, user, name=data.name, capacity=data.capacity, site=data.site
+            db,
+            user,
+            name=data.name,
+            capacity=data.capacity,
+            site=data.site,
+            kind=data.kind,
+            meeting_url=data.meeting_url,
+            site_id=data.site_id,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
@@ -96,6 +109,11 @@ async def update_room(
             capacity_set="capacity" in data.model_fields_set,
             site=data.site,
             active=data.active,
+            kind=data.kind,
+            meeting_url=data.meeting_url,
+            meeting_url_set="meeting_url" in data.model_fields_set,
+            site_id=data.site_id,
+            site_id_set="site_id" in data.model_fields_set,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc

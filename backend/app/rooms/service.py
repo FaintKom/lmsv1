@@ -22,6 +22,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.analytics.task_stats_service import TaskStatsError
 from app.auth.models import User, UserRole
 from app.rooms.models import Room
+from app.sites.models import Site
+
+VALID_ROOM_KINDS = ("offline", "online")
 
 
 def _require_read_role(user: User) -> None:
@@ -46,8 +49,33 @@ def _room_to_dict(r: Room) -> dict:
         "name": r.name,
         "capacity": r.capacity,
         "site": r.site or "",
+        "kind": r.kind or "offline",
+        "meeting_url": r.meeting_url,
+        "site_id": str(r.site_id) if r.site_id else None,
         "active": r.active,
     }
+
+
+async def _resolve_site_id(
+    db: AsyncSession, org_id: uuid.UUID, site_id: uuid.UUID | None
+) -> uuid.UUID | None:
+    """Validate ``site_id`` (if set) is a site in ``org_id``; else raise.
+
+    Org isolation: a room may only link to a site of its own org.
+    """
+    if site_id is None:
+        return None
+    site = await db.scalar(select(Site).where(Site.id == site_id))
+    if site is None or site.org_id != org_id:
+        raise TaskStatsError("bad_request", "Site not found in this organization")
+    return site_id
+
+
+def _normalize_kind(kind: str) -> str:
+    k = (kind or "offline").strip().lower()
+    if k not in VALID_ROOM_KINDS:
+        raise TaskStatsError("bad_request", "kind must be 'offline' or 'online'")
+    return k
 
 
 async def _get_authorized_room(
@@ -89,15 +117,30 @@ async def create_room(
     name: str,
     capacity: int | None = None,
     site: str = "",
+    kind: str = "offline",
+    meeting_url: str | None = None,
+    site_id: uuid.UUID | None = None,
 ) -> dict:
     _require_write_role(user)
     if user.org_id is None:
         raise TaskStatsError("bad_request", "User has no organization")
+    norm_kind = _normalize_kind(kind)
+    if norm_kind == "online":
+        # An online room is an org-wide virtual room: no physical site, a
+        # permanent meeting link.
+        site_id = None
+    else:
+        # Offline rooms never carry a meeting URL.
+        meeting_url = None
+    resolved_site_id = await _resolve_site_id(db, user.org_id, site_id)
     room = Room(
         org_id=user.org_id,
         name=name.strip()[:120],
         capacity=capacity,
         site=(site or "").strip()[:120],
+        kind=norm_kind,
+        meeting_url=(meeting_url.strip()[:500] if meeting_url else None),
+        site_id=resolved_site_id,
         active=True,
     )
     db.add(room)
@@ -115,6 +158,11 @@ async def update_room(
     capacity_set: bool = False,
     site: str | None = None,
     active: bool | None = None,
+    kind: str | None = None,
+    meeting_url: str | None = None,
+    meeting_url_set: bool = False,
+    site_id: uuid.UUID | None = None,
+    site_id_set: bool = False,
 ) -> dict:
     _require_write_role(user)
     room = await _get_authorized_room(db, user, room_id)
@@ -128,6 +176,21 @@ async def update_room(
         room.site = site.strip()[:120]
     if active is not None:
         room.active = active
+
+    # Resolve the effective kind, then enforce the kind-specific invariants:
+    # online → no site_id (org-wide pool); offline → no meeting_url.
+    if kind is not None:
+        room.kind = _normalize_kind(kind)
+    if meeting_url_set:
+        room.meeting_url = (
+            meeting_url.strip()[:500] if meeting_url else None
+        )
+    if site_id_set:
+        room.site_id = await _resolve_site_id(db, room.org_id, site_id)
+    if room.kind == "online":
+        room.site_id = None
+    else:
+        room.meeting_url = None
     db.add(room)
     await db.flush()
     return _room_to_dict(room)

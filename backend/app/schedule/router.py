@@ -46,9 +46,15 @@ def _translate(exc: TaskStatsError) -> HTTPException:
 
 
 def _conflict(exc: RoomConflictError) -> HTTPException:
+    # ``code``/``conflicts`` keep their original meaning (room clashes) for
+    # back-compat; ``teacher_conflicts`` is the additive Phase E1 list.
     return HTTPException(
         status_code=status.HTTP_409_CONFLICT,
-        detail={"code": "room_conflict", "conflicts": exc.conflicts},
+        detail={
+            "code": "room_conflict",
+            "conflicts": exc.conflicts,
+            "teacher_conflicts": exc.teacher_conflicts,
+        },
     )
 
 

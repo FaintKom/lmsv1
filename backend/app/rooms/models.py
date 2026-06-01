@@ -30,9 +30,24 @@ class Room(Base, IDMixin, TimestampMixin):
     )
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Legacy free-text site label — kept for back-compat. The structured branch
+    # link is ``site_id`` below (Phase E1); ``site`` is no longer the source of
+    # truth but is never dropped.
     site: Mapped[str] = mapped_column(String(120), nullable=False, default="")
     active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
+    )
+
+    # ── Phase E1: offline/online rooms + branch link (all additive) ──
+    # 'offline' = physical room at a site; 'online' = virtual meeting room
+    # (site_id NULL → org-wide pool, meeting_url set). The session format is
+    # derived from ``kind``, not a per-slot flag.
+    kind: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="offline", server_default="offline"
+    )
+    meeting_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    site_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sites.id", ondelete="SET NULL"), nullable=True
     )
 
     __table_args__ = (Index("ix_rooms_org", "org_id"),)
