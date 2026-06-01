@@ -22,11 +22,13 @@ import { isAxiosError } from "axios";
 import {
   AlertTriangle,
   BookOpenCheck,
+  Building2,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   Download,
+  Filter,
   Loader2,
   MapPin,
   Pencil,
@@ -71,6 +73,7 @@ import {
 } from "@/lib/journal-status";
 import {
   useCourseSlots,
+  useScheduleWeek,
   useCreateSlot,
   useUpdateSlot,
   useDeleteSlot,
@@ -83,11 +86,40 @@ import {
   useCreateRoom,
   useUpdateRoom,
   useDeleteRoom,
+  type Room,
   type RoomBoardRoom,
+  type RoomKind,
 } from "@/lib/api/rooms";
+import {
+  useSites,
+  useCreateSite,
+  useUpdateSite,
+  useDeleteSite,
+  type Site,
+} from "@/lib/api/sites";
+import {
+  assembleWeek,
+  SCHED_HOURS,
+  SCHED_ROW_H,
+  SCHED_START_HOUR,
+  type PlacedSlot,
+} from "@/lib/api/scheduler";
 
-type TabKey = "today" | "register" | "program" | "rooms" | "setup";
-const TABS: TabKey[] = ["today", "register", "program", "rooms", "setup"];
+type TabKey =
+  | "today"
+  | "register"
+  | "program"
+  | "schedule"
+  | "rooms"
+  | "setup";
+const TABS: TabKey[] = [
+  "today",
+  "register",
+  "program",
+  "schedule",
+  "rooms",
+  "setup",
+];
 
 interface CourseOption {
   id: string;
@@ -106,6 +138,14 @@ function todayISO(): string {
 function shiftISO(iso: string, days: number): string {
   const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Monday (ISO) of the week containing `iso` (week starts Monday). */
+function mondayOf(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  const dow = (d.getDay() + 6) % 7; // 0 = Monday … 6 = Sunday
+  d.setDate(d.getDate() - dow);
   return d.toISOString().slice(0, 10);
 }
 
@@ -185,6 +225,9 @@ function JournalModule() {
       )}
       {activeTab === "register" && <RegisterTab courses={courses} />}
       {activeTab === "program" && <PacingFlow />}
+      {activeTab === "schedule" && (
+        <ScheduleTab courses={courses} isManager={isManager} />
+      )}
       {activeTab === "rooms" && <RoomsTab />}
       {activeTab === "setup" && (
         <SetupTab courses={courses} canManageRooms={isManager} />
@@ -957,27 +1000,661 @@ function MatrixLegend() {
   );
 }
 
+// ── Schedule tab (week planner) ─────────────────────────────────────────────
+
+interface ScheduleTabProps {
+  courses: CourseOption[];
+  isManager: boolean;
+}
+
+// A draft slot for the create/edit popover. `slotId === null` → creating.
+interface SchedSlotDraft {
+  slotId: string | null;
+  course_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  room_id: string;
+  is_online: boolean;
+}
+
+function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
+  const { t } = useTranslation();
+  const [weekStart, setWeekStart] = useState(mondayOf(todayISO()));
+  const [courseFilter, setCourseFilter] = useState("");
+  const [siteFilter, setSiteFilter] = useState("");
+  const [editing, setEditing] = useState<SchedSlotDraft | null>(null);
+
+  const weekQuery = useScheduleWeek();
+  const roomsQuery = useRooms();
+  const sitesQuery = useSites();
+
+  const rooms = roomsQuery.data?.rooms ?? [];
+  const sites = sitesQuery.data?.sites ?? [];
+
+  // Map room_id → site_id so the site filter can keep only matching slots.
+  const roomSite = new Map(rooms.map((r) => [r.id, r.site_id]));
+
+  const allSlots = weekQuery.data?.slots ?? [];
+  const slots = allSlots.filter((s) => {
+    if (courseFilter && s.course_id !== courseFilter) return false;
+    if (siteFilter) {
+      // Keep slots booked in a room of the selected site (online/unsited drop).
+      if (!s.room_id || roomSite.get(s.room_id) !== siteFilter) return false;
+    }
+    return true;
+  });
+
+  const week = assembleWeek(slots);
+
+  // Distinct courses present this week → the color legend.
+  const legendCourses = Array.from(
+    new Map(slots.map((s) => [s.course_id, s.course_title ?? ""])).entries(),
+  );
+
+  const weekLabel = (() => {
+    const end = shiftISO(weekStart, 5);
+    const fmt = (iso: string) =>
+      new Date(iso + "T00:00:00").toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+      });
+    return `${fmt(weekStart)} – ${fmt(end)}`;
+  })();
+
+  const openAdd = () =>
+    setEditing({
+      slotId: null,
+      course_id: courseFilter || courses[0]?.id || "",
+      day_of_week: 0,
+      start_time: "09:00",
+      end_time: "10:00",
+      room_id: "",
+      is_online: false,
+    });
+
+  const openEdit = (placed: PlacedSlot) => {
+    const s = placed.slot;
+    setEditing({
+      slotId: s.id,
+      course_id: s.course_id,
+      day_of_week: s.day_of_week,
+      start_time: s.start_time,
+      end_time: s.end_time,
+      room_id: s.room_id ?? "",
+      is_online: s.is_online,
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* PageHead: week stepper + filters + add */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setWeekStart(shiftISO(weekStart, -7))}
+            aria-label={t("schedule.prevWeek")}
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="min-w-[10rem] text-center text-sm font-semibold text-text">
+            {weekLabel}
+          </div>
+          <button
+            onClick={() => setWeekStart(shiftISO(weekStart, 7))}
+            aria-label={t("schedule.nextWeek")}
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          {weekStart !== mondayOf(todayISO()) && (
+            <button
+              onClick={() => setWeekStart(mondayOf(todayISO()))}
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-ink-50"
+            >
+              {t("schedule.thisWeek")}
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
+            <Filter className="h-3.5 w-3.5 text-ink-400" />
+            <select
+              value={courseFilter}
+              onChange={(e) => setCourseFilter(e.target.value)}
+              className="bg-transparent text-text outline-none"
+            >
+              <option value="">{t("journal.allCourses")}</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </span>
+          {sites.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
+              <Building2 className="h-3.5 w-3.5 text-ink-400" />
+              <select
+                value={siteFilter}
+                onChange={(e) => setSiteFilter(e.target.value)}
+                className="bg-transparent text-text outline-none"
+              >
+                <option value="">{t("schedule.allSites")}</option>
+                {sites.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </span>
+          )}
+          {isManager && (
+            <button
+              onClick={openAdd}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("schedule.addLesson")}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Clash banner */}
+      {week.clashCount > 0 && (
+        <div className="flex items-center gap-2.5 rounded-xl border border-coral-300 bg-coral-50 px-3.5 py-2.5">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-coral-500" />
+          <span className="text-[12.5px] font-bold text-coral-700">
+            {t("schedule.clashesFound").replace(
+              "{count}",
+              String(week.clashCount),
+            )}
+          </span>
+          <span className="text-xs text-coral-700">
+            {t("schedule.clashHint")}
+          </span>
+        </div>
+      )}
+
+      {/* Color legend (course → group) */}
+      {legendCourses.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-400">
+            {t("schedule.groupsLegend")}
+          </span>
+          {legendCourses.map(([cid, title]) => (
+            <span
+              key={cid}
+              className="inline-flex items-center gap-1.5 rounded-pill border border-ink-100 bg-surface-2 py-1 pl-2 pr-2.5 text-[11.5px] font-bold text-ink-700"
+            >
+              <span
+                className="h-2.5 w-2.5 rounded"
+                style={{ backgroundColor: groupColor(cid) }}
+              />
+              {title}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Week grid */}
+      {weekQuery.isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <WeekGrid week={week} weekStart={weekStart} onEdit={openEdit} />
+      )}
+
+      {editing && (
+        <SchedSlotEditor
+          draft={editing}
+          courses={courses}
+          rooms={rooms}
+          onClose={() => setEditing(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+const WEEKDAY_KEYS = [0, 1, 2, 3, 4, 5] as const;
+
+function WeekGrid({
+  week,
+  weekStart,
+  onEdit,
+}: {
+  week: ReturnType<typeof assembleWeek>;
+  weekStart: string;
+  onEdit: (p: PlacedSlot) => void;
+}) {
+  const { t } = useTranslation();
+  const gridH = SCHED_HOURS.length * SCHED_ROW_H;
+
+  return (
+    <div className="overflow-auto">
+      <div className="grid min-w-[760px] grid-cols-[46px_repeat(6,1fr)] overflow-hidden rounded-2xl border border-ink-100 bg-surface-2">
+        {/* Header row */}
+        <div className="border-b-[1.5px] border-ink-100 bg-ink-50" />
+        {WEEKDAY_KEYS.map((d) => {
+          const dayIso = shiftISO(weekStart, d);
+          const wd = new Date(dayIso + "T00:00:00").toLocaleDateString(
+            undefined,
+            { weekday: "short" },
+          );
+          return (
+            <div
+              key={d}
+              className="border-b-[1.5px] border-l border-ink-100 border-l-ink-50 bg-ink-50 py-2.5 text-center"
+            >
+              <div className="text-[12.5px] font-extrabold text-ink-900">
+                {wd}
+              </div>
+              <div className="font-mono text-[10px] font-semibold text-ink-400">
+                {dayIso.slice(8)}.{dayIso.slice(5, 7)}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Time gutter */}
+        <div>
+          {SCHED_HOURS.map((h) => (
+            <div
+              key={h}
+              style={{ height: SCHED_ROW_H }}
+              className="px-1.5 pt-1 text-right font-mono text-[10px] font-semibold text-ink-400"
+            >
+              {h}:00
+            </div>
+          ))}
+        </div>
+
+        {/* Day columns */}
+        {WEEKDAY_KEYS.map((d) => (
+          <div
+            key={d}
+            className="relative border-l border-ink-50"
+            style={{ height: gridH }}
+          >
+            {SCHED_HOURS.map((h, hi) => (
+              <div
+                key={h}
+                style={{ top: hi * SCHED_ROW_H, height: SCHED_ROW_H }}
+                className={`absolute inset-x-0 ${
+                  hi ? "border-t border-ink-50" : ""
+                }`}
+              />
+            ))}
+            {(week.byDay[d] ?? []).map((p) => (
+              <SchedBlock key={p.slot.id} placed={p} onEdit={onEdit} />
+            ))}
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11.5px] text-ink-400">{t("schedule.gridHint")}</p>
+    </div>
+  );
+}
+
+function SchedBlock({
+  placed,
+  onEdit,
+}: {
+  placed: PlacedSlot;
+  onEdit: (p: PlacedSlot) => void;
+}) {
+  const { slot, start, dur, lane, lanes, clash } = placed;
+  const color = groupColor(slot.course_id);
+  const laneW = 100 / lanes;
+  const top = (start - SCHED_START_HOUR) * SCHED_ROW_H + 2;
+  const height = dur * SCHED_ROW_H - 4;
+
+  return (
+    <button
+      onClick={() => onEdit(placed)}
+      style={{
+        top,
+        height,
+        left: `calc(${lane * laneW}% + 3px)`,
+        width: `calc(${laneW}% - 6px)`,
+        background: clash
+          ? "var(--coral-50)"
+          : `color-mix(in srgb, ${color} 16%, var(--paper-2))`,
+        borderLeft: `4px solid ${clash ? "var(--coral-500)" : color}`,
+        boxShadow: clash
+          ? "0 0 0 1.5px var(--coral-500)"
+          : "0 1px 3px rgba(10,26,16,.08), inset 0 0 0 1px var(--ink-100)",
+      }}
+      className="absolute overflow-hidden rounded-lg px-1.5 py-1 text-left"
+    >
+      <div className="flex items-center gap-1">
+        {clash && (
+          <AlertTriangle className="h-[11px] w-[11px] shrink-0 text-coral-500" />
+        )}
+        <span className="truncate text-[11px] font-extrabold text-ink-900">
+          {slot.course_title}
+        </span>
+      </div>
+      <div
+        className={`mt-0.5 flex items-center gap-1 text-[9.5px] font-semibold ${
+          clash ? "text-coral-700" : "text-ink-400"
+        }`}
+      >
+        {slot.is_online ? (
+          <Video className="h-2.5 w-2.5" />
+        ) : (
+          <MapPin className="h-2.5 w-2.5" />
+        )}
+        <span className="truncate">
+          {slot.room_name || slot.location || ""}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+// Slot create/edit popover with room AND teacher 409 conflict handling.
+function SchedSlotEditor({
+  draft,
+  courses,
+  rooms,
+  onClose,
+}: {
+  draft: SchedSlotDraft;
+  courses: CourseOption[];
+  rooms: { id: string; name: string }[];
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const createSlot = useCreateSlot();
+  const updateSlot = useUpdateSlot();
+  const deleteSlot = useDeleteSlot();
+
+  const [form, setForm] = useState<SchedSlotDraft>(draft);
+  const [saving, setSaving] = useState(false);
+  const [roomConflicts, setRoomConflicts] = useState<RoomConflict[]>([]);
+  const [teacherConflicts, setTeacherConflicts] = useState<RoomConflict[]>([]);
+
+  const set = (patch: Partial<SchedSlotDraft>) => {
+    setForm((f) => ({ ...f, ...patch }));
+    setRoomConflicts([]);
+    setTeacherConflicts([]);
+  };
+
+  const save = async (force: boolean) => {
+    if (form.end_time <= form.start_time) {
+      toast.error(t("schedule.invalidTimes"));
+      return;
+    }
+    if (!form.course_id) {
+      toast.error(t("schedule.pickCourseFirst"));
+      return;
+    }
+    setSaving(true);
+    const body = {
+      day_of_week: form.day_of_week,
+      start_time: form.start_time,
+      end_time: form.end_time,
+      room_id: form.room_id || null,
+      is_online: form.is_online,
+    };
+    try {
+      if (form.slotId) {
+        await updateSlot.mutateAsync({ slotId: form.slotId, body, force });
+      } else {
+        await createSlot.mutateAsync({
+          body: { course_id: form.course_id, ...body },
+          force,
+        });
+      }
+      toast.success(form.slotId ? t("schedule.updated") : t("schedule.created"));
+      onClose();
+    } catch (err) {
+      const parsed = readScheduleConflicts(err);
+      if (parsed) {
+        setRoomConflicts(parsed.room);
+        setTeacherConflicts(parsed.teacher);
+      } else {
+        toast.error(t("schedule.saveFailed"));
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!form.slotId) return;
+    setSaving(true);
+    try {
+      await deleteSlot.mutateAsync(form.slotId);
+      toast.success(t("schedule.deleted"));
+      onClose();
+    } catch {
+      toast.error(t("schedule.deleteFailed"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const hasConflict = roomConflicts.length > 0 || teacherConflicts.length > 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(10,26,16,0.35)] p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md space-y-3 rounded-2xl bg-surface p-5 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-extrabold text-text">
+            {form.slotId ? t("schedule.editLesson") : t("schedule.addLesson")}
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label={t("common.close")}
+            className="rounded-lg p-1 text-ink-400 hover:bg-ink-50"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <label className="block text-xs font-semibold text-ink-500">
+          {t("journal.selectCourse")}
+          <select
+            value={form.course_id}
+            onChange={(e) => set({ course_id: e.target.value })}
+            disabled={!!form.slotId}
+            className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm font-normal text-text disabled:opacity-60"
+          >
+            <option value="">{t("journal.selectCourse")}</option>
+            {courses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="flex gap-2">
+          <label className="flex-1 text-xs font-semibold text-ink-500">
+            {t("schedule.dayOfWeek")}
+            <select
+              value={form.day_of_week}
+              onChange={(e) => set({ day_of_week: Number(e.target.value) })}
+              className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-2 py-2 text-sm font-normal text-text"
+            >
+              {DOW_KEYS.map((d) => (
+                <option key={d} value={d}>
+                  {t(`schedule.day.${d}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="w-24 text-xs font-semibold text-ink-500">
+            {t("schedule.startTime")}
+            <input
+              type="time"
+              value={form.start_time}
+              onChange={(e) => set({ start_time: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-border-strong px-2 py-2 text-sm"
+            />
+          </label>
+          <label className="w-24 text-xs font-semibold text-ink-500">
+            {t("schedule.endTime")}
+            <input
+              type="time"
+              value={form.end_time}
+              onChange={(e) => set({ end_time: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-border-strong px-2 py-2 text-sm"
+            />
+          </label>
+        </div>
+
+        <label className="block text-xs font-semibold text-ink-500">
+          {t("journal.room")}
+          <select
+            value={form.room_id}
+            onChange={(e) => set({ room_id: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm font-normal text-text"
+          >
+            <option value="">{t("journal.roomNone")}</option>
+            {rooms.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex items-center gap-2 text-xs font-semibold text-ink-500">
+          <input
+            type="checkbox"
+            checked={form.is_online}
+            onChange={(e) => set({ is_online: e.target.checked })}
+            className="h-4 w-4"
+          />
+          <Video className="h-3.5 w-3.5 text-info" />
+          {t("schedule.onlineLesson")}
+        </label>
+
+        {/* Conflict lists (room + teacher) with Save anyway */}
+        {hasConflict && (
+          <div className="space-y-1.5 rounded-lg border border-coral-300 bg-coral-50 p-3 text-[11.5px] text-coral-700">
+            {roomConflicts.length > 0 && (
+              <div>
+                <span className="font-bold">{t("journal.roomClashWarning")}</span>{" "}
+                {roomConflicts
+                  .map((c) => `${c.course_title} (${c.start_time}–${c.end_time})`)
+                  .join(", ")}
+              </div>
+            )}
+            {teacherConflicts.length > 0 && (
+              <div>
+                <span className="font-bold">
+                  {t("schedule.teacherClashWarning")}
+                </span>{" "}
+                {teacherConflicts
+                  .map((c) => `${c.course_title} (${c.start_time}–${c.end_time})`)
+                  .join(", ")}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 pt-1">
+          {form.slotId ? (
+            <button
+              onClick={remove}
+              disabled={saving}
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold text-coral-700 hover:bg-coral-50 disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {t("schedule.delete")}
+            </button>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="rounded-lg bg-ink-100 px-3 py-2 text-xs font-semibold text-text-muted hover:bg-ink-200"
+            >
+              {t("schedule.cancel")}
+            </button>
+            {hasConflict ? (
+              <button
+                onClick={() => save(true)}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-coral-500 bg-surface px-3 py-2 text-xs font-bold text-coral-700 hover:bg-coral-50 disabled:opacity-50"
+              >
+                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {t("journal.saveAnyway")}
+              </button>
+            ) : (
+              <button
+                onClick={() => save(false)}
+                disabled={saving}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
+              >
+                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {t("schedule.save")}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Pull room + teacher conflict lists out of a 409 schedule error. */
+function readScheduleConflicts(
+  err: unknown,
+): { room: RoomConflict[]; teacher: RoomConflict[] } | null {
+  if (!isAxiosError(err) || err.response?.status !== 409) return null;
+  const detail = err.response.data?.detail;
+  if (detail?.code !== "room_conflict") return null;
+  return {
+    room: Array.isArray(detail.conflicts) ? detail.conflicts : [],
+    teacher: Array.isArray(detail.teacher_conflicts)
+      ? detail.teacher_conflicts
+      : [],
+  };
+}
+
 // ── Rooms tab (room × time board) ───────────────────────────────────────────
 
 const DOW_KEYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
+// Hour columns for the room board (9 … 18), mirroring the week grid.
+const BOARD_HOURS: number[] = SCHED_HOURS;
+
 function RoomsTab() {
   const { t } = useTranslation();
   const [date, setDate] = useState(todayISO());
+  const [siteFilter, setSiteFilter] = useState("");
   const boardQuery = useRoomBoard(date);
+  const sitesQuery = useSites();
 
   const board = boardQuery.data;
-  const rooms = board?.rooms ?? [];
+  const allRooms = board?.rooms ?? [];
   const conflicts = board?.conflicts ?? [];
+  const sites = sitesQuery.data?.sites ?? [];
 
-  // slot_ids that are part of any clash → red outline + ⚠ on that cell.
+  const rooms = siteFilter
+    ? allRooms.filter((r) => r.site_id === siteFilter)
+    : allRooms;
+
+  // slot_ids that are part of any clash → red plaque + ⚠ on that cell.
   const conflictSlotIds = new Set<string>();
   for (const c of conflicts) for (const id of c.slot_ids) conflictSlotIds.add(id);
-
-  // Distinct start times across all rooms → the board's columns.
-  const times = Array.from(
-    new Set(rooms.flatMap((r) => r.slots.map((s) => s.start_time))),
-  ).sort();
 
   const dateLabel = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
     weekday: "short",
@@ -1015,16 +1692,32 @@ function RoomsTab() {
             </button>
           )}
         </div>
-        {/* Legend */}
-        <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded bg-success-soft" />
-            {t("journal.legendOccupied")}
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-3 w-3 rounded bg-danger-soft outline outline-1 outline-danger-fg" />
-            {t("journal.legendClash")}
-          </span>
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {/* Clash badge */}
+          {conflicts.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill bg-coral-50 px-2.5 py-1 font-bold text-coral-700">
+              <AlertTriangle className="h-3 w-3" />
+              {t("journal.legendClash")}
+            </span>
+          )}
+          {/* Site filter */}
+          {sites.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
+              <Building2 className="h-3.5 w-3.5 text-ink-400" />
+              <select
+                value={siteFilter}
+                onChange={(e) => setSiteFilter(e.target.value)}
+                className="bg-transparent text-text outline-none"
+              >
+                <option value="">{t("schedule.allSites")}</option>
+                {sites.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </span>
+          )}
         </div>
       </div>
 
@@ -1039,17 +1732,24 @@ function RoomsTab() {
           </CardContent>
         </Card>
       ) : (
-        <div className="overflow-auto rounded-xl border border-border bg-surface">
-          <table className="w-full text-xs">
+        <Card className="overflow-auto p-0">
+          <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-0">
             <thead>
-              <tr className="text-text-subtle">
-                <th className="p-2 text-left">{t("journal.room")}</th>
-                {times.map((time) => (
-                  <th key={time} className="p-2 text-center font-medium">
-                    {time}
+              <tr>
+                <th className="w-[150px] border-b-[1.5px] border-ink-100 p-3 text-left text-[11px] font-bold text-ink-500">
+                  {t("journal.room")}
+                </th>
+                {BOARD_HOURS.map((h) => (
+                  <th
+                    key={h}
+                    className="border-b-[1.5px] border-l border-ink-100 border-l-ink-50 py-2.5 text-center font-mono text-[10.5px] font-bold text-ink-400"
+                  >
+                    {h}
                   </th>
                 ))}
-                <th className="p-2 text-center">{t("journal.utilization")}</th>
+                <th className="w-16 border-b-[1.5px] border-l-[1.5px] border-ink-100 px-2.5 py-2.5 text-[11px] font-bold text-ink-500">
+                  {t("journal.utilization")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -1057,78 +1757,114 @@ function RoomsTab() {
                 <RoomBoardRow
                   key={room.room_id}
                   room={room}
-                  times={times}
                   conflictSlotIds={conflictSlotIds}
                 />
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
-      <p className="text-xs text-text-subtle">{t("journal.roomBoardHint")}</p>
+      <p className="text-[11.5px] text-ink-400">{t("journal.roomBoardHint")}</p>
     </div>
   );
 }
 
 function RoomBoardRow({
   room,
-  times,
   conflictSlotIds,
 }: {
   room: RoomBoardRoom;
-  times: string[];
   conflictSlotIds: Set<string>;
 }) {
-  // Map this room's slots by their start time for O(1) cell lookup.
-  const byTime = new Map<string, RoomBoardRoom["slots"]>();
-  for (const s of room.slots) {
-    const list = byTime.get(s.start_time) ?? [];
-    list.push(s);
-    byTime.set(s.start_time, list);
-  }
-  // Utilization % = occupied period-columns / total period-columns.
-  const occupiedCols = times.filter((time) => byTime.has(time)).length;
-  const utilPct = times.length
-    ? Math.round((occupiedCols / times.length) * 100)
+  // Slots covering each hour column; a slot occupies every hour h with
+  // start <= h < end. The label only renders in the slot's first hour.
+  const usedHours = room.slots.reduce(
+    (acc, s) => acc + Math.max(hourOf(s.end_time) - hourOf(s.start_time), 1),
+    0,
+  );
+  const utilPct = BOARD_HOURS.length
+    ? Math.round((usedHours / BOARD_HOURS.length) * 100)
     : 0;
 
   return (
-    <tr className="border-t border-border">
-      <td className="p-2 font-medium text-text">
-        {room.room_name}
-        {room.site ? (
-          <span className="ml-1 text-text-subtle">{room.site}</span>
-        ) : null}
+    <tr>
+      <td className="h-[46px] border-b border-ink-50 px-3.5">
+        <div className="flex items-center gap-2">
+          <span
+            className="h-2 w-2 shrink-0 rounded"
+            style={{ backgroundColor: groupColor(room.room_id) }}
+          />
+          <div className="min-w-0">
+            <div className="flex items-center gap-1 text-[12.5px] font-extrabold text-text">
+              {room.video && <Video className="h-3 w-3 shrink-0 text-info" />}
+              <span className="truncate">{room.room_name}</span>
+            </div>
+            <div className="truncate font-mono text-[9.5px] font-semibold text-ink-400">
+              {[room.site, room.capacity != null ? `${room.capacity}` : null]
+                .filter(Boolean)
+                .join(" · ")}
+            </div>
+          </div>
+        </div>
       </td>
-      {times.map((time) => {
-        const slots = byTime.get(time);
-        if (!slots || slots.length === 0) {
+      {BOARD_HOURS.map((h) => {
+        const here = room.slots.filter(
+          (s) => hourOf(s.start_time) <= h && h < hourOf(s.end_time),
+        );
+        if (here.length === 0) {
           return (
-            <td key={time} className="p-1 text-center text-text-subtle">
-              ·
-            </td>
+            <td key={h} className="border-b border-l border-ink-50" />
           );
         }
-        const isClash = slots.some((s) => conflictSlotIds.has(s.slot_id));
-        const titles = slots.map((s) => s.course_title).join(" / ");
+        const startsHere = here.filter((s) => hourOf(s.start_time) === h);
+        const isClash = here.some((s) => conflictSlotIds.has(s.slot_id));
+        const label = startsHere
+          .map((s) => s.course_title.split(" ")[0])
+          .join(" / ");
         return (
-          <td key={time} className="p-1">
+          <td key={h} className="border-b border-l border-ink-50 p-0.5">
             <div
-              className={`rounded px-1 py-1 text-center text-[10px] font-semibold ${
+              className={`flex h-[34px] items-center justify-center gap-1 overflow-hidden rounded-md px-1 ${
                 isClash
-                  ? "bg-danger-soft text-danger-fg outline outline-1 outline-danger-fg"
-                  : "bg-success-soft text-success-fg"
+                  ? "bg-coral-50 outline outline-[1.5px] outline-coral-500"
+                  : "bg-green-50"
               }`}
             >
-              {isClash ? `⚠ ${titles}` : titles}
+              {startsHere.length > 0 && (
+                <>
+                  {isClash && (
+                    <AlertTriangle className="h-[11px] w-[11px] shrink-0 text-coral-500" />
+                  )}
+                  <span
+                    className={`truncate text-[9.5px] font-extrabold ${
+                      isClash ? "text-coral-700" : "text-green-800"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </>
+              )}
             </div>
           </td>
         );
       })}
-      <td className="p-2 text-center text-text-muted">{utilPct}%</td>
+      <td className="border-b border-l-[1.5px] border-ink-50 border-l-ink-100 text-center">
+        <span
+          className={`font-mono text-xs font-extrabold ${
+            utilPct > 40 ? "text-green-700" : "text-ink-400"
+          }`}
+        >
+          {utilPct}%
+        </span>
+      </td>
     </tr>
   );
+}
+
+/** Floor an "HH:MM" time string to its integer hour. */
+function hourOf(hhmm: string): number {
+  return parseInt(hhmm.slice(0, 2), 10) || 0;
 }
 
 // ── Setup tab (weekly timetable template + rooms management) ─────────────────
@@ -1145,7 +1881,10 @@ function SetupTab({ courses, canManageRooms }: SetupTabProps) {
         <TimetablePanel courses={courses} />
         <RoomsPanel canManage={canManageRooms} />
       </div>
-      {canManageRooms && <CurriculumPanel courses={courses} />}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <SitesPanel canManage={canManageRooms} />
+        {canManageRooms && <CurriculumPanel courses={courses} />}
+      </div>
     </div>
   );
 }
@@ -1744,18 +2483,30 @@ interface RoomFormState {
   name: string;
   capacity: string;
   site: string;
+  kind: RoomKind;
+  meeting_url: string;
+  site_id: string;
 }
 
-const EMPTY_ROOM_FORM: RoomFormState = { name: "", capacity: "", site: "" };
+const EMPTY_ROOM_FORM: RoomFormState = {
+  name: "",
+  capacity: "",
+  site: "",
+  kind: "offline",
+  meeting_url: "",
+  site_id: "",
+};
 
 function RoomsPanel({ canManage }: { canManage: boolean }) {
   const { t } = useTranslation();
   const roomsQuery = useRooms();
+  const sitesQuery = useSites();
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
   const deleteRoom = useDeleteRoom();
 
   const rooms = roomsQuery.data?.rooms ?? [];
+  const sites = sitesQuery.data?.sites ?? [];
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<RoomFormState>(EMPTY_ROOM_FORM);
@@ -1767,39 +2518,41 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
     setAdding(false);
   };
 
-  const startEdit = (id: string, name: string, capacity: number | null, site: string) => {
-    setEditingId(id);
+  const startEdit = (room: Room) => {
+    setEditingId(room.id);
     setAdding(false);
-    setForm({ name, capacity: capacity == null ? "" : String(capacity), site });
+    setForm({
+      name: room.name,
+      capacity: room.capacity == null ? "" : String(room.capacity),
+      site: room.site,
+      kind: room.kind,
+      meeting_url: room.meeting_url ?? "",
+      site_id: room.site_id ?? "",
+    });
   };
 
   const submit = () => {
     const name = form.name.trim();
     if (!name) return;
+    const online = form.kind === "online";
     const body = {
       name,
       capacity: form.capacity.trim() === "" ? null : Number(form.capacity),
       site: form.site.trim(),
+      kind: form.kind,
+      // Online → keep the meeting link, drop the site; offline → vice-versa.
+      meeting_url: online ? form.meeting_url.trim() || null : null,
+      site_id: online ? null : form.site_id || null,
     };
+    const onSuccess = () => {
+      toast.success(t("journal.roomSaved"));
+      resetForm();
+    };
+    const onError = () => toast.error(t("journal.roomSaveFailed"));
     if (editingId) {
-      updateRoom.mutate(
-        { roomId: editingId, body },
-        {
-          onSuccess: () => {
-            toast.success(t("journal.roomSaved"));
-            resetForm();
-          },
-          onError: () => toast.error(t("journal.roomSaveFailed")),
-        },
-      );
+      updateRoom.mutate({ roomId: editingId, body }, { onSuccess, onError });
     } else {
-      createRoom.mutate(body, {
-        onSuccess: () => {
-          toast.success(t("journal.roomSaved"));
-          resetForm();
-        },
-        onError: () => toast.error(t("journal.roomSaveFailed")),
-      });
+      createRoom.mutate(body, { onSuccess, onError });
     }
   };
 
@@ -1815,6 +2568,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
 
   const saving = createRoom.isPending || updateRoom.isPending;
   const showForm = canManage && (adding || editingId !== null);
+  const isOnline = form.kind === "online";
 
   return (
     <Card>
@@ -1846,24 +2600,69 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
               placeholder={t("journal.roomNamePlaceholder")}
               className="w-full rounded border border-border-strong px-2 py-1"
             />
-            <div className="flex gap-2">
-              <input
-                type="number"
-                min={0}
-                value={form.capacity}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, capacity: e.target.value }))
-                }
-                placeholder={t("journal.roomCapacityPlaceholder")}
-                className="w-1/2 rounded border border-border-strong px-2 py-1"
-              />
-              <input
-                value={form.site}
-                onChange={(e) => setForm((f) => ({ ...f, site: e.target.value }))}
-                placeholder={t("journal.roomSitePlaceholder")}
-                className="w-1/2 rounded border border-border-strong px-2 py-1"
-              />
+
+            {/* Kind toggle: offline / online */}
+            <div className="flex gap-1.5">
+              {(["offline", "online"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, kind: k }))}
+                  className={`flex flex-1 items-center justify-center gap-1 rounded-pill border px-2 py-1.5 font-semibold ${
+                    form.kind === k
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border-strong text-text-muted hover:bg-ink-50"
+                  }`}
+                >
+                  {k === "online" ? (
+                    <Video className="h-3.5 w-3.5" />
+                  ) : (
+                    <MapPin className="h-3.5 w-3.5" />
+                  )}
+                  {t(`journal.roomKind.${k}`)}
+                </button>
+              ))}
             </div>
+
+            {isOnline ? (
+              <input
+                value={form.meeting_url}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, meeting_url: e.target.value }))
+                }
+                placeholder={t("journal.meetingUrlPlaceholder")}
+                className="w-full rounded border border-border-strong px-2 py-1"
+              />
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={form.capacity}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, capacity: e.target.value }))
+                  }
+                  placeholder={t("journal.roomCapacityPlaceholder")}
+                  className="w-1/2 rounded border border-border-strong px-2 py-1"
+                />
+                <select
+                  value={form.site_id}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, site_id: e.target.value }))
+                  }
+                  className="w-1/2 rounded border border-border-strong px-2 py-1"
+                  aria-label={t("journal.roomSiteLabel")}
+                >
+                  <option value="">{t("journal.roomSiteNone")}</option>
+                  {sites.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <button
                 onClick={submit}
@@ -1898,13 +2697,18 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
                 key={room.id}
                 className="flex items-center gap-2 border-b border-border pb-2"
               >
-                <span className="flex-1 font-semibold text-text">
+                <span className="flex flex-1 items-center gap-1 font-semibold text-text">
+                  {room.kind === "online" && (
+                    <Video className="h-3 w-3 shrink-0 text-info" />
+                  )}
                   {room.name}
                 </span>
                 <span className="text-text-subtle">
-                  {room.capacity == null
-                    ? "—"
-                    : `${t("journal.capShort")} ${room.capacity}`}
+                  {room.kind === "online"
+                    ? t("journal.roomKind.online")
+                    : room.capacity == null
+                      ? "—"
+                      : `${t("journal.capShort")} ${room.capacity}`}
                 </span>
                 {room.site ? (
                   <span className="text-text-subtle">{room.site}</span>
@@ -1912,9 +2716,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
                 {canManage && (
                   <>
                     <button
-                      onClick={() =>
-                        startEdit(room.id, room.name, room.capacity, room.site)
-                      }
+                      onClick={() => startEdit(room)}
                       className="text-text-muted hover:text-primary"
                       aria-label={t("schedule.edit")}
                     >
@@ -1938,6 +2740,189 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
         {!canManage && (
           <p className="text-[11px] text-text-subtle">
             {t("journal.roomsReadOnly")}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Sites management panel ───────────────────────────────────────────────────
+
+interface SiteFormState {
+  name: string;
+  timezone: string;
+}
+
+const DEFAULT_TZ = "Europe/Berlin";
+const EMPTY_SITE_FORM: SiteFormState = { name: "", timezone: DEFAULT_TZ };
+
+function SitesPanel({ canManage }: { canManage: boolean }) {
+  const { t } = useTranslation();
+  const sitesQuery = useSites();
+  const createSite = useCreateSite();
+  const updateSite = useUpdateSite();
+  const deleteSite = useDeleteSite();
+
+  const sites = sitesQuery.data?.sites ?? [];
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<SiteFormState>(EMPTY_SITE_FORM);
+  const [adding, setAdding] = useState(false);
+
+  const resetForm = () => {
+    setForm(EMPTY_SITE_FORM);
+    setEditingId(null);
+    setAdding(false);
+  };
+
+  const startEdit = (site: Site) => {
+    setEditingId(site.id);
+    setAdding(false);
+    setForm({ name: site.name, timezone: site.timezone });
+  };
+
+  const submit = () => {
+    const name = form.name.trim();
+    if (!name) return;
+    const body = {
+      name,
+      timezone: form.timezone.trim() || DEFAULT_TZ,
+    };
+    const onSuccess = () => {
+      toast.success(t("journal.siteSaved"));
+      resetForm();
+    };
+    const onError = () => toast.error(t("journal.siteSaveFailed"));
+    if (editingId) {
+      updateSite.mutate({ siteId: editingId, body }, { onSuccess, onError });
+    } else {
+      createSite.mutate(body, { onSuccess, onError });
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    deleteSite.mutate(id, {
+      onSuccess: () => {
+        toast.success(t("journal.siteDeleted"));
+        if (editingId === id) resetForm();
+      },
+      onError: () => toast.error(t("journal.siteDeleteFailed")),
+    });
+  };
+
+  const saving = createSite.isPending || updateSite.isPending;
+  const showForm = canManage && (adding || editingId !== null);
+
+  return (
+    <Card>
+      <CardContent className="space-y-3 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-text">
+              {t("journal.sitesTitle")}
+            </h3>
+            <p className="text-xs text-ink-400">{t("journal.sitesSubtitle")}</p>
+          </div>
+          {canManage && !showForm && (
+            <button
+              onClick={() => {
+                setAdding(true);
+                setEditingId(null);
+                setForm(EMPTY_SITE_FORM);
+              }}
+              className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("journal.addSite")}
+            </button>
+          )}
+        </div>
+
+        {showForm && (
+          <div className="space-y-2 rounded-lg border border-border bg-surface-2 p-3 text-xs">
+            <input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder={t("journal.siteNamePlaceholder")}
+              className="w-full rounded border border-border-strong px-2 py-1"
+            />
+            <input
+              value={form.timezone}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, timezone: e.target.value }))
+              }
+              placeholder={t("journal.siteTimezonePlaceholder")}
+              className="w-full rounded border border-border-strong px-2 py-1"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={submit}
+                disabled={saving || !form.name.trim()}
+                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                {t("schedule.save")}
+              </button>
+              <button
+                onClick={resetForm}
+                className="rounded-pill bg-ink-100 px-3 py-1.5 font-medium text-text-muted hover:bg-ink-200"
+              >
+                {t("schedule.cancel")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {sitesQuery.isLoading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          </div>
+        ) : sites.length === 0 ? (
+          <p className="py-2 text-center text-xs text-text-subtle">
+            {t("journal.noSites")}
+          </p>
+        ) : (
+          <div className="space-y-2 text-xs">
+            {sites.map((site) => (
+              <div
+                key={site.id}
+                className="flex items-center gap-2 border-b border-border pb-2"
+              >
+                <span className="flex flex-1 items-center gap-1 font-semibold text-text">
+                  <Building2 className="h-3 w-3 shrink-0 text-ink-400" />
+                  {site.name}
+                </span>
+                <span className="font-mono text-[10px] text-text-subtle">
+                  {site.timezone}
+                </span>
+                {canManage && (
+                  <>
+                    <button
+                      onClick={() => startEdit(site)}
+                      className="text-text-muted hover:text-primary"
+                      aria-label={t("schedule.edit")}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(site.id)}
+                      disabled={deleteSite.isPending}
+                      className="text-danger-fg hover:opacity-80 disabled:opacity-50"
+                      aria-label={t("schedule.delete")}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!canManage && (
+          <p className="text-[11px] text-text-subtle">
+            {t("journal.sitesReadOnly")}
           </p>
         )}
       </CardContent>

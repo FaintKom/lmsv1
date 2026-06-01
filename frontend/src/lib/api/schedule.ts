@@ -20,6 +20,8 @@ export interface ScheduleSlot {
   id: string;
   org_id: string;
   course_id: string;
+  /** Linked group (Phase B); the slot's teacher derives from this. */
+  group_id: string | null;
   course_title: string | null;
   day_of_week: number;
   start_time: string;

@@ -11,12 +11,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import apiClient from "@/lib/api-client";
 
+/** A room's kind: a physical room (offline) or a virtual meeting room (online). */
+export type RoomKind = "offline" | "online";
+
 export interface Room {
   id: string;
   org_id: string;
   name: string;
   capacity: number | null;
   site: string;
+  /** Physical room (offline) or virtual meeting room (online). */
+  kind: RoomKind;
+  /** Permanent meeting link — only set for online rooms. */
+  meeting_url: string | null;
+  /** Optional FK to a managed site (null for online / unsited rooms). */
+  site_id: string | null;
   active: boolean;
 }
 
@@ -28,6 +37,9 @@ export interface RoomCreate {
   name: string;
   capacity?: number | null;
   site?: string;
+  kind?: RoomKind;
+  meeting_url?: string | null;
+  site_id?: string | null;
 }
 
 export interface RoomUpdate {
@@ -35,6 +47,9 @@ export interface RoomUpdate {
   capacity?: number | null;
   site?: string;
   active?: boolean;
+  kind?: RoomKind;
+  meeting_url?: string | null;
+  site_id?: string | null;
 }
 
 // ── Room board (journal) ────────────────────────────────────────────────
@@ -51,6 +66,11 @@ export interface RoomBoardRoom {
   room_id: string;
   room_name: string;
   site: string;
+  site_id: string | null;
+  kind: RoomKind;
+  /** Convenience flag for the UI: render a Video icon when kind === "online". */
+  video: boolean;
+  meeting_url: string | null;
   capacity: number | null;
   active: boolean;
   slots: RoomBoardSlot[];
