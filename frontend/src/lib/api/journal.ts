@@ -93,6 +93,8 @@ export interface TodayAgendaRow {
   slot_id: string;
   course_id: string;
   course_title: string;
+  group_id: string | null;
+  group_name: string | null;
   teacher_id: string | null;
   teacher_name: string;
   start_time: string;

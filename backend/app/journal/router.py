@@ -205,6 +205,29 @@ async def get_day(
         raise _translate(exc) from exc
 
 
+@router.get("/journal/student-activity")
+async def get_student_activity(
+    student_id: uuid.UUID = Query(...),
+    date_: date = Query(..., alias="date"),
+    group_id: uuid.UUID | None = Query(default=None),
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """What one student did on a given day — computed from existing submissions.
+
+    Returns day-level KPIs, the day's lessons (each with its exercise results),
+    and a chronological event timeline. RBAC matches the student-profile
+    service (teacher→own-course students, methodist/admin→org, super→global);
+    a day with no activity returns zeroed KPIs + a note, never a 404.
+    """
+    try:
+        return await journal_service.get_student_activity(
+            db, user, student_id, date_, group_id=group_id
+        )
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
+
+
 @router.get("/journal/pacing")
 async def get_pacing_board(
     user: User = Depends(require_role(*_MANAGER_ROLES)),

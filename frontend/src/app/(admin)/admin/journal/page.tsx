@@ -383,6 +383,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           timeLabel={`${openRow.start_time}–${openRow.end_time}`}
           roomLabel={openRow.room_name}
           isOnline={openRow.is_online}
+          groupId={openRow.group_id}
           onClose={() => setOpenRow(null)}
         />
       )}

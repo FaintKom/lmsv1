@@ -42,6 +42,8 @@ export interface SessionDetailProps {
   timeLabel?: string;
   roomLabel?: string | null;
   isOnline?: boolean;
+  /** Optional group of this session — forwarded to the student day page. */
+  groupId?: string | null;
   onClose: () => void;
 }
 
@@ -52,6 +54,7 @@ export function SessionDetail({
   timeLabel,
   roomLabel,
   isOnline,
+  groupId,
   onClose,
 }: SessionDetailProps) {
   const { t } = useTranslation();
@@ -346,7 +349,9 @@ export function SessionDetail({
                 return (
                   <Link
                     key={row.student_id}
-                    href={`/admin/students/${row.student_id}`}
+                    href={`/admin/journal/student/${row.student_id}?date=${date}${
+                      groupId ? `&group=${groupId}` : ""
+                    }`}
                     className="flex items-center gap-2.5 rounded-[10px] border border-ink-100 bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
                   >
                     <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-green-50 text-[11px] font-extrabold text-green-800">

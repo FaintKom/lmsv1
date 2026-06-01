@@ -28,6 +28,10 @@ from sqlalchemy import update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.models import StudentGroup, StudentGroupMember
+from app.admin.student_profile_service import (
+    StudentProfileError,
+    _authorize_student,
+)
 from app.analytics.task_stats_service import (
     TaskStatsError,
     _authorize_course,
@@ -36,7 +40,7 @@ from app.analytics.task_stats_service import (
     require_stats_role,
 )
 from app.assessments.models import Quiz, QuizSubmission
-from app.assignments.models import Assignment, AssignmentSubmission
+from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
 from app.courses.models import Course, Lesson, Module
@@ -418,6 +422,396 @@ async def get_day(
         "scheduled_slots": scheduled_slots,
         "activity": activity,
     }
+
+
+# ── Student activity-of-day (compute-only aggregate) ─────────────────────────
+
+# Pass mark used when a submission carries a numeric score but no boolean
+# verdict: ≥ this is "correct", > 0 is "partial", else "wrong".
+_PASS_SCORE = 100.0
+# XP heuristic, mirroring the design prototype (12 XP per correct item / answer).
+_XP_PER_CORRECT = 12
+# Rough time-on-task fallback used only when submissions carry no
+# ``time_spent_seconds`` at all (keeps the KPI non-zero for a productive day).
+_FALLBACK_SEC_PER_EXERCISE = 240
+
+
+def _result_from_verdict(passed: bool | None, score: float | None) -> str:
+    """Map a submission's verdict/score to the design's RES palette key.
+
+    - no score *and* no verdict → ``done`` (theory / ungraded, e.g. a read).
+    - boolean verdict present → ``correct`` (pass) / ``wrong`` (fail).
+    - numeric score only → ``correct`` (==100) / ``partial`` (>0) / ``wrong``.
+    """
+    if passed is True:
+        return "correct"
+    if passed is False:
+        return "wrong"
+    # passed is None → fall back to the score.
+    if score is None:
+        return "done"
+    if score >= _PASS_SCORE:
+        return "correct"
+    if score > 0:
+        return "partial"
+    return "wrong"
+
+
+def _items_str(passed: int | None, total: int | None) -> str | None:
+    """``"3/5"`` when a code-challenge / test count is present, else None."""
+    if total:
+        return f"{passed or 0}/{total}"
+    return None
+
+
+async def get_student_activity(
+    db: AsyncSession,
+    user: User,
+    student_id: uuid.UUID,
+    activity_date: date,
+    *,
+    group_id: uuid.UUID | None = None,
+) -> dict:
+    """What one student actually did on ``activity_date`` — computed on the fly.
+
+    Aggregates the three submission families (exercise / quiz / assignment) and
+    lesson completions for the day, groups them by course/lesson, maps each
+    submission to a result (theory→``done``; graded→``correct``/``partial``/
+    ``wrong``), derives day-level KPIs and a chronological event timeline.
+
+    No new table: everything is derived from existing submissions, exactly like
+    :func:`app.admin.student_profile_service.get_student_profile` but scoped to a
+    single calendar day. RBAC reuses that module's ``_authorize_student`` so the
+    journal shares its rules: teacher→own-course students, methodist/admin→org,
+    super→global; student/parent forbidden; cross-org hidden as ``not_found``.
+
+    An empty day returns zeroed KPIs + empty lessons/timeline + a ``note`` — it
+    never 404s on "no activity".
+    """
+    try:
+        target = await _authorize_student(db, user, student_id)
+    except StudentProfileError as exc:
+        # Re-raise as the journal router's error type so the HTTP mapping
+        # (forbidden→403, not_found→404) is shared with the rest of the module.
+        raise TaskStatsError(exc.code, exc.message) from exc
+
+    # Optional group label (purely cosmetic for the header). The group inherits
+    # the student's already-authorized scope, so we only resolve its name.
+    group_name: str | None = None
+    if group_id is not None:
+        group = await db.scalar(
+            select(StudentGroup).where(StudentGroup.id == group_id)
+        )
+        if group is not None:
+            group_name = group.name
+
+    start, end = _day_bounds(activity_date)
+
+    # ── Exercises submitted that day (with their lesson/course context). ──
+    ex_rows = (
+        await db.execute(
+            select(
+                ExerciseSubmission.id,
+                ExerciseSubmission.submitted_at,
+                ExerciseSubmission.score,
+                ExerciseSubmission.passed,
+                ExerciseSubmission.total_passed,
+                ExerciseSubmission.total_tests,
+                ExerciseSubmission.time_spent_seconds,
+                Exercise.title,
+                Exercise.exercise_type,
+                Lesson.id.label("lesson_id"),
+                Lesson.title.label("lesson_title"),
+                Course.id.label("course_id"),
+                Course.title.label("course_title"),
+            )
+            .select_from(ExerciseSubmission)
+            .join(Exercise, Exercise.id == ExerciseSubmission.exercise_id)
+            .join(Lesson, Lesson.id == Exercise.lesson_id)
+            .join(Module, Module.id == Lesson.module_id)
+            .join(Course, Course.id == Module.course_id)
+            .where(
+                ExerciseSubmission.student_id == student_id,
+                ExerciseSubmission.submitted_at >= start,
+                ExerciseSubmission.submitted_at < end,
+            )
+            .order_by(ExerciseSubmission.submitted_at)
+        )
+    ).all()
+
+    # ── Quizzes submitted that day. ──
+    quiz_rows = (
+        await db.execute(
+            select(
+                QuizSubmission.id,
+                QuizSubmission.submitted_at,
+                QuizSubmission.score,
+                QuizSubmission.passed,
+                QuizSubmission.time_spent_seconds,
+                Quiz.title,
+                Lesson.id.label("lesson_id"),
+                Lesson.title.label("lesson_title"),
+                Course.id.label("course_id"),
+                Course.title.label("course_title"),
+            )
+            .select_from(QuizSubmission)
+            .join(Quiz, Quiz.id == QuizSubmission.quiz_id)
+            .join(Lesson, Lesson.id == Quiz.lesson_id)
+            .join(Module, Module.id == Lesson.module_id)
+            .join(Course, Course.id == Module.course_id)
+            .where(
+                QuizSubmission.student_id == student_id,
+                QuizSubmission.submitted_at >= start,
+                QuizSubmission.submitted_at < end,
+            )
+            .order_by(QuizSubmission.submitted_at)
+        )
+    ).all()
+
+    # ── Assignments submitted that day (course-level, no lesson). ──
+    assign_rows = (
+        await db.execute(
+            select(
+                AssignmentSubmission.id,
+                AssignmentSubmission.submitted_at,
+                AssignmentSubmission.score,
+                AssignmentSubmission.status,
+                AssignmentSubmission.time_spent_seconds,
+                Assignment.title,
+                Assignment.max_score,
+                Course.id.label("course_id"),
+                Course.title.label("course_title"),
+            )
+            .select_from(AssignmentSubmission)
+            .join(Assignment, Assignment.id == AssignmentSubmission.assignment_id)
+            .join(Course, Course.id == Assignment.course_id)
+            .where(
+                AssignmentSubmission.student_id == student_id,
+                AssignmentSubmission.submitted_at >= start,
+                AssignmentSubmission.submitted_at < end,
+            )
+            .order_by(AssignmentSubmission.submitted_at)
+        )
+    ).all()
+
+    # ── Lessons completed that day (drives "lessons attended"). ──
+    lesson_rows = (
+        await db.execute(
+            select(
+                Lesson.id,
+                Lesson.title,
+                Course.id.label("course_id"),
+                Course.title.label("course_title"),
+                LessonProgress.completed_at,
+            )
+            .select_from(Enrollment)
+            .join(LessonProgress, LessonProgress.enrollment_id == Enrollment.id)
+            .join(Lesson, Lesson.id == LessonProgress.lesson_id)
+            .join(Module, Module.id == Lesson.module_id)
+            .join(Course, Course.id == Module.course_id)
+            .where(
+                Enrollment.student_id == student_id,
+                LessonProgress.status == LessonStatus.completed,
+                LessonProgress.completed_at >= start,
+                LessonProgress.completed_at < end,
+            )
+            .order_by(LessonProgress.completed_at)
+        )
+    ).all()
+
+    # ── Group submissions into lessons keyed by (course_id, lesson_id). ──
+    # course-level work (assignments) is bucketed under a lesson_id of None.
+    lessons_by_key: dict[tuple[uuid.UUID, uuid.UUID | None], dict] = {}
+
+    def _bucket(
+        course_id: uuid.UUID,
+        course_title: str,
+        lesson_id: uuid.UUID | None,
+        lesson_title: str | None,
+    ) -> dict:
+        key: tuple[uuid.UUID, uuid.UUID | None] = (course_id, lesson_id)
+        b = lessons_by_key.get(key)
+        if b is None:
+            b = {
+                "course_id": str(course_id),
+                "course_title": course_title,
+                "lesson_id": str(lesson_id) if lesson_id else None,
+                "topic": lesson_title,
+                "attended": False,
+                "exercises": [],
+                "_first_at": None,
+            }
+            lessons_by_key[key] = b
+        return b
+
+    timeline: list[dict] = []
+    total_exercises = 0
+    correct_count = 0
+    graded_count = 0
+    time_spent = 0
+    any_time = False
+
+    def _track_time(secs: int | None) -> None:
+        nonlocal time_spent, any_time
+        if secs:
+            time_spent += secs
+            any_time = True
+
+    # Lessons completed → mark attended + a timeline "entered lesson" event.
+    for lid, ltitle, cid, ctitle, completed_at in lesson_rows:
+        b = _bucket(cid, ctitle, lid, ltitle)
+        b["attended"] = True
+        if b["_first_at"] is None or completed_at < b["_first_at"]:
+            b["_first_at"] = completed_at
+        timeline.append(
+            {
+                "at": completed_at.isoformat(),
+                "kind": "in",
+                "text": f"Completed lesson · {ltitle}",
+            }
+        )
+
+    # Exercises.
+    for r in ex_rows:
+        ex_type = (
+            r.exercise_type.value
+            if hasattr(r.exercise_type, "value")
+            else str(r.exercise_type)
+        )
+        result = _result_from_verdict(
+            r.passed, float(r.score) if r.score is not None else None
+        )
+        b = _bucket(r.course_id, r.course_title, r.lesson_id, r.lesson_title)
+        b["attended"] = True
+        if b["_first_at"] is None or r.submitted_at < b["_first_at"]:
+            b["_first_at"] = r.submitted_at
+        b["exercises"].append(
+            {
+                "id": str(r.id),
+                "title": r.title,
+                "type": ex_type,
+                "result": result,
+                "score_pct": round(float(r.score), 1) if r.score is not None else None,
+                "items": _items_str(r.total_passed, r.total_tests),
+            }
+        )
+        total_exercises += 1
+        if result != "done":
+            graded_count += 1
+            if result == "correct":
+                correct_count += 1
+        _track_time(r.time_spent_seconds)
+        timeline.append(
+            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
+        )
+
+    # Quizzes (treated as exercises with type "quiz").
+    for r in quiz_rows:
+        result = _result_from_verdict(
+            r.passed, float(r.score) if r.score is not None else None
+        )
+        b = _bucket(r.course_id, r.course_title, r.lesson_id, r.lesson_title)
+        b["attended"] = True
+        if b["_first_at"] is None or r.submitted_at < b["_first_at"]:
+            b["_first_at"] = r.submitted_at
+        b["exercises"].append(
+            {
+                "id": str(r.id),
+                "title": r.title,
+                "type": "quiz",
+                "result": result,
+                "score_pct": round(float(r.score), 1) if r.score is not None else None,
+                "items": None,
+            }
+        )
+        total_exercises += 1
+        if result != "done":
+            graded_count += 1
+            if result == "correct":
+                correct_count += 1
+        _track_time(r.time_spent_seconds)
+        timeline.append(
+            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
+        )
+
+    # Assignments (course-level bucket, lesson_id None).
+    for r in assign_rows:
+        st = r.status.value if hasattr(r.status, "value") else str(r.status)
+        # Only a graded assignment carries a meaningful verdict; otherwise it is
+        # "done" (handed in, awaiting grade).
+        if st == AssignmentStatus.graded.value and r.score is not None:
+            pct = (
+                float(r.score) / float(r.max_score) * 100.0
+                if r.max_score
+                else float(r.score)
+            )
+            result = _result_from_verdict(None, pct)
+            score_pct = round(pct, 1)
+        else:
+            result = "done"
+            score_pct = None
+        b = _bucket(r.course_id, r.course_title, None, None)
+        b["attended"] = True
+        if b["_first_at"] is None or r.submitted_at < b["_first_at"]:
+            b["_first_at"] = r.submitted_at
+        b["exercises"].append(
+            {
+                "id": str(r.id),
+                "title": r.title,
+                "type": "assignment",
+                "result": result,
+                "score_pct": score_pct,
+                "items": None,
+            }
+        )
+        total_exercises += 1
+        if result != "done":
+            graded_count += 1
+            if result == "correct":
+                correct_count += 1
+        _track_time(r.time_spent_seconds)
+        timeline.append(
+            {"at": r.submitted_at.isoformat(), "kind": result, "text": r.title}
+        )
+
+    # ── Assemble lessons list (chronological by first event), strip helper. ──
+    lessons_sorted = sorted(
+        lessons_by_key.values(),
+        key=lambda b: (b["_first_at"] is None, b["_first_at"] or end),
+    )
+    lessons: list[dict] = []
+    for b in lessons_sorted:
+        first_at = b.pop("_first_at")
+        b["time"] = first_at.strftime("%H:%M") if first_at is not None else None
+        lessons.append(b)
+
+    timeline.sort(key=lambda e: e["at"])
+
+    # ── KPIs. ──
+    correct_pct = round(correct_count / graded_count * 100) if graded_count else 0
+    if not any_time and total_exercises:
+        time_spent = total_exercises * _FALLBACK_SEC_PER_EXERCISE
+    xp_earned = correct_count * _XP_PER_CORRECT
+
+    kpis = {
+        "lessons_attended": len(lessons),
+        "exercises_done": total_exercises,
+        "correct_pct": correct_pct,
+        "time_spent_sec": time_spent,
+        "xp_earned": xp_earned,
+    }
+
+    out: dict = {
+        "student": {"id": str(target.id), "name": target.full_name or ""},
+        "date": activity_date.isoformat(),
+        "group_name": group_name,
+        "kpis": kpis,
+        "lessons": lessons,
+        "timeline": timeline,
+    }
+    if total_exercises == 0 and not lessons:
+        out["note"] = "No activity recorded for this day."
+    return out
 
 
 # ── Generate days from the weekly schedule ─────────────────────────────────
