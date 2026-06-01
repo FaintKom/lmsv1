@@ -1,62 +1,108 @@
 "use client";
 
 /**
- * Class journal — a day-centric register for a course.
+ * Unified Journal module (Phase 1 frontend core).
  *
- * Teacher picks a course, then a day: the day view records whether a session
- * was held + its topic/notes (upsert), embeds the shared AttendanceMarker for
- * that (course, date), and shows a read-only "activity that day" table — what
- * each enrolled student completed/submitted on that date.
+ * Tabs:
+ *  - Today    — the day's agenda (one /journal/today call), inline topic edit,
+ *               attendance pill, open the session detail slide-over, join online.
+ *  - Register — attendance matrix (students × dates) assembled client-side from
+ *               /journal/sessions + /attendance, read-only, CSV export.
+ *  - Rooms    — stub (filled by the next unit).
+ *  - Setup    — stub (filled by the next unit).
  *
- * Backend: /api/v1/journal/* (see src/lib/api/journal.ts). Attendance marking
- * reuses /api/v1/attendance/* via <AttendanceMarker/>.
+ * Schedule + Attendance live here now; their standalone nav links were folded
+ * into this single "Journal" entry.
  */
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   BookOpenCheck,
-  CalendarClock,
+  ChevronLeft,
+  ChevronRight,
   Download,
   Loader2,
-  Save,
+  MapPin,
+  Video,
 } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
+import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
+import { buildJoinUrl } from "@/lib/meetings";
 import { Card, CardContent } from "@/components/ui/card";
-import { AttendanceMarker } from "@/components/attendance/attendance-marker";
+import { SessionDetail } from "@/components/journal/session-detail";
 import {
+  useJournalToday,
   useJournalSessions,
-  useJournalDay,
-  useUpsertSession,
-  useGenerateFromSchedule,
   exportJournalCsv,
-  type DaySessionInfo,
+  type TodayAgendaRow,
 } from "@/lib/api/journal";
+import {
+  fetchRoster,
+  type AttendanceStatus,
+  type RosterRow,
+} from "@/lib/api/attendance";
+
+type TabKey = "today" | "register" | "rooms" | "setup";
+const TABS: TabKey[] = ["today", "register", "rooms", "setup"];
 
 interface CourseOption {
   id: string;
   title: string;
 }
 
+interface TeacherOption {
+  id: string;
+  full_name: string;
+}
+
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function isoPlusDays(days: number): string {
-  const d = new Date();
+function shiftISO(iso: string, days: number): string {
+  const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
+// ── Page ──────────────────────────────────────────────────────────────────
+
 export default function AdminJournalPage() {
+  // useSearchParams() must sit under a Suspense boundary for the prod build.
+  return (
+    <Suspense fallback={null}>
+      <JournalModule />
+    </Suspense>
+  );
+}
+
+function JournalModule() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
+  const role = useAuthStore((s) => s.user?.role);
+  const isMethodist = useAuthStore((s) => s.user?.is_methodist ?? false);
+  // Org-wide reach (admin / methodist) unlocks the cross-teacher filter; a
+  // plain teacher only ever sees their own courses (scoped server-side).
+  const isManager = role === "super_admin" || role === "admin" || isMethodist;
+
+  const tabParam = searchParams.get("tab") as TabKey | null;
+  const activeTab: TabKey =
+    tabParam && TABS.includes(tabParam) ? tabParam : "today";
+
+  const setTab = (tab: TabKey) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/admin/journal?${params.toString()}`);
+  };
+
+  // Shared course list (used by Today filter + Register picker).
   const [courses, setCourses] = useState<CourseOption[]>([]);
-  const [courseId, setCourseId] = useState("");
-  const [selectedDate, setSelectedDate] = useState(todayISO());
-
   useEffect(() => {
     apiClient
       .get<CourseOption[]>("/admin/courses")
@@ -64,41 +110,403 @@ export default function AdminJournalPage() {
       .catch(() => {});
   }, []);
 
-  const sessionsQuery = useJournalSessions(courseId);
-  const dayQuery = useJournalDay(courseId, selectedDate);
-  const upsertMutation = useUpsertSession(courseId, selectedDate);
-  const generateMutation = useGenerateFromSchedule(courseId);
+  return (
+    <div className="mx-auto max-w-6xl space-y-5 p-6">
+      <div>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
+          <BookOpenCheck className="h-6 w-6 text-primary" />
+          {t("journal.moduleTitle")}
+        </h1>
+        <p className="text-base text-text-muted">{t("journal.moduleSubtitle")}</p>
+      </div>
 
-  // Generate-from-schedule range (defaults: today .. today + 28 days).
-  const [genFrom, setGenFrom] = useState(todayISO());
-  const [genTo, setGenTo] = useState(isoPlusDays(28));
+      {/* Tab bar */}
+      <div className="flex items-center gap-5 border-b border-border text-sm font-medium">
+        {TABS.map((tab) => {
+          const isActive = tab === activeTab;
+          return (
+            <button
+              key={tab}
+              onClick={() => setTab(tab)}
+              className={`-mb-px border-b-2 pb-2 transition-colors ${
+                isActive
+                  ? "border-primary text-primary"
+                  : "border-transparent text-text-subtle hover:text-text"
+              }`}
+            >
+              {t(`journal.tab.${tab}`)}
+            </button>
+          );
+        })}
+      </div>
 
-  const handleGenerate = () => {
-    generateMutation.mutate(
-      { course_id: courseId, from_date: genFrom, to_date: genTo },
-      {
-        onSuccess: (res) =>
-          toast.success(
-            res.created > 0
-              ? t("journal.daysCreated").replace("{count}", String(res.created))
-              : t("journal.noDaysCreated"),
-          ),
-        onError: () => toast.error(t("journal.generateRangeTooLong")),
-      },
-    );
+      {activeTab === "today" && (
+        <TodayTab courses={courses} isManager={isManager} />
+      )}
+      {activeTab === "register" && <RegisterTab courses={courses} />}
+      {activeTab === "rooms" && <StubTab label={t("journal.stub.rooms")} />}
+      {activeTab === "setup" && <StubTab label={t("journal.stub.setup")} />}
+    </div>
+  );
+}
+
+// ── Today tab ───────────────────────────────────────────────────────────────
+
+interface TodayTabProps {
+  courses: CourseOption[];
+  isManager: boolean;
+}
+
+function TodayTab({ courses, isManager }: TodayTabProps) {
+  const { t } = useTranslation();
+  const userName = useAuthStore((s) => s.user?.full_name);
+
+  const [date, setDate] = useState(todayISO());
+  const [courseFilter, setCourseFilter] = useState("");
+  const [teacherFilter, setTeacherFilter] = useState("");
+  const [openRow, setOpenRow] = useState<TodayAgendaRow | null>(null);
+
+  // Teacher filter options (admin/methodist only).
+  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
+  useEffect(() => {
+    if (!isManager) return;
+    apiClient
+      .get<TeacherOption[]>("/admin/users", { params: { role: "teacher" } })
+      .then(({ data }) => setTeachers(data))
+      .catch(() => {});
+  }, [isManager]);
+
+  const todayQuery = useJournalToday(date, {
+    courseId: courseFilter || undefined,
+    teacherId: isManager ? teacherFilter || undefined : undefined,
+  });
+
+  const agenda = todayQuery.data?.agenda ?? [];
+
+  const dateLabel = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const join = (row: TodayAgendaRow) => {
+    if (!row.room_url) return;
+    // Staff always enter as host on the free Jitsi instance.
+    const url = buildJoinUrl(row.room_url, {
+      displayName: userName,
+      isHost: true,
+    });
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Export the register CSV over the same from/to range as generate.
+  return (
+    <div className="space-y-4">
+      {/* Date stepper + filters */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDate(shiftISO(date, -1))}
+            aria-label={t("journal.prevDay")}
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="min-w-[12rem] text-center text-sm font-semibold text-text">
+            {dateLabel}
+          </div>
+          <button
+            onClick={() => setDate(shiftISO(date, 1))}
+            aria-label={t("journal.nextDay")}
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          {date !== todayISO() && (
+            <button
+              onClick={() => setDate(todayISO())}
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-ink-50"
+            >
+              {t("journal.today")}
+            </button>
+          )}
+        </div>
+
+        {isManager && (
+          <div className="flex flex-wrap gap-2 text-xs">
+            <select
+              value={courseFilter}
+              onChange={(e) => setCourseFilter(e.target.value)}
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-text"
+            >
+              <option value="">{t("journal.allCourses")}</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <select
+              value={teacherFilter}
+              onChange={(e) => setTeacherFilter(e.target.value)}
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-text"
+            >
+              <option value="">{t("journal.allTeachers")}</option>
+              {teachers.map((teacher) => (
+                <option key={teacher.id} value={teacher.id}>
+                  {teacher.full_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Agenda */}
+      {todayQuery.isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : agenda.length === 0 ? (
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-text-subtle">
+            {t("journal.noSlotsToday")}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {agenda.map((row) => (
+            <AgendaRow
+              key={row.slot_id}
+              row={row}
+              date={date}
+              onOpen={() => setOpenRow(row)}
+              onJoin={() => join(row)}
+            />
+          ))}
+        </div>
+      )}
+
+      {openRow && (
+        <SessionDetail
+          courseId={openRow.course_id}
+          date={date}
+          courseTitle={openRow.course_title}
+          timeLabel={`${openRow.start_time}–${openRow.end_time}`}
+          roomLabel={openRow.room_name}
+          isOnline={openRow.is_online}
+          onClose={() => setOpenRow(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Agenda row (with inline topic that upserts on blur) ─────────────────────
+
+interface AgendaRowProps {
+  row: TodayAgendaRow;
+  date: string;
+  onOpen: () => void;
+  onJoin: () => void;
+}
+
+function AgendaRow({ row, date, onOpen, onJoin }: AgendaRowProps) {
+  const { t } = useTranslation();
+  const [topic, setTopic] = useState(row.session?.topic ?? "");
+  const [savedTopic, setSavedTopic] = useState(row.session?.topic ?? "");
+  const [saving, setSaving] = useState(false);
+
+  // Upsert held=true + topic for this course+date when the input loses focus
+  // and the value actually changed.
+  const saveTopic = async () => {
+    const next = topic.trim();
+    if (next === savedTopic.trim()) return;
+    setSaving(true);
+    try {
+      await apiClient.post("/journal/sessions", {
+        course_id: row.course_id,
+        session_date: date,
+        held: true,
+        topic: next,
+        notes: null,
+      });
+      setSavedTopic(next);
+      toast.success(t("journal.topicSaved"));
+    } catch {
+      toast.error(t("journal.saveFailed"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const marked = row.attendance.total > 0 && row.session !== null;
+
+  return (
+    <Card className="transition-colors hover:border-primary">
+      <CardContent className="flex flex-wrap items-center gap-3 p-3">
+        <div className="w-24 shrink-0 font-mono text-xs text-text-muted">
+          {row.start_time}–{row.end_time}
+        </div>
+        <div className="w-40 shrink-0 text-sm font-semibold text-text">
+          {row.course_title}
+        </div>
+        <div
+          className={`flex w-28 shrink-0 items-center gap-1 text-xs ${
+            row.is_online ? "font-semibold text-primary" : "text-text-muted"
+          }`}
+        >
+          {row.is_online ? (
+            <>
+              <Video className="h-3.5 w-3.5" /> {t("journal.online")}
+            </>
+          ) : row.room_name ? (
+            <>
+              <MapPin className="h-3.5 w-3.5" /> {row.room_name}
+            </>
+          ) : (
+            <span className="text-text-subtle">—</span>
+          )}
+        </div>
+        <input
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          onBlur={saveTopic}
+          placeholder={t("journal.topicPlaceholder")}
+          maxLength={500}
+          className="min-w-[8rem] flex-1 rounded-lg border border-border-strong px-2 py-1 text-xs text-text"
+        />
+        <div
+          className={`w-24 shrink-0 text-center text-xs ${
+            marked ? "font-semibold text-primary" : "text-text-subtle"
+          }`}
+        >
+          {saving ? (
+            <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" />
+          ) : marked ? (
+            `● ${row.attendance.present}/${row.attendance.total}`
+          ) : (
+            `○ ${t("journal.notMarked")}`
+          )}
+        </div>
+        <button
+          onClick={onOpen}
+          className="shrink-0 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
+        >
+          {t("journal.takeAttendance")}
+        </button>
+        {row.is_online && row.room_url && (
+          <button
+            onClick={onJoin}
+            className="shrink-0 rounded-pill border border-primary px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
+          >
+            {t("journal.join")}
+          </button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Register tab (attendance matrix, read-only v1) ──────────────────────────
+
+interface RegisterTabProps {
+  courses: CourseOption[];
+}
+
+const CELL_STYLES: Record<AttendanceStatus, string> = {
+  present: "bg-success-soft text-success-fg",
+  late: "bg-warning-soft text-warning-fg",
+  absent: "bg-danger-soft text-danger-fg",
+  excused: "bg-ink-100 text-text-muted",
+};
+
+const CELL_LETTER: Record<AttendanceStatus, string> = {
+  present: "P",
+  late: "L",
+  absent: "A",
+  excused: "E",
+};
+
+interface AttendanceApiRecord {
+  student_id: string;
+  session_date: string | null;
+  status: AttendanceStatus;
+}
+
+function RegisterTab({ courses }: RegisterTabProps) {
+  const { t } = useTranslation();
+
+  const [courseId, setCourseId] = useState("");
+  const sessionsQuery = useJournalSessions(courseId);
+
+  // Students (rows) come from the roster of the most recent session date (or
+  // today if there are none); attendance records fill the cells.
+  const [students, setStudents] = useState<RosterRow[]>([]);
+  const [records, setRecords] = useState<AttendanceApiRecord[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const handleExportCsv = async () => {
-    if (!courseId) return;
+
+  const sessions = sessionsQuery.data?.sessions ?? [];
+  const latestSessionDate =
+    sessions.length > 0 ? sessions[sessions.length - 1].session_date : "";
+
+  useEffect(() => {
+    if (!courseId) {
+      setStudents([]);
+      setRecords([]);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    const rosterDate = latestSessionDate || todayISO();
+    Promise.all([
+      fetchRoster(courseId, rosterDate),
+      apiClient.get<{ records: AttendanceApiRecord[] }>("/attendance", {
+        params: { course_id: courseId },
+      }),
+    ])
+      .then(([roster, recordsRes]) => {
+        if (cancelled) return;
+        setStudents(roster.roster);
+        setRecords(recordsRes.data.records ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStudents([]);
+          setRecords([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Re-assemble when the course or the latest known session date changes.
+  }, [courseId, latestSessionDate]);
+
+  // Build the lookup: studentId|date -> status.
+  const cellMap = new Map<string, AttendanceStatus>();
+  for (const r of records) {
+    if (r.session_date)
+      cellMap.set(`${r.student_id}|${r.session_date}`, r.status);
+  }
+  const dates = sessions.map((s) => s.session_date);
+
+  const handleExport = async () => {
+    if (!courseId || dates.length === 0) return;
     setIsExporting(true);
     try {
-      const blob = await exportJournalCsv(courseId, genFrom, genTo);
+      const blob = await exportJournalCsv(
+        courseId,
+        dates[0],
+        dates[dates.length - 1],
+      );
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `journal-${genFrom}_${genTo}.csv`;
+      a.download = `register-${dates[0]}_${dates[dates.length - 1]}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -110,84 +518,36 @@ export default function AdminJournalPage() {
     }
   };
 
-  // Session draft (held / topic / notes), hydrated from the day fetch using
-  // the "adjust state during render" pattern (same as AttendanceMarker).
-  const [held, setHeld] = useState(true);
-  const [topic, setTopic] = useState("");
-  const [notes, setNotes] = useState("");
-  const [hydratedKey, setHydratedKey] = useState<string | null>(null);
-
-  const dayKey = `${courseId}|${selectedDate}|${dayQuery.dataUpdatedAt}`;
-  if (courseId && dayQuery.data && hydratedKey !== dayKey) {
-    const s: DaySessionInfo | null = dayQuery.data.session;
-    setHeld(s ? s.held : true);
-    setTopic(s ? s.topic : "");
-    setNotes(s ? (s.notes ?? "") : "");
-    setHydratedKey(dayKey);
-  }
-
-  const handleSaveSession = () => {
-    upsertMutation.mutate(
-      {
-        course_id: courseId,
-        session_date: selectedDate,
-        held,
-        topic: topic.trim(),
-        notes: notes.trim() || null,
-      },
-      {
-        onSuccess: () => toast.success(t("journal.sessionSaved")),
-        onError: () => toast.error(t("journal.saveFailed")),
-      },
-    );
-  };
-
-  const sessions = sessionsQuery.data?.sessions ?? [];
-  const activity = dayQuery.data?.activity ?? [];
-  const scheduledSlots = dayQuery.data?.scheduled_slots ?? [];
-  const scheduledLabel = scheduledSlots
-    .map(
-      (s) =>
-        `${s.start_time}–${s.end_time}${s.location ? ` · ${s.location}` : ""}`,
-    )
-    .join(" · ");
-
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-2xl font-bold text-text">
-          <BookOpenCheck className="h-6 w-6 text-primary" />
-          {t("journal.adminTitle")}
-        </h1>
-        <p className="text-base text-text-muted">{t("journal.adminSubtitle")}</p>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <select
+          value={courseId}
+          onChange={(e) => setCourseId(e.target.value)}
+          className="rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-sm text-text"
+        >
+          <option value="">{t("journal.selectCourse")}</option>
+          {courses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleExport}
+          disabled={isExporting || !courseId || dates.length === 0}
+          className="flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-ink-50 disabled:opacity-50"
+        >
+          {isExporting ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Download className="h-3.5 w-3.5" />
+          )}
+          {t("journal.exportCsv")}
+        </button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-xs text-text-muted">
-          {t("journal.course")}
-          <select
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-            className="rounded-lg border border-border-strong px-3 py-2 text-sm"
-          >
-            <option value="">{t("journal.selectCourse")}</option>
-            {courses.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-text-muted">
-          {t("journal.date")}
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="rounded-lg border border-border-strong px-3 py-2 text-sm"
-          />
-        </label>
-      </div>
+      <p className="text-xs text-text-subtle">{t("journal.registerReadOnly")}</p>
 
       {!courseId ? (
         <Card>
@@ -195,261 +555,85 @@ export default function AdminJournalPage() {
             {t("journal.pickCoursePrompt")}
           </CardContent>
         </Card>
+      ) : loading || sessionsQuery.isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : dates.length === 0 || students.length === 0 ? (
+        <Card>
+          <CardContent className="py-8 text-center text-sm text-text-subtle">
+            {t("journal.noRegisterData")}
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
-          {/* Day list */}
-          <div className="space-y-2">
-            {/* Generate days from the weekly schedule */}
-            <Card>
-              <CardContent className="space-y-2 p-3">
-                <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-text-subtle">
-                  <CalendarClock className="h-3.5 w-3.5 text-primary" />
-                  {t("journal.generateFromSchedule")}
-                </h2>
-                <div className="flex flex-wrap items-end gap-2">
-                  <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-                    {t("journal.from")}
-                    <input
-                      type="date"
-                      value={genFrom}
-                      onChange={(e) => setGenFrom(e.target.value)}
-                      className="rounded-lg border border-border-strong px-2 py-1.5 text-xs text-text"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1 text-[11px] text-text-muted">
-                    {t("journal.to")}
-                    <input
-                      type="date"
-                      value={genTo}
-                      onChange={(e) => setGenTo(e.target.value)}
-                      className="rounded-lg border border-border-strong px-2 py-1.5 text-xs text-text"
-                    />
-                  </label>
-                </div>
-                <button
-                  onClick={handleGenerate}
-                  disabled={generateMutation.isPending}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-                >
-                  {generateMutation.isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <CalendarClock className="h-3.5 w-3.5" />
-                  )}
-                  {t("journal.generate")}
-                </button>
-                <button
-                  onClick={handleExportCsv}
-                  disabled={isExporting}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-border-strong px-3 py-1.5 text-xs font-medium text-text hover:bg-ink-50 disabled:opacity-50"
-                >
-                  {isExporting ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5" />
-                  )}
-                  {t("journal.exportCsv")}
-                </button>
-              </CardContent>
-            </Card>
-
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-text-subtle">
-              {t("journal.days")}
-            </h2>
-            {sessionsQuery.isLoading ? (
-              <div className="flex justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              </div>
-            ) : sessions.length === 0 ? (
-              <p className="text-sm text-text-subtle">{t("journal.noSessions")}</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {sessions.map((s) => {
-                  const active = s.session_date === selectedDate;
-                  return (
-                    <li key={s.id}>
-                      <button
-                        onClick={() => setSelectedDate(s.session_date)}
-                        className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
-                          active
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:bg-ink-50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-text">
-                            {s.session_date}
-                          </span>
+        <div className="overflow-auto rounded-xl border border-border bg-surface">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-text-subtle">
+                <th className="p-2 text-left">{t("journal.student")}</th>
+                {sessions.map((s) => (
+                  <th key={s.id} className="p-2 text-center font-medium">
+                    <div>{s.session_date.slice(5)}</div>
+                    {s.topic ? (
+                      <div className="max-w-[6rem] truncate font-normal text-text-subtle">
+                        {s.topic}
+                      </div>
+                    ) : null}
+                  </th>
+                ))}
+                <th className="p-2 text-center">Σ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((stu) => {
+                let present = 0;
+                const cells = dates.map((d) => {
+                  const status = cellMap.get(`${stu.student_id}|${d}`) ?? null;
+                  if (status === "present" || status === "late") present += 1;
+                  return status;
+                });
+                return (
+                  <tr key={stu.student_id} className="border-t border-border">
+                    <td className="p-2 font-medium text-text">
+                      {stu.student_name}
+                    </td>
+                    {cells.map((status, i) => (
+                      <td key={dates[i]} className="p-1 text-center">
+                        {status ? (
                           <span
-                            className={`rounded-pill px-2 py-0.5 text-[10px] font-bold ${
-                              s.held
-                                ? "bg-success-soft text-success-fg"
-                                : "bg-ink-100 text-text-muted"
-                            }`}
+                            className={`inline-block w-7 rounded py-1 font-semibold ${CELL_STYLES[status]}`}
                           >
-                            {s.held ? t("journal.held") : t("journal.notHeld")}
+                            {CELL_LETTER[status]}
                           </span>
-                        </div>
-                        {s.topic ? (
-                          <p className="mt-0.5 truncate text-xs text-text-muted">
-                            {s.topic}
-                          </p>
-                        ) : null}
-                        <p className="mt-0.5 text-[11px] text-text-subtle">
-                          {t("journal.presentLabel")}: {s.attendance.present}/
-                          {s.attendance.total}
-                        </p>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-
-          {/* Day detail */}
-          <div className="space-y-5">
-            {/* Session */}
-            <Card>
-              <CardContent className="space-y-3 p-4">
-                <h2 className="text-sm font-semibold text-text">
-                  {t("journal.sessionSection")} · {selectedDate}
-                </h2>
-                {scheduledLabel ? (
-                  <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-xs text-text">
-                    <CalendarClock className="h-4 w-4 shrink-0 text-primary" />
-                    <span>
-                      <span className="font-semibold">
-                        {t("journal.scheduled")}:
-                      </span>{" "}
-                      {scheduledLabel}
-                    </span>
-                  </div>
-                ) : null}
-                <label className="flex items-center gap-2 text-sm text-text">
-                  <input
-                    type="checkbox"
-                    checked={held}
-                    onChange={(e) => setHeld(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  {t("journal.sessionHeld")}
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-text-muted">
-                  {t("journal.topic")}
-                  <input
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder={t("journal.topicPlaceholder")}
-                    maxLength={500}
-                    className="rounded-lg border border-border-strong px-3 py-2 text-sm text-text"
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-xs text-text-muted">
-                  {t("journal.notes")}
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder={t("journal.notesPlaceholder")}
-                    rows={2}
-                    className="rounded-lg border border-border-strong px-3 py-2 text-sm text-text"
-                  />
-                </label>
-                <div className="flex justify-end">
-                  <button
-                    onClick={handleSaveSession}
-                    disabled={upsertMutation.isPending}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-                  >
-                    {upsertMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    {t("journal.saveSession")}
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Attendance */}
-            <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-text">
-                {t("journal.attendanceSection")}
-              </h2>
-              <AttendanceMarker courseId={courseId} date={selectedDate} />
-            </div>
-
-            {/* Activity that day */}
-            <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-text">
-                {t("journal.activitySection")}
-              </h2>
-              {dayQuery.isLoading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                </div>
-              ) : activity.length === 0 ? (
-                <Card>
-                  <CardContent className="py-6 text-center text-sm text-text-subtle">
-                    {t("journal.noActivity")}
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="p-4">
-                    <table className="w-full text-left text-sm">
-                      <thead>
-                        <tr className="text-xs text-text-subtle">
-                          <th className="py-1 pr-3">{t("journal.student")}</th>
-                          <th className="py-1 pr-3">
-                            {t("journal.lessonsCompleted")}
-                          </th>
-                          <th className="py-1 pr-3 text-center">
-                            {t("journal.exercises")}
-                          </th>
-                          <th className="py-1 pr-3 text-center">
-                            {t("journal.quizzes")}
-                          </th>
-                          <th className="py-1 text-center">
-                            {t("journal.assignments")}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activity.map((row) => (
-                          <tr
-                            key={row.student_id}
-                            className="border-t border-border align-top"
-                          >
-                            <td className="py-1.5 pr-3 font-medium text-text">
-                              {row.student_name}
-                            </td>
-                            <td className="py-1.5 pr-3 text-text-muted">
-                              {row.lessons_completed.length > 0
-                                ? row.lessons_completed.join(", ")
-                                : "—"}
-                            </td>
-                            <td className="py-1.5 pr-3 text-center text-text-muted">
-                              {row.exercises_done || "—"}
-                            </td>
-                            <td className="py-1.5 pr-3 text-center text-text-muted">
-                              {row.quizzes_done || "—"}
-                            </td>
-                            <td className="py-1.5 text-center text-text-muted">
-                              {row.assignments_done || "—"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
+                        ) : (
+                          <span className="text-text-subtle">·</span>
+                        )}
+                      </td>
+                    ))}
+                    <td className="p-2 text-center text-text-muted">
+                      {present}/{dates.length}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
+  );
+}
+
+// ── Stub tabs (filled by the next unit) ─────────────────────────────────────
+
+function StubTab({ label }: { label: string }) {
+  const { t } = useTranslation();
+  return (
+    <Card>
+      <CardContent className="py-12 text-center">
+        <p className="text-sm font-medium text-text">{label}</p>
+        <p className="mt-1 text-xs text-text-subtle">{t("journal.comingSoon")}</p>
+      </CardContent>
+    </Card>
   );
 }

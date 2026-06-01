@@ -107,7 +107,8 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isMenuVisible("review") ? [{ href: "/admin/review", label: t("nav.review"), icon: Inbox, badge: reviewCount }] : []),
  ...(isMenuVisible("peer_review") ? [{ href: "/admin/peer-review", label: t("nav.peerReview"), icon: MessagesSquare }] : []),
  ...(isMenuVisible("team_projects") ? [{ href: "/admin/team-projects", label: t("nav.teamProjects"), icon: FolderKanban }] : []),
- ...(isMenuVisible("attendance") ? [{ href: "/admin/attendance", label: t("nav.attendance"), icon: CalendarCheck }] : []),
+ // Schedule + Attendance are folded into the unified Journal module (Today /
+ // Register / Rooms / Setup tabs); their standalone nav links were removed.
  ...(isMenuVisible("journal") ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }] : []),
  ...(isMenuVisible("schedule") ? [{ href: "/admin/schedule", label: t("nav.schedule"), icon: CalendarClock }] : []),
  ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),

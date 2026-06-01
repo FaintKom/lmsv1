@@ -80,6 +80,37 @@ export interface SessionUpsert {
   notes: string | null;
 }
 
+export interface TodaySessionInfo {
+  held: boolean;
+  topic: string;
+}
+
+export interface TodayAgendaRow {
+  slot_id: string;
+  course_id: string;
+  course_title: string;
+  teacher_id: string | null;
+  teacher_name: string;
+  start_time: string;
+  end_time: string;
+  is_online: boolean;
+  room_id: string | null;
+  room_name: string | null;
+  room_url: string | null;
+  session: TodaySessionInfo | null;
+  attendance: { present: number; total: number };
+}
+
+export interface TodayResponse {
+  date: string;
+  agenda: TodayAgendaRow[];
+}
+
+export interface TodayFilters {
+  courseId?: string;
+  teacherId?: string;
+}
+
 // ── Raw API functions ──────────────────────────────────────────────────
 
 export async function fetchSessions(
@@ -138,6 +169,26 @@ export async function exportJournalCsv(
   return data;
 }
 
+/**
+ * The day's agenda — one call returning every scheduled slot for ``date`` in
+ * the caller's scope, enriched with session (held/topic) + attendance counts.
+ * Optional course / teacher filters (teacher filter is admin/methodist only;
+ * a plain teacher is already scoped to their own courses server-side).
+ */
+export async function journalToday(
+  date: string,
+  filters: TodayFilters = {},
+): Promise<TodayResponse> {
+  const { data } = await apiClient.get<TodayResponse>("/journal/today", {
+    params: {
+      date,
+      ...(filters.courseId ? { course_id: filters.courseId } : {}),
+      ...(filters.teacherId ? { teacher_id: filters.teacherId } : {}),
+    },
+  });
+  return data;
+}
+
 // ── Query hooks ────────────────────────────────────────────────────────
 
 export function useJournalSessions(courseId: string) {
@@ -177,5 +228,13 @@ export function useGenerateFromSchedule(courseId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["journal", "sessions", courseId] });
     },
+  });
+}
+
+export function useJournalToday(date: string, filters: TodayFilters = {}) {
+  return useQuery({
+    queryKey: ["journal", "today", date, filters.courseId ?? "", filters.teacherId ?? ""],
+    queryFn: () => journalToday(date, filters),
+    enabled: !!date,
   });
 }
