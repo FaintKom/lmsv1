@@ -8,6 +8,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import apiClient from "@/lib/api-client";
 
+/** One overlapping booking returned in a 409 `room_conflict` payload. */
+export interface RoomConflict {
+  slot_id: string;
+  course_title: string;
+  start_time: string;
+  end_time: string;
+}
+
 export interface ScheduleSlot {
   id: string;
   org_id: string;
@@ -17,10 +25,14 @@ export interface ScheduleSlot {
   start_time: string;
   end_time: string;
   location: string;
+  room_id: string | null;
+  room_name: string | null;
   note: string;
   active: boolean;
   is_online: boolean;
   room_url: string | null;
+  // Present (non-blocking) when a slot was saved with ?force=true despite a clash.
+  warning?: { code: string; conflicts: RoomConflict[] };
 }
 
 export interface SlotsResponse {
@@ -33,6 +45,7 @@ export interface SlotCreate {
   start_time: string;
   end_time: string;
   location?: string;
+  room_id?: string | null;
   note?: string;
   is_online?: boolean;
 }
@@ -42,6 +55,7 @@ export interface SlotUpdate {
   start_time?: string;
   end_time?: string;
   location?: string;
+  room_id?: string | null;
   note?: string;
   active?: boolean;
   is_online?: boolean;
@@ -68,18 +82,25 @@ export async function fetchCourseSlots(
   return data;
 }
 
-export async function createSlot(body: SlotCreate): Promise<ScheduleSlot> {
-  const { data } = await apiClient.post<ScheduleSlot>("/schedule", body);
+export async function createSlot(
+  body: SlotCreate,
+  force = false,
+): Promise<ScheduleSlot> {
+  const { data } = await apiClient.post<ScheduleSlot>("/schedule", body, {
+    params: force ? { force: true } : {},
+  });
   return data;
 }
 
 export async function updateSlot(
   slotId: string,
   body: SlotUpdate,
+  force = false,
 ): Promise<ScheduleSlot> {
   const { data } = await apiClient.put<ScheduleSlot>(
     `/schedule/${slotId}`,
     body,
+    { params: force ? { force: true } : {} },
   );
   return data;
 }
@@ -122,7 +143,8 @@ function useInvalidateSchedule() {
 export function useCreateSlot() {
   const invalidate = useInvalidateSchedule();
   return useMutation({
-    mutationFn: (body: SlotCreate) => createSlot(body),
+    mutationFn: ({ body, force }: { body: SlotCreate; force?: boolean }) =>
+      createSlot(body, force),
     onSuccess: invalidate,
   });
 }
@@ -130,8 +152,15 @@ export function useCreateSlot() {
 export function useUpdateSlot() {
   const invalidate = useInvalidateSchedule();
   return useMutation({
-    mutationFn: ({ slotId, body }: { slotId: string; body: SlotUpdate }) =>
-      updateSlot(slotId, body),
+    mutationFn: ({
+      slotId,
+      body,
+      force,
+    }: {
+      slotId: string;
+      body: SlotUpdate;
+      force?: boolean;
+    }) => updateSlot(slotId, body, force),
     onSuccess: invalidate,
   });
 }

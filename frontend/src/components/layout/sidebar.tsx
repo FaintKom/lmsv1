@@ -110,7 +110,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  // Schedule + Attendance are folded into the unified Journal module (Today /
  // Register / Rooms / Setup tabs); their standalone nav links were removed.
  ...(isMenuVisible("journal") ? [{ href: "/admin/journal", label: t("nav.journal"), icon: BookOpenCheck }] : []),
- ...(isMenuVisible("schedule") ? [{ href: "/admin/schedule", label: t("nav.schedule"), icon: CalendarClock }] : []),
  ...(isAdminOnly && isMenuVisible("paths") ? [{ href: "/admin/paths", label: t("nav.paths"), icon: Route }] : []),
  ...(isMenuVisible("calendar") ? [{ href: "/admin/calendar", label: t("nav.calendar") || "Calendar", icon: Calendar }] : []),
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
