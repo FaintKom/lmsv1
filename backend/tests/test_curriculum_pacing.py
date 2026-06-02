@@ -357,6 +357,166 @@ async def test_pacing_timeline_coverage(client, admin, org, db):
     assert resp.status_code == 404
 
 
+# ── Upsert links group_id → pacing reflects marks WITHOUT a backfill ─────────
+
+
+async def test_upsert_resolves_default_group_and_pacing_reflects_live(
+    client, admin, org, db
+):
+    """Marking a topic via POST /journal/sessions must set class_sessions.group_id
+    (resolved to the course's default group) so /journal/pacing counts it
+    immediately — no boot-time backfill_groups run required."""
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
+    course = await make_course(db, org, admin)
+    topics = await _add_topics(
+        client, methodist, course, [{"title": "T1"}, {"title": "T2"}]
+    )
+    # The course's default group (named like the course title, per the backfill
+    # convention). No backfill is run in this test.
+    group = await _make_group(db, org, course, name=course.title)
+
+    # Upsert a held session marking T1 — WITHOUT passing group_id.
+    resp = await client.post(
+        f"{API}/journal/sessions",
+        json={
+            "course_id": str(course.id),
+            "session_date": "2026-09-01",
+            "held": True,
+            "topic": "Did T1",
+            "actual_topic_id": topics[0]["id"],
+        },
+        headers=auth_header(methodist),
+    )
+    assert resp.status_code == 200, resp.text
+    # The session was linked to the resolved default group.
+    assert resp.json()["group_id"] == str(group.id)
+
+    # Pacing for that group reflects the covered topic with no backfill call.
+    body = (
+        await client.get(f"{API}/journal/pacing", headers=auth_header(methodist))
+    ).json()
+    by_name = {g["group_name"]: g for g in body["groups"]}
+    assert by_name[course.title]["covered"] == 1
+    assert by_name[course.title]["next_topic_title"] == "T2"
+
+
+async def test_upsert_with_explicit_group_id_is_validated(
+    client, admin, org, org2, db
+):
+    """An explicit group_id is set when it belongs to the course; a group from a
+    different course (or org) is rejected as not_found."""
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
+    course = await make_course(db, org, admin)
+    group = await _make_group(db, org, course, name="Section B")
+
+    # Explicit, valid group_id → linked.
+    resp = await client.post(
+        f"{API}/journal/sessions",
+        json={
+            "course_id": str(course.id),
+            "session_date": "2026-09-03",
+            "held": True,
+            "topic": "x",
+            "group_id": str(group.id),
+        },
+        headers=auth_header(methodist),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["group_id"] == str(group.id)
+
+    # A group of a *different* course is rejected (404 not_found).
+    other_course = await make_course(db, org, admin)
+    other_group = await _make_group(db, org, other_course, name="Other")
+    resp = await client.post(
+        f"{API}/journal/sessions",
+        json={
+            "course_id": str(course.id),
+            "session_date": "2026-09-04",
+            "held": True,
+            "group_id": str(other_group.id),
+        },
+        headers=auth_header(methodist),
+    )
+    assert resp.status_code == 404, resp.text
+
+
+async def test_upsert_no_group_course_does_not_crash(client, admin, org, db):
+    """A course with no group yet must still upsert (group_id left null)."""
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
+    course = await make_course(db, org, admin)  # no group created
+
+    resp = await client.post(
+        f"{API}/journal/sessions",
+        json={
+            "course_id": str(course.id),
+            "session_date": "2026-09-05",
+            "held": True,
+            "topic": "ungrouped",
+        },
+        headers=auth_header(methodist),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["group_id"] is None
+
+
+async def test_upsert_prefers_course_named_group_when_multiple(
+    client, admin, org, db
+):
+    """When several groups exist for a course the upsert links to the one named
+    like the course title (the backfill's default-group convention)."""
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
+    course = await make_course(db, org, admin)
+    # An earlier-created non-default group, then the default named like the course.
+    await _make_group(db, org, course, name="Morning cohort")
+    default_group = await _make_group(db, org, course, name=course.title)
+
+    resp = await client.post(
+        f"{API}/journal/sessions",
+        json={
+            "course_id": str(course.id),
+            "session_date": "2026-09-06",
+            "held": True,
+        },
+        headers=auth_header(methodist),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["group_id"] == str(default_group.id)
+
+
+# ── /journal/teachers (methodist-callable filter source) ─────────────────────
+
+
+async def test_journal_teachers_methodist_sees_org_teachers(
+    client, admin, org, org2, db
+):
+    """A methodist gets the org's teachers (admin-only /admin/users would 403).
+    Org isolation hides another org's teachers."""
+    methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
+    t1 = await _new_user(db, org, UserRole.teacher, suffix="a")
+    t2 = await _new_user(db, org, UserRole.teacher, suffix="b")
+    await _new_user(db, org2, UserRole.teacher, suffix="x")  # other org
+
+    resp = await client.get(f"{API}/journal/teachers", headers=auth_header(methodist))
+    assert resp.status_code == 200, resp.text
+    ids = {row["id"] for row in resp.json()}
+    # Includes org teachers (methodist is a teacher too) and excludes org2's.
+    assert str(t1.id) in ids
+    assert str(t2.id) in ids
+    assert str(methodist.id) in ids
+    assert all("org2" not in row["full_name"] for row in resp.json())
+
+
+async def test_journal_teachers_plain_teacher_sees_only_self(client, org, db):
+    """A plain teacher's agenda is own-course scoped, so the filter is just self."""
+    teacher = await _new_user(db, org, UserRole.teacher)
+    await _new_user(db, org, UserRole.teacher, suffix="other")
+
+    resp = await client.get(f"{API}/journal/teachers", headers=auth_header(teacher))
+    assert resp.status_code == 200, resp.text
+    ids = [row["id"] for row in resp.json()]
+    assert ids == [str(teacher.id)]
+
+
 async def test_pacing_timeline_teacher_scope(client, admin, org, db):
     methodist = await _new_user(db, org, UserRole.teacher, is_methodist=True)
     teacher = await _new_user(db, org, UserRole.teacher)

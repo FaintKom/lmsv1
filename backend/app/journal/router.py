@@ -52,6 +52,10 @@ class SessionUpsertRequest(BaseModel):
     # Phase C: the curriculum topic actually covered this session (drives
     # pacing). Optional; omitting it leaves the existing value untouched.
     actual_topic_id: uuid.UUID | None = None
+    # Phase D: link the session to a scheduling group so pacing reflects the
+    # mark live (no backend restart). Optional; when omitted the service
+    # resolves the course's default group.
+    group_id: uuid.UUID | None = None
 
 
 class GenerateFromScheduleRequest(BaseModel):
@@ -96,6 +100,7 @@ async def upsert_session(
             body.notes,
             actual_topic_id=body.actual_topic_id,
             actual_topic_set="actual_topic_id" in body.model_fields_set,
+            group_id=body.group_id,
         )
     except TaskStatsError as exc:
         raise _translate(exc) from exc
@@ -140,6 +145,22 @@ async def export_register(
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/journal/teachers")
+async def list_teachers(
+    user: User = Depends(require_role(*_MANAGER_ROLES)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Teachers in the caller's org for the Today filter dropdown.
+
+    Readable by methodists (who can't call admin-only ``/admin/users``); the
+    org-scope + role filter live in the service. Returns ``[{id, full_name}]``.
+    """
+    try:
+        return await journal_service.list_org_teachers(db, user)
+    except TaskStatsError as exc:
+        raise _translate(exc) from exc
 
 
 @router.get("/journal/today")

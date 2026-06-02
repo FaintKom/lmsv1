@@ -169,6 +169,34 @@ async def _group_member_ids(
     return [r[0] for r in rows]
 
 
+# ── Teacher directory (filter dropdown) ─────────────────────────────────────
+
+
+async def list_org_teachers(db: AsyncSession, user: User) -> list[dict]:
+    """Active teachers the caller may filter the agenda by.
+
+    The Today teacher-filter needs a teacher list a methodist can read.
+    ``/admin/users`` is admin/super_admin-only, so this endpoint mirrors the
+    journal's own RBAC (require_stats_role + org isolation) instead: org-wide
+    staff (methodist/admin) get every teacher in their org, super_admin gets
+    all teachers, and a plain teacher just gets themselves (their agenda is
+    already scoped to their own courses). Returns ``[{id, full_name}]`` sorted
+    by name — no wider user data than the dropdown needs.
+    """
+    require_stats_role(user)
+    stmt = select(User.id, User.full_name).where(
+        User.role == UserRole.teacher,
+        User.is_active.is_(True),
+    )
+    if user.role != UserRole.super_admin:
+        stmt = stmt.where(User.org_id == user.org_id)
+        if not _is_org_wide(user):
+            # A plain teacher only ever filters by themselves.
+            stmt = stmt.where(User.id == user.id)
+    rows = (await db.execute(stmt.order_by(User.full_name))).all()
+    return [{"id": str(tid), "full_name": name or ""} for tid, name in rows]
+
+
 # ── Upsert ───────────────────────────────────────────────────────────────
 
 
@@ -183,6 +211,46 @@ async def _validate_topic_for_course(
         raise TaskStatsError("not_found", "Curriculum topic not found for this course")
 
 
+async def _resolve_session_group_id(
+    db: AsyncSession,
+    user: User,
+    course: Course,
+    course_id: uuid.UUID,
+    group_id: uuid.UUID | None,
+) -> uuid.UUID | None:
+    """Pick the group a freshly-upserted session should link to.
+
+    Pacing + every group-scoped read key on ``class_sessions.group_id``; if an
+    upsert left it NULL the marked session was invisible to pacing until the
+    boot-time ``backfill_groups`` ran. So every upsert resolves a group eagerly:
+
+      - explicit ``group_id`` → validate it belongs to this course + org, use it;
+      - otherwise → the course's default group (the Phase B backfill creates one
+        per course): prefer the group named like the course title, else the
+        earliest-created. Returns ``None`` when the course has no group yet (the
+        caller then leaves ``group_id`` untouched — never crashes).
+    """
+    if group_id is not None:
+        await _authorize_group(db, user, group_id, course_id)
+        return group_id
+
+    rows = (
+        await db.execute(
+            select(StudentGroup)
+            .where(StudentGroup.course_id == course_id)
+            .order_by(StudentGroup.created_at.asc(), StudentGroup.id.asc())
+        )
+    ).scalars().all()
+    if not rows:
+        return None
+    # One default group is the norm; if several exist prefer the one named after
+    # the course (the backfill convention), else fall back to the earliest.
+    for g in rows:
+        if g.name == course.title:
+            return g.id
+    return rows[0].id
+
+
 async def upsert_session(
     db: AsyncSession,
     user: User,
@@ -194,17 +262,26 @@ async def upsert_session(
     *,
     actual_topic_id: uuid.UUID | None = None,
     actual_topic_set: bool = False,
+    group_id: uuid.UUID | None = None,
 ) -> dict:
     """Insert or update the (course, date) journal row.
 
     ``actual_topic_id`` (Phase C) records which curriculum topic the session
     actually covered — it drives pacing. ``actual_topic_set`` distinguishes
     "clear it" (explicit null) from "leave untouched" on update.
+
+    ``group_id`` links the session to a scheduling group so pacing reflects the
+    mark immediately (no backend restart). When omitted, the course's default
+    group is resolved; when the course has no group, the link is left as-is.
     """
     require_stats_role(user)
     course = await _authorize_course(db, user, course_id)
     if actual_topic_set and actual_topic_id is not None:
         await _validate_topic_for_course(db, course_id, actual_topic_id)
+
+    resolved_group_id = await _resolve_session_group_id(
+        db, user, course, course_id, group_id
+    )
 
     existing = await db.scalar(
         select(ClassSession).where(
@@ -218,6 +295,9 @@ async def upsert_session(
         existing.notes = notes
         if actual_topic_set:
             existing.actual_topic_id = actual_topic_id
+        # Only set group_id when we resolved one — never clear an existing link.
+        if resolved_group_id is not None:
+            existing.group_id = resolved_group_id
         db.add(existing)
         await db.flush()
         return _session_dict(existing)  # type: ignore[return-value]
@@ -230,6 +310,7 @@ async def upsert_session(
         topic=(topic or "")[:500],
         notes=notes,
         actual_topic_id=actual_topic_id if actual_topic_set else None,
+        group_id=resolved_group_id,
         created_by=user.id,
     )
     db.add(created)

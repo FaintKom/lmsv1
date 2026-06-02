@@ -82,6 +82,17 @@ export interface SessionUpsert {
   notes: string | null;
   /** Phase C: the curriculum topic actually covered (optional). */
   actual_topic_id?: string | null;
+  /**
+   * Phase D: the scheduling group this session belongs to. Sent so the server
+   * links the session to a group on upsert and pacing reflects the mark live.
+   * Optional — when omitted the backend resolves the course's default group.
+   */
+  group_id?: string | null;
+}
+
+export interface JournalTeacher {
+  id: string;
+  full_name: string;
 }
 
 export interface TodaySessionInfo {
@@ -192,6 +203,15 @@ export async function journalToday(
       ...(filters.teacherId ? { teacher_id: filters.teacherId } : {}),
     },
   });
+  return data;
+}
+
+/**
+ * Teachers in the caller's org for the Today filter dropdown. Readable by
+ * methodists (unlike admin-only /admin/users); org-scope is enforced server-side.
+ */
+export async function fetchJournalTeachers(): Promise<JournalTeacher[]> {
+  const { data } = await apiClient.get<JournalTeacher[]>("/journal/teachers");
   return data;
 }
 

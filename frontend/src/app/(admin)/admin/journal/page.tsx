@@ -57,6 +57,7 @@ import {
   useJournalSessions,
   useGenerateFromSchedule,
   exportJournalCsv,
+  fetchJournalTeachers,
   type TodayAgendaRow,
 } from "@/lib/api/journal";
 import {
@@ -252,13 +253,14 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
   const [teacherFilter, setTeacherFilter] = useState("");
   const [openRow, setOpenRow] = useState<TodayAgendaRow | null>(null);
 
-  // Teacher filter options (admin/methodist only).
+  // Teacher filter options (admin/methodist only). Use /journal/teachers, which
+  // a methodist can call — /admin/users is admin/super_admin-only (403 for
+  // methodists, leaving the dropdown empty).
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   useEffect(() => {
     if (!isManager) return;
-    apiClient
-      .get<TeacherOption[]>("/admin/users", { params: { role: "teacher" } })
-      .then(({ data }) => setTeachers(data))
+    fetchJournalTeachers()
+      .then((data) => setTeachers(data))
       .catch(() => {});
   }, [isManager]);
 
@@ -463,6 +465,8 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
         held: true,
         topic: next,
         notes: null,
+        // Link to the row's group so pacing reflects the mark live.
+        group_id: row.group_id,
       });
       setSavedTopic(next);
       toast.success(t("journal.topicSaved"));

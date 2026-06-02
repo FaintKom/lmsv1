@@ -138,6 +138,8 @@ export function SessionDetail({
         topic: topic.trim(),
         notes: null,
         actual_topic_id: actualTopicId || null,
+        // Link to the agenda row's group so pacing reflects the mark live.
+        group_id: groupId ?? null,
       });
       if (records.length > 0) await markMutation.mutateAsync(records);
       toast.success(t("journal.sessionSaved"));
