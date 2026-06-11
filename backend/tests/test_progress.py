@@ -33,6 +33,20 @@ async def test_student_enroll_duplicate(client: AsyncClient, student, teacher, o
     assert resp.status_code in (200, 400)
 
 
+@pytest.mark.asyncio
+async def test_video_progress_rejects_absurd_duration(client: AsyncClient, student, teacher, org, db):
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    resp = await client.put(
+        f"/api/v1/progress/lessons/{lesson.id}/video-progress",
+        json={"position_seconds": 1.0, "duration_seconds": 1e308},
+        headers=auth_header(student),
+    )
+    # Pydantic Field(le=86400) bound rejects it before any logic runs.
+    assert resp.status_code == 422
+
+
 # ─── My Courses ──────────────────────────────────────────────────────────
 
 

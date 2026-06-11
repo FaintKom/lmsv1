@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -8,9 +9,12 @@ from sqlalchemy.orm import selectinload
 from app.assessments.grading import build_submission_breakdown, grade_quiz
 from app.assessments.models import Question, Quiz, QuizSubmission
 from app.auth.models import User, UserRole
+from app.common.auth import lesson_in_user_org
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.common.timing import normalize_elapsed
 from app.courses.models import Course, Lesson, Module
+
+logger = logging.getLogger(__name__)
 
 
 async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
@@ -38,7 +42,7 @@ async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
     return result.scalar_one()
 
 
-async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID) -> Quiz:
+async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID, user: User) -> Quiz:
     result = await db.execute(
         select(Quiz)
         .where(Quiz.id == quiz_id)
@@ -47,10 +51,13 @@ async def get_quiz(db: AsyncSession, quiz_id: uuid.UUID) -> Quiz:
     quiz = result.scalar_one_or_none()
     if not quiz:
         raise NotFoundError("Quiz not found")
+    # Enforce tenant boundary: the quiz's lesson must belong to the caller's org.
+    await lesson_in_user_org(db, quiz.lesson_id, user)
     return quiz
 
 
-async def get_quiz_by_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> Quiz:
+async def get_quiz_by_lesson(db: AsyncSession, lesson_id: uuid.UUID, user: User) -> Quiz:
+    await lesson_in_user_org(db, lesson_id, user)
     result = await db.execute(
         select(Quiz)
         .where(Quiz.lesson_id == lesson_id)
@@ -119,7 +126,7 @@ async def submit_quiz(
     user: User,
     elapsed_seconds: int | None = None,
 ) -> QuizSubmission:
-    quiz = await get_quiz(db, quiz_id)
+    quiz = await get_quiz(db, quiz_id, user)
 
     score_percent, total_points = grade_quiz(quiz.questions, answers)
     passed = score_percent >= quiz.passing_score
@@ -160,7 +167,7 @@ async def submit_quiz(
             from app.gamification.service import XP_QUIZ_PASSED, award_xp
             await award_xp(db, user.id, XP_QUIZ_PASSED, "quiz_passed")
         except Exception:
-            pass
+            logger.warning("XP award failed for user %s (quiz_passed)", user.id, exc_info=True)
 
     return submission
 
@@ -228,7 +235,7 @@ async def get_submission_breakdown(
         raise NotFoundError("Submission not found")
 
     # Load quiz + questions.
-    quiz = await get_quiz(db, submission.quiz_id)
+    quiz = await get_quiz(db, submission.quiz_id, user)
 
     # Resolve the owning course (quiz → lesson → module → course) for RBAC.
     course = (

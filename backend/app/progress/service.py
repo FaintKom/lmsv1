@@ -1,13 +1,17 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
 from app.common.exceptions import BadRequestError, NotFoundError
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
+
+logger = logging.getLogger(__name__)
 
 
 async def enroll(db: AsyncSession, course_id: uuid.UUID, user: User) -> Enrollment:
@@ -41,7 +45,13 @@ async def enroll(db: AsyncSession, course_id: uuid.UUID, user: User) -> Enrollme
         enrolled_at=datetime.now(timezone.utc),
     )
     db.add(enrollment)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError as exc:
+        # Concurrent enroll lost the race against the
+        # UniqueConstraint(course_id, student_id) — surface a clean 400.
+        await db.rollback()
+        raise BadRequestError("Already enrolled") from exc
     return enrollment
 
 
@@ -56,6 +66,8 @@ async def complete_lesson(
 
     module_result = await db.execute(select(Module).where(Module.id == lesson.module_id))
     module = module_result.scalar_one_or_none()
+    if module is None:
+        raise NotFoundError("Lesson is not attached to a module")
 
     enrollment_result = await db.execute(
         select(Enrollment).where(
@@ -115,14 +127,17 @@ async def complete_lesson(
             from app.certificates.service import issue_certificate
             await issue_certificate(db, user.id, module.course_id)
         except Exception:
-            pass
+            logger.warning(
+                "certificate issuance failed for user %s course %s",
+                user.id, module.course_id, exc_info=True,
+            )
 
     # Award XP for lesson completion
     try:
         from app.gamification.service import XP_LESSON_COMPLETE, award_xp
         await award_xp(db, user.id, XP_LESSON_COMPLETE, "lesson_complete")
     except Exception:
-        pass
+        logger.warning("XP award failed for user %s", user.id, exc_info=True)
 
     await db.flush()
     return progress

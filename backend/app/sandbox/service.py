@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 
@@ -9,6 +10,8 @@ from app.auth.models import User
 from app.common.exceptions import NotFoundError
 from app.sandbox.executor import execute_code_remote
 from app.sandbox.models import CodeChallenge, CodeSubmission, SubmissionStatus, TestCase
+
+logger = logging.getLogger(__name__)
 
 
 async def get_challenge_by_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> CodeChallenge:
@@ -155,6 +158,8 @@ async def submit_code(
             from app.gamification.service import XP_CODE_CHALLENGE_PASSED, award_xp
             await award_xp(db, user.id, XP_CODE_CHALLENGE_PASSED, "code_challenge_passed")
         except Exception:
-            pass
+            logger.warning(
+                "XP award failed for user %s (code_challenge_passed)", user.id, exc_info=True
+            )
 
     return submission

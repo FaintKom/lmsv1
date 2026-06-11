@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta
 
 from sqlalchemy import Date, cast, func, select
@@ -7,6 +8,8 @@ from app.admin.schemas import DashboardStats, DetailedAnalytics
 from app.auth.models import User, UserRole
 from app.courses.models import Course, Lesson
 from app.progress.models import Enrollment
+
+logger = logging.getLogger(__name__)
 
 
 def _org_filter(column, user: User):
@@ -99,7 +102,7 @@ async def get_detailed_analytics(db: AsyncSession, user: User) -> DetailedAnalyt
         if score is not None:
             avg_quiz_score = round(float(score), 1)
     except Exception:
-        pass
+        logger.warning("avg quiz score analytics query failed", exc_info=True)
 
     # Avg code pass rate
     avg_code_pass_rate = None
@@ -127,7 +130,7 @@ async def get_detailed_analytics(db: AsyncSession, user: User) -> DetailedAnalyt
         if total_subs > 0:
             avg_code_pass_rate = round(passed_subs / total_subs * 100, 1)
     except Exception:
-        pass
+        logger.warning("avg code pass-rate analytics query failed", exc_info=True)
 
     # Enrollments over time (last 30 days)
     today = date.today()

@@ -581,7 +581,10 @@ async def get_student_activity(
     group_name: str | None = None
     if group_id is not None:
         group = await db.scalar(
-            select(StudentGroup).where(StudentGroup.id == group_id)
+            select(StudentGroup).where(
+                StudentGroup.id == group_id,
+                StudentGroup.org_id == user.org_id,
+            )
         )
         if group is not None:
             group_name = group.name

@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -24,6 +25,8 @@ from app.progress.models import Enrollment
 # .txt and .rar are not in the shared spec — omit them so uploads are consistent.
 ALLOWED_ASSIGNMENT_EXTENSIONS = SUBMISSION_EXTENSIONS | {".zip"}
 MAX_FILE_MB = 50
+
+logger = logging.getLogger(__name__)
 
 
 async def create_assignment(
@@ -64,7 +67,8 @@ async def create_assignment(
                     data["title"], str(data["due_date"]),
                 )
     except Exception:
-        pass  # Don't fail assignment creation if emails fail
+        # Don't fail assignment creation if emails fail — but record it.
+        logger.warning("assignment-notification email failed", exc_info=True)
 
     return assignment
 
@@ -412,7 +416,8 @@ async def grade_submission(
                     score, assignment.max_score, feedback or None,
                 )
     except Exception:
-        pass  # Don't fail grading if email fails
+        # Don't fail grading if email fails — but record it.
+        logger.warning("grade-notification email failed", exc_info=True)
 
     return submission
 

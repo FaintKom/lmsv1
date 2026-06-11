@@ -138,6 +138,13 @@ async def apply_webhook_update(
         donation.confirmed_at = datetime.now(timezone.utc)
     elif status_str in ("rejected", "error", "expired"):
         donation.status = DonationStatus.failed
+    else:
+        # Unknown/unhandled provider status — leave the donation as-is (NOT
+        # silently treated as processed) and surface it for investigation.
+        logger.warning(
+            "donation webhook with unhandled status %r for OC order %s",
+            status_str, oc_order_id,
+        )
     donation.raw_webhook = payload
     await session.flush()
     return donation

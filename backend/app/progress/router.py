@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Literal
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
+from app.common.auth import lesson_in_user_org
 from app.db.session import get_db
 from app.progress.models import LessonHighlight, VideoProgress
 from app.progress.schemas import EnrollmentResponse, EnrollRequest, LessonProgressResponse
@@ -19,12 +21,16 @@ from app.progress.service import (
     get_my_enrollments,
 )
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
 class VideoProgressUpdate(BaseModel):
-    position_seconds: float
-    duration_seconds: float | None = None
+    # Bound to [0, 24h] so untrusted clients can't submit absurd values that
+    # poison the 90%-watched auto-complete math.
+    position_seconds: float = Field(ge=0, le=86400)
+    duration_seconds: float | None = Field(default=None, ge=0, le=86400)
 
 
 class VideoProgressResponse(BaseModel):
@@ -70,7 +76,8 @@ async def complete_lesson_endpoint(
                 link="/achievements",
             )
     except Exception:
-        pass  # Don't fail lesson completion if gamification errors
+        # Don't fail lesson completion if gamification errors — but record it.
+        logger.warning("gamification hook failed for user %s", user.id, exc_info=True)
 
     return {"status": "ok"}
 
@@ -181,8 +188,11 @@ async def update_video_progress_endpoint(
             await complete_lesson(db, lesson_id, user)
         except Exception:
             # Student might not have an enrollment row yet if they're
-            # previewing — don't block the video progress save.
-            pass
+            # previewing — don't block the video progress save, but record it.
+            logger.info(
+                "auto-complete skipped for lesson %s user %s", lesson_id, user.id,
+                exc_info=True,
+            )
 
     await db.flush()
     return VideoProgressResponse.model_validate(row)
@@ -232,6 +242,7 @@ async def list_highlights_endpoint(
     Offsets index into the plain textContent of the rendered lesson body;
     the frontend re-anchors by comparing text_snippet and drops stale marks.
     """
+    await lesson_in_user_org(db, lesson_id, user)
     result = await db.execute(
         select(LessonHighlight)
         .where(
@@ -253,6 +264,7 @@ async def create_highlight_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    await lesson_in_user_org(db, lesson_id, user)
     row = LessonHighlight(
         user_id=user.id,
         lesson_id=lesson_id,

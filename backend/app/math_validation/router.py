@@ -314,7 +314,8 @@ async def equation_steps(body: SolveIn, user: User = Depends(get_current_user)) 
                     }
                 )
         except Exception:
-            pass
+            # Symbolic solve fails for many valid-but-unsolvable inputs; benign.
+            logger.debug("solve-steps generation failed", exc_info=True)
         return steps
 
     steps = await _in_thread(_compute_steps)

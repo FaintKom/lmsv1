@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from sqlalchemy import (
     Boolean,
@@ -111,7 +111,7 @@ class UserRoomEquip(Base):
         DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
-        onupdate=lambda: datetime.now(),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
 

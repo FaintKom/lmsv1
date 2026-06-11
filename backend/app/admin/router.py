@@ -38,6 +38,10 @@ from app.db.session import get_db
 
 router = APIRouter()
 
+# Upper bound on user lists accepted by bulk group/enroll endpoints, so a huge
+# (or malicious) payload can't hammer the DB in a single transaction.
+_MAX_BULK_OP = 5000
+
 
 def _parse_iso_dob(value) -> date | None:
     """Best-effort parse of an optional ISO (YYYY-MM-DD) date of birth.
@@ -1302,16 +1306,25 @@ async def add_group_members_endpoint(
         raise NotFoundError("Group not found")
 
     user_ids = data.get("user_ids", [])
+    if len(user_ids) > _MAX_BULK_OP:
+        from fastapi import HTTPException
+        raise HTTPException(400, "Too many users in one request")
+
+    # Single query for existing members instead of one per user (was N+1).
+    existing_ids = set(
+        (await db.execute(
+            select(StudentGroupMember.user_id).where(
+                StudentGroupMember.group_id == group_id,
+                StudentGroupMember.user_id.in_(user_ids),
+            )
+        )).scalars().all()
+    ) if user_ids else set()
+
     added = 0
     for uid in user_ids:
-        existing = await db.execute(
-            select(StudentGroupMember).where(
-                StudentGroupMember.group_id == group_id,
-                StudentGroupMember.user_id == uid,
-            )
-        )
-        if existing.scalar_one_or_none():
+        if uid in existing_ids:
             continue
+        existing_ids.add(uid)  # also dedupe repeats within the same payload
         db.add(StudentGroupMember(group_id=group_id, user_id=uid))
         added += 1
     await db.flush()
@@ -1381,16 +1394,21 @@ async def enroll_group_endpoint(
     )
     member_user_ids = [row[0] for row in result.all()]
 
+    # Single query for already-enrolled students instead of one per member.
+    already_enrolled = set(
+        (await db.execute(
+            select(Enrollment.student_id).where(
+                Enrollment.course_id == course_id,
+                Enrollment.student_id.in_(member_user_ids),
+            )
+        )).scalars().all()
+    ) if member_user_ids else set()
+
     enrolled = 0
     for uid in member_user_ids:
-        existing = await db.execute(
-            select(Enrollment).where(
-                Enrollment.course_id == course_id,
-                Enrollment.student_id == uid,
-            )
-        )
-        if existing.scalar_one_or_none():
+        if uid in already_enrolled:
             continue
+        already_enrolled.add(uid)
         db.add(Enrollment(
             course_id=course_id,
             student_id=uid,

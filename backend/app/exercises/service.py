@@ -857,4 +857,6 @@ async def _award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: s
         from app.gamification.service import award_xp
         await award_xp(db, user_id, amount, reason)
     except Exception:
-        pass
+        logger.warning(
+            "XP award failed for user %s (reason=%s)", user_id, reason, exc_info=True
+        )

@@ -62,7 +62,7 @@ async def get_quiz_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    quiz = await get_quiz(db, quiz_id)
+    quiz = await get_quiz(db, quiz_id, user)
     data = QuizResponse.model_validate(quiz).model_dump()
     return _strip_answers_for_student(data, user)
 
@@ -73,7 +73,7 @@ async def get_quiz_by_lesson_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    quiz = await get_quiz_by_lesson(db, lesson_id)
+    quiz = await get_quiz_by_lesson(db, lesson_id, user)
     data = QuizResponse.model_validate(quiz).model_dump()
     return _strip_answers_for_student(data, user)
 
