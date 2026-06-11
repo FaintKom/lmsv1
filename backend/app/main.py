@@ -490,7 +490,10 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
-        return JSONResponse(status_code=500, content={"detail": str(exc)})
+        # Never echo the exception text to the client — it can leak SQL
+        # fragments, file paths, or internal detail. Full traceback stays in
+        # the server log (and Sentry) above.
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
     # Startup gate middleware has been removed in P0-10 — the lifespan
     # now runs _run_setup() synchronously before yielding, so by the time

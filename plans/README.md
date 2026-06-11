@@ -14,7 +14,7 @@ plan, with the plan's test command as the gate.
 |------|-------|----------|--------|------------|--------|
 | 001 | Org-scope helper + lock down lesson-keyed endpoints | P1 | M | — | DONE |
 | 002 | Cross-org IDOR test suite | P1 | M | 001 | DONE |
-| 003 | Stop leaking exceptions; tokens & postMessage hardening | P1 | S | — | TODO |
+| 003 | Stop leaking exceptions; tokens & postMessage hardening | P1 | S | — | DONE (S3 fixed; S4 deferred, S5 by-design) |
 | 004 | Replace silent `except: pass` with structured logging | P2 | S | — | TODO |
 | 005 | Correctness hardening (races, null-checks, tz, bounds) | P2 | M | — | TODO |
 | 006 | Kill bulk-op N+1 + add TanStack staleTime | P2 | S | — | TODO |
@@ -41,6 +41,11 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 - Billing webhook signature — verification required in prod.
 - peer_review / team_projects / meetings org-scope — checks verified present.
 - math-exercise.tsx message-listener "leak" — has cleanup; false positive.
+- **S5** postMessage `'*'` target origin — by-design: all three iframes are
+  `sandbox="allow-scripts"` (opaque "null" origin), so the sender CANNOT use a
+  matchable origin (`content-renderer.tsx:305` documents this). Receiver-side
+  `e.source` check is moot — the untrusted exercise HTML *is* the legitimate
+  message source. No safe change. Verified during Plan 003.
 - "Re-enable AI tutor / plagiarism / discussions" (direction) — REJECTED: the
   `ai/`, `plagiarism/`, `discussions/` dirs are EMPTY (0 `.py` files); code was
   deleted in 8186c29, not feature-gated. Re-enabling = rebuild, not a toggle.
@@ -49,6 +54,12 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 
 - **D2** async-Alembic to retire the `_run_setup()` migration fallback (L, HIGH risk).
 - **S6** move JWT from localStorage to httpOnly cookie (full-stack, M).
+- **S4** SCORM JWT-in-URL: the `?token=` is a deliberate preflight that sets the
+  `scorm_access` cookie (`scorm_import/router.py:257-288`) because an iframe
+  `src` cannot carry an `Authorization` header. A header swap would BREAK SCORM.
+  Proper fix = issue a short-lived, single-use, file-scoped token for SCORM
+  serving instead of the full access JWT (bounds the leak in history/logs). M,
+  needs design — deferred.
 - **T1** test files for the 9 untested modules (sandbox, webhooks, parent,
   submissions, meetings, certificates, export, scorm_import, knowledge) (L).
 - **T3** SCORM zip-bomb / path-traversal tests (M).
