@@ -45,6 +45,15 @@ export interface EquationBalanceV2Props {
   }) => void;
 }
 
+/** "3x + 4", "x + 10", "3", "0" — one side of the equation display. */
+function sideText(x: number, w: number) {
+  if (x === 0 && w === 0) return "0";
+  const parts: string[] = [];
+  if (x > 0) parts.push(`${x > 1 ? x : ""}x`);
+  if (w > 0) parts.push(String(w));
+  return parts.join(" + ");
+}
+
 function eqState(a: ScaleState, b: ScaleState) {
   return (
     a.leftX === b.leftX &&
@@ -74,6 +83,7 @@ function renderItems(
         kind === "x" ? (
           <div
             key={i}
+            className="fb-witem"
             style={{
               width: 28,
               height: 28,
@@ -93,6 +103,7 @@ function renderItems(
         ) : (
           <div
             key={i}
+            className="fb-witem"
             style={{
               width: 16,
               height: 16,
@@ -120,6 +131,7 @@ export function EquationBalanceV2({
 }: EquationBalanceV2Props) {
   const [state, setState] = useState<ScaleState>(initial);
   const [moves, setMoves] = useState<string[]>([]);
+  const [wobble, setWobble] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -128,15 +140,25 @@ export function EquationBalanceV2({
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
+  const atTarget = eqState(state, target);
+
+  /** Wobble the beam on every applied operation (~650ms, fb-beam.wobble). */
+  const triggerWobble = () => {
+    setWobble(true);
+    setTimeout(() => setWobble(false), 650);
+  };
+
   const subtractWeight = (n = 1) => {
     if (feedback || state.leftW < n || state.rightW < n) return;
     setState({ ...state, leftW: state.leftW - n, rightW: state.rightW - n });
     setMoves([...moves, `−${n} from both`]);
+    triggerWobble();
   };
   const subtractX = () => {
     if (feedback || state.leftX < 1 || state.rightX < 1) return;
     setState({ ...state, leftX: state.leftX - 1, rightX: state.rightX - 1 });
     setMoves([...moves, "−x from both"]);
+    triggerWobble();
   };
   const divide = () => {
     if (feedback || state.leftX < 2) return;
@@ -150,13 +172,14 @@ export function EquationBalanceV2({
       rightW: state.rightW / f,
     });
     setMoves([...moves, `÷${f}`]);
+    triggerWobble();
   };
 
   const handleCheck = () => {
     if (eqState(state, target)) {
       setFeedback({
         kind: "ok",
-        msg: usedAttempts === 0 ? t("exercise.gotIt") : t("exercise.gotIt"),
+        msg: t("exercise.gotIt"),
         explain,
       });
       setStreak((s) => s + 1);
@@ -218,81 +241,75 @@ export function EquationBalanceV2({
         onQuit={onQuit}
       >
         <div style={{ maxWidth: 520, margin: "0 auto" }}>
-          {/* equation display */}
+          {/* equation display — recolors green once the target is reached */}
           <div
             style={{
               textAlign: "center",
               fontFamily: "var(--font-mono)",
               fontSize: 18,
               fontWeight: 700,
-              color: "var(--ink-700)",
+              color: atTarget ? "var(--green-700)" : "var(--ink-700)",
+              transition: "color 200ms",
               marginBottom: 14,
             }}
           >
-            {state.leftX > 0 && `${state.leftX > 1 ? state.leftX : ""}x`}
-            {state.leftX > 0 && state.leftW > 0 && " + "}
-            {state.leftW > 0 && `${state.leftW}`}
-            {state.leftX === 0 && state.leftW === 0 && "0"}
+            {sideText(state.leftX, state.leftW)}
             {"  =  "}
-            {state.rightX > 0 && `${state.rightX > 1 ? state.rightX : ""}x`}
-            {state.rightX > 0 && state.rightW > 0 && " + "}
-            {`${state.rightW}`}
+            {sideText(state.rightX, state.rightW)}
           </div>
-          {/* balance visual */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 8,
-              marginBottom: 12,
-            }}
-          >
+          {/* balance visual — wobbles on every applied op, pans glow at target */}
+          <div className={"fb-beam-wrap fb-beam" + (wobble ? " wobble" : "")}>
             <div
               style={{
-                background: "var(--green-50)",
-                border: "2px solid var(--green-200)",
-                borderRadius: 14,
-                padding: 12,
-                minHeight: 110,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 6,
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 8,
               }}
             >
-              <div className="gp-eyebrow">{t("exercise.equationBalance.left")}</div>
-              {renderItems("x", state.leftX, "var(--green-600)", "var(--green-700)")}
-              {renderItems("w", state.leftW, "var(--sun-400)", "var(--sun-500)")}
+              <div
+                className={"fb-pan" + (atTarget ? " glow" : "")}
+                style={{
+                  background: "var(--green-50)",
+                  border: "2px solid var(--green-200)",
+                  minHeight: 110,
+                }}
+              >
+                <div className="gp-eyebrow">{t("exercise.equationBalance.left")}</div>
+                {renderItems("x", state.leftX, "var(--green-600)", "var(--green-700)")}
+                {renderItems("w", state.leftW, "var(--sun-400)", "var(--sun-500)")}
+              </div>
+              <div
+                className={"fb-pan" + (atTarget ? " glow" : "")}
+                style={{
+                  background: "var(--sun-50)",
+                  border: "2px solid var(--sun-300)",
+                  minHeight: 110,
+                }}
+              >
+                <div className="gp-eyebrow">{t("exercise.equationBalance.right")}</div>
+                {renderItems("x", state.rightX, "var(--green-600)", "var(--green-700)")}
+                {renderItems("w", state.rightW, "var(--sun-400)", "var(--sun-500)")}
+              </div>
             </div>
+            {/* fulcrum */}
             <div
               style={{
-                background: "var(--sun-50)",
-                border: "2px solid var(--sun-300)",
-                borderRadius: 14,
-                padding: 12,
-                minHeight: 110,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 6,
+                height: 10,
+                background: "var(--ink-700)",
+                borderRadius: 999,
+                margin: "10px 40px 0",
               }}
-            >
-              <div className="gp-eyebrow">{t("exercise.equationBalance.right")}</div>
-              {renderItems("x", state.rightX, "var(--green-600)", "var(--green-700)")}
-              {renderItems("w", state.rightW, "var(--sun-400)", "var(--sun-500)")}
-            </div>
+            />
+            <div
+              style={{
+                width: 14,
+                height: 22,
+                background: "var(--ink-700)",
+                borderRadius: "0 0 6px 6px",
+                margin: "0 auto",
+              }}
+            />
           </div>
-          {/* fulcrum */}
-          <div
-            style={{
-              height: 12,
-              background: "var(--ink-700)",
-              borderRadius: 999,
-              marginBottom: 18,
-            }}
-          />
           {/* ops */}
           <div
             style={{
@@ -300,74 +317,80 @@ export function EquationBalanceV2({
               gap: 8,
               flexWrap: "wrap",
               justifyContent: "center",
+              marginTop: 20,
             }}
           >
             <button
               type="button"
               onClick={() => subtractWeight(1)}
               disabled={!!feedback || state.leftW < 1 || state.rightW < 1}
-              className="gp-tile"
+              className="gp-tile fb-op"
               style={{
                 padding: "8px 14px",
                 fontSize: 13,
                 fontFamily: "var(--font-mono)",
               }}
             >
-              −1 from both
+              {t("exercise.equationBalance.opSubtract").replace("{n}", "1")}
             </button>
             <button
               type="button"
               onClick={() => subtractWeight(4)}
               disabled={!!feedback || state.leftW < 4 || state.rightW < 4}
-              className="gp-tile"
+              className="gp-tile fb-op"
               style={{
                 padding: "8px 14px",
                 fontSize: 13,
                 fontFamily: "var(--font-mono)",
               }}
             >
-              −4 from both
+              {t("exercise.equationBalance.opSubtract").replace("{n}", "4")}
             </button>
             <button
               type="button"
               onClick={subtractX}
               disabled={!!feedback || state.leftX < 1 || state.rightX < 1}
-              className="gp-tile"
+              className="gp-tile fb-op"
               style={{
                 padding: "8px 14px",
                 fontSize: 13,
                 fontFamily: "var(--font-mono)",
               }}
             >
-              −x from both
+              {t("exercise.equationBalance.opSubtractX")}
             </button>
             <button
               type="button"
               onClick={divide}
               disabled={!!feedback || state.leftX < 2}
-              className="gp-tile"
+              className="gp-tile fb-op"
               style={{
                 padding: "8px 14px",
                 fontSize: 13,
                 fontFamily: "var(--font-mono)",
               }}
             >
-              ÷ {state.leftX || ""}
+              ÷ {state.leftX > 1 ? state.leftX : "…"}
             </button>
           </div>
-          {moves.length > 0 && (
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: 10,
-                fontFamily: "var(--font-mono)",
-                fontSize: 11,
-                color: "var(--ink-400)",
-              }}
-            >
-              {moves.join(" · ")}
-            </div>
-          )}
+          {/* applied-move chips */}
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              justifyContent: "center",
+              flexWrap: "wrap",
+              marginTop: 14,
+              minHeight: 22,
+            }}
+          >
+            {moves.map((m, i) => (
+              <span key={i} className="fb-move-chip">
+                {/* moves keep their full onFinish form; chips show the bare op symbol */}
+                {m.split(" ")[0]}
+              </span>
+            ))}
+          </div>
         </div>
       </LessonShell>
     </div>

@@ -62,6 +62,8 @@ export function NumericInputV2({
   onFinish,
 }: NumericInputV2Props) {
   const [val, setVal] = useState("");
+  /** Visual state of the answer input: "" | "ok" (ripple) | "no" (shake). */
+  const [inputState, setInputState] = useState<"" | "ok" | "no">("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -74,6 +76,7 @@ export function NumericInputV2({
   const handleCheck = () => {
     const n = parseFloat(val);
     if (Number.isFinite(n) && Math.abs(n - correct) <= tolerance) {
+      setInputState("ok");
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.numericInput.right") : t("exercise.gotIt"),
@@ -82,6 +85,7 @@ export function NumericInputV2({
       fire();
       return;
     }
+    setInputState("no");
     const remaining = attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
@@ -101,11 +105,15 @@ export function NumericInputV2({
         msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
         explain,
       });
+      // Feedback grammar (handoff 2026-06): with attempts left, the shake/
+      // error tint clears after ~700ms so the student can retype calmly.
+      setTimeout(() => setInputState(""), 700);
     }
   };
 
   const handleRetry = () => {
     setFeedback(null);
+    setInputState("");
   };
 
   const handleContinue = () => {
@@ -201,39 +209,23 @@ export function NumericInputV2({
             </div>
           )}
 
-          <div
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 26,
-              fontWeight: 700,
-              padding: "20px 16px",
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-              marginBottom: 14,
-              color: "var(--ink-900)",
-            }}
-          >
+          <div className="fb-formula" style={{ marginBottom: 14 }}>
             <MaybeMath text={problem} />
           </div>
           <input
             type="text"
             inputMode="decimal"
             value={val}
-            onChange={(e) => setVal(e.target.value)}
+            onChange={(e) => {
+              setVal(e.target.value);
+              setInputState("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && val.length > 0 && !feedback) handleCheck();
+            }}
             disabled={!!feedback}
             placeholder="?"
-            className={
-              "gp-input " +
-              (feedback ? (feedback.kind === "ok" ? "correct" : "wrong") : "")
-            }
-            style={{
-              textAlign: "center",
-              fontFamily: "var(--font-mono)",
-              fontSize: 24,
-              fontWeight: 700,
-              padding: "10px 16px",
-            }}
+            className={"fb-input " + inputState}
           />
           {/* number pad */}
           <div
@@ -273,6 +265,17 @@ export function NumericInputV2({
                 {k}
               </button>
             ))}
+          </div>
+          <div
+            style={{
+              marginTop: 16,
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--ink-300)",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {t("exercise.numericInput.enterToCheck")}
           </div>
         </div>
       </LessonShell>

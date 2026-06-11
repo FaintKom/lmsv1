@@ -71,6 +71,10 @@ export function sanitizeHtml(dirty: string): string {
   ensureIframeHook();
   return DOMPurify.sanitize(dirty, {
     ADD_TAGS: ["iframe"],
-    ADD_ATTR: ["target", "allow", "allowfullscreen", "frameborder", "scrolling", "sandbox"],
+    // `data-term` carries glossary hover-hint definitions on <span> (Term
+    // mark in the lesson editor). DOMPurify already permits data-* attrs by
+    // default (ALLOW_DATA_ATTR), but keep it explicit so a future tightening
+    // of that default doesn't silently strip term hints.
+    ADD_ATTR: ["target", "allow", "allowfullscreen", "frameborder", "scrolling", "sandbox", "data-term"],
   });
 }

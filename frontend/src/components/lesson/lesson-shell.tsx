@@ -83,6 +83,13 @@ export interface LessonShellProps {
   lostHeart?: boolean;
   /** Triggered by the top-left × button. */
   onQuit?: () => void;
+  /**
+   * Instant-graded task: replaces the Check button with a passive caption
+   * (instantLabel) — grading happens on interaction, not on submit.
+   * Used by matching/categorize in instant mode and SRS flashcards.
+   */
+  instant?: boolean;
+  instantLabel?: ReactNode;
 }
 
 /* ─── Inline icons (no extra dep) ─────────────────────────────────── */
@@ -132,7 +139,7 @@ export function FeedbackSheet({
   const ok = feedback.kind === "ok";
   const canRetry = !ok && !!onRetry;
   return (
-    <div className={"lf-bottom " + (ok ? "correct" : "wrong")}>
+    <div className={"lf-bottom sheet " + (ok ? "correct" : "wrong")}>
       <div className="lf-fb-row">
         <span className={"lf-fb-icon " + (ok ? "ok" : "no")}>
           {ok ? <Ico.CheckThick /> : <Ico.XThick />}
@@ -242,6 +249,8 @@ export function LessonShell({
   onSkip,
   lostHeart = false,
   onQuit,
+  instant = false,
+  instantLabel,
 }: LessonShellProps) {
   void maxHearts;
   const hasStep = typeof step === "number" && typeof totalSteps === "number";
@@ -324,14 +333,30 @@ export function LessonShell({
                 Skip
               </button>
             )}
-            <button
-              className="gp-btn"
-              style={{ marginLeft: "auto", padding: "14px 36px" }}
-              disabled={!canCheck}
-              onClick={onCheck}
-            >
-              {checkLabel}
-            </button>
+            {instant ? (
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-300)",
+                }}
+              >
+                {instantLabel}
+              </span>
+            ) : (
+              <button
+                className="gp-btn"
+                style={{ marginLeft: "auto", padding: "14px 36px" }}
+                disabled={!canCheck}
+                onClick={onCheck}
+              >
+                {checkLabel}
+              </button>
+            )}
           </div>
         </div>
       )}

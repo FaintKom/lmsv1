@@ -2,7 +2,17 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, Float, ForeignKey, Numeric, UniqueConstraint
+from sqlalchemy import (
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -78,3 +88,37 @@ class VideoProgress(Base, IDMixin, TimestampMixin):
     # same segment twice but their completion progress shouldn't double-count.
     watched_seconds: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class LessonHighlight(Base, IDMixin, TimestampMixin):
+    """Per-student text annotation in a text/theory lesson.
+
+    Anchored by character offsets into the plain textContent of the rendered
+    lesson container (`.lms-lesson-content`), with the selected snippet stored
+    for validation: if the lesson text changes and the snippet no longer
+    matches at the stored offsets, the frontend silently drops the mark
+    instead of highlighting the wrong words. kind is a plain string, not a PG
+    enum, to keep migrations trivial ("highlight" | "underline").
+    """
+
+    __tablename__ = "lesson_highlights"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    lesson_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("lessons.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Lessons can have several text blocks, each with its own offset space;
+    # block_key scopes the anchor to one rendered block ("block-0", "legacy").
+    block_key: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    start_offset: Mapped[int] = mapped_column(Integer, nullable=False)
+    end_offset: Mapped[int] = mapped_column(Integer, nullable=False)
+    kind: Mapped[str] = mapped_column(String(16), nullable=False, default="highlight")
+    text_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)

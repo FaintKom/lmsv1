@@ -683,41 +683,100 @@ button { font-family: inherit; }
 .gp-btn.ghost:hover { box-shadow: 0 2px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
 .gp-btn.ghost:active { box-shadow: 0 0 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
 
+/* Tile = shared selection mechanic. Feedback grammar (handoff 2026-06):
+   1 invite (hover lift) · 2 grab (pressed) · 3 guide (candidate/hot/linked)
+   · 4 result (correct ripple / wrong shake) */
 .gp-tile {
+ position: relative;
  display: inline-flex;
  align-items: center;
  justify-content: center;
  padding: 12px 16px;
  border-radius: 14px;
  background: var(--paper-2);
- color: var(--ink-700);
+ border: 2px solid var(--ink-100);
+ color: var(--ink-900);
  font-family: var(--font-sans);
  font-weight: 600;
- font-size: 16px;
- border: none;
+ font-size: 15px;
  cursor: pointer;
- box-shadow: 0 2px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100);
- transition: transform 120ms var(--motion-ease), box-shadow 120ms var(--motion-ease), background 120ms;
+ box-shadow: 0 2px 0 0 var(--ink-100);
+ transition: transform 120ms var(--motion-ease), box-shadow 120ms var(--motion-ease), border-color 120ms, background 150ms, opacity 200ms;
  user-select: none;
 }
-.gp-tile:hover { transform: translateY(1px); box-shadow: 0 1px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
-.gp-tile:active { transform: translateY(2px); box-shadow: 0 0 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
-.gp-tile.selected {
- background: var(--green-50);
- color: var(--green-800);
- box-shadow: 0 2px 0 0 var(--green-300), inset 0 0 0 2px var(--green-300);
+/* 1 · invite */
+.gp-tile:hover:not(:disabled):not(.locked):not(.correct):not(.wrong) {
+ transform: translateY(calc(-2px * var(--mamp)));
+ border-color: var(--green-300);
+ box-shadow: 0 4px 0 0 var(--green-100);
 }
+/* 2 · grab — pressed physics */
+.gp-tile:active:not(:disabled):not(.locked),
+.gp-tile.selected {
+ transform: translateY(2px);
+ box-shadow: 0 0 0 0 var(--ink-100);
+}
+.gp-tile.selected {
+ border-color: var(--green-600);
+ background: var(--green-100);
+ color: var(--green-800);
+ box-shadow: 0 0 0 4px var(--green-100);
+}
+/* 3 · guide — candidates pulse, hot target magnetises */
+.gp-tile.candidate { animation: fb-halo calc(1.6s * var(--mdur)) ease-in-out infinite; }
+.gp-tile.hot {
+ border-color: var(--link-color);
+ box-shadow: 0 0 0 5px color-mix(in oklab, var(--link-color) 22%, transparent);
+ transform: translateY(calc(-2px * var(--mamp))) scale(1.02);
+ animation: none;
+}
+/* linked but not yet checked (deferred mode) */
+.gp-tile.linked {
+ border-color: color-mix(in oklab, var(--link-color) 55%, var(--ink-100));
+ background: color-mix(in oklab, var(--link-color) 7%, var(--paper-2));
+}
+/* 4 · result */
 .gp-tile.correct {
+ border-color: var(--green-600);
  background: var(--green-50);
  color: var(--green-800);
- box-shadow: 0 2px 0 0 var(--green-600), inset 0 0 0 2px var(--green-600);
+ cursor: default;
+ animation: fb-ripple-g calc(0.6s * var(--mdur)) ease-out both;
 }
 .gp-tile.wrong {
- background: var(--coral-50);
- color: var(--coral-700);
- box-shadow: 0 2px 0 0 var(--coral-500), inset 0 0 0 2px var(--coral-500);
+ border-color: var(--err-border);
+ background: var(--err-bg);
+ color: var(--err-fg);
+ animation: fb-shake calc(0.4s * var(--mdur)) ease both;
 }
-.gp-tile.locked { opacity: 0.6; pointer-events: none; }
+.gp-tile.locked { opacity: 0.55; pointer-events: none; box-shadow: none; transform: none; }
+.gp-tile:disabled { cursor: default; }
+.gp-tile .tile-chip {
+ position: absolute;
+ top: -9px; right: 10px;
+ font-family: var(--font-mono);
+ font-size: 9px; font-weight: 700;
+ letter-spacing: 0.08em;
+ padding: 3px 8px;
+ border-radius: 999px;
+ animation: fb-pop calc(0.36s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.gp-tile .tile-chip.ok { background: var(--green-600); color: #fff; }
+.gp-tile .tile-chip.no { background: var(--err-border); color: #fff; }
+.tile-dot {
+ width: 20px; height: 20px;
+ border-radius: 999px;
+ flex: none;
+ border: 2px solid var(--ink-200);
+ background: #fff;
+ display: grid; place-items: center;
+ color: #fff;
+ font-size: 11px; font-weight: 800;
+ transition: background 150ms, border-color 150ms, transform 150ms;
+}
+.gp-tile.selected .tile-dot,
+.gp-tile.correct .tile-dot { background: var(--green-600); border-color: var(--green-600); transform: scale(1.1); }
+.gp-tile.wrong .tile-dot { background: var(--err-border); border-color: var(--err-border); }
 
 .gp-eyebrow {
  font-family: var(--font-mono);
@@ -795,6 +854,599 @@ button { font-family: inherit; }
 .gp-heart-loss {
  display: inline-block;
  animation: gp-pulse-heart 500ms var(--motion-ease);
+}
+
+/* =================================================================
+   Feedback grammar · fb-* (design handoff 2026-06)
+   invite → grab → guide → result → reward.
+   All durations scale via --mdur, all amplitudes via --mamp.
+   ================================================================= */
+:root {
+ --mamp: 1;
+ --mdur: 1;
+ --link-color: var(--green-500);
+ --link-w: 3;
+ --err-bg: var(--coral-50);
+ --err-border: var(--coral-500);
+ --err-fg: var(--coral-700);
+}
+
+/* feedback sheet entrance + icon pop */
+.lf-bottom.sheet { animation: fb-slide-up calc(0.32s * var(--mdur)) cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.lf-fb-icon { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ---------- Connection lines (matching) ---------- */
+.fb-linkwrap { position: relative; }
+.fb-linksvg { position: absolute; inset: 0; pointer-events: none; overflow: visible; z-index: 5; }
+.fb-line-cursor {
+ fill: none;
+ stroke: var(--link-color);
+ stroke-width: calc(var(--link-w) * 1px);
+ stroke-linecap: round;
+ opacity: 0.5;
+ stroke-dasharray: 1 12;
+ animation: fb-dash-flow 0.6s linear infinite;
+}
+.fb-line-dot { fill: var(--link-color); opacity: 0.65; }
+.fb-line-anchor { fill: none; stroke: var(--link-color); stroke-width: 2; opacity: 0.5; }
+.fb-line-done {
+ fill: none; stroke: var(--green-500);
+ stroke-width: calc(var(--link-w) * 1px); stroke-linecap: round; opacity: 0.85;
+}
+.fb-line-done.fresh { animation: fb-line-draw calc(0.45s * var(--mdur)) ease-out both; }
+.fb-line-soft {
+ fill: none; stroke: var(--link-color);
+ stroke-width: calc(var(--link-w) * 1px); stroke-linecap: round; opacity: 0.45;
+}
+.fb-line-soft.fresh { animation: fb-line-draw calc(0.45s * var(--mdur)) ease-out both; }
+.fb-line-wrong {
+ fill: none; stroke: var(--err-border);
+ stroke-width: calc(var(--link-w) * 1px); stroke-linecap: round;
+ animation: fb-line-fade calc(0.6s * var(--mdur)) ease both;
+}
+
+/* ---------- Fill-blank slots ---------- */
+.fb-slot {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ min-width: 92px;
+ padding: 5px 12px;
+ margin: 0 4px;
+ border: none;
+ border-radius: 10px;
+ border-bottom: 3px solid var(--ink-300);
+ background: transparent;
+ color: transparent;
+ font: inherit;
+ font-weight: 700;
+ cursor: pointer;
+ transition: background 150ms, border-color 150ms, box-shadow 150ms, transform 120ms;
+}
+.fb-slot.armed { border-bottom-color: var(--green-500); box-shadow: 0 0 0 3px var(--green-100); border-radius: 10px; }
+.fb-slot.pulse { animation: fb-halo calc(1.6s * var(--mdur)) ease-in-out infinite; }
+.fb-slot.filled { background: var(--green-50); border-bottom-color: var(--green-500); color: var(--green-800); }
+.fb-slot.filled:hover { background: var(--coral-50); border-bottom-color: var(--coral-300); transform: translateY(-1px); }
+.fb-slot.flash { animation: fb-slot-flash calc(0.4s * var(--mdur)) ease both; }
+.fb-slot.ok { background: var(--green-50); border-bottom-color: var(--green-600); color: var(--green-800); }
+.fb-slot.no { background: var(--err-bg); border-bottom-color: var(--err-border); color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.fb-flyer {
+ position: fixed; z-index: 200; pointer-events: none;
+ display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Drag rows (ordering) ---------- */
+.fb-dragrow {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 14px;
+ padding: 0 16px;
+ height: 56px;
+ font-weight: 600;
+ font-size: 15px;
+ cursor: grab;
+ box-shadow: 0 2px 0 0 var(--ink-100);
+ user-select: none;
+ touch-action: none;
+ transition: transform 160ms ease, box-shadow 120ms, border-color 120ms, background 150ms;
+}
+.fb-dragrow:hover .grip { color: var(--ink-500); }
+.fb-dragrow.dragging {
+ transition: none; cursor: grabbing; z-index: 10; position: relative;
+ border-color: var(--green-300);
+ box-shadow: var(--shadow-md), 0 2px 0 0 var(--green-100);
+}
+.fb-dragrow.settled { animation: fb-settle calc(0.3s * var(--mdur)) ease both; }
+.fb-dragrow .num {
+ font-family: var(--font-mono);
+ background: var(--ink-50); color: var(--ink-500);
+ border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700;
+ transition: background 150ms, color 150ms;
+}
+.fb-dragrow.dragging .num { background: var(--green-100); color: var(--green-800); }
+.fb-dragrow .grip { color: var(--ink-200); margin-left: auto; letter-spacing: 1px; transition: color 120ms; }
+.fb-dragrow.ok { border-color: var(--green-600); background: var(--green-50); }
+.fb-dragrow.no { border-color: var(--err-border); background: var(--err-bg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+
+/* ---------- Drag chips + buckets (categorize) ---------- */
+.fb-chip-drag {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 999px;
+ padding: 10px 18px;
+ font-weight: 700;
+ font-size: 14px;
+ font-family: var(--font-mono);
+ cursor: grab;
+ user-select: none;
+ touch-action: none;
+ box-shadow: 0 2px 0 0 var(--ink-100);
+ transition: transform 250ms cubic-bezier(0.3, 1.3, 0.5, 1), box-shadow 120ms, border-color 120ms, opacity 200ms;
+}
+.fb-chip-drag:hover:not(.dragging) { transform: translateY(calc(-2px * var(--mamp))); border-color: var(--green-300); }
+.fb-chip-drag.dragging {
+ transition: box-shadow 120ms; cursor: grabbing; position: relative; z-index: 20;
+ border-color: var(--green-400); box-shadow: var(--shadow-md);
+}
+.fb-chip-drag.ok { border-color: var(--green-500) !important; background: var(--green-50) !important; color: var(--green-800); }
+.fb-chip-drag.no { border-color: var(--err-border) !important; background: var(--err-bg) !important; color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.fb-bucket {
+ flex: 1;
+ min-height: 170px;
+ border-radius: 18px;
+ border: 2px dashed var(--ink-200);
+ background: var(--paper);
+ padding: 14px;
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ transition: border-color 150ms, background 150ms, transform 150ms;
+}
+.fb-bucket.over {
+ border-color: var(--link-color); border-style: solid;
+ background: color-mix(in oklab, var(--link-color) 8%, var(--paper));
+ transform: scale(1.015);
+}
+.fb-bucket.gotcha { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--green-500); border-style: solid; }
+.fb-bucket.catch { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--link-color); border-style: solid; }
+.fb-bucket.reject { animation: fb-shake calc(0.4s * var(--mdur)) ease both; border-color: var(--err-border); border-style: solid; background: var(--err-bg); }
+.fb-bucket-title {
+ font-family: var(--font-mono);
+ font-size: 10px; font-weight: 700;
+ text-transform: uppercase; letter-spacing: 0.1em;
+ color: var(--ink-400);
+ display: flex; align-items: center; gap: 8px;
+}
+.fb-bucket-title .cnt {
+ background: var(--ink-100); border-radius: 999px; padding: 1px 8px; font-size: 10px;
+ transition: background 150ms, color 150ms;
+}
+.fb-bucket.over .fb-bucket-title .cnt { background: var(--link-color); color: #fff; }
+.fb-bucket .landed { animation: fb-pop calc(0.35s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ---------- Number line ---------- */
+.fb-marker {
+ width: 46px; height: 46px;
+ border-radius: 999px;
+ background: var(--green-600);
+ color: #fff;
+ box-shadow: 0 4px 0 0 var(--green-700);
+ display: grid; place-items: center;
+ font-family: var(--font-mono);
+ font-size: 14px; font-weight: 800;
+ cursor: grab;
+ user-select: none;
+ touch-action: none;
+ transition: box-shadow 100ms, transform 120ms, background 150ms, left 140ms ease;
+}
+.fb-marker.grabbed { cursor: grabbing; box-shadow: 0 1px 0 0 var(--green-700); transform: scale(1.08) translateY(3px); transition: box-shadow 100ms, transform 120ms, background 150ms; }
+.fb-marker.ok { background: var(--green-600); animation: fb-bump calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-marker.no { background: var(--err-border); box-shadow: 0 4px 0 0 var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.fb-marker-bubble {
+ position: absolute;
+ top: -34px; left: 50%;
+ transform: translateX(-50%);
+ background: var(--ink-900); color: #fff;
+ border-radius: 8px; padding: 3px 9px;
+ font-family: var(--font-mono);
+ font-size: 12px; font-weight: 700;
+ opacity: 0;
+ transition: opacity 150ms, transform 150ms;
+ pointer-events: none;
+ white-space: nowrap;
+}
+.fb-marker-bubble::after {
+ content: '';
+ position: absolute; top: 100%; left: 50%;
+ margin-left: -4px;
+ border: 4px solid transparent;
+ border-top-color: var(--ink-900);
+}
+.fb-marker-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+.fb-tick { transition: transform 120ms, background 120ms; }
+.fb-tick.near { transform: scaleY(1.5); background: var(--green-600) !important; }
+
+/* ---------- Numeric input ---------- */
+.fb-input {
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 14px;
+ padding: 14px 18px;
+ font-size: 22px; font-weight: 700;
+ width: 180px;
+ text-align: center;
+ font-family: var(--font-mono);
+ color: var(--ink-900);
+ transition: border-color 150ms, box-shadow 150ms, background 150ms;
+ outline: none;
+}
+.fb-input::placeholder { color: var(--ink-200); font-weight: 600; }
+.fb-input:hover:not(:disabled) { border-color: var(--ink-200); }
+.fb-input:focus { border-color: var(--green-500); box-shadow: 0 0 0 4px var(--green-100); }
+.fb-input.ok { border-color: var(--green-600); background: var(--green-50); color: var(--green-800); animation: fb-ripple-g calc(0.6s * var(--mdur)) ease-out both; }
+.fb-input.no { border-color: var(--err-border); background: var(--err-bg); color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+
+/* ---------- XP flyer (reward; needs #xp-anchor in chrome) ---------- */
+.fb-xp-flyer {
+ position: fixed; z-index: 300; pointer-events: none;
+ background: var(--sun-300); color: var(--sun-700);
+ font-family: var(--font-mono);
+ font-size: 13px; font-weight: 800;
+ padding: 6px 14px; border-radius: 999px;
+ box-shadow: var(--shadow-md);
+ transition: transform 0.75s cubic-bezier(0.3, 0.7, 0.3, 1), opacity 0.2s ease 0.6s;
+}
+
+/* ---------- Dialogue bubbles ---------- */
+.fb-bubble-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-end; }
+.fb-bubble-row.me { justify-content: flex-end; }
+.fb-bubble-row.pop { animation: fb-bubble-in calc(0.35s * var(--mdur)) cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+.fb-avatar {
+ width: 40px; height: 40px;
+ border-radius: 50%;
+ flex: none;
+ background: linear-gradient(135deg, var(--coral-300), var(--sun-400));
+ display: grid; place-items: center;
+ color: var(--ink-900); font-weight: 800; font-size: 15px;
+}
+.fb-bubble {
+ padding: 11px 15px;
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 16px 16px 16px 4px;
+ font-size: 15px; font-weight: 600;
+ max-width: 340px;
+ color: var(--ink-900);
+}
+.fb-bubble.me {
+ background: var(--green-600); color: #fff; border-color: var(--green-600);
+ border-radius: 16px 16px 4px 16px;
+ transition: background 150ms, border-color 150ms;
+}
+.fb-bubble.me.no { background: var(--err-border); border-color: var(--err-border); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.fb-typing { display: inline-flex; gap: 5px; padding: 15px 16px; }
+.fb-typing i {
+ width: 7px; height: 7px;
+ border-radius: 50%;
+ background: var(--ink-300);
+ animation: fb-typing-bounce 1s ease-in-out infinite;
+}
+.fb-typing i:nth-child(2) { animation-delay: 0.15s; }
+.fb-typing i:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---------- Flashcards (3D flip) ---------- */
+.fb-card3d { perspective: 1100px; cursor: pointer; user-select: none; }
+.fb-card3d .inner {
+ position: relative;
+ width: 100%; height: 100%;
+ transform-style: preserve-3d;
+ transition: transform calc(0.55s * var(--mdur)) cubic-bezier(0.3, 0.9, 0.4, 1.05);
+}
+.fb-card3d.flipped .inner { transform: rotateY(180deg); }
+.fb-card3d:hover:not(.flipped) .inner { transform: rotateY(calc(14deg * var(--mamp))); }
+.fb-card-face {
+ position: absolute; inset: 0;
+ backface-visibility: hidden;
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 18px;
+ box-shadow: 0 4px 0 0 var(--ink-100);
+ display: grid; place-items: center;
+ padding: 24px;
+}
+.fb-card-face.back { transform: rotateY(180deg); background: var(--green-50); border-color: var(--green-200); }
+.fb-cardwrap.exit { animation: fb-card-exit calc(0.32s * var(--mdur)) ease-in both; }
+.fb-cardwrap.enter { animation: fb-card-enter calc(0.38s * var(--mdur)) cubic-bezier(0.3, 1.2, 0.5, 1) both; }
+.fb-rate {
+ border: none;
+ cursor: pointer;
+ border-radius: 12px;
+ padding: 10px 0 8px;
+ font-weight: 800; font-size: 13px;
+ font-family: inherit;
+ transition: transform 100ms, box-shadow 100ms, opacity 150ms;
+}
+.fb-rate:hover { transform: translateY(2px); }
+.fb-rate:active { transform: translateY(4px); box-shadow: 0 0 0 0 transparent !important; }
+.fb-rate small { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 600; opacity: 0.8; margin-top: 2px; }
+.fb-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+.fb-dots i {
+ width: 8px; height: 8px;
+ border-radius: 50%;
+ background: var(--ink-100);
+ transition: background 200ms, transform 200ms;
+}
+.fb-dots i.done { background: var(--green-500); }
+.fb-dots i.cur { background: var(--ink-900); transform: scale(1.3); }
+
+/* ---------- Balance scales ---------- */
+.fb-beam-wrap { position: relative; }
+.fb-beam {
+ transition: transform calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1);
+ transform-origin: 50% 100%;
+}
+.fb-beam.wobble { animation: fb-wobble calc(0.6s * var(--mdur)) ease both; }
+.fb-pan {
+ border-radius: 14px;
+ padding: 10px;
+ min-height: 96px;
+ display: flex; flex-direction: column;
+ justify-content: center; align-items: center;
+ gap: 5px;
+ transition: transform calc(0.5s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms;
+}
+.fb-pan.glow { box-shadow: 0 0 0 4px var(--green-100); }
+.fb-witem { animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-move-chip {
+ font-family: var(--font-mono);
+ font-size: 11px; font-weight: 700;
+ background: var(--ink-50); color: var(--ink-500);
+ border-radius: 999px; padding: 3px 10px;
+ animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.fb-op:disabled { opacity: 0.3; }
+
+/* ---------- Coordinate plane ---------- */
+.fb-pt { cursor: grab; }
+.fb-pt.grabbed { cursor: grabbing; }
+.fb-pt circle { transition: r 120ms, fill 200ms; }
+.fb-pt:hover circle.body { r: 16; }
+.fb-pt.grabbed circle.body { r: 17; }
+.fb-pt.ok { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-crosshair { pointer-events: none; }
+.fb-target-ring { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ---------- Stepwise ---------- */
+.fb-step-row { display: flex; align-items: center; gap: 12px; }
+.fb-step-label {
+ font-family: var(--font-mono);
+ font-size: 10px; font-weight: 700;
+ letter-spacing: 0.08em; text-transform: uppercase;
+ color: var(--ink-400);
+ width: 56px; flex: none;
+}
+.fb-step-input {
+ flex: 1;
+ padding: 12px 16px;
+ border-radius: 12px;
+ border: 2px solid var(--ink-100);
+ background: var(--paper-2);
+ font-family: var(--font-mono);
+ font-size: 17px; font-weight: 600;
+ color: var(--ink-900);
+ outline: none;
+ transition: border-color 150ms, box-shadow 150ms, background 150ms;
+}
+.fb-step-input::placeholder { color: var(--ink-200); }
+.fb-step-input:hover:not(:disabled) { border-color: var(--ink-200); }
+.fb-step-input:focus { border-color: var(--green-500); box-shadow: 0 0 0 4px var(--green-100); }
+.fb-step-input.ok { border-color: var(--green-600); background: var(--green-50); color: var(--green-800); }
+.fb-step-input.no { border-color: var(--err-border); background: var(--err-bg); color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+
+/* ---------- Formula block (shared) ---------- */
+.fb-formula {
+ background: var(--ink-50);
+ border-radius: 18px;
+ padding: 26px;
+ font-family: var(--font-mono);
+ font-size: 24px; font-weight: 600;
+ text-align: center;
+ margin: 0 0 18px;
+}
+
+/* ---------- fb keyframes ---------- */
+@keyframes fb-shake {
+ 0%, 100% { transform: translateX(0); }
+ 20% { transform: translateX(calc(-7px * var(--mamp))); }
+ 40% { transform: translateX(calc(6px * var(--mamp))); }
+ 60% { transform: translateX(calc(-4px * var(--mamp))); }
+ 80% { transform: translateX(calc(2px * var(--mamp))); }
+}
+@keyframes fb-pop {
+ 0% { transform: scale(0); }
+ 60% { transform: scale(calc(1 + 0.18 * var(--mamp))); }
+ 100% { transform: scale(1); }
+}
+@keyframes fb-bump {
+ 0% { transform: scale(1); }
+ 40% { transform: scale(calc(1 + 0.22 * var(--mamp))); }
+ 100% { transform: scale(1); }
+}
+@keyframes fb-settle {
+ 0% { transform: scale(calc(1 + 0.04 * var(--mamp))); }
+ 60% { transform: scale(calc(1 - 0.015 * var(--mamp))); }
+ 100% { transform: scale(1); }
+}
+@keyframes fb-halo {
+ 0%, 100% { box-shadow: 0 2px 0 0 var(--ink-100), 0 0 0 0 color-mix(in oklab, var(--link-color) 30%, transparent); }
+ 50% { box-shadow: 0 2px 0 0 var(--ink-100), 0 0 0 6px color-mix(in oklab, var(--link-color) 14%, transparent); }
+}
+@keyframes fb-ripple-g {
+ 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--green-500) 45%, transparent); }
+ 100% { box-shadow: 0 0 0 16px color-mix(in oklab, var(--green-500) 0%, transparent); }
+}
+@keyframes fb-slide-up {
+ from { transform: translateY(60%); opacity: 0; }
+ to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fb-dash-flow { to { stroke-dashoffset: -13; } }
+@keyframes fb-line-draw {
+ from { stroke-dasharray: 0 600; opacity: 0.4; }
+ to { stroke-dasharray: 600 0; opacity: 0.85; }
+}
+@keyframes fb-line-fade {
+ 0% { opacity: 0.8; }
+ 60% { opacity: 0.8; }
+ 100% { opacity: 0; }
+}
+@keyframes fb-slot-flash {
+ 0% { box-shadow: 0 0 0 0 var(--green-100); background: var(--green-100); }
+ 100% { box-shadow: 0 0 0 8px transparent; }
+}
+@keyframes fb-bucket-pop {
+ 0% { transform: scale(1); }
+ 40% { transform: scale(calc(1 + 0.03 * var(--mamp))); background: var(--green-50); }
+ 100% { transform: scale(1); }
+}
+@keyframes fb-bubble-in {
+ from { opacity: 0; transform: translateY(10px) scale(0.94); }
+ to { opacity: 1; transform: none; }
+}
+@keyframes fb-typing-bounce {
+ 0%, 60%, 100% { transform: none; opacity: 0.4; }
+ 30% { transform: translateY(calc(-4px * var(--mamp))); opacity: 1; }
+}
+@keyframes fb-card-exit {
+ to { opacity: 0; transform: translateX(calc(-70px * var(--mamp))) rotate(calc(-4deg * var(--mamp))); }
+}
+@keyframes fb-card-enter {
+ from { opacity: 0; transform: translateX(calc(70px * var(--mamp))) rotate(calc(3deg * var(--mamp))); }
+ to { opacity: 1; transform: none; }
+}
+@keyframes fb-wobble {
+ 0%, 100% { transform: rotate(0deg); }
+ 25% { transform: rotate(calc(2.2deg * var(--mamp))); }
+ 65% { transform: rotate(calc(-1.4deg * var(--mamp))); }
+}
+
+/* =================================================================
+   Theory annotations · th-* (design handoff 2026-06)
+   Student-persisted highlights/underlines + hover term hints.
+   ================================================================= */
+.th-annot ::selection { background: var(--sun-100); }
+.th-hl {
+ background: var(--sun-300);
+ border-radius: 5px;
+ padding: 0 2px;
+ cursor: pointer;
+ animation: fb-hl-sweep calc(0.5s * var(--mdur)) ease both;
+ transition: background 150ms;
+ color: var(--ink-900);
+}
+.th-hl:hover { background: var(--sun-400); }
+.th-ul {
+ border-bottom: 2.5px solid var(--green-500);
+ cursor: pointer;
+ transition: border-color 150ms, background 150ms;
+}
+.th-ul:hover { background: var(--green-50); border-bottom-color: var(--green-600); }
+@keyframes fb-hl-sweep {
+ from { background-color: transparent; }
+ to { background-color: var(--sun-300); }
+}
+
+/* floating selection toolbar */
+.th-seltool {
+ position: absolute;
+ z-index: 60;
+ display: flex;
+ gap: 2px;
+ background: var(--ink-900);
+ border-radius: 10px;
+ padding: 4px;
+ box-shadow: var(--shadow-lg);
+ animation: fb-pop calc(0.25s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.th-seltool button {
+ border: none;
+ background: transparent;
+ color: #fff;
+ cursor: pointer;
+ font-size: 12px;
+ font-weight: 700;
+ padding: 6px 12px;
+ border-radius: 7px;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ font-family: var(--font-sans);
+ white-space: nowrap;
+}
+.th-seltool button:hover { background: rgba(255, 255, 255, 0.12); }
+.th-seltool .swatch {
+ width: 10px;
+ height: 10px;
+ border-radius: 3px;
+ display: inline-block;
+ flex: none;
+}
+
+/* Term with hover hint — any span[data-term] in lesson content.
+   The tip is a ::after pseudo-element (content: attr(data-term)) ON PURPOSE:
+   pseudo-elements don't contribute to textContent or selections, so the
+   highlight-offset anchoring stays stable. Do not switch to a DOM tooltip. */
+[data-term] {
+ border-bottom: 2px dotted var(--green-500);
+ cursor: help;
+ position: relative;
+ font-weight: 700;
+ color: var(--ink-900);
+}
+[data-term]::after {
+ content: attr(data-term);
+ position: absolute;
+ bottom: calc(100% + 8px);
+ left: 50%;
+ transform: translateX(-50%) translateY(4px);
+ background: var(--ink-900);
+ color: #fff;
+ font-size: 12.5px;
+ font-weight: 600;
+ padding: 8px 12px;
+ border-radius: 10px;
+ width: max-content;
+ max-width: 240px;
+ opacity: 0;
+ pointer-events: none;
+ transition: opacity 150ms, transform 150ms;
+ line-height: 1.45;
+ z-index: 40;
+ white-space: normal;
+}
+[data-term]::before {
+ content: '';
+ position: absolute;
+ bottom: calc(100% + 4px);
+ left: 50%;
+ margin-left: -4px;
+ border: 4px solid transparent;
+ border-top-color: var(--ink-900);
+ opacity: 0;
+ transition: opacity 150ms;
+ pointer-events: none;
+}
+[data-term]:hover::after,
+[data-term]:hover::before {
+ opacity: 1;
+}
+[data-term]:hover::after {
+ transform: translateX(-50%) translateY(0);
 }
 
 /* ─── V2 mobile polish ──────────────────────────────────────────────

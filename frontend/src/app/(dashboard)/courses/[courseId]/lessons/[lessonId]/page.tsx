@@ -32,6 +32,7 @@ import { EditorLayout } from "@/components/code-editor/editor-layout";
 import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import { ContentRenderer } from "@/components/common/content-renderer";
+import { HighlightableContent } from "@/components/lesson/highlightable-content";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
@@ -749,22 +750,26 @@ function BlockRenderer({
  switch (block.type) {
   case "text":
    return block.body ? (
-    <div className={block.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
-     <ContentRenderer
-      body={block.body}
-      format={(block.format as "markdown" | "html" | "tiptap") || "html"}
-     />
-    </div>
+    <HighlightableContent lessonId={lessonId} blockKey={`block-${block.id}`}>
+     <div className={block.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
+      <ContentRenderer
+       body={block.body}
+       format={(block.format as "markdown" | "html" | "tiptap") || "html"}
+      />
+     </div>
+    </HighlightableContent>
    ) : null;
 
   case "html":
    return block.body ? (
-    <div className="prose prose-slate max-w-none">
-     <ContentRenderer
-      body={typeof block.body === "string" ? block.body : ""}
-      format="html"
-     />
-    </div>
+    <HighlightableContent lessonId={lessonId} blockKey={`block-${block.id}`}>
+     <div className="prose prose-slate max-w-none">
+      <ContentRenderer
+       body={typeof block.body === "string" ? block.body : ""}
+       format="html"
+      />
+     </div>
+    </HighlightableContent>
    ) : null;
 
   case "video":
@@ -858,12 +863,14 @@ function LegacyContent({
    {/* Theory content — shown for ALL lesson types when content.body exists */}
    {typeof lesson.content?.body === "string" && lesson.content.body.trim().length > 0 && (
     <div className="mb-8">
-     <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
-      <ContentRenderer
-       body={lesson.content.body as string}
-       format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
-      />
-     </div>
+     <HighlightableContent lessonId={lessonId} blockKey="legacy">
+      <div className={lesson.content.format === "tiptap" ? "" : "prose prose-slate max-w-none"}>
+       <ContentRenderer
+        body={lesson.content.body as string}
+        format={(lesson.content.format as "markdown" | "html" | "tiptap") || "markdown"}
+       />
+      </div>
+     </HighlightableContent>
     </div>
    )}
 

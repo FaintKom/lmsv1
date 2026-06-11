@@ -3,7 +3,13 @@
 /**
  * CoordinatePlaneV2 — drag labeled points onto target coordinates.
  *
- * Adopted from q-math-templates.jsx · CoordinatePlaneExerciseV2.
+ * Adopted from q-math-templates.jsx · CoordinatePlaneExerciseV2, upgraded
+ * with the feedback-grammar handoff (ex-math.jsx · ExCoords): `fb-pt`
+ * grab physics (radius grows via CSS on the `.body` circle), a dashed
+ * crosshair from the axes to the dragged point with a dark coordinate
+ * bubble, and dashed `fb-target-ring` circles at missed targets after a
+ * wrong check.
+ *
  * Methodist supplies a list of target points (each with x, y, label).
  * Student drags matching-colored points on the SVG plane; correct
  * placement turns green, wrong turns coral. Per-task HP + streak.
@@ -73,19 +79,26 @@ export function CoordinatePlaneV2({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const { fire, layer } = useConfetti();
 
-  const onMove = (e: React.MouseEvent) => {
+  const onPointDown = (i: number) => (e: React.PointerEvent<SVGGElement>) => {
+    if (feedback) return;
+    svgRef.current?.setPointerCapture(e.pointerId);
+    setDrag(i);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
     if (drag === null || !svgRef.current || feedback) return;
     const r = svgRef.current.getBoundingClientRect();
     const x = fromX(e.clientX - r.left);
     const y = fromY(e.clientY - r.top);
     const cx = Math.max(-range, Math.min(range, x));
     const cy = Math.max(-range, Math.min(range, y));
-    const np = pts.slice();
-    np[drag] = { x: cx, y: cy };
-    setPts(np);
+    setPts((ps) => ps.map((p, i) => (i === drag ? { x: cx, y: cy } : p)));
   };
 
+  const endDrag = () => setDrag(null);
+
   const handleCheck = () => {
+    setDrag(null);
     const allOk = targets.every(
       (t, i) => pts[i].x === t.x && pts[i].y === t.y
     );
@@ -136,11 +149,7 @@ export function CoordinatePlaneV2({
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
   return (
-    <div
-      style={{ position: "relative", height: "100%" }}
-      onMouseMove={onMove}
-      onMouseUp={() => setDrag(null)}
-    >
+    <div style={{ position: "relative", height: "100%" }}>
       {layer}
       <LessonShell
         hearts={attemptsLeft}
@@ -174,26 +183,78 @@ export function CoordinatePlaneV2({
               border: "2px solid var(--ink-100)",
               borderRadius: 14,
               userSelect: "none",
+              touchAction: "none",
             }}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
           >
             <GridAxes range={range} size={SIZE} pad={PAD} />
-            {feedback &&
-              feedback.kind !== "ok" &&
-              targets.map((tg, i) => (
-                <g key={"t" + i}>
+
+            {/* crosshair guides + coordinate bubble while dragging */}
+            {drag !== null && (
+              <g className="fb-crosshair">
+                <line
+                  x1={toX(pts[drag].x)}
+                  y1={toY(0)}
+                  x2={toX(pts[drag].x)}
+                  y2={toY(pts[drag].y)}
+                  stroke={COLORS[drag % COLORS.length]}
+                  strokeWidth="1.5"
+                  strokeDasharray="3 4"
+                  opacity="0.6"
+                />
+                <line
+                  x1={toX(0)}
+                  y1={toY(pts[drag].y)}
+                  x2={toX(pts[drag].x)}
+                  y2={toY(pts[drag].y)}
+                  stroke={COLORS[drag % COLORS.length]}
+                  strokeWidth="1.5"
+                  strokeDasharray="3 4"
+                  opacity="0.6"
+                />
+                <rect
+                  x={toX(pts[drag].x) - 26}
+                  y={toY(pts[drag].y) - 44}
+                  width="52"
+                  height="22"
+                  rx="6"
+                  fill="var(--ink-900)"
+                />
+                <text
+                  x={toX(pts[drag].x)}
+                  y={toY(pts[drag].y) - 29}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="11"
+                  fontWeight="700"
+                  fontFamily="var(--font-mono)"
+                >
+                  {pts[drag].x},{pts[drag].y}
+                </text>
+              </g>
+            )}
+
+            {/* dashed rings at missed targets after a wrong check */}
+            {feedback?.kind === "no" &&
+              targets.map((tg, i) =>
+                pts[i].x !== tg.x || pts[i].y !== tg.y ? (
                   <circle
+                    key={"t" + i}
+                    className="fb-target-ring"
                     cx={toX(tg.x)}
                     cy={toY(tg.y)}
                     r="12"
                     fill="none"
                     stroke={COLORS[i % COLORS.length]}
                     strokeWidth="2"
-                    strokeDasharray="3 2"
-                    opacity="0.4"
-                    className="gp-pop"
+                    strokeDasharray="3 3"
+                    opacity="0.55"
                   />
-                </g>
-              ))}
+                ) : null
+              )}
+
             {pts.map((p, i) => {
               const tg = targets[i];
               const isOk = !!feedback && p.x === tg.x && p.y === tg.y;
@@ -206,10 +267,23 @@ export function CoordinatePlaneV2({
               return (
                 <g
                   key={i}
-                  onMouseDown={() => !feedback && setDrag(i)}
-                  style={{ cursor: feedback ? "default" : "grab" }}
+                  className={
+                    "fb-pt" +
+                    (drag === i ? " grabbed" : "") +
+                    (isOk ? " ok" : "")
+                  }
+                  onPointerDown={onPointDown(i)}
+                  style={{ cursor: feedback ? "default" : undefined }}
                 >
-                  <circle cx={toX(p.x)} cy={toY(p.y)} r="14" fill={fill} />
+                  <circle
+                    className="body"
+                    cx={toX(p.x)}
+                    cy={toY(p.y)}
+                    r="14"
+                    fill={fill}
+                    stroke="#fff"
+                    strokeWidth="2"
+                  />
                   <text
                     x={toX(p.x)}
                     y={toY(p.y) + 5}
@@ -218,6 +292,7 @@ export function CoordinatePlaneV2({
                     textAnchor="middle"
                     fill="#fff"
                     fontWeight="800"
+                    style={{ pointerEvents: "none" }}
                   >
                     {tg.label}
                   </text>
@@ -232,6 +307,7 @@ export function CoordinatePlaneV2({
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {targets.map((tg, i) => {
                 const p = pts[i];
+                const here = p.x === tg.x && p.y === tg.y;
                 return (
                   <div
                     key={i}
@@ -242,7 +318,14 @@ export function CoordinatePlaneV2({
                       padding: "8px 10px",
                       borderRadius: 10,
                       background: "var(--paper-2)",
-                      border: "2px solid var(--ink-100)",
+                      border:
+                        "2px solid " +
+                        (feedback
+                          ? here
+                            ? "var(--green-300)"
+                            : "var(--err-border)"
+                          : "var(--ink-100)"),
+                      transition: "border-color 200ms",
                     }}
                   >
                     <span
@@ -276,7 +359,7 @@ export function CoordinatePlaneV2({
                         marginLeft: "auto",
                         fontFamily: "var(--font-mono)",
                         fontSize: 11,
-                        color: "var(--ink-400)",
+                        color: here ? "var(--green-700)" : "var(--ink-400)",
                       }}
                     >
                       {t("exercise.coordinatePlane.now")} ({p.x},{p.y})
@@ -284,6 +367,20 @@ export function CoordinatePlaneV2({
                   </div>
                 );
               })}
+            </div>
+            <div
+              style={{
+                marginTop: 12,
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--ink-300)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                lineHeight: 1.7,
+              }}
+            >
+              {t("exercise.coordinatePlane.dragHint")}
             </div>
           </div>
         </div>

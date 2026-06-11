@@ -29,6 +29,7 @@ import {
  AlertCircle,
  Sigma,
  Puzzle,
+ BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import "katex/dist/katex.min.css";
@@ -37,6 +38,7 @@ import "./editor-styles.css";
 import apiClient from "@/lib/api-client";
 import { Callout } from "./extensions/callout";
 import { MathBlock } from "./extensions/math-block";
+import { Term } from "./extensions/term";
 import { V2Exercise } from "./extensions/v2-exercise";
 import { SlashCommands } from "./slash-commands";
 import { EditorBubbleMenu } from "./toolbar";
@@ -229,6 +231,25 @@ function EditorToolbar({
  <Link2 className="h-4 w-4" />
  </ToolbarButton>
 
+ {/* Term hint */}
+ <ToolbarButton
+ onClick={() => {
+ if (editor.isActive("term")) {
+ editor.chain().focus().unsetTerm().run();
+ return;
+ }
+ if (editor.state.selection.empty) return;
+ const definition = window.prompt("Term definition:");
+ if (definition) {
+ editor.chain().focus().setTerm({ definition }).run();
+ }
+ }}
+ active={editor.isActive("term")}
+ title="Term Hint"
+ >
+ <BookOpen className="h-4 w-4" />
+ </ToolbarButton>
+
  {/* Image upload */}
  <ToolbarButton
  onClick={() => fileInputRef.current?.click()}
@@ -303,6 +324,7 @@ export function BlockEditor({
  }),
  Callout,
  MathBlock,
+ Term,
  V2Exercise,
  ...(editable ? [SlashCommands] : []),
  ],

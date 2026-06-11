@@ -3,8 +3,13 @@
 /**
  * FillBlanksV2 — tap a word-bank pill into a blank slot in the sentence.
  *
- * Adopted from q-basics.jsx · FillBlanksExerciseV2. Reads two equivalent
- * config shapes:
+ * Upgraded to the feedback-grammar handoff (ex-fill.jsx, design package
+ * 2026-06): words fly from the bank into the slot (flyClone), empty slots
+ * pulse while hovering the bank, a clicked empty slot is "armed" as the
+ * explicit target, and check paints per-slot ok/no states. Retry keeps the
+ * correct words in place when answers are known client-side.
+ *
+ * Reads two equivalent config shapes:
  *
  *   1. Template string with `{{blank}}` markers + parallel `blanks` array:
  *      { text: "The {{blank}} of an array is the {{blank}}.",
@@ -14,15 +19,18 @@
  *      { parts: ["The ", null, " of an array is the ", null, " of its elements."],
  *        blanks: ["length", "count"], wordBank: [...] }
  *
- * Per-task HP + streak from lesson-shell.
+ * Per-task HP + streak from lesson-shell. With `onGrade` (live mode) the
+ * server strips `blanks`, so per-slot correctness is unknown: the result
+ * boolean paints all slots ok/no and retry returns every word to the bank.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { flyClone } from "@/components/lesson/fb-motion";
 import { useTranslation } from "@/lib/i18n/context";
 import { MaybeMath } from "@/components/common/math-renderer";
 import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
@@ -50,6 +58,9 @@ export interface FillBlanksV2Props {
   onQuit?: () => void;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
 }
+
+/** Visual state of one slot: '' | flash (just landed) | ok | no (post-check). */
+type SlotMark = "" | "flash" | "ok" | "no";
 
 /** Parse `"Hello {{blank}} world {{blank}}"` → `["Hello ", null, " world ", null, ""]`. */
 function parseTemplate(text: string): (string | null)[] {
@@ -91,10 +102,20 @@ export function FillBlanksV2({
     [parts]
   );
 
+  // Per-slot correctness is only known client-side in preview/local mode.
+  const answersKnown = !onGrade && !!blanks;
+
   const [slots, setSlots] = useState<(number | null)[]>(() =>
     Array.from({ length: blankCount }, () => null)
   );
+  const [slotMarks, setSlotMarks] = useState<SlotMark[]>(() =>
+    Array.from({ length: blankCount }, () => "" as SlotMark)
+  );
   const [used, setUsed] = useState<number[]>([]);
+  /** Explicitly targeted empty slot (clicked) — next placed word goes here. */
+  const [armed, setArmed] = useState<number | null>(null);
+  /** True while the pointer hovers the word bank — empty slots pulse. */
+  const [hoverBank, setHoverBank] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -104,24 +125,58 @@ export function FillBlanksV2({
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
+  const pillRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const slotRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+
+  const setSlotMark = (si: number, mark: SlotMark) =>
+    setSlotMarks((ms) => ms.map((m, i) => (i === si ? mark : m)));
+
   const place = (wi: number) => {
-    const empty = slots.findIndex((s) => s === null);
-    if (empty < 0 || feedback) return;
-    const next = slots.slice();
-    next[empty] = wi;
-    setSlots(next);
+    if (feedback || checking || used.includes(wi)) return;
+    const si =
+      armed != null && slots[armed] === null
+        ? armed
+        : slots.findIndex((s) => s === null);
+    if (si < 0) return;
+    setArmed(null);
     setUsed((u) => [...u, wi]);
-  };
-  const unplace = (si: number) => {
-    if (slots[si] === null || feedback) return;
-    const wi = slots[si]!;
-    const next = slots.slice();
-    next[si] = null;
-    setSlots(next);
-    setUsed((u) => u.filter((x) => x !== wi));
+    // Commit happens in the done callback — flyClone always fires it (it is
+    // a plain setTimeout internally), even if the tab is backgrounded or the
+    // source/target element is missing.
+    flyClone(pillRefs.current[wi] ?? null, slotRefs.current[si] ?? null, () => {
+      setSlots((s) => s.map((x, i) => (i === si ? wi : x)));
+      setSlotMark(si, "flash");
+      window.setTimeout(() => {
+        setSlotMarks((ms) => ms.map((m, i) => (i === si && m === "flash" ? "" : m)));
+      }, 450);
+    });
   };
 
-  const applyResult = (res: V2GradeResult) => {
+  const unplace = (si: number) => {
+    if (feedback || checking) return;
+    if (slots[si] === null) {
+      // Empty slot: arm it as the explicit target (toggle).
+      setArmed((a) => (a === si ? null : si));
+      return;
+    }
+    const wi = slots[si]!;
+    // Clear the slot immediately; the clone is captured synchronously before
+    // React re-renders, so the word still flies back visually.
+    setSlots((s) => s.map((x, i) => (i === si ? null : x)));
+    setSlotMark(si, "");
+    flyClone(slotRefs.current[si] ?? null, pillRefs.current[wi] ?? null, () => {
+      setUsed((u) => u.filter((x) => x !== wi));
+    });
+  };
+
+  const applyResult = (res: V2GradeResult, perSlot?: SlotMark[]) => {
+    // Per-slot states when answers are known; otherwise the boolean paints
+    // every slot (all ok on pass / all no on fail).
+    setSlotMarks(
+      perSlot ??
+        Array.from({ length: blankCount }, () => (res.correct ? "ok" : "no") as SlotMark)
+    );
+
     if (res.correct) {
       setFeedback({
         kind: "ok",
@@ -172,18 +227,36 @@ export function FillBlanksV2({
       return;
     }
 
-    // Preview / local grading.
-    applyResult({
-      correct: got.every((w, i) => w === blanks?.[i]),
-      correctAnswer: blanks?.join(" · "),
-      attemptsRemaining: attemptsLeft - 1,
-    });
+    // Preview / local grading — per-slot ok/no.
+    const marks = got.map((w, i): SlotMark => (w === blanks?.[i] ? "ok" : "no"));
+    applyResult(
+      {
+        correct: marks.every((m) => m === "ok"),
+        correctAnswer: blanks?.join(" · "),
+        attemptsRemaining: attemptsLeft - 1,
+      },
+      marks
+    );
   };
 
+  // Retry: when answers are known, correct slots stay put and only the wrong
+  // words return to the bank. In live mode (boolean-only grading) everything
+  // returns.
   const handleRetry = () => {
     setFeedback(null);
-    setSlots(Array.from({ length: blankCount }, () => null));
-    setUsed([]);
+    setArmed(null);
+    if (answersKnown) {
+      const keep = slots.map((wi, i) =>
+        wi !== null && wordBank[wi] === blanks![i] ? wi : null
+      );
+      setSlots(keep);
+      setUsed(keep.filter((x): x is number => x !== null));
+      setSlotMarks((ms) => ms.map((m, i): SlotMark => (keep[i] !== null && m === "ok" ? "ok" : "")));
+    } else {
+      setSlots(Array.from({ length: blankCount }, () => null));
+      setUsed([]);
+      setSlotMarks(Array.from({ length: blankCount }, () => "" as SlotMark));
+    }
   };
 
   const handleContinue = () => {
@@ -217,9 +290,9 @@ export function FillBlanksV2({
         <div
           style={{
             fontSize: 19,
-            lineHeight: 2.2,
+            lineHeight: 2.3,
             color: "var(--ink-900)",
-            maxWidth: 520,
+            maxWidth: 560,
             margin: "8px auto 28px",
             textAlign: "center",
             fontWeight: 600,
@@ -229,30 +302,28 @@ export function FillBlanksV2({
             if (p !== null) return <MaybeMath key={i} text={p} />;
             const si = parts.slice(0, i).filter((x) => x === null).length;
             const wi = slots[si];
+            const mark = slotMarks[si];
+            const cls =
+              "fb-slot" +
+              (wi !== null ? " filled" : "") +
+              (armed === si ? " armed" : "") +
+              (wi === null && hoverBank && !feedback ? " pulse" : "") +
+              (mark ? " " + mark : "");
             return (
               <button
                 key={i}
-                onClick={() => unplace(si)}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minWidth: 96,
-                  padding: "6px 12px",
-                  margin: "0 4px",
-                  borderRadius: 10,
-                  border: "none",
-                  background: wi == null ? "transparent" : "var(--green-50)",
-                  borderBottom:
-                    wi == null ? "3px solid var(--ink-300)" : "3px solid var(--green-500)",
-                  fontWeight: 700,
-                  fontSize: 19,
-                  color: wi == null ? "transparent" : "var(--green-800)",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-sans)",
+                ref={(el) => {
+                  slotRefs.current[si] = el;
                 }}
+                className={cls}
+                onClick={() => unplace(si)}
+                title={
+                  wi !== null
+                    ? t("exercise.fillBlanks.slotFilledHint")
+                    : t("exercise.fillBlanks.slotEmptyHint")
+                }
               >
-                {wi == null ? "_" : wordBank[wi]}
+                {wi == null ? "·" : wordBank[wi]}
               </button>
             );
           })}
@@ -270,13 +341,20 @@ export function FillBlanksV2({
           {wordBank.map((w, i) => (
             <button
               key={i}
-              className={"gp-tile " + (used.includes(i) ? "locked" : "")}
+              ref={(el) => {
+                pillRefs.current[i] = el;
+              }}
+              className={"gp-tile" + (used.includes(i) ? " locked" : "")}
               style={{
                 padding: "10px 18px",
-                fontSize: 16,
-                opacity: used.includes(i) ? 0.3 : 1,
+                fontSize: 15,
+                borderRadius: 999,
+                opacity: used.includes(i) ? 0.25 : 1,
               }}
+              disabled={used.includes(i) || !!feedback || checking}
               onClick={() => place(i)}
+              onPointerEnter={() => setHoverBank(true)}
+              onPointerLeave={() => setHoverBank(false)}
             >
               {w}
             </button>

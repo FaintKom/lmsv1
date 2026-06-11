@@ -5,6 +5,43 @@
 
 ---
 
+## Feedback-grammar integration: design handoff → v2 exercises (2026-06-10)
+
+Source: `GrassLMS Design System.zip` → `%TEMP%\grasslms-design-system\design_handoff_grasslms\feedback\`.
+Handoff = reference JSX + feedback.css for the feedback grammar:
+invite → grab → guide → result → reward. Fixed: --mamp:1 --mdur:1,
+link = green-500 w3, errors = coral, deferred check for pairs/categories, confetti on.
+
+- [x] 1. globals.css: motion tokens, upgraded .gp-tile states, fb-* classes
+      + keyframes, sheet slide-up, th-* annotation/term CSS.
+- [x] 2. lesson-shell.tsx: sheet animation, instant/instantLabel props;
+      fb-motion.ts (flyClone/flyXP).
+- [x] 3. translations.ts: 33 new keys × 6 locales (en/es/ru/tr/de/uk) +
+      fixed EN exercise.dialogue.goodReply ("Buena respuesta." leak).
+- [x] 4. 13 v2 components upgraded: matching (drag-thread + deferred),
+      fill-blanks (flyClone), ordering (FLIP pointer-drag), categorize
+      (buckets + deferred), quiz, numeric-input, number-line, coordinate-plane,
+      equation-balance, math-stepwise, sentence-builder, dialogue (typing dots),
+      srs-flashcard (3D flip). Contracts preserved.
+- [x] 5. NEW: theory annotations — student highlights/underlines persist
+      (lesson_highlights table, /progress/lessons/{id}/highlights API,
+      HighlightableContent wrapper with offset+snippet anchoring, block_key
+      per text block) + hover term hints (TipTap Term mark → span[data-term],
+      pure-CSS tooltip via ::after so offsets stay stable).
+- [x] 6. Verified: next build green, vitest 78/78, backend pytest
+      test_progress 8/8 (incl. 2 new highlight tests), live preview E2E
+      (matching deferred flow, categorize drag, flashcard flip, highlight
+      create→persist-after-reload→delete, term tooltip content).
+- [ ] 7. Commit + deploy (awaiting owner go; migration hl1a2b3c4d5 must run
+      on prod — auto via alembic upgrade head on rebuild).
+
+Out of scope (follow-up): full theory.jsx reading UX (progress bar, section
+rail, spoiler — repo theory-viewer is iframe-based; text lessons got the
+annotation layer only), flyXP wiring (no #xp-anchor in lesson chrome yet —
+util shipped dormant).
+
+---
+
 ## Avatar chibi restyle + bed default nudge (2026-05-31)
 
 Branch: `feat/avatar-chibi-restyle`

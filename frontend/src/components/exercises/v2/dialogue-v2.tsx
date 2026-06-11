@@ -3,16 +3,17 @@
 /**
  * DialogueV2 — chat-bubble conversation with a multiple-choice reply.
  *
- * Adopted from q-language.jsx · DialogueExerciseV2. Renders any number
- * of NPC messages (left-aligned bubbles), then asks the student to
- * pick the right reply from a list of options. Picked reply previews
- * on the right before checking.
+ * Adopted from q-language.jsx · DialogueExerciseV2, upgraded with the
+ * feedback-grammar handoff (ex-lang.jsx · ExDialogue). NPC messages
+ * appear staged with a typing indicator before each (left-aligned
+ * `fb-bubble` rows); options only show once the conversation is fully
+ * "typed". Picked reply previews as a right-aligned bubble; on a wrong
+ * grade the preview turns coral and shakes (`.no`).
  *
- * Per-task HP + streak; retry preserves selection so the student can
- * change their mind without re-reading every option.
+ * Per-task HP + streak.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -63,6 +64,9 @@ export function DialogueV2({
   onFinish,
 }: DialogueV2Props) {
   const { t } = useTranslation();
+  /** How many NPC messages are revealed; typing dots show before each. */
+  const [stage, setStage] = useState(0);
+  const [typing, setTyping] = useState(true);
   const [pick, setPick] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -72,6 +76,32 @@ export function DialogueV2({
   const { fire, layer } = useConfetti();
 
   const correctOpt = options.find((o) => o.correct);
+
+  /* Staged reveal: typing dots, then the message pops in (700ms before the
+   * first message, 900ms before each next one, 120ms swap gap). */
+  useEffect(() => {
+    if (stage >= messages.length) {
+      setTyping(false);
+      return;
+    }
+    setTyping(true);
+    let swap: ReturnType<typeof setTimeout> | undefined;
+    const dots = setTimeout(
+      () => {
+        setTyping(false);
+        swap = setTimeout(() => setStage((s) => s + 1), 120);
+      },
+      stage === 0 ? 700 : 900
+    );
+    return () => {
+      clearTimeout(dots);
+      if (swap !== undefined) clearTimeout(swap);
+    };
+  }, [stage, messages.length]);
+
+  const shown = messages.slice(0, stage);
+  const allShown = stage >= messages.length;
+  const nextMsg = messages[stage];
 
   const handleCheck = () => {
     const opt = options.find((o) => o.id === pick);
@@ -138,76 +168,51 @@ export function DialogueV2({
         onQuit={onQuit}
       >
         <div style={{ maxWidth: 480, margin: "0 auto" }}>
-          {messages.map((m, idx) => (
-            <div
-              key={idx}
-              style={{ display: "flex", gap: 12, marginBottom: 18 }}
-            >
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  background:
-                    "linear-gradient(135deg, var(--coral-300), var(--sun-400))",
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#fff",
-                  fontWeight: 800,
-                  fontSize: 16,
-                  flexShrink: 0,
-                }}
-              >
+          {shown.map((m, idx) => (
+            <div key={idx} className="fb-bubble-row pop">
+              <div className="fb-avatar">
                 {m.initial ?? m.speaker[0]?.toUpperCase() ?? "?"}
               </div>
               <div>
                 <div
                   style={{
-                    fontSize: 12,
-                    color: "var(--ink-500)",
-                    fontWeight: 600,
-                    marginBottom: 4,
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 10,
+                    color: "var(--ink-400)",
+                    fontWeight: 700,
+                    marginBottom: 3,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
                   }}
                 >
                   {m.speaker}
                 </div>
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    background: "var(--paper-2)",
-                    border: "2px solid var(--ink-100)",
-                    borderRadius: "18px 18px 18px 4px",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "var(--ink-900)",
-                    maxWidth: 320,
-                  }}
-                >
-                  {m.text}
-                </div>
+                <div className="fb-bubble">{m.text}</div>
               </div>
             </div>
           ))}
 
+          {/* typing indicator before the next NPC message */}
+          {typing && !allShown && nextMsg && (
+            <div className="fb-bubble-row pop">
+              <div className="fb-avatar">
+                {nextMsg.initial ?? nextMsg.speaker[0]?.toUpperCase() ?? "?"}
+              </div>
+              <div className="fb-bubble fb-typing">
+                <i></i>
+                <i></i>
+                <i></i>
+              </div>
+            </div>
+          )}
+
           {/* your reply preview */}
-          {pick && !feedback && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: 18,
-              }}
-            >
+          {pick && (
+            <div className="fb-bubble-row me pop">
               <div
-                style={{
-                  padding: "12px 16px",
-                  background: "var(--green-600)",
-                  color: "#fff",
-                  borderRadius: "18px 18px 4px 18px",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  maxWidth: 320,
-                }}
+                className={
+                  "fb-bubble me" + (feedback?.kind === "no" ? " no" : "")
+                }
               >
                 {options.find((o) => o.id === pick)?.text}
               </div>
@@ -215,46 +220,50 @@ export function DialogueV2({
           )}
         </div>
 
-        <div
-          className="gp-eyebrow"
-          style={{ textAlign: "center", marginBottom: 10 }}
-        >
-          {t("exercise.chooseYourReply")}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            maxWidth: 460,
-            margin: "0 auto",
-          }}
-        >
-          {options.map((o) => {
-            let state = "";
-            if (feedback) {
-              if (o.correct) state = "correct";
-              else if (o.id === pick) state = "wrong";
-              else state = "locked";
-            } else if (o.id === pick) state = "selected";
-            return (
-              <button
-                key={o.id}
-                className={"gp-tile " + state}
-                style={{
-                  padding: "14px 18px",
-                  fontSize: 15,
-                  justifyContent: "flex-start",
-                  textAlign: "left",
-                }}
-                disabled={!!feedback}
-                onClick={() => setPick(o.id)}
-              >
-                {o.text}
-              </button>
-            );
-          })}
-        </div>
+        {allShown && (
+          <>
+            <div
+              className="gp-eyebrow"
+              style={{ textAlign: "center", margin: "18px 0 10px" }}
+            >
+              {t("exercise.chooseYourReply")}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                maxWidth: 460,
+                margin: "0 auto",
+              }}
+            >
+              {options.map((o) => {
+                let state = "";
+                if (feedback) {
+                  if (o.correct) state = "correct";
+                  else if (o.id === pick) state = "wrong";
+                  else state = "locked";
+                } else if (o.id === pick) state = "selected";
+                return (
+                  <button
+                    key={o.id}
+                    className={"gp-tile " + state}
+                    style={{
+                      padding: "14px 18px",
+                      fontSize: 15,
+                      justifyContent: "flex-start",
+                      textAlign: "left",
+                    }}
+                    disabled={!!feedback}
+                    onClick={() => setPick(o.id)}
+                  >
+                    {o.text}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
       </LessonShell>
     </div>
   );

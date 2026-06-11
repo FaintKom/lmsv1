@@ -46,6 +46,9 @@ const markdownSchema = {
  "style",
  "id",
  ],
+ // Glossary hover hints: <span data-term="definition"> (hast property
+ // name is camelCased). `span` is already in defaultSchema.tagNames.
+ span: [...(defaultSchema.attributes?.span || []), "dataTerm"],
  },
 };
 

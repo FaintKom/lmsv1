@@ -3,9 +3,18 @@
 /**
  * OrderingV2 — drag items into the correct sequence.
  *
- * Adopted from q-basics.jsx · OrderingExerciseV2. HTML5 drag-and-drop —
- * @dnd-kit is heavier than we need for a single list. Per-task HP +
- * streak; retry keeps the current order so the student can iterate.
+ * Upgraded to the feedback-grammar handoff (ex-drag.jsx · ExOrdering):
+ * Pointer-Events drag with setPointerCapture — the held row lifts with a
+ * slight rotation (`.fb-dragrow.dragging`, amplitude via --mamp),
+ * neighbours shift live by ±one slot (`shiftFor`), number badges renumber
+ * toward the hovered position, and the dropped row lands with a `.settled`
+ * pop. After grading each row is marked `ok`/`no` (`no` shakes) when the
+ * correct order is known client-side.
+ *
+ * Per-task HP + streak; retry keeps the current order so the student can
+ * iterate. With `onGrade` (integrity model B) grading is deferred to the
+ * server and a failed attempt shows no per-row marks — except on success,
+ * where every row is by definition correct and locks `ok`.
  */
 
 import { useRef, useState } from "react";
@@ -44,6 +53,10 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+/** Slot height: `.fb-dragrow` fixed height (56px) + list gap. */
+const ROW_GAP = 10;
+const SLOT = 56 + ROW_GAP;
+
 export function OrderingV2({
   items,
   eyebrow,
@@ -55,36 +68,74 @@ export function OrderingV2({
   onQuit,
   onFinish,
 }: OrderingV2Props) {
+  const n = items.length;
   const indices = items.map((_, i) => i);
   const [order, setOrder] = useState<number[]>(() => shuffle(indices));
+  const [drag, setDrag] = useState<{ pos: number; dy: number } | null>(null);
+  const [settledIdx, setSettledIdx] = useState<number | null>(null);
+  const [graded, setGraded] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [checking, setChecking] = useState(false);
-  const dragIdx = useRef<number | null>(null);
+  const startY = useRef(0);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
-  const onDragStart = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
-    dragIdx.current = i;
-    e.dataTransfer.effectAllowed = "move";
+  const locked = !!feedback || graded || checking;
+
+  /** Slot the dragged row would land in right now. */
+  const targetPos =
+    drag === null ? null : Math.max(0, Math.min(n - 1, drag.pos + Math.round(drag.dy / SLOT)));
+
+  const down = (pos: number) => (e: React.PointerEvent<HTMLDivElement>) => {
+    if (locked) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    startY.current = e.clientY;
+    setDrag({ pos, dy: 0 });
+    setSettledIdx(null);
   };
-  const onDragOver = (i: number) => (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (dragIdx.current === null || dragIdx.current === i) return;
-    const next = order.slice();
-    const [moved] = next.splice(dragIdx.current, 1);
-    next.splice(i, 0, moved);
-    dragIdx.current = i;
-    setOrder(next);
+  const move = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag) return;
+    setDrag({ ...drag, dy: e.clientY - startY.current });
   };
-  const onDragEnd = () => {
-    dragIdx.current = null;
+  const up = () => {
+    if (!drag || targetPos === null) return;
+    const from = drag.pos;
+    const to = targetPos;
+    if (from !== to) {
+      const next = order.slice();
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      setOrder(next);
+      setSettledIdx(to);
+      setTimeout(() => setSettledIdx(null), 350);
+    }
+    setDrag(null);
+  };
+
+  /** Live shift (px) for a non-dragged row while a neighbour is in flight. */
+  const shiftFor = (pos: number): number => {
+    if (!drag || targetPos === null || pos === drag.pos) return 0;
+    if (drag.pos < targetPos && pos > drag.pos && pos <= targetPos) return -SLOT;
+    if (drag.pos > targetPos && pos < drag.pos && pos >= targetPos) return SLOT;
+    return 0;
+  };
+
+  /** Per-row mark after grading. Only when the correct order is known
+   * client-side (preview: `items` IS the correct order) — or on a graded
+   * success, where every row is correct by definition. */
+  const rowState = (itemIdx: number, pos: number): "" | "ok" | "no" => {
+    if (!graded || !feedback) return "";
+    if (feedback.kind === "ok") return "ok";
+    if (onGrade) return ""; // server-graded fail: per-row truth unknown
+    return itemIdx === pos ? "ok" : "no";
   };
 
   const applyResult = (res: V2GradeResult) => {
+    setGraded(true);
     if (res.correct) {
       setFeedback({
         kind: "ok",
@@ -112,7 +163,7 @@ export function OrderingV2({
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining)),
-        explain: res.explain ?? hint,
+        explain: res.explain ?? hint ?? t("exercise.ordering.orderKept"),
       });
     }
   };
@@ -145,7 +196,9 @@ export function OrderingV2({
     });
   };
 
+  /** Retry keeps the current order so the student fixes, not restarts. */
   const handleRetry = () => {
+    setGraded(false);
     setFeedback(null);
   };
 
@@ -170,7 +223,7 @@ export function OrderingV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.ordering.title")}
         feedback={feedback}
-        canCheck={!feedback}
+        canCheck={!feedback && !checking}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -180,49 +233,46 @@ export function OrderingV2({
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 8,
-            maxWidth: 480,
+            gap: ROW_GAP,
+            maxWidth: 540,
             margin: "0 auto",
+            width: "100%",
           }}
         >
-          {order.map((idx, i) => (
-            <div
-              key={idx}
-              draggable={!feedback}
-              onDragStart={onDragStart(i)}
-              onDragOver={onDragOver(i)}
-              onDragEnd={onDragEnd}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                padding: "14px 16px",
-                background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
-                borderRadius: 14,
-                fontWeight: 600,
-                cursor: feedback ? "default" : "grab",
-                fontSize: 15,
-                boxShadow: "0 2px 0 0 var(--ink-100)",
-              }}
-            >
-              <span
+          {order.map((itemIdx, pos) => {
+            const isDrag = drag !== null && drag.pos === pos;
+            const shift = shiftFor(pos);
+            const state = rowState(itemIdx, pos);
+            const displayNum =
+              isDrag && targetPos !== null
+                ? targetPos + 1
+                : pos + 1 + (shift < 0 ? -1 : shift > 0 ? 1 : 0);
+            return (
+              <div
+                key={itemIdx}
+                className={
+                  "fb-dragrow" +
+                  (isDrag ? " dragging" : "") +
+                  (settledIdx === pos ? " settled" : "") +
+                  (state ? " " + state : "")
+                }
                 style={{
-                  fontFamily: "var(--font-mono)",
-                  background: "var(--ink-50)",
-                  color: "var(--ink-500)",
-                  borderRadius: 6,
-                  padding: "3px 8px",
-                  fontSize: 12,
-                  fontWeight: 700,
+                  transform: isDrag
+                    ? `translateY(${drag.dy}px) rotate(calc(1.4deg * var(--mamp))) scale(1.02)`
+                    : `translateY(${shift}px)`,
+                  cursor: locked ? "default" : undefined,
                 }}
+                onPointerDown={down(pos)}
+                onPointerMove={move}
+                onPointerUp={up}
+                onPointerCancel={up}
               >
-                {i + 1}
-              </span>
-              <span style={{ flex: 1 }}>{items[idx]}</span>
-              <span style={{ color: "var(--ink-300)" }}>⋮⋮</span>
-            </div>
-          ))}
+                <span className="num">{displayNum}</span>
+                <span style={{ flex: 1 }}>{items[itemIdx]}</span>
+                <span className="grip">⋮⋮</span>
+              </div>
+            );
+          })}
         </div>
       </LessonShell>
     </div>

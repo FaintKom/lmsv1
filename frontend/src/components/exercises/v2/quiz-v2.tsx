@@ -181,39 +181,44 @@ export function QuizV2({
           }}
         >
           {q.options.map((opt, i) => {
+            // Feedback grammar (handoff 2026-06): reveal the correct tile only
+            // on a correct pick OR once the task is fully failed — never leak
+            // the answer while retries remain.
+            const failedOut = feedback?.kind === "no" && attemptsLeft <= 0;
             let state = "";
             if (feedback) {
-              if (i === correctIdx) state = "correct";
-              else if (i === pick) state = "wrong";
+              if (i === correctIdx && (feedback.kind === "ok" || failedOut)) state = "correct";
+              else if (i === pick && feedback.kind === "no") state = "wrong";
               else state = "locked";
             } else if (pick === i) state = "selected";
+            const isPick = pick === i;
             return (
               <button
                 key={i}
                 className={"gp-tile " + state}
+                disabled={!!feedback}
                 style={{
-                  justifyContent: "space-between",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  textAlign: "left",
+                  gap: 14,
                   padding: "16px 20px",
                   fontFamily: "var(--font-mono)",
                   width: "100%",
                 }}
                 onClick={() => !feedback && setPick(i)}
               >
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 14 }}>
-                  <kbd
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 12,
-                      padding: "3px 8px",
-                      borderRadius: 6,
-                      border: "1.5px solid currentColor",
-                      opacity: 0.5,
-                    }}
-                  >
-                    {i + 1}
-                  </kbd>
-                  <MaybeMath text={opt.text} />
+                <span className="tile-dot">
+                  {state === "wrong" ? "✕" : isPick || state === "correct" ? "✓" : ""}
                 </span>
+                <MaybeMath text={opt.text} />
+                {state === "correct" && (
+                  <span className="tile-chip ok">{t("exercise.quiz.chipCorrect")}</span>
+                )}
+                {state === "wrong" && (
+                  <span className="tile-chip no">{t("exercise.quiz.chipMiss")}</span>
+                )}
               </button>
             );
           })}

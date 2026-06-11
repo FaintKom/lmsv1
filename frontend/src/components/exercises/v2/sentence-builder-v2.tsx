@@ -74,6 +74,7 @@ export function SentenceBuilderV2({
   );
   const [bank, setBank] = useState<Tile[]>(() => shuffle(all));
   const [picked, setPicked] = useState<Tile[]>([]);
+  const [graded, setGraded] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -83,16 +84,25 @@ export function SentenceBuilderV2({
 
   const moveToPicked = (item: Tile) => {
     if (feedback) return;
+    setGraded(false);
     setBank((b) => b.filter((x) => x.i !== item.i));
     setPicked((p) => [...p, item]);
   };
   const moveToBank = (item: Tile) => {
     if (feedback) return;
+    setGraded(false);
     setPicked((p) => p.filter((x) => x.i !== item.i));
     setBank((b) => [...b, item]);
   };
 
+  /** Per-position tile state after grading: ripple on correct, shake on wrong. */
+  const wordState = (item: Tile, pos: number): string => {
+    if (!graded || !feedback) return "";
+    return correctWords[pos] === item.w ? "correct" : "wrong";
+  };
+
   const handleCheck = () => {
+    setGraded(true);
     const got = picked.map((p) => p.w);
     const isOk =
       got.length === correctWords.length &&
@@ -129,6 +139,8 @@ export function SentenceBuilderV2({
   };
 
   const handleRetry = () => {
+    // Keep picked words so the student fixes the order; clear graded states.
+    setGraded(false);
     setFeedback(null);
   };
 
@@ -217,13 +229,29 @@ export function SentenceBuilderV2({
             marginBottom: 20,
           }}
         >
-          {picked.map((p) => (
+          {picked.length === 0 && (
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--ink-200)",
+                alignSelf: "center",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              {t("exercise.sentenceBuilder.tapWordsBelow")}
+            </span>
+          )}
+          {picked.map((p, pos) => (
             <button
               key={p.i}
-              className="gp-tile"
+              className={"gp-tile " + wordState(p, pos)}
               style={{ padding: "8px 14px", fontSize: 16 }}
-              disabled={!!feedback}
+              disabled={!!feedback && feedback.kind === "ok"}
               onClick={() => moveToBank(p)}
+              title={t("exercise.sentenceBuilder.tapToReturn")}
             >
               {p.w}
             </button>
@@ -250,6 +278,20 @@ export function SentenceBuilderV2({
               {b.w}
             </button>
           ))}
+          {bank.length === 0 && (
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 600,
+                color: "var(--ink-200)",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              {t("exercise.sentenceBuilder.bankEmpty")}
+            </span>
+          )}
         </div>
       </LessonShell>
     </div>

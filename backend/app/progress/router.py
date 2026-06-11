@@ -1,15 +1,16 @@
 import uuid
 from datetime import datetime, timezone
+from typing import Literal
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
 from app.db.session import get_db
-from app.progress.models import VideoProgress
+from app.progress.models import LessonHighlight, VideoProgress
 from app.progress.schemas import EnrollmentResponse, EnrollRequest, LessonProgressResponse
 from app.progress.service import (
     complete_lesson,
@@ -185,6 +186,104 @@ async def update_video_progress_endpoint(
 
     await db.flush()
     return VideoProgressResponse.model_validate(row)
+
+
+# --- Theory text annotations (highlights / underlines) ------------------
+
+
+class HighlightCreateRequest(BaseModel):
+    block_key: str = Field(default="", max_length=64)
+    start_offset: int = Field(ge=0)
+    end_offset: int = Field(gt=0)
+    kind: Literal["highlight", "underline"] = "highlight"
+    text_snippet: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def _range_valid(self) -> "HighlightCreateRequest":
+        if self.end_offset <= self.start_offset:
+            raise ValueError("end_offset must be greater than start_offset")
+        return self
+
+
+class HighlightResponse(BaseModel):
+    id: uuid.UUID
+    lesson_id: uuid.UUID
+    block_key: str
+    start_offset: int
+    end_offset: int
+    kind: str
+    text_snippet: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+@router.get(
+    "/lessons/{lesson_id}/highlights",
+    response_model=list[HighlightResponse],
+)
+async def list_highlights_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """The student's own text annotations for a lesson, in document order.
+
+    Offsets index into the plain textContent of the rendered lesson body;
+    the frontend re-anchors by comparing text_snippet and drops stale marks.
+    """
+    result = await db.execute(
+        select(LessonHighlight)
+        .where(
+            LessonHighlight.user_id == user.id,
+            LessonHighlight.lesson_id == lesson_id,
+        )
+        .order_by(LessonHighlight.start_offset)
+    )
+    return [HighlightResponse.model_validate(h) for h in result.scalars().all()]
+
+
+@router.post(
+    "/lessons/{lesson_id}/highlights",
+    response_model=HighlightResponse,
+)
+async def create_highlight_endpoint(
+    lesson_id: uuid.UUID,
+    data: HighlightCreateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    row = LessonHighlight(
+        user_id=user.id,
+        lesson_id=lesson_id,
+        block_key=data.block_key,
+        start_offset=data.start_offset,
+        end_offset=data.end_offset,
+        kind=data.kind,
+        text_snippet=data.text_snippet,
+    )
+    db.add(row)
+    await db.flush()
+    return HighlightResponse.model_validate(row)
+
+
+@router.delete("/highlights/{highlight_id}")
+async def delete_highlight_endpoint(
+    highlight_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(LessonHighlight).where(
+            LessonHighlight.id == highlight_id,
+            LessonHighlight.user_id == user.id,
+        )
+    )
+    row = result.scalar_one_or_none()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Highlight not found")
+    await db.delete(row)
+    return {"status": "ok"}
 
 
 @router.get("/my-grades")

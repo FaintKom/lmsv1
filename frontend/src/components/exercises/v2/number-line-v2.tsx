@@ -3,15 +3,20 @@
 /**
  * NumberLineV2 — drag a marker on a number line to the correct value.
  *
- * Adopted from q-math.jsx · NumberLineExerciseV2. Methodist supplies
- * range [min, max], target value, and optional step (default 1 for
- * snapping to integers). Marker turns coral if wrong.
+ * Adopted from q-math.jsx · NumberLineExerciseV2, upgraded with the
+ * feedback-grammar handoff (ex-numberline.jsx): pressed marker physics
+ * (`fb-marker` + grabbed/ok/no states), a value bubble while dragging,
+ * tick magnet highlight (`fb-tick.near`), and a dashed ghost marker at
+ * the correct answer once attempts are exhausted.
+ *
+ * Methodist supplies range [min, max], target value, and optional step
+ * (default 1 for snapping to integers).
  *
  * Per-task HP + streak; retry preserves marker position so student
  * can nudge it.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -41,6 +46,8 @@ export interface NumberLineV2Props {
   }) => void;
 }
 
+type MarkerState = "" | "ok" | "no";
+
 export function NumberLineV2({
   min,
   max,
@@ -57,35 +64,57 @@ export function NumberLineV2({
 }: NumberLineV2Props) {
   const initialPos = Math.round((min + max) / 2 / step) * step;
   const [pos, setPos] = useState(initialPos);
+  const [grabbed, setGrabbed] = useState(false);
+  const [markerState, setMarkerState] = useState<MarkerState>("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const shakeTimer = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
+
+  useEffect(
+    () => () => {
+      if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
+    },
+    []
+  );
 
   const tol = tolerance ?? step / 2;
 
   const setFromX = (clientX: number) => {
     if (feedback || !trackRef.current) return;
     const rect = trackRef.current.getBoundingClientRect();
-    const t = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const raw = min + t * (max - min);
+    const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const raw = min + frac * (max - min);
     const snapped = Math.round(raw / step) * step;
     // Avoid floating point drift display (e.g. 1.0000001).
     const decimals = step < 1 ? 4 : 0;
     setPos(parseFloat(snapped.toFixed(decimals)));
   };
 
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.buttons !== 1 && e.type !== "click") return;
+  const onMarkerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (feedback) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setGrabbed(true);
+    setMarkerState("");
+  };
+  const onMarkerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (grabbed) setFromX(e.clientX);
+  };
+  const onMarkerUp = () => setGrabbed(false);
+  const onTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (feedback || grabbed) return;
     setFromX(e.clientX);
+    setMarkerState("");
   };
 
   const handleCheck = () => {
     if (Math.abs(pos - correct) <= tol) {
+      setMarkerState("ok");
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.numberLine.placedExactly") : t("exercise.gotIt"),
@@ -99,6 +128,7 @@ export function NumberLineV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
+    setMarkerState("no");
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
@@ -107,6 +137,9 @@ export function NumberLineV2({
       });
       setStreak(0);
     } else {
+      // Shake + coral, then settle back to neutral while the student retries.
+      if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
+      shakeTimer.current = window.setTimeout(() => setMarkerState(""), 700);
       const tmpl = remaining === 1 ? t("exercise.numberLine.placedAtAttempt") : t("exercise.numberLine.placedAtAttempts");
       setFeedback({
         kind: "no",
@@ -116,6 +149,7 @@ export function NumberLineV2({
   };
 
   const handleRetry = () => {
+    setMarkerState("");
     setFeedback(null);
   };
 
@@ -129,7 +163,9 @@ export function NumberLineV2({
   };
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
+  const showGhost = feedback?.kind === "no" && attemptsLeft <= 0;
   const posFrac = (pos - min) / (max - min);
+  const ghostFrac = (correct - min) / (max - min);
   const tickCount = Math.floor((max - min) / step) + 1;
 
   return (
@@ -158,14 +194,13 @@ export function NumberLineV2({
         >
           <div
             ref={trackRef}
-            onMouseDown={onMove}
-            onMouseMove={onMove}
-            onClick={onMove}
+            onClick={onTrackClick}
             style={{
               position: "relative",
               height: 96,
               cursor: feedback ? "default" : "pointer",
               userSelect: "none",
+              touchAction: "none",
             }}
           >
             <div
@@ -180,21 +215,24 @@ export function NumberLineV2({
               }}
             />
             {Array.from({ length: tickCount }, (_, i) => {
-              const n = min + i * step;
-              const t = (n - min) / (max - min);
+              const n = parseFloat((min + i * step).toFixed(4));
+              const frac = (n - min) / (max - min);
               const isZero = n === 0;
+              const isNear = Math.abs(n - pos) < 1e-6;
               return (
                 <div
                   key={i}
+                  className={"fb-tick" + (isNear ? " near" : "")}
                   style={{
                     position: "absolute",
                     top: 50,
-                    left: `${t * 100}%`,
+                    left: `${frac * 100}%`,
                     width: 2,
                     height: 16,
                     marginLeft: -1,
                     background: isZero ? "var(--ink-700)" : "var(--ink-300)",
                     borderRadius: 1,
+                    transformOrigin: "bottom",
                   }}
                 >
                   <span
@@ -206,51 +244,81 @@ export function NumberLineV2({
                       fontFamily: "var(--font-mono)",
                       fontSize: 13,
                       fontWeight: 600,
-                      color: isZero ? "var(--ink-900)" : "var(--ink-500)",
+                      color: isNear
+                        ? "var(--green-700)"
+                        : isZero
+                          ? "var(--ink-900)"
+                          : "var(--ink-500)",
                     }}
                   >
-                    {parseFloat(n.toFixed(4))}
+                    {n}
                   </span>
                 </div>
               );
             })}
+            {showGhost && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 18,
+                  left: `${ghostFrac * 100}%`,
+                  width: 46,
+                  height: 46,
+                  marginLeft: -23,
+                  borderRadius: 999,
+                  border: "2px dashed var(--green-500)",
+                  color: "var(--green-700)",
+                  display: "grid",
+                  placeItems: "center",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 14,
+                  fontWeight: 800,
+                  pointerEvents: "none",
+                }}
+              >
+                {correct}
+              </div>
+            )}
             <div
               style={{
                 position: "absolute",
                 top: 18,
                 left: `${posFrac * 100}%`,
-                marginLeft: -22,
-                transition: feedback ? "none" : "left 120ms",
+                marginLeft: -23,
+                transition: grabbed ? "none" : "left 140ms ease",
               }}
             >
+              <div className={"fb-marker-bubble" + (grabbed ? " show" : "")}>
+                {pos}
+              </div>
               <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 999,
-                  background: feedback
-                    ? feedback.kind === "ok"
-                      ? "var(--green-600)"
-                      : "var(--coral-500)"
-                    : "var(--green-600)",
-                  boxShadow: `0 4px 0 0 ${
-                    feedback
-                      ? feedback.kind === "ok"
-                        ? "var(--green-700)"
-                        : "var(--coral-700)"
-                      : "var(--green-700)"
-                  }`,
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#fff",
-                  fontWeight: 800,
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 14,
-                }}
+                className={
+                  "fb-marker" +
+                  (grabbed ? " grabbed" : "") +
+                  (markerState ? ` ${markerState}` : "")
+                }
+                onPointerDown={onMarkerDown}
+                onPointerMove={onMarkerMove}
+                onPointerUp={onMarkerUp}
+                onPointerCancel={onMarkerUp}
               >
                 {pos}
               </div>
             </div>
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 600,
+              color: "var(--ink-300)",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              marginTop: 8,
+            }}
+          >
+            {t("exercise.numberLine.dragHint")}
           </div>
         </div>
       </LessonShell>

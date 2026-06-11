@@ -12,15 +12,21 @@
  * Streak only — no per-task HP. `onFinish` returns the updated
  * `schedule` (keyed by card.front) so the parent can persist to
  * backend (e.g. POST /api/v1/srs/cards/upsert).
+ *
+ * Visuals follow the feedback-grammar handoff (ex-lang.jsx ·
+ * ExFlashcards): true 3D flip (`.fb-card3d`), exit/enter card swap
+ * (`.fb-cardwrap`), progress dots (`.fb-dots`), pressed-physics rating
+ * buttons (`.fb-rate`) and the LessonShell `instant` caption instead
+ * of a Check button. Styles live in globals.css.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Card,
   fsrs,
   Rating,
-  type Grade,
   createEmptyCard,
+  type Card,
+  type Grade,
   type FSRSParameters,
   type RecordLog,
 } from "ts-fsrs";
@@ -217,6 +223,12 @@ export function SRSFlashcardV2({
 
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  /** Card-swap animation phase: enter on mount/next card, exit on rating. */
+  const [anim, setAnim] = useState<"enter" | "exit">("enter");
+  const swapTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
+  useEffect(() => () => clearTimeout(swapTimer.current), []);
   const [stats, setStats] = useState<SRSRatingStats>({
     again: 0,
     hard: 0,
@@ -244,7 +256,7 @@ export function SRSFlashcardV2({
   };
 
   const rate = (rating: Grade, key: keyof SRSRatingStats) => {
-    if (!cardState) return;
+    if (!cardState || anim === "exit") return; // ignore taps mid-swap
     const { card: nextCard } = scheduler.next(cardState, new Date(), rating);
     const nextStates = cardStates.slice();
     nextStates[idx] = nextCard;
@@ -259,8 +271,13 @@ export function SRSFlashcardV2({
       fire();
       return;
     }
-    setIdx(idx + 1);
-    setFlipped(false);
+    // Exit → swap → enter (matches .fb-cardwrap.exit ~320ms in globals.css).
+    setAnim("exit");
+    swapTimer.current = setTimeout(() => {
+      setIdx((i) => i + 1);
+      setFlipped(false);
+      setAnim("enter");
+    }, 320);
   };
 
   const known = stats.good + stats.easy;
@@ -300,83 +317,84 @@ export function SRSFlashcardV2({
         showSkip={false}
         onCheck={() => {}}
         onQuit={onQuit}
+        instant
+        instantLabel={
+          flipped
+            ? t("exercise.srsFlashcard.rateHint")
+            : t("exercise.srsFlashcard.tapHint")
+        }
       >
         {!done && card && (
           <div style={{ maxWidth: 420, margin: "0 auto" }}>
-            <div
-              onClick={() => setFlipped(!flipped)}
-              style={{
-                background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
-                borderRadius: 18,
-                minHeight: 260,
-                display: "grid",
-                placeItems: "center",
-                cursor: "pointer",
-                position: "relative",
-                boxShadow: "0 4px 0 0 var(--ink-100)",
-                marginBottom: 20,
-                transition: "transform 200ms",
-                userSelect: "none",
-              }}
-            >
+            <div className="fb-dots">
+              {cards.map((_, i) => (
+                <i key={i} className={i < idx ? "done" : i === idx ? "cur" : ""} />
+              ))}
+            </div>
+
+            <div className={`fb-cardwrap ${anim}`} style={{ marginBottom: 20 }}>
               <div
-                style={{ position: "absolute", top: 14, left: 14 }}
-                className="gp-eyebrow"
+                className={"fb-card3d" + (flipped ? " flipped" : "")}
+                style={{ height: 260 }}
+                onClick={() => setFlipped(true)}
               >
-                {flipped ? resolvedBackLabel : resolvedFrontLabel}
-              </div>
-              <div style={{ textAlign: "center", padding: 24 }}>
-                {!flipped ? (
-                  <>
-                    <div
-                      style={{
-                        fontSize: 64,
-                        fontWeight: 700,
-                        color: "var(--ink-900)",
-                        lineHeight: 1.1,
-                      }}
-                    >
-                      {card.front}
-                    </div>
-                    <div
-                      style={{
-                        marginTop: 8,
-                        fontSize: 13,
-                        color: "var(--ink-400)",
-                      }}
-                    >
-                      {t("exercise.tapToFlip")}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 800,
-                        color: "var(--ink-900)",
-                      }}
-                    >
-                      {card.back}
-                    </div>
-                    {card.hint && (
+                <div className="inner" style={{ height: "100%" }}>
+                  <div className="fb-card-face">
+                    <div style={{ textAlign: "center" }}>
+                      <div className="gp-eyebrow">{resolvedFrontLabel}</div>
                       <div
                         style={{
-                          marginTop: 6,
-                          fontSize: 16,
-                          color: "var(--ink-500)",
-                          fontFamily: "var(--font-mono)",
+                          fontSize: 64,
+                          fontWeight: 700,
+                          color: "var(--ink-900)",
+                          lineHeight: 1.1,
+                          letterSpacing: "-0.02em",
                         }}
                       >
-                        {card.hint}
+                        {card.front}
                       </div>
-                    )}
-                  </>
-                )}
+                      <div
+                        style={{
+                          marginTop: 8,
+                          fontSize: 13,
+                          color: "var(--ink-400)",
+                        }}
+                      >
+                        {t("exercise.tapToFlip")}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="fb-card-face back">
+                    <div style={{ textAlign: "center" }}>
+                      <div className="gp-eyebrow">{resolvedBackLabel}</div>
+                      <div
+                        style={{
+                          fontSize: 32,
+                          fontWeight: 800,
+                          color: "var(--ink-900)",
+                        }}
+                      >
+                        {card.back}
+                      </div>
+                      {card.hint && (
+                        <div
+                          style={{
+                            marginTop: 6,
+                            fontSize: 16,
+                            color: "var(--ink-500)",
+                            fontFamily: "var(--font-mono)",
+                          }}
+                        >
+                          {card.hint}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            {flipped && (
+
+            {flipped && anim !== "exit" && (
               <div
                 style={{
                   display: "grid",
@@ -388,45 +406,16 @@ export function SRSFlashcardV2({
                   <button
                     key={b.key}
                     type="button"
+                    className="fb-rate"
                     onClick={() => rate(b.rating, b.key)}
                     style={{
                       background: b.color,
                       color: b.textColor,
-                      border: "none",
-                      padding: "10px 0",
-                      borderRadius: 12,
-                      cursor: "pointer",
                       boxShadow: `0 4px 0 0 ${b.shadow}`,
-                      fontWeight: 800,
-                      fontFamily: "var(--font-sans)",
-                      fontSize: 13,
-                      transition: "transform 100ms, box-shadow 100ms",
-                    }}
-                    onMouseDown={(e) => {
-                      e.currentTarget.style.transform = "translateY(2px)";
-                      e.currentTarget.style.boxShadow = `0 2px 0 0 ${b.shadow}`;
-                    }}
-                    onMouseUp={(e) => {
-                      e.currentTarget.style.transform = "";
-                      e.currentTarget.style.boxShadow = `0 4px 0 0 ${b.shadow}`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "";
-                      e.currentTarget.style.boxShadow = `0 4px 0 0 ${b.shadow}`;
                     }}
                   >
-                    <div>{b.label}</div>
-                    <div
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 10,
-                        fontWeight: 500,
-                        opacity: 0.85,
-                        marginTop: 2,
-                      }}
-                    >
-                      {intervalLabel(b.rating)}
-                    </div>
+                    {b.label}
+                    <small>{intervalLabel(b.rating)}</small>
                   </button>
                 ))}
               </div>

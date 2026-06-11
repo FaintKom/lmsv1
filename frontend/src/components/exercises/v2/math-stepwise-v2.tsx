@@ -12,7 +12,7 @@
  * the wrong lines.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, X } from "lucide-react";
 import {
   LessonShell,
@@ -66,6 +66,7 @@ export function MathStepwiseV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const allFilled = values.every((v) => v.trim().length > 0);
   const correctSummary = steps
@@ -106,6 +107,13 @@ export function MathStepwiseV2({
 
   const handleRetry = () => {
     setFeedback(null);
+    // Correct rows are preserved; jump the caret to the first wrong line.
+    const firstBad = steps.findIndex(
+      (s, i) => norm(values[i]) !== norm(s.expected)
+    );
+    setTimeout(() => {
+      if (firstBad >= 0) inputRefs.current[firstBad]?.focus();
+    }, 60);
   };
 
   const handleContinue = () => {
@@ -137,79 +145,41 @@ export function MathStepwiseV2({
         onQuit={onQuit}
       >
         <div style={{ maxWidth: 460, margin: "0 auto" }}>
-          <div
-            style={{
-              textAlign: "center",
-              fontFamily: "var(--font-mono)",
-              fontSize: 28,
-              fontWeight: 700,
-              padding: "18px 24px",
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-              marginBottom: 16,
-              color: "var(--ink-900)",
-            }}
-          >
-            <MaybeMath text={problem} />
-          </div>
+          {problem && (
+            <div className="fb-formula" style={{ marginBottom: 16 }}>
+              <MaybeMath text={problem} />
+            </div>
+          )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {steps.map((s, i) => {
               const isOk = !!feedback && norm(values[i]) === norm(s.expected);
-              const isNo = !!feedback && norm(values[i]) !== norm(s.expected);
+              const state = !feedback ? "" : isOk ? " ok" : " no";
               return (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 11,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: "var(--ink-500)",
-                      fontWeight: 700,
-                      width: 60,
-                    }}
-                  >
-                    {s.label}
-                  </span>
+                <div key={i} className="fb-step-row">
+                  <span className="fb-step-label">{s.label}</span>
                   <input
+                    ref={(el) => {
+                      inputRefs.current[i] = el;
+                    }}
                     type="text"
+                    className={"fb-step-input" + state}
                     value={values[i]}
                     onChange={(e) => {
                       const next = values.slice();
                       next[i] = e.target.value;
                       setValues(next);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter") return;
+                      if (i < steps.length - 1) {
+                        inputRefs.current[i + 1]?.focus();
+                      } else if (allFilled && !feedback) {
+                        handleCheck();
+                      }
+                    }}
                     disabled={!!feedback}
                     placeholder={s.hint}
-                    style={{
-                      flex: 1,
-                      padding: "12px 14px",
-                      borderRadius: 12,
-                      border:
-                        "2px solid " +
-                        (isOk
-                          ? "var(--green-500)"
-                          : isNo
-                            ? "var(--coral-500)"
-                            : "var(--ink-100)"),
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 16,
-                      fontWeight: 600,
-                      background: isOk
-                        ? "var(--green-50)"
-                        : isNo
-                          ? "var(--coral-50)"
-                          : "var(--paper-2)",
-                    }}
                   />
                   {finalReveal && (
                     <span
@@ -224,6 +194,21 @@ export function MathStepwiseV2({
                 </div>
               );
             })}
+          </div>
+
+          <div
+            style={{
+              marginTop: 14,
+              fontFamily: "var(--font-mono)",
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: "var(--ink-300)",
+              textAlign: "center",
+            }}
+          >
+            {t("exercise.mathStepwise.enterHint")}
           </div>
         </div>
       </LessonShell>
