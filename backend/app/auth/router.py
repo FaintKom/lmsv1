@@ -46,6 +46,8 @@ from app.common.rate_limit import limiter
 from app.config import settings
 from app.db.session import get_db
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
@@ -109,7 +111,7 @@ async def register_endpoint(
                 consent_token.parent_email, user.full_name, consent_token.token,
             )
         except Exception:
-            pass
+            logger.warning("parental-consent email failed", exc_info=True)
         pending_user = UserResponse.model_validate(user)
         pending_user.parental_consent_pending = True
         return {
@@ -160,7 +162,7 @@ async def register_endpoint(
                 user.email, user.full_name, verification_token,
             )
         except Exception:
-            pass
+            logger.warning("email-verification send failed", exc_info=True)
     else:
         # Student / parent: joined via invite, consider email already verified.
         user.email_verified_at = datetime.now(timezone.utc)
@@ -175,7 +177,7 @@ async def register_endpoint(
         from app.email.service import queue_email, send_welcome
         queue_email(send_welcome, user.email, user.full_name)
     except Exception:
-        pass
+        logger.warning("welcome email failed", exc_info=True)
 
     return TokenResponse(
         access_token=access_token,
@@ -437,7 +439,7 @@ async def resend_verification_endpoint(
             from app.email.service import queue_email, send_email_verification
             queue_email(send_email_verification, user.email, user.full_name, token)
         except Exception:
-            pass
+            logger.warning("verification-resend email failed", exc_info=True)
 
     return {"message": "If the email exists and is unverified, a new link has been sent."}
 

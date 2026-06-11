@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -12,6 +13,8 @@ from app.common.auth import lesson_in_user_org
 from app.common.exceptions import ForbiddenError, NotFoundError
 from app.common.timing import normalize_elapsed
 from app.courses.models import Course, Lesson, Module
+
+logger = logging.getLogger(__name__)
 
 
 async def create_quiz(db: AsyncSession, data: dict) -> Quiz:
@@ -164,7 +167,7 @@ async def submit_quiz(
             from app.gamification.service import XP_QUIZ_PASSED, award_xp
             await award_xp(db, user.id, XP_QUIZ_PASSED, "quiz_passed")
         except Exception:
-            pass
+            logger.warning("XP award failed for user %s (quiz_passed)", user.id, exc_info=True)
 
     return submission
 

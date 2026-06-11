@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 
@@ -8,6 +9,8 @@ from app.auth.models import User
 from app.common.exceptions import BadRequestError, NotFoundError
 from app.courses.models import Course, CourseStatus, Lesson, Module
 from app.progress.models import Enrollment, LessonProgress, LessonStatus
+
+logger = logging.getLogger(__name__)
 
 
 async def enroll(db: AsyncSession, course_id: uuid.UUID, user: User) -> Enrollment:
@@ -115,14 +118,17 @@ async def complete_lesson(
             from app.certificates.service import issue_certificate
             await issue_certificate(db, user.id, module.course_id)
         except Exception:
-            pass
+            logger.warning(
+                "certificate issuance failed for user %s course %s",
+                user.id, module.course_id, exc_info=True,
+            )
 
     # Award XP for lesson completion
     try:
         from app.gamification.service import XP_LESSON_COMPLETE, award_xp
         await award_xp(db, user.id, XP_LESSON_COMPLETE, "lesson_complete")
     except Exception:
-        pass
+        logger.warning("XP award failed for user %s", user.id, exc_info=True)
 
     await db.flush()
     return progress

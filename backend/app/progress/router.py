@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Literal
@@ -19,6 +20,8 @@ from app.progress.service import (
     get_course_lesson_progress,
     get_my_enrollments,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -71,7 +74,8 @@ async def complete_lesson_endpoint(
                 link="/achievements",
             )
     except Exception:
-        pass  # Don't fail lesson completion if gamification errors
+        # Don't fail lesson completion if gamification errors — but record it.
+        logger.warning("gamification hook failed for user %s", user.id, exc_info=True)
 
     return {"status": "ok"}
 
@@ -182,8 +186,11 @@ async def update_video_progress_endpoint(
             await complete_lesson(db, lesson_id, user)
         except Exception:
             # Student might not have an enrollment row yet if they're
-            # previewing — don't block the video progress save.
-            pass
+            # previewing — don't block the video progress save, but record it.
+            logger.info(
+                "auto-complete skipped for lesson %s user %s", lesson_id, user.id,
+                exc_info=True,
+            )
 
     await db.flush()
     return VideoProgressResponse.model_validate(row)
