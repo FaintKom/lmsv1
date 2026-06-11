@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User
@@ -44,7 +45,13 @@ async def enroll(db: AsyncSession, course_id: uuid.UUID, user: User) -> Enrollme
         enrolled_at=datetime.now(timezone.utc),
     )
     db.add(enrollment)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError as exc:
+        # Concurrent enroll lost the race against the
+        # UniqueConstraint(course_id, student_id) — surface a clean 400.
+        await db.rollback()
+        raise BadRequestError("Already enrolled") from exc
     return enrollment
 
 
@@ -59,6 +66,8 @@ async def complete_lesson(
 
     module_result = await db.execute(select(Module).where(Module.id == lesson.module_id))
     module = module_result.scalar_one_or_none()
+    if module is None:
+        raise NotFoundError("Lesson is not attached to a module")
 
     enrollment_result = await db.execute(
         select(Enrollment).where(

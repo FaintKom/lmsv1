@@ -99,8 +99,10 @@ async def update_streak(db: AsyncSession, user_id: uuid.UUID) -> UserStreak:
     """Update user's streak on activity."""
     today = date.today()
 
+    # Row-lock the streak so two concurrent same-day activities can't both
+    # pass the "already counted today" guard and double-increment.
     result = await db.execute(
-        select(UserStreak).where(UserStreak.user_id == user_id)
+        select(UserStreak).where(UserStreak.user_id == user_id).with_for_update()
     )
     streak = result.scalar_one_or_none()
 

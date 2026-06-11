@@ -16,7 +16,7 @@ plan, with the plan's test command as the gate.
 | 002 | Cross-org IDOR test suite | P1 | M | 001 | DONE |
 | 003 | Stop leaking exceptions; tokens & postMessage hardening | P1 | S | — | DONE (S3 fixed; S4 deferred, S5 by-design) |
 | 004 | Replace silent `except: pass` with structured logging | P2 | S | — | DONE |
-| 005 | Correctness hardening (races, null-checks, tz, bounds) | P2 | M | — | TODO |
+| 005 | Correctness hardening (races, null-checks, tz, bounds) | P2 | M | — | DONE (A: constraint pre-existed, no migration) |
 | 006 | Kill bulk-op N+1 + add TanStack staleTime | P2 | S | — | TODO |
 | 007 | Hygiene: delete dead dirs, fix .env.example & deps | P3 | S | — | TODO |
 

@@ -27,8 +27,10 @@ router = APIRouter()
 
 
 class VideoProgressUpdate(BaseModel):
-    position_seconds: float
-    duration_seconds: float | None = None
+    # Bound to [0, 24h] so untrusted clients can't submit absurd values that
+    # poison the 90%-watched auto-complete math.
+    position_seconds: float = Field(ge=0, le=86400)
+    duration_seconds: float | None = Field(default=None, ge=0, le=86400)
 
 
 class VideoProgressResponse(BaseModel):
