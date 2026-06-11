@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
+from app.common.auth import lesson_in_user_org
 from app.db.session import get_db
 from app.progress.models import LessonHighlight, VideoProgress
 from app.progress.schemas import EnrollmentResponse, EnrollRequest, LessonProgressResponse
@@ -232,6 +233,7 @@ async def list_highlights_endpoint(
     Offsets index into the plain textContent of the rendered lesson body;
     the frontend re-anchors by comparing text_snippet and drops stale marks.
     """
+    await lesson_in_user_org(db, lesson_id, user)
     result = await db.execute(
         select(LessonHighlight)
         .where(
@@ -253,6 +255,7 @@ async def create_highlight_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    await lesson_in_user_org(db, lesson_id, user)
     row = LessonHighlight(
         user_id=user.id,
         lesson_id=lesson_id,

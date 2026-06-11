@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import User, UserRole
+from app.common.auth import lesson_in_user_org
 from app.common.exceptions import BadRequestError, NotFoundError
 from app.common.file_validation import (
     SUBMISSION_EXTENSIONS,
@@ -76,6 +77,7 @@ async def upload_file(
 async def get_file_submissions(
     db: AsyncSession, lesson_id: uuid.UUID, user: User
 ) -> list[FileSubmission]:
+    await lesson_in_user_org(db, lesson_id, user)
     query = select(FileSubmission).where(FileSubmission.lesson_id == lesson_id)
     # Students see only their own
     if user.role == UserRole.student:
@@ -97,6 +99,9 @@ async def get_file_submission(
     # Students can only download their own files
     if user.role == UserRole.student and submission.student_id != user.id:
         raise NotFoundError("File submission not found")
+    # Staff roles: enforce the tenant boundary via the lesson's org.
+    if user.role != UserRole.student:
+        await lesson_in_user_org(db, submission.lesson_id, user)
     return submission
 
 
@@ -453,6 +458,7 @@ async def submit_interactive(
 async def get_interactive_submissions(
     db: AsyncSession, lesson_id: uuid.UUID, user: User
 ) -> list[InteractiveSubmission]:
+    await lesson_in_user_org(db, lesson_id, user)
     query = (
         select(InteractiveSubmission)
         .where(InteractiveSubmission.lesson_id == lesson_id)

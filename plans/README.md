@@ -12,7 +12,7 @@ plan, with the plan's test command as the gate.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001 | Org-scope helper + lock down lesson-keyed endpoints | P1 | M | — | TODO |
+| 001 | Org-scope helper + lock down lesson-keyed endpoints | P1 | M | — | DONE |
 | 002 | Cross-org IDOR test suite | P1 | M | 001 | TODO |
 | 003 | Stop leaking exceptions; tokens & postMessage hardening | P1 | S | — | TODO |
 | 004 | Replace silent `except: pass` with structured logging | P2 | S | — | TODO |
