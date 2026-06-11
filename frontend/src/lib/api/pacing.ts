@@ -144,6 +144,7 @@ export function usePacingBoard() {
   return useQuery({
     queryKey: ["journal", "pacing", "board"],
     queryFn: fetchPacingBoard,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -152,6 +153,7 @@ export function usePacingTimeline(groupId: string | null) {
     queryKey: ["journal", "pacing", "timeline", groupId],
     queryFn: () => fetchPacingTimeline(groupId as string),
     enabled: !!groupId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -160,6 +162,7 @@ export function useCurriculum(courseId: string) {
     queryKey: ["curriculum", courseId],
     queryFn: () => fetchCurriculum(courseId),
     enabled: !!courseId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

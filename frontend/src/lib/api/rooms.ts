@@ -129,6 +129,7 @@ export function useRooms() {
   return useQuery({
     queryKey: ["rooms"],
     queryFn: fetchRooms,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -137,6 +138,7 @@ export function useRoomBoard(date: string) {
     queryKey: ["rooms", "board", date],
     queryFn: () => fetchRoomBoard(date),
     enabled: !!date,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

@@ -117,6 +117,7 @@ export function useScheduleWeek() {
   return useQuery({
     queryKey: ["schedule", "week"],
     queryFn: fetchWeek,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -124,6 +125,7 @@ export function useMySchedule() {
   return useQuery({
     queryKey: ["schedule", "my"],
     queryFn: fetchMySchedule,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -132,6 +134,7 @@ export function useCourseSlots(courseId: string) {
     queryKey: ["schedule", "course", courseId],
     queryFn: () => fetchCourseSlots(courseId),
     enabled: !!courseId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

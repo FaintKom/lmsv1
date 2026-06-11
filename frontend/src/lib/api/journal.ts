@@ -222,6 +222,7 @@ export function useJournalSessions(courseId: string) {
     queryKey: ["journal", "sessions", courseId],
     queryFn: () => fetchSessions(courseId),
     enabled: !!courseId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -230,6 +231,7 @@ export function useJournalDay(courseId: string, sessionDate: string) {
     queryKey: ["journal", "day", courseId, sessionDate],
     queryFn: () => fetchDay(courseId, sessionDate),
     enabled: !!courseId && !!sessionDate,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -262,5 +264,6 @@ export function useJournalToday(date: string, filters: TodayFilters = {}) {
     queryKey: ["journal", "today", date, filters.courseId ?? "", filters.teacherId ?? ""],
     queryFn: () => journalToday(date, filters),
     enabled: !!date,
+    staleTime: 5 * 60 * 1000,
   });
 }

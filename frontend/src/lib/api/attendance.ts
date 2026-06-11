@@ -104,6 +104,7 @@ export function useRoster(courseId: string, sessionDate: string) {
     queryKey: ["attendance", "roster", courseId, sessionDate],
     queryFn: () => fetchRoster(courseId, sessionDate),
     enabled: !!courseId && !!sessionDate,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -112,6 +113,7 @@ export function useAttendanceSummary(courseId: string) {
     queryKey: ["attendance", "summary", courseId],
     queryFn: () => fetchSummary(courseId),
     enabled: !!courseId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -119,6 +121,7 @@ export function useMyAttendance() {
   return useQuery({
     queryKey: ["attendance", "my"],
     queryFn: fetchMyAttendance,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
