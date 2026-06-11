@@ -147,6 +147,28 @@
 
 ---
 
+## 2026-06-11 — Деплой упал: create_table миграция vs lifespan create_all
+
+**Что случилось.**
+- Новая миграция `hl1a2b3c4d5` (CREATE TABLE lesson_highlights) упала на прод
+  с `DuplicateTableError`. Порядок в deploy.yml: rebuild → `docker compose up
+  -d` → apply migrations. Бэкенд при старте выполняет
+  `Base.metadata.create_all` (`_run_setup` в main.py) и создал таблицу из
+  модели ДО шага `alembic upgrade head`. Сайт не упал (код уже работал),
+  но deploy-ран красный и версия не проштампована.
+- CLAUDE.md предупреждал только про rerun-safe `op.execute(...)` — случай
+  `op.create_table` для новых таблиц та же ловушка, но не был записан.
+
+**Правило.**
+- Любая миграция, создающая таблицу, которая есть в `Base.metadata`,
+  ОБЯЗАНА начинаться с гарда:
+  `if sa.inspect(op.get_bind()).has_table("<table>"): return`
+  (то же для add_column — проверка через `get_columns`). Чеклист перед
+  коммитом миграции: «контейнер стартует раньше alembic — переживёт ли
+  upgrade существующую схему?»
+
+---
+
 ## Шаблон для новых уроков
 
 ```

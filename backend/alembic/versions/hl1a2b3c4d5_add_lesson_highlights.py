@@ -24,6 +24,13 @@ depends_on: Union[str, None] = None
 
 
 def upgrade() -> None:
+    # Rerun-safe guard: the app lifespan runs Base.metadata.create_all on
+    # startup (main.py _run_setup), and on prod the rebuilt container boots
+    # BEFORE the deploy workflow applies migrations — so the table (and its
+    # model-declared indexes) may already exist. Skip creation, just stamp.
+    bind = op.get_bind()
+    if sa.inspect(bind).has_table("lesson_highlights"):
+        return
     op.create_table(
         "lesson_highlights",
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
