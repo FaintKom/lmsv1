@@ -30,6 +30,12 @@ export interface TablePatternV2Props {
   ruleAccepted: string[];
   /** Pretty rule shown on reveal, e.g. "f(x) = 2x + 1". */
   ruleDisplay: string;
+  /**
+   * Neutral format example for the rule input placeholder, e.g. "3x − 2".
+   * TP-01: never the actual answer — the placeholder is visible to the
+   * student while solving. Defaults to a generic localized example.
+   */
+  ruleExample?: string;
   eyebrow?: string;
   title?: string;
   maxAttemptsPerTask?: number;
@@ -65,6 +71,7 @@ export function TablePatternV2({
   answers,
   ruleAccepted,
   ruleDisplay,
+  ruleExample,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
@@ -260,7 +267,7 @@ export function TablePatternV2({
             value={rule}
             disabled={!!feedback}
             onChange={(e) => setRule(e.target.value)}
-            placeholder={ruleDisplay}
+            placeholder={ruleExample ?? t("exercise.tablePattern.ruleExample")}
             className="gp-input"
             style={{ fontFamily: "var(--font-mono)", textAlign: "center" }}
           />

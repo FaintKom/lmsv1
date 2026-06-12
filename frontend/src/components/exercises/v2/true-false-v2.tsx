@@ -176,10 +176,14 @@ export function TrueFalseV2({
         </div>
         <div style={{ display: "flex", gap: 14, justifyContent: "center" }}>
           {[true, false].map((v) => {
+            // TF-01: never paint the correct tile green while retries remain —
+            // the child copies it on the next attempt. Reveal only at task end.
+            const taskOver = feedback?.kind === "ok" || (!!feedback && attemptsLeft <= 0);
             let state = "";
             if (feedback) {
-              if (v === correctAnswer) state = "correct";
-              else if (v === pick) state = "wrong";
+              if (taskOver && correctAnswer !== undefined && v === correctAnswer) state = "correct";
+              else if (taskOver && feedback.kind === "ok" && v === pick) state = "correct";
+              else if (v === pick && feedback.kind === "no") state = "wrong";
               else state = "locked";
             } else if (pick === v) state = "selected";
             return (
