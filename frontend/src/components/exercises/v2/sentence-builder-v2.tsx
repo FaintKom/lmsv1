@@ -11,13 +11,14 @@
  * student can fix the order without re-tapping every tile.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Volume2 } from "lucide-react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { flyClone } from "@/components/lesson/fb-motion";
 import { useTranslation } from "@/lib/i18n/context";
 
 export interface SentenceBuilderV2Props {
@@ -81,18 +82,36 @@ export function SentenceBuilderV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  // SB-04: refs for the flyClone bank↔strip animation.
+  const bankTileRefs = useRef<Record<number, HTMLElement | null>>({});
+  const pickedTileRefs = useRef<Record<number, HTMLElement | null>>({});
+  const stripRef = useRef<HTMLDivElement | null>(null);
+  const bankRef = useRef<HTMLDivElement | null>(null);
+  /** Tiles mid-flight — ignore re-taps until the clone lands. */
+  const flying = useRef<Set<number>>(new Set());
 
   const moveToPicked = (item: Tile) => {
-    if (feedback) return;
-    setGraded(false);
-    setBank((b) => b.filter((x) => x.i !== item.i));
-    setPicked((p) => [...p, item]);
+    if (feedback || flying.current.has(item.i)) return;
+    flying.current.add(item.i);
+    // SB-04: the word visually flies from the bank into the strip.
+    flyClone(bankTileRefs.current[item.i] ?? null, stripRef.current, () => {
+      flying.current.delete(item.i);
+      setGraded(false);
+      setBank((b) => b.filter((x) => x.i !== item.i));
+      setPicked((p) => (p.some((x) => x.i === item.i) ? p : [...p, item]));
+    });
   };
+  // SB-02: returns ONLY the tapped tile (tracked by tile index `i`).
   const moveToBank = (item: Tile) => {
-    if (feedback) return;
-    setGraded(false);
-    setPicked((p) => p.filter((x) => x.i !== item.i));
-    setBank((b) => [...b, item]);
+    if (feedback || flying.current.has(item.i)) return;
+    flying.current.add(item.i);
+    // SB-04: and flies back down on return.
+    flyClone(pickedTileRefs.current[item.i] ?? null, bankRef.current, () => {
+      flying.current.delete(item.i);
+      setGraded(false);
+      setPicked((p) => p.filter((x) => x.i !== item.i));
+      setBank((b) => (b.some((x) => x.i === item.i) ? b : [...b, item]));
+    });
   };
 
   /** Per-position tile state after grading: ripple on correct, shake on wrong. */
@@ -131,9 +150,24 @@ export function SentenceBuilderV2({
       });
       setStreak(0);
     } else {
+      // SB-06: longest-correct-prefix coaching instead of a bare "not quite".
+      let okPrefix = 0;
+      while (
+        okPrefix < picked.length &&
+        okPrefix < correctWords.length &&
+        picked[okPrefix].w === correctWords[okPrefix]
+      ) {
+        okPrefix++;
+      }
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.sentenceBuilder.almostOrderMattersAttempt") : t("exercise.sentenceBuilder.almostOrderMattersAttempts")).replace("{n}", String(remaining)),
+        explain:
+          okPrefix > 1
+            ? t("exercise.sentenceBuilder.firstWordsRight").replace("{n}", String(okPrefix))
+            : okPrefix === 1
+              ? t("exercise.sentenceBuilder.firstWordRight")
+              : t("exercise.sentenceBuilder.tryDifferentStart"),
       });
     }
   };
@@ -217,6 +251,7 @@ export function SentenceBuilderV2({
 
         {/* picked row */}
         <div
+          ref={stripRef}
           style={{
             minHeight: 64,
             padding: 10,
@@ -247,6 +282,9 @@ export function SentenceBuilderV2({
           {picked.map((p, pos) => (
             <button
               key={p.i}
+              ref={(el) => {
+                pickedTileRefs.current[p.i] = el;
+              }}
               className={"gp-tile " + wordState(p, pos)}
               style={{ padding: "8px 14px", fontSize: 16 }}
               disabled={!!feedback && feedback.kind === "ok"}
@@ -260,6 +298,7 @@ export function SentenceBuilderV2({
 
         {/* bank */}
         <div
+          ref={bankRef}
           style={{
             display: "flex",
             flexWrap: "wrap",
@@ -270,6 +309,9 @@ export function SentenceBuilderV2({
           {bank.map((b) => (
             <button
               key={b.i}
+              ref={(el) => {
+                bankTileRefs.current[b.i] = el;
+              }}
               className="gp-tile"
               style={{ padding: "8px 14px", fontSize: 16 }}
               disabled={!!feedback}

@@ -76,25 +76,44 @@ export function NumberLineV2({
   const [pos, setPos] = useState(initialPos);
   const [moved, setMoved] = useState(false);
   const [grabbed, setGrabbed] = useState(false);
+  /** NL-01: value bubble flashes briefly after a keyboard/tap move. */
+  const [bubbleFlash, setBubbleFlash] = useState(false);
   const [markerState, setMarkerState] = useState<MarkerState>("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  /** NL-02: measured track width drives the tick-label thinning budget. */
+  const [trackW, setTrackW] = useState(540);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const shakeTimer = useRef<number | null>(null);
+  const flashTimer = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    const el = trackRef.current;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) setTrackW(entry.contentRect.width);
+    });
+    if (el) ro.observe(el);
+    return () => {
+      ro.disconnect();
       if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
-    },
-    []
-  );
+      if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+    };
+  }, []);
 
   const tol = tolerance ?? step / 2;
+  // Avoid floating point drift display (e.g. 1.0000001).
+  const decimals = step < 1 ? 4 : 0;
+
+  const flashBubble = () => {
+    setBubbleFlash(true);
+    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setBubbleFlash(false), 900);
+  };
 
   const setFromX = (clientX: number) => {
     if (feedback || !trackRef.current) return;
@@ -102,11 +121,45 @@ export function NumberLineV2({
     const frac = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const raw = min + frac * (max - min);
     const snapped = Math.round(raw / step) * step;
-    // Avoid floating point drift display (e.g. 1.0000001).
-    const decimals = step < 1 ? 4 : 0;
     setPos(parseFloat(snapped.toFixed(decimals)));
     // NL-04: Check stays locked until the student actually moves the marker.
     setMoved(true);
+  };
+
+  /** NL-01: keyboard slider — one step per arrow press. */
+  const nudge = (dir: -1 | 1) => {
+    if (feedback) return;
+    const next = parseFloat(
+      Math.max(min, Math.min(max, pos + dir * step)).toFixed(decimals)
+    );
+    setPos(next);
+    setMoved(true);
+    setMarkerState("");
+    flashBubble();
+  };
+
+  const jumpTo = (value: number) => {
+    if (feedback) return;
+    setPos(parseFloat(value.toFixed(decimals)));
+    setMoved(true);
+    setMarkerState("");
+    flashBubble();
+  };
+
+  const onMarkerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+      e.preventDefault();
+      nudge(-1);
+    } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+      e.preventDefault();
+      nudge(1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      jumpTo(min);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      jumpTo(max);
+    }
   };
 
   const onMarkerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -123,6 +176,7 @@ export function NumberLineV2({
     if (feedback || grabbed) return;
     setFromX(e.clientX);
     setMarkerState("");
+    flashBubble();
   };
 
   const handleCheck = () => {
@@ -157,6 +211,12 @@ export function NumberLineV2({
       setFeedback({
         kind: "no",
         msg: tmpl.replace("{pos}", String(pos)).replace("{n}", String(remaining)),
+        // NL-05: coach with DIRECTION only — never reveal the value while
+        // retries remain.
+        explain:
+          pos < correct
+            ? t("exercise.numberLine.hintRight")
+            : t("exercise.numberLine.hintLeft"),
       });
     }
   };
@@ -180,6 +240,12 @@ export function NumberLineV2({
   const posFrac = (pos - min) / (max - min);
   const ghostFrac = (correct - min) / (max - min);
   const tickCount = Math.floor((max - min) / step) + 1;
+  // NL-02: thin tick labels when they'd collide — budget ≈44px per label,
+  // both ends (and zero) always stay labelled.
+  const labelEvery = Math.max(
+    1,
+    Math.ceil(tickCount / Math.max(2, Math.floor(trackW / 44)))
+  );
 
   return (
     <div style={{ position: "relative", height: "100%" }}>
@@ -232,6 +298,8 @@ export function NumberLineV2({
               const frac = (n - min) / (max - min);
               const isZero = n === 0;
               const isNear = Math.abs(n - pos) < 1e-6;
+              const labelled =
+                i % labelEvery === 0 || i === tickCount - 1 || isZero;
               return (
                 <div
                   key={i}
@@ -248,24 +316,26 @@ export function NumberLineV2({
                     transformOrigin: "bottom",
                   }}
                 >
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 22,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: isNear
-                        ? "var(--green-700)"
-                        : isZero
-                          ? "var(--ink-900)"
-                          : "var(--ink-500)",
-                    }}
-                  >
-                    {n}
-                  </span>
+                  {labelled && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 22,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: isNear
+                          ? "var(--green-700)"
+                          : isZero
+                            ? "var(--ink-900)"
+                            : "var(--ink-500)",
+                      }}
+                    >
+                      {n}
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -301,7 +371,11 @@ export function NumberLineV2({
                 transition: grabbed ? "none" : "left 140ms ease",
               }}
             >
-              <div className={"fb-marker-bubble" + (grabbed ? " show" : "")}>
+              <div
+                className={
+                  "fb-marker-bubble" + (grabbed || bubbleFlash ? " show" : "")
+                }
+              >
                 {pos}
               </div>
               <div
@@ -310,6 +384,17 @@ export function NumberLineV2({
                   (grabbed ? " grabbed" : "") +
                   (markerState ? ` ${markerState}` : "")
                 }
+                // NL-01: real slider semantics + full keyboard path.
+                role="slider"
+                tabIndex={feedback ? -1 : 0}
+                aria-valuemin={min}
+                aria-valuemax={max}
+                aria-valuenow={pos}
+                aria-label={t("exercise.numberLine.ariaMarker").replace(
+                  "{pos}",
+                  String(pos)
+                )}
+                onKeyDown={onMarkerKeyDown}
                 onPointerDown={onMarkerDown}
                 onPointerMove={onMarkerMove}
                 onPointerUp={onMarkerUp}
@@ -331,7 +416,8 @@ export function NumberLineV2({
               marginTop: 8,
             }}
           >
-            {t("exercise.numberLine.dragHint")}
+            {/* NL-01: surface the keyboard path in the helper caption. */}
+            {t("exercise.numberLine.dragHintKeys")}
           </div>
         </div>
       </LessonShell>

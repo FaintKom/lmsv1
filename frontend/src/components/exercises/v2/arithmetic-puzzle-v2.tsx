@@ -59,6 +59,10 @@ export function ArithmeticPuzzleV2({
   const [filled, setFilled] = useState<(number | null)[]>(() =>
     equations.map(() => null)
   );
+  // AP-03: rows graded correct on a failed Check lock green across retries.
+  const [lockedOk, setLockedOk] = useState<boolean[]>(() =>
+    equations.map(() => false)
+  );
   const [active, setActive] = useState(0);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
@@ -68,12 +72,21 @@ export function ArithmeticPuzzleV2({
   const { fire, layer } = useConfetti();
 
   const pick = (bankIdx: number) => {
-    if (feedback) return;
+    if (feedback || filled.includes(bankIdx) || lockedOk[active]) return;
     const nf = filled.slice();
     nf[active] = bankIdx;
     setFilled(nf);
-    const nextEmpty = nf.findIndex((v) => v === null);
+    const nextEmpty = nf.findIndex((v, i) => v === null && !lockedOk[i]);
     if (nextEmpty >= 0) setActive(nextEmpty);
+  };
+
+  // AP-02: tapping a filled slot clears it and returns the number to the bank.
+  const clearRow = (i: number) => {
+    if (feedback || lockedOk[i] || filled[i] === null) return;
+    const nf = filled.slice();
+    nf[i] = null;
+    setFilled(nf);
+    setActive(i);
   };
 
   const valueAt = (row: number): number | null =>
@@ -106,15 +119,28 @@ export function ArithmeticPuzzleV2({
       });
       setStreak(0);
     } else {
+      const okCount = equations.filter((e, i) => valueAt(i) === e.answer).length;
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.arithmeticPuzzle.someAreOffAttempt") : t("exercise.arithmeticPuzzle.someAreOffAttempts")).replace("{n}", String(remaining)),
+        explain:
+          okCount > 0
+            ? t("exercise.arithmeticPuzzle.lockedExplain")
+                .replace("{ok}", String(okCount))
+                .replace("{total}", String(equations.length))
+            : undefined,
       });
     }
   };
 
+  // AP-03: lock the correct rows green, bounce wrong values back to the bank.
   const handleRetry = () => {
+    const flags = equations.map((e, i) => valueAt(i) === e.answer);
+    setLockedOk(flags);
+    setFilled((f) => f.map((v, i) => (flags[i] ? v : null)));
     setFeedback(null);
+    const firstBad = flags.findIndex((x) => !x);
+    if (firstBad >= 0) setActive(firstBad);
   };
 
   const handleContinue = () => {
@@ -139,6 +165,7 @@ export function ArithmeticPuzzleV2({
         title={title ?? t("exercise.arithmeticPuzzle.title")}
         feedback={feedback}
         canCheck={filled.every((v) => v !== null)}
+        checkHint={t("exercise.arithmeticPuzzle.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -146,74 +173,115 @@ export function ArithmeticPuzzleV2({
       >
         <div style={{ maxWidth: 420, margin: "0 auto" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {equations.map((e, i) => (
-              <div
-                key={i}
-                onClick={() => !feedback && setActive(i)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "12px 16px",
-                  background: "var(--paper-2)",
-                  border: `2px solid ${active === i && !feedback ? "var(--green-500)" : "var(--ink-100)"}`,
-                  borderRadius: 14,
-                  cursor: feedback ? "default" : "pointer",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 22,
-                  fontWeight: 700,
-                  color: "var(--ink-900)",
-                  justifyContent: "center",
-                }}
-              >
-                {e.cells.map((c, j) => {
-                  if (c !== "_")
+            {equations.map((e, i) => {
+              const isLocked = lockedOk[i];
+              return (
+                <div
+                  key={i}
+                  onClick={() => !feedback && !isLocked && setActive(i)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "12px 16px",
+                    background: isLocked ? "var(--green-50)" : "var(--paper-2)",
+                    border: `2px solid ${
+                      isLocked
+                        ? "var(--green-300)"
+                        : active === i && !feedback
+                          ? "var(--green-500)"
+                          : "var(--ink-100)"
+                    }`,
+                    borderRadius: 14,
+                    cursor: feedback || isLocked ? "default" : "pointer",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    color: "var(--ink-900)",
+                    justifyContent: "center",
+                    transition: "border-color 150ms, background 200ms",
+                  }}
+                >
+                  {e.cells.map((c, j) => {
+                    if (c !== "_")
+                      return (
+                        <span key={j} style={{ padding: "0 6px" }}>
+                          {c}
+                        </span>
+                      );
+                    const v = valueAt(i);
+                    const isCorrect = (!!feedback && v === e.answer) || isLocked;
+                    const isWrong = !!feedback && v !== e.answer;
                     return (
-                      <span key={j} style={{ padding: "0 6px" }}>
-                        {c}
-                      </span>
-                    );
-                  const v = valueAt(i);
-                  const isCorrect = !!feedback && v === e.answer;
-                  const isWrong = !!feedback && v !== e.answer;
-                  return (
-                    <span
-                      key={j}
-                      style={{
-                        display: "inline-grid",
-                        placeItems: "center",
-                        width: 48,
-                        height: 38,
-                        borderRadius: 8,
-                        background: isCorrect
-                          ? "var(--green-50)"
-                          : isWrong
-                            ? "var(--coral-50)"
-                            : v == null
-                              ? "var(--ink-50)"
-                              : "var(--green-50)",
-                        border: `2px solid ${
-                          isCorrect
-                            ? "var(--green-500)"
+                      // AP-02: filled slot is a button — tap to clear it back
+                      // to the bank.
+                      <button
+                        key={j}
+                        type="button"
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          clearRow(i);
+                        }}
+                        disabled={!!feedback || isLocked || v === null}
+                        aria-label={
+                          v === null
+                            ? t("exercise.arithmeticPuzzle.emptyBlank")
+                            : t("exercise.arithmeticPuzzle.filledTapToRemove").replace("{v}", String(v))
+                        }
+                        style={{
+                          display: "inline-grid",
+                          placeItems: "center",
+                          width: 48,
+                          height: 40,
+                          borderRadius: 8,
+                          fontFamily: "inherit",
+                          fontSize: "inherit",
+                          fontWeight: 800,
+                          background: isCorrect
+                            ? "var(--green-50)"
                             : isWrong
-                              ? "var(--coral-500)"
+                              ? "var(--coral-50)"
                               : v == null
-                                ? "var(--ink-200)"
-                                : "var(--green-500)"
-                        }`,
-                        color: isWrong
-                          ? "var(--coral-700)"
-                          : v == null
-                            ? "var(--ink-300)"
-                            : "var(--green-800)",
-                      }}
+                                ? "var(--ink-50)"
+                                : "var(--green-50)",
+                          border: `2px solid ${
+                            isCorrect
+                              ? "var(--green-500)"
+                              : isWrong
+                                ? "var(--coral-500)"
+                                : v == null
+                                  ? "var(--ink-200)"
+                                  : "var(--green-500)"
+                          }`,
+                          color: isWrong
+                            ? "var(--coral-700)"
+                            : v == null
+                              ? "var(--ink-300)"
+                              : "var(--green-800)",
+                          cursor:
+                            v !== null && !feedback && !isLocked
+                              ? "pointer"
+                              : "default",
+                          animation: isWrong
+                            ? "fb-shake calc(0.4s * var(--mdur)) ease both"
+                            : undefined,
+                        }}
+                      >
+                        {v ?? "?"}
+                      </button>
+                    );
+                  })}
+                  {isLocked && (
+                    <span
+                      aria-hidden="true"
+                      style={{ color: "var(--green-600)", marginLeft: 4 }}
                     >
-                      {v ?? "?"}
+                      ✓
                     </span>
-                  );
-                })}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
           <div
             className="gp-eyebrow"

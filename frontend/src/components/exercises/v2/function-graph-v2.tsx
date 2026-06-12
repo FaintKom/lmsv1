@@ -7,6 +7,13 @@
  * Methodist supplies target {m, b}; student adjusts slope + intercept
  * sliders until the green solid line overlaps the coral dashed target.
  *
+ * Exercise-mechanics handoff (ex-graphs.jsx · FunctionGraphV2):
+ * - GX-01 viewBox-only SVG (`.gx-svg`) inside `.gx-layout` (panel stacks
+ *         below the plot in narrow containers).
+ * - GX-03 Check unlocks only after the first slider touch.
+ * - GX-04/FG-03 wrong-attempt hint names WHICH dial is off (slope vs
+ *         intercept), never the direction or value.
+ *
  * Per-task HP + streak; retry resets sliders to 0.
  */
 
@@ -47,9 +54,11 @@ interface SliderProps {
   max: number;
   step: number;
   disabled?: boolean;
+  /** GX-03: notifies the parent on the first interaction. */
+  onFirstTouch?: () => void;
 }
 
-function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
+function SliderCtrl({ label, v, setV, min, max, step, disabled, onFirstTouch }: SliderProps) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -72,7 +81,11 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
         step={step}
         value={v}
         disabled={disabled}
-        onChange={(e) => setV(parseFloat(e.target.value))}
+        aria-label={label}
+        onChange={(e) => {
+          setV(parseFloat(e.target.value));
+          onFirstTouch?.();
+        }}
         style={{ width: "100%", accentColor: "var(--green-600)" }}
       />
     </div>
@@ -81,6 +94,9 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
 
 const SIZE = 380;
 const PAD = 36;
+
+/** IG-03 family: render "+ 3" / "− 3", never "+ -3". */
+const signed = (n: number) => (n >= 0 ? `+ ${n}` : `− ${Math.abs(n)}`);
 
 export function FunctionGraphV2({
   target,
@@ -100,6 +116,7 @@ export function FunctionGraphV2({
 
   const [m, setM] = useState(0);
   const [b, setB] = useState(0);
+  const [touched, setTouched] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -112,10 +129,9 @@ export function FunctionGraphV2({
     `M ${toX(-range)} ${toY(mm * -range + bb)} L ${toX(range)} ${toY(mm * range + bb)}`;
 
   const handleCheck = () => {
-    if (
-      Math.abs(m - target.m) <= tolerance &&
-      Math.abs(b - target.b) <= tolerance
-    ) {
+    const mOk = Math.abs(m - target.m) <= tolerance;
+    const bOk = Math.abs(b - target.b) <= tolerance;
+    if (mOk && bOk) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.functionGraph.linesMatch") : t("exercise.gotIt"),
@@ -133,13 +149,21 @@ export function FunctionGraphV2({
       setFeedback({
         kind: "no",
         msg: t("exercise.functionGraph.linesDontMatch"),
-        correct: `y = ${target.m}x ${target.b >= 0 ? `+ ${target.b}` : `− ${Math.abs(target.b)}`}`,
+        correct: `y = ${target.m}x ${signed(target.b)}`,
       });
       setStreak(0);
     } else {
+      // GX-04/FG-03: name the dial, not the direction.
+      const hint =
+        !mOk && !bOk
+          ? t("exercise.functionGraph.bothDialsOff")
+          : !mOk
+            ? t("exercise.functionGraph.slopeOff")
+            : t("exercise.functionGraph.interceptOff");
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.functionGraph.linesDontMatchAttempt") : t("exercise.functionGraph.linesDontMatchAttempts")).replace("{n}", String(remaining)),
+        explain: hint,
       });
     }
   };
@@ -174,34 +198,20 @@ export function FunctionGraphV2({
               className="gp-mark"
               style={{ fontFamily: "var(--font-mono)", fontSize: 18 }}
             >
-              y = {target.m}x {target.b >= 0 ? `+ ${target.b}` : `− ${Math.abs(target.b)}`}
+              y = {target.m}x {signed(target.b)}
             </span>
           </>
         }
         feedback={feedback}
-        canCheck={true}
+        canCheck={touched && !feedback}
+        checkHint={t("exercise.functionGraph.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 200px",
-            gap: 20,
-            justifyContent: "center",
-          }}
-        >
-          <svg
-            width={SIZE}
-            height={SIZE}
-            style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-            }}
-          >
+        <div className="gx-layout">
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="gx-svg">
             <GridAxes range={range} size={SIZE} pad={PAD} />
             <path
               d={linePath(target.m, target.b)}
@@ -227,6 +237,7 @@ export function FunctionGraphV2({
               max={5}
               step={mStep}
               disabled={!!feedback}
+              onFirstTouch={() => setTouched(true)}
             />
             <SliderCtrl
               label="intercept · b"
@@ -236,6 +247,7 @@ export function FunctionGraphV2({
               max={5}
               step={bStep}
               disabled={!!feedback}
+              onFirstTouch={() => setTouched(true)}
             />
             <div
               style={{
@@ -249,7 +261,7 @@ export function FunctionGraphV2({
                 color: "var(--ink-900)",
               }}
             >
-              y = {m}x {b >= 0 ? `+ ${b}` : `− ${Math.abs(b)}`}
+              y = {m}x {signed(b)}
             </div>
             <div
               style={{

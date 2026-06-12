@@ -87,6 +87,10 @@ export function NumericInputV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [showExample, setShowExample] = useState(false);
+  /** NI-06: the worked-example card pulses after a wrong attempt. */
+  const [hintNudge, setHintNudge] = useState(false);
+  /** NI-01: pad key currently held down (press physics without :active). */
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -108,6 +112,11 @@ export function NumericInputV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
+    // NI-06: pulse the worked-example card so the student notices the help.
+    if (example) {
+      setHintNudge(true);
+      setTimeout(() => setHintNudge(false), 3300);
+    }
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
@@ -120,7 +129,9 @@ export function NumericInputV2({
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.notQuiteAttemptLeft") : t("exercise.notQuiteAttemptsLeft")).replace("{n}", String(remaining)),
-        explain,
+        // NI-06: while retries remain, nudge towards the example instead of
+        // spending the methodist explain early (it still shows at task end).
+        explain: example ? t("exercise.numericInput.exampleNudge") : explain,
       });
       // Feedback grammar (handoff 2026-06): with attempts left, the shake/
       // error tint clears after ~700ms so the student can retype calmly.
@@ -171,6 +182,10 @@ export function NumericInputV2({
                 marginBottom: 14,
                 textAlign: "left",
                 transition: "all 200ms",
+                // NI-06: halo pulse (twice) right after a wrong attempt.
+                animation: hintNudge
+                  ? "fb-halo calc(1.6s * var(--mdur)) ease-in-out 2"
+                  : "none",
               }}
             >
               <button
@@ -232,6 +247,7 @@ export function NumericInputV2({
           <input
             type="text"
             inputMode="decimal"
+            aria-label={t("exercise.numericInput.ariaAnswer")}
             value={val}
             onChange={(e) => {
               setVal(sanitizeNum(e.target.value));
@@ -260,7 +276,14 @@ export function NumericInputV2({
               <button
                 key={k}
                 type="button"
-                aria-label={k === "−" ? "±" : k}
+                // NI-04: human-readable names for the symbol keys.
+                aria-label={
+                  k === "−"
+                    ? t("exercise.numericInput.ariaPlusMinus")
+                    : k === "."
+                      ? t("exercise.numericInput.ariaDecimal")
+                      : k
+                }
                 onClick={() => {
                   if (feedback) return;
                   // NI-02: ± toggles the sign of the whole entry.
@@ -269,8 +292,15 @@ export function NumericInputV2({
                   else setVal(sanitizeNum(val + k));
                   setInputState("");
                 }}
+                onPointerDown={() => !feedback && setPressedKey(k)}
+                onPointerUp={() => setPressedKey(null)}
+                onPointerLeave={() => setPressedKey(null)}
+                onPointerCancel={() => setPressedKey(null)}
                 disabled={!!feedback}
                 style={{
+                  // NI-01: ≥48px touch target + press physics + real
+                  // disabled styling (was identical enabled/disabled).
+                  minHeight: 48,
                   padding: "8px 0",
                   borderRadius: 10,
                   background: "var(--paper-2)",
@@ -278,9 +308,17 @@ export function NumericInputV2({
                   fontFamily: "var(--font-mono)",
                   fontWeight: 700,
                   fontSize: 17,
-                  color: "var(--ink-900)",
+                  color: feedback ? "var(--ink-300)" : "var(--ink-900)",
                   cursor: feedback ? "default" : "pointer",
-                  boxShadow: "0 2px 0 0 var(--ink-100)",
+                  opacity: feedback ? 0.55 : 1,
+                  transform:
+                    pressedKey === k ? "translateY(2px)" : "translateY(0)",
+                  boxShadow:
+                    feedback || pressedKey === k
+                      ? "0 0 0 0 var(--ink-100)"
+                      : "0 2px 0 0 var(--ink-100)",
+                  transition: "transform 80ms, box-shadow 80ms, opacity 150ms",
+                  touchAction: "manipulation",
                 }}
               >
                 {k === "−" ? "±" : k}
@@ -288,15 +326,20 @@ export function NumericInputV2({
             ))}
             <button
               type="button"
-              aria-label="⌫"
+              aria-label={t("exercise.numericInput.ariaDelete")}
               onClick={() => {
                 if (feedback) return;
                 setVal(val.slice(0, -1));
                 setInputState("");
               }}
+              onPointerDown={() => !feedback && setPressedKey("⌫")}
+              onPointerUp={() => setPressedKey(null)}
+              onPointerLeave={() => setPressedKey(null)}
+              onPointerCancel={() => setPressedKey(null)}
               disabled={!!feedback}
               style={{
                 gridColumn: "1 / -1",
+                minHeight: 48,
                 padding: "8px 0",
                 borderRadius: 10,
                 background: "var(--ink-50)",
@@ -304,9 +347,17 @@ export function NumericInputV2({
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
                 fontSize: 15,
-                color: "var(--ink-700)",
+                color: feedback ? "var(--ink-300)" : "var(--ink-700)",
                 cursor: feedback ? "default" : "pointer",
-                boxShadow: "0 2px 0 0 var(--ink-100)",
+                opacity: feedback ? 0.55 : 1,
+                transform:
+                  pressedKey === "⌫" ? "translateY(2px)" : "translateY(0)",
+                boxShadow:
+                  feedback || pressedKey === "⌫"
+                    ? "0 0 0 0 var(--ink-100)"
+                    : "0 2px 0 0 var(--ink-100)",
+                transition: "transform 80ms, box-shadow 80ms, opacity 150ms",
+                touchAction: "manipulation",
               }}
             >
               ⌫

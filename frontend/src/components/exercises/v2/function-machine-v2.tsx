@@ -8,14 +8,22 @@
  * watches them animate through the machine, sees outputs accumulate
  * in a log, then types the rule they discovered.
  *
- * Per-task HP + streak. Rule comparison is loose (whitespace + case
- * normalized, "f(x)=" prefix stripped) — matches TablePatternV2.
+ * Exercise-mechanics handoff (ex-graphs2.jsx · FunctionMachineV2):
+ * - FM-01 sanitised decimal input (comma → dot, one dot, leading minus)
+ *         with inputMode="decimal"; Enter feeds the machine.
+ * - FM-02 rule normalisation strips "f(x)=", "y=", "*", whitespace and
+ *         case before comparing — consistent with TablePatternV2.
+ * - FM-04 duplicate-input nudge ("you already tried 5 — try a NEW
+ *         number") + method hint on a wrong rule guess.
+ * - GX-01 `.gx-layout` so the panel stacks below in narrow containers.
+ *
+ * Per-task HP + streak.
  *
  * Design system: green machine body, sun input pill, coral output pill,
  * LessonShell chrome.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import {
   LessonShell,
@@ -52,8 +60,30 @@ interface RunEntry {
   y: number;
 }
 
+// FM-02: strip whitespace, case, "*", "f(x)=" and "y=" before comparing.
 const normRule = (s: string) =>
-  s.trim().toLowerCase().replace(/\s+/g, "").replace(/^f\(x\)=/, "");
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/\*/g, "")
+    .replace(/^f\(x\)=/, "")
+    .replace(/^y=/, "");
+
+/** FM-01: comma → dot (RU decimal habit), one dot max, digits + leading minus only. */
+const sanitizeNum = (s: string): string => {
+  let out = "";
+  let hasDot = false;
+  for (const raw of s) {
+    const ch = raw === "," ? "." : raw;
+    if (ch >= "0" && ch <= "9") out += ch;
+    else if (ch === "." && !hasDot) {
+      out += ".";
+      hasDot = true;
+    } else if ((ch === "-" || ch === "−") && out === "") out += "-";
+  }
+  return out.slice(0, 8);
+};
 
 export function FunctionMachineV2({
   rule,
@@ -73,13 +103,24 @@ export function FunctionMachineV2({
   const [history, setHistory] = useState<RunEntry[]>([]);
   const [running, setRunning] = useState(false);
   const [lastOut, setLastOut] = useState<number | null>(null);
+  const [dupNudge, setDupNudge] = useState<number | null>(null);
   const [guess, setGuess] = useState("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const runTimer = useRef<number | null>(null);
+  const nudgeTimer = useRef<number | null>(null);
   const { fire, layer } = useConfetti();
+
+  useEffect(
+    () => () => {
+      if (runTimer.current) window.clearTimeout(runTimer.current);
+      if (nudgeTimer.current) window.clearTimeout(nudgeTimer.current);
+    },
+    []
+  );
 
   const acceptedNorm = ruleAccepted.map(normRule);
 
@@ -87,9 +128,17 @@ export function FunctionMachineV2({
     if (feedback || running) return;
     const x = typeof xRaw === "number" ? xRaw : parseFloat(xRaw);
     if (!Number.isFinite(x)) return;
+    // FM-04: nudge instead of silently re-running a duplicate input.
+    if (history.some((h) => h.x === x)) {
+      setDupNudge(x);
+      if (nudgeTimer.current) window.clearTimeout(nudgeTimer.current);
+      nudgeTimer.current = window.setTimeout(() => setDupNudge(null), 1600);
+      setInput("");
+      return;
+    }
     setRunning(true);
     setLastOut(null);
-    setTimeout(() => {
+    runTimer.current = window.setTimeout(() => {
       const y = rule(x);
       setHistory((h) => [...h, { x, y }]);
       setLastOut(y);
@@ -126,6 +175,8 @@ export function FunctionMachineV2({
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.functionMachine.notQuiteTryMoreAttempt") : t("exercise.functionMachine.notQuiteTryMoreAttempts")).replace("{n}", String(remaining)),
+        // FM-04: method hint — how to investigate, not what the rule is.
+        explain: t("exercise.functionMachine.methodHint"),
       });
     }
   };
@@ -143,7 +194,8 @@ export function FunctionMachineV2({
   };
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
-  const canCheck = history.length >= minRuns && guess.trim().length > 0;
+  const canCheck =
+    history.length >= minRuns && guess.trim().length > 0 && !feedback;
 
   return (
     <div style={{ position: "relative", height: "100%" }}>
@@ -157,21 +209,17 @@ export function FunctionMachineV2({
         title={title ?? t("exercise.functionMachine.title")}
         feedback={feedback}
         canCheck={canCheck}
+        checkHint={
+          history.length < minRuns
+            ? t("exercise.functionMachine.checkHintFeed").replace("{n}", String(minRuns))
+            : t("exercise.functionMachine.checkHintGuess")
+        }
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 200px",
-            gap: 20,
-            maxWidth: 620,
-            margin: "0 auto",
-            alignItems: "start",
-          }}
-        >
+        <div className="gx-layout" style={{ maxWidth: 640 }}>
           {/* Machine */}
           <div
             style={{
@@ -202,7 +250,7 @@ export function FunctionMachineV2({
             <ArrowDown size={18} color="var(--ink-400)" />
             <div
               style={{
-                width: 220,
+                width: "min(220px, 100%)",
                 padding: "26px 24px",
                 background: "var(--green-600)",
                 color: "#fff",
@@ -244,17 +292,29 @@ export function FunctionMachineV2({
                 display: "flex",
                 gap: 8,
                 alignItems: "center",
+                position: "relative",
               }}
             >
+              {/* FM-04: duplicate-input nudge */}
+              {dupNudge !== null && (
+                <span className="gp-checkhint" style={{ right: "auto", left: 0 }}>
+                  {t("exercise.functionMachine.alreadyTried").replace("{x}", String(dupNudge))}
+                </span>
+              )}
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 value={input}
                 disabled={running || !!feedback}
-                onChange={(e) => setInput(e.target.value)}
+                aria-label={t("exercise.functionMachine.inputAria")}
+                onChange={(e) => setInput(sanitizeNum(e.target.value))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && input.trim() !== "") runOne(input);
+                }}
                 placeholder="x"
                 style={{
                   width: 80,
-                  padding: "8px 10px",
+                  padding: "10px 10px",
                   borderRadius: 10,
                   border: "2px solid var(--ink-200)",
                   fontFamily: "var(--font-mono)",
@@ -264,6 +324,7 @@ export function FunctionMachineV2({
                   background: "var(--paper-2)",
                   color: "var(--ink-900)",
                   outline: "none",
+                  minHeight: 44,
                 }}
               />
               <button
@@ -271,7 +332,7 @@ export function FunctionMachineV2({
                 onClick={() => runOne(input)}
                 disabled={running || !!feedback || input.trim() === ""}
                 className="gp-btn"
-                style={{ padding: "8px 18px", fontSize: 13 }}
+                style={{ padding: "10px 18px", fontSize: 13 }}
               >
                 {t("exercise.functionMachine.feed")}
               </button>
@@ -313,6 +374,7 @@ export function FunctionMachineV2({
                       color: "var(--ink-700)",
                       cursor:
                         running || feedback ? "default" : "pointer",
+                      opacity: history.some((h) => h.x === n) ? 0.35 : 1,
                     }}
                   >
                     {n}
@@ -375,7 +437,11 @@ export function FunctionMachineV2({
             <input
               value={guess}
               disabled={!!feedback}
+              aria-label={t("exercise.functionMachine.guessAria")}
               onChange={(e) => setGuess(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canCheck) handleCheck();
+              }}
               placeholder="f(x) = …"
               className="gp-input"
               style={{

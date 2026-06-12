@@ -12,7 +12,7 @@
  * caller can pass `onSpeak` to wire TTS later.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Volume2, Lightbulb } from "lucide-react";
 import {
   LessonShell,
@@ -43,8 +43,41 @@ export interface TranslationV2Props {
   }) => void;
 }
 
+/**
+ * TR-01: forgiving normalisation — case, typographic apostrophes (’ ʼ → '),
+ * terminal punctuation and repeated spaces. Kids shouldn't lose hearts to
+ * a missing full stop.
+ */
 const normalize = (s: string) =>
-  s.trim().toLowerCase().replace(/[?¿.!¡,]/g, "").replace(/\s+/g, " ");
+  s
+    .toLowerCase()
+    .replace(/[‘’ʼ]/g, "'")
+    .replace(/[.!?¡¿…]+\s*$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** TR-03: true if edit distance between a and b is ≤ 1 (one typo). */
+function levenshtein1(a: string, b: string): boolean {
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0;
+  let j = 0;
+  let edits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      i++;
+      j++;
+      continue;
+    }
+    if (++edits > 1) return false;
+    if (a.length > b.length) i++;
+    else if (b.length > a.length) j++;
+    else {
+      i++;
+      j++;
+    }
+  }
+  return edits + (a.length - i) + (b.length - j) <= 1;
+}
 
 export function TranslationV2({
   source,
@@ -70,16 +103,53 @@ export function TranslationV2({
   const [streak, setStreak] = useState(initialStreak);
   const [showHint, setShowHint] = useState(false);
   const { fire, layer } = useConfetti();
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
+
+  /** TR-04: textarea grows with content (capped). */
+  const autosize = () => {
+    const ta = taRef.current;
+    if (!ta) return;
+    ta.style.height = "auto";
+    ta.style.height = Math.min(160, ta.scrollHeight) + "px";
+  };
 
   const handleCheck = () => {
-    const isOk = accepted.some((a) => normalize(a) === normalize(text));
+    const got = normalize(text);
+    const isOk = accepted.some((a) => normalize(a) === got);
     if (isOk) {
+      // TR-02: teach the alternates the config also accepts.
+      const seen = new Set<string>([got]);
+      const alts = accepted.filter((a) => {
+        const n = normalize(a);
+        if (seen.has(n)) return false;
+        seen.add(n);
+        return true;
+      });
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.translation.excellent") : t("exercise.gotIt"),
+        explain:
+          alts.length > 0
+            ? t("exercise.translation.alsoFine").replace(
+                "{alts}",
+                alts
+                  .slice(0, 2)
+                  .map((a) => `“${a}”`)
+                  .join(" · ")
+              )
+            : undefined,
       });
       setStreak((s) => s + 1);
       fire();
+      return;
+    }
+    // TR-03: one-typo near-miss is free — neutral "meh" sheet, no heart.
+    if (accepted.some((a) => levenshtein1(normalize(a), got))) {
+      setFeedback({
+        kind: "meh",
+        msg: t("exercise.translation.soClose"),
+        explain: t("exercise.translation.checkOneLetter"),
+      });
       return;
     }
     const remaining = attemptsLeft - 1;
@@ -106,6 +176,7 @@ export function TranslationV2({
 
   const handleRetry = () => {
     setFeedback(null);
+    setTimeout(() => taRef.current?.focus(), 60);
   };
 
   const handleContinue = () => {
@@ -116,7 +187,8 @@ export function TranslationV2({
     });
   };
 
-  const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
+  const canRetry =
+    feedback?.kind === "meh" || (feedback?.kind === "no" && attemptsLeft > 0);
 
   return (
     <div style={{ position: "relative", height: "100%" }}>
@@ -129,7 +201,8 @@ export function TranslationV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.translation.title")}
         feedback={feedback}
-        canCheck={text.trim().length > 0}
+        canCheck={normalize(text).length > 0}
+        checkHint={t("exercise.translation.writeFirst")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -191,17 +264,40 @@ export function TranslationV2({
             {targetLang} · {t("exercise.yourAnswer")}
           </div>
           <textarea
+            ref={taRef}
             className={
               "gp-input " +
-              (feedback ? (feedback.kind === "ok" ? "correct" : "wrong") : "")
+              (feedback
+                ? feedback.kind === "ok"
+                  ? "correct"
+                  : feedback.kind === "no"
+                    ? "wrong"
+                    : ""
+                : "")
             }
             value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={!!feedback}
+            rows={2}
+            autoCapitalize="none"
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(e) => {
+              setText(e.target.value);
+              autosize();
+            }}
+            onKeyDown={(e) => {
+              // TR-04: Enter checks, Shift+Enter inserts a newline.
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (normalize(text).length > 0 && !feedback) handleCheck();
+              }
+            }}
+            disabled={!!feedback && feedback.kind !== "meh"}
+            aria-label={t("exercise.yourAnswer")}
             placeholder={t("exercise.translation.typeTheTranslation").replace("{lang}", targetLang)}
             style={{
-              minHeight: 96,
+              minHeight: 56,
               resize: "none",
+              lineHeight: 1.5,
               fontFamily: "var(--font-sans)",
             }}
           />

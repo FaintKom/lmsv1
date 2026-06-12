@@ -122,6 +122,8 @@ export function FillBlanksV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [checking, setChecking] = useState(false);
+  /** FB-02: visually-hidden live region — announces place/remove. */
+  const [announce, setAnnounce] = useState("");
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -146,6 +148,11 @@ export function FillBlanksV2({
     flyClone(pillRefs.current[wi] ?? null, slotRefs.current[si] ?? null, () => {
       setSlots((s) => s.map((x, i) => (i === si ? wi : x)));
       setSlotMark(si, "flash");
+      setAnnounce(
+        t("exercise.fillBlanks.announcePlaced")
+          .replace("{word}", wordBank[wi])
+          .replace("{n}", String(si + 1))
+      );
       window.setTimeout(() => {
         setSlotMarks((ms) => ms.map((m, i) => (i === si && m === "flash" ? "" : m)));
       }, 450);
@@ -164,6 +171,11 @@ export function FillBlanksV2({
     // React re-renders, so the word still flies back visually.
     setSlots((s) => s.map((x, i) => (i === si ? null : x)));
     setSlotMark(si, "");
+    setAnnounce(
+      t("exercise.fillBlanks.announceRemoved")
+        .replace("{word}", wordBank[wi])
+        .replace("{n}", String(si + 1))
+    );
     flyClone(slotRefs.current[si] ?? null, pillRefs.current[wi] ?? null, () => {
       setUsed((u) => u.filter((x) => x !== wi));
     });
@@ -273,6 +285,13 @@ export function FillBlanksV2({
   return (
     <div style={{ position: "relative", height: "100%" }}>
       {layer}
+      {/* FB-02: visually-hidden aria-live region for place/remove. */}
+      <span
+        style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" }}
+        aria-live="polite"
+      >
+        {announce}
+      </span>
       <LessonShell
         hearts={attemptsLeft}
         maxHearts={maxAttemptsPerTask}
@@ -282,6 +301,8 @@ export function FillBlanksV2({
         title={title ?? t("exercise.fillBlanks.title")}
         feedback={feedback}
         canCheck={allFilled}
+        checking={checking}
+        checkHint={t("exercise.fillBlanks.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -309,6 +330,21 @@ export function FillBlanksV2({
               (armed === si ? " armed" : "") +
               (wi === null && hoverBank && !feedback ? " pulse" : "") +
               (mark ? " " + mark : "");
+            // FB-01: empty slots are visible dashed wells (base `.fb-slot`
+            // CSS paints text transparent); armed = "here!" invite.
+            const emptyStyle: React.CSSProperties | undefined =
+              wi == null && !mark
+                ? armed === si
+                  ? {
+                      background: "var(--green-50)",
+                      color: "var(--green-700)",
+                    }
+                  : {
+                      background: "var(--ink-50)",
+                      color: "var(--ink-300)",
+                      borderBottomStyle: "dashed",
+                    }
+                : undefined;
             return (
               <button
                 key={i}
@@ -316,6 +352,7 @@ export function FillBlanksV2({
                   slotRefs.current[si] = el;
                 }}
                 className={cls}
+                style={emptyStyle}
                 onClick={() => unplace(si)}
                 title={
                   wi !== null
@@ -323,7 +360,11 @@ export function FillBlanksV2({
                     : t("exercise.fillBlanks.slotEmptyHint")
                 }
               >
-                {wi == null ? "·" : wordBank[wi]}
+                {wi == null
+                  ? armed === si
+                    ? t("exercise.fillBlanks.here")
+                    : "· · ·"
+                  : wordBank[wi]}
               </button>
             );
           })}
@@ -345,11 +386,12 @@ export function FillBlanksV2({
                 pillRefs.current[i] = el;
               }}
               className={"gp-tile" + (used.includes(i) ? " locked" : "")}
+              // FB-04: `.gp-tile.locked` (opacity .55) is the single opacity
+              // source — the old inline 0.25 multiplied it to near-invisible.
               style={{
                 padding: "10px 18px",
                 fontSize: 15,
                 borderRadius: 999,
-                opacity: used.includes(i) ? 0.25 : 1,
               }}
               disabled={used.includes(i) || !!feedback || checking}
               onClick={() => place(i)}

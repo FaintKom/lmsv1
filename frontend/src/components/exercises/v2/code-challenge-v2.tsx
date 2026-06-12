@@ -105,8 +105,22 @@ export function CodeChallengeV2({
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
+  // CC-01: Tab inserts 2 spaces and keeps the caret in the editor
+  // instead of throwing focus to the next control.
+  const onEditorKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Tab") return;
+    e.preventDefault();
+    const ta = e.currentTarget;
+    const s = ta.selectionStart;
+    const eN = ta.selectionEnd;
+    setCode(code.slice(0, s) + "  " + code.slice(eN));
+    requestAnimationFrame(() => {
+      ta.selectionStart = ta.selectionEnd = s + 2;
+    });
+  };
+
   const handleRun = async () => {
-    if (!onRun) return;
+    if (!onRun || running) return;
     setRunning(true);
     setTab("output");
     try {
@@ -120,7 +134,7 @@ export function CodeChallengeV2({
   };
 
   const handleSubmit = async () => {
-    if (!onSubmit) return;
+    if (!onSubmit || running) return;
     setRunning(true);
     setTab("tests");
     try {
@@ -194,21 +208,16 @@ export function CodeChallengeV2({
         title={problem.title}
         feedback={feedback}
         canCheck={!running && code.trim().length > 0}
+        checking={running && tab === "tests"}
+        checkHint={t("exercise.codeChallenge.checkHint")}
         onCheck={handleSubmit}
         checkLabel={t("exercise.submit")}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1.4fr",
-            gap: 14,
-            height: "100%",
-            minHeight: 320,
-          }}
-        >
+        {/* CC-02: split panes stack ≤560px via the .cc-grid container rule */}
+        <div className="cc-grid" style={{ minHeight: 320 }}>
           {/* Left — problem + examples */}
           <div
             style={{
@@ -219,6 +228,7 @@ export function CodeChallengeV2({
               fontSize: 13.5,
               lineHeight: 1.55,
               overflowY: "auto",
+              maxHeight: 420,
             }}
           >
             <p style={{ margin: "0 0 14px 0", color: "var(--ink-700)" }}>
@@ -326,7 +336,20 @@ export function CodeChallengeV2({
                   gap: 6,
                 }}
               >
-                <Play size={12} /> {t("exercise.run")}
+                {/* CC-06: inline spinner while a Run is in flight */}
+                {running && tab === "output" ? (
+                  <span
+                    className="gp-spin"
+                    aria-hidden
+                    style={{
+                      borderColor: "var(--ink-200)",
+                      borderTopColor: "var(--ink-500)",
+                    }}
+                  />
+                ) : (
+                  <Play size={12} />
+                )}{" "}
+                {t("exercise.run")}
               </button>
               <span
                 style={{
@@ -357,7 +380,11 @@ export function CodeChallengeV2({
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
+                onKeyDown={onEditorKey}
                 spellCheck={false}
+                autoCapitalize="none"
+                autoCorrect="off"
+                aria-label={t("exercise.codeChallenge.editorAria")}
                 disabled={!!feedback}
                 style={{
                   width: "100%",
@@ -464,9 +491,6 @@ export function CodeChallengeV2({
                       <div
                         key={r.id}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
                           padding: "4px 8px",
                           background: r.passed
                             ? "var(--green-50)"
@@ -477,26 +501,49 @@ export function CodeChallengeV2({
                             : "var(--coral-700)",
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            width: 14,
-                            height: 14,
-                            borderRadius: 999,
-                            background: r.passed
-                              ? "var(--green-600)"
-                              : "var(--coral-500)",
-                            display: "grid",
-                            placeItems: "center",
-                            color: "#fff",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
                           }}
                         >
-                          {r.passed ? <Check size={10} /> : <X size={10} />}
-                        </span>
-                        <span style={{ flex: 1 }}>
-                          {r.hidden ? t("exercise.hiddenTest") : `Test ${r.id} · ${r.name}`}
-                        </span>
-                        {r.time !== undefined && (
-                          <span style={{ opacity: 0.7 }}>{r.time}ms</span>
+                          <span
+                            style={{
+                              width: 14,
+                              height: 14,
+                              borderRadius: 999,
+                              background: r.passed
+                                ? "var(--green-600)"
+                                : "var(--coral-500)",
+                              display: "grid",
+                              placeItems: "center",
+                              color: "#fff",
+                              flex: "none",
+                            }}
+                          >
+                            {r.passed ? <Check size={10} /> : <X size={10} />}
+                          </span>
+                          <span style={{ flex: 1 }}>
+                            {r.hidden ? t("exercise.hiddenTest") : `Test ${r.id} · ${r.name}`}
+                          </span>
+                          {r.time !== undefined && (
+                            <span style={{ opacity: 0.7 }}>{r.time}ms</span>
+                          )}
+                        </div>
+                        {/* CC-05: failing visible tests teach — expected vs got */}
+                        {!r.passed && !r.hidden && r.expected != null && (
+                          <div
+                            style={{
+                              marginTop: 3,
+                              marginLeft: 22,
+                              fontSize: 11.5,
+                            }}
+                          >
+                            {t("exercise.codeChallenge.expected")}{" "}
+                            <b>{r.expected}</b> · {t("exercise.codeChallenge.got")}{" "}
+                            <b>{r.actual ?? t("exercise.codeChallenge.nothing")}</b>
+                          </div>
                         )}
                       </div>
                     ))}

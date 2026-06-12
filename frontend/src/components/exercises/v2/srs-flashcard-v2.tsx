@@ -221,7 +221,16 @@ export function SRSFlashcardV2({
     })
   );
 
-  const [idx, setIdx] = useState(0);
+  /**
+   * SR-03: the SESSION queue holds card indices. "Again" re-inserts the
+   * current index ~3 positions later so the lapse comes back for another
+   * look this session. FSRS scheduling (cardStates) is untouched by this —
+   * the queue is presentation-only.
+   */
+  const [queue, setQueue] = useState<number[]>(() => cards.map((_, i) => i));
+  const [qPos, setQPos] = useState(0);
+  /** Card indices that lapsed at least once (coral progress dots). */
+  const [lapsed, setLapsed] = useState<Record<number, boolean>>({});
   const [flipped, setFlipped] = useState(false);
   /** Card-swap animation phase: enter on mount/next card, exit on rating. */
   const [anim, setAnim] = useState<"enter" | "exit">("enter");
@@ -239,8 +248,9 @@ export function SRSFlashcardV2({
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
 
-  const card = cards[idx];
-  const cardState = cardStates[idx];
+  const cardIdx = queue[qPos];
+  const card = cards[cardIdx];
+  const cardState = cardStates[cardIdx];
 
   // Preview next intervals for the rating buttons — RecordLog has 1..4.
   const previewLog: RecordLog | null = useMemo(() => {
@@ -256,16 +266,28 @@ export function SRSFlashcardV2({
   };
 
   const rate = (rating: Grade, key: keyof SRSRatingStats) => {
-    if (!cardState || anim === "exit") return; // ignore taps mid-swap
+    if (!cardState || anim === "exit" || done) return; // ignore taps mid-swap
+    // FSRS contract preserved: every rating (incl. re-reviews of a requeued
+    // card) goes through scheduler.next on that card's evolving state.
     const { card: nextCard } = scheduler.next(cardState, new Date(), rating);
     const nextStates = cardStates.slice();
-    nextStates[idx] = nextCard;
+    nextStates[cardIdx] = nextCard;
     setCardStates(nextStates);
 
     const nextStats = { ...stats, [key]: stats[key] + 1 };
     setStats(nextStats);
 
-    if (idx === cards.length - 1) {
+    // SR-03: "Again" re-queues this card ~3 positions later (or at the end).
+    let nextQueue = queue;
+    if (key === "again") {
+      nextQueue = queue.slice();
+      const reinsert = Math.min(qPos + 3, nextQueue.length);
+      nextQueue.splice(reinsert, 0, cardIdx);
+      setQueue(nextQueue);
+      setLapsed((l) => ({ ...l, [cardIdx]: true }));
+    }
+
+    if (qPos === nextQueue.length - 1) {
       setDone(true);
       setStreak((s) => s + 1);
       fire();
@@ -274,11 +296,27 @@ export function SRSFlashcardV2({
     // Exit → swap → enter (matches .fb-cardwrap.exit ~320ms in globals.css).
     setAnim("exit");
     swapTimer.current = setTimeout(() => {
-      setIdx((i) => i + 1);
+      setQPos((p) => p + 1);
       setFlipped(false);
       setAnim("enter");
     }, 320);
   };
+
+  /** SR-01: keys 1–4 rate the flipped card (window-level for reach). */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (done || !flipped || anim === "exit") return;
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= 4) {
+        const b = BUTTONS[n - 1];
+        rate(b.rating, b.key);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   const known = stats.good + stats.easy;
   const feedback: LessonFeedback | null = done
@@ -287,6 +325,14 @@ export function SRSFlashcardV2({
         msg: t("exercise.srsFlashcard.deckComplete")
           .replace("{known}", String(known))
           .replace("{total}", String(cards.length)),
+        // SR-03: completion copy explains why some cards showed up twice.
+        explain:
+          stats.again > 0
+            ? (stats.again === 1
+                ? t("exercise.srsFlashcard.lapseExplainOne")
+                : t("exercise.srsFlashcard.lapseExplain")
+              ).replace("{n}", String(stats.again))
+            : undefined,
       }
     : null;
 
@@ -309,7 +355,7 @@ export function SRSFlashcardV2({
       {layer}
       <LessonShell
         streak={streak}
-        eyebrow={`${resolvedEyebrowPrefix} ${done ? t("exercise.deckDone") : t("exercise.deckCardOf").replace("{n}", String(idx + 1)).replace("{total}", String(cards.length))}`}
+        eyebrow={`${resolvedEyebrowPrefix} ${done ? t("exercise.deckDone") : t("exercise.deckCardOf").replace("{n}", String(qPos + 1)).replace("{total}", String(queue.length))}`}
         title={resolvedTitle}
         feedback={feedback}
         onContinue={handleContinue}
@@ -321,14 +367,32 @@ export function SRSFlashcardV2({
         instantLabel={
           flipped
             ? t("exercise.srsFlashcard.rateHint")
-            : t("exercise.srsFlashcard.tapHint")
+            : // SR-01: surface the keyboard path (Space flips, 1–4 rate).
+              t("exercise.srsFlashcard.tapHintKeys")
         }
       >
         {!done && card && (
           <div style={{ maxWidth: 420, margin: "0 auto" }}>
-            <div className="fb-dots">
-              {cards.map((_, i) => (
-                <i key={i} className={i < idx ? "done" : i === idx ? "cur" : ""} />
+            <div
+              className="fb-dots"
+              aria-label={t("exercise.deckCardOf")
+                .replace("{n}", String(qPos + 1))
+                .replace("{total}", String(queue.length))}
+            >
+              {/* SR-03: dots follow the session queue; lapsed cards coral. */}
+              {queue.map((ci, i) => (
+                <i
+                  key={i}
+                  className={
+                    i < qPos
+                      ? lapsed[ci]
+                        ? "lapse"
+                        : "done"
+                      : i === qPos
+                        ? "cur"
+                        : ""
+                  }
+                />
               ))}
             </div>
 
@@ -336,7 +400,22 @@ export function SRSFlashcardV2({
               <div
                 className={"fb-card3d" + (flipped ? " flipped" : "")}
                 style={{ height: 260 }}
+                // SR-01: the card is a real button — Space/Enter flip it.
+                role="button"
+                tabIndex={0}
+                aria-pressed={flipped}
+                aria-label={
+                  flipped
+                    ? `${resolvedBackLabel}: ${card.back}`
+                    : `${resolvedFrontLabel}: ${card.front}. ${t("exercise.tapToFlip")}`
+                }
                 onClick={() => setFlipped(true)}
+                onKeyDown={(e) => {
+                  if ((e.key === " " || e.key === "Enter") && !flipped) {
+                    e.preventDefault();
+                    setFlipped(true);
+                  }
+                }}
               >
                 <div className="inner" style={{ height: "100%" }}>
                   <div className="fb-card-face">
@@ -344,11 +423,14 @@ export function SRSFlashcardV2({
                       <div className="gp-eyebrow">{resolvedFrontLabel}</div>
                       <div
                         style={{
-                          fontSize: 64,
+                          // SR-05: container-relative clamp so long fronts
+                          // ("извините") fit narrow panes without clipping.
+                          fontSize: "clamp(34px, 13cqw, 58px)",
                           fontWeight: 700,
                           color: "var(--ink-900)",
-                          lineHeight: 1.1,
+                          lineHeight: 1.15,
                           letterSpacing: "-0.02em",
+                          overflowWrap: "anywhere",
                         }}
                       >
                         {card.front}
@@ -372,6 +454,7 @@ export function SRSFlashcardV2({
                           fontSize: 32,
                           fontWeight: 800,
                           color: "var(--ink-900)",
+                          overflowWrap: "anywhere",
                         }}
                       >
                         {card.back}
@@ -398,7 +481,9 @@ export function SRSFlashcardV2({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
+                  // SR-02: ratings wrap to 2×2 in narrow panes instead of
+                  // squeezing four unreadable columns.
+                  gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
                   gap: 8,
                 }}
               >

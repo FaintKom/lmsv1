@@ -7,6 +7,13 @@
  * Student picks m, b, op (>, ≥, <, ≤) and which side to shade.
  * Dashed line for strict inequalities, solid for non-strict.
  *
+ * Exercise-mechanics handoff (ex-graphs.jsx · InequalityGraphV2):
+ * - GX-01 viewBox-only SVG (`.gx-svg`) inside `.gx-layout`.
+ * - GX-03 Check unlocks only after the child shades a side.
+ * - GX-04/IG-04 wrong-attempt hint counts the right settings and names
+ *         the off ones (slope/intercept/symbol/shaded side) — no values.
+ * - IG-03 `signed()` formatter — reveal never renders "2x + -3".
+ *
  * Per-task HP + streak; retry resets controls.
  */
 
@@ -69,6 +76,7 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
         step={step}
         value={v}
         disabled={disabled}
+        aria-label={label}
         onChange={(e) => setV(parseFloat(e.target.value))}
         style={{ width: "100%", accentColor: "var(--green-600)" }}
       />
@@ -79,6 +87,10 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
 const SIZE = 380;
 const PAD = 36;
 const OPS: InequalityOp[] = [">", ">=", "<", "<="];
+const opSym = (o: InequalityOp) => (o === ">=" ? "≥" : o === "<=" ? "≤" : o);
+
+/** IG-03: render "+ 3" / "− 3", never "+ -3". */
+const signed = (n: number) => (n >= 0 ? `+ ${n}` : `− ${Math.abs(n)}`);
 
 export function InequalityGraphV2({
   target,
@@ -117,9 +129,13 @@ export function InequalityGraphV2({
   const correctSide: ShadeSide = target.op.includes(">") ? "above" : "below";
 
   const handleCheck = () => {
-    const ok =
-      m === target.m && b === target.b && op === target.op && side === correctSide;
-    if (ok) {
+    const oks = [
+      m === target.m,
+      b === target.b,
+      op === target.op,
+      side === correctSide,
+    ];
+    if (oks.every(Boolean)) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.inequalityGraph.regionMatches") : t("exercise.gotIt"),
@@ -133,19 +149,29 @@ export function InequalityGraphV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    const sym =
-      target.op === ">=" ? "≥" : target.op === "<=" ? "≤" : target.op;
     if (remaining <= 0) {
+      // IG-03: proper sign formatting on reveal.
       setFeedback({
         kind: "no",
         msg: t("exercise.inequalityGraph.notQuite"),
-        correct: `y ${sym} ${target.m}x + ${target.b}`,
+        correct: `y ${opSym(target.op)} ${target.m}x ${signed(target.b)}`,
       });
       setStreak(0);
     } else {
+      // GX-04/IG-04: count right settings, name the off ones.
+      const names = [
+        t("exercise.inequalityGraph.nameSlope"),
+        t("exercise.inequalityGraph.nameIntercept"),
+        t("exercise.inequalityGraph.nameSymbol"),
+        t("exercise.inequalityGraph.nameSide"),
+      ];
+      const offNames = names.filter((_, i) => !oks[i]);
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.inequalityGraph.notQuiteAttempt") : t("exercise.inequalityGraph.notQuiteAttempts")).replace("{n}", String(remaining)),
+        explain: t("exercise.inequalityGraph.settingsRight")
+          .replace("{ok}", String(4 - offNames.length))
+          .replace("{names}", offNames.join(", ")),
       });
     }
   };
@@ -163,8 +189,6 @@ export function InequalityGraphV2({
   };
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
-  const targetSym =
-    target.op === ">=" ? "≥" : target.op === "<=" ? "≤" : target.op;
 
   return (
     <div style={{ position: "relative", height: "100%" }}>
@@ -182,34 +206,20 @@ export function InequalityGraphV2({
               className="gp-mark"
               style={{ fontFamily: "var(--font-mono)" }}
             >
-              y {targetSym} {target.m}x {target.b >= 0 ? `+ ${target.b}` : `− ${Math.abs(target.b)}`}
+              y {opSym(target.op)} {target.m}x {signed(target.b)}
             </span>
           </>
         }
         feedback={feedback}
-        canCheck={!!side}
+        canCheck={!!side && !feedback}
+        checkHint={t("exercise.inequalityGraph.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 200px",
-            gap: 20,
-            justifyContent: "center",
-          }}
-        >
-          <svg
-            width={SIZE}
-            height={SIZE}
-            style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-            }}
-          >
+        <div className="gx-layout">
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="gx-svg">
             <GridAxes range={range} size={SIZE} pad={PAD} />
             {side && (
               <path d={shading} fill="var(--green-300)" opacity="0.35" />
@@ -260,9 +270,11 @@ export function InequalityGraphV2({
                     key={o}
                     type="button"
                     onClick={() => !feedback && setOp(o)}
+                    aria-pressed={op === o}
                     style={{
-                      padding: "6px 0",
+                      padding: "8px 0",
                       borderRadius: 8,
+                      minHeight: 36,
                       background: op === o ? "var(--ink-900)" : "var(--paper-2)",
                       color: op === o ? "#fff" : "var(--ink-700)",
                       border:
@@ -274,7 +286,7 @@ export function InequalityGraphV2({
                       fontSize: 14,
                     }}
                   >
-                    {o === ">=" ? "≥" : o === "<=" ? "≤" : o}
+                    {opSym(o)}
                   </button>
                 ))}
               </div>
@@ -298,9 +310,11 @@ export function InequalityGraphV2({
                     key={s}
                     type="button"
                     onClick={() => !feedback && setSide(s)}
+                    aria-pressed={side === s}
                     style={{
-                      padding: "8px 0",
+                      padding: "10px 0",
                       borderRadius: 8,
+                      minHeight: 40,
                       background:
                         side === s ? "var(--green-600)" : "var(--paper-2)",
                       color: side === s ? "#fff" : "var(--ink-700)",
