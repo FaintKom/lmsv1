@@ -125,6 +125,34 @@ export function ProbabilityWheelV2({
     }, 1500);
   };
 
+  /** PW-01: bulk "×5" spin — runs the experiment fast once the child gets
+   * the idea, so reaching N spins doesn't take forever. No animation. */
+  const quickSpin = () => {
+    if (spinning || feedback || reachedTarget) return;
+    const n = Math.min(5, targetSpins - spins);
+    const inc: Record<string, number> = {};
+    for (let k = 0; k < n; k++) {
+      const r = Math.random() * totalWeight;
+      let acc = 0;
+      let idx = 0;
+      for (let i = 0; i < segments.length; i++) {
+        acc += segments[i].weight ?? 1;
+        if (r < acc) {
+          idx = i;
+          break;
+        }
+      }
+      const lbl = segments[idx].label;
+      inc[lbl] = (inc[lbl] || 0) + 1;
+    }
+    setTally((prev) => {
+      const nt = { ...prev };
+      for (const k in inc) nt[k] = (nt[k] || 0) + inc[k];
+      return nt;
+    });
+    setSpins((s) => s + n);
+  };
+
   const totalWeightLabel = segments.reduce((max, s) =>
     (s.weight ?? 1) > (max.weight ?? 1) ? s : max
   );
@@ -309,9 +337,44 @@ export function ProbabilityWheelV2({
           {/* Tally + picker */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
-              <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
-                {t("exercise.probabilityWheel.spins")} · {spins} / {targetSpins}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 6,
+                  gap: 8,
+                }}
+              >
+                <span className="gp-eyebrow">
+                  {t("exercise.probabilityWheel.spins")} · {spins} / {targetSpins}
+                </span>
+                {/* PW-01: bulk spin appears once the idea has landed. */}
+                {spins >= 3 && !reachedTarget && !feedback && (
+                  <button
+                    type="button"
+                    onClick={quickSpin}
+                    disabled={spinning}
+                    className="gp-btn ghost"
+                    style={{ padding: "4px 12px", fontSize: 12 }}
+                  >
+                    {t("exercise.probabilityWheel.quickSpin")}
+                  </button>
+                )}
               </div>
+              {/* PW-02: narrate the phase so the convergence is the lesson. */}
+              {spins >= 3 && !reachedTarget && (
+                <div
+                  style={{
+                    marginBottom: 8,
+                    fontSize: 12,
+                    color: "var(--ink-400)",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  {t("exercise.probabilityWheel.keepSpinning")}
+                </div>
+              )}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {segments.map((s) => {
                   const count = tally[s.label] || 0;

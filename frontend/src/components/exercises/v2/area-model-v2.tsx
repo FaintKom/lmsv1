@@ -47,6 +47,17 @@ const CELL_PAL = [
   "var(--ink-50)",
 ];
 
+/**
+ * AM-01: column widths track the splits proportionally, but a literal "20fr 3fr"
+ * crushes the small column at ~7:1. Clamp the ratio to max 2.4:1 so every cell
+ * stays readable and tappable.
+ */
+function gridCols(parts: number[]): string {
+  const mn = Math.min(...parts);
+  const fr = parts.map((p) => Math.min(p / mn, 2.4));
+  return `minmax(48px, 60px) ${fr.map((f) => `minmax(64px, ${f}fr)`).join(" ")}`;
+}
+
 export function AreaModelV2({
   a,
   b,
@@ -179,14 +190,15 @@ export function AreaModelV2({
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div style={{ maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ maxWidth: 520, margin: "0 auto", overflowX: "auto" }}>
           {/* a-split labels (across top) */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: `60px ${splits.a.map((n) => `${n}fr`).join(" ")}`,
+              gridTemplateColumns: gridCols(splits.a),
               alignItems: "center",
               marginBottom: 4,
+              minWidth: "min-content",
             }}
           >
             <div />
@@ -211,10 +223,11 @@ export function AreaModelV2({
               key={`row-${r}`}
               style={{
                 display: "grid",
-                gridTemplateColumns: `60px ${splits.a.map((n) => `${n}fr`).join(" ")}`,
+                gridTemplateColumns: gridCols(splits.a),
                 gap: 4,
                 marginBottom: 4,
                 alignItems: "stretch",
+                minWidth: "min-content",
               }}
             >
               <div
@@ -266,6 +279,7 @@ export function AreaModelV2({
                         fontFamily: "var(--font-mono)",
                         fontSize: 10,
                         color: "var(--ink-500)",
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {bn} × {an}
@@ -274,18 +288,22 @@ export function AreaModelV2({
                       value={v}
                       disabled={!!feedback}
                       onChange={(e) =>
-                        setCells({ ...cells, [key]: e.target.value })
+                        setCells({
+                          ...cells,
+                          [key]: e.target.value.replace(/[^\d]/g, ""),
+                        })
                       }
                       placeholder="?"
                       inputMode="numeric"
                       style={{
                         width: "100%",
-                        padding: "4px 6px",
+                        minHeight: 40,
+                        padding: "8px 6px",
                         borderRadius: 6,
                         border: "1px solid var(--ink-200)",
                         fontFamily: "var(--font-mono)",
                         fontWeight: 700,
-                        fontSize: 15,
+                        fontSize: 16,
                         textAlign: "center",
                         background: "var(--paper)",
                         color: "var(--ink-900)",

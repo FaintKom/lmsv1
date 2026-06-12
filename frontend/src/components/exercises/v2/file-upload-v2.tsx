@@ -27,6 +27,25 @@ export interface FileUploadResult {
   explain?: string;
 }
 
+/** FU-04: human KB/MB formatting. */
+function formatSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${(bytes / 1024).toFixed(1)} KB`;
+}
+
+/** FU-01: does the file match the accept list (extensions or mime globs)? */
+function acceptMatches(file: File, accept: string): boolean {
+  const rules = accept.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (rules.length === 0) return true;
+  const name = file.name.toLowerCase();
+  const mime = file.type.toLowerCase();
+  return rules.some((r) => {
+    if (r.startsWith(".")) return name.endsWith(r);
+    if (r.endsWith("/*")) return mime.startsWith(r.slice(0, -1));
+    return mime === r;
+  });
+}
+
 export interface FileUploadV2Props {
   /** Accept attribute for <input type=file>. */
   accept?: string;
@@ -61,6 +80,7 @@ export function FileUploadV2({
   const [file, setFile] = useState<File | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [hover, setHover] = useState(false);
+  const [reject, setReject] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -69,11 +89,21 @@ export function FileUploadV2({
   const dropLabelText = dropLabel ?? t("exercise.fileUpload.dropLabel");
   const maxLabelText = maxLabel ?? t("exercise.fileUpload.maxLabel");
 
+  /** FU-01: accept the file only if it matches; else a friendly sun-toned nudge. */
+  const pickFile = (f: File | null | undefined) => {
+    if (!f) return;
+    if (!acceptMatches(f, accept)) {
+      setReject(t("exercise.fileUpload.wrongType").replace("{accept}", accept));
+      return;
+    }
+    setReject(null);
+    setFile(f);
+  };
+
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setHover(false);
-    const f = e.dataTransfer.files?.[0];
-    if (f) setFile(f);
+    pickFile(e.dataTransfer.files?.[0]);
   };
 
   const defaultSubmit = async (): Promise<FileUploadResult> => ({
@@ -89,7 +119,9 @@ export function FileUploadV2({
       const submitter = onSubmit ?? defaultSubmit;
       const r = await submitter(file);
       setFeedback({
-        kind: r.ok ? "ok" : "no",
+        // FU-04: a failed upload is a system hiccup, not the child's fault —
+        // neutral "meh" tone; the file stays selected for a retry.
+        kind: r.ok ? "ok" : "meh",
         msg: r.msg,
         explain: r.explain,
       });
@@ -123,11 +155,22 @@ export function FileUploadV2({
         checkLabel={submitting ? t("exercise.uploading") : t("exercise.submit")}
         showSkip={false}
         onContinue={handleContinue}
+        onRetry={feedback?.kind === "meh" ? () => setFeedback(null) : undefined}
         onQuit={onQuit}
       >
         <div style={{ maxWidth: 480, margin: "0 auto" }}>
+          {/* FU-05: keyboard-accessible drop zone (button semantics). */}
           <div
+            role="button"
+            tabIndex={feedback ? -1 : 0}
+            aria-label={dropLabelText}
             onClick={() => !feedback && inputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (!feedback && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                inputRef.current?.click();
+              }
+            }}
             onDragOver={(e) => {
               e.preventDefault();
               setHover(true);
@@ -175,7 +218,7 @@ export function FileUploadV2({
               }}
             >
               {file
-                ? `${(file.size / 1024).toFixed(1)} KB · ${t("exercise.fileUpload.ready")}`
+                ? `${formatSize(file.size)} · ${t("exercise.fileUpload.ready")}`
                 : maxLabelText}
             </div>
             <input
@@ -183,9 +226,27 @@ export function FileUploadV2({
               type="file"
               accept={accept}
               style={{ display: "none" }}
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={(e) => pickFile(e.target.files?.[0])}
             />
           </div>
+          {reject && (
+            <div
+              role="status"
+              style={{
+                marginTop: 12,
+                padding: "10px 14px",
+                background: "var(--sun-50)",
+                border: "1px solid var(--sun-300)",
+                borderRadius: 12,
+                color: "var(--sun-700)",
+                fontSize: 13,
+                fontWeight: 600,
+                textAlign: "center",
+              }}
+            >
+              {reject}
+            </div>
+          )}
           {file && (
             <div
               style={{
@@ -235,7 +296,7 @@ export function FileUploadV2({
                     fontFamily: "var(--font-mono)",
                   }}
                 >
-                  {(file.size / 1024).toFixed(1)} KB
+                  {formatSize(file.size)}
                 </div>
               </div>
               <button
