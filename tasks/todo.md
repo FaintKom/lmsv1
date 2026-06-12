@@ -32,8 +32,11 @@ link = green-500 w3, errors = coral, deferred check for pairs/categories, confet
       test_progress 8/8 (incl. 2 new highlight tests), live preview E2E
       (matching deferred flow, categorize drag, flashcard flip, highlight
       create→persist-after-reload→delete, term tooltip content).
-- [ ] 7. Commit + deploy (awaiting owner go; migration hl1a2b3c4d5 must run
-      on prod — auto via alembic upgrade head on rebuild).
+- [x] 7. Committed (a82e635 + migration-guard fix 0521717) and deployed
+      2026-06-11. First deploy failed: lifespan create_all made the table
+      before alembic ran (lesson in tasks/lessons.md); has_table() guard
+      fixed it. Prod verified: frontend 200, API up, highlights endpoint
+      live (401 unauth, not 404).
 
 Out of scope (follow-up): full theory.jsx reading UX (progress bar, section
 rail, spoiler — repo theory-viewer is iframe-based; text lessons got the
@@ -251,6 +254,101 @@ items, ≤3 iterations each, no check-ins.
       - Админка: /admin/feedback страница, фильтры по курсу/типу/статусу,
         кнопки resolved/wontfix, ссылка прямо в lesson editor на проблемный блок.
       - Гамификация: +5 XP студенту за полезный отзыв (после ручной модерации).
+
+---
+
+## Live-урок: дашборд преподавателя + AI-сигналы (2026-06-11)
+
+Источник: дизайн-макет «AI Math / Урок (live)» — фазы урока
+(Разминка/Объяснение/Практика/Рефлексия), сетка ученик × задание в реальном
+времени, KPI (в темпе / опередили / застряли / misconception), панель
+«AI-сигналы» с подсказками преподавателю.
+
+**Разведка 2026-06-11 (что есть сейчас):**
+- Live-прогресс по заданиям во время урока — **НЕ существует**. Realtime-слоя
+  нет вообще (ни WebSocket, ни SSE, ни polling — всё request/response). Есть
+  только POST-HOC: `/journal/student-activity` (срез за день по ученику,
+  [journal/service.py:548](backend/app/journal/service.py:548)) и `/journal/day`
+  (агрегаты по классу) — гранулярность «урок/упражнение», НЕ сетка
+  ученик×задание в реальном времени.
+- AI-сигналы преподавателю — **НЕ существует**. Модуль `ai/` удалён;
+  `recommendations/` ([recommendations/service.py](backend/app/recommendations/service.py))
+  — rule-based и **только для студентов**. Нет detection «застрял / опередил /
+  misconception», нет генерации подсказок преподавателю.
+
+- [ ] **Live-дашборд урока (per-task grid в реальном времени)** — преподаватель
+      видит сетку ученик × задание текущей фазы: статус каждой ячейки (решено
+      с 1-й / решено с попыток / ошибается / решает сейчас / не дошёл), live-KPI
+      (в темпе / опередили / застряли / misconception). Требует realtime-слоя:
+      решить SSE vs WebSocket vs short-poll (на 30 планшетов класса polling 3–5с
+      может хватить и проще). Backend: эндпоинт live-состояния урока (агрегирует
+      ExerciseSubmission/попытки по сессии журнала), фаза урока (модель сессии).
+      Frontend: новый экран «Урок (live)» в journal, сетка + KPI + трекер фаз.
+      Зависит от модели session/group журнала (уже есть).
+- [ ] **Режим «дирижёр»: ведение урока по блокам с бесшовным переключением** —
+      урок = упорядоченная последовательность блоков/фаз (разминка → объяснение →
+      практика → рефлексия, и блоки контента/задания внутри). Учитель ведёт урок
+      шаг за шагом: «дальше / назад / перейти к блоку N» одним движением, без
+      перезагрузок и потери состояния. Текущий активный блок подсвечен (как
+      трекер фаз в макете), переходы плавные (предзагрузка следующего блока,
+      без мигания). Активный блок пушится на планшеты учеников и проектор
+      (синк) — что ведёт учитель, то у всех на экране. Backend: «активный блок»
+      в модели сессии урока (+ отдаётся через realtime-слой live-дашборда).
+      Frontend: панель-конструктор урока (лента блоков), хоткеи (→/←/пробел как
+      в reveal.js), стыкуется с reveal-плеером презентаций (Фаза 1 ниже) и
+      live-сеткой. Решить: блоки = фазы журнала + контент-блоки урока, или
+      отдельная «runtime-программа урока» поверх существующих lesson content.
+- [ ] **AI-сигналы преподавателю (real-time hints)** — поверх live-состояния
+      генерировать действия: «N застряли на обратной операции → собрать на
+      5-мин разбор», «X закончил трек за 6 мин → выдать челлендж», детект
+      misconception по паттерну ошибок. Кнопки «Собрать группу» / «Выдать».
+      Сначала rule-based (пороги по попыткам/времени), потом LLM-слой
+      (Claude) для формулировки и детекта misconception. ⚠️ AI = платный API,
+      нужен бюджет/ключ — согласовать перед включением.
+- [ ] **Управление классом во время урока** (из макета, ниже приоритет):
+      синхронизация с проектором, блокировка планшетов, мультиязычные ярлыки
+      ученика (RU/AZ/HM в макете). Вынести в отдельный спринт.
+
+---
+
+## Огромная задача: генерация презентаций (reveal.js + AI) (2026-06-11)
+
+Референс: `F:\repos-review\reveal.js\tour-lxd.html` — ручной reveal.js-деck
+(169 строк) с образовательным контекстом: фазы урока как вложенные слайды,
+fragments (пошаговый показ), auto-animate (морфинг между фазами), speaker
+notes (окно докладчика + таймер), gradient-фоны. «Обновить под мою штуку» =
+адаптировать этот сетап под модель урока GrassLMS.
+
+**Разведка 2026-06-11:** презентаций/слайдов в платформе **НЕТ**. `ContentType`
+([courses/models.py:17](backend/app/courses/models.py:17)) — 8 типов
+(text/video/quiz/code_challenge/file_upload/interactive/robot_2d/
+math_interactive/world_3d/theory), нет `slide`/`presentation`. content-renderer
+рендерит markdown/HTML/TipTap, reveal.js в `package.json` отсутствует.
+Фича может «навеситься» на существующую модель урока через новый ContentType +
+ветку в content-renderer.
+
+- [ ] **Фаза 1 — модель + плеер.** Новый `ContentType.presentation`; структура
+      `Lesson.content` для деки (список слайдов: заголовок/текст/медиа/fragments/
+      speaker notes/фон). Ветка в content-renderer: reveal.js-плеер (vendored
+      `dist/` из клона, не CDN — наши PWA/offline и no-store правила). Режимы:
+      студент (просмотр), преподаватель (speaker view + проектор-синк → стыкуется
+      с live-дашбордом выше).
+- [ ] **Фаза 2 — редактор деки.** Авторинг слайдов в админке (как lesson editor):
+      добавить/упорядочить слайды (dnd-kit уже есть), на слайд — текст (TipTap),
+      изображение (S3-аплоад уже есть), fragments, заметки, выбор перехода/фона.
+      Маппинг в reveal.js-разметку при рендере.
+- [ ] **Фаза 3 — генерация через ИИ.** По теме урока / существующему theory-
+      контенту LLM (Claude) генерит черновик деки (слайды + speaker notes +
+      предложения fragments) → преподаватель правит в редакторе. Переиспользовать
+      knowledge-модуль (RAG) как источник фактов. ⚠️ платный API — бюджет/ключ
+      согласовать.
+- [ ] **Фаза 4 — экспорт/доп.фичи.** PDF/standalone-HTML экспорт деки, тема
+      под бренд GrassLMS (sun-tinted, ink-900-on-yellow правило), вставка
+      интерактивных виджетов/упражнений прямо в слайд (iframe-sandbox как у
+      content-renderer).
+
+Заметка: reveal.js — MIT, можно vendored. Большая многоспринтовая задача —
+разбить на отдельные PR по фазам; Фаза 1 (модель+плеер) разблокирует остальное.
 
 ---
 
