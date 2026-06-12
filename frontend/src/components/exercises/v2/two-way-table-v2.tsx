@@ -70,6 +70,7 @@ export function TwoWayTableV2({
   const { t } = useTranslation();
   const [vals, setVals] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
+  const [lockedOk, setLockedOk] = useState<Record<string, boolean>>({}); // TW-06
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -124,6 +125,12 @@ export function TwoWayTableV2({
   };
 
   const handleRetry = () => {
+    // TW-06: lock the cells that are already correct so the student only
+    // needs to fix the wrong ones.
+    const locks: Record<string, boolean> = { ...lockedOk };
+    for (const k of blanks) if (results[k]) locks[k] = true;
+    setLockedOk(locks);
+    setResults({});
     setFeedback(null);
   };
 
@@ -167,7 +174,8 @@ export function TwoWayTableV2({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: `100px repeat(${colLabels.length}, 1fr)`,
+              // TW-02: label column flexes within a sane range; cells stay tappable.
+              gridTemplateColumns: `minmax(72px, 100px) repeat(${colLabels.length}, minmax(56px, 1fr))`,
             }}
           >
             <div style={cellH}></div>
@@ -206,7 +214,8 @@ export function TwoWayTableV2({
                   const val = cells[ri][ci];
                   const key = `${ri},${ci}`;
                   const v = vals[key] || "";
-                  const isOk = results[key] === true;
+                  const locked = lockedOk[key];
+                  const isOk = results[key] === true || locked;
                   const isNo = results[key] === false;
                   const isTotal =
                     ri === rowLabels.length - 1 ||
@@ -239,14 +248,20 @@ export function TwoWayTableV2({
                     >
                       <input
                         value={v}
-                        disabled={!!feedback}
+                        disabled={!!feedback || locked}
+                        inputMode="numeric"
                         onChange={(e) =>
-                          setVals({ ...vals, [key]: e.target.value })
+                          // TW-01: digits + a leading minus only.
+                          setVals({
+                            ...vals,
+                            [key]: e.target.value.replace(/[^\d-]/g, "").replace(/(?!^)-/g, ""),
+                          })
                         }
                         placeholder="?"
                         style={{
                           width: "100%",
-                          padding: "6px 4px",
+                          minHeight: 40,
+                          padding: "8px 4px",
                           borderRadius: 6,
                           border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--coral-500)" : "var(--ink-200)"}`,
                           background: isOk
@@ -255,7 +270,7 @@ export function TwoWayTableV2({
                               ? "var(--coral-50)"
                               : "var(--paper)",
                           fontFamily: "var(--font-mono)",
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: 700,
                           textAlign: "center",
                           color: "var(--ink-900)",
@@ -269,16 +284,18 @@ export function TwoWayTableV2({
             ))}
           </div>
         </div>
-        <p
-          style={{
-            textAlign: "center",
-            marginTop: 12,
-            fontSize: 13,
-            color: "var(--ink-500)",
-          }}
-        >
-          Hint · {hint}
-        </p>
+        {hint && (
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: 12,
+              fontSize: 13,
+              color: "var(--ink-500)",
+            }}
+          >
+            {t("exercise.hintPrefix")} {hint}
+          </p>
+        )}
       </LessonShell>
     </div>
   );

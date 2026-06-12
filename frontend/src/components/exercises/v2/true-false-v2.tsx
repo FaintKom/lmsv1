@@ -8,7 +8,7 @@
  * the contract).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -64,6 +64,26 @@ export function TrueFalseV2({
   const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
+
+  // TF-02key: T / ← selects True, F / → selects False. Ignored while a
+  // feedback sheet is open, during async grading, or when typing in an input.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (feedback || checking) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      )
+        return;
+      if (e.key === "ArrowLeft" || e.key.toLowerCase() === "t") setPick(true);
+      else if (e.key === "ArrowRight" || e.key.toLowerCase() === "f") setPick(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [feedback, checking]);
 
   const applyResult = (res: V2GradeResult) => {
     if (res.correct) {
@@ -191,12 +211,27 @@ export function TrueFalseV2({
                 key={String(v)}
                 className={"gp-tile " + state}
                 style={{ minWidth: 140, padding: "20px 24px", fontSize: 17 }}
+                aria-pressed={pick === v}
                 onClick={() => !feedback && setPick(v)}
               >
                 {v ? t("exercise.trueFalse.true") : t("exercise.trueFalse.false")}
               </button>
             );
           })}
+        </div>
+        {/* TF-02key: discoverability hint for the keyboard path. */}
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 18,
+            fontFamily: "var(--font-mono)",
+            fontSize: 10,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--ink-300)",
+          }}
+        >
+          {t("exercise.trueFalse.keyTip")}
         </div>
       </LessonShell>
     </div>

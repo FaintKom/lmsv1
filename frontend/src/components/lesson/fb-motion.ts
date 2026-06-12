@@ -10,13 +10,18 @@
  *            until that lands.
  */
 
+/** XC-03: skip decorative motion when the user asked for reduced motion. */
+const reducedMotion = (): boolean =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 /** Clone `fromEl`, fly it to `toEl`'s center, then call `done`. */
 export function flyClone(
   fromEl: HTMLElement | null,
   toEl: HTMLElement | null,
   done?: () => void
 ): void {
-  if (!fromEl || !toEl) {
+  if (!fromEl || !toEl || reducedMotion()) {
     done?.();
     return;
   }
@@ -51,7 +56,7 @@ export function flyXP(
   onArrive?: () => void
 ): void {
   const target = document.getElementById("xp-anchor");
-  if (!fromEl || !target) {
+  if (!fromEl || !target || reducedMotion()) {
     onArrive?.();
     return;
   }

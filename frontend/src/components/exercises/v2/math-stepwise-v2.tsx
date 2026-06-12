@@ -12,7 +12,7 @@
  * the wrong lines.
  */
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
 import {
   LessonShell,
@@ -88,6 +88,10 @@ export function MathStepwiseV2({
 }: MathStepwiseV2Props) {
   const { t } = useTranslation();
   const [values, setValues] = useState<string[]>(() => steps.map(() => ""));
+  /** MS-01: rows graded correct lock green (and disabled) across retries. */
+  const [lockedOk, setLockedOk] = useState<boolean[]>(() =>
+    steps.map(() => false)
+  );
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -95,6 +99,8 @@ export function MathStepwiseV2({
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  /** MS-03: unique per-instance prefix for the label/input pairing. */
+  const idPrefix = useId();
 
   const allFilled = values.every((v) => v.trim().length > 0);
   const correctSummary = steps
@@ -126,19 +132,28 @@ export function MathStepwiseV2({
       });
       setStreak(0);
     } else {
+      const okCount = okFlags.filter(Boolean).length;
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.mathStepwise.checkHighlightedOne") : t("exercise.mathStepwise.checkHighlighted")).replace("{n}", String(remaining)),
+        // MS-01: tell the student their right lines are safe.
+        explain:
+          okCount > 0
+            ? t("exercise.mathStepwise.lockedExplain")
+                .replace("{ok}", String(okCount))
+                .replace("{total}", String(steps.length))
+            : undefined,
       });
     }
   };
 
   const handleRetry = () => {
+    // MS-01: lock the lines that are already right so a retry can't
+    // accidentally break them; jump the caret to the first wrong line.
+    const flags = steps.map((s, i) => stepsMatch(values[i], s.expected));
+    setLockedOk(flags);
     setFeedback(null);
-    // Correct rows are preserved; jump the caret to the first wrong line.
-    const firstBad = steps.findIndex(
-      (s, i) => !stepsMatch(values[i], s.expected)
-    );
+    const firstBad = flags.findIndex((f) => !f);
     setTimeout(() => {
       if (firstBad >= 0) inputRefs.current[firstBad]?.focus();
     }, 60);
@@ -182,11 +197,23 @@ export function MathStepwiseV2({
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {steps.map((s, i) => {
               const isOk = !!feedback && stepsMatch(values[i], s.expected);
-              const state = !feedback ? "" : isOk ? " ok" : " no";
+              // MS-01: between attempts, locked rows keep their green state.
+              const state = feedback
+                ? isOk
+                  ? " ok"
+                  : " no"
+                : lockedOk[i]
+                  ? " ok"
+                  : "";
+              const inputId = `${idPrefix}-step-${i}`;
               return (
                 <div key={i} className="fb-step-row">
-                  <span className="fb-step-label">{s.label}</span>
+                  {/* MS-03: real label → input association. */}
+                  <label className="fb-step-label" htmlFor={inputId}>
+                    {s.label}
+                  </label>
                   <input
+                    id={inputId}
                     ref={(el) => {
                       inputRefs.current[i] = el;
                     }}
@@ -206,7 +233,9 @@ export function MathStepwiseV2({
                         handleCheck();
                       }
                     }}
-                    disabled={!!feedback}
+                    disabled={!!feedback || lockedOk[i]}
+                    autoCapitalize="none"
+                    spellCheck={false}
                     placeholder={s.hint}
                   />
                   {finalReveal && (

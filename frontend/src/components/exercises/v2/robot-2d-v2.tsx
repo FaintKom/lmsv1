@@ -13,7 +13,7 @@
  * coin (still loses heart). Per-task HP + streak.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import {
   LessonShell,
@@ -114,12 +114,42 @@ export function Robot2DV2({
   const [collected, setCollected] = useState<Record<number, boolean>>({});
   const [blocks, setBlocks] = useState<RobotBlock[]>(starter);
   const [running, setRunning] = useState(false);
+  // RB-04: id of the block currently executing during a run.
+  const [activeBlock, setActiveBlock] = useState<number | null>(null);
+  // RB-01: visible wall-bump state (grid shake + "BONK!" chip).
+  const [bonk, setBonk] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const aliveRef = useRef(true);
   const { fire, layer } = useConfetti();
+
+  useEffect(() => () => {
+    aliveRef.current = false;
+  }, []);
+
+  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+  const loseRound = (msg: string, explain: string) => {
+    const remaining = attemptsLeft - 1;
+    setAttemptsLeft(remaining);
+    setUsedAttempts((u) => u + 1);
+    setLostHeart(true);
+    setTimeout(() => setLostHeart(false), 500);
+    if (remaining <= 0) {
+      setFeedback({
+        kind: "no",
+        msg,
+        explain: `${explain} ${t("exercise.robot2d.goalAt").replace("{r}", String(goal.r)).replace("{c}", String(goal.c))}`,
+      });
+      setStreak(0);
+    } else {
+      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
+      setFeedback({ kind: "no", msg: `${msg} ${attemptsMsg}`, explain });
+    }
+  };
 
   const runProgram = async () => {
     if (running) return;
@@ -130,28 +160,54 @@ export function Robot2DV2({
     const got: Record<number, boolean> = {};
     setRobot({ r, c, dir });
     setCollected({});
+    // RB-01: a wall hit aborts the run visibly instead of silently
+    // clamping the robot against the edge.
+    let crashed = false;
     for (const b of blocks) {
+      if (crashed) break;
+      if (!aliveRef.current) return;
+      setActiveBlock(b.id); // RB-04
       if (b.type === "forward") {
         for (let i = 0; i < (b.n || 1); i++) {
-          await new Promise((res) => setTimeout(res, 250));
-          r = Math.max(0, Math.min(size - 1, r + DR[dir]));
-          c = Math.max(0, Math.min(size - 1, c + DC[dir]));
+          await sleep(250);
+          if (!aliveRef.current) return;
+          const nr = r + DR[dir];
+          const nc = c + DC[dir];
+          if (nr < 0 || nr >= size || nc < 0 || nc >= size) {
+            setBonk(true);
+            setTimeout(() => {
+              if (aliveRef.current) setBonk(false);
+            }, 600);
+            crashed = true;
+            break;
+          }
+          r = nr;
+          c = nc;
           const coinIdx = coins.findIndex((co) => co.r === r && co.c === c);
           if (coinIdx >= 0) got[coinIdx] = true;
           setRobot({ r, c, dir });
           setCollected({ ...got });
         }
-      } else if (b.type === "turn-right") {
-        await new Promise((res) => setTimeout(res, 150));
-        dir = ((dir + 1) % 4) as 0 | 1 | 2 | 3;
-        setRobot({ r, c, dir });
-      } else if (b.type === "turn-left") {
-        await new Promise((res) => setTimeout(res, 150));
-        dir = ((dir + 3) % 4) as 0 | 1 | 2 | 3;
+      } else {
+        await sleep(150);
+        if (!aliveRef.current) return;
+        dir = ((b.type === "turn-right" ? dir + 1 : dir + 3) % 4) as
+          | 0
+          | 1
+          | 2
+          | 3;
         setRobot({ r, c, dir });
       }
     }
+    setActiveBlock(null);
     setRunning(false);
+    if (crashed) {
+      loseRound(
+        t("exercise.robot2d.hitWall"),
+        t("exercise.robot2d.hitWallExplain")
+      );
+      return;
+    }
     const reachedGoal = r === goal.r && c === goal.c;
     const allCoins = Object.keys(got).length === coins.length;
     if (reachedGoal && allCoins) {
@@ -166,28 +222,14 @@ export function Robot2DV2({
       fire();
       return;
     }
-    const remaining = attemptsLeft - 1;
-    setAttemptsLeft(remaining);
-    setUsedAttempts((u) => u + 1);
-    setLostHeart(true);
-    setTimeout(() => setLostHeart(false), 500);
-    const msg = reachedGoal
-      ? t("exercise.robot2d.reachedMissedCoin")
-      : t("exercise.robot2d.didntReachGoal");
-    const explain = reachedGoal
-      ? t("exercise.robot2d.collectEveryCoin")
-      : t("exercise.robot2d.goalAt").replace("{r}", String(goal.r)).replace("{c}", String(goal.c));
-    if (remaining <= 0) {
-      setFeedback({ kind: "no", msg, explain });
-      setStreak(0);
-    } else {
-      const attemptsMsg = (remaining === 1 ? t("exercise.attemptLeft") : t("exercise.attemptsLeft")).replace("{n}", String(remaining));
-      setFeedback({
-        kind: "no",
-        msg: `${msg} ${attemptsMsg}`,
-        explain,
-      });
-    }
+    loseRound(
+      reachedGoal
+        ? t("exercise.robot2d.reachedMissedCoin")
+        : t("exercise.robot2d.didntReachGoal"),
+      reachedGoal
+        ? t("exercise.robot2d.collectEveryCoin")
+        : t("exercise.robot2d.watchWhereItEnded")
+    );
   };
 
   const handleRetry = () => {
@@ -218,6 +260,17 @@ export function Robot2DV2({
     if (running || feedback) return;
     setBlocks(blocks.filter((b) => b.id !== id));
   };
+  // RB-03: step count changes via big +/− steppers inside the block.
+  const setSteps = (id: number, delta: number) => {
+    if (running || feedback) return;
+    setBlocks((bs) =>
+      bs.map((b) =>
+        b.id === id
+          ? { ...b, n: Math.max(1, Math.min(9, (b.n ?? 1) + delta)) }
+          : b
+      )
+    );
+  };
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
@@ -233,6 +286,8 @@ export function Robot2DV2({
         title={title ?? t("exercise.robot2d.title")}
         feedback={feedback}
         canCheck={blocks.length > 0 && !running}
+        checking={running}
+        checkHint={t("exercise.robot2d.checkHint")}
         onCheck={runProgram}
         checkLabel={running ? t("exercise.robot2d.runningLabel") : t("exercise.robot2d.runLabel")}
         showSkip={false}
@@ -250,14 +305,40 @@ export function Robot2DV2({
         >
           {/* grid */}
           <div
+            className={bonk ? "rb-bonk" : undefined}
             style={{
               background: "var(--paper-2)",
               border: "2px solid var(--ink-100)",
               borderRadius: 14,
               padding: 8,
               alignSelf: "start",
+              position: "relative",
             }}
           >
+            {/* RB-01: BONK chip pops over the grid on a wall hit */}
+            {bonk && (
+              <span
+                role="status"
+                style={{
+                  position: "absolute",
+                  top: -10,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 5,
+                  background: "var(--coral-500)",
+                  color: "#fff",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 800,
+                  fontSize: 11,
+                  letterSpacing: "0.06em",
+                  padding: "3px 10px",
+                  borderRadius: 999,
+                  boxShadow: "0 2px 0 0 var(--coral-700)",
+                }}
+              >
+                {t("exercise.robot2d.bonk")}
+              </span>
+            )}
             {Array.from({ length: size }, (_, r) => (
               <div key={r} style={{ display: "flex" }}>
                 {Array.from({ length: size }, (_, c) => {
@@ -362,6 +443,8 @@ export function Robot2DV2({
               ) : (
                 blocks.map((b, i) => {
                   const meta = BLOCK_LABEL[b.type];
+                  // RB-04: the executing block lights up during the run.
+                  const isActive = activeBlock === b.id;
                   return (
                     <div
                       key={b.id}
@@ -370,13 +453,17 @@ export function Robot2DV2({
                         color: meta.light ? "var(--ink-900)" : "#fff",
                         padding: "10px 14px",
                         borderRadius: 10,
-                        boxShadow: `0 3px 0 0 ${meta.shadow}`,
+                        boxShadow: isActive
+                          ? `0 0 0 3px var(--ink-900), 0 3px 0 0 ${meta.shadow}`
+                          : `0 3px 0 0 ${meta.shadow}`,
                         fontFamily: "var(--font-sans)",
                         fontWeight: 700,
                         fontSize: 13,
                         display: "flex",
                         alignItems: "center",
                         gap: 10,
+                        transform: isActive ? "scale(1.02)" : "none",
+                        transition: "box-shadow 150ms, transform 150ms",
                       }}
                     >
                       <span
@@ -390,46 +477,80 @@ export function Robot2DV2({
                       >
                         {i + 1}
                       </span>
-                      <span style={{ flex: 1 }}>
+                      <span
+                        style={{
+                          flex: 1,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                          flexWrap: "wrap",
+                        }}
+                      >
                         {meta.label}
                         {b.type === "forward" && (
-                          <>
-                            <input
-                              type="number"
-                              min={1}
-                              max={9}
-                              value={b.n ?? 1}
-                              onChange={(e) =>
-                                setBlocks(
-                                  blocks.map((bl) =>
-                                    bl.id === b.id
-                                      ? {
-                                          ...bl,
-                                          n: Math.max(
-                                            1,
-                                            Math.min(9, +e.target.value || 1)
-                                          ),
-                                        }
-                                      : bl
-                                  )
-                                )
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                            }}
+                          >
+                            {/* RB-03: +/− steppers instead of a 36px number input */}
+                            <button
+                              type="button"
+                              onClick={() => setSteps(b.id, -1)}
+                              disabled={
+                                running || !!feedback || (b.n ?? 1) <= 1
                               }
-                              disabled={running || !!feedback}
+                              aria-label={t("exercise.robot2d.fewerSteps")}
                               style={{
-                                width: 36,
-                                marginLeft: 6,
-                                background: "rgba(255,255,255,0.3)",
+                                width: 26,
+                                height: 26,
+                                borderRadius: 6,
                                 border: "none",
-                                borderRadius: 4,
+                                background: "rgba(0,0,0,0.18)",
                                 color: "inherit",
-                                textAlign: "center",
-                                fontFamily: "var(--font-mono)",
-                                fontWeight: 700,
-                                padding: "2px 4px",
+                                fontWeight: 800,
+                                cursor: "pointer",
+                                display: "grid",
+                                placeItems: "center",
                               }}
-                            />{" "}
+                            >
+                              −
+                            </button>
+                            <span
+                              style={{
+                                fontFamily: "var(--font-mono)",
+                                minWidth: 16,
+                                textAlign: "center",
+                              }}
+                            >
+                              {b.n ?? 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setSteps(b.id, 1)}
+                              disabled={
+                                running || !!feedback || (b.n ?? 1) >= 9
+                              }
+                              aria-label={t("exercise.robot2d.moreSteps")}
+                              style={{
+                                width: 26,
+                                height: 26,
+                                borderRadius: 6,
+                                border: "none",
+                                background: "rgba(0,0,0,0.18)",
+                                color: "inherit",
+                                fontWeight: 800,
+                                cursor: "pointer",
+                                display: "grid",
+                                placeItems: "center",
+                              }}
+                            >
+                              +
+                            </button>
                             <span>step{(b.n ?? 1) > 1 ? "s" : ""}</span>
-                          </>
+                          </span>
                         )}
                       </span>
                       <button

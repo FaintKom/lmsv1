@@ -6,12 +6,14 @@
  * Adopted from q-math-templates.jsx · EquationSolverExerciseV2.
  * Methodist supplies the starting equation + an ordered sequence of
  * steps, each with multiple operation options (only one correct).
- * Wrong picks shake red and snap back; correct picks append the new
- * left/right state to the chain. Reaching the last step = task solved.
+ * Wrong picks shake red, cost a heart and get struck out (ES-01);
+ * correct picks append the new left/right state to the chain.
+ * Reaching the last step = task solved; running out of hearts reveals
+ * the correct move sequence as a structured list.
  *
- * No traditional HP — the shake-on-wrong already gives in-context
- * feedback; finishing the chain = +1 streak. (Methodist can wrap a
- * timer or retry budget at a higher layer if desired.)
+ * ES-03: lesson position ("2 / 3") rides the LessonShell top bar via
+ * step/totalSteps. ES-02: shake uses the shared `.gp-tile.wrong`
+ * fb-shake class instead of private keyframes.
  */
 
 import { useState } from "react";
@@ -47,6 +49,8 @@ export interface EquationSolverV2Props {
   steps: SolverStep[];
   eyebrow?: string;
   title?: string;
+  /** ES-01: wrong picks cost a heart; at 0 the move sequence is revealed. */
+  maxAttemptsPerTask?: number;
   streak?: number;
   onQuit?: () => void;
   onFinish?: (r: {
@@ -65,6 +69,7 @@ export function EquationSolverV2({
   steps,
   eyebrow,
   title,
+  maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onQuit,
   onFinish,
@@ -74,20 +79,53 @@ export function EquationSolverV2({
     { ...initial, op: null },
   ]);
   const [shake, setShake] = useState<string | null>(null);
+  /** ES-01: option ids struck out at the CURRENT step (reset on advance). */
+  const [eliminated, setEliminated] = useState<string[]>([]);
   const [step, setStep] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
+  const [lostHeart, setLostHeart] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
 
+  /** Out-of-hearts reveal: the correct move at every step (FIX-10 list). */
+  const revealChain = (): [string, string][] =>
+    steps.map((s, i) => {
+      const okOpt = s.options.find((o) => o.ok);
+      return [
+        t("exercise.equationSolver.stepLabel").replace("{n}", String(i + 1)),
+        okOpt ? okOpt.label : "?",
+      ];
+    });
+
   const pick = (opt: SolverOption) => {
     if (feedback) return;
     if (!opt.ok || !opt.after) {
+      // ES-01: wrong pick costs a heart and eliminates the option.
       setShake(opt.id);
       setWrongAttempts((w) => w + 1);
-      setTimeout(() => setShake(null), 400);
+      setEliminated((els) => [...els, opt.id]);
+      setLostHeart(true);
+      setTimeout(() => {
+        setShake(null);
+        setLostHeart(false);
+      }, 500);
+      const remaining = attemptsLeft - 1;
+      setAttemptsLeft(remaining);
+      if (remaining <= 0) {
+        setTimeout(() => {
+          setFeedback({
+            kind: "no",
+            msg: t("exercise.outOfAttempts"),
+            correctList: revealChain(),
+          });
+          setStreak(0);
+        }, 450);
+      }
       return;
     }
+    setEliminated([]);
     setChain([...chain, { left: opt.after.left, right: opt.after.right, op: opt.label }]);
     if (step === steps.length - 1) {
       setTimeout(() => {
@@ -112,7 +150,12 @@ export function EquationSolverV2({
     <div style={{ position: "relative", height: "100%" }}>
       {layer}
       <LessonShell
+        hearts={attemptsLeft}
+        maxHearts={maxAttemptsPerTask}
+        lostHeart={lostHeart}
         streak={streak}
+        step={Math.min(step + 1, steps.length)}
+        totalSteps={steps.length}
         eyebrow={eyebrow}
         title={title ?? t("exercise.equationSolver.title")}
         feedback={feedback}
@@ -151,10 +194,10 @@ export function EquationSolverV2({
                 <div
                   style={{
                     background:
-                      i === chain.length - 1 && feedback
+                      i === chain.length - 1 && feedback?.kind === "ok"
                         ? "var(--green-50)"
                         : "var(--paper-2)",
-                    border: `2px solid ${i === chain.length - 1 && feedback ? "var(--green-500)" : "var(--ink-100)"}`,
+                    border: `2px solid ${i === chain.length - 1 && feedback?.kind === "ok" ? "var(--green-500)" : "var(--ink-100)"}`,
                     borderRadius: 14,
                     padding: "12px 18px",
                     fontFamily: "var(--font-mono)",
@@ -190,28 +233,39 @@ export function EquationSolverV2({
                   gap: 8,
                 }}
               >
-                {steps[step].options.map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => pick(opt)}
-                    className="gp-tile"
-                    style={{
-                      padding: "14px 18px",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 16,
-                      animation: shake === opt.id ? "gp-shake 400ms" : "none",
-                    }}
-                  >
-                    <MaybeMath text={opt.label} />
-                  </button>
-                ))}
+                {steps[step].options.map((opt) => {
+                  const isElim = eliminated.includes(opt.id);
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => !isElim && pick(opt)}
+                      disabled={isElim}
+                      // ES-02: shared fb-shake via .gp-tile.wrong; ES-01:
+                      // struck-out options stay disabled via .eliminated.
+                      className={
+                        "gp-tile" +
+                        (shake === opt.id
+                          ? " wrong"
+                          : isElim
+                            ? " eliminated"
+                            : "")
+                      }
+                      style={{
+                        padding: "14px 18px",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 16,
+                      }}
+                    >
+                      <MaybeMath text={opt.label} />
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}
         </div>
       </LessonShell>
-      <style>{`@keyframes gp-shake { 0% { transform: translateX(0); } 25% { transform: translateX(-6px); background: var(--coral-50); } 75% { transform: translateX(6px); background: var(--coral-50); } 100% { transform: translateX(0); } }`}</style>
     </div>
   );
 }

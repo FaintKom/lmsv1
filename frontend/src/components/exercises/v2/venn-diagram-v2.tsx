@@ -151,17 +151,17 @@ export function VennDiagramV2({
     return (
       <foreignObject
         key={key}
-        x={pos.x - 22}
-        y={pos.y - 16}
-        width="44"
-        height="32"
+        x={pos.x - 24}
+        y={pos.y - 20}
+        width="48"
+        height="40"
         style={{ overflow: "visible" }}
       >
         {isGiven ? (
           <div
             style={{
-              width: 44,
-              height: 32,
+              width: 48,
+              height: 40,
               borderRadius: 8,
               background: "rgba(255,255,255,0.95)",
               border: "2px solid var(--ink-200)",
@@ -179,11 +179,25 @@ export function VennDiagramV2({
           <input
             value={vals[key] || ""}
             disabled={!!feedback}
-            onChange={(e) => setVals({ ...vals, [key]: e.target.value })}
+            inputMode="numeric"
+            onChange={(e) => {
+              // VD-01: digits only. VD-03: typing clears the stale red mark.
+              setVals({ ...vals, [key]: e.target.value.replace(/[^\d]/g, "") });
+              if (results[key] !== undefined)
+                setResults((prev) => {
+                  const np = { ...prev };
+                  delete np[key];
+                  return np;
+                });
+            }}
+            onKeyDown={(e) => {
+              // VD-05: Enter checks once every blank is filled.
+              if (e.key === "Enter" && allFilled && !feedback) handleCheck();
+            }}
             placeholder="?"
             style={{
-              width: 44,
-              height: 32,
+              width: 48,
+              height: 40,
               padding: 0,
               borderRadius: 8,
               border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--coral-500)" : "var(--ink-200)"}`,

@@ -44,7 +44,8 @@ export interface MatchingV2Props {
   pairs: MatchingPair[];
   eyebrow?: string;
   title?: string;
-  /** Max wrong rounds before the task ends in failure. Default = pairs.length */
+  /** Max wrong rounds before the task ends in failure.
+   * Default = min(3, pairs.length) (MT-04). */
   maxAttemptsPerTask?: number;
   streak?: number;
   /**
@@ -103,7 +104,7 @@ export function MatchingV2({
   onQuit,
   onFinish,
 }: MatchingV2Props) {
-  const maxAttempts = maxAttemptsPerTask ?? pairs.length;
+  const maxAttempts = maxAttemptsPerTask ?? Math.min(3, pairs.length);
   const indices = pairs.map((_, i) => i);
   const [leftOrder] = useState(() => shuffle(indices));
   const [rightOrder] = useState(() => shuffle(indices));
@@ -126,6 +127,16 @@ export function MatchingV2({
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const tileRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const dragRef = useRef<DragState | null>(null);
+
+  // MT-05: coarse pointers (touch) get a "tap to connect" hint line.
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    setCoarse(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setCoarse(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // Re-render on resize so the SVG anchors recompute against fresh rects.
   useEffect(() => {
@@ -246,6 +257,30 @@ export function MatchingV2({
     setWrongPairs(null);
     setCursor(null);
     setFeedback(null);
+  };
+
+  /** MT-01: Enter/Space picks a tile; Enter on the other column pairs —
+   * the same click-click semantics as the pointer path. */
+  const keyPick = (side: Side, idx: number) => {
+    if (feedback || matched.includes(idx) || wrongPairs) return;
+    if (deferred) {
+      // Linked but unchecked tile — unlink it and take the thread again.
+      setLinks((ls) => ls.filter((p) => p[side === "L" ? 0 : 1] !== idx));
+    }
+    if (picked && picked.side === side && picked.idx === idx) {
+      setPicked(null); // second activation on the same tile — deselect
+      setCursor(null);
+      return;
+    }
+    if (picked && picked.side !== side) {
+      const lIdx = side === "L" ? idx : picked.idx;
+      const rIdx = side === "R" ? idx : picked.idx;
+      resolvePair(lIdx, rIdx);
+      return;
+    }
+    setPicked({ side, idx });
+    const a = anchor(side, idx);
+    if (a) setCursor({ x: a.x + (side === "L" ? 30 : -30), y: a.y });
   };
 
   /** Press on a tile: hook the thread immediately — for click AND drag. */
@@ -402,6 +437,21 @@ export function MatchingV2({
         }
       }}
       onPointerLeave={() => setHot(null)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          keyPick(side, idx);
+        }
+      }}
+      aria-pressed={picked?.side === side && picked.idx === idx}
+      aria-label={
+        matched.includes(idx)
+          ? t("exercise.matching.tileMatchedAria").replace(
+              "{text}",
+              pairs[idx][side === "L" ? "left" : "right"]
+            )
+          : undefined
+      }
     >
       {pairs[idx][side === "L" ? "left" : "right"]}
     </button>
@@ -425,6 +475,7 @@ export function MatchingV2({
           !feedback
         }
         checkLabel={t("exercise.matching.check")}
+        checkHint={t("exercise.matching.checkHint")}
         instant={!deferred}
         instantLabel={t("exercise.matching.hintInstant")}
         showSkip={false}
@@ -440,7 +491,7 @@ export function MatchingV2({
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: "12px 80px",
+            gap: "12px clamp(28px, 12cqw, 80px)", // MT-02
             maxWidth: 620,
             margin: "0 auto",
             width: "100%",
@@ -500,7 +551,7 @@ export function MatchingV2({
             {rightOrder.map((idx) => renderTile("R", idx))}
           </div>
         </div>
-        {deferred && (
+        {(deferred || coarse) && (
           <div
             style={{
               textAlign: "center",
@@ -512,7 +563,10 @@ export function MatchingV2({
               marginTop: 22,
             }}
           >
-            {t("exercise.matching.hintDeferred")}
+            {/* MT-05: touch users get an explicit tap-to-connect hint. */}
+            {coarse
+              ? t("exercise.matching.tapToConnect")
+              : t("exercise.matching.hintDeferred")}
           </div>
         )}
       </LessonShell>

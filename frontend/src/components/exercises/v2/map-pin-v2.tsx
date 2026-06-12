@@ -78,6 +78,20 @@ export function MapPinDropV2({
 
   const dist = pin ? Math.hypot(pin.x - target.x, pin.y - target.y) : Infinity;
 
+  /** MP-02: a compass nudge toward the target — direction only, never coords. */
+  const compassHint = (): string => {
+    if (!pin) return "";
+    const dx = target.x - pin.x;
+    const dy = target.y - pin.y;
+    const parts: string[] = [];
+    if (dy < -3) parts.push(t("exercise.mapPin.dirNorth"));
+    else if (dy > 3) parts.push(t("exercise.mapPin.dirSouth"));
+    if (dx < -3) parts.push(t("exercise.mapPin.dirWest"));
+    else if (dx > 3) parts.push(t("exercise.mapPin.dirEast"));
+    if (parts.length === 0) return t("exercise.mapPin.veryClose");
+    return t("exercise.mapPin.tryFurther").replace("{dir}", parts.join("-"));
+  };
+
   const handleCheck = () => {
     if (dist <= tolerance) {
       setFeedback({
@@ -104,6 +118,7 @@ export function MapPinDropV2({
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.mapPin.offByABitAttempt") : t("exercise.mapPin.offByABitAttempts")).replace("{n}", String(remaining)),
+        explain: compassHint(),
       });
     }
   };
@@ -180,19 +195,36 @@ export function MapPinDropV2({
           )}
           {/* Correct pin on wrong / out-of-attempts */}
           {feedback && feedback.kind === "no" && (
-            <div
-              style={{
-                position: "absolute",
-                left: `${target.x}%`,
-                top: `${target.y}%`,
-                transform: "translate(-50%, -100%)",
-                pointerEvents: "none",
-                color: "var(--green-600)",
-              }}
-              className="gp-pop"
-            >
-              <MapPin size={32} />
-            </div>
+            <>
+              {/* MP-05: dashed tolerance ring around the target. */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${target.x}%`,
+                  top: `${target.y}%`,
+                  width: `${tolerance * 2}%`,
+                  height: `${tolerance * 2}%`,
+                  transform: "translate(-50%, -50%)",
+                  border: "2px dashed var(--green-600)",
+                  borderRadius: "50%",
+                  pointerEvents: "none",
+                  opacity: 0.7,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${target.x}%`,
+                  top: `${target.y}%`,
+                  transform: "translate(-50%, -100%)",
+                  pointerEvents: "none",
+                  color: "var(--green-600)",
+                }}
+                className="gp-pop"
+              >
+                <MapPin size={32} />
+              </div>
+            </>
           )}
         </div>
         <div
@@ -203,9 +235,7 @@ export function MapPinDropV2({
             color: "var(--ink-400)",
           }}
         >
-          {!pin
-            ? t("exercise.mapPin.tapAnywhere")
-            : t("exercise.mapPin.pinAt").replace("{x}", String(Math.round(pin.x))).replace("{y}", String(Math.round(pin.y)))}
+          {!pin ? t("exercise.mapPin.tapAnywhere") : t("exercise.mapPin.pinReady")}
         </div>
       </LessonShell>
     </div>

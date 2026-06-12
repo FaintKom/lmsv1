@@ -7,6 +7,13 @@
  * Three sliders: horizontal shift h, vertical shift v, vertical
  * stretch a. Live green curve overlays coral dashed target.
  *
+ * Exercise-mechanics handoff (ex-graphs.jsx · GraphTransformV2):
+ * - GX-01 viewBox-only SVG (`.gx-svg`) inside `.gx-layout`.
+ * - GX-03 Check unlocks only after the first slider touch.
+ * - GX-04 wrong-attempt hint names the off dials (slide/lift/stretch),
+ *         never the direction or value.
+ * - IG-03 family: signed formatting in the reveal (no "+ -3").
+ *
  * Per-task HP + streak; retry resets to identity transform.
  */
 
@@ -43,9 +50,11 @@ interface SliderProps {
   max: number;
   step: number;
   disabled?: boolean;
+  /** GX-03: notifies the parent on the first interaction. */
+  onFirstTouch?: () => void;
 }
 
-function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
+function SliderCtrl({ label, v, setV, min, max, step, disabled, onFirstTouch }: SliderProps) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
@@ -68,7 +77,11 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
         step={step}
         value={v}
         disabled={disabled}
-        onChange={(e) => setV(parseFloat(e.target.value))}
+        aria-label={label}
+        onChange={(e) => {
+          setV(parseFloat(e.target.value));
+          onFirstTouch?.();
+        }}
         style={{ width: "100%", accentColor: "var(--green-600)" }}
       />
     </div>
@@ -77,6 +90,9 @@ function SliderCtrl({ label, v, setV, min, max, step, disabled }: SliderProps) {
 
 const SIZE = 380;
 const PAD = 36;
+
+/** IG-03 family: render "+ 3" / "− 3", never "+ -3". */
+const signed = (n: number) => (n >= 0 ? `+ ${n}` : `− ${Math.abs(n)}`);
 
 export function GraphTransformV2({
   target,
@@ -95,6 +111,7 @@ export function GraphTransformV2({
   const [h, setH] = useState(0);
   const [v, setV] = useState(0);
   const [a, setA] = useState(1);
+  const [touched, setTouched] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -116,11 +133,12 @@ export function GraphTransformV2({
   };
 
   const handleCheck = () => {
-    if (
-      Math.abs(h - target.h) <= tolerance &&
-      Math.abs(v - target.v) <= tolerance &&
-      Math.abs(a - target.a) <= tolerance
-    ) {
+    const oks = [
+      Math.abs(h - target.h) <= tolerance,
+      Math.abs(v - target.v) <= tolerance,
+      Math.abs(a - target.a) <= tolerance,
+    ];
+    if (oks.every(Boolean)) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.graphTransform.curvesOverlap") : t("exercise.gotIt"),
@@ -138,13 +156,24 @@ export function GraphTransformV2({
       setFeedback({
         kind: "no",
         msg: t("exercise.graphTransform.notAligned"),
-        correct: `y = ${target.a}(x − ${target.h})² + ${target.v}`,
+        correct: `y = ${target.a}(x ${target.h >= 0 ? `− ${target.h}` : `+ ${-target.h}`})² ${signed(target.v)}`,
       });
       setStreak(0);
     } else {
+      // GX-04: name the off dials, never the direction or value.
+      const names = [
+        t("exercise.graphTransform.dialSlide"),
+        t("exercise.graphTransform.dialLift"),
+        t("exercise.graphTransform.dialStretch"),
+      ];
+      const offNames = names.filter((_, i) => !oks[i]);
       setFeedback({
         kind: "no",
         msg: (remaining === 1 ? t("exercise.graphTransform.notAlignedAttempt") : t("exercise.graphTransform.notAlignedAttempts")).replace("{n}", String(remaining)),
+        explain: t("exercise.graphTransform.checkDials").replace(
+          "{dials}",
+          offNames.join(", ")
+        ),
       });
     }
   };
@@ -179,29 +208,15 @@ export function GraphTransformV2({
           </>
         }
         feedback={feedback}
-        canCheck={true}
+        canCheck={touched && !feedback}
+        checkHint={t("exercise.graphTransform.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 200px",
-            gap: 20,
-            justifyContent: "center",
-          }}
-        >
-          <svg
-            width={SIZE}
-            height={SIZE}
-            style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-            }}
-          >
+        <div className="gx-layout">
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="gx-svg">
             <GridAxes range={range} size={SIZE} pad={PAD} />
             <path
               d={pathStr(target.h, target.v, target.a)}
@@ -227,6 +242,7 @@ export function GraphTransformV2({
               max={5}
               step={1}
               disabled={!!feedback}
+              onFirstTouch={() => setTouched(true)}
             />
             <SliderCtrl
               label="vert · v"
@@ -236,6 +252,7 @@ export function GraphTransformV2({
               max={5}
               step={1}
               disabled={!!feedback}
+              onFirstTouch={() => setTouched(true)}
             />
             <SliderCtrl
               label="stretch · a"
@@ -245,6 +262,7 @@ export function GraphTransformV2({
               max={3}
               step={0.5}
               disabled={!!feedback}
+              onFirstTouch={() => setTouched(true)}
             />
             <div
               style={{
@@ -258,8 +276,7 @@ export function GraphTransformV2({
                 color: "var(--ink-900)",
               }}
             >
-              y = {a}(x {h >= 0 ? `− ${h}` : `+ ${-h}`})²{" "}
-              {v >= 0 ? `+ ${v}` : `− ${-v}`}
+              y = {a}(x {h >= 0 ? `− ${h}` : `+ ${-h}`})² {signed(v)}
             </div>
           </div>
         </div>

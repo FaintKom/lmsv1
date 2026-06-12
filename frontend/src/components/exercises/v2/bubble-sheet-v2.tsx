@@ -56,6 +56,8 @@ export function BubbleSheetV2({
 }: BubbleSheetV2Props) {
   const { t } = useTranslation();
   const [ans, setAns] = useState<Record<number, number>>({});
+  // BS-02: picks confirmed correct on a failed Check — locked + ✓ on retry.
+  const [keptOk, setKeptOk] = useState<Record<number, number>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -111,6 +113,7 @@ export function BubbleSheetV2({
       if (ans[q.n] === q.correct) kept[q.n] = ans[q.n];
     }
     setAns(kept);
+    setKeptOk(kept); // BS-02
     setFeedback(null);
   };
 
@@ -139,6 +142,7 @@ export function BubbleSheetV2({
         title={title ?? t("exercise.bubbleSheet.title")}
         feedback={feedback}
         canCheck={allAnswered}
+        checkHint={t("exercise.bubbleSheet.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -153,14 +157,18 @@ export function BubbleSheetV2({
             margin: "0 auto",
           }}
         >
-          {questions.map((q) => (
+          {questions.map((q) => {
+            // BS-02: kept-correct question — locked while the retry runs.
+            const isKept = keptOk[q.n] != null && !locked;
+            return (
             <div
               key={q.n}
               style={{
                 background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
+                border: `2px solid ${isKept ? "var(--green-200)" : "var(--ink-100)"}`,
                 borderRadius: 14,
                 padding: "14px 18px",
+                transition: "border-color 200ms",
               }}
             >
               <div
@@ -176,17 +184,18 @@ export function BubbleSheetV2({
                     width: 26,
                     height: 26,
                     borderRadius: 999,
-                    background: "var(--ink-50)",
-                    color: "var(--ink-500)",
+                    background: isKept ? "var(--green-600)" : "var(--ink-50)",
+                    color: isKept ? "#fff" : "var(--ink-500)",
                     display: "grid",
                     placeItems: "center",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 700,
                     fontSize: 12,
                     flexShrink: 0,
+                    transition: "background 200ms",
                   }}
                 >
-                  {q.n}
+                  {isKept ? "✓" : q.n}
                 </span>
                 <div
                   style={{
@@ -203,7 +212,8 @@ export function BubbleSheetV2({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
+                  // BS-01: auto-fit — 4-across no longer crushes at 320px.
+                  gridTemplateColumns: "repeat(auto-fit, minmax(108px, 1fr))",
                   gap: 6,
                   marginLeft: 36,
                 }}
@@ -213,12 +223,13 @@ export function BubbleSheetV2({
                   const isCorrect = revealCorrect && i === q.correct;
                   const isWrongPick =
                     revealCorrect && picked && i !== q.correct;
+                  const keptLock = isKept && picked; // BS-02
                   let bg = "var(--paper-2)";
                   let color = "var(--ink-700)";
                   let border = "var(--ink-200)";
                   let bubbleBg = "var(--paper-2)";
                   let bubbleColor = "var(--ink-500)";
-                  if (isCorrect) {
+                  if (isCorrect || keptLock) {
                     bg = "var(--green-50)";
                     color = "var(--green-800)";
                     border = "var(--green-500)";
@@ -289,7 +300,8 @@ export function BubbleSheetV2({
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </LessonShell>
     </div>

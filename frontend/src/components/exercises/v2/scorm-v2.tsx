@@ -69,6 +69,9 @@ export function ScormPackageV2({
 }: ScormPackageV2Props) {
   const { t } = useTranslation();
   const [idx, setIdx] = useState(0);
+  // SC-01: progress reflects the FURTHEST slide reached, not the current one,
+  // so stepping Back doesn't make the bar appear to regress.
+  const [maxSeen, setMaxSeen] = useState(0);
   const [done, setDone] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [streak, setStreak] = useState(initialStreak);
@@ -76,7 +79,12 @@ export function ScormPackageV2({
 
   const progress = done
     ? 100
-    : Math.round((idx / Math.max(1, slides.length)) * 100);
+    : Math.round(((maxSeen + 1) / Math.max(1, slides.length)) * 100);
+
+  const goBack = () => {
+    if (feedback || idx === 0) return;
+    setIdx(idx - 1);
+  };
 
   const advance = () => {
     if (feedback) return;
@@ -90,7 +98,9 @@ export function ScormPackageV2({
       fire();
       return;
     }
-    setIdx(idx + 1);
+    const next = idx + 1;
+    setIdx(next);
+    setMaxSeen((m) => Math.max(m, next));
   };
 
   const handleContinue = () => {
@@ -201,14 +211,25 @@ export function ScormPackageV2({
                       {t("exercise.scorm.slideContentDesc")}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={advance}
-                    className="gp-btn"
-                    style={{ padding: "10px 24px", fontSize: 13 }}
-                  >
-                    {t("exercise.scorm.nextSlide")}
-                  </button>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={goBack}
+                      disabled={idx === 0}
+                      className="gp-btn ghost"
+                      style={{ padding: "10px 18px", fontSize: 13 }}
+                    >
+                      {t("exercise.scorm.back")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={advance}
+                      className="gp-btn"
+                      style={{ padding: "10px 24px", fontSize: 13 }}
+                    >
+                      {t("exercise.scorm.nextSlide")}
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>

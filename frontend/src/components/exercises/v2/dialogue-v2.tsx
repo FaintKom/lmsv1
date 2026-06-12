@@ -13,13 +13,16 @@
  * Per-task HP + streak.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+
+/** DG-03: bubbles cap to the pane, not the viewport. */
+const BUBBLE_MAX_WIDTH = "min(340px, 78cqw)";
 
 export interface DialogueNpcMessage {
   speaker: string;
@@ -68,14 +71,24 @@ export function DialogueV2({
   const [stage, setStage] = useState(0);
   const [typing, setTyping] = useState(true);
   const [pick, setPick] = useState<string | null>(null);
+  /** DG-04: wrong replies stay struck out across retries. */
+  const [eliminated, setEliminated] = useState<string[]>([]);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
+  const logRef = useRef<HTMLDivElement | null>(null);
 
   const correctOpt = options.find((o) => o.correct);
+
+  /* DG-01: keep the latest bubble in view by scrolling the LOG element —
+   * scrollIntoView would scroll the host app/page around the exercise. */
+  useEffect(() => {
+    const el = logRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [stage, typing, pick, feedback]);
 
   /* Staged reveal: typing dots, then the message pops in (700ms before the
    * first message, 900ms before each next one, 120ms swap gap). */
@@ -117,6 +130,8 @@ export function DialogueV2({
     const remaining = attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
+    // DG-04: the wrong reply is struck from the options for good.
+    if (pick !== null) setEliminated((e) => (e.includes(pick) ? e : [...e, pick]));
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
     if (remaining <= 0) {
@@ -167,10 +182,23 @@ export function DialogueV2({
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div style={{ maxWidth: 480, margin: "0 auto" }}>
+        {/* DG-05: a real log landmark, announced politely. DG-01: it owns its
+            own scroll so new bubbles never scroll the host page. */}
+        <div
+          ref={logRef}
+          role="log"
+          aria-live="polite"
+          style={{
+            maxWidth: 480,
+            margin: "0 auto",
+            maxHeight: 300,
+            overflowY: "auto",
+            paddingRight: 4,
+          }}
+        >
           {shown.map((m, idx) => (
             <div key={idx} className="fb-bubble-row pop">
-              <div className="fb-avatar">
+              <div className="fb-avatar" aria-hidden="true">
                 {m.initial ?? m.speaker[0]?.toUpperCase() ?? "?"}
               </div>
               <div>
@@ -187,18 +215,24 @@ export function DialogueV2({
                 >
                   {m.speaker}
                 </div>
-                <div className="fb-bubble">{m.text}</div>
+                <div className="fb-bubble" style={{ maxWidth: BUBBLE_MAX_WIDTH }}>
+                  {m.text}
+                </div>
               </div>
             </div>
           ))}
 
-          {/* typing indicator before the next NPC message */}
+          {/* DG-02: typing indicator before the next NPC message */}
           {typing && !allShown && nextMsg && (
             <div className="fb-bubble-row pop">
-              <div className="fb-avatar">
+              <div className="fb-avatar" aria-hidden="true">
                 {nextMsg.initial ?? nextMsg.speaker[0]?.toUpperCase() ?? "?"}
               </div>
-              <div className="fb-bubble fb-typing">
+              <div
+                className="fb-bubble fb-typing"
+                aria-label={nextMsg.speaker}
+                style={{ maxWidth: BUBBLE_MAX_WIDTH }}
+              >
                 <i></i>
                 <i></i>
                 <i></i>
@@ -206,13 +240,15 @@ export function DialogueV2({
             </div>
           )}
 
-          {/* your reply preview */}
+          {/* DG-04: your reply lands in the log; on a wrong grade it turns
+              coral + shakes, then lifts back out when you hit Try again. */}
           {pick && (
             <div className="fb-bubble-row me pop">
               <div
                 className={
                   "fb-bubble me" + (feedback?.kind === "no" ? " no" : "")
                 }
+                style={{ maxWidth: BUBBLE_MAX_WIDTH }}
               >
                 {options.find((o) => o.id === pick)?.text}
               </div>
@@ -238,12 +274,26 @@ export function DialogueV2({
               }}
             >
               {options.map((o) => {
+                // Reveal the correct option only when the task is over —
+                // never on a retryable miss (answer-leak guard).
+                const taskOver =
+                  !!feedback && (feedback.kind === "ok" || attemptsLeft <= 0);
+                const isElim = eliminated.includes(o.id);
                 let state = "";
-                if (feedback) {
+                if (taskOver) {
                   if (o.correct) state = "correct";
                   else if (o.id === pick) state = "wrong";
+                  else if (isElim) state = "eliminated";
                   else state = "locked";
-                } else if (o.id === pick) state = "selected";
+                } else if (feedback) {
+                  if (o.id === pick) state = "wrong";
+                  else if (isElim) state = "eliminated";
+                  else state = "locked";
+                } else if (isElim) {
+                  state = "eliminated"; // DG-04: struck out across retries
+                } else if (o.id === pick) {
+                  state = "selected";
+                }
                 return (
                   <button
                     key={o.id}
@@ -254,7 +304,7 @@ export function DialogueV2({
                       justifyContent: "flex-start",
                       textAlign: "left",
                     }}
-                    disabled={!!feedback}
+                    disabled={!!feedback || isElim}
                     onClick={() => setPick(o.id)}
                   >
                     {o.text}

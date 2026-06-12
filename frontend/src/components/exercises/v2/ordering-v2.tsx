@@ -80,7 +80,13 @@ export function OrderingV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [checking, setChecking] = useState(false);
+  /** OR-02: visually-hidden live region — announces keyboard moves. */
+  const [announce, setAnnounce] = useState("");
+  /** OR-02: row whose arrow buttons are visible (focused or hovered). */
+  const [focusPos, setFocusPos] = useState<number | null>(null);
+  const [hoverPos, setHoverPos] = useState<number | null>(null);
   const startY = useRef(0);
+  const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -114,6 +120,29 @@ export function OrderingV2({
       setTimeout(() => setSettledIdx(null), 350);
     }
     setDrag(null);
+  };
+
+  /** OR-02: keyboard move — focused row shifts one slot up/down; the live
+   * region announces the new position and focus follows the row. */
+  const keyMove = (pos: number, dir: -1 | 1) => {
+    if (locked) return;
+    const to = pos + dir;
+    if (to < 0 || to >= n) return;
+    const next = order.slice();
+    const [moved] = next.splice(pos, 1);
+    next.splice(to, 0, moved);
+    setOrder(next);
+    setSettledIdx(to);
+    setTimeout(() => setSettledIdx(null), 350);
+    setAnnounce(
+      t("exercise.ordering.movedToAria")
+        .replace("{item}", items[moved])
+        .replace("{n}", String(to + 1))
+        .replace("{total}", String(n))
+    );
+    requestAnimationFrame(() => {
+      rowRefs.current[to]?.focus();
+    });
   };
 
   /** Live shift (px) for a non-dragged row while a neighbour is in flight. */
@@ -215,6 +244,13 @@ export function OrderingV2({
   return (
     <div style={{ position: "relative", height: "100%" }}>
       {layer}
+      {/* OR-02: visually-hidden aria-live region for keyboard moves. */}
+      <span
+        style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clipPath: "inset(50%)" }}
+        aria-live="polite"
+      >
+        {announce}
+      </span>
       <LessonShell
         hearts={attemptsLeft}
         maxHearts={maxAttemptsPerTask}
@@ -224,12 +260,15 @@ export function OrderingV2({
         title={title ?? t("exercise.ordering.title")}
         feedback={feedback}
         canCheck={!feedback && !checking}
+        checking={checking}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
         <div
+          role="list"
+          aria-label={t("exercise.ordering.listAria")}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -247,9 +286,32 @@ export function OrderingV2({
               isDrag && targetPos !== null
                 ? targetPos + 1
                 : pos + 1 + (shift < 0 ? -1 : shift > 0 ? 1 : 0);
+            const arrowsVisible = !locked && (focusPos === pos || hoverPos === pos);
+            const arrowBtnStyle: React.CSSProperties = {
+              width: 26,
+              height: 26,
+              borderRadius: 7,
+              border: "1.5px solid var(--ink-200)",
+              background: "var(--paper-2)",
+              color: "var(--ink-500)",
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 12,
+              padding: 0,
+            };
             return (
               <div
                 key={itemIdx}
+                ref={(el) => {
+                  rowRefs.current[pos] = el;
+                }}
+                role="listitem"
+                tabIndex={locked ? -1 : 0}
+                aria-label={t("exercise.ordering.rowAria")
+                  .replace("{n}", String(pos + 1))
+                  .replace("{total}", String(n))
+                  .replace("{item}", items[itemIdx])}
                 className={
                   "fb-dragrow" +
                   (isDrag ? " dragging" : "") +
@@ -266,10 +328,60 @@ export function OrderingV2({
                 onPointerMove={move}
                 onPointerUp={up}
                 onPointerCancel={up}
+                onPointerEnter={() => setHoverPos(pos)}
+                onPointerLeave={() => setHoverPos((h) => (h === pos ? null : h))}
+                onFocus={() => setFocusPos(pos)}
+                onBlur={() => setFocusPos((f) => (f === pos ? null : f))}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    keyMove(pos, -1);
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    keyMove(pos, 1);
+                  }
+                }}
               >
                 <span className="num">{displayNum}</span>
-                <span style={{ flex: 1 }}>{items[itemIdx]}</span>
-                <span className="grip">⋮⋮</span>
+                <span style={{ flex: 1, minWidth: 0 }}>{items[itemIdx]}</span>
+                {/* OR-02: visible move buttons on focus/hover (pointer path
+                    for the keyboard affordance); grip otherwise. */}
+                {arrowsVisible ? (
+                  <span
+                    aria-hidden="true"
+                    style={{ display: "inline-flex", gap: 4, marginLeft: "auto", flex: "none" }}
+                  >
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      style={arrowBtnStyle}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        keyMove(pos, -1);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      style={arrowBtnStyle}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        keyMove(pos, 1);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      ↓
+                    </button>
+                  </span>
+                ) : (
+                  <span className="grip" aria-hidden="true">
+                    ⋮⋮
+                  </span>
+                )}
               </div>
             );
           })}
