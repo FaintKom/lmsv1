@@ -560,6 +560,10 @@ button { font-family: inherit; }
  flex-direction: column;
  font-family: var(--font-sans);
  color: var(--ink-900);
+ /* SH-02: exercises live in PANES (lesson pane + sidebar), not viewports —
+    narrow-layout rules below fire on container width, not window width. */
+ container-type: inline-size;
+ container-name: lesson;
 }
 .lf-top {
  display: flex;
@@ -640,6 +644,22 @@ button { font-family: inherit; }
 .lf-fb-sub { font-size: 13px; color: var(--ink-500); margin-top: 2px; font-weight: 500; }
 .lf-fb-correct { font-size: 14px; color: var(--coral-700); margin-top: 4px; font-weight: 600; }
 .lf-fb-correct b { font-weight: 800; }
+/* FIX-10: structured answer reveal — scrollable two-column list. */
+.lf-reveal { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; max-height: 120px; overflow: auto; }
+.lf-reveal li { font-size: 13.5px; font-weight: 600; color: var(--coral-700); display: flex; gap: 8px; align-items: baseline; }
+.lf-reveal li b { font-weight: 800; }
+.lf-reveal li .arr { color: var(--ink-300); font-family: var(--font-mono); }
+/* FIX-06: neutral "meh" tone — network/config hiccup, never the child's fault. */
+.lf-bottom.notice { background: var(--ink-50); border-top-color: var(--ink-200); }
+.lf-fb-icon.meh { background: var(--ink-400); }
+.lf-fb-text.meh { color: var(--ink-700); }
+/* XC-05: streak pill lights up while a streak is alive. */
+.lf-streak.lit { color: var(--sun-700); background: var(--sun-100); }
+/* SH-05: hearts as an icon row when the pool is small. */
+.lf-hearts .hrt { display: inline-grid; place-items: center; transition: transform 200ms var(--motion-ease), opacity 200ms; }
+.lf-hearts .hrt.empty { opacity: 0.28; transform: scale(0.86); }
+.lf-hearts .hrt.popping { animation: gp-pulse-heart calc(0.5s * var(--mdur)) var(--motion-ease); }
+.lf-steplabel { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink-500); font-variant-numeric: tabular-nums; flex: none; }
 
 .gp-btn {
  display: inline-flex;
@@ -661,9 +681,12 @@ button { font-family: inherit; }
  transition: transform 120ms var(--motion-ease), box-shadow 120ms var(--motion-ease), background 120ms;
  user-select: none;
 }
-.gp-btn:hover { transform: translateY(2px); box-shadow: 0 2px 0 0 var(--green-700); }
-.gp-btn:active { transform: translateY(4px); box-shadow: 0 0 0 0 var(--green-700); }
-.gp-btn:disabled {
+.gp-btn:hover:not(:disabled):not([aria-disabled="true"]) { transform: translateY(2px); box-shadow: 0 2px 0 0 var(--green-700); }
+.gp-btn:active:not(:disabled):not([aria-disabled="true"]) { transform: translateY(4px); box-shadow: 0 0 0 0 var(--green-700); }
+/* SH-06: Check stays clickable while "blocked" (to wiggle + hint) — it
+   carries aria-disabled, so style that the same as :disabled. */
+.gp-btn:disabled,
+.gp-btn[aria-disabled="true"] {
  background: var(--ink-100);
  color: var(--ink-300);
  box-shadow: 0 4px 0 0 var(--ink-200);
@@ -675,6 +698,27 @@ button { font-family: inherit; }
 .gp-btn.sun { background: var(--sun-400); color: var(--ink-900); box-shadow: 0 4px 0 0 var(--sun-500); }
 .gp-btn.sun:hover { box-shadow: 0 2px 0 0 var(--sun-500); }
 .gp-btn.sun:active { box-shadow: 0 0 0 0 var(--sun-500); }
+.gp-btn.ink { background: var(--ink-700); box-shadow: 0 4px 0 0 var(--ink-900); }
+/* SH-06: blocked Check press wiggles + a one-line hint appears above. */
+.gp-btn.nudge { animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.gp-checkhint {
+ position: absolute; bottom: calc(100% + 10px); right: 0;
+ background: var(--ink-900); color: #fff;
+ font-size: 13px; font-weight: 600; padding: 8px 13px; border-radius: 10px;
+ white-space: nowrap; pointer-events: none; z-index: 30;
+ animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.gp-checkhint::after {
+ content: ''; position: absolute; top: 100%; right: 24px;
+ border: 5px solid transparent; border-top-color: var(--ink-900);
+}
+/* FIX-08: async-grading spinner on the Check button. */
+.gp-spin {
+ width: 16px; height: 16px; border-radius: 50%;
+ border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
+ animation: gp-rotate 0.7s linear infinite; flex: none;
+}
+@keyframes gp-rotate { to { transform: rotate(360deg); } }
 .gp-btn.ghost {
  background: var(--paper-2);
  color: var(--ink-500);
@@ -836,7 +880,9 @@ button { font-family: inherit; }
 }
 @keyframes gp-fall {
  0% { transform: translateY(0) rotate(0); opacity: 1; }
- 100% { transform: translateY(560px) rotate(540deg); opacity: 0; }
+ /* SH-08: fixed 560px died mid-air in tall panes; container/viewport units
+    carry confetti the full height. */
+ 100% { transform: translateY(110cqh) rotate(540deg); opacity: 0; }
 }
 
 @keyframes gp-pop {
@@ -1248,6 +1294,16 @@ button { font-family: inherit; }
 @media (max-width: 560px) {
  .gx-layout { grid-template-columns: 1fr; }
 }
+
+/* Code-challenge / robot split panes (CC-02, RB-02) — stack ≤560 via the
+   container block below. */
+.cc-grid {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+ gap: 14px;
+ height: 100%;
+ min-height: 0;
+}
 .fb-crosshair { pointer-events: none; }
 .fb-target-ring { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
@@ -1484,7 +1540,11 @@ button { font-family: inherit; }
    Targets phones in portrait. Tap targets ≥44pt, smaller chrome,
    16px input font (prevents iOS focus zoom).
 */
-@media (max-width: 560px) {
+/* SH-02: container-query version — fires on the lesson PANE width, not the
+   viewport, so exercises adapt inside split layouts too. SH-01: the old block
+   targeted .lf-fb-msg/.lf-fb-explain — classes that never existed (rendered:
+   .lf-fb-text/.lf-fb-sub). */
+@container lesson (max-width: 560px) {
  .gp-tile {
   padding: 14px 14px;
   font-size: 15px;
@@ -1499,12 +1559,36 @@ button { font-family: inherit; }
  .lf-top { padding: 10px 12px; gap: 8px; }
  .lf-close { width: 32px; height: 32px; }
  .lf-bottom { padding: 12px; }
- .lf-fb-msg { font-size: 14px; }
- .lf-fb-explain { font-size: 12px; }
+ .lf-fb-text { font-size: 16px; }
+ .lf-fb-sub { font-size: 12px; }
+ .lf-fb-icon { width: 36px; height: 36px; }
+ /* SH-03: feedback sheet stacks; CTA becomes a full-width thumb target. */
+ .lf-fb-row { flex-wrap: wrap; }
+ .lf-fb-row > .gp-btn { flex-basis: 100%; width: 100%; }
+ .fb-bucket { min-width: 124px; min-height: 130px; padding: 10px; }
+ .fb-dragrow { padding: 8px 12px; gap: 10px; min-height: 48px; font-size: 14px; }
+ .fb-slot { min-width: 72px; min-height: 40px; }
+ .fb-formula { padding: 18px 14px; }
+ .fb-input { width: 150px; font-size: 20px; }
+ .fb-step-label { width: 44px; }
+ .fb-step-input { font-size: 16px; padding: 10px 12px; }
+ .fb-rate { font-size: 12px; padding: 9px 4px 7px; }
+ .gx-layout { grid-template-columns: 1fr; gap: 14px; } /* GX-01: stack */
+ .cc-grid { grid-template-columns: 1fr; }              /* CC-02: stack */
+}
+@container lesson (max-width: 400px) {
+ .gp-title { font-size: 17.5px; }
+ .lf-streak, .lf-hearts { padding: 3px 7px 3px 5px; font-size: 12px; }
+}
+
+/* Viewport fallback for browsers without container-query support. */
+@media (max-width: 560px) {
+ .gp-tile { min-height: 44px; }
 }
 
 /* Ensure a sensible minimum tap area on coarse pointers regardless of width. */
 @media (hover: none) and (pointer: coarse) {
  .gp-tile { min-height: 44px; }
  .gp-btn { min-height: 44px; }
+ button, [role="button"] { touch-action: manipulation; }
 }

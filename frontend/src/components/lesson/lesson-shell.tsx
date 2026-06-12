@@ -20,18 +20,30 @@
 
 import {
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 
-export type FeedbackKind = "ok" | "no";
+/**
+ * FIX-06: third kind "meh" — the system hiccuped (network/config). Neutral
+ * grey tone; never consumes hearts, never resets streak, preserves the
+ * child's answer. Used by server-graded mechanics on transport failures.
+ */
+export type FeedbackKind = "ok" | "no" | "meh";
 
 export interface LessonFeedback {
   kind: FeedbackKind;
   msg?: string;
   /** Reveal the canonical correct answer (string form). */
   correct?: string;
+  /**
+   * FIX-10: structured reveal — [left, right] pairs rendered as a scrollable
+   * two-column list instead of a run-on string.
+   */
+  correctList?: [string, string][];
   /** Optional short explanation. */
   explain?: string;
 }
@@ -76,6 +88,13 @@ export interface LessonShellProps {
    * "Try again" instead of "Continue" — caller resets the question state. */
   onRetry?: () => void;
   checkLabel?: string;
+  /**
+   * SH-06: one-line hint shown above a blocked Check press, e.g.
+   * "Pick an answer first". The press also wiggles instead of dead-clicking.
+   */
+  checkHint?: string;
+  /** FIX-08: async grading in flight — spinner + disabled Check. */
+  checking?: boolean;
   /** Default true; hide for game flows. */
   showSkip?: boolean;
   onSkip?: () => void;
@@ -120,7 +139,59 @@ const Ico = {
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   ),
+  Wifi: ({ s = 20 }: { s?: number }) => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+      <path d="M5 12a10 10 0 0 1 14 0" />
+      <path d="M8.5 15.5a5 5 0 0 1 7 0" />
+      <circle cx="12" cy="19" r="1.2" fill="currentColor" stroke="none" />
+    </svg>
+  ),
 };
+
+/* ─── Hearts pill (SH-05) ──────────────────────────────────────────── */
+
+/**
+ * Hearts render as an icon row (filled/empty) when the pool is small —
+ * the loss animation pops on the specific heart that was just lost.
+ */
+function HeartsPill({
+  hearts,
+  maxHearts,
+  lostHeart,
+}: {
+  hearts: number;
+  maxHearts: number;
+  lostHeart: boolean;
+}) {
+  const iconMode = maxHearts > 0 && maxHearts <= 5;
+  return (
+    <span
+      className={"lf-hearts " + (lostHeart ? "gp-heart-loss" : "")}
+      role="img"
+      aria-label={`${hearts} / ${maxHearts}`}
+    >
+      {iconMode ? (
+        Array.from({ length: maxHearts }, (_, i) => {
+          const filled = i < hearts;
+          const justLost = lostHeart && i === hearts;
+          return (
+            <span
+              key={i}
+              className={"hrt " + (filled ? "" : "empty") + (justLost ? " popping" : "")}
+            >
+              <Ico.Heart s={14} filled={filled} />
+            </span>
+          );
+        })
+      ) : (
+        <>
+          <Ico.Heart s={14} filled />
+          {hearts}
+        </>
+      )}
+    </span>
+  );
+}
 
 /* ─── Feedback sheet (bottom) ─────────────────────────────────────── */
 
@@ -136,16 +207,21 @@ export function FeedbackSheet({
    * attempts. Caller is responsible for clearing pick state on retry. */
   onRetry?: () => void;
 }) {
-  const ok = feedback.kind === "ok";
+  const kind = feedback.kind;
+  const ok = kind === "ok";
+  const meh = kind === "meh";
   const canRetry = !ok && !!onRetry;
+  const tone = ok ? "correct" : meh ? "notice" : "wrong";
+  const Icon = ok ? Ico.CheckThick : meh ? Ico.Wifi : Ico.XThick;
   return (
-    <div className={"lf-bottom sheet " + (ok ? "correct" : "wrong")}>
-      <div className="lf-fb-row">
-        <span className={"lf-fb-icon " + (ok ? "ok" : "no")}>
-          {ok ? <Ico.CheckThick /> : <Ico.XThick />}
+    <div className={"lf-bottom sheet " + tone}>
+      {/* SH-04: announce the result to assistive tech. */}
+      <div className="lf-fb-row" role="status" aria-live="assertive">
+        <span className={"lf-fb-icon " + (ok ? "ok" : meh ? "meh" : "no")}>
+          <Icon />
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className={"lf-fb-text " + (ok ? "ok" : "no")}>
+          <div className={"lf-fb-text " + (ok ? "ok" : meh ? "meh" : "no")}>
             {feedback.msg || (ok ? "Nicely done!" : canRetry ? "Try again" : "Not quite")}
           </div>
           {feedback.correct && !ok && !canRetry && (
@@ -153,14 +229,26 @@ export function FeedbackSheet({
               Answer: <b>{feedback.correct}</b>
             </div>
           )}
+          {/* FIX-10: structured reveal list. */}
+          {feedback.correctList && !ok && !canRetry && (
+            <ul className="lf-reveal">
+              {feedback.correctList.map((row, i) => (
+                <li key={i}>
+                  <b>{row[0]}</b>
+                  <span className="arr">→</span>
+                  {row[1]}
+                </li>
+              ))}
+            </ul>
+          )}
           {feedback.explain && <div className="lf-fb-sub">{feedback.explain}</div>}
         </div>
         <button
-          className={"gp-btn " + (ok ? "" : "coral")}
+          className={"gp-btn " + (ok ? "" : meh ? "ink" : "coral")}
           onClick={canRetry ? onRetry : onContinue}
           style={{ padding: "14px 30px" }}
         >
-          {canRetry ? "Try again" : "Continue"}
+          {canRetry ? (meh ? "Retry" : "Try again") : "Continue"}
         </button>
       </div>
     </div>
@@ -245,6 +333,8 @@ export function LessonShell({
   onContinue,
   onRetry,
   checkLabel = "Check",
+  checkHint = "Pick an answer first",
+  checking = false,
   showSkip = true,
   onSkip,
   lostHeart = false,
@@ -252,10 +342,33 @@ export function LessonShell({
   instant = false,
   instantLabel,
 }: LessonShellProps) {
-  void maxHearts;
   const hasStep = typeof step === "number" && typeof totalSteps === "number";
   const fill = hasStep ? (step! / totalSteps!) * 100 : progress;
   const showBar = hasStep || typeof progress === "number";
+  const [nudge, setNudge] = useState(false);
+  const [hint, setHint] = useState(false);
+  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // SH-06: a blocked Check press wiggles + explains instead of dead-clicking.
+  const handleCheckPress = () => {
+    if (checking) return;
+    if (!canCheck) {
+      setNudge(true);
+      setHint(true);
+      if (hintTimer.current) clearTimeout(hintTimer.current);
+      setTimeout(() => setNudge(false), 450);
+      hintTimer.current = setTimeout(() => setHint(false), 1800);
+      return;
+    }
+    setHint(false);
+    onCheck();
+  };
+  useEffect(
+    () => () => {
+      if (hintTimer.current) clearTimeout(hintTimer.current);
+    },
+    []
+  );
 
   return (
     <div className="lf-shell">
@@ -288,14 +401,18 @@ export function LessonShell({
         )}
         {!hideStats && (
           <>
-            <span className="lf-streak">
+            {/* XC-05: pill lights up while a streak is alive.
+                SH-09: #xp-anchor — flyXP() target in the chrome. */}
+            <span
+              id="xp-anchor"
+              className={"lf-streak" + (streak > 0 ? " lit" : "")}
+              role="img"
+              aria-label={String(streak)}
+            >
               <Ico.Flame s={14} />
               {streak}
             </span>
-            <span className={"lf-hearts " + (lostHeart ? "gp-heart-loss" : "")}>
-              <Ico.Heart s={14} filled />
-              {hearts}
-            </span>
+            <HeartsPill hearts={hearts} maxHearts={maxHearts} lostHeart={lostHeart} />
           </>
         )}
       </div>
@@ -323,12 +440,13 @@ export function LessonShell({
       ) : (
         <div className="lf-bottom" style={{ background: "var(--paper)" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            {showSkip && (
+            {/* SH-07: hide Skip entirely when there is nothing to skip to —
+                a permanently disabled ghost button is just noise. */}
+            {showSkip && onSkip && (
               <button
                 className="gp-btn ghost"
                 style={{ padding: "12px 22px" }}
                 onClick={onSkip}
-                disabled={!onSkip}
               >
                 Skip
               </button>
@@ -348,14 +466,20 @@ export function LessonShell({
                 {instantLabel}
               </span>
             ) : (
-              <button
-                className="gp-btn"
-                style={{ marginLeft: "auto", padding: "14px 36px" }}
-                disabled={!canCheck}
-                onClick={onCheck}
-              >
-                {checkLabel}
-              </button>
+              <span style={{ marginLeft: "auto", position: "relative" }}>
+                {hint && !canCheck && (
+                  <span className="gp-checkhint">{checkHint}</span>
+                )}
+                <button
+                  className={"gp-btn" + (nudge ? " nudge" : "")}
+                  style={{ padding: "14px 36px" }}
+                  aria-disabled={!canCheck || checking}
+                  onClick={handleCheckPress}
+                >
+                  {checking && <span className="gp-spin" aria-hidden />}
+                  {checking ? "Checking…" : checkLabel}
+                </button>
+              </span>
             )}
           </div>
         </div>
