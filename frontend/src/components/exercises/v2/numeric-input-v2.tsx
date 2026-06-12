@@ -46,7 +46,24 @@ export interface NumericInputV2Props {
   }) => void;
 }
 
-const PAD_KEYS = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ".", "0", "⌫"];
+// NI-02: the pad must be able to produce a minus sign — negative answers
+// were physically impossible before. "−" renders as a ± sign toggle.
+const PAD_KEYS = ["7", "8", "9", "4", "5", "6", "1", "2", "3", ".", "0", "−"];
+
+/** NI-03: comma → dot (RU decimal habit), one dot max, digits + leading minus only. */
+const sanitizeNum = (s: string): string => {
+  let out = "";
+  let hasDot = false;
+  for (const raw of s) {
+    const ch = raw === "," ? "." : raw;
+    if (ch >= "0" && ch <= "9") out += ch;
+    else if (ch === "." && !hasDot) {
+      out += ".";
+      hasDot = true;
+    } else if ((ch === "-" || ch === "−") && out === "") out += "-";
+  }
+  return out;
+};
 
 export function NumericInputV2({
   problem,
@@ -217,7 +234,7 @@ export function NumericInputV2({
             inputMode="decimal"
             value={val}
             onChange={(e) => {
-              setVal(e.target.value);
+              setVal(sanitizeNum(e.target.value));
               setInputState("");
             }}
             onKeyDown={(e) => {
@@ -243,10 +260,14 @@ export function NumericInputV2({
               <button
                 key={k}
                 type="button"
+                aria-label={k === "−" ? "±" : k}
                 onClick={() => {
                   if (feedback) return;
-                  if (k === "⌫") setVal(val.slice(0, -1));
-                  else setVal(val + k);
+                  // NI-02: ± toggles the sign of the whole entry.
+                  if (k === "−")
+                    setVal(val.startsWith("-") ? val.slice(1) : "-" + val);
+                  else setVal(sanitizeNum(val + k));
+                  setInputState("");
                 }}
                 disabled={!!feedback}
                 style={{
@@ -262,9 +283,34 @@ export function NumericInputV2({
                   boxShadow: "0 2px 0 0 var(--ink-100)",
                 }}
               >
-                {k}
+                {k === "−" ? "±" : k}
               </button>
             ))}
+            <button
+              type="button"
+              aria-label="⌫"
+              onClick={() => {
+                if (feedback) return;
+                setVal(val.slice(0, -1));
+                setInputState("");
+              }}
+              disabled={!!feedback}
+              style={{
+                gridColumn: "1 / -1",
+                padding: "8px 0",
+                borderRadius: 10,
+                background: "var(--ink-50)",
+                border: "none",
+                fontFamily: "var(--font-mono)",
+                fontWeight: 700,
+                fontSize: 15,
+                color: "var(--ink-700)",
+                cursor: feedback ? "default" : "pointer",
+                boxShadow: "0 2px 0 0 var(--ink-100)",
+              }}
+            >
+              ⌫
+            </button>
           </div>
           <div
             style={{

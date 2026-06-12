@@ -130,6 +130,7 @@ export function EquationBalanceV2({
   onFinish,
 }: EquationBalanceV2Props) {
   const [state, setState] = useState<ScaleState>(initial);
+  const [stack, setStack] = useState<ScaleState[]>([]); // EB-03 undo stack
   const [moves, setMoves] = useState<string[]>([]);
   const [wobble, setWobble] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -148,32 +149,72 @@ export function EquationBalanceV2({
     setTimeout(() => setWobble(false), 650);
   };
 
-  const subtractWeight = (n = 1) => {
-    if (feedback || state.leftW < n || state.rightW < n) return;
-    setState({ ...state, leftW: state.leftW - n, rightW: state.rightW - n });
-    setMoves([...moves, `−${n} from both`]);
+  const apply = (next: ScaleState, label: string) => {
+    if (feedback) return;
+    setStack((st) => [...st, state]);
+    setState(next);
+    setMoves((m) => [...m, label]);
     triggerWobble();
   };
-  const subtractX = () => {
-    if (feedback || state.leftX < 1 || state.rightX < 1) return;
-    setState({ ...state, leftX: state.leftX - 1, rightX: state.rightX - 1 });
-    setMoves([...moves, "−x from both"]);
-    triggerWobble();
+
+  /** EB-03: step back one move. */
+  const undo = () => {
+    if (feedback || stack.length === 0) return;
+    setState(stack[stack.length - 1]);
+    setStack((st) => st.slice(0, -1));
+    setMoves((m) => m.slice(0, -1));
   };
-  const divide = () => {
-    if (feedback || state.leftX < 2) return;
-    if (state.leftW % state.leftX !== 0) return;
-    if (state.rightW % state.leftX !== 0) return;
-    const f = state.leftX;
-    setState({
-      leftX: 1,
-      leftW: state.leftW / f,
-      rightX: 0,
-      rightW: state.rightW / f,
+
+  /**
+   * EB-01: derive the op buttons from the live scale state instead of a
+   * hardcoded set — the old fixed "−4" was dead on most configs. Offered:
+   * −1, −minW (when >1), −x (when both sides hold x), ÷n (when divisible).
+   */
+  const minW = Math.min(state.leftW, state.rightW);
+  const divisible =
+    state.leftX >= 2 &&
+    state.leftW % state.leftX === 0 &&
+    state.rightW % state.leftX === 0 &&
+    state.rightX === 0;
+  const ops: { label: string; disabled?: boolean; why?: string; run: () => void }[] = [];
+  if (minW >= 1)
+    ops.push({
+      label: t("exercise.equationBalance.opSubtract").replace("{n}", "1"),
+      run: () =>
+        apply({ ...state, leftW: state.leftW - 1, rightW: state.rightW - 1 }, "−1"),
     });
-    setMoves([...moves, `÷${f}`]);
-    triggerWobble();
-  };
+  if (minW > 1)
+    ops.push({
+      label: t("exercise.equationBalance.opSubtract").replace("{n}", String(minW)),
+      run: () =>
+        apply(
+          { ...state, leftW: state.leftW - minW, rightW: state.rightW - minW },
+          `−${minW}`
+        ),
+    });
+  if (state.leftX >= 1 && state.rightX >= 1)
+    ops.push({
+      label: t("exercise.equationBalance.opSubtractX"),
+      run: () =>
+        apply({ ...state, leftX: state.leftX - 1, rightX: state.rightX - 1 }, "−x"),
+    });
+  if (state.leftX >= 2)
+    ops.push({
+      label: `÷ ${state.leftX}`,
+      disabled: !divisible,
+      // EB-04: a disabled ÷ explains itself instead of dead-clicking.
+      why: !divisible ? t("exercise.equationBalance.divideWhy") : undefined,
+      run: () =>
+        apply(
+          {
+            leftX: 1,
+            leftW: state.leftW / state.leftX,
+            rightX: 0,
+            rightW: state.rightW / state.leftX,
+          },
+          `÷${state.leftX}`
+        ),
+    });
 
   const handleCheck = () => {
     if (eqState(state, target)) {
@@ -208,6 +249,7 @@ export function EquationBalanceV2({
 
   const handleRetry = () => {
     setState(initial);
+    setStack([]);
     setMoves([]);
     setFeedback(null);
   };
@@ -234,7 +276,7 @@ export function EquationBalanceV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.equationBalance.title")}
         feedback={feedback}
-        canCheck={true}
+        canCheck={moves.length > 0 && !feedback}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -320,57 +362,37 @@ export function EquationBalanceV2({
               marginTop: 20,
             }}
           >
+            {ops.map((op) => (
+              <button
+                key={op.label}
+                type="button"
+                onClick={op.run}
+                disabled={!!feedback || op.disabled}
+                title={op.why}
+                className="gp-tile fb-op"
+                style={{
+                  padding: "8px 14px",
+                  fontSize: 13,
+                  fontFamily: "var(--font-mono)",
+                  opacity: op.disabled ? 0.5 : 1,
+                }}
+              >
+                {op.label}
+              </button>
+            ))}
             <button
               type="button"
-              onClick={() => subtractWeight(1)}
-              disabled={!!feedback || state.leftW < 1 || state.rightW < 1}
+              onClick={undo}
+              disabled={!!feedback || stack.length === 0}
               className="gp-tile fb-op"
               style={{
                 padding: "8px 14px",
                 fontSize: 13,
                 fontFamily: "var(--font-mono)",
+                opacity: stack.length === 0 ? 0.5 : 1,
               }}
             >
-              {t("exercise.equationBalance.opSubtract").replace("{n}", "1")}
-            </button>
-            <button
-              type="button"
-              onClick={() => subtractWeight(4)}
-              disabled={!!feedback || state.leftW < 4 || state.rightW < 4}
-              className="gp-tile fb-op"
-              style={{
-                padding: "8px 14px",
-                fontSize: 13,
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              {t("exercise.equationBalance.opSubtract").replace("{n}", "4")}
-            </button>
-            <button
-              type="button"
-              onClick={subtractX}
-              disabled={!!feedback || state.leftX < 1 || state.rightX < 1}
-              className="gp-tile fb-op"
-              style={{
-                padding: "8px 14px",
-                fontSize: 13,
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              {t("exercise.equationBalance.opSubtractX")}
-            </button>
-            <button
-              type="button"
-              onClick={divide}
-              disabled={!!feedback || state.leftX < 2}
-              className="gp-tile fb-op"
-              style={{
-                padding: "8px 14px",
-                fontSize: 13,
-                fontFamily: "var(--font-mono)",
-              }}
-            >
-              ÷ {state.leftX > 1 ? state.leftX : "…"}
+              ↩ {t("exercise.equationBalance.undo")}
             </button>
           </div>
           {/* applied-move chips */}

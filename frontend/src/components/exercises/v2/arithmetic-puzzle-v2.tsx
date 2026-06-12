@@ -53,6 +53,9 @@ export function ArithmeticPuzzleV2({
   onFinish,
 }: ArithmeticPuzzleV2Props) {
   const { t } = useTranslation();
+  // AP-01: placements are tracked by BANK INDEX, not by value — duplicate
+  // bank numbers must stay independently usable (value-keyed used-state
+  // greyed them out together and made such puzzles unsolvable).
   const [filled, setFilled] = useState<(number | null)[]>(() =>
     equations.map(() => null)
   );
@@ -64,17 +67,20 @@ export function ArithmeticPuzzleV2({
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
 
-  const pick = (n: number) => {
+  const pick = (bankIdx: number) => {
     if (feedback) return;
     const nf = filled.slice();
-    nf[active] = n;
+    nf[active] = bankIdx;
     setFilled(nf);
     const nextEmpty = nf.findIndex((v) => v === null);
     if (nextEmpty >= 0) setActive(nextEmpty);
   };
 
+  const valueAt = (row: number): number | null =>
+    filled[row] === null ? null : bank[filled[row]];
+
   const handleCheck = () => {
-    const allOk = equations.every((e, i) => filled[i] === e.answer);
+    const allOk = equations.every((e, i) => valueAt(i) === e.answer);
     if (allOk) {
       setFeedback({
         kind: "ok",
@@ -167,7 +173,7 @@ export function ArithmeticPuzzleV2({
                         {c}
                       </span>
                     );
-                  const v = filled[i];
+                  const v = valueAt(i);
                   const isCorrect = !!feedback && v === e.answer;
                   const isWrong = !!feedback && v !== e.answer;
                   return (
@@ -223,13 +229,13 @@ export function ArithmeticPuzzleV2({
               justifyContent: "center",
             }}
           >
-            {bank.map((n) => {
-              const used = filled.includes(n);
+            {bank.map((n, idx) => {
+              const used = filled.includes(idx);
               return (
                 <button
-                  key={n}
+                  key={idx}
                   type="button"
-                  onClick={() => pick(n)}
+                  onClick={() => pick(idx)}
                   disabled={used || !!feedback}
                   className={"gp-tile " + (used ? "locked" : "")}
                   style={{
