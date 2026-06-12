@@ -11,12 +11,14 @@
  * No traditional HP model — finding all words = task complete (+1
  * streak). Quit / skip resets streak via onFinish payload.
  *
- * Touch + mouse: mousedown to start, drag (mouseenter) to extend,
- * mouseup to commit. Container catches mouseup/mouseleave so dragging
- * off the grid still settles cleanly.
+ * Touch + mouse (XC-06): pointer events with capture on the grid —
+ * pointerdown starts on the pressed cell, pointermove resolves the cell
+ * under the finger via elementFromPoint (capture routes events to the
+ * grid), pointerup/cancel commits. Works identically for mouse, touch,
+ * and pen; mouse-only handlers never fire on touch.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import {
   LessonShell,
@@ -75,17 +77,29 @@ export function WordSearchV2({
   const [found, setFound] = useState<Record<string, string[]>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [streak, setStreak] = useState(initialStreak);
+  const gridRef = useRef<HTMLDivElement | null>(null);
   const { fire, layer } = useConfetti();
 
-  const onCellDown = (k: string) => {
+  /** Resolve the letter cell under a pointer position (capture-safe). */
+  const cellFromPoint = (x: number, y: number): string | null => {
+    const el = document.elementFromPoint(x, y);
+    const cell = el instanceof Element ? el.closest("[data-cell]") : null;
+    return cell?.getAttribute("data-cell") ?? null;
+  };
+
+  const onGridDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (feedback) return;
+    const k = cellFromPoint(e.clientX, e.clientY);
+    if (!k) return;
+    gridRef.current?.setPointerCapture(e.pointerId);
     setSelecting(true);
     setStart(k);
     setDrag([k]);
   };
-  const onCellEnter = (k: string) => {
+  const onGridMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!selecting) return;
-    setDrag(cellsBetween(start, k));
+    const k = cellFromPoint(e.clientX, e.clientY);
+    if (k) setDrag(cellsBetween(start, k));
   };
   const onUp = () => {
     if (!selecting) return;
@@ -135,11 +149,7 @@ export function WordSearchV2({
   const dragSet = new Set(drag);
 
   return (
-    <div
-      style={{ position: "relative", height: "100%" }}
-      onMouseUp={onUp}
-      onMouseLeave={onUp}
-    >
+    <div style={{ position: "relative", height: "100%" }}>
       {layer}
       <LessonShell
         streak={streak}
@@ -162,12 +172,18 @@ export function WordSearchV2({
           }}
         >
           <div
+            ref={gridRef}
+            onPointerDown={onGridDown}
+            onPointerMove={onGridMove}
+            onPointerUp={onUp}
+            onPointerCancel={onUp}
             style={{
               background: "var(--paper-2)",
               border: "2px solid var(--ink-100)",
               borderRadius: 14,
               padding: 8,
               userSelect: "none",
+              touchAction: "none",
             }}
           >
             {grid.map((row, r) => (
@@ -179,8 +195,7 @@ export function WordSearchV2({
                   return (
                     <div
                       key={c}
-                      onMouseDown={() => onCellDown(k)}
-                      onMouseEnter={() => onCellEnter(k)}
+                      data-cell={k}
                       style={{
                         width: 36,
                         height: 36,

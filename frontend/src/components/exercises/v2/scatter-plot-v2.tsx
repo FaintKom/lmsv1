@@ -9,6 +9,13 @@
  * against target {m, b} with loose tolerance.
  *
  * Per-task HP + streak; retry resets line endpoints.
+ *
+ * Interaction (SP-01): pointer events with capture — mouse-only events
+ * never fire on touch. Handles snap to the 0.5 grid, are keyboard
+ * focusable (arrow keys move one half-step — SP-02/GX-05), and Check
+ * unlocks only after the first interaction (GX-03). Misses teach the
+ * heuristic instead of revealing the target line (SP-05); the answer
+ * appears only when attempts are exhausted.
  */
 
 import { useRef, useState } from "react";
@@ -70,14 +77,11 @@ export function ScatterPlotV2({
   const { t } = useTranslation();
   const toX = (v: number) => PAD.l + (v / xMax) * PLOTW;
   const toY = (v: number) => PAD.t + PLOTH - (v / yMax) * PLOTH;
-  const fromX = (px: number) =>
-    Math.max(0, Math.min(xMax, ((px - PAD.l) / PLOTW) * xMax));
-  const fromY = (px: number) =>
-    Math.max(0, Math.min(yMax, yMax - ((px - PAD.t) / PLOTH) * yMax));
 
   const [start, setStart] = useState<ScatterPoint>({ x: 0, y: 1 });
   const [end, setEnd] = useState<ScatterPoint>({ x: xMax, y: yMax - 1 });
   const [drag, setDrag] = useState<"start" | "end" | null>(null);
+  const [touched, setTouched] = useState(false);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -89,13 +93,42 @@ export function ScatterPlotV2({
   const m = (end.y - start.y) / (end.x - start.x || 0.001);
   const b = start.y - m * start.x;
 
-  const onMove = (e: React.MouseEvent) => {
-    if (!drag || !svgRef.current || feedback) return;
-    const r = svgRef.current.getBoundingClientRect();
-    const x = fromX(e.clientX - r.left);
-    const y = fromY(e.clientY - r.top);
-    if (drag === "start") setStart({ x, y });
-    else setEnd({ x, y });
+  /** Pointer position → data coords, corrected for the responsive scale. */
+  const svgCoords = (e: React.PointerEvent) => {
+    const el = svgRef.current!;
+    const r = el.getBoundingClientRect();
+    const scale = SIZE_W / r.width;
+    const px = (e.clientX - r.left) * scale;
+    const py = (e.clientY - r.top) * scale;
+    return {
+      x: Math.max(0, Math.min(xMax, ((px - PAD.l) / PLOTW) * xMax)),
+      y: Math.max(0, Math.min(yMax, yMax - ((py - PAD.t) / PLOTH) * yMax)),
+    };
+  };
+
+  const onHandleDown = (k: "start" | "end") => (e: React.PointerEvent) => {
+    if (feedback) return;
+    svgRef.current?.setPointerCapture(e.pointerId);
+    setDrag(k);
+    setTouched(true);
+  };
+  const onMove = (e: React.PointerEvent) => {
+    if (!drag || feedback || !svgRef.current) return;
+    const c = svgCoords(e);
+    // Snap handles to the 0.5 grid so positions are reproducible.
+    const snapped = { x: Math.round(c.x * 2) / 2, y: Math.round(c.y * 2) / 2 };
+    if (drag === "start") setStart(snapped);
+    else setEnd(snapped);
+  };
+  const keyMoveHandle = (k: "start" | "end", dx: number, dy: number) => {
+    if (feedback) return;
+    const upd = (p: ScatterPoint) => ({
+      x: Math.max(0, Math.min(xMax, p.x + dx)),
+      y: Math.max(0, Math.min(yMax, p.y + dy)),
+    });
+    if (k === "start") setStart(upd);
+    else setEnd(upd);
+    setTouched(true);
   };
 
   const handleCheck = () => {
@@ -116,11 +149,13 @@ export function ScatterPlotV2({
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
-    const explain = t("exercise.scatterPlot.bestFitNear").replace("{m}", String(target.m)).replace("{b}", String(target.b));
+    // SP-05: teach the heuristic; never reveal the target while retries remain.
+    const explain = t("exercise.scatterPlot.aimEqualDots");
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
         msg: t("exercise.scatterPlot.lineDoesntFit"),
+        correct: t("exercise.scatterPlot.bestFitNear").replace("{m}", String(target.m)).replace("{b}", String(target.b)),
         explain,
       });
       setStreak(0);
@@ -148,11 +183,7 @@ export function ScatterPlotV2({
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
   return (
-    <div
-      style={{ position: "relative", height: "100%" }}
-      onMouseMove={onMove}
-      onMouseUp={() => setDrag(null)}
-    >
+    <div style={{ position: "relative", height: "100%" }}>
       {layer}
       <LessonShell
         hearts={attemptsLeft}
@@ -162,31 +193,20 @@ export function ScatterPlotV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.scatterPlot.title")}
         feedback={feedback}
-        canCheck={true}
+        canCheck={touched && !feedback}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 180px",
-            gap: 20,
-            justifyContent: "center",
-            alignItems: "start",
-          }}
-        >
+        <div className="gx-layout">
           <svg
             ref={svgRef}
-            width={SIZE_W}
-            height={SIZE_H}
-            style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
-              borderRadius: 14,
-              userSelect: "none",
-            }}
+            viewBox={`0 0 ${SIZE_W} ${SIZE_H}`}
+            className="gx-svg interactive"
+            onPointerMove={onMove}
+            onPointerUp={() => setDrag(null)}
+            onPointerCancel={() => setDrag(null)}
           >
             {/* gridlines */}
             {Array.from({ length: xMax + 1 }, (_, i) => (
@@ -289,10 +309,33 @@ export function ScatterPlotV2({
             ).map(([k, pt]) => (
               <g
                 key={k}
-                onMouseDown={() => !feedback && setDrag(k as "start" | "end")}
-                style={{ cursor: feedback ? "default" : "grab" }}
+                className={"fb-pt" + (drag === k ? " grabbed" : "")}
+                tabIndex={feedback ? -1 : 0}
+                role="button"
+                aria-label={`(${pt.x}, ${pt.y})`}
+                onPointerDown={onHandleDown(k)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    keyMoveHandle(k, -0.5, 0);
+                  }
+                  if (e.key === "ArrowRight") {
+                    e.preventDefault();
+                    keyMoveHandle(k, 0.5, 0);
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    keyMoveHandle(k, 0, 0.5);
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    keyMoveHandle(k, 0, -0.5);
+                  }
+                }}
+                style={{ cursor: feedback ? "default" : undefined }}
               >
                 <circle
+                  className="body"
                   cx={toX(pt.x)}
                   cy={toY(pt.y)}
                   r="11"
@@ -333,8 +376,7 @@ export function ScatterPlotV2({
                 lineHeight: 1.5,
               }}
             >
-              Drag either green handle to set where the line passes. Try to put
-              it through the middle of the scatter.
+              {t("exercise.scatterPlot.dragHandleHint")}
             </div>
           </div>
         </div>

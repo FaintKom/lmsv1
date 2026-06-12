@@ -61,15 +61,15 @@ function DPadBtn({ dir, onClick, disabled }: DPadBtnProps) {
         color: "var(--ink-700)",
         transition: "transform 100ms, box-shadow 100ms",
       }}
-      onMouseDown={(e) => {
+      onPointerDown={(e) => {
         e.currentTarget.style.transform = "translateY(2px)";
         e.currentTarget.style.boxShadow = "0 2px 0 0 var(--ink-200)";
       }}
-      onMouseUp={(e) => {
+      onPointerUp={(e) => {
         e.currentTarget.style.transform = "";
         e.currentTarget.style.boxShadow = "0 4px 0 0 var(--ink-200)";
       }}
-      onMouseLeave={(e) => {
+      onPointerLeave={(e) => {
         e.currentTarget.style.transform = "";
         e.currentTarget.style.boxShadow = "0 4px 0 0 var(--ink-200)";
       }}
