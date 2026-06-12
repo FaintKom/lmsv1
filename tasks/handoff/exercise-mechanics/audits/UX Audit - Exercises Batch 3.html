@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 3 (Language) · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout b { font-weight: 800; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print { .page { padding: 0; max-width: none; } h2 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — language mechanics, <span class="mk">batch&nbsp;3</span></h1>
+  <p class="lede">Six language mechanics reviewed: <b>sentence builder</b>, <b>translation</b>, <b>conjugation</b>, <b>dialogue</b>, <b>reading</b>, <b>crossword</b>. The batch-specific lens: language answers are <b>fuzzy by nature</b> — children type, and typing means caps, missing accents, stray spaces and full stops. Grading that punishes form over meaning is the #1 source of unfair hearts in this family.</p>
+  <p class="meta">Sources: <code>components/exercises/v2/{sentence-builder,conjugation,translation,dialogue,reading,crossword}-v2.tsx</code> &nbsp;→&nbsp; <a href="../Exercise Playground.html">open the playground</a> · <a href="UX Audit — Exercises Batch 2.html">batch 2</a> · <a href="UX Audit — Exercises Batch 1.html">batch 1</a></p>
+
+  <h2 id="sb">1 · Sentence builder <span class="tag">sentence-builder-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SB-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Duplicate words break the bank</b>Used-state is matched by string: in "the cat saw the dog" placing one "the" greys out <i>both</i> "the" tiles, and the sentence becomes unbuildable. Tiles are now identified by index, not text. Try the "Duplicate words" scenario. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SB-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">One mistake = start over</b>Upstream's only undo is "clear all". Children build incrementally and fix the last word; tapping any placed word now returns just that word. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SB-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No partial signal on a wrong sentence</b>The retry sheet now reports the longest correct prefix ("The first 3 words are right!") — concrete, non-revealing progress. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SB-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Words teleport instead of flying</b>Family grammar says moves are continuous (fill-blanks flies its pills). Bank→strip now uses the same <code>flyClone</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SB-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Strip overflows on long sentences</b>11-word sentences at 320px: the strip is a wrapping flex container with the dashed-well affordance from fill-blanks, so it grows naturally. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tr">2 · Translation <span class="tag">translation-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">TR-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">"the cat drinks milk" is wrong; "The cat drinks milk." is right</b>Upstream lowercases but requires exact punctuation and spacing. A 9-year-old loses a heart for a missing full stop. Normalisation now ignores case, terminal punctuation, repeated spaces and typographic apostrophes (’ ≡ '). The UI says so up front: "don't sweat capitals or full stops". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TR-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">A typo costs the same as a wrong translation</b>"The cat dirnks milk" = meaning understood, spelling slipped. Edit-distance-1 near-misses now get a free, neutral "Sooo close — check your spelling" sheet: no heart, no streak reset, text preserved. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TR-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Alternative answers exist but are invisible</b>Config accepts an array, the child sees only <code>accepted[0]</code> on failure — and "wrong" answers that match <code>accepted[1]</code> were already graded correct (good). On success we now also teach: "Also fine: …". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TR-04</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Fixed-height input + phone keyboard</b>Single-row input clipped long answers. Textarea autosizes (max 160px), Enter checks, Shift+Enter newlines — so the phone keyboard's enter key does the right thing. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TR-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Network failure reads as wrong answer</b>Family rule (TF-03/FB-03): neutral sheet, answer preserved, free retry. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cj">3 · Conjugation <span class="tag">conjugation-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CJ-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Missing accents = wrong answer</b>"prefere" vs "préfère" — for a child on an English keyboard the accent may be physically hard to type. Accent-insensitive grading (configurable), but with coaching: the success sheet notes "watch the accents — 2 missing" and the table fills in the accented forms in green. Strict mode stays available per-exercise. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CJ-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry lets you break correct rows</b>Same as stepwise MS-01: correct rows now lock green, focus jumps to the first wrong row, sheet leads with "3 of 5 are right". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CJ-01</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Pronouns aren't labels</b>Real <code>&lt;label for&gt;</code> per row; <code>autocapitalize="none"</code> and <code>spellcheck="false"</code> so the phone keyboard doesn't "fix" conjugations into wrongness. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CJ-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Enter does nothing</b>Enter advances to the next empty row; on the last row it checks. Matches stepwise. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="dg">4 · Dialogue <span class="tag">dialogue-v2.tsx</span></h2>
+  <p class="sub">The chat metaphor is inherently kid-friendly. What was missing is the <i>liveness</i> that makes chat feel like chat — and the family's anti-leak discipline.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">DG-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">scrollIntoView scrolls the whole app</b>Upstream scrolls new bubbles into view with <code>scrollIntoView</code>, which in an embedded lesson pane also scrolls the host page (a known footgun in this codebase). The log now scrolls itself via <code>scrollTop</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">DG-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Partner replies appear instantly</b>A 900ms typing indicator (three bouncing dots) before each partner bubble makes the exchange legible — children need the turn-taking rhythm made visible. Bubbles pop in with the family's spring. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">DG-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Wrong replies vanish without ceremony</b>Now: your wrong bubble lands in the chat, shakes coral, then lifts back out — the conversation visibly "rejects" it, and that option is struck from the choices. Much clearer cause→effect than an error sheet. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">DG-05</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Chat log is silent</b><code>role="log"</code> + <code>aria-live="polite"</code> so each bubble is announced; typing indicator has a text label. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">DG-03</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Bubble max-width fixed at 340px</b>Wider than a 320px pane. Now <code>min(340px, 78cqw)</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="rd">5 · Reading <span class="tag">reading-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">RD-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Side-by-side collapses badly on phones</b>The two-column passage|question grid squeezed both to ~150px at 320. The grid now stacks — passage above, question below — via the container query, with the passage keeping its own bounded scroll so the question stays reachable. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RD-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">One question per exercise only</b>Reading naturally carries 2–4 questions per passage; upstream renders one. Multi-question flow with step progress ("2 / 2") and per-question hearts — same loop as quiz. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RD-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Family discipline</b>Eliminated options persist across retries; no answer leak while retries remain; retry copy points back at the source: "Look back at the story". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cw">6 · Crossword <span class="tag">crossword-v2.tsx</span></h2>
+  <p class="sub">The most keyboard-centric mechanic in the family — and upstream had almost no keyboard behaviour beyond typing into a focused cell.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CW-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No auto-advance</b>Typing a letter left the caret in place; children had to tap every cell. Typing now walks along the active word (skipping locked cells); Backspace clears and walks back. This single fix roughly halves the interaction cost of the whole mechanic. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CW-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Crossing cells are ambiguous</b>A cell in both an across and a down word had no way to choose which word you're typing. Tapping the focused crossing cell toggles direction; the active word's clue highlights, and tapping any clue jumps to its first cell. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CW-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry wipes nothing — and protects nothing</b>Correct letters now lock green on retry ("14 of 17 letters are right"), wrong ones stay editable. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CW-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Failure reveal was all-coral noise</b>At 0 hearts the missing letters now fill in as dashed-green "ghost" letters — visually "here's what you were missing", not "everything is wrong". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CW-04</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">44px cells don't fit at 320</b>Cell size is a CSS var (<code>--cw</code>): 44px desktop, 38px under 560px container width — still above the touch minimum for adjacent-target grids, and an 8-column grid now fits a 320px pane. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cross">7 · Batch-3 cross-cutting</h2>
+  <div class="callout">
+    <b>Grading philosophy for typed language: meaning first, form coached.</b> Three tiers, used consistently across translation/conjugation/stepwise: (1) exact → celebrate; (2) equivalent-but-imperfect (case, punctuation, accents, 1 typo) → accept or free retry, with a gentle note about the imperfection; (3) wrong → heart. The cruel middle tier is where children unfairly lose hearts today.
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">XL-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Virtual keyboard overlap untested in production</b>Typed mechanics (translation, conjugation, crossword) on phones: the OS keyboard covers the bottom ~40% — including the Check button. Recommend <code>scrollPaddingBottom</code> on the lesson scroller + keeping the focused input scrolled visible; verify on staging with real devices. <span class="fix todo">PROPOSED</span></td></tr>
+      <tr><td class="id">XL-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Cyrillic support is untested in grading</b>Normalisation (<code>normLang</code>, accent stripping) handles Latin diacritics; Russian content (ё ≡ е is a real equivalence kids expect) needs a locale-aware pass before batch rollout. <span class="fix todo">PROPOSED</span></td></tr>
+      <tr><td class="id">XL-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">TTS exists nowhere in the language family</b>For 7–10-year-olds, hearing the sentence is half the exercise. The Web Speech API is free and offline-capable; a speaker button on translation sources and dialogue bubbles is a cheap, high-value add (styled <code>.fb-speak</code> is already in the playground CSS). <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn" style="margin-top:28px">
+    <b>Next:</b> batch 4 — card &amp; table mechanics (card-sort, srs-flashcard, venn ×2, two-way-table, table-pattern, area-model). Expect 3D flip performance, complex drag surfaces, and table density themes.
+  </div>
+</div>
+</body>
+</html>

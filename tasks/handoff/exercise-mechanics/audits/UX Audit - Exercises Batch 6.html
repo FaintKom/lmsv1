@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 6 (Special) + Summary · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  h3 { font-size: 16px; font-weight: 800; margin: 26px 0 8px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout b { font-weight: 800; }
+  .bigstat { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+  .bigstat .card { background: var(--paper-2); border: 1.5px solid var(--ink-100); border-radius: 14px; padding: 16px 18px; }
+  .bigstat .n { font-size: 32px; font-weight: 800; line-height: 1.1; }
+  .bigstat .l { font-size: 12px; color: var(--ink-500); font-weight: 600; margin-top: 2px; }
+  ol.principles { padding-left: 22px; max-width: 72ch; }
+  ol.principles li { margin: 9px 0; }
+  ol.principles b { font-weight: 800; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print { .page { padding: 0; max-width: none; } h2 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — special mechanics, <span class="mk">batch&nbsp;6</span> + series summary</h1>
+  <p class="lede">The final seven: <b>code challenge</b>, <b>robot 2D</b>, <b>arithmetic puzzle</b>, <b>bubble sheet</b>, <b>map pin</b>, <b>file upload</b>, <b>SCORM</b>. Plus a consolidated summary of the whole series — what to fix first in production and the rules that keep it fixed.</p>
+  <p class="meta">→ <a href="../Exercise Playground.html">open the playground</a> · audits: <a href="UX Audit — Exercises Batch 1.html">1</a> · <a href="UX Audit — Exercises Batch 2.html">2</a> · <a href="UX Audit — Exercises Batch 3.html">3</a> · <a href="UX Audit — Exercises Batch 4.html">4</a> · <a href="UX Audit — Exercises Batch 5.html">5</a></p>
+
+  <h2 id="cc">1 · Code challenge <span class="tag">code-challenge-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CC-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Tab throws you out of the editor</b>The textarea editor treats Tab as focus-next — in a code surface where indentation is syntax (Python!), every Tab press loses focus and zero spaces are inserted. Tab now inserts two spaces and keeps the caret. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CC-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Failing tests hide their data</b>The result type carries <code>expected</code>/<code>actual</code>, the UI never shows them — a child sees "Test 2 ✕" and nothing else. Failing visible tests now print "expected 8 · got nothing". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CC-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Fixed two-pane split</b>Problem + editor panes stack below 560px container width (<code>.cc-grid</code>). A textarea editor on a phone is survivable; Monaco would not be — keep the textarea as the mobile fallback when production upgrades. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CC-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No async state on Run/Submit</b>Run shows an inline spinner; Submit uses the shell's checking state. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="rb">2 · Robot 2D <span class="tag">robot-2d-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">RB-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">The robot walks through walls — silently</b>Forward steps clamp to the grid edge with no feedback: "forward 9" slides along the wall and the child can't see why their plan failed. Now the run aborts at the wall with a shake + "BONK!" chip and a clear message ("count the squares again"). Honest physics teach better plans. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RB-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Can't follow the program while it runs</b>The currently-executing block now highlights with a dark ring and slight scale — the child reads their program like a karaoke line. This is THE feedback loop of block programming. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RB-03</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">36px number input inside a block</b>Step count is now a +/− stepper with 26px buttons inside the block — no keyboard needed, no spinner arrows. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RB-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">40px fixed cells + fixed side-by-side layout</b>The grid is now fluid (aspect-ratio cells, container-scaled glyphs) and panels stack on narrow widths. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">RB-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Blocks can't be reordered</b>Only add-to-end and delete. Fine for 3–5 block programs; for longer ones drag-reorder (or ↑/↓ on blocks) is worth adding. <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="ap">3 · Arithmetic puzzle <span class="tag">arithmetic-puzzle-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">AP-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Duplicate bank numbers break</b>Used-state is computed by value (<code>filled.includes(n)</code>) — a bank with two 4s greys both out after one is placed, making some puzzles unsolvable. Same bug class as sentence-builder SB-01. Tracked by index now; try the "Duplicate numbers" scenario. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">AP-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No way to take a number back</b>Tap a filled slot to send its number back to the bank. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">AP-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry contract missing</b>Correct rows lock with a ✓; wrong numbers hop back to the bank; sheet leads with "2 of 3 are right". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="rest">4 · Bubble sheet · map pin · file upload · SCORM</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">BS-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Bubble sheet: hard 4-column option grid</b>~60px per option at 320px. <code>auto-fit, minmax(108px,1fr)</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">BS-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Kept-correct answers look unanswered on retry</b>Retry keeps right picks (good upstream!) but they render like fresh picks. They now lock green with a ✓ badge so the child knows exactly what's left. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MP-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Map pin: misses teach nothing</b>A wrong pin now gets a compass hint ("Try further north-east") — geography practice inside the feedback itself. Final reveal draws the target pin <i>plus a dashed tolerance ring</i> so "how close counts" stops being a mystery (MP-05). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FU-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">File upload: drag-drop skips type validation</b>The file input filters by <code>accept</code>, but a dropped file lands unchecked — a .mp4 sails into a PDF task and fails server-side later. Dropped files validate now; wrong types get a friendly sun-toned nudge ("That's a MP4 file — this task wants .pdf / .docx"). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FU-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Upload is a black box</b>Progress bar fills inside the file card during upload; sizes format as KB/MB (was "2048.0 KB"); upload failures use the neutral "it's-not-you" sheet with the file preserved. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FU-05</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Drop zone is a div</b>Now a real button — keyboard and screen-reader operable. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SC-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">SCORM: forward-only</b>Children re-read. Back button added; progress tracks the furthest slide seen, so going back never loses progress. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="summary">5 · Series summary — all six batches</h2>
+  <div class="bigstat">
+    <div class="card"><div class="n">39</div><div class="l">mechanics rebuilt live in the playground</div></div>
+    <div class="card"><div class="n">130+</div><div class="l">findings documented across 6 audits</div></div>
+    <div class="card"><div class="n">17</div><div class="l">outright bugs (incl. 4 touch-blocking, 2 answer leaks)</div></div>
+    <div class="card"><div class="n">100%</div><div class="l">mechanics usable at 320px, by touch and keyboard</div></div>
+  </div>
+  <p class="sub">The remaining upstream V2 components not ported are thin variants of ported ones (e.g. legacy v1 exercises) or backend-bound shells whose UX surface is covered here (sandbox executor wiring, real SCORM ingestion).</p>
+
+  <h3>Fix-first list for production (ranked)</h3>
+  <table>
+    <thead><tr><th style="width:40px">#</th><th>What</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td class="id">1</td><td><b>Touch-broken inputs</b> — HTML5 DnD / mouse-only events. A tablet child cannot answer at all.</td><td>card-sort · venn-elements · scatter-plot (+ audit every <code>draggable=</code>)</td></tr>
+      <tr><td class="id">2</td><td><b>Answer leaks</b> — correct answer visible while retries remain, or printed in placeholders.</td><td>true-false · mc-math · table-pattern</td></tr>
+      <tr><td class="id">3</td><td><b>Unsolvable configurations</b> — input surface can't produce the authorable answer.</td><td>numeric-input (no minus) · number-line (start=answer) · arithmetic-puzzle (duplicates) · sentence-builder (duplicates) · equation-balance (hardcoded ops)</td></tr>
+      <tr><td class="id">4</td><td><b>Container queries</b> — one ~30-line CSS change making every mechanic adapt to its pane, not the viewport.</td><td>globals.css (<code>.lf-shell</code> becomes the query container)</td></tr>
+      <tr><td class="id">5</td><td><b>Shared retry contract</b> — <code>useRetryContract()</code> hook: lock correct, return wrong, lead with the win, structured reveal at 0 hearts.</td><td>~24 components, −300 lines of duplication</td></tr>
+      <tr><td class="id">6</td><td><b>Keyboard paths</b> — arm-and-place for spatial mechanics, arrows for draggables, shortcuts for choices.</td><td>family-wide (patterns shipped per mechanic in the playground)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Design principles that emerged (write these into the design system)</h3>
+  <ol class="principles">
+    <li><b>Meaning first, form coached.</b> Case, punctuation, accents, single typos and equivalent numeric forms never cost a heart — they earn a gentle note.</li>
+    <li><b>Three tones, always:</b> green = you did it · coral = a miss · grey = the system hiccuped (never the child's fault, never costs anything).</li>
+    <li><b>The answer is sacred:</b> it never appears — in any channel, including placeholders and ARIA — until the task is truly over.</li>
+    <li><b>Retries protect progress:</b> correct parts lock green and become untouchable; the sheet always leads with what went right.</li>
+    <li><b>Every drag has a tap twin:</b> arm-and-place is simultaneously the touch fallback, the keyboard path, and the screen-reader path.</li>
+    <li><b>Check is earned, never free:</b> it unlocks on interaction, and a blocked press wiggles + explains instead of dead-clicking.</li>
+    <li><b>Feedback names the dial, not the direction:</b> "the slope is off" guides; "go higher" solves it for them.</li>
+    <li><b>Playfulness is a dial:</b> every animation runs through <code>--mamp</code>/<code>--mdur</code> — calm for assessments, bouncy for the youngest, off for reduced-motion.</li>
+  </ol>
+
+  <div class="callout warn" style="margin-top:28px">
+    <b>Suggested next steps:</b> ① your live screenshots / staging access to validate the ported behaviours against production; ② pick tweaks to settle (playfulness default, hearts default, deferred-vs-instant per mechanic); ③ when approved, I can prepare a Claude Code handoff package mapping each playground fix to its production file and diff.
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 1 · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --info:#2b91ff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink-900);
+    font-family: 'Manrope', system-ui, sans-serif;
+    line-height: 1.6; font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  h3 { font-size: 16px; font-weight: 800; margin: 28px 0 8px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout b { font-weight: 800; }
+  .grading { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 18px 0; }
+  .gcard { background: var(--paper-2); border: 1.5px solid var(--ink-100); border-radius: 14px; padding: 16px 18px; }
+  .gcard h4 { margin: 0 0 4px; font-size: 14px; font-weight: 800; }
+  .gcard p { font-size: 13px; color: var(--ink-500); margin: 0; }
+  .toc { background: var(--paper-2); border: 1.5px solid var(--ink-100); border-radius: 16px; padding: 20px 24px; margin: 0 0 12px; }
+  .toc ol { margin: 6px 0 0; padding-left: 22px; font-size: 14px; font-weight: 600; columns: 2; column-gap: 40px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: var(--green-700); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    .toc ol { columns: 1; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print {
+    .page { padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — exercise mechanics, <span class="mk">batch&nbsp;1</span></h1>
+  <p class="lede">A code-level review of the six core V2 mechanics (quiz, true/false, matching, ordering, fill-blanks, categorize) plus the shared LessonShell, focused on three goals: <b>kid-friendly clarity (ages 7–14)</b>, <b>rich interaction feedback</b>, and <b>real adaptiveness</b>. Every finding links to a fix you can try live in the playground.</p>
+  <p class="meta">Sources: <code>components/exercises/v2/*</code> · <code>components/lesson/lesson-shell.tsx</code> · <code>app/globals.css</code> &nbsp;→&nbsp; <a href="../Exercise Playground.html">open the interactive playground</a></p>
+
+  <div class="toc">
+    <span class="eyebrow">Contents</span>
+    <ol>
+      <li><a href="#grading">Severity scale</a></li>
+      <li><a href="#shell">LessonShell (shared chrome)</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+      <li><a href="#tf">True / False</a></li>
+      <li><a href="#matching">Matching</a></li>
+      <li><a href="#ordering">Ordering</a></li>
+      <li><a href="#fill">Fill blanks</a></li>
+      <li><a href="#cat">Categorize</a></li>
+      <li><a href="#cross">Cross-cutting & adaptiveness</a></li>
+      <li><a href="#next">What's next (batch 2+)</a></li>
+    </ol>
+  </div>
+
+  <h2 id="grading">Severity scale</h2>
+  <div class="grading">
+    <div class="gcard"><h4><span class="pill bug">BUG</span></h4><p>Broken behaviour or a contradiction with the design's own rules. Fix first.</p></div>
+    <div class="gcard"><h4><span class="pill a11y">A11Y</span></h4><p>Keyboard / screen-reader / WCAG gap. Blocks some children entirely.</p></div>
+    <div class="gcard"><h4><span class="pill ux">UX</span></h4><p>Works, but confuses or frustrates a 7–14-year-old. High polish value.</p></div>
+    <div class="gcard"><h4><span class="pill mobile">ADAPT</span></h4><p>Breaks or degrades at narrow widths / touch. The "must not break on phone" rule.</p></div>
+  </div>
+  <p class="sub">Each row notes whether the fix is already <span class="fix">SHIPPED IN PLAYGROUND</span> or <span class="fix todo">PROPOSED</span> for the production codebase.</p>
+
+  <h2 id="shell">1 · LessonShell <span class="tag">lesson-shell.tsx · .lf-* / .gp-*</span></h2>
+  <p class="sub">The shared Duolingo-style frame is a strong foundation — progress, hearts, streak, bottom sheet, signature button physics. The issues are in the details that children rely on most: status legibility and the feedback moment.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SH-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Mobile feedback styles never apply</b>The <code>@media (max-width:560px)</code> block targets <code>.lf-fb-msg</code> / <code>.lf-fb-explain</code>, but the rendered classes are <code>.lf-fb-text</code> / <code>.lf-fb-sub</code>. Phone users get desktop-size sheet typography in a cramped sheet. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Adaptive rules key off the viewport, but exercises live in a pane</b>In the LMS, exercises render beside a sidebar — a 700px pane on a 1280px screen gets desktop styles it can't fit. Converting the <code>.lf-*/.gp-*</code> media rules to <b>container queries</b> (<code>container-type:inline-size</code> on <code>.lf-shell</code>) makes every mechanic adapt to the space it actually has. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-03</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Feedback sheet overflows at 320px</b><code>.lf-fb-row</code> is a no-wrap flex row: icon + message + reveal + CTA compete for ~296px. Let the row wrap and give the CTA <code>flex-basis:100%</code> below 560px — thumb-friendly full-width button, message gets the full line. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-04</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Result is never announced</b>The sheet swaps in visually but has no <code>role="status"</code>/<code>aria-live</code> — a screen-reader child hears nothing after Check. One attribute fixes it. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Hearts are a number, not hearts</b><code>maxHearts</code> is accepted and discarded (<code>void maxHearts</code>); the pill shows "3" → "2". Pre-readers and early readers parse <b>filled vs empty heart icons</b> instantly, and the loss animation lands on the specific heart that broke. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Disabled Check is a dead end</b>A grey button gives zero guidance about <i>why</i> it's grey. Children tap it anyway — answer with a wiggle + a one-line hint ("Pick an answer first"). Turns frustration into instruction. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-07</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Disabled Skip button when there is nothing to skip</b>Quiz renders Skip with no handler — a permanently dead ghost button. Hide it instead. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-08</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Confetti dies mid-air</b><code>gp-fall</code> translates a fixed 560px; on tall panes the celebration fizzles at half height. Use container-relative units (<code>110cqh</code>). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SH-09</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No reward grammar on success beyond confetti</b><code>.fb-xp-flyer</code> and <code>flyXP()</code> exist but nothing in the shell mounts an <code>#xp-anchor</code>. Wiring the +XP flight into the success sheet completes the invite→…→reward loop the design system itself documents. <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="quiz">2 · Quiz <span class="tag">quiz-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">QZ-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Wrong picks are forgotten between retries</b>After "Try again" all tiles reset — a child can re-tap the same wrong answer and lose another heart for nothing. Keep eliminated options visibly struck out and unclickable across retries; this also teaches elimination strategy. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">QZ-02</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">No keyboard shortcuts</b>Tiles are buttons (good), but power-kids and motor-impaired users benefit from <code>1–9</code> to select. Small index hints on each tile advertise it. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">QZ-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Selection ✓ looks like "correct" ✓</b>The tile dot shows a checkmark the moment you select — same glyph the correct-reveal uses. A child can read mere selection as confirmation. Selection = filled dot; ✓ appears only on grading. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">QZ-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Empty config renders a bare string</b><code>"No questions configured"</code> in 13px grey is developer UX, not child UX. Friendly illustrated empty state + "ask your teacher" copy. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">QZ-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Mono font for option text</b>Options render in <code>--font-mono</code>; long sentences in mono wrap poorly at 320px and read "techy" for young readers. Reserve mono for math/code content (the <code>MaybeMath</code> path), sans for prose options. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tf">3 · True / False <span class="tag">true-false-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">TF-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">The answer leaks on the first wrong attempt</b>The tile state logic marks <code>v === correctAnswer</code> as <code>correct</code> whenever feedback is shown — including the "1 try left" sheet. The child sees the green tile, taps "Try again", and copies it. QuizV2 explicitly guards against this ("never leak the answer while retries remain"); TrueFalse contradicts its own family rule. Reveal only when the task ends. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TF-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">2 attempts on a binary choice = guaranteed pass</b>Even with TF-01 fixed, a retry on true/false is just "pick the other one". Default to 1 attempt and spend the saved moment on the <code>explain</code> text — the learning payload of this mechanic. (Playground: set Hearts to 1 in Tweaks to feel it.) <span class="fix todo">PROPOSED</span></td></tr>
+      <tr><td class="id">TF-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Network failure reads as "you're wrong"</b>A failed <code>onGrade</code> shows the coral ✕ sheet ("Couldn't submit"). The child did nothing wrong — and on flaky school Wi-Fi this is common. Use a neutral grey sheet, keep their pick, don't touch hearts or streak. <span class="fix">SHIPPED IN PLAYGROUND</span> — try Tweaks → Server sim → flaky</td></tr>
+      <tr><td class="id">TF-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No async state on Check</b>While the server grades, the button stays static — kids double-tap. Spinner + "Checking…" label. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="matching">4 · Matching <span class="tag">matching-v2.tsx</span></h2>
+  <p class="sub">The thread-drag with the dashed rubber-band line is the best moment in the whole family — keep it. The gaps are around the edges of that interaction.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">MT-01</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Keyboard users cannot match at all</b>Tiles are buttons but all logic hangs off <code>pointerdown</code> — Enter/Space do nothing. Mirror the click-click semantics on keydown: Enter picks a tile, Enter on the other column pairs it. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MT-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Fixed 80px column gap starves narrow panes</b>At 320px each column gets ≈106px; long words overflow. Scale the gap with the container (<code>clamp(28px, 12cqw, 80px)</code>) and let tile text wrap. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MT-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Answer reveal is one unreadable line</b>8 pairs joined as <code>"a → b, c → d, …"</code> in the sheet. Render a structured two-column list, scrollable past 4 rows. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MT-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Attempt pool silently changes meaning</b>Default <code>maxAttempts = pairs.length</code>: 4 hearts on one task, 8 on the next. With the icon-row hearts (SH-05) this becomes visible noise. Cap at 3 like the rest of the family. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MT-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Many pairs + phone = drag across the fold</b><code>touch-action:none</code> tiles block page scroll mid-column; with 8 pairs at 320px the lower tiles sit below the fold. Click-click (already supported) is the touch fallback — the hint line should say so on coarse pointers; consider chunking >6 pairs into pages. <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="ordering">5 · Ordering <span class="tag">ordering-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">OR-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Drag math assumes every row is 56px</b><code>SLOT = 56 + gap</code> is a constant, but <code>.fb-dragrow</code> clips long content (fixed <code>height:56px</code>) — and any wrapped row breaks slot targeting: the ghost gap opens at the wrong index. Measure real row heights and compute targets cumulatively. Try the "Long sentences" scenario — rows wrap to 2–3 lines and drag still lands true. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">OR-02</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Drag-only reordering</b>No keyboard path. Focus a row → ↑/↓ moves it one slot, with visible arrow buttons appearing on focus and an <code>aria-live</code> "moved to position 3 of 5". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">OR-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry gives no sense of progress</b>"Order kept" is good, but the child doesn't know <i>which</i> rows are right. When grading locally, say "2 of 5 already in the right place" and glow those rows green during the retry. Partial correctness becomes visible, stress drops. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">OR-04</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Rows block page scroll on touch</b>Same <code>touch-action:none</code> trade-off as matching. Acceptable while lists fit one screen; for >7 items prefer the ↑/↓ buttons on touch or a dedicated drag handle (grip-only drag). <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="fill">6 · Fill blanks <span class="tag">fill-blanks-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">FB-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Empty blanks are nearly invisible</b><code>.fb-slot</code> has <code>color:transparent</code> and a bottom border only; the only content is a single "·". Seven-year-olds hunt for where words go. Give empty slots a soft well background, readable "· · ·" placeholder, and a "here!" label when armed. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FB-02</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Placements are silent for screen readers</b>The fly animation is purely visual. Announce "Placed 'roots' in blank 2" via a visually-hidden live region; label slots with their state. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FB-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Network failure clears nothing — but reads as failure</b>Same as TF-03: neutral sheet, words stay placed, retry re-submits. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FB-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Double opacity on used pills</b>Used pills get <code>.locked</code> (0.55) <i>and</i> inline <code>opacity:0.25</code> ≈ 0.14 effective — they vanish. One opacity, one source of truth. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FB-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Sentence type doesn't scale down</b>19px / line-height 2.3 with inline 92px slots gets raggedy at 320px. Scale with the container: <code>clamp(16px, 4cqw, 19px)</code>, slot min-width 72px under 560px. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cat">7 · Categorize <span class="tag">categorize-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CT-01</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Chips are divs — keyboard and assistive tech locked out</b>No focus, no Enter, drag is the only path. Make chips buttons and add <b>tap-to-arm → tap-a-bucket</b>: it's simultaneously the keyboard path, the screen-reader path, and a friendlier touch path than long drags. Armed chips pulse the buckets as targets. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CT-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Instant mode interrupts with a full sheet on every wrong drop</b>Wrong drop → bottom sheet → dismiss → resume. For a sorting game the rhythm matters: shake the bucket, pulse a heart away, let the child keep sorting. Bring the sheet only at 0 hearts. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CT-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Bucket labels are 10px grey mono uppercase</b>The single most important text on screen — where things belong — is the least legible. 14px sans bold + a colour swatch per bucket gives pre-readers a second channel. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CT-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Reveal-on-failure is a run-on string</b>Same as MT-03 — structured "item → group" list. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CT-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Bucket row doesn't grid</b><code>flex:1</code> buckets wrap unevenly with 4 categories at 768px (3+1 orphan). <code>grid-template-columns:repeat(auto-fit,minmax(150px,1fr))</code> keeps buckets balanced at every width. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cross">8 · Cross-cutting & adaptiveness</h2>
+  <div class="callout">
+    <b>The container-query move is the big one.</b> Exercises never own the viewport — they live in lesson panes, previews, split views. Making <code>.lf-shell</code> a query container means every rule written once works in all of them, including the playground's device stage. This is a ~20-line diff in <code>globals.css</code> with no markup changes.
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">XC-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Partial correctness is under-celebrated</b>Matching locks correct pairs, fill-blanks keeps correct words — good! But the sheet copy rarely says <i>how much</i> is right. Every retry sheet should lead with the win: "3 of 5 matched!". Implemented in ordering/fill-blanks/categorize sheets. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">XC-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Error tone: coral everywhere</b>Coral ✕ is correct for "wrong answer" but wrong for "the system failed" (network, empty config). Three tones, consistently: green = success, coral = miss, grey = it's-not-you. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">XC-03</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Reduced motion: covered, with one gap</b>The global <code>prefers-reduced-motion</code> clamp works. But <code>flyClone</code>/<code>flyXP</code> set inline transitions that bypass it. Guard the helpers with a media check (instant commit, no clone). <span class="fix todo">PROPOSED</span></td></tr>
+      <tr><td class="id">XC-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Playfulness should be a dial, not a constant</b>The CSS already parameterises every animation via <code>--mamp</code>/<code>--mdur</code> — expose it. Younger groups get bouncier (1.45×), test-mode gets calm (0.5×). The playground Tweaks panel drives exactly these two variables. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">XC-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Streak pill is invisible at its most exciting</b>Coral-on-coral at streak 0 and streak 7 look identical. Light the pill (sun tones) once a streak is alive. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="next">9 · What's next</h2>
+  <p class="sub">Proposed batches for the remaining ~40 mechanics, in usage-priority order. Each batch repeats this loop: code audit → playground port with fixes → edge-case scenarios → your review.</p>
+  <table>
+    <thead><tr><th style="width:90px">Batch</th><th>Mechanics</th><th>Likely themes</th></tr></thead>
+    <tbody>
+      <tr><td class="id">2</td><td>numeric-input · mc-math · equation-solver · math-stepwise · number-line</td><td>math keyboard on mobile, input validation feedback, slider/marker touch targets</td></tr>
+      <tr><td class="id">3</td><td>sentence-builder · conjugation · translation · dialogue · reading · crossword</td><td>language input, long-text layout, virtual keyboard overlap</td></tr>
+      <tr><td class="id">4</td><td>card-sort · srs-flashcard · venn ×2 · two-way-table · table-pattern · area-model</td><td>3D flip on low-end devices, complex drag surfaces on touch</td></tr>
+      <tr><td class="id">5</td><td>coordinate-plane · function-graph/machine · inequality/scatter/graph-transform · probability-wheel · equation-balance</td><td>SVG hit targets, pinch-zoom conflicts, axis label density</td></tr>
+      <tr><td class="id">6</td><td>code-challenge · robot-2d · arithmetic-puzzle · bubble-sheet · map-pin · file-upload · scorm</td><td>Monaco on mobile, upload states, embedded-content sizing</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn" style="margin-top:28px">
+    <b>To verify against the live product:</b> the audit above is grounded in the source; screenshots or staging access would let me confirm a few behaviours I inferred (e.g. how the lesson pane constrains exercise width in production, real i18n string lengths in Russian — typically +30% longer than English, which stresses MT-02/SH-03 further).
+  </div>
+</div>
+</body>
+</html>

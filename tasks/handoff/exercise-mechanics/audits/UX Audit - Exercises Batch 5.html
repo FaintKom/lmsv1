@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 5 (Graphs) · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout.bad { border-color: var(--coral-500); background: var(--coral-50); }
+  .callout b { font-weight: 800; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print { .page { padding: 0; max-width: none; } h2 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — graphs &amp; math surfaces, <span class="mk">batch&nbsp;5</span></h1>
+  <p class="lede">Eight mechanics reviewed: <b>coordinate plane</b>, <b>function graph</b>, <b>graph transform</b>, <b>inequality graph</b>, <b>scatter plot</b>, <b>function machine</b>, <b>probability wheel</b>, <b>equation balance</b>. The family theme: gorgeous interactive surfaces that assume a 380px-wide mouse-driven world. Every fix here is about making them survive fingers, keyboards, and 320px panes.</p>
+  <p class="meta">Sources: <code>components/exercises/v2/{coordinate-plane,function-graph,graph-transform,inequality-graph,scatter-plot,function-machine,probability-wheel,equation-balance}-v2.tsx</code> + <code>_grid-axes.tsx</code> &nbsp;→&nbsp; <a href="../Exercise Playground.html">open the playground</a> · audits: <a href="UX Audit — Exercises Batch 1.html">1</a> · <a href="UX Audit — Exercises Batch 2.html">2</a> · <a href="UX Audit — Exercises Batch 3.html">3</a> · <a href="UX Audit — Exercises Batch 4.html">4</a></p>
+
+  <div class="callout bad">
+    <b>Showstopper — scatter plot is the third touch-broken mechanic.</b> Drag handles listen to <code>onMouseDown/onMouseMove</code> only — no pointer events, no touch path at all. Combined with batch 4's findings (card sort, venn elements), that's three mechanics where a tablet child simply cannot answer. Ported to pointer events with capture + keyboard arrows.
+  </div>
+
+  <h2 id="gx">1 · Family-wide <span class="tag">_grid-axes.tsx + all SVG mechanics</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">GX-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Hardcoded 380px SVGs + fixed side panels</b>Every graph mechanic renders <code>width={380} height={380}</code> plus a fixed 180–220px control column — at a 320px pane the SVG alone overflows by 60px. All plots are now <code>viewBox</code>-only (width 100%), and a shared <code>.gx-layout</code> stacks the controls below the plot in narrow containers. Pointer math rescales via <code>getBoundingClientRect</code> ratio. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">GX-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Free Check everywhere</b>coordinate-plane, function-graph, graph-transform, scatter-plot and equation-balance all had <code>canCheck={true}</code> from the first frame — a child can burn a heart by tapping Check before touching anything (and on coordinate-plane the points start at (0,0), so "didn't touch it" is a guaranteed miss). Check now unlocks on first interaction, with the standard nudge-hint explaining what to do. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">GX-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Misses say "wrong" but never "what kind of wrong"</b>Multi-control mechanics (2 sliders; 4 dials; 3 transforms) gave a flat "not quite". Each now names the off controls without directions: function-graph → "the tilt is right — check where it crosses the y-axis"; inequality → "3 of 4 settings are right — check the symbol"; transform → "check: slide (h) and stretch (a)". Guidance without answers. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">GX-05</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Native range sliders are fine — SVG handles aren't</b>Sliders inherit keyboard support for free (good). SVG drag targets (plane points, scatter handles) had none: now focusable with <code>role="button"</code>, arrow keys move by one grid unit, focus ring on the circle. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cp">2 · Coordinate plane <span class="tag">coordinate-plane-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CP-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">All points start stacked at (0,0)</b>With 3+ points you see one circle and must excavate them by dragging blind — the top one always wins the hit test. Points now start spread along the bottom edge, visibly separate. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CP-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Partial correctness invisible</b>Correct points lock on retry, the sheet says "2 of 3 are right", and dashed target rings (already upstream — good!) keep pulsing for the missed ones. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CP-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Run-on reveal</b>Structured "A → (2, 3)" list. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="fm">3 · Function machine <span class="tag">function-machine-v2.tsx</span></h2>
+  <p class="sub">The best pedagogy in the batch — discovery through experimentation. Small frictions only.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">FM-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue"><code>type="number"</code> input</b>Spinner arrows on desktop, inconsistent keyboards on mobile, and silently allows "e". Sanitised text + <code>inputMode="decimal"</code>; Enter feeds the machine. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FM-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Feeding the same number twice wastes the discovery budget</b>Duplicates now bounce with a friendly "already tried that one!" tooltip; used quick-pick chips fade. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">FM-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Rule matching brittle (same as TP-02)</b>Strips <code>y=</code> and <code>*</code> like the rest of the family; wrong-guess hint nudges method: "try 0, or two numbers next to each other". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="pw">4 · Probability wheel <span class="tag">probability-wheel-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">PW-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">20 mandatory spins × 1.5s = a 30-second chore</b>The first spins are exciting; by spin 9 it's labour, and the lesson stalls. After 3 single spins a "×5 quick" button appears: one short animation, five tallies. The child keeps the feel of spinning but reaches the data in ~15s. (Default scenario also tuned to 12 spins.) <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">PW-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Locked picker looks broken</b>Tally rows are disabled until all spins are done, with no explanation — children tap them and nothing happens. A status line now narrates the phase: "Spin first — then you'll pick the winner here" → "Pick the slice that came up most ↑" → "Now hit Check!". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">PW-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Success misses the teachable moment</b>When the empirical winner ISN'T the biggest slice, that's the whole point of probability — the sheet now celebrates it: "Fun twist: the biggest slice is Red — luck wobbles in small experiments!" <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="eb">5 · Equation balance <span class="tag">equation-balance-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">EB-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Hardcoded "−4" button</b>The op row ships literal <code>subtractWeight(1)</code> and <code>subtractWeight(4)</code> buttons — on any equation whose weights aren't 4, the second button is permanently dead. Ops are now generated from the scale state: −1, −minW (the biggest balanced subtraction available), −x when both sides have x, ÷n when it splits evenly. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">EB-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No undo</b>One mis-tap (say −x too early) and the only way out is failing the check to reset. Undo button + move history chips. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">EB-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Disabled ÷ is a mystery</b>÷ greys out when weights don't divide evenly, silently. A caption explains: "÷ is sleeping: the weights don't split evenly yet". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">EB-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">x-on-both-sides configs unreachable in upstream ops</b>With ops fixed (EB-01), "3x + 1 = x + 7" works — added as a scenario since it's the pedagogically interesting case. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="rest">6 · Function graph · graph transform · inequality · scatter</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SP-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Scatter plot: mouse-only drag</b>See callout. Pointer events + capture + 0.5-step snapping (also makes results reproducible — free-floating fractions made "y = 0.97x + 1.13" needlessly precise). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">IG-03</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Reveal prints "y ≥ 2x + -3"</b>Negative intercepts rendered with a double sign in inequality reveal. Shared <code>signed()</code> formatter across the family. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SP-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Scatter "wrong" gives no strategy</b>Sheet now teaches the heuristic: "aim for roughly the same number of dots above and below your line". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cross">7 · Batch-5 cross-cutting</h2>
+  <div class="callout">
+    <b>SVG interaction checklist for production</b> (every graph mechanic, current and future): ① <code>viewBox</code> + width:100%, never fixed px; ② pointer events with <code>setPointerCapture</code>, never mouse events; ③ <code>touch-action:none</code> on the interactive surface only; ④ every draggable is focusable with arrow-key movement; ⑤ pointer→data math goes through the rendered rect ratio, not viewBox units; ⑥ hit targets ≥ 28px SVG units (scales to ≥44px at typical render sizes).
+  </div>
+  <div class="callout warn" style="margin-top:28px">
+    <b>Next (final):</b> batch 6 — special mechanics (code-challenge, robot-2d, arithmetic-puzzle, bubble-sheet, map-pin, file-upload, scorm). Monaco on mobile, upload states, embedded-content sizing — then a consolidated handoff summary across all 46 mechanics.
+  </div>
+</div>
+</body>
+</html>

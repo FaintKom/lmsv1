@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 4 (Cards & Tables) · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout.bad { border-color: var(--coral-500); background: var(--coral-50); }
+  .callout b { font-weight: 800; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print { .page { padding: 0; max-width: none; } h2 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — cards &amp; tables, <span class="mk">batch&nbsp;4</span></h1>
+  <p class="lede">Seven mechanics reviewed: <b>card sort</b>, <b>SRS flashcards</b>, <b>Venn (numbers)</b>, <b>Venn (items)</b>, <b>two-way table</b>, <b>table pattern</b>, <b>area model</b>. Two findings in this batch are showstoppers: a whole input modality (touch) silently broken in two mechanics, and one mechanic that prints its own answer on screen.</p>
+  <p class="meta">Sources: <code>components/exercises/v2/{card-sort,srs-flashcard,venn-diagram,venn-elements,two-way-table,table-pattern,area-model}-v2.tsx</code> &nbsp;→&nbsp; <a href="../Exercise Playground.html">open the playground</a> · audits: <a href="UX Audit — Exercises Batch 1.html">1</a> · <a href="UX Audit — Exercises Batch 2.html">2</a> · <a href="UX Audit — Exercises Batch 3.html">3</a></p>
+
+  <div class="callout bad">
+    <b>Showstopper №1 — HTML5 drag-and-drop on touch devices.</b> CardSortV2 and VennElementsV2 use <code>draggable</code> / <code>onDragStart</code> / <code>onDrop</code>. Mobile Safari and Chrome on Android <b>do not fire these events for touch input</b> — a child on a tablet or phone cannot move a single card. The rest of the family (categorize, ordering, matching) already uses pointer events; these two predate that pattern. Ported to pointer events + tap-to-arm in the playground.
+  </div>
+  <div class="callout bad">
+    <b>Showstopper №2 — TablePattern prints the answer.</b> The rule input renders <code>placeholder={ruleDisplay}</code> — the literal correct rule, faintly, inside the box the child must fill. Replaced with a neutral example placeholder ("like: 3x − 2").
+  </div>
+
+  <h2 id="cs">1 · Card sort <span class="tag">card-sort-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">CS-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Touch users cannot play at all</b>HTML5 DnD (see callout). Pointer-event drag + tap-to-arm → tap-a-column shipped; the arm path doubles as the keyboard and screen-reader path. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CS-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry keeps wrong cards sitting in wrong columns</b>Upstream preserves all placements and clears the marks — the child must remember which were red. Now: correct cards lock with a ✓, wrong cards hop back to the bank, sheet says "the right ones will stay put". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CS-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Run-on reveal string</b>Structured "card → column" list (family rule MT-03). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CS-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No way to take a card back out of a column</b>Upstream re-drag only (and on touch, nothing). Placed cards are now buttons — tap to return to the bank. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">CS-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Fixed column count</b><code>repeat(N, 1fr)</code> squeezes 3 columns into ~96px each at 320px. <code>auto-fit, minmax(140px, 1fr)</code> wraps columns into rows when needed. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="sr">2 · SRS flashcards <span class="tag">srs-flashcard-v2.tsx</span></h2>
+  <p class="sub">The FSRS scheduling integration is genuinely good (real intervals on the rating buttons). The session loop has one pedagogical hole and a few access gaps.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SR-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">"Again" cards never come back</b>Rating a card <i>Again</i> means "I didn't know this" — and the session just moves on, ending with the card unlearned. Every SRS app re-queues lapses within the session. The playground re-inserts Again-cards ~3 positions later; the progress dots show them in coral, and the completion sheet explains: "the tough ones came back — that's how remembering works". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SR-01</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Click-only flip, mouse-only rating</b>The flip card is a div with onClick. Now a real button: Space/Enter flips, 1–4 rate (shortcuts shown in the caption), <code>aria-pressed</code> carries flip state. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SR-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">4 rating buttons across 320px</b>~70px per button with two text lines. <code>auto-fit, minmax(110px,1fr)</code> wraps them 2×2 on narrow containers. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SR-05</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Fixed 64px front text</b>Long fronts ("break the ice") overflow the card at narrow widths. <code>clamp(34px, 13cqw, 58px)</code> + <code>overflow-wrap</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">SR-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Hover-flip teaser</b>Tiny 8° rotateY on hover invites the flip without giving the back away — cheap delight, kept from the upstream design language and guarded for reduced motion. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="vd">3 · Venn — numbers <span class="tag">venn-diagram-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">VD-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">32px-tall inputs in foreignObject</b>Under the 44px touch floor, and no <code>inputMode</code> so phones open a full text keyboard. 40px+ wells, numeric keypad, sanitised input. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VD-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Red marks linger over fresh typing</b>After retry, a corrected value still wears its old coral border until the next Check. Typing clears the stale mark; correct regions lock green (family rule). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VD-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Reveal names regions by internal keys</b>Failure sheet now says "Only Football → 12", "Both → 5" — not <code>a_only</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VD-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Enter does nothing</b>Enter checks when all regions are filled. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="ve">4 · Venn — items <span class="tag">venn-elements-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">VE-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Touch users cannot play</b>Same HTML5 DnD problem as CS-01. Pointer drag + tap-to-arm shipped; while dragging or armed, all four drop zones outline themselves so the child can see where things <i>can</i> go. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VE-04</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Children see raw enum ids</b>The failure reveal printed <code>bat → a_only</code>. Now "bat → A only" with human names everywhere. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VE-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Retry keeps wrong chips in place, unmarked</b>Correct chips lock green; wrong ones hop back to the bank. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">VE-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Drop zones are small invisible islands</b>The "Both" lens is ~60px wide and invisible until hover — at 320px that's a precision-drag task. Zones enlarged, made visible during drag/arm, and chips ≥40px in the bank. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tw">5 · Two-way table <span class="tag">two-way-table-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">TW-03</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">"Hint · undefined"</b>The hint line renders unconditionally; with no hint configured the child reads "Hint ·&nbsp;". Conditional now. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TW-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No partials, no locks</b>Correct cells lock green on retry; the sheet leads with "2 of 4 locked in green"; focus jumps to the first remaining blank. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TW-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Numeric cells, text keyboard</b><code>inputMode="numeric"</code> + input sanitising; Enter hops to the next empty cell, last Enter checks. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TW-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">100px label column starves data cells at 320px</b><code>minmax(72px,100px)</code> label column, <code>minmax(56px,1fr)</code> cells, horizontal scroll as the last resort. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tp">6 · Table pattern <span class="tag">table-pattern-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">TP-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">The placeholder is the answer</b>See callout. A neutral example placeholder ("like: 3x − 2") plus a caption listing accepted formats. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TP-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Rule matching is brittle</b>"y = 2x+1" and "2*x+1" failed against accepted "2x+1". Normalisation now strips <code>f(x)=</code>/<code>y=</code> prefixes and <code>*</code>. (Full expression equivalence — "1+2x" — still relies on the methodist listing variants; authoring-time validation proposed in XM-01.) <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">TP-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">"Numbers right, rule wrong" loses a full heart silently</b>The message now distinguishes the two failure modes ("The numbers are right — the rule needs another look"), correct numbers lock on retry, and a wrong rule clears its red state as soon as the child edits it. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="am">7 · Area model <span class="tag">area-model-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">AM-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Proportional columns crush small splits</b>Upstream sizes columns by the literal split values (<code>20fr 3fr</code>) — pedagogically cute, practically a 40px column with an unusable input at narrow widths. Ratios are now clamped (max 2.4 : 1): the proportion is still legible, the input never is crushed. Try "3×2 split (134 × 56)" at 320. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">AM-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No locks, marks linger</b>Correct boxes lock green on retry; typing clears stale marks; the "every box right, addition slipped" case gets its own kinder message (upstream had it — kept and surfaced more clearly). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">AM-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Tiny inputs, text keyboard</b>≥40px inputs, <code>inputMode="numeric"</code>, sanitised values, Enter on the total checks. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cross">8 · Batch-4 cross-cutting</h2>
+  <div class="callout">
+    <b>The retry contract is now uniform across the whole family.</b> After 4 batches the rule is worth writing down for production: <b>(1)</b> correct parts lock green and cannot be broken; <b>(2)</b> wrong parts either hop back (spatial mechanics) or clear their mark on edit (typed mechanics); <b>(3)</b> the sheet leads with the win ("3 of 5 right"); <b>(4)</b> the answer never appears while retries remain; <b>(5)</b> at 0 hearts the reveal is a structured list with human labels. Implementing this once in a shared <code>useRetryContract()</code> hook would collapse ~300 lines of duplicated logic across 24 components.
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">XC-06</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Audit every drag surface for HTML5 DnD</b>Two of seven mechanics in this batch were touch-broken. Quick grep: <code>draggable</code> / <code>onDragStart</code> appears in card-sort and venn-elements (now ported) — remaining mechanics should be checked in batch 5–6 as they come up. <span class="fix">SHIPPED (this batch) / ONGOING</span></td></tr>
+      <tr><td class="id">XC-07</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Placeholders are a leak channel</b>TP-01 won't be the only one. Production lint rule: no answer-derived strings in <code>placeholder</code>, <code>title</code>, <code>aria-label</code>, or DOM data attributes (children open dev tools too). <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn" style="margin-top:28px">
+    <b>Next:</b> batch 5 — graphs &amp; interactive math surfaces (coordinate-plane, function-graph, function-machine, inequality-graph, scatter-plot, graph-transform, probability-wheel, equation-balance). SVG hit targets, drag precision, and axis density on small screens.
+  </div>
+</div>
+</body>
+</html>
