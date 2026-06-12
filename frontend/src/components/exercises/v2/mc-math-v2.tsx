@@ -162,10 +162,13 @@ export function McMathV2({
             }}
           >
             {options.map((opt, i) => {
+              // MM-01: reveal the correct tile only when the task is over —
+              // never on a "tries left" sheet the child can retry from.
+              const taskOver = feedback?.kind === "ok" || (!!feedback && attemptsLeft <= 0);
               let state = "";
               if (feedback) {
-                if (i === correct) state = "correct";
-                else if (i === pick) state = "wrong";
+                if (taskOver && i === correct) state = "correct";
+                else if (i === pick && feedback.kind === "no") state = "wrong";
                 else state = "locked";
               } else if (pick === i) state = "selected";
               return (

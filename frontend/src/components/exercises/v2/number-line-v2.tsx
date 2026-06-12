@@ -62,8 +62,19 @@ export function NumberLineV2({
   onQuit,
   onFinish,
 }: NumberLineV2Props) {
-  const initialPos = Math.round((min + max) / 2 / step) * step;
+  // NL-03: the marker starts at the range midpoint — when the target IS the
+  // midpoint that's a free win, so offset the start by one step (clamped).
+  const initialPos = (() => {
+    const mid = Math.round((min + max) / 2 / step) * step;
+    const tolInit = tolerance ?? step / 2;
+    if (Math.abs(mid - correct) <= tolInit) {
+      const shifted = mid + step <= max ? mid + step : mid - step;
+      return Math.max(min, Math.min(max, shifted));
+    }
+    return mid;
+  })();
   const [pos, setPos] = useState(initialPos);
+  const [moved, setMoved] = useState(false);
   const [grabbed, setGrabbed] = useState(false);
   const [markerState, setMarkerState] = useState<MarkerState>("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -94,6 +105,8 @@ export function NumberLineV2({
     // Avoid floating point drift display (e.g. 1.0000001).
     const decimals = step < 1 ? 4 : 0;
     setPos(parseFloat(snapped.toFixed(decimals)));
+    // NL-04: Check stays locked until the student actually moves the marker.
+    setMoved(true);
   };
 
   const onMarkerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -179,7 +192,7 @@ export function NumberLineV2({
         eyebrow={eyebrow}
         title={title ?? prompt ?? t("exercise.numberLine.title")}
         feedback={feedback}
-        canCheck={true}
+        canCheck={moved && !feedback}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}

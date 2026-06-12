@@ -46,7 +46,35 @@ export interface MathStepwiseV2Props {
   }) => void;
 }
 
-const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
+const norm = (s: string) =>
+  s.replace(/\s+/g, "").replace(/,/g, ".").toLowerCase();
+
+/**
+ * MS-02: tolerant step comparison. Literal matching failed honest answers:
+ * "x=5.0" ≠ "x=5", ".5" ≠ "0.5", and flipped sides ("5=x") all cost hearts.
+ * Accept numeric equivalence and side-flipped equations.
+ */
+const stepsMatch = (got: string, expected: string): boolean => {
+  const a = norm(got);
+  const b = norm(expected);
+  if (a === b) return true;
+  const numEq = (x: string, y: string) => {
+    const nx = parseFloat(x);
+    const ny = parseFloat(y);
+    return Number.isFinite(nx) && Number.isFinite(ny) && Math.abs(nx - ny) < 1e-9;
+  };
+  if (numEq(a, b)) return true;
+  const pa = a.split("=");
+  const pb = b.split("=");
+  if (pa.length === 2 && pb.length === 2) {
+    const sideEq = (s1: string, s2: string) => s1 === s2 || numEq(s1, s2);
+    return (
+      (sideEq(pa[0], pb[0]) && sideEq(pa[1], pb[1])) ||
+      (sideEq(pa[0], pb[1]) && sideEq(pa[1], pb[0]))
+    );
+  }
+  return false;
+};
 
 export function MathStepwiseV2({
   problem,
@@ -74,7 +102,7 @@ export function MathStepwiseV2({
     .join(" · ");
 
   const handleCheck = () => {
-    const okFlags = steps.map((s, i) => norm(values[i]) === norm(s.expected));
+    const okFlags = steps.map((s, i) => stepsMatch(values[i], s.expected));
     const allOk = okFlags.every(Boolean);
     if (allOk) {
       setFeedback({
@@ -109,7 +137,7 @@ export function MathStepwiseV2({
     setFeedback(null);
     // Correct rows are preserved; jump the caret to the first wrong line.
     const firstBad = steps.findIndex(
-      (s, i) => norm(values[i]) !== norm(s.expected)
+      (s, i) => !stepsMatch(values[i], s.expected)
     );
     setTimeout(() => {
       if (firstBad >= 0) inputRefs.current[firstBad]?.focus();
@@ -153,7 +181,7 @@ export function MathStepwiseV2({
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {steps.map((s, i) => {
-              const isOk = !!feedback && norm(values[i]) === norm(s.expected);
+              const isOk = !!feedback && stepsMatch(values[i], s.expected);
               const state = !feedback ? "" : isOk ? " ok" : " no";
               return (
                 <div key={i} className="fb-step-row">

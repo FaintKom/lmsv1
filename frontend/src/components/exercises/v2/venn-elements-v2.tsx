@@ -6,9 +6,15 @@
  * Adopted from q-math-templates.jsx · VennDiagramElementsExerciseV2.
  * Methodist supplies items + correct-region map (region: "a_only" |
  * "intersection" | "b_only" | "neither"). Student drags from bank
- * into a region; clicking a placed chip sends it back to the bank.
+ * into a region; tapping a placed chip sends it back to the bank.
  *
- * Per-task HP + streak; retry preserves placements.
+ * Per-task HP + streak; retry locks correct placements (VE-05) so the
+ * student fixes only the wrong regions.
+ *
+ * Interaction (VE-01): pointer events with capture — HTML5 drag-and-drop
+ * never fires on iOS/Android touch. A press that doesn't move arms the
+ * chip (tap-to-arm → tap-a-region); all four drop zones become visibly
+ * outlined while dragging or armed (VE-02).
  */
 
 import { useRef, useState } from "react";
@@ -45,18 +51,26 @@ export interface VennElementsV2Props {
 
 interface DropZone {
   id: VennRegion;
-  label: string;
   x: number;
   y: number;
   w: number;
+  h: number;
 }
 
 const ZONES: DropZone[] = [
-  { id: "a_only", label: "A only", x: 120, y: 130, w: 90 },
-  { id: "intersection", label: "Both", x: 210, y: 130, w: 60 },
-  { id: "b_only", label: "B only", x: 300, y: 130, w: 90 },
-  { id: "neither", label: "Neither", x: 380, y: 215, w: 70 },
+  { id: "a_only", x: 115, y: 135, w: 92, h: 90 },
+  { id: "intersection", x: 210, y: 135, w: 64, h: 90 },
+  { id: "b_only", x: 305, y: 135, w: 92, h: 90 },
+  { id: "neither", x: 378, y: 222, w: 80, h: 64 },
 ];
+
+interface DragState {
+  key: string;
+  dx: number;
+  dy: number;
+  over: VennRegion | null;
+  moved: boolean;
+}
 
 export function VennElementsV2({
   setA,
@@ -74,21 +88,87 @@ export function VennElementsV2({
   const { t } = useTranslation();
   const [placed, setPlaced] = useState<Record<string, VennRegion>>({});
   const [results, setResults] = useState<Record<string, boolean>>({});
-  const [hover, setHover] = useState<VennRegion | null>(null);
+  const [lockedOk, setLockedOk] = useState<Record<string, boolean>>({});
+  const [drag, setDrag] = useState<DragState | null>(null);
+  const [armed, setArmed] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
-  const dragRef = useRef<string | null>(null);
+  const start = useRef({ x: 0, y: 0 });
+  const zoneRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { fire, layer } = useConfetti();
 
-  const drop = (rid: VennRegion) => (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!dragRef.current || feedback) return;
-    setPlaced({ ...placed, [dragRef.current]: rid });
-    dragRef.current = null;
-    setHover(null);
+  /** VE-04: human-readable region names for feedback and ARIA. */
+  const regionName = (rid: VennRegion): string =>
+    ({
+      a_only: t("exercise.venn.aOnly"),
+      intersection: t("exercise.venn.both"),
+      b_only: t("exercise.venn.bOnly"),
+      neither: t("exercise.venn.neither"),
+    })[rid];
+
+  const zoneAt = (x: number, y: number): VennRegion | null => {
+    for (const z of ZONES) {
+      const el = zoneRefs.current[z.id];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return z.id;
+    }
+    return null;
+  };
+
+  const expected = (key: string): VennRegion => correct[key] ?? "neither";
+
+  const down = (key: string) => (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (feedback || lockedOk[key]) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    start.current = { x: e.clientX, y: e.clientY };
+    setDrag({ key, dx: 0, dy: 0, over: null, moved: false });
+  };
+  const move = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!drag) return;
+    const dx = e.clientX - start.current.x;
+    const dy = e.clientY - start.current.y;
+    setDrag({
+      ...drag,
+      dx,
+      dy,
+      over: zoneAt(e.clientX, e.clientY),
+      moved: drag.moved || Math.hypot(dx, dy) > 6,
+    });
+  };
+  const up = () => {
+    if (!drag) return;
+    const { key, over, moved } = drag;
+    setDrag(null);
+    if (!moved) {
+      // Tap: placed chip returns to the bank; bank chip toggles armed.
+      if (placed[key]) {
+        setPlaced((p) => {
+          const np = { ...p };
+          delete np[key];
+          return np;
+        });
+        setResults((r) => {
+          const nr = { ...r };
+          delete nr[key];
+          return nr;
+        });
+      } else {
+        setArmed((a) => (a === key ? null : key));
+      }
+      return;
+    }
+    setArmed(null);
+    if (over) setPlaced((p) => ({ ...p, [key]: over }));
+  };
+  const zoneTap = (zid: VennRegion) => {
+    if (!armed || feedback) return;
+    const key = armed;
+    setArmed(null);
+    setPlaced((p) => ({ ...p, [key]: zid }));
   };
 
   const allPlaced = items.every((it) => placed[String(it)]);
@@ -98,7 +178,7 @@ export function VennElementsV2({
     let wrong = 0;
     for (const it of items) {
       const key = String(it);
-      const ok = placed[key] === (correct[key] ?? "neither");
+      const ok = placed[key] === expected(key);
       res[key] = ok;
       if (!ok) wrong++;
     }
@@ -124,8 +204,9 @@ export function VennElementsV2({
       setFeedback({
         kind: "no",
         msg: (wrong === 1 ? t("exercise.vennElements.wrongOne") : t("exercise.vennElements.wrongMany")).replace("{n}", String(wrong)),
+        // VE-04: human region names, not raw ids.
         explain: items
-          .map((it) => `${it} → ${correct[String(it)] ?? "neither"}`)
+          .map((it) => `${it} → ${regionName(expected(String(it)))}`)
           .join(", "),
       });
       setStreak(0);
@@ -134,17 +215,31 @@ export function VennElementsV2({
       setFeedback({
         kind: "no",
         msg: tmpl.replace("{n}", String(wrong)).replace("{r}", String(remaining)),
+        explain: t("exercise.vennElements.retryKeepsCorrect"),
       });
     }
   };
 
+  /** VE-05: lock correct placements, bounce wrong chips back to the bank. */
   const handleRetry = () => {
+    const locks: Record<string, boolean> = {};
+    const keep: Record<string, VennRegion> = {};
+    for (const it of items) {
+      const key = String(it);
+      if (results[key]) {
+        locks[key] = true;
+        keep[key] = placed[key];
+      }
+    }
+    setLockedOk(locks);
+    setPlaced(keep);
+    setResults({});
     setFeedback(null);
   };
 
   const handleContinue = () => {
     const wrongCount = items.filter(
-      (it) => placed[String(it)] !== (correct[String(it)] ?? "neither")
+      (it) => placed[String(it)] !== expected(String(it))
     ).length;
     onFinish?.({
       correct: feedback?.kind === "ok",
@@ -157,53 +252,89 @@ export function VennElementsV2({
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
   const unplaced = items.filter((it) => !placed[String(it)]);
 
-  const chipsFor = (rid: VennRegion) => {
-    const here = items.filter((it) => placed[String(it)] === rid);
-    return here.map((it) => {
-      const key = String(it);
-      const ok = results[key] === true;
-      const no = results[key] === false;
-      return (
-        <span
-          key={key}
-          draggable={!feedback}
-          onDragStart={(e) => {
-            dragRef.current = key;
-            e.dataTransfer.effectAllowed = "move";
-          }}
-          onClick={() => {
-            if (feedback) return;
-            setPlaced((p) => {
-              const np = { ...p };
-              delete np[key];
-              return np;
-            });
-          }}
-          style={{
-            display: "inline-grid",
-            placeItems: "center",
-            minWidth: 28,
-            height: 28,
-            padding: "0 6px",
-            borderRadius: 999,
-            background: ok
-              ? "var(--green-500)"
-              : no
-                ? "var(--coral-500)"
-                : "var(--paper-2)",
-            color: ok || no ? "#fff" : "var(--ink-900)",
-            border: `2px solid ${ok ? "var(--green-700)" : no ? "var(--coral-700)" : "var(--ink-300)"}`,
-            fontFamily: "var(--font-mono)",
-            fontWeight: 800,
-            fontSize: 12,
-            cursor: feedback ? "default" : "grab",
-            margin: 1,
-          }}
-        >
-          {it}
-        </span>
-      );
-    });
+  const chip = (it: VennItem, inZone: boolean) => {
+    const key = String(it);
+    const isDrag = drag !== null && drag.key === key;
+    const isArmed = armed === key;
+    const ok = results[key] === true || lockedOk[key];
+    const no = results[key] === false;
+    return (
+      <button
+        key={key}
+        type="button"
+        className={(isArmed ? "armed " : "") + (inZone ? "landed" : "")}
+        onPointerDown={down(key)}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (placed[key]) {
+              // Keyboard return-to-bank for placed chips.
+              setPlaced((p) => {
+                const np = { ...p };
+                delete np[key];
+                return np;
+              });
+              setResults((r) => {
+                const nr = { ...r };
+                delete nr[key];
+                return nr;
+              });
+            } else {
+              setArmed((a) => (a === key ? null : key));
+            }
+          }
+        }}
+        aria-pressed={isArmed}
+        aria-label={
+          inZone
+            ? `${key} — ${regionName(placed[key])}${lockedOk[key] ? " ✓" : ""}`
+            : key
+        }
+        disabled={!!feedback || lockedOk[key]}
+        style={{
+          display: "inline-grid",
+          placeItems: "center",
+          minWidth: inZone ? 30 : 40,
+          minHeight: inZone ? 30 : 40,
+          padding: "0 9px",
+          borderRadius: 999,
+          background: ok
+            ? "var(--green-500)"
+            : no
+              ? "var(--err-border)"
+              : "var(--paper-2)",
+          color: ok || no ? "#fff" : "var(--ink-900)",
+          border: `2px solid ${ok ? "var(--green-700)" : no ? "var(--err-fg)" : isArmed ? "var(--green-600)" : "var(--ink-300)"}`,
+          boxShadow: isArmed
+            ? "0 0 0 4px var(--green-100)"
+            : inZone
+              ? "none"
+              : "0 2px 0 0 var(--ink-200)",
+          fontFamily: "var(--font-mono)",
+          fontWeight: 800,
+          fontSize: inZone ? 12.5 : 15,
+          cursor: feedback || lockedOk[key] ? "default" : "grab",
+          margin: 1,
+          touchAction: "none",
+          userSelect: "none",
+          transform:
+            isDrag && drag.moved
+              ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.15)`
+              : "none",
+          zIndex: isDrag ? 40 : "auto",
+          position: "relative",
+          transition: isDrag
+            ? "none"
+            : "transform 200ms, background 150ms, border-color 150ms",
+          animation: no ? "fb-shake calc(0.4s * var(--mdur)) ease both" : undefined,
+        }}
+      >
+        {it}
+      </button>
+    );
   };
 
   return (
@@ -238,7 +369,6 @@ export function VennElementsV2({
               background: "var(--paper-2)",
               border: "2px solid var(--ink-100)",
               borderRadius: 14,
-              overflow: "hidden",
             }}
           >
             <svg
@@ -282,7 +412,7 @@ export function VennElementsV2({
               />
               <text
                 x="100"
-                y="40"
+                y="38"
                 fontFamily="var(--font-sans)"
                 fontWeight="800"
                 fontSize="13"
@@ -293,7 +423,7 @@ export function VennElementsV2({
               </text>
               <text
                 x="320"
-                y="40"
+                y="38"
                 fontFamily="var(--font-sans)"
                 fontWeight="800"
                 fontSize="13"
@@ -303,8 +433,8 @@ export function VennElementsV2({
                 B · {setB}
               </text>
               <text
-                x="380"
-                y="205"
+                x="378"
+                y="190"
                 fontFamily="var(--font-mono)"
                 fontSize="9"
                 fill="var(--ink-500)"
@@ -315,42 +445,54 @@ export function VennElementsV2({
                 NEITHER
               </text>
             </svg>
-            {ZONES.map((r) => {
-              const isHover = hover === r.id;
-              const left = `${(r.x / 420) * 100}%`;
-              const top = `${(r.y / 260) * 100}%`;
+            {ZONES.map((z) => {
+              const isOver = drag !== null && drag.over === z.id;
+              // VE-02: zones become visible while dragging OR when armed.
+              const isTarget = (!!armed || (drag !== null && drag.moved)) && !feedback;
               return (
                 <div
-                  key={r.id}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setHover(r.id);
+                  key={z.id}
+                  ref={(el) => {
+                    zoneRefs.current[z.id] = el;
                   }}
-                  onDragLeave={() => setHover(null)}
-                  onDrop={drop(r.id)}
+                  role={armed ? "button" : undefined}
+                  tabIndex={armed ? 0 : -1}
+                  aria-label={
+                    armed
+                      ? `${armed} → ${regionName(z.id)}`
+                      : regionName(z.id)
+                  }
+                  onClick={() => zoneTap(z.id)}
+                  onKeyDown={(e) => {
+                    if (armed && (e.key === "Enter" || e.key === " ")) {
+                      e.preventDefault();
+                      zoneTap(z.id);
+                    }
+                  }}
                   style={{
                     position: "absolute",
-                    left,
-                    top,
+                    left: `${(z.x / 420) * 100}%`,
+                    top: `${(z.y / 260) * 100}%`,
                     transform: "translate(-50%, -50%)",
-                    width: `${(r.w / 420) * 100}%`,
-                    minHeight: 64,
+                    width: `${(z.w / 420) * 100}%`,
+                    minHeight: z.h,
                     padding: 4,
-                    background: isHover
-                      ? "rgba(255,255,255,0.85)"
-                      : "transparent",
-                    border: isHover
-                      ? "2px dashed var(--green-600)"
-                      : "2px dashed transparent",
+                    background: isOver
+                      ? "rgba(255,255,255,0.9)"
+                      : isTarget
+                        ? "rgba(255,255,255,0.45)"
+                        : "transparent",
+                    border: `2px dashed ${isOver ? "var(--green-600)" : isTarget ? "var(--ink-300)" : "transparent"}`,
                     borderRadius: 12,
                     transition: "background 120ms, border-color 120ms",
                     display: "flex",
                     flexWrap: "wrap",
                     alignContent: "center",
                     justifyContent: "center",
+                    cursor: armed ? "pointer" : "default",
                   }}
                 >
-                  {chipsFor(r.id)}
+                  {items.filter((it) => placed[String(it)] === z.id).map((it) => chip(it, true))}
                 </div>
               );
             })}
@@ -366,7 +508,7 @@ export function VennElementsV2({
               flexWrap: "wrap",
               gap: 6,
               justifyContent: "center",
-              minHeight: 48,
+              minHeight: 52,
             }}
           >
             {unplaced.length === 0 ? (
@@ -376,34 +518,7 @@ export function VennElementsV2({
                 {t("exercise.allPlacedHitCheck")}
               </span>
             ) : (
-              unplaced.map((it) => (
-                <span
-                  key={String(it)}
-                  draggable={!feedback}
-                  onDragStart={(e) => {
-                    dragRef.current = String(it);
-                    e.dataTransfer.effectAllowed = "move";
-                  }}
-                  style={{
-                    display: "inline-grid",
-                    placeItems: "center",
-                    minWidth: 36,
-                    height: 36,
-                    padding: "0 8px",
-                    borderRadius: 999,
-                    background: "var(--paper-2)",
-                    color: "var(--ink-900)",
-                    border: "2px solid var(--ink-200)",
-                    fontFamily: "var(--font-mono)",
-                    fontWeight: 800,
-                    fontSize: 15,
-                    cursor: feedback ? "default" : "grab",
-                    boxShadow: "0 2px 0 0 var(--ink-200)",
-                  }}
-                >
-                  {it}
-                </span>
-              ))
+              unplaced.map((it) => chip(it, false))
             )}
           </div>
           <div

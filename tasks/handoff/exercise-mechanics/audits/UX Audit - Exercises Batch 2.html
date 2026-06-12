@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Audit — Exercise Mechanics, Batch 2 (Math) · GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e; --green-600:#0a8754; --green-700:#07683f; --green-800:#054d2f;
+    --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-500:#f5b800; --sun-700:#7a5500;
+    --coral-50:#fff0eb; --coral-500:#ff7a5c; --coral-700:#c33d22;
+    --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d; --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+    --paper:#fafbf6; --paper-2:#ffffff;
+    --mono:'Geist Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font-family: 'Manrope', system-ui, sans-serif; line-height: 1.6; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .page { max-width: 880px; margin: 0 auto; padding: 56px 32px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+  h1 { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 14px; text-wrap: pretty; }
+  h1 .mk { background: var(--sun-300); padding: 0 8px; border-radius: 6px; display: inline-block; transform: rotate(-1deg); }
+  .lede { font-size: 16.5px; color: var(--ink-500); max-width: 64ch; margin: 0 0 8px; }
+  .meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-400); margin-bottom: 40px; }
+  .meta a { color: var(--green-700); }
+  h2 { font-size: 24px; font-weight: 800; margin: 56px 0 6px; padding-top: 22px; border-top: 2px solid var(--ink-100); }
+  h2 .tag { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink-400); letter-spacing: 0.08em; margin-left: 10px; vertical-align: 3px; }
+  p { margin: 10px 0; max-width: 70ch; }
+  .sub { color: var(--ink-500); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 8px 12px 8px 0; border-bottom: 2px solid var(--ink-100); }
+  td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--ink-100); vertical-align: top; }
+  td.id { font-family: var(--mono); font-size: 11.5px; font-weight: 700; color: var(--ink-500); white-space: nowrap; width: 64px; }
+  td.sev { width: 86px; white-space: nowrap; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; }
+  .pill.bug { background: var(--coral-50); color: var(--coral-700); }
+  .pill.a11y { background: #e6f2ff; color: #0a3a7a; }
+  .pill.ux { background: var(--sun-50); color: var(--sun-700); }
+  .pill.mobile { background: var(--green-50); color: var(--green-800); }
+  .fix { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--green-100); color: var(--green-800); margin-top: 6px; }
+  .fix.todo { background: var(--ink-50); color: var(--ink-400); }
+  td b.issue { font-weight: 800; display: block; margin-bottom: 2px; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--ink-50); padding: 1px 6px; border-radius: 6px; }
+  .callout { border-left: 4px solid var(--green-600); background: var(--green-50); border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 22px 0; max-width: 72ch; }
+  .callout.warn { border-color: var(--sun-500); background: var(--sun-50); }
+  .callout b { font-weight: 800; }
+  @media (max-width: 640px) {
+    .page { padding: 36px 18px 64px; }
+    h1 { font-size: 29px; }
+    table, thead, tbody, tr { display: block; }
+    th { display: none; }
+    td { display: block; border: none; padding: 2px 0; }
+    tr { border-bottom: 1px solid var(--ink-100); padding: 12px 0; }
+  }
+  @media print { .page { padding: 0; max-width: none; } h2 { break-after: avoid; } tr { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">GrassLMS · Design review · June 2026</div>
+  <h1>UX audit — math mechanics, <span class="mk">batch&nbsp;2</span></h1>
+  <p class="lede">Five math mechanics reviewed: <b>numeric input</b>, <b>MC math</b>, <b>number line</b>, <b>equation solver</b>, <b>math stepwise</b>. Same lens as batch 1 — kid clarity (7–14), feedback richness, adaptiveness — plus a math-specific one: <b>can a child physically enter every answer the methodist can author?</b> Twice the answer was no.</p>
+  <p class="meta">Sources: <code>components/exercises/v2/{numeric-input,mc-math,number-line,equation-solver,math-stepwise}-v2.tsx</code> &nbsp;→&nbsp; <a href="../Exercise Playground.html">open the playground</a> · <a href="UX Audit — Exercises Batch 1.html">batch 1 audit</a></p>
+
+  <h2 id="ni">1 · Numeric input <span class="tag">numeric-input-v2.tsx</span></h2>
+  <p class="sub">Strong concept: formula card + on-screen pad + collapsible worked example. The pad is the primary input for kids — and it's where the problems are.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">NI-02</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Negative answers cannot be entered on the pad</b>The pad has digits, "." and ⌫ — no minus. Any exercise with a negative answer (temperature, debts, coordinates) is unsolvable without a hardware keyboard. Added a ± key that toggles the sign. Try the "Negative answer" scenario. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NI-03</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Comma decimals count as wrong</b>Russian/European keyboards (and habits) produce "2,5"; <code>parseFloat</code> reads it as 2 → marked wrong, heart lost, child confused. Sanitise input: comma → dot, one dot max, digits only. Also blocks "3..14" and "1.2.3" which the field happily accepted. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NI-01</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Pad keys are ~37px tall</b><code>padding: 8px 0</code> on the primary touch surface for 7-year-olds — under the 44px minimum the project's own UX guide mandates. Keys now ≥48px with the signature press physics (shadow-pop), and a proper disabled state (they previously looked live during feedback). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NI-04</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Unlabeled input and pad keys</b>The answer field has no accessible name; "⌫" reads as "backslash" or nothing. <code>aria-label</code> everywhere; delete is now a labelled full-width key. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NI-06</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">The worked example hides exactly when it's needed</b>A child who just lost a heart doesn't think to open the collapsed "Example" panel. After a wrong attempt the hint card pulses and the sheet nudges toward it ("Psst — the example might help"). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="mm">2 · MC math <span class="tag">mc-math-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">MM-01</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">Answer leaks on every wrong attempt</b>Same family bug as TrueFalse (TF-01, batch 1): the feedback state marks <code>i === correct</code> green even when retries remain — the retry becomes "tap the green one". Third component with this pattern; worth a shared <code>revealAllowed</code> helper in the family so it can't regress. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MM-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Wrong picks forgotten between retries</b>Mirror of QZ-01: eliminated options now stay struck out. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MM-03</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Hard 2-column option grid</b>Long word-problem options overflow at 320px. <code>repeat(auto-fit, minmax(140px, 1fr))</code> collapses to one column exactly when needed. Expression size scales with the container (<code>clamp(26px, 8cqw, 36px)</code>). <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MM-04</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">No keyboard selection</b>1–9 keys select, with subtle index hints on tiles. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MM-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Hardcoded 'Times New Roman'</b>Intentional "math serif" voice, but it's the only off-token font in the system. Consider a declared <code>--font-math</code> token (STIX Two Math falls back to TNR) so it's a decision, not an accident. <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="nl">3 · Number line <span class="tag">number-line-v2.tsx</span></h2>
+  <p class="sub">The marker physics, value bubble and tick magnet are excellent feedback grammar. The gaps: a free win, a lockout, and label collisions.</p>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">NL-03</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">The marker can start on the answer</b>Start position is the range midpoint; whenever the target IS the midpoint (range 0–10, answer 5 — a very common authoring pattern) the child presses Check and wins without touching anything. Start now offsets by one step when it would coincide. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NL-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Check enabled before any interaction</b><code>canCheck={true}</code> always — combined with NL-03 this rewards doing nothing, and generally invites a no-thought first tap. Check unlocks after the marker moves; pressing early gives the standard nudge + "Move the marker first". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NL-01</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Pointer-only — no keyboard path</b>The marker is now a real slider: <code>role="slider"</code> with value semantics, ←/→ moves by step, Home/End jumps to the ends, value bubble flashes on each move. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NL-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Every tick gets a label — they collide</b>Range −10…10 step 1 = 21 labels; at 320px that's ~13px per label. Labels now thin automatically (≈44px budget per label, measured via ResizeObserver), keeping zero, the ends, and every k-th tick. Try "Dense ticks" at 320. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">NL-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Wrong-attempt feedback says nothing useful</b>"You placed 6" — the child knows. Tell them something actionable without giving it away: direction ("try further right"). Distance stays secret so it's still a thought, not a binary search. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="es">4 · Equation solver <span class="tag">equation-solver-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">ES-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Wrong picks are free — brute force is optimal</b>No hearts: a wrong option shakes and… nothing. With 3 options per step, tapping everything is faster than thinking, and the comment admits it ("methodist can wrap a retry budget at a higher layer" — none does). Hearts wired in: a wrong move costs one and crosses the option out; at zero the full solution chain is revealed step by step. Consistent with the rest of the family. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">ES-04</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">No sense of progress through the solve</b>Multi-step task with no progress indicator. The shell's step bar now shows "2 / 3"; new chain rows pop in. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">ES-02</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Private shake keyframes</b>The component ships its own <code>&lt;style&gt;@keyframes gp-shake</code> — a near-duplicate of the system's <code>fb-shake</code>, ignoring <code>--mamp</code>/<code>--mdur</code> (so the playfulness dial and reduced-motion clamp don't reach it). Use the shared one. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">ES-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Double-tap double-counts a wrong option</b>Nothing disables an option during/after its shake — two quick taps = two wrong attempts. Wrong options now eliminate on first tap. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="ms">5 · Math stepwise <span class="tag">math-stepwise-v2.tsx</span></h2>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">MS-02</td><td class="sev"><span class="pill bug">BUG</span></td><td><b class="issue">"x = 5.0" is wrong, "x=5" is right</b>Matching is literal after stripping whitespace/case. Equivalent numeric forms fail: <code>5.0</code> ≠ <code>5</code>, <code>.5</code> ≠ <code>0.5</code>, <code>16 = 4x</code> ≠ <code>4x = 16</code>. For children this is the cruellest kind of wrong — they solved the math. Added numeric-equivalence + flipped-sides comparison; full CAS-grade checking stays out of scope. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MS-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Correct lines stay editable on retry</b>The retry flow preserves values and focuses the first bad line (nice!) — but a child can accidentally mangle an already-correct line. Correct lines now lock with a green tint, and the sheet leads with the win: "1 of 2 lines are right". <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MS-05</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Reveal is a run-on string</b>"Step 1: 4x = 16 · Step 2: x = 4" in one line — structured list, same as MT-03/CT-04. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">MS-03</td><td class="sev"><span class="pill a11y">A11Y</span></td><td><b class="issue">Step labels aren't labels</b>"Step 1" is a span; the input has no accessible name. Now a real <code>&lt;label for&gt;</code>. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cross">6 · Batch-2 cross-cutting</h2>
+  <div class="callout">
+    <b>Pattern worth a shared helper: answer reveal discipline.</b> Three components (TrueFalse, McMath, and partially NumberLine's ghost) hand-roll "when do we show the correct answer" and two of three got it wrong. A single <code>revealAllowed(feedback, attemptsLeft)</code> in the family — or a shell-level prop — closes the class of bugs.
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Type</th><th>Finding → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td class="id">XM-01</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">Math entry ≠ math authoring</b>Audit rule for every math mechanic going forward: for each answer the config can express, verify the child can physically produce it with the provided input surface (pad keys, snap step, option set). NI-02 and NL-03 both fail this test today. <span class="fix todo">PROPOSED as an authoring-time validation in the exercise config panel</span></td></tr>
+      <tr><td class="id">XM-02</td><td class="sev"><span class="pill mobile">ADAPT</span></td><td><b class="issue">Formula cards don't scale</b><code>.fb-formula</code> was fixed 24px / 26px padding; now <code>clamp()</code>-scaled with container width, matching the batch-1 container-query approach. <span class="fix">SHIPPED IN PLAYGROUND</span></td></tr>
+      <tr><td class="id">XM-03</td><td class="sev"><span class="pill ux">UX</span></td><td><b class="issue">KaTeX dependency unverified here</b>Production uses <code>MaybeMath</code> for LaTeX. The playground renders plain text/Unicode math; once we port batch 5 (graphs), it's worth loading KaTeX in the lab to verify math layout at 320px too. <span class="fix todo">PROPOSED</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn" style="margin-top:28px">
+    <b>Next:</b> batch 3 — language mechanics (sentence-builder, conjugation, translation, dialogue, reading, crossword). Expect themes around free-text input, virtual-keyboard overlap on phones, and long-text layout.
+  </div>
+</div>
+</body>
+</html>

@@ -996,6 +996,11 @@ button { font-family: inherit; }
 }
 .fb-chip-drag.ok { border-color: var(--green-500) !important; background: var(--green-50) !important; color: var(--green-800); }
 .fb-chip-drag.no { border-color: var(--err-border) !important; background: var(--err-bg) !important; color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
+.fb-chip-drag:focus-visible { outline: 2px solid var(--green-500); outline-offset: 2px; }
+.fb-chip-drag.armed {
+ border-color: var(--green-600); background: var(--green-100); color: var(--green-800);
+ box-shadow: 0 0 0 4px var(--green-100);
+}
 .fb-bucket {
  flex: 1;
  min-height: 170px;
@@ -1013,6 +1018,7 @@ button { font-family: inherit; }
  background: color-mix(in oklab, var(--link-color) 8%, var(--paper));
  transform: scale(1.015);
 }
+.fb-bucket.target { border-color: var(--green-400); border-style: solid; cursor: pointer; animation: fb-halo calc(1.6s * var(--mdur)) ease-in-out infinite; }
 .fb-bucket.gotcha { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--green-500); border-style: solid; }
 .fb-bucket.catch { animation: fb-bucket-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; border-color: var(--link-color); border-style: solid; }
 .fb-bucket.reject { animation: fb-shake calc(0.4s * var(--mdur)) ease both; border-color: var(--err-border); border-style: solid; background: var(--err-bg); }
@@ -1219,6 +1225,29 @@ button { font-family: inherit; }
 .fb-pt:hover circle.body { r: 16; }
 .fb-pt.grabbed circle.body { r: 17; }
 .fb-pt.ok { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.fb-pt:focus { outline: none; }
+.fb-pt:focus-visible circle.body { stroke: var(--sun-400); stroke-width: 4; }
+
+/* Graph mechanics layout (GX-01): fluid SVG + side panel that stacks narrow. */
+.gx-layout {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) 210px;
+ gap: 20px;
+ max-width: 620px;
+ margin: 0 auto;
+ align-items: start;
+}
+.gx-svg {
+ width: 100%; height: auto; display: block;
+ background: var(--paper-2);
+ border: 2px solid var(--ink-100);
+ border-radius: 14px;
+ user-select: none;
+}
+.gx-svg.interactive { touch-action: none; }
+@media (max-width: 560px) {
+ .gx-layout { grid-template-columns: 1fr; }
+}
 .fb-crosshair { pointer-events: none; }
 .fb-target-ring { animation: fb-pop calc(0.4s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 

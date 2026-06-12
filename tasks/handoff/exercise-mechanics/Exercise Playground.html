@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise Lab — GrassLMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="playground/grass.css">
+<style>
+  /* ── Lab chrome (meta-UI, not part of the exercise design) ── */
+  body { background: var(--ink-50); }
+  .lab { display: flex; min-height: 100vh; }
+  .lab-side {
+    width: 232px; flex: none;
+    background: var(--paper-2);
+    border-right: 1px solid var(--ink-100);
+    padding: 20px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .lab-logo { display: flex; align-items: center; gap: 9px; padding: 2px 8px 16px; }
+  .lab-logo .dot { width: 26px; height: 26px; border-radius: 8px; background: var(--green-600); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; }
+  .lab-logo b { font-size: 15px; font-weight: 800; }
+  .lab-logo small { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--ink-400); font-weight: 500; letter-spacing: 0.06em; }
+  .lab-navlabel { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-300); padding: 12px 8px 6px; }
+  .lab-mech {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; text-align: left;
+    border: none; background: transparent; cursor: pointer;
+    padding: 9px 10px; border-radius: 10px;
+    font-family: var(--font-sans); font-size: 14px; font-weight: 700; color: var(--ink-500);
+    transition: background 120ms, color 120ms;
+  }
+  .lab-mech:hover { background: var(--ink-50); color: var(--ink-900); }
+  .lab-mech.on { background: var(--green-50); color: var(--green-800); }
+  .lab-mech .mi { width: 22px; height: 22px; flex: none; display: grid; place-items: center; color: currentColor; opacity: 0.75; }
+  .lab-scens { display: flex; flex-direction: column; gap: 2px; padding: 2px 0 6px 26px; }
+  .lab-scen {
+    border: none; background: transparent; cursor: pointer; text-align: left;
+    font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; color: var(--ink-400);
+    padding: 5px 10px; border-radius: 8px;
+    transition: background 120ms, color 120ms;
+  }
+  .lab-scen:hover { color: var(--ink-700); background: var(--ink-50); }
+  .lab-scen.on { color: var(--green-800); background: var(--green-50); }
+  .lab-side .audit-link {
+    margin-top: auto;
+    display: block; text-align: center;
+    font-size: 12.5px; font-weight: 700; color: var(--green-700);
+    text-decoration: none; padding: 10px;
+    border: 1.5px solid var(--green-200); border-radius: 10px;
+    transition: background 120ms;
+  }
+  .lab-side .audit-link:hover { background: var(--green-50); }
+
+  .lab-main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 22px 28px 40px; min-width: 0; }
+  .lab-topbar { width: 100%; max-width: 1060px; display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .lab-topbar h1 { font-size: 17px; font-weight: 800; margin: 0; }
+  .lab-topbar .blurb { font-size: 12.5px; color: var(--ink-400); font-weight: 500; flex: 1; min-width: 200px; max-width: 520px; line-height: 1.45; }
+  .devbar { display: flex; gap: 4px; background: var(--paper-2); border: 1px solid var(--ink-100); border-radius: 12px; padding: 4px; }
+  .devbar button {
+    border: none; background: transparent; cursor: pointer;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--ink-400);
+    padding: 7px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+    transition: background 120ms, color 120ms;
+  }
+  .devbar button:hover { color: var(--ink-700); }
+  .devbar button.on { background: var(--ink-900); color: #fff; }
+  .restart {
+    border: none; cursor: pointer;
+    background: var(--paper-2); border: 1px solid var(--ink-100);
+    color: var(--ink-500); border-radius: 12px; padding: 9px 14px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    transition: background 120ms, color 120ms;
+  }
+  .restart:hover { background: var(--ink-50); color: var(--ink-900); }
+
+  .stage-wrap { width: 100%; display: flex; justify-content: center; }
+  .stage {
+    background: var(--paper);
+    border: 1px solid var(--ink-100);
+    border-radius: 22px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: relative;
+    height: 680px;
+    /* NB: no width transition — a 100%↔px width transition can wedge and
+       never complete (verifier-reproduced), leaving the stage stuck at the
+       old width. Snap resize is fine for a lab tool. */
+  }
+  .stage-size {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 8px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--ink-300); font-weight: 600;
+    white-space: nowrap;
+  }
+  .done-overlay {
+    position: absolute; inset: 0; z-index: 60;
+    background: color-mix(in oklab, var(--paper) 86%, transparent);
+    backdrop-filter: blur(3px);
+    display: grid; place-items: center; padding: 24px;
+  }
+  .done-card {
+    background: var(--paper-2); border: 2px solid var(--green-200);
+    border-radius: 22px; box-shadow: var(--shadow-lg);
+    padding: 30px 34px; text-align: center; max-width: 340px;
+    animation: fb-pop calc(0.45s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .done-card .big { font-size: 42px; line-height: 1; margin-bottom: 10px; }
+  .done-card h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--green-800); }
+  .done-card p { margin: 0 0 18px; font-size: 13.5px; color: var(--ink-500); font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="playground/tweaks-panel.jsx"></script>
+<script type="text/babel" src="playground/shell.jsx"></script>
+<script type="text/babel" src="playground/ex-basic.jsx"></script>
+<script type="text/babel" src="playground/ex-link.jsx"></script>
+<script type="text/babel" src="playground/ex-drag.jsx"></script>
+<script type="text/babel" src="playground/ex-math.jsx"></script>
+<script type="text/babel" src="playground/ex-math2.jsx"></script>
+<script type="text/babel" src="playground/ex-lang.jsx"></script>
+<script type="text/babel" src="playground/ex-lang2.jsx"></script>
+<script type="text/babel" src="playground/ex-cards.jsx"></script>
+<script type="text/babel" src="playground/ex-tables.jsx"></script>
+<script type="text/babel" src="playground/ex-graphs.jsx"></script>
+<script type="text/babel" src="playground/ex-graphs2.jsx"></script>
+<script type="text/babel" src="playground/ex-special.jsx"></script>
+<script type="text/babel" src="playground/ex-special2.jsx"></script>
+<script type="text/babel" src="playground/scenarios.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "playfulness": "playful",
+  "confetti": true,
+  "hearts": 3,
+  "grading": "deferred",
+  "serverSim": "off"
+}/*EDITMODE-END*/;
+
+const PLAYFULNESS = {
+  calm:    { mamp: 0.5, mdur: 0.7 },
+  normal:  { mamp: 1,   mdur: 1 },
+  playful: { mamp: 1.45, mdur: 1.2 },
+};
+
+const DEVICES = [
+  { id: "desktop", label: "Desktop", w: "100%", note: "fills the lesson pane" },
+  { id: "tablet",  label: "768",     w: "768px", note: "tablet portrait" },
+  { id: "phone",   label: "390",     w: "390px", note: "typical phone" },
+  { id: "small",   label: "320",     w: "320px", note: "smallest supported" },
+];
+
+const MechIcon = ({ kind }) => {
+  const p = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round" };
+  switch (kind) {
+    case "quiz": return <svg {...p}><circle cx="12" cy="12" r="9"></circle><path d="m9 12 2 2 4-4"></path></svg>;
+    case "true_false": return <svg {...p}><path d="M7 8h10M7 12h6M7 16h8"></path></svg>;
+    case "matching": return <svg {...p}><circle cx="6" cy="7" r="2.6"></circle><circle cx="18" cy="17" r="2.6"></circle><path d="M8.3 8.5c4 2 3.4 6 7.4 7"></path></svg>;
+    case "ordering": return <svg {...p}><path d="M4 7h16M4 12h16M4 17h16"></path><path d="m9 4 3-2 3 2" transform="translate(0,1)"></path></svg>;
+    case "fill_blanks": return <svg {...p}><path d="M4 8h6M14 8h6M4 16h16"></path><rect x="10.5" y="5.5" width="3" height="5" rx="1"></rect></svg>;
+    case "categorize": return <svg {...p}><rect x="3" y="4" width="8" height="7" rx="2"></rect><rect x="13" y="4" width="8" height="7" rx="2"></rect><rect x="8" y="14" width="8" height="7" rx="2"></rect></svg>;
+    case "numeric_input": return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01" strokeWidth="3"></path></svg>;
+    case "mc_math": return <svg {...p}><path d="M5 7h6M8 4v6"></path><path d="M13 17h6"></path><path d="M5 15l4 4M9 15l-4 4"></path><path d="M13 7h6"></path></svg>;
+    case "number_line": return <svg {...p}><path d="M3 14h18"></path><path d="M6 14v-3M12 14v-3M18 14v-3"></path><circle cx="12" cy="8" r="2.4" fill="currentColor" stroke="none"></circle></svg>;
+    case "equation_solver": return <svg {...p}><path d="M5 8h14M5 13h14"></path><path d="m9 17 2 2 4-4"></path></svg>;
+    case "math_stepwise": return <svg {...p}><path d="M4 6h9M4 12h13M4 18h7"></path><path d="m17 16 2 2 3-3" transform="translate(-2,-10)"></path></svg>;
+    case "sentence_builder": return <svg {...p}><rect x="3" y="9" width="6" height="6" rx="2"></rect><rect x="11" y="9" width="6" height="6" rx="2"></rect><path d="M19 12h2"></path></svg>;
+    case "translation": return <svg {...p}><path d="M4 5h7M7.5 5v2c0 3-1.5 5-3.5 6"></path><path d="M5.5 9c1 2 3 4 5.5 4.5"></path><path d="m13 19 3.5-8 3.5 8M14.2 16.5h4.6"></path></svg>;
+    case "conjugation": return <svg {...p}><path d="M5 5h14M5 10h14M5 15h14M5 20h9"></path></svg>;
+    case "dialogue": return <svg {...p}><path d="M20 12a8 8 0 1 0-3.5 6.6L20 20l-.8-3.4A8 8 0 0 0 20 12Z"></path></svg>;
+    case "reading": return <svg {...p}><path d="M12 6c-1.5-1.4-3.6-2-6-2v14c2.4 0 4.5.6 6 2 1.5-1.4 3.6-2 6-2V4c-2.4 0-4.5.6-6 2Z"></path><path d="M12 6v14"></path></svg>;
+    case "crossword": return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"></path></svg>;
+    case "card_sort": return <svg {...p}><rect x="3" y="5" width="5.5" height="14" rx="1.5"></rect><rect x="9.5" y="5" width="5.5" height="14" rx="1.5"></rect><rect x="16" y="5" width="5.5" height="14" rx="1.5"></rect></svg>;
+    case "srs_flashcard": return <svg {...p}><rect x="6" y="3" width="14" height="17" rx="2" transform="rotate(6 13 11.5)"></rect><rect x="3" y="4" width="14" height="17" rx="2"></rect></svg>;
+    case "venn_diagram": return <svg {...p}><circle cx="9.5" cy="12" r="6"></circle><circle cx="14.5" cy="12" r="6"></circle></svg>;
+    case "venn_elements": return <svg {...p}><circle cx="9.5" cy="12" r="6"></circle><circle cx="14.5" cy="12" r="6"></circle><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"></circle></svg>;
+    case "two_way_table": return <svg {...p}><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9.3h18M3 14.6h18M9 4v16M15 4v16"></path></svg>;
+    case "table_pattern": return <svg {...p}><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M3 12h18M8 6v12M13 6v12M18 6v12"></path></svg>;
+    case "area_model": return <svg {...p}><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M13 4v16M3 13h18"></path></svg>;
+    case "coordinate_plane": return <svg {...p}><path d="M12 3v18M3 12h18"></path><circle cx="16.5" cy="7.5" r="2.2" fill="currentColor" stroke="none"></circle><circle cx="7" cy="16" r="2.2"></circle></svg>;
+    case "function_graph": return <svg {...p}><path d="M3 12h18M12 3v18"></path><path d="m5 19 14-14"></path></svg>;
+    case "graph_transform": return <svg {...p}><path d="M3 12h18M12 3v18"></path><path d="M5 8q7 14 14 0" strokeDasharray="3 2"></path></svg>;
+    case "inequality_graph": return <svg {...p}><path d="m5 19 14-14"></path><path d="M8 19h11V8Z" fill="currentColor" opacity="0.25" stroke="none"></path></svg>;
+    case "scatter_plot": return <svg {...p}><path d="M4 20 20 6"></path><circle cx="7" cy="14" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="11" cy="15" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="13" cy="9" r="1.4" fill="currentColor" stroke="none"></circle><circle cx="17" cy="10" r="1.4" fill="currentColor" stroke="none"></circle></svg>;
+    case "function_machine": return <svg {...p}><rect x="5" y="8" width="14" height="8" rx="2"></rect><path d="M12 3v5M12 16v5"></path><path d="m9.5 5 2.5 2.5L14.5 5M9.5 18.5 12 21l2.5-2.5" strokeWidth="1.8"></path></svg>;
+    case "probability_wheel": return <svg {...p}><circle cx="12" cy="13" r="8"></circle><path d="M12 13V5M12 13l6 5M12 13l-7 3"></path><path d="M10 2h4"></path></svg>;
+    case "equation_balance": return <svg {...p}><path d="M12 4v16M4 8h16"></path><path d="M4 8l-2 6h6zM20 8l-2 6h6z" strokeWidth="1.8"></path></svg>;
+    case "code_challenge": return <svg {...p}><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14"></path></svg>;
+    case "robot_2d": return <svg {...p}><rect x="6" y="8" width="12" height="10" rx="3"></rect><path d="M12 8V4M9 4h6"></path><circle cx="9.5" cy="12.5" r="1" fill="currentColor" stroke="none"></circle><circle cx="14.5" cy="12.5" r="1" fill="currentColor" stroke="none"></circle></svg>;
+    case "arithmetic_puzzle": return <svg {...p}><path d="M5 8h5M7.5 5.5v5"></path><rect x="14" y="4" width="7" height="7" rx="2"></rect><path d="M5 16.5h5"></path><path d="M14 18.5h7M14 15.5h7" strokeWidth="1.8"></path></svg>;
+    case "bubble_sheet": return <svg {...p}><circle cx="6" cy="6" r="2.4"></circle><circle cx="6" cy="13" r="2.4" fill="currentColor"></circle><circle cx="6" cy="20" r="2.4"></circle><path d="M12 6h8M12 13h8M12 20h8"></path></svg>;
+    case "map_pin": return <svg {...p}><path d="M12 21s-6-6.6-6-11a6 6 0 0 1 12 0c0 4.4-6 11-6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg>;
+    case "file_upload": return <svg {...p}><path d="M12 15V5m0 0 4 4m-4-4-4 4"></path><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>;
+    case "scorm": return <svg {...p}><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m10 9 5 3-5 3Z" fill="currentColor"></path></svg>;
+    default: return null;
+  }
+};
+
+function DoneOverlay({ result, onRestart }) {
+  let line = "Task complete.";
+  if (result && result.total != null) {
+    line = result.correctEventually + " of " + result.total + " solved" + (result.correctOnFirstTry ? " · " + result.correctOnFirstTry + " on the first try" : "");
+  } else if (result && typeof result.correct === "boolean") {
+    line = result.correct ? "Solved it!" : "Out of tries this time — practice makes progress.";
+  }
+  const happy = !result || result.correct !== false;
+  return (
+    <div className="done-overlay">
+      <div className="done-card">
+        <div className="big" aria-hidden="true">{happy ? "🌟" : "🌱"}</div>
+        <h3>{happy ? "Lesson complete!" : "Good effort!"}</h3>
+        <p>{line}</p>
+        <button className="gp-btn" onClick={onRestart}>Play again</button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [mech, setMech] = useState("quiz");
+  const [scen, setScen] = useState("standard");
+  const [device, setDevice] = useState("desktop");
+  const [resetKey, setResetKey] = useState(0);
+  const [doneResult, setDoneResult] = useState(null);
+
+  useEffect(() => { window.__gpConfettiOff = !t.confetti; }, [t.confetti]);
+
+  const def = SCENARIOS[mech];
+  const scenDef = def.scenarios[scen] || def.scenarios[Object.keys(def.scenarios)[0]];
+  const dev = DEVICES.find((d) => d.id === device);
+  const pf = PLAYFULNESS[t.playfulness] || PLAYFULNESS.normal;
+
+  const pick = (m, s) => { setMech(m); setScen(s); setDoneResult(null); setResetKey((k) => k + 1); };
+  const restart = () => { setDoneResult(null); setResetKey((k) => k + 1); };
+  const finish = (r) => setDoneResult(r || {});
+
+  const exercise = useMemo(() => {
+    const p = scenDef.props;
+    const common = { key: mech + ":" + scen + ":" + resetKey + ":" + t.hearts + ":" + t.grading + ":" + t.serverSim, onFinish: finish, onQuit: restart, maxAttemptsPerTask: t.hearts };
+    switch (mech) {
+      case "quiz":
+        return <QuizV2 {...p} {...common} />;
+      case "true_false": {
+        const sim = makeServerSim(t.serverSim, ({ answer }) => ({
+          correct: answer === p.correctAnswer,
+          correctAnswer: p.correctAnswer ? "True" : "False",
+          explain: p.explain,
+        }));
+        return <TrueFalseV2 {...p} {...common} onGrade={sim || undefined} />;
+      }
+      case "matching":
+        return <MatchingV2 {...p} {...common} deferred={t.grading === "deferred"} />;
+      case "ordering": {
+        const sim = makeServerSim(t.serverSim, ({ order }) => ({
+          correct: order.every((v, i) => v === p.items[i]),
+        }));
+        return <OrderingV2 {...p} {...common} onGrade={sim || undefined} />;
+      }
+      case "fill_blanks": {
+        const sim = makeServerSim(t.serverSim, ({ blanks }) => ({
+          correct: blanks.every((w, i) => w === p.blanks[i]),
+          correctAnswer: p.blanks.join(" · "),
+        }));
+        return <FillBlanksV2 {...p} {...common} onGrade={sim || undefined} />;
+      }
+      case "categorize":
+        return <CategorizeV2 {...p} {...common} deferred={t.grading === "deferred"} />;
+      case "numeric_input":
+        return <NumericInputV2 {...p} {...common} />;
+      case "mc_math":
+        return <McMathV2 {...p} {...common} />;
+      case "number_line":
+        return <NumberLineV2 {...p} {...common} />;
+      case "equation_solver":
+        return <EquationSolverV2 {...p} {...common} />;
+      case "math_stepwise":
+        return <MathStepwiseV2 {...p} {...common} />;
+      case "sentence_builder":
+        return <SentenceBuilderV2 {...p} {...common} />;
+      case "translation": {
+        const sim = makeServerSim(t.serverSim, ({ answer }) => ({
+          correct: p.accepted.some((a) => a.toLowerCase().replace(/[.!?]+$/, "").trim() === answer.toLowerCase().replace(/[.!?]+$/, "").trim()),
+        }));
+        return <TranslationV2 {...p} {...common} onGrade={sim || undefined} />;
+      }
+      case "conjugation":
+        return <ConjugationV2 {...p} {...common} />;
+      case "dialogue":
+        return <DialogueV2 {...p} {...common} />;
+      case "reading":
+        return <ReadingV2 {...p} {...common} />;
+      case "crossword":
+        return <CrosswordV2 {...p} {...common} />;
+      case "card_sort":
+        return <CardSortV2 {...p} {...common} />;
+      case "srs_flashcard":
+        return <SRSFlashcardV2 {...p} {...common} />;
+      case "venn_diagram":
+        return <VennDiagramV2 {...p} {...common} />;
+      case "venn_elements":
+        return <VennElementsV2 {...p} {...common} />;
+      case "two_way_table":
+        return <TwoWayTableV2 {...p} {...common} />;
+      case "table_pattern":
+        return <TablePatternV2 {...p} {...common} />;
+      case "area_model":
+        return <AreaModelV2 {...p} {...common} />;
+      case "coordinate_plane":
+        return <CoordinatePlaneV2 {...p} {...common} />;
+      case "function_graph":
+        return <FunctionGraphV2 {...p} {...common} />;
+      case "graph_transform":
+        return <GraphTransformV2 {...p} {...common} />;
+      case "inequality_graph":
+        return <InequalityGraphV2 {...p} {...common} />;
+      case "scatter_plot":
+        return <ScatterPlotV2 {...p} {...common} />;
+      case "function_machine":
+        return <FunctionMachineV2 {...p} {...common} />;
+      case "probability_wheel":
+        return <ProbabilityWheelV2 {...p} {...common} />;
+      case "equation_balance":
+        return <EquationBalanceV2 {...p} {...common} />;
+      case "code_challenge": {
+        const { __sim, ...rest } = p;
+        const sim = simRunner(__sim);
+        return <CodeChallengeV2 {...rest} {...common} onRun={sim.onRun} onSubmit={sim.onSubmit} />;
+      }
+      case "robot_2d":
+        return <Robot2DV2 {...p} {...common} />;
+      case "arithmetic_puzzle":
+        return <ArithmeticPuzzleV2 {...p} {...common} />;
+      case "bubble_sheet":
+        return <BubbleSheetV2 {...p} {...common} />;
+      case "map_pin":
+        return <MapPinDropV2 {...p} {...common} />;
+      case "file_upload":
+        return <FileUploadV2 {...p} {...common} />;
+      case "scorm":
+        return <ScormPackageV2 {...p} {...common} />;
+      default:
+        return null;
+    }
+  }, [mech, scen, resetKey, t.hearts, t.grading, t.serverSim]);
+
+  return (
+    <div className="lab">
+      <nav className="lab-side" aria-label="Mechanics">
+        <div className="lab-logo">
+          <span className="dot">G</span>
+          <span><b>Exercise Lab</b><small>GRASSLMS · BATCHES 1–6</small></span>
+        </div>
+        {MECH_GROUPS.map((g) => (
+          <React.Fragment key={g.label}>
+            <div className="lab-navlabel">{g.label}</div>
+            {g.ids.map((m) => (
+              <React.Fragment key={m}>
+                <button className={"lab-mech" + (mech === m ? " on" : "")} onClick={() => pick(m, "standard")}>
+                  <span className="mi"><MechIcon kind={m} /></span>
+                  {SCENARIOS[m].label}
+                </button>
+                {mech === m && (
+                  <div className="lab-scens">
+                    {Object.entries(SCENARIOS[m].scenarios).map(([sid, s]) => (
+                      <button key={sid} className={"lab-scen" + (scen === sid ? " on" : "")} onClick={() => pick(m, sid)}>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        ))}
+        <a className="audit-link" style={{ marginTop: "auto" }} href="audits/UX Audit — Exercises Batch 1.html">UX audit · batch 1 →</a>
+        <a className="audit-link" style={{ marginTop: 6 }} href="audits/UX Audit — Exercises Batch 2.html">UX audit · batch 2 →</a>
+        <a className="audit-link" style={{ marginTop: 6 }} href="audits/UX Audit — Exercises Batch 3.html">UX audit · batch 3 →</a>
+        <a className="audit-link" style={{ marginTop: 6 }} href="audits/UX Audit — Exercises Batch 4.html">UX audit · batch 4 →</a>
+        <a className="audit-link" style={{ marginTop: 6 }} href="audits/UX Audit — Exercises Batch 5.html">UX audit · batch 5 →</a>
+        <a className="audit-link" style={{ marginTop: 6 }} href="audits/UX Audit — Exercises Batch 6.html">UX audit · batch 6 + summary →</a>
+      </nav>
+
+      <main className="lab-main">
+        <div className="lab-topbar">
+          <h1>{def.label}</h1>
+          <span className="blurb">{def.blurb}</span>
+          <div className="devbar" role="group" aria-label="Preview width">
+            {DEVICES.map((d) => (
+              <button key={d.id} className={device === d.id ? "on" : ""} onClick={() => setDevice(d.id)}>{d.label}</button>
+            ))}
+          </div>
+          <button className="restart" onClick={restart}>↺ Restart</button>
+        </div>
+
+        <div className="stage-wrap">
+          <div
+            className="stage"
+            style={{ width: dev.w, maxWidth: "100%", "--mamp": pf.mamp, "--mdur": pf.mdur }}
+            data-screen-label={def.label + " — " + scenDef.label}
+          >
+            {exercise}
+            {doneResult && <DoneOverlay result={doneResult} onRestart={restart} />}
+            <span className="stage-size">{dev.label === "Desktop" ? "Desktop — " + dev.note : dev.w + " — " + dev.note}</span>
+          </div>
+        </div>
+
+        <TweaksPanel>
+          <TweakSection label="Feel" />
+          <TweakRadio label="Playfulness" value={t.playfulness} options={["calm", "normal", "playful"]} onChange={(v) => setTweak("playfulness", v)} />
+          <TweakToggle label="Confetti" value={t.confetti} onChange={(v) => setTweak("confetti", v)} />
+          <TweakSection label="Rules" />
+          <TweakSlider label="Hearts per task" value={t.hearts} min={1} max={5} step={1} onChange={(v) => setTweak("hearts", v)} />
+          <TweakRadio label="Grading" value={t.grading} options={["deferred", "instant"]} onChange={(v) => setTweak("grading", v)} />
+          <TweakSection label="Network" />
+          <TweakRadio label="Server sim" value={t.serverSim} options={["off", "slow", "flaky"]} onChange={(v) => setTweak("serverSim", v)} />
+        </TweaksPanel>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
