@@ -42,7 +42,8 @@ Project docs are split by audience — load only what you need.
 - **Compose file:** `docker-compose.prod.yml` (the one in the repo root)
 - **Primary public URL:** **https://grasslms.online** (this is what users see; DNS A-record → 204.168.165.41)
 - **Backup public URL:** https://204-168-165-41.nip.io (Let's Encrypt SSL fallback, same backend)
-- **Running containers:** `lms-db-1`, `lms-backend-1`, `lms-frontend-1`, `lms-sandbox-1`, `lms-nginx-1`, `lms-cloudflared-1`, `lms-redis-1`
+- **Specs:** CX22 — 2 vCPU, ~3.7GB RAM, 2GB swap, 40GB disk (83% used). Measure, don't assume.
+- **Running containers (~14, verified 2026-07-17):** prod LMS = `lms-db-1`, `lms-backend-1`, `lms-frontend-1`, `lms-sandbox-1`, `lms-nginx-1`, `lms-cloudflared-1`, `lms-redis-1`. Plus a full **staging** stack (`lms-staging-{db,redis,backend,frontend,sandbox}-1`) and two unrelated projects (`aimath-backend`, `topdown-rpg`) sharing the same 3.7GB.
 - **DB image:** `pgvector/pgvector:pg16` (drop-in replacement for `postgres:16-alpine`, includes pgvector extension for the knowledge module)
 - **Backups:** daily `pg_dump` at 04:00, 7-day retention in `/opt/lms/backups/`
 
@@ -52,13 +53,49 @@ Coolify is outdated; ignore or delete it.
 
 ## Deploy workflow
 
-**⚠️ Claude MUST NOT deploy via SSH. No `cat | ssh`, no `scp`, no direct file
-copy.** All changes go through GitHub: commit → push → owner pulls on server.
+**Merging to `main` deploys to production. Automatically. Within minutes.**
 
-To deploy:
-1. Commit changes locally
-2. Push to GitHub (`git push origin <branch>`)
-3. Owner pulls and rebuilds on server manually
+There is no manual step and no human review between the merge and prod. Merge to
+`main` → CI runs → on CI success `.github/workflows/deploy.yml` SSHes into the
+server, `git reset --hard`, rebuilds changed images, `up -d`, runs migrations,
+smoke-checks `/login`. **Read that workflow before you merge anything** — all 178
+lines. It is the most consequential file in this repo.
+
+**⚠️ Claude MUST NOT hand-deploy via SSH.** No `cat | ssh`, no `scp`, no direct file
+copy of code. Code reaches prod exactly one way: PR → CI green → merge. (Config-only
+ops on the box — `.env` edits, restarts, read-only inspection — are separately
+permitted; see the SSH safe-ops memory.)
+
+To ship:
+1. Branch, commit, push, open a PR.
+2. Wait for CI green.
+3. **Before merging, ask: what will this build consume on the prod box?**
+   `deploy.yml` runs `docker compose build` **on the production host**, next to the
+   running stack. See below.
+4. Merge — this is the deploy.
+5. **Poll both** the CI run and the "Deploy to Hetzner" run to completion
+   (`gh run list`). Nobody else is watching. A green merge is not a green deploy.
+6. Verify the thing you shipped actually works in prod.
+
+### The prod box is memory-tight — not a footnote
+
+CX22: **2 vCPU, ~3.7GB usable RAM, 2GB swap** (`/swapfile` already in fstab — do NOT
+"add swap"). It runs ~14 containers: the prod LMS, a full **staging** stack, plus
+unrelated `aimath-backend` and `topdown-rpg`. On top of that, `deploy.yml` runs a
+full `next build` there.
+
+On 2026-07-17 an unbounded `next build` exhausted RAM. Because swap exists the kernel
+never OOM-killed it — it thrashed, and prod stopped answering SSH and HTTPS for ~25
+minutes until a hard reset. Mitigated by capping the build heap
+(`frontend/Dockerfile`: `NODE_OPTIONS=--max-old-space-size=1536`), so the build dies
+instead of the host. **Root cause stands: the server should not build images.** The
+fix is to build in CI and have the box only `docker pull` — not done; needs a
+registry decision from the owner.
+
+**Never state this box's specs from memory. Measure them:**
+`ssh root@204.168.165.41 "free -h; swapon --show; nproc; df -h /"` — read-only, one
+call. On 2026-07-17 two confident wrong guesses (2GB RAM; "no swap") sent the owner
+down false paths during a live outage.
 
 ## Stack
 
@@ -88,9 +125,12 @@ secrets and local `.env.local` (not committed).
 
 ## What to NOT do
 
-- Do not push to `origin/main` expecting auto-deploy. There is no webhook.
+- Do not merge to `main` casually. **Merging IS deploying** — CI green auto-triggers
+  `deploy.yml`, which rebuilds images on the prod box. Read it first, then poll the
+  deploy run to completion.
 - Do not run `docker compose` on your laptop expecting it to affect prod.
-- Do not assume there is CI/CD for deployment. CI runs lint+tests on PRs (`.github/workflows/ci.yml`), but deployment is manual SSH+rebuild.
+- Do not "add swap" to the prod box — it already has 2GB, and more swap makes an OOM
+  thrash *longer*, not safer.
 - Do not look for `render.yaml` or `deploy/` — they were deleted in March 2026 (Render → Hetzner migration). If you see references in old commits or memory, ignore them.
 - Do not edit production migrations after they've been applied. Create a new migration instead.
 - Do not run scripts from `scripts/legacy/` — they're archived one-offs, may break data. See `scripts/legacy/README.md`.
