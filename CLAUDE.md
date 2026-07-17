@@ -1,7 +1,7 @@
 # GrassLMS — Project Quick Reference
 
 This file is loaded automatically by Claude Code when working in this repo.
-For deeper context, read the memory at `~/.claude/projects/F--lms/memory/`
+For deeper context, read the memory at `~/.claude/projects/F--lms2-9/memory/`
 (especially `project_prod_hosting.md` and `feedback_deploy.md`) before
 proposing any infrastructure or deploy action.
 
