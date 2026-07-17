@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrassLMS — Handoff: типы контента урока</title>
+<!-- KaTeX (CDN — для математики; офлайн покажет сырой $…$) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   GrassLMS design tokens — verbatim из frontend/src/app/globals.css
+   ───────────────────────────────────────────────────────────── */
+:root{
+  /* green (бренд / hero) */
+  --green-25:#f4fbef; --green-50:#ecf9e7; --green-100:#d4f1c4; --green-200:#b6e69e;
+  --green-300:#8fd770; --green-400:#6bc44d; --green-500:#3fb04b; --green-600:#0a8754;
+  --green-700:#07683f; --green-800:#054d2f; --green-900:#0a3d24;
+  /* sun (акценты / примеры / highlight) */
+  --sun-50:#fffbe5; --sun-100:#fff2b3; --sun-300:#ffe066; --sun-400:#ffd84d;
+  --sun-500:#f5b800; --sun-700:#7a5500;
+  /* coral (ошибки) */
+  --coral-50:#fff0eb; --coral-300:#ffae9a; --coral-500:#ff7a5c; --coral-700:#c33d22;
+  /* ink (тёплые нейтрали) */
+  --ink-50:#f4f5f1; --ink-100:#e6e8e4; --ink-200:#c9cec9; --ink-300:#9aa39d;
+  --ink-400:#6b7a70; --ink-500:#4d5a51; --ink-700:#1a2a1f; --ink-900:#0a1a10;
+  --paper:#fafbf6; --paper-2:#ffffff; --info:#2b91ff;
+  /* семантика */
+  --color-bg:var(--paper); --color-surface:var(--paper-2); --color-surface-2:var(--ink-50);
+  --color-text:var(--ink-900); --color-text-muted:var(--ink-500); --color-text-subtle:var(--ink-400);
+  --color-border:var(--ink-100); --color-border-strong:var(--ink-200); --color-border-focus:var(--green-500);
+  --color-primary:var(--green-600); --color-primary-hover:var(--green-700);
+  /* типографика */
+  --font-sans:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --font-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --t-xs:12px; --t-sm:13px; --t-base:15px; --t-md:17px; --t-lg:20px;
+  --t-xl:24px; --t-2xl:32px; --t-3xl:44px;
+  /* spacing (4px) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px;
+  /* радиусы */
+  --radius-xs:6px; --radius-sm:10px; --radius-md:14px; --radius-lg:18px; --radius-xl:24px; --radius-pill:999px;
+  /* тени */
+  --shadow-xs:0 1px 2px rgba(10,26,16,.05); --shadow-sm:0 2px 6px -1px rgba(10,26,16,.07);
+  --shadow-md:0 8px 24px -8px rgba(10,26,16,.12); --shadow-lg:0 18px 50px -20px rgba(10,26,16,.18);
+  --shadow-pop:0 4px 0 0 var(--green-700);       /* фирменная кнопка */
+  --shadow-pop-coral:0 4px 0 0 var(--coral-700);
+  --shadow-pop-sun:0 4px 0 0 var(--sun-500);
+  /* motion */
+  --motion-fast:120ms; --motion-base:200ms; --motion-slow:400ms; --motion-ease:cubic-bezier(.2,.8,.2,1);
+  --mamp:1; --mdur:1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);
+  font-size:var(--t-base);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 var(--s-3)}
+h1{font-size:var(--t-3xl);letter-spacing:-.02em}
+h2{font-size:var(--t-2xl);letter-spacing:-.01em}
+h3{font-size:var(--t-lg)}
+code,kbd,.mono{font-family:var(--font-mono);font-size:.92em}
+a{color:var(--green-600)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--s-6)}
+
+/* header */
+.top{position:sticky;top:0;z-index:50;background:rgba(250,251,246,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--color-border)}
+.top .wrap{display:flex;align-items:center;gap:var(--s-3);height:60px}
+.logo{width:34px;height:34px;border-radius:var(--radius-sm);background:var(--green-600);color:#fff;
+  display:grid;place-items:center;font-weight:800;box-shadow:var(--shadow-pop)}
+.top h1{font-size:var(--t-md);margin:0}
+.top .meta{margin-left:auto;color:var(--color-text-muted);font-size:var(--t-sm)}
+
+section.block{padding:var(--s-12) 0;border-bottom:1px solid var(--color-border)}
+.eyebrow{font-size:var(--t-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--green-600);margin-bottom:var(--s-2)}
+.lead{color:var(--color-text-muted);max-width:70ch}
+.note{background:var(--green-50);border:1px solid var(--green-200);border-radius:var(--radius-md);
+  padding:var(--s-4);color:var(--green-800);font-size:var(--t-sm);margin:var(--s-4) 0}
+
+/* cards / grid */
+.grid{display:grid;gap:var(--s-4)}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:780px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+  padding:var(--s-5);box-shadow:var(--shadow-sm)}
+.card h3{display:flex;align-items:center;gap:var(--s-2)}
+.tag{font-family:var(--font-mono);font-size:var(--t-xs);background:var(--ink-50);border:1px solid var(--color-border);
+  border-radius:var(--radius-pill);padding:2px 10px;color:var(--ink-500)}
+.tag.lang{background:#eef6ff;border-color:#bcdcff;color:#0a3a7a}
+.tag.math{background:var(--sun-50);border-color:var(--sun-300);color:var(--sun-700)}
+.tag.code{background:var(--ink-700);border-color:var(--ink-700);color:#fff}
+.tag.media{background:var(--coral-50);border-color:var(--coral-300);color:var(--coral-700)}
+.muted{color:var(--color-text-muted);font-size:var(--t-sm)}
+
+/* token swatches */
+.sw{display:flex;flex-direction:column;gap:6px}
+.sw .row{display:flex;align-items:center;gap:var(--s-3)}
+.chip{width:34px;height:34px;border-radius:var(--radius-sm);border:1px solid rgba(0,0,0,.08);flex:0 0 auto}
+.scale span{display:inline-block;border:1px solid var(--color-border);border-radius:var(--radius-xs);
+  padding:2px 8px;margin:3px;background:#fff}
+
+/* ── фирменные компоненты урока (упрощённые, но в стиле) ── */
+.lesson{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);
+  padding:var(--s-8);box-shadow:var(--shadow-md)}
+.gp-btn{font-family:inherit;font-weight:700;border:none;border-radius:var(--radius-pill);
+  padding:10px 22px;background:var(--green-600);color:#fff;box-shadow:var(--shadow-pop);cursor:pointer;
+  transition:transform var(--motion-fast) var(--motion-ease)}
+.gp-btn:active{transform:translateY(3px);box-shadow:0 1px 0 0 var(--green-700)}
+.gp-btn.sun{background:var(--sun-400);color:var(--ink-900);box-shadow:var(--shadow-pop-sun)}/* ink-900 на sun! */
+.gp-btn.ghost{background:#fff;color:var(--ink-900);box-shadow:none;border:1px solid var(--color-border-strong)}
+.gp-tile{border:2px solid var(--color-border-strong);border-radius:var(--radius-md);background:#fff;
+  padding:14px 16px;font-weight:600;cursor:pointer;transition:all var(--motion-fast) var(--motion-ease)}
+.gp-tile:hover{border-color:var(--green-400)}
+.gp-tile.sel{border-color:var(--green-600);background:var(--green-50)}
+.gp-tile.ok{border-color:var(--green-600);background:var(--green-100)}
+.gp-tile.no{border-color:var(--coral-500);background:var(--coral-50)}
+.eyebrow-x{font-size:var(--t-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-300)}
+
+/* theory annotations */
+.th-hl{background:var(--sun-300);color:var(--ink-900);border-radius:3px;padding:0 2px}
+.th-ul{border-bottom:2.5px dashed var(--green-500);cursor:help;position:relative}
+.th-ul[data-term]:hover::after{content:attr(data-term);position:absolute;left:50%;bottom:140%;
+  transform:translateX(-50%);background:var(--ink-900);color:#fff;font-size:var(--t-xs);font-weight:500;
+  padding:8px 10px;border-radius:var(--radius-sm);width:max-content;max-width:240px;white-space:normal;
+  box-shadow:var(--shadow-md);z-index:9}
+
+/* callouts (lms-callout) */
+.lms-callout{border-radius:var(--radius-md);padding:var(--s-4);margin:var(--s-3) 0;font-size:var(--t-sm);
+  border-left:4px solid}
+.lms-callout--info{background:#eef6ff;border-color:var(--info)}
+.lms-callout--pitfall{background:var(--coral-50);border-color:var(--coral-500)}
+.lms-example{background:var(--sun-50);border:1px solid var(--sun-300);border-radius:var(--radius-md);padding:var(--s-4);margin:var(--s-3) 0}
+.lms-example__label{display:inline-block;background:var(--sun-400);color:var(--sun-700);font-size:var(--t-xs);
+  font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:var(--radius-pill);padding:3px 10px;margin-bottom:var(--s-2)}
+
+/* fill-blanks */
+.fb-slot{display:inline-block;min-width:64px;border-bottom:2.5px solid var(--ink-300);text-align:center;
+  font-weight:700;color:var(--green-700);margin:0 4px}
+.fb-bank{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-3)}
+.fb-pill{background:#fff;border:1.5px solid var(--color-border-strong);border-radius:var(--radius-pill);
+  padding:6px 14px;font-weight:600;cursor:grab}
+
+/* dialogue bubbles */
+.dlg{display:flex;flex-direction:column;gap:var(--s-2)}
+.bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:var(--t-sm)}
+.bubble.npc{align-self:flex-start;background:var(--ink-50);border-bottom-left-radius:4px}
+.bubble.me{align-self:flex-end;background:var(--green-600);color:#fff;border-bottom-right-radius:4px}
+
+/* matching svg */
+.match{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:var(--s-2)}
+.match .col{display:flex;flex-direction:column;gap:var(--s-2)}
+.match .node{background:#fff;border:1.5px solid var(--color-border-strong);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;font-weight:600}
+
+/* number line */
+.numline{position:relative;height:54px;margin:var(--s-4) 0}
+.numline .axis{position:absolute;top:26px;left:0;right:0;height:3px;background:var(--ink-200)}
+.numline .tick{position:absolute;top:18px;width:2px;height:18px;background:var(--ink-300)}
+.numline .lbl{position:absolute;top:38px;transform:translateX(-50%);font-size:var(--t-xs);color:var(--ink-400)}
+.numline .marker{position:absolute;top:14px;width:22px;height:22px;border-radius:50%;background:var(--green-600);
+  transform:translateX(-50%);box-shadow:var(--shadow-pop);border:3px solid #fff}
+
+/* equation balance */
+.scale{display:grid;grid-template-columns:1fr 40px 1fr;align-items:end;gap:var(--s-2);margin:var(--s-4) 0}
+.pan{background:var(--green-50);border:2px solid var(--green-300);border-radius:var(--radius-md);
+  padding:var(--s-4);text-align:center;font-weight:800;font-size:var(--t-lg)}
+.fulcrum{width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;
+  border-bottom:28px solid var(--ink-300);margin:0 auto}
+
+/* flashcard */
+.flash{width:220px;height:130px;border-radius:var(--radius-lg);background:var(--green-600);color:#fff;
+  display:grid;place-items:center;font-weight:800;font-size:var(--t-xl);box-shadow:var(--shadow-md)}
+
+/* code editor mock */
+.editor{background:#0c1410;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--ink-700)}
+.editor .bar{background:#13201a;padding:8px 12px;color:#8fd770;font-size:var(--t-xs);font-family:var(--font-mono)}
+.editor pre{margin:0;padding:var(--s-4);color:#d4f1c4;font-family:var(--font-mono);font-size:var(--t-sm);overflow:auto}
+.editor .tok-k{color:#6bc44d} .editor .tok-s{color:#ffd84d} .editor .tok-c{color:#6b7a70}
+
+/* video */
+.video{aspect-ratio:16/9;background:linear-gradient(120deg,#1a2a6c,#2a5298);border-radius:var(--radius-md);
+  display:grid;place-items:center;color:#fff}
+.play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;
+  color:var(--green-700);font-size:26px;box-shadow:var(--shadow-lg)}
+
+/* fileupload */
+.drop{border:2px dashed var(--color-border-strong);border-radius:var(--radius-md);padding:var(--s-8);text-align:center;color:var(--color-text-muted);background:var(--ink-50)}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--color-border);vertical-align:top}
+th{font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-400)}
+td .mono{color:var(--green-700)}
+
+/* fb anim demos */
+@keyframes fb-pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes fb-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes fb-slide-up{0%{transform:translateY(60%);opacity:0}100%{transform:translateY(0);opacity:1}}
+.demo-pop:hover{animation:fb-pop calc(.42s*var(--mdur)) var(--motion-ease)}
+.demo-shake:hover{animation:fb-shake calc(.4s*var(--mdur))}
+.foot{padding:var(--s-12) 0;color:var(--color-text-subtle);font-size:var(--t-sm)}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="wrap">
+  <div class="logo">G</div>
+  <h1>GrassLMS · Handoff: типы контента урока</h1>
+  <div class="meta">v1 · 2026-06-11 · для разработчиков</div>
+</div></header>
+
+<section class="block"><div class="wrap">
+  <div class="eyebrow">Что это</div>
+  <h1>Каталог контента урока + дизайн-система</h1>
+  <p class="lead">Один файл, который можно открыть в браузере и передать разработчикам/дизайнерам.
+  Показывает каждый тип контента урока на платформе (текст/теория, видео, математика, языки, задания,
+  HTML/интерактив, код) в фирменном стиле GrassLMS, плюс точные дизайн-токены и форму конфигов.</p>
+  <div class="note">Все цвета, шрифты, радиусы и анимации ниже — <b>дословно</b> из
+  <span class="mono">frontend/src/app/globals.css</span>. Математика рендерится через KaTeX (как на платформе).
+  Виджеты упрощены до статичных макетов «как выглядит», логика — в реальных компонентах
+  <span class="mono">frontend/src/components/exercises/v2/</span>.</div>
+</div></section>
+
+<!-- ───────────── ДИЗАЙН-ТОКЕНЫ ───────────── -->
+<section class="block"><div class="wrap">
+  <div class="eyebrow">01 · Дизайн-токены</div>
+  <h2>Палитра, типографика, форма</h2>
+  <div class="grid g3" style="margin-top:var(--s-5)">
+    <div class="card">
+      <h3>Цвета</h3>
+      <div class="sw">
+        <div class="row"><span class="chip" style="background:#0a8754"></span><b>green-600</b> <span class="muted mono">#0a8754 · primary</span></div>
+        <div class="row"><span class="chip" style="background:#3fb04b"></span><b>green-500</b> <span class="muted mono">#3fb04b · link/guide</span></div>
+        <div class="row"><span class="chip" style="background:#ffd84d"></span><b>sun-400</b> <span class="muted mono">#ffd84d · examples</span></div>
+        <div class="row"><span class="chip" style="background:#f5b800"></span><b>sun-500</b> <span class="muted mono">#f5b800 · warning</span></div>
+        <div class="row"><span class="chip" style="background:#ff7a5c"></span><b>coral-500</b> <span class="muted mono">#ff7a5c · error</span></div>
+        <div class="row"><span class="chip" style="background:#0a1a10"></span><b>ink-900</b> <span class="muted mono">#0a1a10 · text</span></div>
+        <div class="row"><span class="chip" style="background:#fafbf6"></span><b>paper</b> <span class="muted mono">#fafbf6 · bg</span></div>
+      </div>
+      <div class="note" style="margin-top:var(--s-4)">⚠️ Правило: <b>никогда белый текст на sun/жёлтом</b>.
+      На sun-фоне — <span class="mono">ink-900</span> или <span class="mono">sun-700</span>.</div>
+    </div>
+    <div class="card">
+      <h3>Типографика</h3>
+      <p class="muted">Заголовки/текст — <b>Manrope</b>. Код — <b>Geist Mono</b>. База 15px.</p>
+      <div class="scale" style="margin-top:var(--s-3)">
+        <span>xs 12</span><span>sm 13</span><span>base 15</span><span>md 17</span><span>lg 20</span>
+        <span style="font-size:24px">xl 24</span><span style="font-size:32px">2xl 32</span><span style="font-size:44px">3xl 44</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Форма + тень</h3>
+      <p class="muted">Радиусы 6 / 10 / 14 / 18 / 24 / pill. Spacing шаг 4px.</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;margin:var(--s-3) 0">
+        <div style="width:46px;height:46px;background:#fff;border:1px solid var(--color-border);border-radius:6px"></div>
+        <div style="width:46px;height:46px;background:#fff;border:1px solid var(--color-border);border-radius:14px"></div>
+        <div style="width:46px;height:46px;background:#fff;border:1px solid var(--color-border);border-radius:24px"></div>
+        <div style="width:46px;height:46px;background:#fff;border:1px solid var(--color-border);border-radius:999px"></div>
+      </div>
+      <button class="gp-btn">Кнопка · shadow-pop</button>
+      <p class="muted" style="margin-top:var(--s-2)">Фирменная тень <span class="mono">0 4px 0 green-700</span>, нажатие = translateY(3px).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ───────────── ТИПЫ КОНТЕНТА (ContentType) ───────────── -->
+<section class="block"><div class="wrap">
+  <div class="eyebrow">02 · Типы контента урока</div>
+  <h2>ContentType — 10 типов</h2>
+  <p class="lead"><span class="mono">backend/app/courses/models.py · ContentType</span>. Каждый урок —
+  это <span class="mono">content_type</span> + JSON <span class="mono">content</span>.</p>
+  <div class="grid g2" style="margin-top:var(--s-5)">
+    <div class="card"><h3><span class="tag">text</span> Текст / богатый контент</h3><p class="muted">Markdown · HTML · TipTap JSON. Рендер через content-renderer (KaTeX для математики).</p></div>
+    <div class="card"><h3><span class="tag media">video</span> Видео</h3><p class="muted">Встроенный плеер / внешний URL (iframe).</p></div>
+    <div class="card"><h3><span class="tag">quiz</span> Квиз</h3><p class="muted">Вопросы с выбором ответа (single/multi).</p></div>
+    <div class="card"><h3><span class="tag code">code_challenge</span> Код-челлендж</h3><p class="muted">Monaco-редактор + прогон тест-кейсов в sandbox.</p></div>
+    <div class="card"><h3><span class="tag">file_upload</span> Загрузка файла</h3><p class="muted">Сдача файла студентом (валидация MIME/размера).</p></div>
+    <div class="card"><h3><span class="tag">interactive</span> Интерактив (HTML/JS)</h3><p class="muted">Кастомный виджет в sandbox-iframe (postMessage для resize).</p></div>
+    <div class="card"><h3><span class="tag math">robot_2d</span> Робот 2D</h3><p class="muted">Blockly + 2D-лабиринт.</p></div>
+    <div class="card"><h3><span class="tag math">math_interactive</span> Математ. визуализатор</h3><p class="muted">Координатная плоскость / шаблоны.</p></div>
+    <div class="card"><h3><span class="tag">world_3d</span> 3D-мир</h3><p class="muted">Three.js/R3F навигация.</p></div>
+    <div class="card"><h3><span class="tag">theory</span> Теория</h3><p class="muted">Текст урока + студенческие выделения/подчёркивания (persist) + тултипы терминов.</p></div>
+  </div>
+</div></section>
+
+<!-- ───────────── ЖИВОЙ УРОК: РЕНДЕР КАЖДОГО ТИПА ───────────── -->
+<section class="block"><div class="wrap">
+  <div class="eyebrow">03 · Как это выглядит в уроке</div>
+  <h2>Демо-урок: один блок каждого типа</h2>
+  <div class="lesson" style="margin-top:var(--s-5)">
+
+    <!-- THEORY -->
+    <div class="eyebrow-x">theory · текст с аннотациями</div>
+    <h3>Линейные функции</h3>
+    <p>Наведи на термин ↓ · выделение сохраняется per-student.
+    <span class="th-ul" data-term="Зависимость, где один объект определяется другим">Функция</span>
+    отображает входы в <span class="th-hl">выходы</span>. <span class="th-hl">Наклон</span> измеряет крутизну.</p>
+    <div class="lms-callout lms-callout--info"><b>ℹ️ Заметка.</b> Callout <span class="mono">lms-callout--info</span> — синий, info-цвет.</div>
+    <div class="lms-callout lms-callout--pitfall"><b>⚠️ Частая ошибка.</b> Coral-callout <span class="mono">lms-callout--pitfall</span>.</div>
+    <div class="lms-example"><span class="lms-example__label">Разбор примера</span><p style="margin:0">sun-400 лейбл, sun-700 текст — правило «ink/sun-700 на жёлтом».</p></div>
+
+    <!-- MATH -->
+    <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--s-6) 0">
+    <div class="eyebrow-x">math · KaTeX</div>
+    <h3>Математика (text/theory с $…$)</h3>
+    <p>Inline: для $ax^2+bx+c=0$ дискриминант $D=b^2-4ac$. Блок:</p>
+    <p>$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$</p>
+
+    <!-- MATH INTERACTIVE: number line -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">math_interactive · number-line</div>
+    <h3>Перетащи маркер на 6</h3>
+    <div class="numline">
+      <div class="axis"></div>
+      <div class="tick" style="left:0"></div><div class="lbl" style="left:0">0</div>
+      <div class="tick" style="left:25%"></div><div class="lbl" style="left:25%">3</div>
+      <div class="tick" style="left:50%"></div><div class="lbl" style="left:50%">6</div>
+      <div class="tick" style="left:75%"></div><div class="lbl" style="left:75%">9</div>
+      <div class="tick" style="left:100%"></div><div class="lbl" style="left:100%">12</div>
+      <div class="marker" style="left:50%"></div>
+    </div>
+
+    <!-- MATH: equation balance -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">math · equation-balance (метафора весов)</div>
+    <h3>Реши: 3x + 4 = 10</h3>
+    <div class="scale">
+      <div class="pan">3x + 4</div>
+      <div class="fulcrum"></div>
+      <div class="pan">10</div>
+    </div>
+    <div style="display:flex;gap:var(--s-2)"><button class="gp-btn ghost">− 4</button><button class="gp-btn ghost">÷ 3</button></div>
+
+    <!-- LANGUAGE: fill blanks -->
+    <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--s-6) 0">
+    <div class="eyebrow-x">language · fill_blanks</div>
+    <h3>Заполни пропуски</h3>
+    <p>The <span class="fb-slot">length</span> of an array is the <span class="fb-slot">count</span> of its elements.</p>
+    <div class="fb-bank"><span class="fb-pill">count</span><span class="fb-pill">size</span><span class="fb-pill">length</span><span class="fb-pill">amount</span></div>
+
+    <!-- LANGUAGE: sentence builder -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">language · sentence-builder (тап по плиткам)</div>
+    <h3>Собери предложение</h3>
+    <div class="fb-bank"><span class="fb-pill">Je</span><span class="fb-pill">voudrais</span><span class="fb-pill">un</span><span class="fb-pill">café</span></div>
+
+    <!-- LANGUAGE: dialogue -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">language · dialogue</div>
+    <h3>Диалог: заказ кофе</h3>
+    <div class="dlg">
+      <div class="bubble npc">What would you like?</div>
+      <div class="bubble me">A latte, please.</div>
+    </div>
+    <div style="display:flex;gap:var(--s-2);margin-top:var(--s-3)"><button class="gp-tile">A latte, please.</button><button class="gp-tile">Just water.</button></div>
+
+    <!-- QUIZ -->
+    <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--s-6) 0">
+    <div class="eyebrow-x">quiz · выбор ответа (.gp-tile)</div>
+    <h3>Сколько будет 2³?</h3>
+    <div class="grid g2" style="margin-top:var(--s-3)">
+      <button class="gp-tile">6</button>
+      <button class="gp-tile ok">8 ✓</button>
+      <button class="gp-tile no">9</button>
+      <button class="gp-tile">16</button>
+    </div>
+
+    <!-- MATCHING -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">matching · линии-связи (SVG)</div>
+    <div class="match" style="margin-top:var(--s-3)">
+      <div class="col"><div class="node">Dog</div><div class="node">Cat</div></div>
+      <svg viewBox="0 0 60 90" width="60" height="90"><line x1="2" y1="20" x2="58" y2="20" stroke="#3fb04b" stroke-width="3"/><line x1="2" y1="68" x2="58" y2="68" stroke="#3fb04b" stroke-width="3" stroke-dasharray="5 4"/></svg>
+      <div class="col"><div class="node">Bark</div><div class="node">Meow</div></div>
+    </div>
+
+    <!-- CATEGORIZE -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">categorize · перетаскивание в корзины</div>
+    <div class="grid g2" style="margin-top:var(--s-3)">
+      <div style="border:2px dashed var(--green-300);border-radius:var(--radius-md);padding:var(--s-4)"><b>Чётные</b><div class="fb-bank"><span class="fb-pill">2</span><span class="fb-pill">8</span></div></div>
+      <div style="border:2px dashed var(--green-300);border-radius:var(--radius-md);padding:var(--s-4)"><b>Нечётные</b><div class="fb-bank"><span class="fb-pill">3</span><span class="fb-pill">7</span></div></div>
+    </div>
+
+    <!-- FLASHCARD -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">srs_flashcard · 3D-переворот</div>
+    <div style="display:flex;gap:var(--s-4);align-items:center;margin-top:var(--s-3)">
+      <div class="flash">привет</div>
+      <div style="display:flex;flex-direction:column;gap:var(--s-2)">
+        <button class="gp-btn ghost">Сложно</button><button class="gp-btn sun">Средне</button><button class="gp-btn">Легко</button>
+      </div>
+    </div>
+
+    <!-- CODE -->
+    <hr style="border:none;border-top:1px solid var(--color-border);margin:var(--s-6) 0">
+    <div class="eyebrow-x">code_challenge · Monaco + тесты</div>
+    <h3>Напиши функцию sum(a, b)</h3>
+    <div class="editor"><div class="bar">solution.py · python · sandbox</div>
+<pre><span class="tok-k">def</span> sum(a, b):
+    <span class="tok-c"># верни сумму</span>
+    <span class="tok-k">return</span> a + b</pre></div>
+    <div style="margin-top:var(--s-3);display:flex;gap:var(--s-2);align-items:center"><button class="gp-btn">Прогнать тесты &#9655;</button><span class="tag" style="background:var(--green-100);border-color:var(--green-300);color:var(--green-800)">3/3 passed</span></div>
+
+    <!-- VIDEO -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">video</div>
+    <div class="video" style="margin-top:var(--s-3)"><div class="play">&#9654;</div></div>
+
+    <!-- FILE UPLOAD -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">file_upload</div>
+    <div class="drop" style="margin-top:var(--s-3)">📎 Перетащи файл или нажми<br><span class="muted">pdf · png · docx · zip · до 50 МБ</span></div>
+
+    <!-- INTERACTIVE / HTML -->
+    <div class="eyebrow-x" style="margin-top:var(--s-5)">interactive · sandbox-iframe (кастомный HTML/JS виджет)</div>
+    <div style="margin-top:var(--s-3);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden">
+      <div style="background:var(--ink-50);padding:8px 12px;font-size:var(--t-xs);font-family:var(--font-mono);color:var(--ink-500)">&lt;iframe sandbox="allow-scripts" srcdoc="…"&gt; · postMessage(resize)</div>
+      <div style="padding:var(--s-6);text-align:center;background:repeating-linear-gradient(45deg,#fff,#fff 10px,var(--ink-50) 10px,var(--ink-50) 20px)">
+        <b>JSXGraph / Three.js / любой HTML-виджет</b><div class="muted">untrusted-код изолирован в opaque-origin iframe</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ───────────── ПОЛНЫЙ КАТАЛОГ УПРАЖНЕНИЙ ───────────── -->
+<section class="block"><div class="wrap">
+  <div class="eyebrow">04 · Полный каталог упражнений</div>
+  <h2>ExerciseType — 23 типа</h2>
+  <p class="lead"><span class="mono">backend/app/exercises/models.py · ExerciseType</span>.
+  Frontend-компоненты — <span class="mono">frontend/src/components/exercises/v2/*-v2.tsx</span>.</p>
+  <table style="margin-top:var(--s-4)">
+    <thead><tr><th>type</th><th>группа</th><th>взаимодействие</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">quiz</td><td><span class="tag">выбор</span></td><td>single/multi выбор, плитки .gp-tile</td></tr>
+      <tr><td class="mono">true_false</td><td><span class="tag">выбор</span></td><td>верно/неверно</td></tr>
+      <tr><td class="mono">matching</td><td><span class="tag">выбор</span></td><td>линии-связи между парами (SVG ink-draw)</td></tr>
+      <tr><td class="mono">ordering</td><td><span class="tag">выбор</span></td><td>drag-сортировка строк (FLIP physics)</td></tr>
+      <tr><td class="mono">categorize</td><td><span class="tag">выбор</span></td><td>перетаскивание чипов в корзины</td></tr>
+      <tr><td class="mono">fill_blanks</td><td><span class="tag lang">язык</span></td><td>тап слова-пилюли в пропуск (flyClone)</td></tr>
+      <tr><td class="mono">sentence_builder</td><td><span class="tag lang">язык</span></td><td>тап плиток в правильном порядке</td></tr>
+      <tr><td class="mono">dialogue</td><td><span class="tag lang">язык</span></td><td>стадийный чат NPC + выбор реплики (typing dots)</td></tr>
+      <tr><td class="mono">translation</td><td><span class="tag lang">язык</span></td><td>ввод перевода</td></tr>
+      <tr><td class="mono">conjugation</td><td><span class="tag lang">язык</span></td><td>таблица спряжения: местоимение → форма глагола</td></tr>
+      <tr><td class="mono">reading</td><td><span class="tag lang">язык</span></td><td>текст + вопросы на понимание</td></tr>
+      <tr><td class="mono">numeric_input</td><td><span class="tag math">матем.</span></td><td>экранная цифровая клавиатура (tolerance)</td></tr>
+      <tr><td class="mono">number_line</td><td><span class="tag math">матем.</span></td><td>drag маркера на 1D-линии (tick-magnet)</td></tr>
+      <tr><td class="mono">coordinate_plane</td><td><span class="tag math">матем.</span></td><td>drag точек на 2D-плоскость</td></tr>
+      <tr><td class="mono">equation_balance</td><td><span class="tag math">матем.</span></td><td>метафора весов, обратные операции</td></tr>
+      <tr><td class="mono">math_stepwise</td><td><span class="tag math">матем.</span></td><td>пошаговое решение, валидация шага</td></tr>
+      <tr><td class="mono">math_interactive</td><td><span class="tag math">матем.</span></td><td>визуализаторы (графики/шаблоны)</td></tr>
+      <tr><td class="mono">code_challenge</td><td><span class="tag code">код</span></td><td>Monaco + sandbox тест-раннер</td></tr>
+      <tr><td class="mono">web_editor</td><td><span class="tag code">код</span></td><td>HTML/CSS/JS редактор</td></tr>
+      <tr><td class="mono">robot_2d</td><td><span class="tag code">код</span></td><td>Blockly + 2D-лабиринт</td></tr>
+      <tr><td class="mono">world_3d</td><td><span class="tag code">код</span></td><td>Three.js-среда + Blockly</td></tr>
+      <tr><td class="mono">file_upload</td><td><span class="tag">сдача</span></td><td>загрузка файла + MIME-валидация</td></tr>
+      <tr><td class="mono">srs_flashcard</td><td><span class="tag">память</span></td><td>3D-карточка, рейтинг Easy/Med/Hard</td></tr>
+      <tr><td class="mono">crossword · word_search · map_pin_drop · bubble_sheet · scorm_package</td><td><span class="tag">спец.</span></td><td>кроссворд · поиск слов · пины на карте · bubble-sheet · SCORM-пакет</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Помимо 23 enum-типов, во фронте есть расширенные math-визуализаторы
+  (area-model, visual-fractions, function-graph, venn-diagram, scatter-plot, two-way-table и др.) —
+  они конфигурируются как <span class="mono">math_interactive</span> / <span class="mono">interactive</span>.</div>
+</div></section>
+
+<!-- ───────────── content-renderer + конфиги ───────────── -->
+<section class="block"><div class="wrap">
+  <div class="eyebrow">05 · Для разработчиков</div>
+  <h2>Рендер контента + форма конфигов</h2>
+  <div class="grid g2" style="margin-top:var(--s-5)">
+    <div class="card">
+      <h3>content-renderer.tsx</h3>
+      <table>
+        <tr><td class="mono">tiptap</td><td>JSON AST → BlockEditor (read-only)</td></tr>
+        <tr><td class="mono">markdown</td><td>ReactMarkdown + rehype-sanitize (GFM, KaTeX)</td></tr>
+        <tr><td class="mono">html</td><td>sanitizeHtml + dangerouslySetInnerHTML, классы <span class="mono">lms-*</span> сохраняются</td></tr>
+        <tr><td class="mono">interactive</td><td>sandbox-iframe srcdoc + postMessage resize</td></tr>
+      </table>
+      <p class="muted" style="margin-top:var(--s-2)">Математика: <span class="mono">$inline$</span> / <span class="mono">$$block$$</span>, KaTeX, <span class="mono">throwOnError:false</span> (фолбэк — сырой TeX).</p>
+    </div>
+    <div class="card">
+      <h3>Примеры конфигов (JSON)</h3>
+<div class="editor"><div class="bar">exercise configs</div><pre><span class="tok-c">// fill_blanks</span>
+{ <span class="tok-s">"text"</span>: <span class="tok-s">"The capital of France is ___."</span>,
+  <span class="tok-s">"blanks"</span>: [<span class="tok-s">"Paris"</span>] }
+
+<span class="tok-c">// matching</span>
+{ <span class="tok-s">"pairs"</span>: [{<span class="tok-s">"left"</span>:<span class="tok-s">"Dog"</span>,<span class="tok-s">"right"</span>:<span class="tok-s">"Bark"</span>}] }
+
+<span class="tok-c">// numeric_input</span>
+{ <span class="tok-s">"problem"</span>:<span class="tok-s">"x + 2 = 5, найди x"</span>,
+  <span class="tok-s">"correct"</span>: 3, <span class="tok-s">"tolerance"</span>: 0.001 }</pre></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:var(--s-8)">Feedback-grammar (анимации · scale через --mdur)</h3>
+  <p class="muted">invite → grab → guide → result → reward. Ключевые keyframes: fb-pop, fb-shake, fb-settle, fb-slide-up,
+  fb-ripple-g, fb-line-draw, fb-bucket-pop, fb-bubble-in, fb-typing-bounce, fb-card-enter/exit, fb-hl-sweep, gp-fall (конфетти).</p>
+  <div style="display:flex;gap:var(--s-4);margin-top:var(--s-3)">
+    <button class="gp-tile demo-pop">наведи · fb-pop ✓</button>
+    <button class="gp-tile no demo-shake">наведи · fb-shake ✗</button>
+  </div>
+</div></section>
+
+<footer class="foot"><div class="wrap">
+  GrassLMS handoff · сгенерировано 2026-06-11 · токены из <span class="mono">frontend/src/app/globals.css</span>,
+  типы из <span class="mono">courses/models.py</span> + <span class="mono">exercises/models.py</span>.
+  Виджеты — статичные макеты; реальная логика в <span class="mono">components/exercises/v2/</span>.
+</div></footer>
+
+</body>
+</html>

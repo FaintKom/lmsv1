@@ -41,6 +41,9 @@ htmlcov/
 # Local Claude state
 .claude/
 
+# Local audit scratch (design-canvas dumps, scraps)
+.audit/
+
 # Local docker compose override
 docker-compose.override.yml
 

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GrassLMS — Journal unified prototype v3 (admin/coordinator)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{
+ ink:{50:'#f6f7f6',100:'#eceeec',200:'#d6dad6',400:'#8a948c',700:'#3a423c',900:'#18201a'},
+ grass:{50:'#edf7ee',100:'#d6efd9',500:'#22a34a',600:'#15803d',700:'#116a33'},
+ paper:'#fbfdfb',ok:'#16a34a',warn:'#d97706',bad:'#dc2626'}}}}
+</script>
+<style>
+ body{background:#eef1ee}.pill{border-radius:999px}.seg{border:1px solid #d6dad6}
+ .cell-P{background:#dcfce7;color:#166534}.cell-L{background:#fef3c7;color:#92400e}.cell-A{background:#fee2e2;color:#991b1b}.cell-E{background:#eceeec;color:#6b726c}
+ .tab.active{color:#116a33;border-color:#15803d}
+ .occ{background:#d6efd9;color:#116a33}.clash{background:#fee2e2;color:#991b1b;outline:2px solid #dc2626}
+ a.stud{color:#116a33;text-decoration:underline;cursor:pointer}
+</style></head>
+<body class="text-ink-900">
+<div class="mx-auto max-w-6xl p-5">
+  <div class="flex items-center gap-2 mb-1"><span class="text-2xl">📓</span><h1 class="text-2xl font-bold">Journal</h1>
+    <span class="ml-2 text-xs pill bg-grass-100 text-grass-700 px-2 py-0.5 font-semibold">Ukids · Coordinator view</span></div>
+  <p class="text-sm text-ink-400 mb-4">Schedule · attendance · what was covered · room conflicts · curriculum pacing.</p>
+
+  <div class="flex gap-5 border-b border-ink-200 mb-5 text-sm font-medium items-center">
+    <button onclick="tab('today')" id="t-today" class="tab active border-b-2 pb-2 -mb-px">Today</button>
+    <button onclick="tab('matrix')" id="t-matrix" class="tab border-b-2 border-transparent pb-2 -mb-px text-ink-400">Register</button>
+    <button onclick="tab('rooms')" id="t-rooms" class="tab border-b-2 border-transparent pb-2 -mb-px text-ink-400">Rooms <span class="text-[9px] pill bg-ink-100 px-1.5 py-0.5 align-middle">admin</span></button>
+    <button onclick="tab('curr')" id="t-curr" class="tab border-b-2 border-transparent pb-2 -mb-px text-ink-400">Curriculum <span class="text-[9px] pill bg-ink-100 px-1.5 py-0.5 align-middle">admin</span></button>
+    <span class="flex-1"></span>
+    <button onclick="tab('setup')" id="t-setup" class="tab border-b-2 border-transparent pb-2 -mb-px text-ink-400">⚙ Setup</button>
+  </div>
+
+  <!-- TODAY -->
+  <section id="p-today">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><button class="seg pill w-8 h-8 bg-white">‹</button><div class="text-sm font-semibold">Monday · 1 Jun 2026</div><button class="seg pill w-8 h-8 bg-white">›</button></div>
+      <div class="flex gap-2 text-xs"><select class="seg pill px-3 py-1.5 bg-white"><option>All courses</option></select><select class="seg pill px-3 py-1.5 bg-white"><option>All teachers</option></select><select class="seg pill px-3 py-1.5 bg-white"><option>All groups</option></select></div>
+    </div>
+    <div class="space-y-2" id="agenda"></div>
+  </section>
+
+  <!-- REGISTER -->
+  <section id="p-matrix" class="hidden">
+    <div class="flex items-center justify-between mb-3"><select class="seg pill px-3 py-1.5 bg-white text-sm"><option>Math 3A</option></select><button class="text-xs pill bg-white seg px-3 py-1.5">⤓ Export CSV</button></div>
+    <div class="overflow-auto bg-white rounded-xl border border-ink-200"><table class="text-xs w-full" id="matrix"></table></div>
+  </section>
+
+  <!-- ROOMS BOARD -->
+  <section id="p-rooms" class="hidden">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2"><span class="text-sm font-semibold">Room board · Mon 1 Jun</span><span class="text-xs text-ink-400">drag-free overview — spot clashes & free rooms</span></div>
+      <div class="text-xs"><span class="clash px-2 py-0.5 rounded">⚠ clash</span> = same room, overlapping time</div>
+    </div>
+    <div class="overflow-auto bg-white rounded-xl border border-ink-200"><table class="text-xs w-full" id="roomboard"></table></div>
+    <p class="text-xs text-ink-400 mt-2">Coordinator sees every course across rooms. Red = double-booking → fix in Setup. Right column = utilization.</p>
+  </section>
+
+  <!-- CURRICULUM -->
+  <section id="p-curr" class="hidden">
+    <div class="flex items-center justify-between mb-3"><span class="text-sm font-semibold">Curriculum pacing — are topics on track?</span><span class="text-xs text-ink-400">planned scope & sequence vs covered</span></div>
+    <div class="space-y-2" id="pacing"></div>
+    <div class="mt-4 bg-white rounded-xl border border-ink-200 p-4">
+      <div class="font-semibold text-sm mb-2">Math 3A — scope & sequence</div>
+      <div class="grid grid-cols-2 gap-1 text-xs" id="seq"></div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="p-setup" class="hidden grid grid-cols-2 gap-5">
+    <div class="bg-white rounded-xl border border-ink-200 p-4">
+      <div class="flex items-center justify-between mb-3"><h3 class="font-semibold text-sm">Weekly timetable (template)</h3><button class="text-xs pill bg-grass-600 text-white px-3 py-1.5 font-semibold">+ Add slot</button></div>
+      <div id="slots" class="space-y-2 text-xs"></div>
+      <div class="mt-3 text-[11px] text-bad">⚠ Coding 1 (Tue 11:00) & Robotics (Tue 11:00) both use Lab 1 — clash flagged on save.</div>
+    </div>
+    <div class="bg-white rounded-xl border border-ink-200 p-4">
+      <div class="flex items-center justify-between mb-3"><h3 class="font-semibold text-sm">Rooms (organization)</h3><button class="text-xs pill bg-grass-600 text-white px-3 py-1.5 font-semibold">+ Add room</button></div>
+      <div id="rooms" class="space-y-2 text-xs"></div>
+    </div>
+  </section>
+</div>
+
+<!-- DETAIL -->
+<div id="overlay" class="hidden fixed inset-0 bg-black/30" onclick="closeDetail()"></div>
+<aside id="detail" class="hidden fixed top-0 right-0 h-full w-[440px] bg-paper shadow-2xl p-5 overflow-auto">
+  <div class="flex items-center justify-between mb-1"><h2 class="text-lg font-bold" id="d-title">Math 3A · Mon 1 Jun</h2><button onclick="closeDetail()" class="text-ink-400 text-xl">✕</button></div>
+  <div class="text-xs text-ink-400 mb-3">09:00–10:00 · Room 7 | <span class="text-grass-600 font-semibold">🎥 Join</span></div>
+  <label class="flex items-center gap-2 text-sm mb-2"><input type="checkbox" checked class="w-4 h-4"> Session was held</label>
+  <label class="block text-xs text-ink-400 mb-1">Topic <span class="text-grass-600">· planned: “Fractions — intro” (on track)</span></label>
+  <input class="seg w-full rounded-lg px-3 py-2 text-sm mb-3" value="Fractions — intro" />
+  <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-semibold">Attendance</h3><button class="text-xs pill bg-grass-100 text-grass-700 px-3 py-1 font-semibold">✓ Mark all present</button></div>
+  <div class="space-y-2 mb-4" id="roster"></div>
+  <h3 class="text-sm font-semibold mb-1">Activity that day</h3>
+  <div class="bg-white rounded-lg border border-ink-200 p-3 text-xs space-y-1" id="activity"></div>
+  <div class="mt-5 flex justify-end gap-2"><button onclick="closeDetail()" class="text-sm pill px-4 py-2 seg bg-white">Cancel</button><button onclick="closeDetail()" class="text-sm pill px-4 py-2 bg-grass-600 text-white font-semibold">💾 Save</button></div>
+</aside>
+
+<script>
+const rooms=[['Room 7',24,'Bldg A'],['Room 2',20,'Bldg A'],['Lab 1',12,'Bldg B'],['Online','—','Jitsi']];
+const courses=[
+ {t:'09:00–10:00',c:'Math 3A',room:'Room 7',on:false,topic:'Fractions — intro',p:18,n:20},
+ {t:'11:00–12:00',c:'Coding 1',room:'Online',on:true,topic:'',p:0,n:12,unmarked:true},
+ {t:'13:00–13:45',c:'English B1',room:'Room 2',on:false,topic:'Past simple',p:9,n:10},
+ {t:'15:00–16:00',c:'Robotics',room:'Lab 1',on:false,topic:'',p:0,n:8,unmarked:true}];
+agenda.innerHTML=courses.map(s=>`<div class="bg-white rounded-xl border border-ink-200 p-3 flex items-center gap-3 hover:border-grass-500 cursor-pointer" onclick="openDetail('${s.c}')">
+ <div class="text-xs font-mono text-ink-400 w-24">${s.t}</div><div class="w-36 font-semibold text-sm">${s.c}</div>
+ <div class="text-xs ${s.on?'text-grass-600 font-semibold':'text-ink-400'} w-24">${s.on?'🎥 Online':'📍 '+s.room}</div>
+ <input onclick="event.stopPropagation()" class="seg rounded-lg px-2 py-1 text-xs flex-1" placeholder="Topic…" value="${s.topic}">
+ <div class="text-xs w-20 text-center ${s.unmarked?'text-ink-400':'text-grass-600 font-semibold'}">${s.unmarked?'○ not marked':'● '+s.p+'/'+s.n}</div>
+ <button onclick="event.stopPropagation();openDetail('${s.c}')" class="text-xs pill bg-grass-600 text-white px-3 py-1.5 font-semibold whitespace-nowrap">Take attendance</button></div>`).join('');
+
+const students=['Alex','Mia','Tom','Lena','Omar'],stat=['P','P','A','L','P'];
+const dates=['Jun 1','Jun 3','Jun 8','Jun 10','Jun 15'];
+const grid=[['P','P','L','P','P'],['P','A','P','P','L'],['A','P','P','E','P'],['P','P','P','P','A'],['L','P','E','P','P']];
+matrix.innerHTML='<thead><tr class="text-ink-400"><th class="text-left p-2">Student</th>'+dates.map(d=>`<th class="p-2">${d}</th>`).join('')+'<th class="p-2">Σ</th></tr></thead><tbody>'+students.map((s,i)=>`<tr class="border-t border-ink-100"><td class="p-2 font-medium">${s}</td>`+grid[i].map(c=>`<td class="p-1 text-center"><span class="cell-${c} inline-block w-7 py-1 rounded font-semibold">${c}</span></td>`).join('')+`<td class="p-2 text-center text-ink-400">${grid[i].filter(x=>x=='P').length}/5</td></tr>`).join('')+'</tbody>';
+
+// ROOM BOARD: rooms x time, with a clash
+const times=['09:00','10:00','11:00','13:00','15:00'];
+const occ={'Room 7':{'09:00':'Math 3A'},'Room 2':{'13:00':'English B1'},'Lab 1':{'11:00':['Coding 1','Robotics']},'Online':{'11:00':'Coding 1'}};
+let rb='<thead><tr class="text-ink-400"><th class="text-left p-2">Room</th>'+times.map(t=>`<th class="p-2">${t}</th>`).join('')+'<th class="p-2">Util</th></tr></thead><tbody>';
+rooms.forEach(r=>{const nm=r[0];let used=0;rb+=`<tr class="border-t border-ink-100"><td class="p-2 font-medium">${nm} <span class="text-ink-400">${r[2]}</span></td>`;
+ times.forEach(t=>{const v=occ[nm]&&occ[nm][t];if(Array.isArray(v)){used++;rb+=`<td class="p-1"><div class="clash rounded px-1 py-1 text-center text-[10px] font-semibold">⚠ ${v.join(' / ')}</div></td>`;}
+  else if(v){used++;rb+=`<td class="p-1"><div class="occ rounded px-1 py-1 text-center text-[10px] font-semibold">${v}</div></td>`;}
+  else rb+='<td class="p-1 text-center text-ink-200">·</td>';});
+ rb+=`<td class="p-2 text-center text-ink-400">${Math.round(used/times.length*100)}%</td></tr>`;});
+roomboard.innerHTML=rb+'</tbody>';
+
+// CURRICULUM pacing
+const pace=[['Math 3A',7,20,'on','Topic 8: Equivalent fractions'],['Coding 1',3,15,'behind','Topic 4: Loops (2 behind)'],['English B1',9,10,'ahead','Topic 10: Review']];
+pacing.innerHTML=pace.map(p=>{const pct=Math.round(p[1]/p[2]*100);const col={on:'bg-grass-500',behind:'bg-bad',ahead:'bg-warn'}[p[3]];const badge={on:['On track','bg-grass-100 text-grass-700'],behind:['Behind','bg-red-100 text-bad'],ahead:['Ahead','bg-amber-100 text-warn']}[p[3]];
+ return `<div class="bg-white rounded-xl border border-ink-200 p-3 flex items-center gap-3">
+  <div class="w-32 font-semibold text-sm">${p[0]}</div>
+  <div class="flex-1"><div class="h-2 rounded bg-ink-100 overflow-hidden"><div class="${col} h-2" style="width:${pct}%"></div></div></div>
+  <div class="w-16 text-xs text-ink-400 text-right">${p[1]}/${p[2]}</div>
+  <span class="text-[10px] pill px-2 py-0.5 font-semibold ${badge[1]}">${badge[0]}</span>
+  <div class="w-56 text-xs text-ink-400 truncate">next: ${p[4]}</div></div>`;}).join('');
+const seqitems=[['1 Whole numbers','✓ Jun 1'],['2 Place value','✓ Jun 3'],['3 Add/subtract','✓ Jun 8'],['4 Multiply','✓ Jun 8'],['5 Divide','✓ Jun 10'],['6 Factors','✓ Jun 15'],['7 Fractions basics','✓ today'],['8 Equivalent fractions','← next'],['9 Compare fractions','planned'],['10 Decimals','planned']];
+seq.innerHTML=seqitems.map(s=>`<div class="flex justify-between border border-ink-100 rounded px-2 py-1 ${s[1].includes('next')?'bg-grass-50 font-semibold':''}"><span>${s[0]}</span><span class="${s[1].includes('✓')?'text-grass-600':'text-ink-400'}">${s[1]}</span></div>`).join('');
+
+roster.innerHTML=students.map((s,i)=>{const map={P:'bg-ok text-white',L:'bg-warn text-white',A:'bg-bad text-white',E:'bg-ink-200'},cur=stat[i];
+ return `<div class="flex items-center gap-1"><span class="text-sm flex-1">${s}</span>${['P','L','A','E'].map(x=>`<button class="seg pill text-xs px-2 py-1 ${x==cur?map[x]:'bg-white'}">${({P:'P',L:'L',A:'A',E:'E'})[x]}</button>`).join('')}</div>`;}).join('');
+activity.innerHTML=[['Alex','1 lesson · 2 ex'],['Mia','1 lesson'],['Tom','—']].map(r=>`<div class="flex justify-between"><a class="stud" onclick="alert('→ /admin/students/{id}')">${r[0]}</a><span class="text-ink-400">${r[1]}</span></div>`).join('');
+slots.innerHTML=courses.map(s=>{const day=({'Math 3A':'Mon','Coding 1':'Tue','English B1':'Wed','Robotics':'Tue'})[s.c];const clash=(s.c=='Coding 1'||s.c=='Robotics');
+ return `<div class="flex items-center gap-2 border-b border-ink-100 pb-2 ${clash?'bg-red-50 -mx-1 px-1 rounded':''}"><span class="w-24 font-semibold truncate">${s.c}</span><select class="seg rounded px-1 py-1"><option>${day}</option></select><span class="font-mono text-ink-400">${s.t}</span><select class="seg rounded px-1 py-1 flex-1">${rooms.map(r=>`<option ${r[0]==s.room?'selected':''}>${r[0]}</option>`).join('')}</select><label class="flex items-center gap-1"><input type="checkbox" ${s.on?'checked':''}>🎥</label>${clash?'<span class="text-bad text-[10px]">⚠</span>':''}<button class="text-bad">✕</button></div>`;}).join('');
+document.getElementById('rooms').innerHTML=rooms.map(r=>`<div class="flex items-center gap-2 border-b border-ink-100 pb-2"><span class="flex-1 font-semibold">${r[0]}</span><span class="text-ink-400">cap ${r[1]}</span><span class="text-ink-400">${r[2]}</span><button class="text-ink-400">✎</button><button class="text-bad">✕</button></div>`).join('');
+
+function tab(n){['today','matrix','rooms','curr','setup'].forEach(x=>{document.getElementById('p-'+x).classList.toggle('hidden',x!=n);const b=document.getElementById('t-'+x);b.classList.toggle('active',x==n);b.classList.toggle('text-ink-400',x!=n);});}
+function openDetail(c){document.getElementById('d-title').textContent=c+' · Mon 1 Jun';overlay.classList.remove('hidden');detail.classList.remove('hidden');}
+function closeDetail(){overlay.classList.add('hidden');detail.classList.add('hidden');}
+</script></body></html>
