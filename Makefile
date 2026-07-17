@@ -30,7 +30,7 @@ format:
 
 # One-time setup: install pre-commit hooks (pip install pre-commit)
 hooks:
-	pre-commit install
+	python -m pre_commit install
 
 # Frontend commands
 fe-dev:
