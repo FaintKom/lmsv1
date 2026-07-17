@@ -827,6 +827,7 @@ const en: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "Content Library",
  "nav.organizations": "Organizations",
+ "nav.waitlist": "Waitlist",
  "nav.integrations": "Integrations",
  "nav.settings": "Settings",
 
@@ -1402,6 +1403,21 @@ const en: TranslationMap = {
  "admin.organizations.failedCreate": "Failed to create organization",
  "admin.organizations.failedUpdate": "Failed to update organization",
  "admin.organizations.failedDelete": "Failed to delete organization",
+ "admin.waitlist.title": "Waitlist",
+ "admin.waitlist.subtitle": "{total} signups · {pending} not contacted yet",
+ "admin.waitlist.empty": "No one has joined the waitlist yet.",
+ "admin.waitlist.email": "Email",
+ "admin.waitlist.role": "Role",
+ "admin.waitlist.source": "Source",
+ "admin.waitlist.signedUp": "Signed up",
+ "admin.waitlist.status": "Status",
+ "admin.waitlist.contacted": "Contacted",
+ "admin.waitlist.markContacted": "Mark contacted",
+ "admin.waitlist.marked": "Marked as contacted",
+ "admin.waitlist.copyEmails": "Copy pending emails",
+ "admin.waitlist.copied": "Emails copied to clipboard",
+ "admin.waitlist.failedLoad": "Failed to load waitlist",
+ "admin.waitlist.failedMark": "Failed to mark as contacted",
 
  // Admin integrations
  "admin.integrations.title": "Integrations",
@@ -3417,6 +3433,7 @@ const es: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "Biblioteca de contenido",
  "nav.organizations": "Organizaciones",
+ "nav.waitlist": "Lista de espera",
  "nav.integrations": "Integraciones",
  "nav.settings": "Configuración",
 
@@ -3992,6 +4009,21 @@ const es: TranslationMap = {
  "admin.organizations.failedCreate": "Error al crear organización",
  "admin.organizations.failedUpdate": "Error al actualizar organización",
  "admin.organizations.failedDelete": "Error al eliminar organización",
+ "admin.waitlist.title": "Lista de espera",
+ "admin.waitlist.subtitle": "{total} registros · {pending} sin contactar",
+ "admin.waitlist.empty": "Todavía nadie se ha unido a la lista de espera.",
+ "admin.waitlist.email": "Correo",
+ "admin.waitlist.role": "Rol",
+ "admin.waitlist.source": "Origen",
+ "admin.waitlist.signedUp": "Fecha de registro",
+ "admin.waitlist.status": "Estado",
+ "admin.waitlist.contacted": "Contactado",
+ "admin.waitlist.markContacted": "Marcar contactado",
+ "admin.waitlist.marked": "Marcado como contactado",
+ "admin.waitlist.copyEmails": "Copiar correos pendientes",
+ "admin.waitlist.copied": "Correos copiados al portapapeles",
+ "admin.waitlist.failedLoad": "Error al cargar la lista de espera",
+ "admin.waitlist.failedMark": "Error al marcar como contactado",
 
  // Admin integrations
  "admin.integrations.title": "Integraciones",
@@ -6017,6 +6049,7 @@ const ru: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "Библиотека контента",
  "nav.organizations": "Организации",
+ "nav.waitlist": "Лист ожидания",
  "nav.integrations": "Интеграции",
  "nav.settings": "Настройки",
 
@@ -6592,6 +6625,21 @@ const ru: TranslationMap = {
  "admin.organizations.failedCreate": "Не удалось создать организацию",
  "admin.organizations.failedUpdate": "Не удалось обновить организацию",
  "admin.organizations.failedDelete": "Не удалось удалить организацию",
+ "admin.waitlist.title": "Лист ожидания",
+ "admin.waitlist.subtitle": "{total} записей · {pending} без ответа",
+ "admin.waitlist.empty": "Пока никто не записался в лист ожидания.",
+ "admin.waitlist.email": "Email",
+ "admin.waitlist.role": "Роль",
+ "admin.waitlist.source": "Источник",
+ "admin.waitlist.signedUp": "Дата записи",
+ "admin.waitlist.status": "Статус",
+ "admin.waitlist.contacted": "Связались",
+ "admin.waitlist.markContacted": "Отметить",
+ "admin.waitlist.marked": "Отмечено как «связались»",
+ "admin.waitlist.copyEmails": "Скопировать адреса",
+ "admin.waitlist.copied": "Адреса скопированы в буфер обмена",
+ "admin.waitlist.failedLoad": "Не удалось загрузить лист ожидания",
+ "admin.waitlist.failedMark": "Не удалось отметить как «связались»",
 
  // Admin integrations
  "admin.integrations.title": "Интеграции",
@@ -8610,6 +8658,7 @@ const tr: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "İçerik Kütüphanesi",
  "nav.organizations": "Organizasyonlar",
+ "nav.waitlist": "Bekleme listesi",
  "nav.integrations": "Entegrasyonlar",
  "nav.settings": "Ayarlar",
 
@@ -9185,6 +9234,21 @@ const tr: TranslationMap = {
  "admin.organizations.failedCreate": "Organizasyon oluşturulamadı",
  "admin.organizations.failedUpdate": "Organizasyon güncellenemedi",
  "admin.organizations.failedDelete": "Organizasyon silinemedi",
+ "admin.waitlist.title": "Bekleme listesi",
+ "admin.waitlist.subtitle": "{total} kayıt · {pending} henüz iletişime geçilmedi",
+ "admin.waitlist.empty": "Bekleme listesine henüz kimse katılmadı.",
+ "admin.waitlist.email": "E-posta",
+ "admin.waitlist.role": "Rol",
+ "admin.waitlist.source": "Kaynak",
+ "admin.waitlist.signedUp": "Kayıt tarihi",
+ "admin.waitlist.status": "Durum",
+ "admin.waitlist.contacted": "İletişime geçildi",
+ "admin.waitlist.markContacted": "İşaretle",
+ "admin.waitlist.marked": "İletişime geçildi olarak işaretlendi",
+ "admin.waitlist.copyEmails": "Bekleyen e-postaları kopyala",
+ "admin.waitlist.copied": "E-postalar panoya kopyalandı",
+ "admin.waitlist.failedLoad": "Bekleme listesi yüklenemedi",
+ "admin.waitlist.failedMark": "İletişime geçildi olarak işaretlenemedi",
 
  // Admin integrations
  "admin.integrations.title": "Entegrasyonlar",
@@ -11262,6 +11326,7 @@ const de: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "Inhaltsbibliothek",
  "nav.organizations": "Organisationen",
+ "nav.waitlist": "Warteliste",
  "nav.integrations": "Integrationen",
  "nav.settings": "Einstellungen",
 
@@ -11837,6 +11902,21 @@ const de: TranslationMap = {
  "admin.organizations.failedCreate": "Organisation konnte nicht erstellt werden",
  "admin.organizations.failedUpdate": "Organisation konnte nicht aktualisiert werden",
  "admin.organizations.failedDelete": "Organisation konnte nicht gelöscht werden",
+ "admin.waitlist.title": "Warteliste",
+ "admin.waitlist.subtitle": "{total} Anmeldungen · {pending} noch nicht kontaktiert",
+ "admin.waitlist.empty": "Bisher hat sich niemand für die Warteliste eingetragen.",
+ "admin.waitlist.email": "E-Mail",
+ "admin.waitlist.role": "Rolle",
+ "admin.waitlist.source": "Quelle",
+ "admin.waitlist.signedUp": "Angemeldet am",
+ "admin.waitlist.status": "Status",
+ "admin.waitlist.contacted": "Kontaktiert",
+ "admin.waitlist.markContacted": "Als kontaktiert markieren",
+ "admin.waitlist.marked": "Als kontaktiert markiert",
+ "admin.waitlist.copyEmails": "Offene E-Mails kopieren",
+ "admin.waitlist.copied": "E-Mails in die Zwischenablage kopiert",
+ "admin.waitlist.failedLoad": "Warteliste konnte nicht geladen werden",
+ "admin.waitlist.failedMark": "Konnte nicht als kontaktiert markiert werden",
 
  // Admin integrations
  "admin.integrations.title": "Integrationen",
@@ -13914,6 +13994,7 @@ const uk: TranslationMap = {
  // Nav (admin sidebar additions)
  "nav.contentLibrary": "Бібліотека контенту",
  "nav.organizations": "Організації",
+ "nav.waitlist": "Лист очікування",
  "nav.integrations": "Інтеграції",
  "nav.settings": "Налаштування",
 
@@ -14489,6 +14570,21 @@ const uk: TranslationMap = {
  "admin.organizations.failedCreate": "Не вдалося створити організацію",
  "admin.organizations.failedUpdate": "Не вдалося оновити організацію",
  "admin.organizations.failedDelete": "Не вдалося видалити організацію",
+ "admin.waitlist.title": "Лист очікування",
+ "admin.waitlist.subtitle": "{total} записів · {pending} без відповіді",
+ "admin.waitlist.empty": "Поки що ніхто не записався до листа очікування.",
+ "admin.waitlist.email": "Email",
+ "admin.waitlist.role": "Роль",
+ "admin.waitlist.source": "Джерело",
+ "admin.waitlist.signedUp": "Дата запису",
+ "admin.waitlist.status": "Статус",
+ "admin.waitlist.contacted": "Зв'язалися",
+ "admin.waitlist.markContacted": "Позначити",
+ "admin.waitlist.marked": "Позначено як «зв'язалися»",
+ "admin.waitlist.copyEmails": "Скопіювати адреси",
+ "admin.waitlist.copied": "Адреси скопійовано в буфер обміну",
+ "admin.waitlist.failedLoad": "Не вдалося завантажити лист очікування",
+ "admin.waitlist.failedMark": "Не вдалося позначити як «зв'язалися»",
 
  // Admin integrations
  "admin.integrations.title": "Інтеграції",

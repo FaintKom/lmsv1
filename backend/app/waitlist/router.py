@@ -9,13 +9,15 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, EmailStr
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import require_role
 from app.auth.models import User, UserRole
 from app.common.rate_limit import limiter
+from app.config import settings
 from app.db.session import get_db
+from app.email.service import queue_email, send_waitlist_signup_notification
 from app.waitlist.models import WaitlistEntry
 
 router = APIRouter()
@@ -46,16 +48,34 @@ async def waitlist_submit(
 
     if existing is None:
         client = request.client
+        role = (data.role or "").strip()[:100] or None
+        source = (data.source or "").strip()[:100] or None
         db.add(
             WaitlistEntry(
                 email=email,
-                role=(data.role or "").strip()[:100] or None,
-                source=(data.source or "").strip()[:100] or None,
+                role=role,
+                source=source,
                 ip_address=(client.host if client else None),
                 user_agent=(request.headers.get("user-agent") or "")[:500] or None,
             )
         )
         await db.flush()
+
+        # Notify the operator. Only for genuinely new emails, so a repeat
+        # submit can't be used to spam the inbox. Best-effort: queue_email
+        # swallows SMTP failures so a dead relay can't 500 a signup.
+        if settings.waitlist_notify_email:
+            total = (
+                await db.execute(select(func.count()).select_from(WaitlistEntry))
+            ).scalar_one()
+            queue_email(
+                send_waitlist_signup_notification,
+                settings.waitlist_notify_email,
+                email,
+                role,
+                source,
+                total,
+            )
 
     return {"message": "Thanks — you're on the list. We'll be in touch."}
 

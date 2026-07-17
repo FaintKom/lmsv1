@@ -3,6 +3,7 @@ import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from html import escape
 from typing import Any, Callable
 
 from app.config import settings
@@ -249,3 +250,30 @@ def send_deadline_reminder(to_email: str, student_name: str, assignment_title: s
     </a>
     """
     return _send_email(to_email, f"Reminder: {assignment_title} due soon", _base_template(content))
+
+
+def send_waitlist_signup_notification(
+    to_email: str, signup_email: str, role: str | None, source: str | None, total: int
+) -> bool:
+    """Tell the operator that someone joined the waitlist.
+
+    Every interpolated value arrives from a public, unauthenticated endpoint,
+    so they are HTML-escaped before reaching the template.
+    """
+    safe_email = escape(signup_email)
+    safe_role = escape(role or "—")
+    safe_source = escape(source or "—")
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">New waitlist signup</h2>
+    <div style="background-color:#f1f5f9;border-radius:8px;padding:16px;margin:0 0 16px;border-left:4px solid #4f46e5;">
+      <p style="margin:0;color:#1e293b;font-size:16px;font-weight:600;">{safe_email}</p>
+      <p style="margin:4px 0 0;color:#475569;font-size:13px;">Role: {safe_role} &middot; Source: {safe_source}</p>
+    </div>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      That makes {total} {"person" if total == 1 else "people"} on the waitlist.
+    </p>
+    <a href="{settings.app_url}/admin/waitlist" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      View waitlist
+    </a>
+    """
+    return _send_email(to_email, f"New waitlist signup: {signup_email}", _base_template(content))

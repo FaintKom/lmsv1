@@ -33,6 +33,7 @@ import {
  CalendarCheck,
  CalendarClock,
  BookOpenCheck,
+ Mail,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -115,6 +116,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  ...(isMenuVisible("meetings") ? [{ href: "/admin/meetings", label: t("nav.meetings") || "Meetings", icon: Video }] : []),
  ...(isMenuVisible("analytics") ? [{ href: "/admin/analytics", label: t("nav.analytics"), icon: BarChart3 }] : []),
  ...(isSuperAdmin ? [{ href: "/admin/organizations", label: t("nav.organizations"), icon: Building2 }] : []),
+ ...(isSuperAdmin ? [{ href: "/admin/waitlist", label: t("nav.waitlist"), icon: Mail }] : []),
  ...(isAdminOnly ? [{ href: "/admin/integrations", label: t("nav.integrations"), icon: Plug }] : []),
  ...(isMenuVisible("support") ? [{ href: "/support", label: t("nav.support"), icon: Heart }] : []),
  ...(isAdminOnly ? [{ href: "/admin/settings", label: t("nav.settings"), icon: Settings }] : []),

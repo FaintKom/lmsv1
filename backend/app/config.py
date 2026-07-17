@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     super_admin_email: str = ""
     super_admin_password: str = ""
 
+    # Where "new waitlist signup" notifications go. Empty disables them.
+    waitlist_notify_email: str = ""
+
     # Sandbox
     sandbox_url: str = "http://localhost:8001"
 
