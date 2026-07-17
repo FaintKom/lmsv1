@@ -1,0 +1,24 @@
+# Локальные system-хуки: без virtualenv (Windows MAX_PATH ломает
+# remote-репозитории pre-commit на Store-Python). Требуется: pip install ruff pre-commit
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check (backend)
+        entry: python -m ruff check --fix
+        language: system
+        types: [python]
+        files: ^backend/
+
+      - id: ruff-format
+        name: ruff format (backend)
+        entry: python -m ruff format
+        language: system
+        types: [python]
+        files: ^backend/
+
+      - id: merge-conflict
+        name: no merge conflict markers
+        entry: python -c "import sys; bad=[f for f in sys.argv[1:] if any(l.startswith(('<<<<<<< ','>>>>>>> ')) for l in open(f,encoding='utf-8',errors='ignore'))]; sys.exit(1 if bad else 0)"
+        language: system
+        types: [text]

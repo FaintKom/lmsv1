@@ -1,4 +1,4 @@
-.PHONY: up down build migrate test lint
+.PHONY: up down build migrate test lint hooks
 
 up:
 	docker compose up -d
@@ -27,6 +27,10 @@ lint:
 
 format:
 	cd backend && ruff check --fix . && ruff format .
+
+# One-time setup: install pre-commit hooks (pip install pre-commit)
+hooks:
+	python -m pre_commit install
 
 # Frontend commands
 fe-dev:
