@@ -38,8 +38,12 @@ htmlcov/
 *.egg
 *.whl
 
-# Local Claude state
-.claude/
+# Local Claude state — ignored, EXCEPT skills: those are shared project knowledge
+# and belong in the repo (versioned, reviewable, present in every clone).
+# NB: must be `.claude/*`, not `.claude/` — git won't descend into an excluded
+# directory, so a negation under it would never match.
+.claude/*
+!.claude/skills/
 
 # Local audit scratch (design-canvas dumps, scraps)
 .audit/
