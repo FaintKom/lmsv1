@@ -104,15 +104,22 @@ TanStack Query хуков.
 
 ## i18n
 
-- Словари — `src/lib/i18n/translations.ts` (один файл, объект с ключами
-  EN и RU). 354 ключа на момент P0-13.
-- Парность ключей проверяется в `src/lib/i18n/translations.test.ts`
-  (Vitest) — CI ловит расхождения.
-- Хук `useTranslation()`, компонент `<LocaleSwitcher />`.
-- Дефолтная локаль — из `Accept-Language`, потом из localStorage.
+6 локалей (en/es/ru/tr/de/uk), **code-split по локали** (с 2026-07-18):
 
-При добавлении ключа: открой `translations.ts`, добавь в EN-секцию И в
-RU-секцию. Никогда не оставляй один без другого.
+- Словари — `src/lib/i18n/locales/{en,es,ru,tr,de,uk}.ts`, по файлу на локаль.
+- `src/lib/i18n/meta.ts` — `Locale`, `LOCALES`, `DEFAULT_LOCALE`,
+  `TranslationMap`. **Компоненты импортируют константы ТОЛЬКО отсюда.**
+- `src/lib/i18n/context.tsx` — `en` статически (дефолт + fallback),
+  остальные локали через ленивый `import()` при переключении.
+- `src/lib/i18n/translations.ts` — агрегатор всех словарей **только для
+  Node-тестов/скриптов**. Импорт из компонента ломает code-split —
+  затягивает ~1MB словарей обратно в клиентский бандл.
+- Парность ключей проверяет `translations.test.ts` (Vitest, CI-gate).
+- Хук `useTranslation()`, компонент `<LocaleSwitcher />`.
+- Дефолтная локаль — localStorage → язык браузера → en.
+
+При добавлении ключа: добавь его во ВСЕ 6 файлов `locales/*.ts` —
+тест парности упадёт, если забыл хотя бы один.
 
 ## Тесты
 
@@ -137,7 +144,8 @@ RU-секцию. Никогда не оставляй один без друго
 
 ```bash
 cd frontend
-npm install --legacy-peer-deps    # ОБЯЗАТЕЛЬНО — Sentry 9 vs React 19
+npm install    # с @sentry/nextjs@10 (2026-07-18) peer-конфликтов нет;
+               # CI/Dockerfile всё ещё используют --legacy-peer-deps (follow-up: снять)
 cp .env.local.example .env.local  # если есть; иначе создать руками
 npm run dev                        # http://localhost:3000
 ```
