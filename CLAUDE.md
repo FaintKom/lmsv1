@@ -141,12 +141,16 @@ See `tasks/todo.md` for the active sellability plan (P0/P1/P2 items).
 P0 security hardening (JWT enforcement, rate limiting, file upload validation,
 nginx headers) was added in commit `d391386` on 2026-04-09.
 
-## Knowledge module notes (added 2026-04-25)
+## Knowledge module notes (updated 2026-07-18: DORMANT)
 
-- New module `app/knowledge/` exposes `/api/v1/knowledge/{search,facets,list,{id}}`.
-- Frontend at `frontend/src/app/(dashboard)/knowledge/` (list + detail).
-- Sidebar: ✨ "Knowledge" link added to studentNav.
-- DB: `knowledge_entries` + `knowledge_entry_sources` tables, `vector` extension required, HNSW + GIN + FTS indexes for hybrid search.
-- Migration: `m1n2o3p4q5r6_add_knowledge_module.py`. Prod was already stamped to head.
-- Voyage AI key (for embeddings): `F:\google-secrets\voyage-api-key.txt` locally; in prod set `VOYAGE_API_KEY` env on backend container.
-- Distillation pipeline runs OUTSIDE the LMS server, in `F:\sources\` via Claude Desktop sessions. Result: `_verified/*.json` → `python F:\sources\_prompts\ingest.py` writes to Postgres.
+**Status: backend dormant, frontend removed.** UI и роутер вырезаны 2026-05-31
+(pre-test cleanup): страницы `(dashboard)/knowledge/` нет, ссылки в сайдбаре
+нет, роутер НЕ смонтирован в `main.py` — `/api/v1/knowledge/*` отдаёт 404.
+Код `app/knowledge/` (5 файлов) и данные в БД живы — модуль можно вернуть,
+смонтировав роутер и восстановив страницу.
+
+Что остаётся правдой:
+- DB: `knowledge_entries` + `knowledge_entry_sources`, `vector` extension, HNSW + GIN + FTS индексы (hybrid search).
+- Migration: `m1n2o3p4q5r6_add_knowledge_module.py` — применена, не трогать.
+- Voyage AI key (embeddings): `F:\google-secrets\voyage-api-key.txt` локально; в проде `VOYAGE_API_KEY` env.
+- Distillation pipeline — вне LMS, в `F:\sources\` (см. `F:\sources\AGENTS.md`): `_verified/*.json` → `python F:\sources\_prompts\ingest.py` → Postgres.
