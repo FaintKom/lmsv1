@@ -17,7 +17,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_access_token_expire_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.jwt_access_token_expire_minutes
+    )
     to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
@@ -36,6 +38,21 @@ def create_refresh_token(data: dict) -> tuple[str, str, datetime]:
     to_encode.update({"exp": expires_at, "type": "refresh", "jti": jti})
     token = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
     return token, jti, expires_at
+
+
+def create_scorm_token(user_id: str, pkg_id: str, minutes: int = 30) -> str:
+    """Short-lived token scoped to ONE SCORM package.
+
+    Replaces the full access JWT in SCORM iframe URLs (?token=...) so what
+    lands in browser history / proxy logs can only fetch files of that
+    package for `minutes`, instead of impersonating the whole session.
+    """
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
+    return jwt.encode(
+        {"sub": user_id, "pkg": pkg_id, "exp": expire, "type": "scorm"},
+        settings.jwt_secret,
+        algorithm=settings.jwt_algorithm,
+    )
 
 
 def decode_token(token: str) -> dict | None:

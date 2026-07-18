@@ -89,6 +89,40 @@ async def test_package_invisible_cross_org(client: AsyncClient, teacher, admin2)
 
 
 @pytest.mark.asyncio
+async def test_launch_token_scoped_to_package(client: AsyncClient, teacher, admin2):
+    """Launch token serves its own package's files and nothing else."""
+    pkg_a = (await _upload(client, teacher, _scorm_zip())).json()
+    pkg_b = (await _upload(client, teacher, _scorm_zip())).json()
+
+    minted = await client.post(
+        f"/api/v1/scorm-import/packages/{pkg_a['id']}/launch-token",
+        headers=auth_header(teacher),
+    )
+    assert minted.status_code == 200
+    scorm_token = minted.json()["token"]
+
+    ok = await client.get(
+        f"/api/v1/scorm-import/packages/{pkg_a['id']}/files/index.html",
+        params={"token": scorm_token},
+    )
+    assert ok.status_code == 200
+
+    # Same token against a DIFFERENT package — refused.
+    other = await client.get(
+        f"/api/v1/scorm-import/packages/{pkg_b['id']}/files/index.html",
+        params={"token": scorm_token},
+    )
+    assert other.status_code == 401
+
+    # Cross-org caller cannot mint a token at all.
+    cross = await client.post(
+        f"/api/v1/scorm-import/packages/{pkg_a['id']}/launch-token",
+        headers=auth_header(admin2),
+    )
+    assert cross.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_serve_file_with_token_and_refuse_traversal(client: AsyncClient, teacher):
     pkg = (await _upload(client, teacher, _scorm_zip())).json()
     token = create_access_token({"sub": str(teacher.id)})

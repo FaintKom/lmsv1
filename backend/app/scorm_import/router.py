@@ -8,6 +8,7 @@ Endpoints:
     GET  /packages/{id}/statements        — list statements (admin/teacher only)
     POST /xapi/statements                 — generic xAPI inbox (mathlive, future emitters)
 """
+
 from __future__ import annotations
 
 import io
@@ -36,7 +37,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User, UserRole
-from app.auth.security import decode_token
+from app.auth.security import create_scorm_token, decode_token
 from app.auth.service import get_user_by_id
 from app.config import settings
 from app.db.session import get_db
@@ -73,7 +74,9 @@ def _safe_join(base: Path, rel: str) -> Path:
     return target
 
 
-def _detect_format(extracted: Path) -> tuple[ImportedSCORMFormat, str | None, dict | None, str | None]:
+def _detect_format(
+    extracted: Path,
+) -> tuple[ImportedSCORMFormat, str | None, dict | None, str | None]:
     """Inspect the extracted package directory. Returns (format, launch_url, manifest_dict, title)."""
     manifest = extracted / "imsmanifest.xml"
     if manifest.exists():
@@ -241,10 +244,23 @@ def _resolve_scorm_token(token_param: str | None, cookie_val: str | None) -> str
     return tok
 
 
-async def _validate_jwt_to_user(tok: str, db: AsyncSession) -> User:
+async def _validate_jwt_to_user(
+    tok: str, db: AsyncSession, pkg_id: uuid.UUID | None = None
+) -> User:
+    """Resolve a serving token to a user.
+
+    Accepts the short-lived package-scoped ``scorm`` token (preferred — this
+    is what the frontend puts in ``?token=`` since 2026-07-19), and the full
+    ``access`` JWT for backward compatibility with sessions that loaded the
+    old frontend bundle.
+    """
     payload = decode_token(tok)
-    if not payload or payload.get("type") != "access":
+    if not payload or payload.get("type") not in ("access", "scorm"):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid or expired token")
+    if payload.get("type") == "scorm":
+        # Scoped token: only valid for the package it was minted for.
+        if pkg_id is None or payload.get("pkg") != str(pkg_id):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Token not valid for this package")
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token payload")
@@ -252,6 +268,25 @@ async def _validate_jwt_to_user(tok: str, db: AsyncSession) -> User:
     if not user.is_active:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Account is deactivated")
     return user
+
+
+@router.post("/packages/{pkg_id}/launch-token")
+async def issue_launch_token(
+    pkg_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Mint a short-lived, package-scoped token for iframe file serving.
+
+    The frontend uses this instead of putting the full access JWT into the
+    iframe ``?token=`` query param (which ends up in browser history and
+    proxy logs). A leaked launch token only grants 30 minutes of read access
+    to this one package's files.
+    """
+    pkg = await db.get(ImportedSCORMPackage, pkg_id)
+    if not pkg or pkg.org_id != user.org_id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Package not found")
+    return {"token": create_scorm_token(str(user.id), str(pkg_id))}
 
 
 @router.get("/packages/{pkg_id}/files/{path:path}")
@@ -270,7 +305,7 @@ async def serve_package_file(
     authenticate transparently without query params.
     """
     tok = _resolve_scorm_token(token, scorm_access)
-    user = await _validate_jwt_to_user(tok, db)
+    user = await _validate_jwt_to_user(tok, db, pkg_id=pkg_id)
 
     pkg = await db.get(ImportedSCORMPackage, pkg_id)
     if not pkg or pkg.org_id != user.org_id:
@@ -301,11 +336,12 @@ def _extract_verb_object(stmt: dict) -> tuple[str, str, str | None]:
     verb_id = verb.get("id") or ""
     obj = stmt.get("object") or {}
     obj_id = obj.get("id") or ""
-    obj_type = (obj.get("objectType") if isinstance(obj, dict) else None)
+    obj_type = obj.get("objectType") if isinstance(obj, dict) else None
     return verb_id, obj_id, obj_type
 
 
 async def _get_scorm_user(
+    pkg_id: uuid.UUID,
     request: Request,
     scorm_access: str | None = Cookie(None),
     db: AsyncSession = Depends(get_db),
@@ -314,6 +350,8 @@ async def _get_scorm_user(
 
     scorm-again XHR to lmsCommitUrl cannot send the Authorization header,
     so we fall back to the same cookie set by the preflight file-serve.
+    ``pkg_id`` comes from the route path — the cookie may carry a
+    package-scoped ``scorm`` token, which must match this package.
     """
     auth = request.headers.get("authorization", "")
     if auth.startswith("Bearer "):
@@ -322,7 +360,7 @@ async def _get_scorm_user(
         tok = scorm_access
     else:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
-    return await _validate_jwt_to_user(tok, db)
+    return await _validate_jwt_to_user(tok, db, pkg_id=pkg_id)
 
 
 @router.post("/packages/{pkg_id}/commit")
