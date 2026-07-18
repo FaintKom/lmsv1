@@ -344,46 +344,67 @@ async def get_user_streak(db: AsyncSession, user_id: uuid.UUID) -> dict:
 
 
 async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) -> list[dict]:
-    """Get leaderboard for an organization, sorted by XP."""
+    """Get leaderboard for an organization, sorted by XP.
+
+    Four fixed queries regardless of org size (was 1 + 3 per student).
+    """
     from app.progress.models import Enrollment
 
     # Students in this org
-    users_result = await db.execute(
-        select(User).where(User.org_id == org_id, User.role == "student")
+    students = (
+        await db.execute(
+            select(User.id, User.full_name).where(User.org_id == org_id, User.role == "student")
+        )
+    ).all()
+    if not students:
+        return []
+    student_ids = [row.id for row in students]
+
+    # Completed lessons per student — one grouped query
+    completed_by_student = dict(
+        (
+            await db.execute(
+                select(Enrollment.student_id, func.count(LessonProgress.id))
+                .join(LessonProgress, LessonProgress.enrollment_id == Enrollment.id)
+                .where(
+                    Enrollment.student_id.in_(student_ids),
+                    LessonProgress.status == LessonStatus.completed,
+                )
+                .group_by(Enrollment.student_id)
+            )
+        ).all()
     )
-    students = users_result.scalars().all()
+
+    # Streaks (XP + current streak) — one query
+    streaks_by_user = {
+        s.user_id: s
+        for s in (
+            await db.execute(select(UserStreak).where(UserStreak.user_id.in_(student_ids)))
+        ).scalars()
+    }
+
+    # Badge counts — one grouped query
+    badges_by_user = dict(
+        (
+            await db.execute(
+                select(UserBadge.user_id, func.count(UserBadge.id))
+                .where(UserBadge.user_id.in_(student_ids))
+                .group_by(UserBadge.user_id)
+            )
+        ).all()
+    )
 
     leaderboard = []
-    for student in students:
-        # Completed lessons
-        lessons_result = await db.execute(
-            select(func.count(LessonProgress.id)).where(
-                LessonProgress.enrollment_id.in_(
-                    select(Enrollment.id).where(Enrollment.student_id == student.id)
-                ),
-                LessonProgress.status == LessonStatus.completed,
-            )
-        )
-        completed = lessons_result.scalar() or 0
-
-        # Streak + XP
-        streak_result = await db.execute(select(UserStreak).where(UserStreak.user_id == student.id))
-        streak = streak_result.scalar_one_or_none()
-
-        # Badge count
-        badge_result = await db.execute(
-            select(func.count(UserBadge.id)).where(UserBadge.user_id == student.id)
-        )
-        badges = badge_result.scalar() or 0
-
+    for row in students:
+        streak = streaks_by_user.get(row.id)
         xp = (streak.total_xp if streak else 0) or 0
         leaderboard.append(
             {
-                "user_id": student.id,
-                "user_name": student.full_name,
-                "completed_lessons": completed,
+                "user_id": row.id,
+                "user_name": row.full_name,
+                "completed_lessons": completed_by_student.get(row.id, 0),
                 "current_streak": streak.current_streak if streak else 0,
-                "badge_count": badges,
+                "badge_count": badges_by_user.get(row.id, 0),
                 "total_xp": xp,
                 "league": get_league(xp),
             }
