@@ -1,4 +1,5 @@
 """Tests for gamification (badges, streaks, XP, leaderboard), certificates, and skills."""
+
 import pytest
 from httpx import AsyncClient
 
@@ -75,11 +76,15 @@ async def test_list_skills(client: AsyncClient, teacher):
 
 @pytest.mark.asyncio
 async def test_create_skill(client: AsyncClient, admin):
-    resp = await client.post("/api/v1/skills", json={
-        "name": "Python",
-        "icon": "python-icon",
-        "category": "programming",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/skills",
+        json={
+            "name": "Python",
+            "icon": "python-icon",
+            "category": "programming",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code in (200, 201)
 
 
