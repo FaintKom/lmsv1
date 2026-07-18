@@ -31,16 +31,76 @@ LEAGUES = [
 ]
 
 DEFAULT_BADGES = [
-    {"name": "First Steps", "description": "Complete your first lesson", "icon": "🎯", "criteria_key": "first_lesson", "criteria": {"lessons": 1}},
-    {"name": "Dedicated Learner", "description": "Complete 10 lessons", "icon": "📚", "criteria_key": "lessons_10", "criteria": {"lessons": 10}},
-    {"name": "Scholar", "description": "Complete 50 lessons", "icon": "🎓", "criteria_key": "lessons_50", "criteria": {"lessons": 50}},
-    {"name": "Course Champion", "description": "Complete a course", "icon": "🏆", "criteria_key": "course_complete", "criteria": {"courses": 1}},
-    {"name": "Multi-Course Master", "description": "Complete 5 courses", "icon": "👑", "criteria_key": "courses_5", "criteria": {"courses": 5}},
-    {"name": "Week Warrior", "description": "Maintain a 7-day streak", "icon": "🔥", "criteria_key": "streak_7", "criteria": {"streak": 7}},
-    {"name": "Month Master", "description": "Maintain a 30-day streak", "icon": "💎", "criteria_key": "streak_30", "criteria": {"streak": 30}},
-    {"name": "Code Warrior", "description": "Pass 10 code challenges", "icon": "⚔️", "criteria_key": "code_10", "criteria": {"code_passed": 10}},
-    {"name": "XP Hunter", "description": "Earn 500 XP", "icon": "⭐", "criteria_key": "xp_500", "criteria": {"xp": 500}},
-    {"name": "XP Master", "description": "Earn 5000 XP", "icon": "🌟", "criteria_key": "xp_5000", "criteria": {"xp": 5000}},
+    {
+        "name": "First Steps",
+        "description": "Complete your first lesson",
+        "icon": "🎯",
+        "criteria_key": "first_lesson",
+        "criteria": {"lessons": 1},
+    },
+    {
+        "name": "Dedicated Learner",
+        "description": "Complete 10 lessons",
+        "icon": "📚",
+        "criteria_key": "lessons_10",
+        "criteria": {"lessons": 10},
+    },
+    {
+        "name": "Scholar",
+        "description": "Complete 50 lessons",
+        "icon": "🎓",
+        "criteria_key": "lessons_50",
+        "criteria": {"lessons": 50},
+    },
+    {
+        "name": "Course Champion",
+        "description": "Complete a course",
+        "icon": "🏆",
+        "criteria_key": "course_complete",
+        "criteria": {"courses": 1},
+    },
+    {
+        "name": "Multi-Course Master",
+        "description": "Complete 5 courses",
+        "icon": "👑",
+        "criteria_key": "courses_5",
+        "criteria": {"courses": 5},
+    },
+    {
+        "name": "Week Warrior",
+        "description": "Maintain a 7-day streak",
+        "icon": "🔥",
+        "criteria_key": "streak_7",
+        "criteria": {"streak": 7},
+    },
+    {
+        "name": "Month Master",
+        "description": "Maintain a 30-day streak",
+        "icon": "💎",
+        "criteria_key": "streak_30",
+        "criteria": {"streak": 30},
+    },
+    {
+        "name": "Code Warrior",
+        "description": "Pass 10 code challenges",
+        "icon": "⚔️",
+        "criteria_key": "code_10",
+        "criteria": {"code_passed": 10},
+    },
+    {
+        "name": "XP Hunter",
+        "description": "Earn 500 XP",
+        "icon": "⭐",
+        "criteria_key": "xp_500",
+        "criteria": {"xp": 500},
+    },
+    {
+        "name": "XP Master",
+        "description": "Earn 5000 XP",
+        "icon": "🌟",
+        "criteria_key": "xp_5000",
+        "criteria": {"xp": 5000},
+    },
 ]
 
 
@@ -55,15 +115,18 @@ def get_league(xp: int) -> dict:
     if current_idx < len(LEAGUES) - 1:
         next_league = LEAGUES[current_idx + 1]
         progress = (xp - league["min_xp"]) / (next_league["min_xp"] - league["min_xp"]) * 100
-        return {**league, "next_league": next_league["name"], "next_xp": next_league["min_xp"], "progress": round(progress, 1)}
+        return {
+            **league,
+            "next_league": next_league["name"],
+            "next_xp": next_league["min_xp"],
+            "progress": round(progress, 1),
+        }
     return {**league, "next_league": None, "next_xp": None, "progress": 100.0}
 
 
 async def award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: str = "") -> int:
     """Award XP to a user. Returns new total XP."""
-    result = await db.execute(
-        select(UserStreak).where(UserStreak.user_id == user_id)
-    )
+    result = await db.execute(select(UserStreak).where(UserStreak.user_id == user_id))
     streak = result.scalar_one_or_none()
 
     if not streak:
@@ -78,9 +141,7 @@ async def award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: st
 
 async def seed_default_badges(db: AsyncSession, org_id: uuid.UUID) -> None:
     """Create default badges for an organization if they don't exist."""
-    result = await db.execute(
-        select(func.count(Badge.id)).where(Badge.org_id == org_id)
-    )
+    result = await db.execute(select(func.count(Badge.id)).where(Badge.org_id == org_id))
     count = result.scalar()
     if count >= len(DEFAULT_BADGES):
         return
@@ -151,9 +212,7 @@ async def check_and_award_badges(
     badges = result.scalars().all()
 
     # Get already earned
-    earned_result = await db.execute(
-        select(UserBadge.badge_id).where(UserBadge.user_id == user_id)
-    )
+    earned_result = await db.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user_id))
     earned_ids = set(earned_result.scalars().all())
 
     # Get stats
@@ -176,14 +235,13 @@ async def check_and_award_badges(
     )
     completed_courses = courses_result.scalar() or 0
 
-    streak_result = await db.execute(
-        select(UserStreak).where(UserStreak.user_id == user_id)
-    )
+    streak_result = await db.execute(select(UserStreak).where(UserStreak.user_id == user_id))
     streak = streak_result.scalar_one_or_none()
     current_streak = streak.current_streak if streak else 0
     total_xp = (streak.total_xp if streak else 0) or 0
 
     from app.sandbox.models import CodeSubmission
+
     code_result = await db.execute(
         select(func.count(CodeSubmission.id)).where(
             CodeSubmission.student_id == user_id,
@@ -205,11 +263,17 @@ async def check_and_award_badges(
 
         if badge.criteria_key == "first_lesson" and completed_lessons >= criteria.get("lessons", 1):
             earned = True
-        elif badge.criteria_key == "lessons_10" and completed_lessons >= criteria.get("lessons", 10):
+        elif badge.criteria_key == "lessons_10" and completed_lessons >= criteria.get(
+            "lessons", 10
+        ):
             earned = True
-        elif badge.criteria_key == "lessons_50" and completed_lessons >= criteria.get("lessons", 50):
+        elif badge.criteria_key == "lessons_50" and completed_lessons >= criteria.get(
+            "lessons", 50
+        ):
             earned = True
-        elif badge.criteria_key == "course_complete" and completed_courses >= criteria.get("courses", 1):
+        elif badge.criteria_key == "course_complete" and completed_courses >= criteria.get(
+            "courses", 1
+        ):
             earned = True
         elif badge.criteria_key == "courses_5" and completed_courses >= criteria.get("courses", 5):
             earned = True
@@ -234,18 +298,14 @@ async def check_and_award_badges(
     return newly_awarded
 
 
-async def get_user_badges(
-    db: AsyncSession, user_id: uuid.UUID, org_id: uuid.UUID
-) -> list[dict]:
+async def get_user_badges(db: AsyncSession, user_id: uuid.UUID, org_id: uuid.UUID) -> list[dict]:
     """Get all badges with earned status for a user."""
     await seed_default_badges(db, org_id)
 
     result = await db.execute(select(Badge).where(Badge.org_id == org_id))
     badges = result.scalars().all()
 
-    earned_result = await db.execute(
-        select(UserBadge).where(UserBadge.user_id == user_id)
-    )
+    earned_result = await db.execute(select(UserBadge).where(UserBadge.user_id == user_id))
     earned_map = {ub.badge_id: ub.earned_at for ub in earned_result.scalars().all()}
 
     return [
@@ -263,12 +323,16 @@ async def get_user_badges(
 
 
 async def get_user_streak(db: AsyncSession, user_id: uuid.UUID) -> dict:
-    result = await db.execute(
-        select(UserStreak).where(UserStreak.user_id == user_id)
-    )
+    result = await db.execute(select(UserStreak).where(UserStreak.user_id == user_id))
     streak = result.scalar_one_or_none()
     if not streak:
-        return {"current_streak": 0, "longest_streak": 0, "last_activity_date": None, "total_xp": 0, "league": get_league(0)}
+        return {
+            "current_streak": 0,
+            "longest_streak": 0,
+            "last_activity_date": None,
+            "total_xp": 0,
+            "league": get_league(0),
+        }
     xp = streak.total_xp or 0
     return {
         "current_streak": streak.current_streak,
@@ -280,53 +344,76 @@ async def get_user_streak(db: AsyncSession, user_id: uuid.UUID) -> dict:
 
 
 async def get_leaderboard(db: AsyncSession, org_id: uuid.UUID, limit: int = 20) -> list[dict]:
-    """Get leaderboard for an organization, sorted by XP."""
+    """Get leaderboard for an organization, sorted by XP.
+
+    Four fixed queries regardless of org size (was 1 + 3 per student).
+    """
     from app.progress.models import Enrollment
 
     # Students in this org
-    users_result = await db.execute(
-        select(User).where(User.org_id == org_id, User.role == "student")
+    students = (
+        await db.execute(
+            select(User.id, User.full_name).where(User.org_id == org_id, User.role == "student")
+        )
+    ).all()
+    if not students:
+        return []
+    student_ids = [row.id for row in students]
+
+    # Completed lessons per student — one grouped query
+    completed_by_student = dict(
+        (
+            await db.execute(
+                select(Enrollment.student_id, func.count(LessonProgress.id))
+                .join(LessonProgress, LessonProgress.enrollment_id == Enrollment.id)
+                .where(
+                    Enrollment.student_id.in_(student_ids),
+                    LessonProgress.status == LessonStatus.completed,
+                )
+                .group_by(Enrollment.student_id)
+            )
+        ).all()
     )
-    students = users_result.scalars().all()
+
+    # Streaks (XP + current streak) — one query
+    streaks_by_user = {
+        s.user_id: s
+        for s in (
+            await db.execute(select(UserStreak).where(UserStreak.user_id.in_(student_ids)))
+        ).scalars()
+    }
+
+    # Badge counts — one grouped query
+    badges_by_user = dict(
+        (
+            await db.execute(
+                select(UserBadge.user_id, func.count(UserBadge.id))
+                .where(UserBadge.user_id.in_(student_ids))
+                .group_by(UserBadge.user_id)
+            )
+        ).all()
+    )
 
     leaderboard = []
-    for student in students:
-        # Completed lessons
-        lessons_result = await db.execute(
-            select(func.count(LessonProgress.id)).where(
-                LessonProgress.enrollment_id.in_(
-                    select(Enrollment.id).where(Enrollment.student_id == student.id)
-                ),
-                LessonProgress.status == LessonStatus.completed,
-            )
-        )
-        completed = lessons_result.scalar() or 0
-
-        # Streak + XP
-        streak_result = await db.execute(
-            select(UserStreak).where(UserStreak.user_id == student.id)
-        )
-        streak = streak_result.scalar_one_or_none()
-
-        # Badge count
-        badge_result = await db.execute(
-            select(func.count(UserBadge.id)).where(UserBadge.user_id == student.id)
-        )
-        badges = badge_result.scalar() or 0
-
+    for row in students:
+        streak = streaks_by_user.get(row.id)
         xp = (streak.total_xp if streak else 0) or 0
-        leaderboard.append({
-            "user_id": student.id,
-            "user_name": student.full_name,
-            "completed_lessons": completed,
-            "current_streak": streak.current_streak if streak else 0,
-            "badge_count": badges,
-            "total_xp": xp,
-            "league": get_league(xp),
-        })
+        leaderboard.append(
+            {
+                "user_id": row.id,
+                "user_name": row.full_name,
+                "completed_lessons": completed_by_student.get(row.id, 0),
+                "current_streak": streak.current_streak if streak else 0,
+                "badge_count": badges_by_user.get(row.id, 0),
+                "total_xp": xp,
+                "league": get_league(xp),
+            }
+        )
 
     # Sort by XP desc, then lessons, then streaks
-    leaderboard.sort(key=lambda x: (x["total_xp"], x["completed_lessons"], x["current_streak"]), reverse=True)
+    leaderboard.sort(
+        key=lambda x: (x["total_xp"], x["completed_lessons"], x["current_streak"]), reverse=True
+    )
     return leaderboard[:limit]
 
 
@@ -342,12 +429,27 @@ async def get_leagues_info() -> list[dict]:
 # the virtual 'avatar' slot for the character itself.
 ROOM_MOVABLE_SLOTS: set[str] = {
     # floor furniture
-    "bed", "desk", "dresser", "shelf", "rug", "plant",
-    "lamp", "sofa", "coffee", "arcade",
+    "bed",
+    "desk",
+    "dresser",
+    "shelf",
+    "rug",
+    "plant",
+    "lamp",
+    "sofa",
+    "coffee",
+    "arcade",
     # wall-mounted
-    "shelfwall", "cabinet", "pictures", "window", "clock",
+    "shelfwall",
+    "cabinet",
+    "pictures",
+    "window",
+    "clock",
     # previously tied (now independently movable)
-    "monitor", "chair", "plushie", "trophy",
+    "monitor",
+    "chair",
+    "plushie",
+    "trophy",
     # virtual slot for the avatar
     "avatar",
 }
@@ -359,10 +461,25 @@ _FULL = {"x", "y", "z"}
 ROOM_MOVE_AXES: dict[str, set[str]] = {
     slot: _FULL
     for slot in (
-        "bed", "desk", "dresser", "shelf", "rug", "plant",
-        "lamp", "sofa", "coffee", "arcade",
-        "shelfwall", "cabinet", "pictures", "window", "clock",
-        "monitor", "chair", "plushie", "trophy",
+        "bed",
+        "desk",
+        "dresser",
+        "shelf",
+        "rug",
+        "plant",
+        "lamp",
+        "sofa",
+        "coffee",
+        "arcade",
+        "shelfwall",
+        "cabinet",
+        "pictures",
+        "window",
+        "clock",
+        "monitor",
+        "chair",
+        "plushie",
+        "trophy",
         "avatar",
     )
 }
@@ -382,52 +499,452 @@ ROOM_TIES: dict[str, list[str]] = {
 # gets the catalog populated.
 ROOM_DEFAULT_CATALOG: list[dict] = [
     # walls
-    {"id": "wall-lavender", "slot": "wall", "group_name": "Walls", "name": "Lavender", "price": 0, "is_default": True, "swatch": "#a48dc8", "color_hex": "a48dc8", "floor_type": None},
-    {"id": "wall-mint", "slot": "wall", "group_name": "Walls", "name": "Mint", "price": 120, "is_default": False, "swatch": "#65c8b3", "color_hex": "65c8b3", "floor_type": None},
-    {"id": "wall-coral", "slot": "wall", "group_name": "Walls", "name": "Coral", "price": 120, "is_default": False, "swatch": "#f2a48d", "color_hex": "f2a48d", "floor_type": None},
-    {"id": "wall-sage", "slot": "wall", "group_name": "Walls", "name": "Sage", "price": 120, "is_default": False, "swatch": "#b4ccaa", "color_hex": "b4ccaa", "floor_type": None},
-    {"id": "wall-sky", "slot": "wall", "group_name": "Walls", "name": "Sky", "price": 180, "is_default": False, "swatch": "#a9c8d9", "color_hex": "a9c8d9", "floor_type": None},
-    {"id": "wall-sun", "slot": "wall", "group_name": "Walls", "name": "Sun", "price": 200, "is_default": False, "swatch": "#f2d878", "color_hex": "f2d878", "floor_type": None},
+    {
+        "id": "wall-lavender",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Lavender",
+        "price": 0,
+        "is_default": True,
+        "swatch": "#a48dc8",
+        "color_hex": "a48dc8",
+        "floor_type": None,
+    },
+    {
+        "id": "wall-mint",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Mint",
+        "price": 120,
+        "is_default": False,
+        "swatch": "#65c8b3",
+        "color_hex": "65c8b3",
+        "floor_type": None,
+    },
+    {
+        "id": "wall-coral",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Coral",
+        "price": 120,
+        "is_default": False,
+        "swatch": "#f2a48d",
+        "color_hex": "f2a48d",
+        "floor_type": None,
+    },
+    {
+        "id": "wall-sage",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Sage",
+        "price": 120,
+        "is_default": False,
+        "swatch": "#b4ccaa",
+        "color_hex": "b4ccaa",
+        "floor_type": None,
+    },
+    {
+        "id": "wall-sky",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Sky",
+        "price": 180,
+        "is_default": False,
+        "swatch": "#a9c8d9",
+        "color_hex": "a9c8d9",
+        "floor_type": None,
+    },
+    {
+        "id": "wall-sun",
+        "slot": "wall",
+        "group_name": "Walls",
+        "name": "Sun",
+        "price": 200,
+        "is_default": False,
+        "swatch": "#f2d878",
+        "color_hex": "f2d878",
+        "floor_type": None,
+    },
     # floors
-    {"id": "floor-wood", "slot": "floor", "group_name": "Floor", "name": "Light wood", "price": 0, "is_default": True, "swatch": "#d9a26a", "color_hex": None, "floor_type": "wood"},
-    {"id": "floor-tile", "slot": "floor", "group_name": "Floor", "name": "Cream tile", "price": 150, "is_default": False, "swatch": "#e8e1ce", "color_hex": None, "floor_type": "tile"},
-    {"id": "floor-carpet", "slot": "floor", "group_name": "Floor", "name": "Coral rug", "price": 250, "is_default": False, "swatch": "#ffae9a", "color_hex": None, "floor_type": "carpet"},
-    {"id": "floor-moss", "slot": "floor", "group_name": "Floor", "name": "Moss grass", "price": 320, "is_default": False, "swatch": "#7fb069", "color_hex": None, "floor_type": "moss"},
+    {
+        "id": "floor-wood",
+        "slot": "floor",
+        "group_name": "Floor",
+        "name": "Light wood",
+        "price": 0,
+        "is_default": True,
+        "swatch": "#d9a26a",
+        "color_hex": None,
+        "floor_type": "wood",
+    },
+    {
+        "id": "floor-tile",
+        "slot": "floor",
+        "group_name": "Floor",
+        "name": "Cream tile",
+        "price": 150,
+        "is_default": False,
+        "swatch": "#e8e1ce",
+        "color_hex": None,
+        "floor_type": "tile",
+    },
+    {
+        "id": "floor-carpet",
+        "slot": "floor",
+        "group_name": "Floor",
+        "name": "Coral rug",
+        "price": 250,
+        "is_default": False,
+        "swatch": "#ffae9a",
+        "color_hex": None,
+        "floor_type": "carpet",
+    },
+    {
+        "id": "floor-moss",
+        "slot": "floor",
+        "group_name": "Floor",
+        "name": "Moss grass",
+        "price": 320,
+        "is_default": False,
+        "swatch": "#7fb069",
+        "color_hex": None,
+        "floor_type": "moss",
+    },
     # furniture
-    {"id": "bed-basic", "slot": "bed", "group_name": "Furniture", "name": "Wooden bed", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "bed-kids", "slot": "bed", "group_name": "Furniture", "name": "Kids bed", "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "bed-double", "slot": "bed", "group_name": "Furniture", "name": "Double bed", "price": 600, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "desk-wood", "slot": "desk", "group_name": "Furniture", "name": "Wooden desk", "price": 220, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "desk-white", "slot": "desk", "group_name": "Furniture", "name": "Studio desk", "price": 400, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "dresser-blue", "slot": "dresser", "group_name": "Furniture", "name": "Mint dresser", "price": 280, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "dresser-cream", "slot": "dresser", "group_name": "Furniture", "name": "Cream dresser", "price": 280, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "shelf-tall", "slot": "shelf", "group_name": "Furniture", "name": "Tall bookshelf", "price": 360, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "shelf-wall", "slot": "shelfwall", "group_name": "Furniture", "name": "Wall shelf", "price": 180, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "cabinet", "slot": "cabinet", "group_name": "Furniture", "name": "Sun cabinet", "price": 240, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "sofa", "slot": "sofa", "group_name": "Furniture", "name": "Cream sofa", "price": 480, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "coffee-table", "slot": "coffee", "group_name": "Furniture", "name": "Coffee table", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "arcade", "slot": "arcade", "group_name": "Furniture", "name": "Retro arcade", "price": 950, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "bed-basic",
+        "slot": "bed",
+        "group_name": "Furniture",
+        "name": "Wooden bed",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "bed-kids",
+        "slot": "bed",
+        "group_name": "Furniture",
+        "name": "Kids bed",
+        "price": 350,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "bed-double",
+        "slot": "bed",
+        "group_name": "Furniture",
+        "name": "Double bed",
+        "price": 600,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "desk-wood",
+        "slot": "desk",
+        "group_name": "Furniture",
+        "name": "Wooden desk",
+        "price": 220,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "desk-white",
+        "slot": "desk",
+        "group_name": "Furniture",
+        "name": "Studio desk",
+        "price": 400,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "dresser-blue",
+        "slot": "dresser",
+        "group_name": "Furniture",
+        "name": "Mint dresser",
+        "price": 280,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "dresser-cream",
+        "slot": "dresser",
+        "group_name": "Furniture",
+        "name": "Cream dresser",
+        "price": 280,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "shelf-tall",
+        "slot": "shelf",
+        "group_name": "Furniture",
+        "name": "Tall bookshelf",
+        "price": 360,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "shelf-wall",
+        "slot": "shelfwall",
+        "group_name": "Furniture",
+        "name": "Wall shelf",
+        "price": 180,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "cabinet",
+        "slot": "cabinet",
+        "group_name": "Furniture",
+        "name": "Sun cabinet",
+        "price": 240,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "sofa",
+        "slot": "sofa",
+        "group_name": "Furniture",
+        "name": "Cream sofa",
+        "price": 480,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "coffee-table",
+        "slot": "coffee",
+        "group_name": "Furniture",
+        "name": "Coffee table",
+        "price": 200,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "arcade",
+        "slot": "arcade",
+        "group_name": "Furniture",
+        "name": "Retro arcade",
+        "price": 950,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # decor
-    {"id": "chair", "slot": "chair", "group_name": "Decor", "name": "Desk chair", "price": 120, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "monitor", "slot": "monitor", "group_name": "Decor", "name": "Monitor", "price": 280, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "lamp", "slot": "lamp", "group_name": "Decor", "name": "Floor lamp", "price": 150, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "plant", "slot": "plant", "group_name": "Decor", "name": "Potted plant", "price": 80, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "rug-teal", "slot": "rug", "group_name": "Decor", "name": "Teal rug", "price": 140, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "rug-warm", "slot": "rug", "group_name": "Decor", "name": "Warm rug", "price": 140, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "rug-mint", "slot": "rug", "group_name": "Decor", "name": "Mint rug", "price": 140, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "pictures", "slot": "pictures", "group_name": "Decor", "name": "Picture wall", "price": 100, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "window", "slot": "window", "group_name": "Decor", "name": "Window", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "plushie", "slot": "plushie", "group_name": "Decor", "name": "Bunny plushie", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "trophy", "slot": "trophy", "group_name": "Decor", "name": "Trophy", "price": 220, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "clock", "slot": "clock", "group_name": "Decor", "name": "Wall clock", "price": 90, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "chair",
+        "slot": "chair",
+        "group_name": "Decor",
+        "name": "Desk chair",
+        "price": 120,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "monitor",
+        "slot": "monitor",
+        "group_name": "Decor",
+        "name": "Monitor",
+        "price": 280,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "lamp",
+        "slot": "lamp",
+        "group_name": "Decor",
+        "name": "Floor lamp",
+        "price": 150,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "plant",
+        "slot": "plant",
+        "group_name": "Decor",
+        "name": "Potted plant",
+        "price": 80,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "rug-teal",
+        "slot": "rug",
+        "group_name": "Decor",
+        "name": "Teal rug",
+        "price": 140,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "rug-warm",
+        "slot": "rug",
+        "group_name": "Decor",
+        "name": "Warm rug",
+        "price": 140,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "rug-mint",
+        "slot": "rug",
+        "group_name": "Decor",
+        "name": "Mint rug",
+        "price": 140,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "pictures",
+        "slot": "pictures",
+        "group_name": "Decor",
+        "name": "Picture wall",
+        "price": 100,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "window",
+        "slot": "window",
+        "group_name": "Decor",
+        "name": "Window",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "plushie",
+        "slot": "plushie",
+        "group_name": "Decor",
+        "name": "Bunny plushie",
+        "price": 200,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "trophy",
+        "slot": "trophy",
+        "group_name": "Decor",
+        "name": "Trophy",
+        "price": 220,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "clock",
+        "slot": "clock",
+        "group_name": "Decor",
+        "name": "Wall clock",
+        "price": 90,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # Imported voxel furniture (rendered from .vox via VOX_ITEMS on the frontend).
     # Default + free: they make up the owner-curated starter room layout
     # (positions in IMPORTED_DEFAULT_PLACEMENTS).
-    {"id": "vox-bookshelf", "slot": "shelf", "group_name": "Furniture", "name": "Bookshelf", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "vox-drawers", "slot": "dresser", "group_name": "Furniture", "name": "Drawers", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "vox-plant", "slot": "plant", "group_name": "Decor", "name": "Leafy plant", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "vox-monitor", "slot": "monitor", "group_name": "Furniture", "name": "Monitor", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "vox-keyboard", "slot": "keyboard", "group_name": "Furniture", "name": "Keyboard", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "vox-bookshelf",
+        "slot": "shelf",
+        "group_name": "Furniture",
+        "name": "Bookshelf",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "vox-drawers",
+        "slot": "dresser",
+        "group_name": "Furniture",
+        "name": "Drawers",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "vox-plant",
+        "slot": "plant",
+        "group_name": "Decor",
+        "name": "Leafy plant",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "vox-monitor",
+        "slot": "monitor",
+        "group_name": "Furniture",
+        "name": "Monitor",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "vox-keyboard",
+        "slot": "keyboard",
+        "group_name": "Furniture",
+        "name": "Keyboard",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
 ]
 
 
@@ -435,60 +952,520 @@ ROOM_DEFAULT_CATALOG: list[dict] = [
 # so the frontend can split the shared catalog into two views.
 ROOM_AVATAR_CATALOG: list[dict] = [
     # hair
-    {"id": "avatar-hair-short", "slot": "avatar_hair", "group_name": "Hair", "name": "Short brown", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hair-bald", "slot": "avatar_hair", "group_name": "Hair", "name": "Bald", "price": 50, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hair-long", "slot": "avatar_hair", "group_name": "Hair", "name": "Long blonde", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hair-curly", "slot": "avatar_hair", "group_name": "Hair", "name": "Curly red", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hair-bun", "slot": "avatar_hair", "group_name": "Hair", "name": "Top bun", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hair-mohawk", "slot": "avatar_hair", "group_name": "Hair", "name": "Mohawk", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-hair-short",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Short brown",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hair-bald",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Bald",
+        "price": 50,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hair-long",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Long blonde",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hair-curly",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Curly red",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hair-bun",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Top bun",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hair-mohawk",
+        "slot": "avatar_hair",
+        "group_name": "Hair",
+        "name": "Mohawk",
+        "price": 200,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # face
-    {"id": "avatar-face-smile", "slot": "avatar_face", "group_name": "Face", "name": "Smile", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-face-wink", "slot": "avatar_face", "group_name": "Face", "name": "Wink", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-face-blush", "slot": "avatar_face", "group_name": "Face", "name": "Blush", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-face-cool", "slot": "avatar_face", "group_name": "Face", "name": "Sunglasses", "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-face-determined", "slot": "avatar_face", "group_name": "Face", "name": "Determined", "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-face-glasses", "slot": "avatar_face", "group_name": "Face", "name": "Round glasses", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-face-smile",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Smile",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-face-wink",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Wink",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-face-blush",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Blush",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-face-cool",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Sunglasses",
+        "price": 100,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-face-determined",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Determined",
+        "price": 120,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-face-glasses",
+        "slot": "avatar_face",
+        "group_name": "Face",
+        "name": "Round glasses",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # outfit
-    {"id": "avatar-outfit-tshirt", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Blue t-shirt", "price": 0, "is_default": True, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-outfit-cozy", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Cozy sweater", "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-outfit-hoodie", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Green hoodie", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-outfit-dress", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Coral dress", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-outfit-sport", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Sport kit", "price": 250, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-outfit-suit", "slot": "avatar_outfit", "group_name": "Outfit", "name": "Formal suit", "price": 400, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-outfit-tshirt",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Blue t-shirt",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-outfit-cozy",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Cozy sweater",
+        "price": 180,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-outfit-hoodie",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Green hoodie",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-outfit-dress",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Coral dress",
+        "price": 200,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-outfit-sport",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Sport kit",
+        "price": 250,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-outfit-suit",
+        "slot": "avatar_outfit",
+        "group_name": "Outfit",
+        "name": "Formal suit",
+        "price": 400,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # accessory (no default — slot starts empty)
-    {"id": "avatar-acc-book", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Book", "price": 80, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-acc-backpack", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Backpack", "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-acc-headphones", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Headphones", "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-acc-cape", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Hero cape", "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-acc-pet", "slot": "avatar_accessory", "group_name": "Accessory", "name": "Mini pet", "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-acc-book",
+        "slot": "avatar_accessory",
+        "group_name": "Accessory",
+        "name": "Book",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-acc-backpack",
+        "slot": "avatar_accessory",
+        "group_name": "Accessory",
+        "name": "Backpack",
+        "price": 100,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-acc-headphones",
+        "slot": "avatar_accessory",
+        "group_name": "Accessory",
+        "name": "Headphones",
+        "price": 180,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-acc-cape",
+        "slot": "avatar_accessory",
+        "group_name": "Accessory",
+        "name": "Hero cape",
+        "price": 350,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-acc-pet",
+        "slot": "avatar_accessory",
+        "group_name": "Accessory",
+        "name": "Mini pet",
+        "price": 500,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # body (boy + girl base shapes)
-    {"id": "avatar-body-boy",  "slot": "avatar_body", "group_name": "Body", "name": "Boy",  "price": 0, "is_default": True,  "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-body-girl", "slot": "avatar_body", "group_name": "Body", "name": "Girl", "price": 0, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-body-boy",
+        "slot": "avatar_body",
+        "group_name": "Body",
+        "name": "Boy",
+        "price": 0,
+        "is_default": True,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-body-girl",
+        "slot": "avatar_body",
+        "group_name": "Body",
+        "name": "Girl",
+        "price": 0,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # hat
-    {"id": "avatar-hat-cap",      "slot": "avatar_hat", "group_name": "Hat", "name": "Baseball cap", "price": 80,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hat-beanie",   "slot": "avatar_hat", "group_name": "Hat", "name": "Beanie",       "price": 60,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hat-wizard",   "slot": "avatar_hat", "group_name": "Hat", "name": "Wizard hat",   "price": 250, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hat-crown",    "slot": "avatar_hat", "group_name": "Hat", "name": "Party crown",  "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hat-chef",     "slot": "avatar_hat", "group_name": "Hat", "name": "Chef hat",     "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hat-graduate", "slot": "avatar_hat", "group_name": "Hat", "name": "Graduate cap", "price": 220, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-hat-cap",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Baseball cap",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hat-beanie",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Beanie",
+        "price": 60,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hat-wizard",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Wizard hat",
+        "price": 250,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hat-crown",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Party crown",
+        "price": 180,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hat-chef",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Chef hat",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hat-graduate",
+        "slot": "avatar_hat",
+        "group_name": "Hat",
+        "name": "Graduate cap",
+        "price": 220,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # glasses
-    {"id": "avatar-glasses-round",   "slot": "avatar_glasses", "group_name": "Glasses", "name": "Round glasses", "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-glasses-shades",  "slot": "avatar_glasses", "group_name": "Glasses", "name": "Sunglasses",    "price": 100, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-glasses-monocle", "slot": "avatar_glasses", "group_name": "Glasses", "name": "Monocle",       "price": 180, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-glasses-ski",     "slot": "avatar_glasses", "group_name": "Glasses", "name": "Ski goggles",   "price": 160, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-glasses-3d",      "slot": "avatar_glasses", "group_name": "Glasses", "name": "3D glasses",    "price": 90,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-glasses-round",
+        "slot": "avatar_glasses",
+        "group_name": "Glasses",
+        "name": "Round glasses",
+        "price": 120,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-glasses-shades",
+        "slot": "avatar_glasses",
+        "group_name": "Glasses",
+        "name": "Sunglasses",
+        "price": 100,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-glasses-monocle",
+        "slot": "avatar_glasses",
+        "group_name": "Glasses",
+        "name": "Monocle",
+        "price": 180,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-glasses-ski",
+        "slot": "avatar_glasses",
+        "group_name": "Glasses",
+        "name": "Ski goggles",
+        "price": 160,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-glasses-3d",
+        "slot": "avatar_glasses",
+        "group_name": "Glasses",
+        "name": "3D glasses",
+        "price": 90,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # back
-    {"id": "avatar-back-backpack", "slot": "avatar_back", "group_name": "Back", "name": "Backpack",     "price": 120, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-back-cape",     "slot": "avatar_back", "group_name": "Back", "name": "Hero cape",    "price": 350, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-back-wings",    "slot": "avatar_back", "group_name": "Back", "name": "Angel wings",  "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-back-quiver",   "slot": "avatar_back", "group_name": "Back", "name": "Arrow quiver", "price": 200, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-back-jetpack",  "slot": "avatar_back", "group_name": "Back", "name": "Jetpack",      "price": 450, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-back-backpack",
+        "slot": "avatar_back",
+        "group_name": "Back",
+        "name": "Backpack",
+        "price": 120,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-back-cape",
+        "slot": "avatar_back",
+        "group_name": "Back",
+        "name": "Hero cape",
+        "price": 350,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-back-wings",
+        "slot": "avatar_back",
+        "group_name": "Back",
+        "name": "Angel wings",
+        "price": 500,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-back-quiver",
+        "slot": "avatar_back",
+        "group_name": "Back",
+        "name": "Arrow quiver",
+        "price": 200,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-back-jetpack",
+        "slot": "avatar_back",
+        "group_name": "Back",
+        "name": "Jetpack",
+        "price": 450,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
     # hand
-    {"id": "avatar-hand-book",       "slot": "avatar_hand", "group_name": "Hand", "name": "Book",       "price": 80,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hand-pet",        "slot": "avatar_hand", "group_name": "Hand", "name": "Mini pet",   "price": 500, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hand-flower",     "slot": "avatar_hand", "group_name": "Hand", "name": "Flower",     "price": 60,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hand-balloon",    "slot": "avatar_hand", "group_name": "Hand", "name": "Balloon",    "price": 90,  "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
-    {"id": "avatar-hand-controller", "slot": "avatar_hand", "group_name": "Hand", "name": "Controller", "price": 150, "is_default": False, "swatch": None, "color_hex": None, "floor_type": None},
+    {
+        "id": "avatar-hand-book",
+        "slot": "avatar_hand",
+        "group_name": "Hand",
+        "name": "Book",
+        "price": 80,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hand-pet",
+        "slot": "avatar_hand",
+        "group_name": "Hand",
+        "name": "Mini pet",
+        "price": 500,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hand-flower",
+        "slot": "avatar_hand",
+        "group_name": "Hand",
+        "name": "Flower",
+        "price": 60,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hand-balloon",
+        "slot": "avatar_hand",
+        "group_name": "Hand",
+        "name": "Balloon",
+        "price": 90,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
+    {
+        "id": "avatar-hand-controller",
+        "slot": "avatar_hand",
+        "group_name": "Hand",
+        "name": "Controller",
+        "price": 150,
+        "is_default": False,
+        "swatch": None,
+        "color_hex": None,
+        "floor_type": None,
+    },
 ]
 
 # Slots that belong to the My Avatar feature.
@@ -536,9 +1513,7 @@ async def _ensure_defaults_equipped(db: AsyncSession, user_id: uuid.UUID) -> Non
     """First time a user opens /my-room, populate their equips with every
     is_default item. Idempotent — skips slots the user already has rows for.
     """
-    existing = await db.execute(
-        select(UserRoomEquip.slot).where(UserRoomEquip.user_id == user_id)
-    )
+    existing = await db.execute(select(UserRoomEquip.slot).where(UserRoomEquip.user_id == user_id))
     have_slots = set(existing.scalars().all())
 
     defaults = await db.execute(select(RoomItem).where(RoomItem.is_default.is_(True)))
@@ -569,9 +1544,7 @@ async def get_room_state(db: AsyncSession, user_id: uuid.UUID) -> dict:
 
     wallet = await _get_total_xp(db, user_id)
 
-    equips_result = await db.execute(
-        select(UserRoomEquip).where(UserRoomEquip.user_id == user_id)
-    )
+    equips_result = await db.execute(select(UserRoomEquip).where(UserRoomEquip.user_id == user_id))
     equipped = {
         e.slot: {
             "item_id": e.item_id,
@@ -659,9 +1632,7 @@ async def _seed_default_placed(db: AsyncSession, user_id: uuid.UUID) -> None:
     placed at its base layout position as a freeform instance. Wall/floor stay
     equips (settings); avatar parts stay equips (slots)."""
     defaults = await db.execute(
-        select(RoomItem).where(
-            RoomItem.is_default.is_(True), RoomItem.item_type == "room"
-        )
+        select(RoomItem).where(RoomItem.is_default.is_(True), RoomItem.item_type == "room")
     )
     for item in defaults.scalars().all():
         if item.slot in ROOM_SETTING_SLOTS:
@@ -670,11 +1641,7 @@ async def _seed_default_placed(db: AsyncSession, user_id: uuid.UUID) -> None:
         if base is None:
             continue
         x, y, z, rot = base
-        db.add(
-            UserRoomPlaced(
-                user_id=user_id, item_id=item.id, x=x, y=y, z=z, rot=rot, scale=1.0
-            )
-        )
+        db.add(UserRoomPlaced(user_id=user_id, item_id=item.id, x=x, y=y, z=z, rot=rot, scale=1.0))
     await db.flush()
 
 
@@ -736,15 +1703,11 @@ async def add_placed_item(
     if item is None:
         raise RoomEquipError("item_not_found", f"Unknown item '{item_id}'")
     if item.item_type != "room" or item.slot in ROOM_SETTING_SLOTS:
-        raise RoomEquipError(
-            "not_placeable", f"Item '{item_id}' cannot be placed freely"
-        )
+        raise RoomEquipError("not_placeable", f"Item '{item_id}' cannot be placed freely")
 
     xp = await _get_total_xp(db, user_id)
     if xp < item.price:
-        raise RoomEquipError(
-            "locked", f"Need {item.price} XP to use '{item_id}' (have {xp})"
-        )
+        raise RoomEquipError("locked", f"Need {item.price} XP to use '{item_id}' (have {xp})")
 
     # One copy per item: if it's already placed, return that instance (the
     # caller selects it) instead of creating a duplicate.
@@ -799,9 +1762,7 @@ async def update_placed_item(
     return placed
 
 
-async def delete_placed_item(
-    db: AsyncSession, user_id: uuid.UUID, placed_id: uuid.UUID
-) -> None:
+async def delete_placed_item(db: AsyncSession, user_id: uuid.UUID, placed_id: uuid.UUID) -> None:
     """Remove an instance the user owns (no-op if it isn't theirs)."""
     result = await db.execute(
         select(UserRoomPlaced).where(
@@ -849,9 +1810,7 @@ async def equip_room_item(
 
     xp = await _get_total_xp(db, user_id)
     if xp < item.price:
-        raise RoomEquipError(
-            "locked", f"Need {item.price} XP to equip '{item_id}' (have {xp})"
-        )
+        raise RoomEquipError("locked", f"Need {item.price} XP to equip '{item_id}' (have {xp})")
 
     return await _upsert_equip(db, user_id, slot, item_id)
 
@@ -877,9 +1836,7 @@ async def set_room_layout(
     safe_rot = int(rot) % 360
 
     existing = await db.execute(
-        select(UserRoomEquip).where(
-            UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot
-        )
+        select(UserRoomEquip).where(UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot)
     )
     equip = existing.scalar_one_or_none()
     if equip is None:
@@ -907,9 +1864,7 @@ async def _upsert_equip(
 ) -> UserRoomEquip:
     """Insert-or-update the (user_id, slot) row, preserving any existing offset."""
     existing = await db.execute(
-        select(UserRoomEquip).where(
-            UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot
-        )
+        select(UserRoomEquip).where(UserRoomEquip.user_id == user_id, UserRoomEquip.slot == slot)
     )
     equip = existing.scalar_one_or_none()
     if equip is None:

@@ -1,4 +1,5 @@
 """Tests for gamification (badges, streaks, XP, leaderboard), certificates, and skills."""
+
 import pytest
 from httpx import AsyncClient
 
@@ -35,6 +36,32 @@ async def test_my_streak(client: AsyncClient, student):
 async def test_leaderboard(client: AsyncClient, student):
     resp = await client.get("/api/v1/gamification/leaderboard", headers=auth_header(student))
     assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_leaderboard_content_and_order(client: AsyncClient, db, org, student):
+    """Leaderboard aggregates XP/streaks per student and sorts by XP desc."""
+    from app.auth.models import UserRole
+    from app.gamification.models import UserStreak
+    from tests.conftest import _make_user
+
+    rival = _make_user(db, org, UserRole.student, suffix="-rival")
+    await db.flush()
+    db.add(UserStreak(user_id=student.id, current_streak=2, longest_streak=2, total_xp=50))
+    db.add(UserStreak(user_id=rival.id, current_streak=5, longest_streak=5, total_xp=300))
+    await db.flush()
+
+    resp = await client.get("/api/v1/gamification/leaderboard", headers=auth_header(student))
+    assert resp.status_code == 200
+    rows = resp.json()
+    by_id = {row["user_id"]: row for row in rows}
+    assert str(rival.id) in by_id and str(student.id) in by_id
+    assert by_id[str(rival.id)]["total_xp"] == 300
+    assert by_id[str(student.id)]["total_xp"] == 50
+    assert by_id[str(student.id)]["current_streak"] == 2
+    # XP desc — rival before student
+    ids = [row["user_id"] for row in rows]
+    assert ids.index(str(rival.id)) < ids.index(str(student.id))
 
 
 # ─── Leagues ─────────────────────────────────────────────────────────────
@@ -75,11 +102,15 @@ async def test_list_skills(client: AsyncClient, teacher):
 
 @pytest.mark.asyncio
 async def test_create_skill(client: AsyncClient, admin):
-    resp = await client.post("/api/v1/skills", json={
-        "name": "Python",
-        "icon": "python-icon",
-        "category": "programming",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/skills",
+        json={
+            "name": "Python",
+            "icon": "python-icon",
+            "category": "programming",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code in (200, 201)
 
 
