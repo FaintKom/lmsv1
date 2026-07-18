@@ -4,6 +4,14 @@ Comprehensive test fixtures for LMS.
 Uses transaction rollback pattern: each test runs inside a DB transaction
 that is rolled back after the test, so tests don't pollute each other.
 """
+
+import os
+import tempfile
+
+# Default upload_dir is /data/uploads (prod docker volume) — unwritable on CI
+# runners. Must be set before the first `app.config` import below.
+os.environ.setdefault("UPLOAD_DIR", tempfile.mkdtemp(prefix="lms-test-uploads-"))
+
 import uuid
 from datetime import datetime, timezone
 
@@ -95,6 +103,7 @@ async def db():
             # pgvector extension required for knowledge_entries.embedding (VECTOR(1024)).
             # CI uses pgvector/pgvector:pg16; this is a no-op when already installed.
             from sqlalchemy import text as _text
+
             await conn.execute(_text("CREATE EXTENSION IF NOT EXISTS vector"))
             await conn.run_sync(Base.metadata.create_all)
             # Phase B group-centric scheduling: create_all does NOT add columns
@@ -155,9 +164,7 @@ async def client(db: AsyncSession):
         yield db
 
     fastapi_app.dependency_overrides[get_db] = _override_get_db
-    async with AsyncClient(
-        transport=ASGITransport(app=fastapi_app), base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://test") as ac:
         yield ac
     fastapi_app.dependency_overrides.clear()
 
@@ -268,6 +275,7 @@ def auth_header(user: User) -> dict[str, str]:
 # ---------------------------------------------------------------------------
 async def make_course(db: AsyncSession, org: Organization, teacher: User, **kwargs):
     from app.courses.models import Course, CourseStatus
+
     c = Course(
         org_id=org.id,
         teacher_id=teacher.id,
@@ -284,6 +292,7 @@ async def make_course(db: AsyncSession, org: Organization, teacher: User, **kwar
 
 async def make_module(db: AsyncSession, course_id: uuid.UUID, **kwargs):
     from app.courses.models import Module
+
     m = Module(
         course_id=course_id,
         title=kwargs.get("title", f"Module {uuid.uuid4().hex[:6]}"),
@@ -296,6 +305,7 @@ async def make_module(db: AsyncSession, course_id: uuid.UUID, **kwargs):
 
 async def make_lesson(db: AsyncSession, module_id: uuid.UUID, **kwargs):
     from app.courses.models import ContentType, Lesson
+
     l = Lesson(
         module_id=module_id,
         title=kwargs.get("title", f"Lesson {uuid.uuid4().hex[:6]}"),
@@ -311,6 +321,7 @@ async def make_lesson(db: AsyncSession, module_id: uuid.UUID, **kwargs):
 
 async def make_enrollment(db: AsyncSession, course_id: uuid.UUID, student_id: uuid.UUID):
     from app.progress.models import Enrollment
+
     e = Enrollment(
         course_id=course_id,
         student_id=student_id,
@@ -323,6 +334,7 @@ async def make_enrollment(db: AsyncSession, course_id: uuid.UUID, student_id: uu
 
 async def make_exercise(db: AsyncSession, lesson_id: uuid.UUID, org_id: uuid.UUID, **kwargs):
     from app.exercises.models import Exercise, ExerciseType
+
     ex = Exercise(
         lesson_id=lesson_id,
         org_id=org_id,
@@ -339,6 +351,7 @@ async def make_exercise(db: AsyncSession, lesson_id: uuid.UUID, org_id: uuid.UUI
 
 async def make_assignment(db: AsyncSession, org_id, course_id, created_by, **kwargs):
     from app.assignments.models import Assignment
+
     a = Assignment(
         org_id=org_id,
         course_id=course_id,
