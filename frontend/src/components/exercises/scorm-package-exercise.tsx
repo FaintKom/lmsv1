@@ -192,7 +192,7 @@ export function SCORMPackageRenderer({
  if (!cfg.package_id || !cfg.launch_url) return;
  let cleaned = false;
 
- const token =
+ const bearer =
  localStorage.getItem("access_token") ||
  localStorage.getItem("token") ||
  "";
@@ -200,6 +200,20 @@ export function SCORMPackageRenderer({
  const filesBase = `/api/v1/scorm-import/packages/${cfg.package_id}/files/`;
 
  async function boot() {
+ // 0. Trade the session JWT for a short-lived token scoped to this
+ //    package — that's what goes into ?token= (browser history, logs).
+ //    Fall back to the session JWT if the endpoint is unavailable.
+ let token = bearer;
+ try {
+ const r = await fetch(
+ `/api/v1/scorm-import/packages/${cfg.package_id}/launch-token`,
+ { method: "POST", headers: { Authorization: `Bearer ${bearer}` } },
+ );
+ if (r.ok) token = (await r.json()).token;
+ } catch {
+ // keep bearer fallback
+ }
+ if (cleaned) return;
  // 1. Set up scorm-again CMI bridge BEFORE the iframe loads so
  //    window.API exists when SCORM content calls LMSInitialize.
  try {
