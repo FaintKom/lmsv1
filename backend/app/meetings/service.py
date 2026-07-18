@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,7 +74,7 @@ async def end_meeting(
     if not meeting:
         raise ValueError("Meeting not found")
     meeting.is_active = False
-    meeting.ended_at = datetime.utcnow()
+    meeting.ended_at = datetime.now(timezone.utc)
     await db.commit()
     await db.refresh(meeting)
     return meeting
