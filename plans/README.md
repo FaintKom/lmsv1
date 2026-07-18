@@ -66,3 +66,28 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 - **P2/P3/P5** leaderboard N+1, translations code-split, register virtualization (M each).
 - **Direction** DIR-A (re-surface Knowledge frontend), DIR-C (SCORM export),
   DIR-D (recommendations UI). DIR-A also implies a stale CLAUDE.md note.
+
+
+## 2026-07-18/19 direct-fix round (standard audit, no-agent)
+
+Re-audit at commit `7f3df9c` after 5 weeks of feature work. Findings were
+fixed directly by the owner's agent, one PR per finding — no plan files
+written (executor == author):
+
+| Finding | PR | Result |
+|---|---|---|
+| npm high vulns (axios, next + 6 transitive) | #159 | high: 8 → 0; sentry 9→10 |
+| All 6 locales in client bundle (965KB) | #161 | per-locale code-split + cookie-banner i18n fix |
+| Leaderboard N+1 (1+3N queries) | #162 | 4 fixed queries + content test |
+| T1 phase 1: webhooks/scorm_import/submissions untested | #163 | 21 tests + CI upload_dir fix |
+| Stale CLAUDE.md (knowledge, ghost modules) | #164 | docs fixed |
+| --legacy-peer-deps dead weight | #165 | dropped everywhere, lock regenerated |
+| T1 phase 2: parent/meetings/certificates/export/sandbox | #166 | 26 tests + utcnow fix |
+| S4 SCORM JWT-in-URL (deferred) | #167 | package-scoped 30-min launch token |
+| DIR-E build-on-server (deferred) | #168 | images built in CI → GHCR; box only pulls |
+
+Still deferred (owner decision): **S6** httpOnly JWT cookie (full-stack auth
+transport change — needs design + maintenance window), **D2** async-Alembic,
+god-module splits (admin/router.py 2012 lines, admin/journal/page.tsx 2935 —
+verdict: not worth a standalone refactor; split opportunistically when
+touching those areas). knowledge tests skipped — router unmounted (dormant).
