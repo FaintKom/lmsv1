@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowRight, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
-import { LOCALES, type Locale } from "@/lib/i18n/translations";
+import { LOCALES, type Locale } from "@/lib/i18n/meta";
 
 function HeaderLocaleSwitcher() {
  const { locale, setLocale } = useTranslation();

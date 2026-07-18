@@ -57,11 +57,11 @@ export default function RootLayout({
  <ErrorBoundary>
  {children}
  </ErrorBoundary>
+ <CookieConsent />
  </ConfirmProvider>
  </I18nProvider>
  </QueryProvider>
  <Toaster />
- <CookieConsent />
  </body>
  </html>
  );

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Globe } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/context";
-import { LOCALES, type Locale } from "@/lib/i18n/translations";
+import { LOCALES, type Locale } from "@/lib/i18n/meta";
 
 export default function LocaleSwitcher() {
  const { locale, setLocale } = useTranslation();
