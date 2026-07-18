@@ -44,7 +44,6 @@ src/app/
 │   ├── certificates/
 │   ├── courses/
 │   ├── dashboard/
-│   ├── knowledge/       # knowledge module (RAG)
 │   ├── leaderboard/
 │   ├── meetings/
 │   ├── parent/
