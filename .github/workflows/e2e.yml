@@ -47,7 +47,7 @@ jobs:
       E2E_STUDENT_PASSWORD: qa-test-not-for-prod
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build & start QA stack
         run: docker compose -f docker-compose.qa.yml up -d --build --wait
