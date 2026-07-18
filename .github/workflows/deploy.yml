@@ -1,13 +1,24 @@
 name: Deploy to Hetzner
 
-# SSH-based deploy to the prod VPS at 204.168.165.41 (/opt/lms).
-# Runs ONLY on push to main, AFTER CI passes. Does:
-#   1. SSH to prod, git pull origin main
-#   2. Rebuild affected containers (backend + frontend; nginx if its
-#      config changed)
-#   3. Restart containers
-#   4. Apply alembic migrations
-#   5. Smoke-check public URL
+# Build images in CI, push to GHCR, then SSH to the prod VPS (204.168.165.41,
+# /opt/lms) which only PULLS them. Runs on push to main AFTER CI passes.
+#
+# Why build here and not on the box: the CX22 has ~3.7GB RAM shared by ~14
+# containers; an on-server `next build` OOM-thrashed the host into a 25-min
+# outage on 2026-07-17. The server must never build images again.
+#
+#   job build:  detect changed services → docker build+push to
+#               ghcr.io/faintkom/lmsv1-{backend,frontend,sandbox}
+#               (:latest + :<sha>), with GitHub Actions layer cache
+#   job deploy: git reset --hard on the box (compose/nginx configs),
+#               docker compose pull (fallback: build on server if the
+#               GHCR package is still private), up -d, migrations,
+#               nginx reload, smoke check, stamp marker
+#
+# ONE-TIME after the first run: the auto-created GHCR packages are PRIVATE
+# by default — flip lmsv1-backend / lmsv1-frontend / lmsv1-sandbox to Public
+# (github.com/FaintKom?tab=packages → package → Settings → Change visibility),
+# otherwise the server-side pull keeps falling back to on-server builds.
 #
 # Required repository secrets:
 #   PROD_SSH_PRIVATE_KEY  — ed25519 private key authorized in /root/.ssh/authorized_keys
@@ -15,9 +26,8 @@ name: Deploy to Hetzner
 #   PROD_SSH_USER         — root
 #   PROD_SSH_KNOWN_HOSTS  — output of `ssh-keyscan -t ed25519 204.168.165.41`
 #
-# Manual rollback: `gh workflow run deploy.yml -f sha=<previous-good-sha>`
-# or SSH and run `cd /opt/lms && git reset --hard <sha> && docker compose
-# -f docker-compose.prod.yml build backend frontend && docker compose ... up -d`.
+# Manual rollback: `gh workflow run deploy.yml -f sha=<previous-good-sha>` —
+# rebuilds/pushes that sha's images and redeploys them.
 
 on:
   workflow_run:
@@ -35,28 +45,33 @@ concurrency:
   group: deploy-prod
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_PREFIX: ghcr.io/faintkom/lmsv1
+
 jobs:
-  deploy:
-    name: Deploy to prod
+  build:
+    name: Build images in CI
     runs-on: ubuntu-latest
-    # Only run after CI succeeded (workflow_run trigger), or on manual dispatch.
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    outputs:
+      target: ${{ steps.sha.outputs.target }}
+      rebuild_backend: ${{ steps.changes.outputs.rebuild_backend }}
+      rebuild_frontend: ${{ steps.changes.outputs.rebuild_frontend }}
+      rebuild_sandbox: ${{ steps.changes.outputs.rebuild_sandbox }}
+      reload_nginx: ${{ steps.changes.outputs.reload_nginx }}
+      run_migrations: ${{ steps.changes.outputs.run_migrations }}
 
     steps:
-      - name: Checkout (for diff detection)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          echo "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
+          fetch-depth: 0
 
       - name: Determine target SHA
         id: sha
@@ -64,13 +79,16 @@ jobs:
           if [ -n "${{ github.event.inputs.sha }}" ]; then
             echo "target=${{ github.event.inputs.sha }}" >> $GITHUB_OUTPUT
           else
-            echo "target=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+            echo "target=$(git rev-parse origin/main)" >> $GITHUB_OUTPUT
           fi
+
+      - name: Checkout target SHA
+        run: git checkout --detach "${{ steps.sha.outputs.target }}"
 
       - name: Detect changed services
         id: changes
         run: |
-          # Compare HEAD against the previous deploy marker. If marker
+          # Compare target against the previous deploy marker. If marker
           # missing (first run), assume everything changed.
           PREV_FILE=".github/.last-deployed-sha"
           if git cat-file -e "origin/main:${PREV_FILE}" 2>/dev/null; then
@@ -79,21 +97,21 @@ jobs:
             PREV_SHA=""
           fi
           TARGET="${{ steps.sha.outputs.target }}"
-          if [ -z "$PREV_SHA" ] || [ "$PREV_SHA" = "$TARGET" ]; then
+          if [ -z "$PREV_SHA" ] || [ "$PREV_SHA" = "$TARGET" ] || ! git cat-file -e "$PREV_SHA" 2>/dev/null; then
             CHANGED_FILES=""
             FORCE=true
           else
             CHANGED_FILES=$(git diff --name-only "$PREV_SHA" "$TARGET" || true)
             FORCE=false
           fi
-          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
           if $FORCE || echo "$CHANGED_FILES" | grep -qE '^backend/'; then
             echo "rebuild_backend=true" >> $GITHUB_OUTPUT
           fi
           if $FORCE || echo "$CHANGED_FILES" | grep -qE '^frontend/'; then
             echo "rebuild_frontend=true" >> $GITHUB_OUTPUT
+          fi
+          if $FORCE || echo "$CHANGED_FILES" | grep -qE '^sandbox/'; then
+            echo "rebuild_sandbox=true" >> $GITHUB_OUTPUT
           fi
           if $FORCE || echo "$CHANGED_FILES" | grep -qE '^nginx/'; then
             echo "reload_nginx=true" >> $GITHUB_OUTPUT
@@ -102,30 +120,106 @@ jobs:
             echo "run_migrations=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push backend
+        if: steps.changes.outputs.rebuild_backend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-backend:latest
+            ${{ env.IMAGE_PREFIX }}-backend:${{ steps.sha.outputs.target }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+
+      - name: Build & push frontend
+        if: steps.changes.outputs.rebuild_frontend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-frontend:latest
+            ${{ env.IMAGE_PREFIX }}-frontend:${{ steps.sha.outputs.target }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
+
+      - name: Build & push sandbox
+        if: steps.changes.outputs.rebuild_sandbox == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: sandbox
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-sandbox:latest
+            ${{ env.IMAGE_PREFIX }}-sandbox:${{ steps.sha.outputs.target }}
+          cache-from: type=gha,scope=sandbox
+          cache-to: type=gha,scope=sandbox,mode=max
+
+  deploy:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "${{ secrets.PROD_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Pull latest on prod
         run: |
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
               "cd /opt/lms && \
                git fetch origin main && \
-               git reset --hard ${{ steps.sha.outputs.target }} && \
+               git reset --hard ${{ needs.build.outputs.target }} && \
                git log --oneline -1"
 
-      - name: Rebuild backend
-        if: steps.changes.outputs.rebuild_backend == 'true'
+      - name: Pull backend image
+        if: needs.build.outputs.rebuild_backend == 'true'
         run: |
+          # Fallback to an on-server build ONLY while the GHCR package is
+          # still private (one-time, until visibility is flipped to public).
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
               "cd /opt/lms && \
-               docker compose -f docker-compose.prod.yml build backend"
+               (docker compose -f docker-compose.prod.yml pull backend || \
+                (echo 'GHCR pull failed — building on server (flip package to Public!)' && \
+                 docker compose -f docker-compose.prod.yml build backend))"
 
-      - name: Rebuild frontend
-        if: steps.changes.outputs.rebuild_frontend == 'true'
+      - name: Pull frontend image
+        if: needs.build.outputs.rebuild_frontend == 'true'
         run: |
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
               "cd /opt/lms && \
-               docker compose -f docker-compose.prod.yml build frontend"
+               (docker compose -f docker-compose.prod.yml pull frontend || \
+                (echo 'GHCR pull failed — building on server (flip package to Public!)' && \
+                 docker compose -f docker-compose.prod.yml build frontend))"
+
+      - name: Pull sandbox image
+        if: needs.build.outputs.rebuild_sandbox == 'true'
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "cd /opt/lms && \
+               (docker compose -f docker-compose.prod.yml pull sandbox || \
+                (echo 'GHCR pull failed — building on server (flip package to Public!)' && \
+                 docker compose -f docker-compose.prod.yml build sandbox))"
 
       - name: Bring services up
         run: |
@@ -135,7 +229,7 @@ jobs:
                docker compose -f docker-compose.prod.yml up -d"
 
       - name: Apply migrations
-        if: steps.changes.outputs.run_migrations == 'true'
+        if: needs.build.outputs.run_migrations == 'true'
         run: |
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
@@ -144,7 +238,7 @@ jobs:
                docker compose -f docker-compose.prod.yml exec -T -w /app backend python -m alembic upgrade head"
 
       - name: Reload nginx
-        if: steps.changes.outputs.reload_nginx == 'true'
+        if: needs.build.outputs.reload_nginx == 'true'
         run: |
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
@@ -174,4 +268,4 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 \
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
               "cd /opt/lms && \
-               echo '${{ steps.sha.outputs.target }}' > .github/.last-deployed-sha"
+               echo '${{ needs.build.outputs.target }}' > .github/.last-deployed-sha"

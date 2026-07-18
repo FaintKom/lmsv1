@@ -56,10 +56,12 @@ Coolify is outdated; ignore or delete it.
 **Merging to `main` deploys to production. Automatically. Within minutes.**
 
 There is no manual step and no human review between the merge and prod. Merge to
-`main` → CI runs → on CI success `.github/workflows/deploy.yml` SSHes into the
-server, `git reset --hard`, rebuilds changed images, `up -d`, runs migrations,
-smoke-checks `/login`. **Read that workflow before you merge anything** — all 178
-lines. It is the most consequential file in this repo.
+`main` → CI runs → on CI success `.github/workflows/deploy.yml` **builds changed
+images in CI, pushes them to GHCR** (`ghcr.io/faintkom/lmsv1-*`), then SSHes into
+the server, `git reset --hard`, `docker compose pull`, `up -d`, runs migrations,
+smoke-checks `/login`. **Read that workflow before you merge anything.** It is the
+most consequential file in this repo. (Since 2026-07-19 the box only pulls; an
+on-server build remains solely as a transitional fallback if the GHCR pull fails.)
 
 **⚠️ Claude MUST NOT hand-deploy via SSH.** No `cat | ssh`, no `scp`, no direct file
 copy of code. Code reaches prod exactly one way: PR → CI green → merge. (Config-only
@@ -86,11 +88,9 @@ full `next build` there.
 
 On 2026-07-17 an unbounded `next build` exhausted RAM. Because swap exists the kernel
 never OOM-killed it — it thrashed, and prod stopped answering SSH and HTTPS for ~25
-minutes until a hard reset. Mitigated by capping the build heap
-(`frontend/Dockerfile`: `NODE_OPTIONS=--max-old-space-size=1536`), so the build dies
-instead of the host. **Root cause stands: the server should not build images.** The
-fix is to build in CI and have the box only `docker pull` — not done; needs a
-registry decision from the owner.
+minutes until a hard reset. **Fixed 2026-07-19: images are built in CI and pushed to
+GHCR; the box only pulls.** The heap cap (`NODE_OPTIONS=--max-old-space-size=1536`)
+stays as belt-and-braces for the transitional on-server fallback build.
 
 **Never state this box's specs from memory. Measure them:**
 `ssh root@204.168.165.41 "free -h; swapon --show; nproc; df -h /"` — read-only, one

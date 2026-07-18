@@ -10,11 +10,10 @@ ENV NEXT_PUBLIC_API_URL=""
 
 COPY . .
 
-# Bound the build heap. This image is built ON the 4GB prod box next to the
-# running stack, so an unbounded `next build` swaps the whole host into
-# unresponsiveness instead of failing (incident 2026-07-17). Bounded, Node
-# dies alone and the deploy fails loudly with the host intact.
-# Remove once images are built in CI and the server only pulls them.
+# Bound the build heap. Images are built in CI since 2026-07-19, but the
+# deploy keeps a transitional on-server build fallback (and the 2026-07-17
+# OOM-thrash incident proved an unbounded `next build` can take the host
+# down) — keep the cap so any build, wherever it runs, dies alone.
 ENV NODE_OPTIONS=--max-old-space-size=1536
 RUN npm run build
 
