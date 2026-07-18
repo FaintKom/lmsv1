@@ -96,7 +96,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       # ESLint is non-blocking until a dedicated cleanup pass — there are
       # ~145 existing-code problems (React compiler hints, legacy `any`
