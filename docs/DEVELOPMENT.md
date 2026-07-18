@@ -37,7 +37,7 @@ uvicorn app.main:app --reload
 
 # 5. Frontend (в новом терминале)
 cd frontend
-npm install --legacy-peer-deps   # ОБЯЗАТЕЛЬНО (Sentry 9 vs React 19)
+npm install
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 npm run dev
 # → фронт на http://localhost:3000
@@ -163,8 +163,8 @@ CI бежит на PR. Подробности — `docs/TESTING.md`.
 ## Troubleshooting
 
 ### `npm install` падает с peer dep error
-Забыл `--legacy-peer-deps`. Это из-за `@sentry/nextjs@9` vs React 19.
-См. `tasks/lessons.md`.
+Исторический раздел: до 2026-07-18 требовался `--legacy-peer-deps`
+(`@sentry/nextjs@9` vs next 16). После апгрейда sentry на v10 — не нужен.
 
 ### Backend стартует, но `/health` показывает `ready: false`
 Скорее всего `_run_setup` упал. Смотри логи — типичные причины:

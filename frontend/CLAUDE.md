@@ -143,8 +143,7 @@ TanStack Query хуков.
 
 ```bash
 cd frontend
-npm install    # с @sentry/nextjs@10 (2026-07-18) peer-конфликтов нет;
-               # CI/Dockerfile всё ещё используют --legacy-peer-deps (follow-up: снять)
+npm install    # peer-конфликтов нет с @sentry/nextjs@10 (2026-07-18)
 cp .env.local.example .env.local  # если есть; иначе создать руками
 npm run dev                        # http://localhost:3000
 ```
@@ -162,9 +161,8 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 - `instrumentation-client.ts` — browser
 - Полный no-op без DSN. С DSN — автокаптура ошибок, source maps в build'е.
 
-При апгрейде на `@sentry/nextjs@10` проверить, поддержан ли React 19 —
-тогда можно убрать `--legacy-peer-deps` (сейчас он только из-за этой
-peer-dep'ы).
+Апгрейд на `@sentry/nextjs@10` сделан 2026-07-18 — `--legacy-peer-deps`
+больше не нужен нигде (CI, Dockerfile, локально).
 
 ## Build / production
 
@@ -172,7 +170,7 @@ peer-dep'ы).
 - `npm start` — production server (используется в Docker-контейнере)
 - ESLint: `npm run lint` (не блокирует CI пока что — см. todo)
 
-В Dockerfile: `npm ci --legacy-peer-deps && npm run build`.
+В Dockerfile: `npm ci && npm run build`.
 
 ## Смежные документы
 
