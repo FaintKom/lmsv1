@@ -88,7 +88,7 @@
     "jsdom": "^25.0.0",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
-    "typescript": "^5",
+    "typescript": "^7",
     "vitest": "^3.0.0"
   },
   "overrides": {
