@@ -1,29 +1,51 @@
 import asyncio
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+# Import all models so Alembic can detect them — keep in sync with
+# tests/conftest.py. A module missing here is INVISIBLE to autogenerate
+# (its FKs also break `alembic check` with NoReferencedTableError).
+import app.admin.models  # noqa: F401
+import app.analytics.models  # noqa: F401
+import app.assessments.models  # noqa: F401
+import app.assignments.models  # noqa: F401
+import app.attendance.models  # noqa: F401
+import app.auth.models  # noqa: F401
+import app.billing.models  # noqa: F401
+import app.calendar.models  # noqa: F401
+import app.certificates.models  # noqa: F401
+import app.courses.models  # noqa: F401
+import app.curriculum.models  # noqa: F401
+import app.donations.models  # noqa: F401
+import app.exercises.models  # noqa: F401
+import app.feedback.models  # noqa: F401
+import app.gamification.models  # noqa: F401
+import app.integrations.models  # noqa: F401
+import app.journal.models  # noqa: F401
+import app.knowledge.models  # noqa: F401
+import app.learning_paths.models  # noqa: F401
+import app.meetings.models  # noqa: F401
+import app.metered_billing.models  # noqa: F401
+import app.notifications.models  # noqa: F401
+import app.peer_review.models  # noqa: F401
+import app.progress.models  # noqa: F401
+import app.recording.models  # noqa: F401
+import app.rooms.models  # noqa: F401
+import app.sandbox.models  # noqa: F401
+import app.schedule.models  # noqa: F401
+import app.scorm.models  # noqa: F401
+import app.scorm_import.models  # noqa: F401
+import app.sites.models  # noqa: F401
+import app.skills.models  # noqa: F401
+import app.submissions.models  # noqa: F401
+import app.team_projects.models  # noqa: F401
+import app.waitlist.models  # noqa: F401
+import app.webhooks.models  # noqa: F401
+from alembic import context
 from app.config import settings
 from app.db.base import Base
-
-# Import all models so Alembic can detect them
-from app.auth.models import *  # noqa: F401, F403
-from app.courses.models import *  # noqa: F401, F403
-from app.assessments.models import *  # noqa: F401, F403
-from app.progress.models import *  # noqa: F401, F403
-from app.billing.models import *  # noqa: F401, F403
-from app.sandbox.models import *  # noqa: F401, F403
-from app.admin.models import *  # noqa: F401, F403
-from app.assignments.models import *  # noqa: F401, F403
-from app.learning_paths.models import *  # noqa: F401, F403
-from app.notifications.models import *  # noqa: F401, F403
-from app.calendar.models import *  # noqa: F401, F403
-from app.meetings.models import *  # noqa: F401, F403
-from app.skills.models import *  # noqa: F401, F403
-from app.exercises.models import *  # noqa: F401, F403
-from app.knowledge.models import *  # noqa: F401, F403
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.get_database_url())

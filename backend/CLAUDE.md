@@ -46,11 +46,13 @@ webhooks.
   (используем `httpx.AsyncClient`).
 - **Сессия БД** — `AsyncSession`, инжектится через `Depends(get_db)`.
   `get_db` коммитит на успехе, откатывает на исключении ([db/session.py:16](app/db/session.py)).
-- **Никогда не вызывай sync-Alembic из lifespan** —
-  `command.upgrade()` запускает asyncio.run внутри уже-работающего loop'а
-  и падает. Изменения схемы делаются через миграции вручную (см. ниже),
-  плюс fallback `Base.metadata.create_all` + `ALTER TABLE IF NOT EXISTS` в
-  `_run_setup` ([main.py:88](app/main.py)). Это техдолг — см. P1 follow-up.
+- **Alembic в lifespan** (D2, 2026-07-19): `_run_setup` гоняет
+  `alembic upgrade head` через `asyncio.to_thread` (в worker-треде нет
+  running loop — asyncio.run внутри env.py легален). Пустая БД:
+  `create_all` из моделей + `alembic stamp head` (цепочка миграций не
+  реплеится с нуля — она родилась поверх create_all-базы). Fallback-слоя
+  `ALTER TABLE IF NOT EXISTS` больше НЕТ: **любое изменение схемы — только
+  миграцией**, иначе оно не доедет до прода.
 
 ## Модели
 
@@ -141,9 +143,9 @@ cd backend && alembic downgrade -1
 ⚠️ **Не редактируй уже отгруженную на прод миграцию** — пометки stamped в DB
 не совпадут. Создай новую.
 
-⚠️ **`op.execute(...)` должен быть rerun-safe** (`IF NOT EXISTS`,
-`ON CONFLICT`), потому что `_run_setup` в `main.py` дублирует часть
-ALTER-ов как fallback и они выполняются на каждом старте.
+⚠️ **Новый модуль с моделями?** Добавь `import app.<mod>.models` в ТРИ
+места: `main.py` (lifespan), `tests/conftest.py`, `alembic/env.py` — иначе
+autogenerate его не видит (knowledge/integrations были невидимы до 2026-07-19).
 
 Подробнее: [`docs/MIGRATIONS.md`](../docs/MIGRATIONS.md).
 
@@ -173,8 +175,8 @@ ALTER-ов как fallback и они выполняются на каждом с
    a. `validate_production()` — fail-fast на небезопасных дефолтах
    b. Импорт всех моделей (для `Base.metadata`)
    c. DB-коннект с retry (3 попытки)
-   d. `_run_setup()` — `Base.metadata.create_all` + ALTER'ы +
-      super-admin bootstrap + plan seeding
+   d. `_run_setup()` — alembic upgrade head (или create_all+stamp на
+      пустой БД) + super-admin bootstrap + plan seeding + data-backfills
    e. APScheduler start (jobs из `scheduler.py`)
 5. `yield` — приложение принимает запросы
 6. shutdown: stop scheduler, dispose engine

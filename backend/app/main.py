@@ -86,18 +86,56 @@ logger = logging.getLogger(__name__)
 
 class StartupState:
     """Tracks whether background DB setup has completed."""
+
     def __init__(self):
         self.ready = False
         self.error: str | None = None
 
+
 startup_state = StartupState()
 
 
+def _alembic(action: str) -> None:
+    """Run an alembic command against this app's DB.
+
+    Called via asyncio.to_thread: alembic's async env.py uses asyncio.run(),
+    which is illegal inside the running lifespan loop but fine in a worker
+    thread (that thread has no loop). URL comes from settings inside env.py.
+    """
+    from pathlib import Path
+
+    from alembic.config import Config
+
+    from alembic import command
+
+    backend_root = Path(__file__).resolve().parent.parent
+    cfg = Config(str(backend_root / "alembic.ini"))
+    cfg.set_main_option("script_location", str(backend_root / "alembic"))
+    if action == "upgrade":
+        command.upgrade(cfg, "head")
+    elif action == "stamp":
+        command.stamp(cfg, "head")
+    else:  # pragma: no cover
+        raise ValueError(action)
+
+
 async def _run_setup():
-    """Blocking DB setup that runs during lifespan startup BEFORE the app
-    accepts any requests. Creates tables, adds missing columns, seeds default
-    plans, and bootstraps the super admin if configured. Raises on failure in
-    production so the container exits and the orchestrator restarts it.
+    """Blocking DB setup during lifespan startup, BEFORE the app accepts
+    requests. Schema comes from Alembic (D2, 2026-07-19):
+
+    - fresh database (no alembic_version): ``Base.metadata.create_all`` from
+      the models (which ARE the head schema) + ``alembic stamp head``. The
+      migration chain predates several create_all-born tables and cannot
+      replay from zero — stamping a model-built schema is the supported
+      bootstrap.
+    - existing database: ``alembic upgrade head`` — the ONLY way schema
+      changes reach a live deployment. The old create_all + ALTER-IF-NOT-
+      EXISTS fallback layer is gone; new columns/tables/enums MUST ship as
+      migrations.
+
+    Data bootstraps (super admin, billing plans, membership/group backfills)
+    still run afterwards. Raises on failure in production so the container
+    exits and the orchestrator restarts it.
     """
     try:
         from sqlalchemy import text as sa_text
@@ -107,161 +145,42 @@ async def _run_setup():
 
         t0 = time.monotonic()
 
-        # Add new enum values to PostgreSQL (each ADD VALUE needs its own transaction)
-        for enum_type, val in [
-            ("contenttype", "file_upload"),
-            ("contenttype", "interactive"),
-            ("userrole", "super_admin"),
-            ("userrole", "parent"),
-            ("exercisetype", "quiz"),
-            ("exercisetype", "code_challenge"),
-            ("exercisetype", "matching"),
-            ("exercisetype", "ordering"),
-            ("exercisetype", "fill_blanks"),
-            ("exercisetype", "true_false"),
-            ("exercisetype", "categorize"),
-            ("exercisetype", "file_upload"),
-        ]:
-            try:
-                async with engine.connect() as conn:
-                    await conn.execute(sa_text(
-                        f"ALTER TYPE {enum_type} ADD VALUE IF NOT EXISTS '{val}'"
-                    ))
-                    await conn.commit()
-            except Exception:
-                pass
+        async with engine.connect() as conn:
+            stamped = (
+                await conn.execute(sa_text("SELECT to_regclass('public.alembic_version')"))
+            ).scalar() is not None
 
-        # Create/verify all tables
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info(f"Tables created/verified in {time.monotonic() - t0:.1f}s")
+        if stamped:
+            await asyncio.to_thread(_alembic, "upgrade")
+            logger.info(f"Alembic upgrade head done in {time.monotonic() - t0:.1f}s")
+        else:
+            async with engine.begin() as conn:
+                # knowledge tables need pgvector's `vector` type at create time.
+                await conn.execute(sa_text("CREATE EXTENSION IF NOT EXISTS vector"))
+                await conn.run_sync(Base.metadata.create_all)
+            await asyncio.to_thread(_alembic, "stamp")
+            logger.info(
+                f"Fresh DB: created from models + stamped head in {time.monotonic() - t0:.1f}s"
+            )
 
-        # Add missing columns to existing tables (create_all doesn't alter tables)
-        alter_statements = [
-            "ALTER TABLE user_streaks ADD COLUMN IF NOT EXISTS total_xp INTEGER DEFAULT 0",
-            "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS progress_percent NUMERIC DEFAULT 0",
-            # Remove duplicate plans before adding unique constraint
-            """DELETE FROM plans WHERE id NOT IN (
-                SELECT DISTINCT ON (name) id FROM plans ORDER BY name, created_at ASC NULLS LAST, id ASC
-            )""",
-            "ALTER TABLE plans DROP CONSTRAINT IF EXISTS uq_plans_name",
-            "ALTER TABLE plans ADD CONSTRAINT uq_plans_name UNIQUE (name)",
-            # Methodist & template courses
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_methodist BOOLEAN DEFAULT FALSE",
-            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE",
-            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS source_course_id UUID REFERENCES courses(id) ON DELETE SET NULL",
-            "ALTER TABLE courses ADD COLUMN IF NOT EXISTS template_version INTEGER DEFAULT 1",
-            # P0-6: email verification
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP WITH TIME ZONE",
-            # Child safety: school-mediated parental consent + retention tracking
-            # (migration c1d2e3f4a5b6). Mirrored here as boot-time fallback.
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_at TIMESTAMP WITH TIME ZONE",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS parental_consent_by UUID",
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP WITH TIME ZONE",
-            # Age gate + verifiable parental consent (migration x1y2z3a4b5c6).
-            # date_of_birth is NULL for existing rows (treated as adult/unknown,
-            # never locked out). The parent_consent_tokens table itself is created
-            # by Base.metadata.create_all from the model import below.
-            "ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth DATE",
-            # Phase 1 task statistics for methodists: per-attempt time-on-task +
-            # attempt number on exercise submissions (migration e3f4a5b6c7d8).
-            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
-            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
-            "ALTER TABLE exercise_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
-            # Phase 2 task statistics: same time-on-task columns on quiz +
-            # assignment submissions, plus (task_id, student_id) indexes powering
-            # the task-stats aggregates (migration f4a5b6c7d8e9).
-            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
-            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
-            "ALTER TABLE quiz_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
-            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE",
-            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS time_spent_seconds INTEGER",
-            "ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS attempt_number INTEGER",
-            "CREATE INDEX IF NOT EXISTS ix_quiz_submissions_quiz_student ON quiz_submissions (quiz_id, student_id)",
-            "CREATE INDEX IF NOT EXISTS ix_assignment_submissions_assignment_student ON assignment_submissions (assignment_id, student_id)",
-            # Optional Jitsi online slot (migration a7b8c9d0e1f2). create_all does
-            # NOT add columns to an existing table, so prod relies on this fallback.
-            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS is_online boolean NOT NULL DEFAULT false",
-            # Managed rooms + slot↔room link (migration f1a2b3c4d5e6). The rooms
-            # table itself is created by Base.metadata.create_all from the model
-            # import; create_all does NOT add columns to the existing
-            # schedule_slots table, so the room_id link relies on this fallback.
-            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
-            # Phase E1: sites (branches) + offline/online rooms (migration
-            # s1te5e1f2a3). The ``sites`` table is created by create_all from
-            # the model import; the additive ``rooms`` columns are NOT, so they
-            # rely on this fallback. site_id FK is ON DELETE SET NULL.
-            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS kind varchar(16) NOT NULL DEFAULT 'offline'",
-            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS meeting_url varchar(500)",
-            "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS site_id uuid REFERENCES sites(id) ON DELETE SET NULL",
-            # Phase B group-centric scheduling (migration g1h2i3j4k5l6).
-            # Extend StudentGroup into the design's scheduling group + link
-            # schedule_slots / class_sessions to a group. All additive + nullable;
-            # create_all does NOT add columns to the existing tables, so prod
-            # relies on these fallbacks.
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS course_id uuid REFERENCES courses(id) ON DELETE SET NULL",
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS teacher_id uuid REFERENCES users(id) ON DELETE SET NULL",
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS default_room_id uuid REFERENCES rooms(id) ON DELETE SET NULL",
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS status varchar(20) NOT NULL DEFAULT 'active'",
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS start_date date",
-            "ALTER TABLE student_groups ADD COLUMN IF NOT EXISTS end_date date",
-            "ALTER TABLE schedule_slots ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
-            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES student_groups(id) ON DELETE SET NULL",
-            "CREATE INDEX IF NOT EXISTS ix_student_groups_course ON student_groups (course_id)",
-            "CREATE INDEX IF NOT EXISTS ix_schedule_slots_group ON schedule_slots (group_id)",
-            "CREATE INDEX IF NOT EXISTS ix_class_sessions_group_id ON class_sessions (group_id)",
-            # Phase C curriculum scope & sequence + session topic links
-            # (migration cur1c0lum01). The curriculum_topics table itself is
-            # created by Base.metadata.create_all from the model import; these
-            # ALTERs add the two class_sessions FKs (create_all never alters
-            # existing tables). All additive + nullable, ON DELETE SET NULL.
-            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS actual_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
-            "ALTER TABLE class_sessions ADD COLUMN IF NOT EXISTS planned_topic_id uuid REFERENCES curriculum_topics(id) ON DELETE SET NULL",
-            "CREATE INDEX IF NOT EXISTS ix_class_sessions_actual_topic_id ON class_sessions (actual_topic_id)",
-            # P2-11: backfill organization_memberships for existing users
-            # who predate the multi-org feature. One row per user mirroring
-            # their primary org + role. Safe to re-run (ON CONFLICT DO NOTHING).
-            """INSERT INTO organization_memberships (id, user_id, org_id, role, created_at, updated_at)
-               SELECT gen_random_uuid(), u.id, u.org_id, u.role, NOW(), NOW()
-               FROM users u
-               WHERE NOT EXISTS (
-                   SELECT 1 FROM organization_memberships m
-                   WHERE m.user_id = u.id AND m.org_id = u.org_id
-               )""",
-        ]
-        for stmt in alter_statements:
-            try:
-                async with engine.connect() as conn:
-                    await conn.execute(sa_text(stmt))
-                    await conn.commit()
-            except Exception:
-                pass
-
-        # Add new enum values (must run outside transaction)
-        enum_additions = [
-            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'robot_2d'",
-            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'math_interactive'",
-            "ALTER TYPE exercisetype ADD VALUE IF NOT EXISTS 'world_3d'",
-            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'robot_2d'",
-            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'math_interactive'",
-            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'world_3d'",
-            "ALTER TYPE contenttype ADD VALUE IF NOT EXISTS 'theory'",
-        ]
-        for stmt in enum_additions:
-            try:
-                async with engine.connect() as conn:
-                    await conn.execution_options(isolation_level="AUTOCOMMIT")
-                    await conn.execute(sa_text(stmt))
-            except Exception:
-                pass
-
-        # Alembic migrations are NOT run here — the sync `command.upgrade`
-        # path cannot be called from inside an already-running event loop
-        # (asyncio.run() inside asyncio loop is disallowed and logs the
-        # 'coroutine was never awaited' warning we were seeing). Schema
-        # additions go through Base.metadata.create_all above plus the
-        # ALTER TABLE IF NOT EXISTS statements below. Real alembic migration
-        # via async engine is a P1 follow-up.
+        # ── Data backfills (idempotent, schema-free) ────────────────────
+        # P2-11: one organization_membership per pre-multi-org user.
+        try:
+            async with engine.connect() as conn:
+                await conn.execute(
+                    sa_text(
+                        """INSERT INTO organization_memberships (id, user_id, org_id, role, created_at, updated_at)
+                       SELECT gen_random_uuid(), u.id, u.org_id, u.role, NOW(), NOW()
+                       FROM users u
+                       WHERE NOT EXISTS (
+                           SELECT 1 FROM organization_memberships m
+                           WHERE m.user_id = u.id AND m.org_id = u.org_id
+                       )"""
+                    )
+                )
+                await conn.commit()
+        except Exception as e:
+            logger.debug(f"membership backfill: {e}")
 
         # Ensure super_admin user exists (only if credentials are configured via env)
         sa_email = (settings.super_admin_email or "").strip().lower()
@@ -286,9 +205,7 @@ async def _run_setup():
                 from app.db.session import async_session_factory
 
                 async with async_session_factory() as session:
-                    result = await session.execute(
-                        select(User).where(User.email == sa_email)
-                    )
+                    result = await session.execute(select(User).where(User.email == sa_email))
                     sa_user = result.scalar_one_or_none()
                     if not sa_user:
                         # Create system org
@@ -322,6 +239,7 @@ async def _run_setup():
         try:
             from app.billing.service import seed_default_plans
             from app.db.session import async_session_factory
+
             async with async_session_factory() as session:
                 await seed_default_plans(session)
                 await session.commit()
@@ -337,6 +255,7 @@ async def _run_setup():
         try:
             from app.db.session import async_session_factory
             from app.journal.service import backfill_groups
+
             async with async_session_factory() as session:
                 counters = await backfill_groups(session)
                 await session.commit()
@@ -395,6 +314,8 @@ async def lifespan(app: FastAPI):
     import app.webhooks.models  # noqa
     import app.attendance.models  # noqa
     import app.journal.models  # noqa
+    import app.knowledge.models  # noqa
+    import app.integrations.models  # noqa
     import app.curriculum.models  # noqa
     import app.sites.models  # noqa
     import app.rooms.models  # noqa
@@ -451,6 +372,7 @@ async def lifespan(app: FastAPI):
     # Phase 3: Start the in-process cron scheduler (APScheduler).
     # Only after DB setup is done, so jobs that need DB can run safely.
     from app.scheduler import start_scheduler, stop_scheduler
+
     if db_ready:
         try:
             start_scheduler()
@@ -489,7 +411,9 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
-        logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}")
+        logger.error(
+            f"Unhandled error on {request.method} {request.url.path}: {exc}\n{traceback.format_exc()}"
+        )
         # Never echo the exception text to the client — it can leak SQL
         # fragments, file paths, or internal detail. Full traceback stays in
         # the server log (and Sentry) above.
@@ -555,13 +479,17 @@ def create_app() -> FastAPI:
     app.include_router(certificates_router, prefix="/api/v1/certificates", tags=["Certificates"])
     app.include_router(math_problems_router, prefix="/api/v1/math-problems", tags=["Math Problems"])
     app.include_router(assignments_router, prefix="/api/v1/assignments", tags=["Assignments"])
-    app.include_router(learning_paths_router, prefix="/api/v1/learning-paths", tags=["Learning Paths"])
+    app.include_router(
+        learning_paths_router, prefix="/api/v1/learning-paths", tags=["Learning Paths"]
+    )
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
     app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
-    app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"])
+    app.include_router(
+        recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"]
+    )
     app.include_router(exercises_router, prefix="/api/v1/exercises", tags=["Exercises"])
     app.include_router(waitlist_router, prefix="/api/v1", tags=["Waitlist"])
     app.include_router(webhooks_router, prefix="/api/v1", tags=["Webhooks"])
@@ -573,7 +501,9 @@ def create_app() -> FastAPI:
     app.include_router(sites_router, prefix="/api/v1/sites", tags=["Sites"])
     app.include_router(scorm_router, prefix="/api/v1/admin/scorm", tags=["SCORM"])
     app.include_router(scorm_import_router, prefix="/api/v1/scorm-import", tags=["SCORM Import"])
-    app.include_router(math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"])
+    app.include_router(
+        math_validation_router, prefix="/api/v1/math-validation", tags=["Math Validation"]
+    )
     app.include_router(export_router, prefix="/api/v1/courses", tags=["Course Export"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
@@ -590,6 +520,7 @@ def create_app() -> FastAPI:
         """
         try:
             from app.scheduler import _scheduler
+
             scheduler_running = bool(_scheduler and _scheduler.running)
             scheduler_jobs = len(_scheduler.get_jobs()) if scheduler_running else 0
         except Exception:
@@ -631,6 +562,7 @@ def create_app() -> FastAPI:
             from sqlalchemy import text as sa_text
 
             from app.db.session import engine
+
             t0 = time.monotonic()
             async with engine.connect() as conn:
                 await conn.execute(sa_text("SELECT 1"))
@@ -652,6 +584,7 @@ def create_app() -> FastAPI:
         if redis_required:
             try:
                 import redis.asyncio as aioredis
+
                 t0 = time.monotonic()
                 r = aioredis.from_url(settings.redis_url, socket_timeout=2)
                 await r.ping()
@@ -667,6 +600,7 @@ def create_app() -> FastAPI:
         sched_check = {"name": "scheduler", "required": True, "ok": False}
         try:
             from app.scheduler import _scheduler
+
             if _scheduler and _scheduler.running:
                 sched_check["ok"] = True
                 sched_check["jobs"] = len(_scheduler.get_jobs())
