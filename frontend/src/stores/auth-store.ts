@@ -66,9 +66,10 @@ export const useAuthStore = create<AuthState>((set) => ({
  isAuthenticated: false,
 
  login: async (email, password) => {
+ // Session tokens arrive as httpOnly cookies set by the server —
+ // nothing is stored in localStorage (XSS cannot steal what JS
+ // cannot read).
  const { data } = await apiClient.post("/auth/login/", { email, password });
- localStorage.setItem("access_token", data.access_token);
- localStorage.setItem("refresh_token", data.refresh_token);
  const branding = data.user?.org_branding || DEFAULT_BRANDING;
  set({ user: data.user, branding, isAuthenticated: true, isLoading: false });
  },
@@ -83,14 +84,16 @@ export const useAuthStore = create<AuthState>((set) => ({
  parent_email: data.parent_email,
  };
  }
- localStorage.setItem("access_token", data.access_token);
- localStorage.setItem("refresh_token", data.refresh_token);
  const branding = data.user?.org_branding || DEFAULT_BRANDING;
  set({ user: data.user, branding, isAuthenticated: true, isLoading: false });
  return {};
  },
 
  logout: () => {
+ // Revoke the refresh token and clear the httpOnly cookies server-side;
+ // fire-and-forget — local state resets regardless.
+ apiClient.post("/auth/logout/").catch(() => {});
+ // Legacy cleanup: tokens stored by the pre-cookie frontend.
  localStorage.removeItem("access_token");
  localStorage.removeItem("refresh_token");
  set({ user: null, isAuthenticated: false, isLoading: false });

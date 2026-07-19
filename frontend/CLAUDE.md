@@ -91,10 +91,13 @@ src/app/
 ## API клиент
 
 `src/lib/api-client.ts` — Axios instance:
-- `baseURL` из `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`)
-- Request interceptor — добавляет `Authorization: Bearer <token>` из
-  localStorage
-- Response interceptor — на 401 чистит токен и редиректит на `/login`,
+- `baseURL: "/api/v1"` (same-origin; в dev — rewrite через `BACKEND_URL`)
+- **Auth — httpOnly cookies** (с 2026-07-19): сервер ставит
+  `access_token`/`refresh_token` при логине, `withCredentials: true`
+  шлёт их с каждым запросом. В localStorage токенов НЕТ и класть их
+  туда нельзя — XSS не должен уметь красть сессию.
+- Response interceptor — на 401 один shared refresh (cookie-ротация на
+  сервере) + повтор запроса; при провале — редирект `/login`;
   на 5xx показывает Sonner toast
 
 Доменные обёртки — в `src/lib/api/` (auth.ts, courses.ts и т.д.).
