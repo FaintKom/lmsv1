@@ -233,6 +233,7 @@ export function TablePatternV2({
                     <input
                       value={v}
                       disabled={!!feedback}
+                      aria-label={`f(${xValues[i]})`}
                       onChange={(e) =>
                         setVals({ ...vals, [i]: e.target.value })
                       }
@@ -266,6 +267,7 @@ export function TablePatternV2({
           <input
             value={rule}
             disabled={!!feedback}
+            aria-label={t("exercise.tablePattern.whatsTheRule")}
             onChange={(e) => setRule(e.target.value)}
             placeholder={ruleExample ?? t("exercise.tablePattern.ruleExample")}
             className="gp-input"

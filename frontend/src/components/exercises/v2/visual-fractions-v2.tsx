@@ -147,10 +147,11 @@ export function VisualFractionsV2({
             gap: 24,
           }}
         >
-          {/* pie */}
+          {/* pie — decorative twin of the keyboard-operable bar below */}
           <svg
             viewBox="-100 -100 200 200"
             style={{ width: 200, height: 200 }}
+            aria-hidden="true"
           >
             <circle
               cx="0"
@@ -185,15 +186,24 @@ export function VisualFractionsV2({
               );
             })}
           </svg>
-          {/* bar */}
-          <div style={{ display: "flex", gap: 4, width: "100%", maxWidth: 400 }}>
+          {/* bar — keyboard-operable segment toggles (native <button>) */}
+          <div
+            role="group"
+            aria-label={t("exercise.visualFractions.tapToShade")}
+            style={{ display: "flex", gap: 4, width: "100%", maxWidth: 400 }}
+          >
             {Array.from({ length: denominator }, (_, i) => (
-              <div
+              <button
                 key={i}
+                type="button"
                 onClick={() => toggle(i)}
+                disabled={!!feedback}
+                aria-pressed={shaded.has(i)}
+                aria-label={`${i + 1} / ${denominator}`}
                 style={{
                   flex: 1,
                   height: 48,
+                  padding: 0,
                   background: shaded.has(i)
                     ? "var(--green-500)"
                     : "var(--paper-2)",
@@ -245,7 +255,7 @@ export function VisualFractionsV2({
               marginTop: -8,
             }}
           >
-            target ·{" "}
+            {t("exercise.target")} ·{" "}
             <b style={{ color: "var(--ink-700)" }}>
               {numerator}/{denominator}
             </b>

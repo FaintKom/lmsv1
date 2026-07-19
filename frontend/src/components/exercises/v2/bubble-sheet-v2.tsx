@@ -253,6 +253,8 @@ export function BubbleSheetV2({
                       key={i}
                       onClick={() => !locked && setAns({ ...ans, [q.n]: i })}
                       disabled={locked}
+                      aria-pressed={picked}
+                      aria-label={`${String.fromCharCode(65 + i)} — ${opt}`}
                       style={{
                         display: "flex",
                         alignItems: "center",

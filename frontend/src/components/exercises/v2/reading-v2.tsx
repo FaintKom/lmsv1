@@ -244,6 +244,7 @@ export function ReadingV2({
                       fontSize: 14,
                     }}
                     disabled={!!feedback || isElim}
+                    aria-pressed={pick === i}
                     onClick={() => setPick(i)}
                   >
                     {opt}

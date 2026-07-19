@@ -142,6 +142,15 @@ export function VennDiagramV2({
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
+  const regionLabel = (key: VennRegion) =>
+    key === "a_only"
+      ? t("exercise.setOnly").replace("{set}", setA)
+      : key === "b_only"
+        ? t("exercise.setOnly").replace("{set}", setB)
+        : key === "intersection"
+          ? t("exercise.setBoth").replace("{a}", setA).replace("{b}", setB)
+          : t("exercise.setNeither");
+
   const regionInput = (key: VennRegion) => {
     const pos = POSITIONS[key];
     const isGiven = given[key] != null;
@@ -180,6 +189,7 @@ export function VennDiagramV2({
             value={vals[key] || ""}
             disabled={!!feedback}
             inputMode="numeric"
+            aria-label={regionLabel(key)}
             onChange={(e) => {
               // VD-01: digits only. VD-03: typing clears the stale red mark.
               setVals({ ...vals, [key]: e.target.value.replace(/[^\d]/g, "") });

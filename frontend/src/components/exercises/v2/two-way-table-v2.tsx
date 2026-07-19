@@ -250,6 +250,7 @@ export function TwoWayTableV2({
                         value={v}
                         disabled={!!feedback || locked}
                         inputMode="numeric"
+                        aria-label={`${r}, ${colLabels[ci]}`}
                         onChange={(e) =>
                           // TW-01: digits + a leading minus only.
                           setVals({

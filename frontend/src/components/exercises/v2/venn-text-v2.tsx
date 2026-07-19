@@ -136,6 +136,15 @@ export function VennTextV2({
 
   const canRetry = feedback?.kind === "no" && attemptsLeft > 0;
 
+  const regionLabel = (key: VennRegion) =>
+    key === "a_only"
+      ? t("exercise.setOnly").replace("{set}", setA)
+      : key === "b_only"
+        ? t("exercise.setOnly").replace("{set}", setB)
+        : key === "intersection"
+          ? t("exercise.setBoth").replace("{a}", setA).replace("{b}", setB)
+          : t("exercise.setNeither");
+
   const regionTextarea = (key: VennRegion) => {
     const pos = POSITIONS[key];
     const isOk = results[key] === true;
@@ -152,6 +161,7 @@ export function VennTextV2({
         <textarea
           value={vals[key] || ""}
           disabled={!!feedback}
+          aria-label={regionLabel(key)}
           onChange={(e) => setVals({ ...vals, [key]: e.target.value })}
           placeholder={t("exercise.vennText.placeholder")}
           style={{

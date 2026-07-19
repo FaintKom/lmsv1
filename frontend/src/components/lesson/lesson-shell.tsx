@@ -26,6 +26,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 
 /**
  * FIX-06: third kind "meh" — the system hiccuped (network/config). Neutral
@@ -207,6 +208,7 @@ export function FeedbackSheet({
    * attempts. Caller is responsible for clearing pick state on retry. */
   onRetry?: () => void;
 }) {
+  const { t } = useTranslation();
   const kind = feedback.kind;
   const ok = kind === "ok";
   const meh = kind === "meh";
@@ -222,11 +224,16 @@ export function FeedbackSheet({
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className={"lf-fb-text " + (ok ? "ok" : meh ? "meh" : "no")}>
-            {feedback.msg || (ok ? "Nicely done!" : canRetry ? "Try again" : "Not quite")}
+            {feedback.msg ||
+              (ok
+                ? t("exercise.niceDone")
+                : canRetry
+                  ? t("exercise.tryAgain")
+                  : t("exercise.notQuite"))}
           </div>
           {feedback.correct && !ok && !canRetry && (
             <div className="lf-fb-correct">
-              Answer: <b>{feedback.correct}</b>
+              {t("exercise.answerLabel")} <b>{feedback.correct}</b>
             </div>
           )}
           {/* FIX-10: structured reveal list. */}
@@ -248,7 +255,11 @@ export function FeedbackSheet({
           onClick={canRetry ? onRetry : onContinue}
           style={{ padding: "14px 30px" }}
         >
-          {canRetry ? (meh ? "Retry" : "Try again") : "Continue"}
+          {canRetry
+            ? meh
+              ? t("exercise.retry")
+              : t("exercise.tryAgain")
+            : t("exercise.continue")}
         </button>
       </div>
     </div>
@@ -332,8 +343,8 @@ export function LessonShell({
   onCheck,
   onContinue,
   onRetry,
-  checkLabel = "Check",
-  checkHint = "Pick an answer first",
+  checkLabel,
+  checkHint,
   checking = false,
   showSkip = true,
   onSkip,
@@ -342,6 +353,7 @@ export function LessonShell({
   instant = false,
   instantLabel,
 }: LessonShellProps) {
+  const { t } = useTranslation();
   const hasStep = typeof step === "number" && typeof totalSteps === "number";
   const fill = hasStep ? (step! / totalSteps!) * 100 : progress;
   const showBar = hasStep || typeof progress === "number";
@@ -373,7 +385,7 @@ export function LessonShell({
   return (
     <div className="lf-shell">
       <div className="lf-top">
-        <button className="lf-close" aria-label="Quit" onClick={onQuit}>
+        <button className="lf-close" aria-label={t("exercise.quit")} onClick={onQuit}>
           <Ico.X />
         </button>
         {showBar ? (
@@ -448,7 +460,7 @@ export function LessonShell({
                 style={{ padding: "12px 22px" }}
                 onClick={onSkip}
               >
-                Skip
+                {t("exercise.skip")}
               </button>
             )}
             {instant ? (
@@ -468,7 +480,7 @@ export function LessonShell({
             ) : (
               <span style={{ marginLeft: "auto", position: "relative" }}>
                 {hint && !canCheck && (
-                  <span className="gp-checkhint">{checkHint}</span>
+                  <span className="gp-checkhint">{checkHint ?? t("exercise.pickFirst")}</span>
                 )}
                 <button
                   className={"gp-btn" + (nudge ? " nudge" : "")}
@@ -477,7 +489,7 @@ export function LessonShell({
                   onClick={handleCheckPress}
                 >
                   {checking && <span className="gp-spin" aria-hidden />}
-                  {checking ? "Checking…" : checkLabel}
+                  {checking ? t("exercise.checking") : (checkLabel ?? t("exercise.check"))}
                 </button>
               </span>
             )}
