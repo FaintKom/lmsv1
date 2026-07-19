@@ -287,6 +287,7 @@ export function AreaModelV2({
                     <input
                       value={v}
                       disabled={!!feedback}
+                      aria-label={`${bn} × ${an}`}
                       onChange={(e) =>
                         setCells({
                           ...cells,
@@ -348,6 +349,7 @@ export function AreaModelV2({
             <input
               value={total}
               disabled={!!feedback}
+              aria-label={`${a} × ${b}`}
               onChange={(e) => setTotal(e.target.value)}
               placeholder="?"
               inputMode="numeric"

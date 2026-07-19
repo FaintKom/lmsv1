@@ -275,6 +275,7 @@ export function ProbabilityWheelV2({
               viewBox={`0 0 ${SIZE} ${SIZE}`}
               width={SIZE}
               height={SIZE}
+              aria-hidden="true"
               style={{
                 marginTop: 18,
                 transform: `rotate(${angle}deg)`,
@@ -388,6 +389,7 @@ export function ProbabilityWheelV2({
                         !feedback && reachedTarget && setPick(s.label)
                       }
                       disabled={!reachedTarget || !!feedback}
+                      aria-pressed={isPicked}
                       style={{
                         position: "relative",
                         textAlign: "left",
