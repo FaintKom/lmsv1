@@ -2,7 +2,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Cookie, Depends, Query, Request, Response
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,6 +74,47 @@ async def _issue_refresh_token(
     return token
 
 
+def _set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
+    """Put both tokens into httpOnly cookies (browser clients).
+
+    JS on the page can never read these — an XSS can no longer exfiltrate
+    the session. The same tokens are still returned in the JSON body for
+    tests/scripts; browsers rely on the cookies only.
+
+    CSRF note: SameSite=Lax means the browser does NOT attach these cookies
+    to cross-site POST/XHR/fetch, which blocks classic CSRF. All mutating
+    endpoints additionally expect JSON bodies (cross-site forms can't send
+    those), so a separate CSRF-token scheme is deliberately not added.
+    `secure` is off outside production so http://localhost dev works.
+    """
+    secure = settings.is_production()
+    response.set_cookie(
+        "access_token",
+        access_token,
+        httponly=True,
+        secure=secure,
+        samesite="lax",
+        max_age=settings.jwt_access_token_expire_minutes * 60,
+        path="/",
+    )
+    response.set_cookie(
+        "refresh_token",
+        refresh_token,
+        httponly=True,
+        secure=secure,
+        samesite="lax",
+        max_age=settings.jwt_refresh_token_expire_days * 24 * 3600,
+        # Only /auth/* ever needs the refresh token — keep it off every
+        # other request.
+        path="/api/v1/auth",
+    )
+
+
+def _clear_auth_cookies(response: Response) -> None:
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/api/v1/auth")
+
+
 @router.get("/organizations")
 async def search_organizations(
     q: str = Query("", min_length=0),
@@ -106,9 +147,12 @@ async def register_endpoint(
     if consent_token is not None:
         try:
             from app.email.service import queue_email, send_parental_consent_request
+
             queue_email(
                 send_parental_consent_request,
-                consent_token.parent_email, user.full_name, consent_token.token,
+                consent_token.parent_email,
+                user.full_name,
+                consent_token.token,
             )
         except Exception:
             logger.warning("parental-consent email failed", exc_info=True)
@@ -127,12 +171,11 @@ async def register_endpoint(
     if org_was_created:
         try:
             from app.courses.service import seed_demo_course_for_org
+
             seeded = await seed_demo_course_for_org(db, org.id, user.id)
             if seeded:
                 logger = logging.getLogger(__name__)
-                logger.info(
-                    f"Seeded demo course '{seeded.title}' into new org {org.id}"
-                )
+                logger.info(f"Seeded demo course '{seeded.title}' into new org {org.id}")
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.warning(f"Demo course seeding failed for org {org.id}: {e}")
@@ -157,9 +200,12 @@ async def register_endpoint(
         await db.flush()
         try:
             from app.email.service import queue_email, send_email_verification
+
             queue_email(
                 send_email_verification,
-                user.email, user.full_name, verification_token,
+                user.email,
+                user.full_name,
+                verification_token,
             )
         except Exception:
             logger.warning("email-verification send failed", exc_info=True)
@@ -175,10 +221,12 @@ async def register_endpoint(
     # Welcome email for everyone (best-effort; ignored if SMTP disabled)
     try:
         from app.email.service import queue_email, send_welcome
+
         queue_email(send_welcome, user.email, user.full_name)
     except Exception:
         logger.warning("welcome email failed", exc_info=True)
 
+    _set_auth_cookies(response, access_token, refresh_token)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -237,23 +285,21 @@ async def demo_login_endpoint(
     """
     if not settings.demo_mode_enabled:
         from fastapi import HTTPException
+
         raise HTTPException(404, "Not found")
 
     target_email = (
-        settings.demo_teacher_email
-        if data.role == "teacher"
-        else settings.demo_student_email
+        settings.demo_teacher_email if data.role == "teacher" else settings.demo_student_email
     )
     result = await db.execute(select(User).where(User.email == target_email))
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
-        raise BadRequestError(
-            f"Demo account {target_email} is not available. Contact support."
-        )
+        raise BadRequestError(f"Demo account {target_email} is not available. Contact support.")
 
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
 
+    _set_auth_cookies(response, access_token, refresh_token)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -276,8 +322,7 @@ async def login_endpoint(
     # true in the env once you've confirmed email delivery works.
     if settings.require_email_verification and user.email_verified_at is None:
         raise BadRequestError(
-            "Email not verified. Check your inbox for the verification link "
-            "or request a new one."
+            "Email not verified. Check your inbox for the verification link or request a new one."
         )
 
     user.last_active_at = datetime.now(timezone.utc)
@@ -286,6 +331,7 @@ async def login_endpoint(
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
 
+    _set_auth_cookies(response, access_token, refresh_token)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -296,10 +342,17 @@ async def login_endpoint(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_endpoint(
     request: Request,
-    data: RefreshRequest,
+    response: Response,
+    data: RefreshRequest | None = None,
+    refresh_token_cookie: str | None = Cookie(None, alias="refresh_token"),
     db: AsyncSession = Depends(get_db),
 ):
-    payload = decode_token(data.refresh_token)
+    # Browser clients carry the token in the httpOnly cookie; scripts/tests
+    # may still send it in the body. Body wins when both are present.
+    raw_refresh = (data.refresh_token if data else None) or refresh_token_cookie
+    if not raw_refresh:
+        raise BadRequestError("No refresh token provided")
+    payload = decode_token(raw_refresh)
     if not payload or payload.get("type") != "refresh":
         raise BadRequestError("Invalid refresh token")
 
@@ -333,6 +386,7 @@ async def refresh_endpoint(
     access_token = create_access_token({"sub": str(user.id)})
     refresh_token = await _issue_refresh_token(db, user, request)
 
+    _set_auth_cookies(response, access_token, refresh_token)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -342,17 +396,22 @@ async def refresh_endpoint(
 
 @router.post("/logout")
 async def logout_endpoint(
-    data: RefreshRequest,
+    response: Response,
+    data: RefreshRequest | None = None,
+    refresh_token_cookie: str | None = Cookie(None, alias="refresh_token"),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Revoke the refresh token provided in the body.
+    """Revoke the refresh token (body or httpOnly cookie) and clear cookies.
 
-    The access token will still work until it expires (max 30 min), but the
-    client can no longer refresh it into a new session. For full sign-out the
-    client should also discard the access token locally.
+    The access token would still verify until it expires (max 30 min), but
+    the browser no longer holds it after the cookie clear.
     """
-    payload = decode_token(data.refresh_token)
+    _clear_auth_cookies(response)
+    raw_refresh = (data.refresh_token if data else None) or refresh_token_cookie
+    if not raw_refresh:
+        return {"message": "Logged out"}
+    payload = decode_token(raw_refresh)
     if not payload or payload.get("type") != "refresh":
         return {"message": "Logged out"}
     jti = payload.get("jti")
@@ -437,6 +496,7 @@ async def resend_verification_endpoint(
 
         try:
             from app.email.service import queue_email, send_email_verification
+
             queue_email(send_email_verification, user.email, user.full_name, token)
         except Exception:
             logger.warning("verification-resend email failed", exc_info=True)
@@ -460,8 +520,11 @@ async def me_endpoint(user: User = Depends(get_current_user)):
         "logo_url": org_settings.get("logo_url"),
         "primary_color": org_settings.get("primary_color"),
         "secondary_color": org_settings.get("secondary_color"),
-        "display_name": org_settings.get("display_name") or (
-            user.organization.name if hasattr(user, "organization") and user.organization else "GrassLMS"
+        "display_name": org_settings.get("display_name")
+        or (
+            user.organization.name
+            if hasattr(user, "organization") and user.organization
+            else "GrassLMS"
         ),
     }
     return user_data
@@ -642,6 +705,7 @@ async def forgot_password_endpoint(
 
         # Send reset email off the request thread
         from app.email.service import queue_email, send_password_reset
+
         queue_email(send_password_reset, data.email, token)
 
     # Always return success to prevent email enumeration
