@@ -38,7 +38,9 @@ import app.donations.models  # noqa
 import app.exercises.models  # noqa
 import app.feedback.models  # noqa
 import app.gamification.models  # noqa
+import app.integrations.models  # noqa
 import app.journal.models  # noqa
+import app.knowledge.models  # noqa
 import app.learning_paths.models  # noqa
 import app.meetings.models  # noqa
 import app.metered_billing.models  # noqa
