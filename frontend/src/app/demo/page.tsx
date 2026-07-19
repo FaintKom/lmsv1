@@ -38,10 +38,8 @@ function DemoRunner() {
  setError("");
  setLoading(role);
  try {
- const { data } = await apiClient.post("/auth/demo-login", { role });
- // Auth store's fetchUser() reads from localStorage via apiClient
- localStorage.setItem("access_token", data.access_token);
- localStorage.setItem("refresh_token", data.refresh_token);
+ // Session arrives as httpOnly cookies set by the server.
+ await apiClient.post("/auth/demo-login", { role });
  await fetchUser();
  router.push(role === "teacher" ? "/admin" : "/dashboard");
  } catch (err) {

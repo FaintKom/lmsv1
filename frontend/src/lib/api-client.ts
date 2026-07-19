@@ -7,8 +7,12 @@ import { toast } from "sonner";
 // is no proxy in front), set NEXT_PUBLIC_API_URL at build time to point
 // at the backend - e.g. `http://localhost:8000` from
 // docker-compose.qa.yml's frontend build args.
+// Auth rides in httpOnly cookies (set by the backend on login/refresh) —
+// JS never sees the tokens, so an XSS cannot steal the session.
+// withCredentials makes axios send them on every same-origin request.
 const apiClient = axios.create({
  baseURL: "/api/v1",
+ withCredentials: true,
  headers: {
  "Content-Type": "application/json",
  },
@@ -42,23 +46,18 @@ function sleep(ms: number) {
 
 // Concurrent 401 responses must share one in-flight refresh: the server
 // rotates the refresh token and revokes the old one, so a parallel second
-// refresh with the stale token returns 400 and bounces the user to /login.
-let refreshPromise: Promise<string> | null = null;
+// refresh (sending the now-stale cookie) returns 400 and bounces the user
+// to /login. The refresh token lives in an httpOnly cookie scoped to
+// /api/v1/auth — the browser attaches it, JS never sees it.
+let refreshPromise: Promise<void> | null = null;
 
-async function performRefresh(): Promise<string> {
+async function performRefresh(): Promise<void> {
  if (refreshPromise) return refreshPromise;
 
  refreshPromise = (async () => {
- const refreshToken = localStorage.getItem("refresh_token");
- if (!refreshToken) throw new Error("No refresh token");
- const { data } = await axios.post("/api/v1/auth/refresh/", {
- refresh_token: refreshToken,
- });
- localStorage.setItem("access_token", data.access_token);
- if (data.refresh_token) {
- localStorage.setItem("refresh_token", data.refresh_token);
- }
- return data.access_token as string;
+ // Empty body: the server reads the refresh_token cookie and rotates
+ // both cookies in the response.
+ await axios.post("/api/v1/auth/refresh/", null, { withCredentials: true });
  })();
 
  try {
@@ -67,16 +66,6 @@ async function performRefresh(): Promise<string> {
  refreshPromise = null;
  }
 }
-
-apiClient.interceptors.request.use((config) => {
- if (typeof window !== "undefined") {
- const token = localStorage.getItem("access_token");
- if (token) {
- config.headers.Authorization = `Bearer ${token}`;
- }
- }
- return config;
-});
 
 apiClient.interceptors.response.use(
  (response) => {
@@ -112,14 +101,19 @@ apiClient.interceptors.response.use(
  if (error.response?.status === 401 && !originalRequest._retry) {
  originalRequest._retry = true;
 
- if (localStorage.getItem("refresh_token")) {
+ // Never try to refresh a failed session-establishing call itself —
+ // a 401 from login/refresh/logout means the session is simply gone.
+ // (/auth/me is NOT excluded: expired access + valid refresh cookie
+ // should recover silently.)
+ const url = String(originalRequest.url || "");
+ const isAuthCall = /\/auth\/(login|refresh|logout|register|demo-login)/.test(url);
+ if (!isAuthCall) {
  try {
- const newAccessToken = await performRefresh();
- originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+ // Rotates the httpOnly cookies server-side; the retried request
+ // picks the fresh access_token cookie up automatically.
+ await performRefresh();
  return apiClient(originalRequest);
  } catch {
- localStorage.removeItem("access_token");
- localStorage.removeItem("refresh_token");
  window.location.href = "/login";
  }
  } else {

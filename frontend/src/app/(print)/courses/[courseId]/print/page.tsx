@@ -11,7 +11,7 @@
  *   - solution_code / final_answer / accepted_answers fields
  *   - hidden test-case expected outputs
  *
- * Auth: relies on the apiClient picking up the JWT from localStorage.
+ * Auth: relies on the httpOnly session cookies sent by the browser.
  * For server-side PDF rendering by Playwright a follow-up will add a
  * one-shot signed `?token=` query param the backend mints; until then
  * Playwright must be primed with a logged-in session cookie.
