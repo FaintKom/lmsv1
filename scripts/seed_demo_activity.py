@@ -222,13 +222,21 @@ async def seed_exercise_activity(
             )
             await upsert_enrollment(db, course, student, enroll_at)
 
-            # Each student works through exercises over the window.
+            # Each student works through exercises over the window. Pace steps
+            # to the window size so the trajectory reaches ~today instead of
+            # bunching in the first days (v1 used fixed 2-30h steps).
             t = enroll_at
+            # Divide by the ~75% attempted fraction, not the full count —
+            # skipped exercises consume no step, so full-count pacing ends
+            # the trajectory days early.
+            mean_step_h = (now - enroll_at).total_seconds() / 3600 / max(
+                1, len(exercises) * 0.75
+            )
             for ex in exercises:
                 r = slot_rng(f"ex-{student.id}-{ex.id}")
                 if r.random() > 0.75:
                     continue  # skipped this exercise — realistic completion rate
-                t = t + timedelta(hours=r.uniform(2, 30))
+                t = t + timedelta(hours=r.uniform(0.5, 1.5) * mean_step_h)
                 if t >= now:
                     break
 
