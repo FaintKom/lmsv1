@@ -111,6 +111,10 @@ def _alembic(action: str) -> None:
     backend_root = Path(__file__).resolve().parent.parent
     cfg = Config(str(backend_root / "alembic.ini"))
     cfg.set_main_option("script_location", str(backend_root / "alembic"))
+    # Logging already configured by configure_logging(); without this flag
+    # env.py's fileConfig() would disable every existing logger (uvicorn.*,
+    # app.*) and prod would emit nothing after startup — 500 tracebacks lost.
+    cfg.attributes["configure_logger"] = False
     if action == "upgrade":
         command.upgrade(cfg, "head")
     elif action == "stamp":
