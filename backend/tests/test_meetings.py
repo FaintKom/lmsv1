@@ -65,6 +65,22 @@ async def test_update_and_end_lifecycle(client: AsyncClient, teacher):
 
 
 @pytest.mark.asyncio
+async def test_list_survives_deleted_creator(client: AsyncClient, db, teacher):
+    """created_by is SET NULL when the creator is deleted — listing must not 500."""
+    from sqlalchemy import update
+
+    from app.meetings.models import Meeting
+
+    meeting = await _create(client, teacher)
+    await db.execute(update(Meeting).where(Meeting.id == meeting["id"]).values(created_by=None))
+
+    listed = await client.get("/api/v1/meetings", headers=auth_header(teacher))
+    assert listed.status_code == 200
+    row = next(m for m in listed.json() if m["id"] == meeting["id"])
+    assert row["created_by"] is None
+
+
+@pytest.mark.asyncio
 async def test_update_nonexistent_404(client: AsyncClient, teacher):
     resp = await client.put(
         "/api/v1/meetings/00000000-0000-0000-0000-000000000000",

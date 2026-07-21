@@ -25,7 +25,7 @@ class MeetingResponse(BaseModel):
     description: str | None
     room_url: str
     course_id: uuid.UUID | None
-    created_by: uuid.UUID
+    created_by: uuid.UUID | None
     scheduled_at: datetime | None
     duration_minutes: int
     is_active: bool
