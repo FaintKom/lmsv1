@@ -268,6 +268,27 @@ async def submit_exercise_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     submission = await submit_exercise(db, exercise_id, user, data.model_dump())
+
+    # live-lesson hook: if the student is in an active lesson, notify its teacher panel
+    try:
+        from app.live_lessons import realtime as live_realtime
+
+        active = await live_realtime.get_redis().get(live_realtime.active_lesson_key(user.id))
+        if active:
+            await live_realtime.publish(
+                uuid.UUID(active),
+                "teacher",
+                "submission",
+                {
+                    "student_id": str(user.id),
+                    "exercise_id": str(exercise_id),
+                    "passed": submission.passed,
+                    "score": submission.score,
+                },
+            )
+    except Exception:  # noqa: BLE001 — a broken hook must never fail a submit
+        pass
+
     resp = ExerciseSubmissionResponse.model_validate(submission)
 
     # Attach attempt tracking info

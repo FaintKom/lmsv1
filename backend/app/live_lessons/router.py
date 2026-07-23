@@ -181,6 +181,71 @@ async def roster_endpoint(
     return await service.roster(db, lesson)
 
 
+@router.get("/{lesson_id}/progress")
+async def progress_endpoint(
+    lesson_id: uuid.UUID,
+    exercise_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.exercises.models import ExerciseSubmission
+    from app.live_lessons.models import ExerciseDraft
+
+    try:
+        lesson, is_teacher = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if not is_teacher:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    from app.auth.models import User as UserModel
+
+    member_rows = await db.execute(
+        select(UserModel.id, UserModel.full_name)
+        .join(StudentGroupMember, StudentGroupMember.user_id == UserModel.id)
+        .where(StudentGroupMember.group_id == lesson.group_id)
+        .order_by(UserModel.full_name)
+    )
+    subs = (
+        (
+            await db.execute(
+                select(ExerciseSubmission)
+                .where(ExerciseSubmission.exercise_id == exercise_id)
+                .order_by(ExerciseSubmission.submitted_at.desc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+    latest: dict[str, ExerciseSubmission] = {}
+    for s in subs:
+        latest.setdefault(str(s.student_id), s)
+    drafts = (
+        (await db.execute(select(ExerciseDraft).where(ExerciseDraft.exercise_id == exercise_id)))
+        .scalars()
+        .all()
+    )
+    draft_at = {str(d.student_id): d.updated_at.isoformat() for d in drafts}
+
+    students = []
+    for uid, name in member_rows:
+        sub = latest.get(str(uid))
+        students.append(
+            {
+                "id": str(uid),
+                "name": name,
+                "submitted": sub is not None,
+                "passed": sub.passed if sub else None,
+                "score": sub.score if sub else None,
+                "attempts": sum(1 for s in subs if str(s.student_id) == str(uid)),
+                "draft_updated_at": draft_at.get(str(uid)),
+            }
+        )
+    return {"students": students}
+
+
 @router.post("/{lesson_id}/signals", status_code=204)
 @limiter.limit("20/minute")
 async def set_signal_endpoint(

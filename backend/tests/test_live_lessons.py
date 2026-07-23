@@ -340,3 +340,55 @@ async def test_poll_lifecycle(client, db, org, teacher, student):
         await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
     ).json()
     assert state["active_poll"] is None
+
+
+async def test_submission_event_published_and_progress(client, db, org, teacher, student):
+    import asyncio
+    import uuid as _uuid
+
+    from tests.conftest import make_course, make_exercise, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson_row.id, org.id)
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/heartbeat",
+        json={"current_view": "scene"},
+        headers=auth_header(student),
+    )
+
+    events = []
+
+    async def listen():
+        async for msg in realtime.subscribe(_uuid.UUID(lesson_id)):
+            if msg["event"] == "submission":
+                events.append(msg)
+                break
+
+    task = asyncio.create_task(listen())
+    await asyncio.sleep(0.05)
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": []},
+        headers=auth_header(student),
+    )
+    assert resp.status_code in (200, 201)
+    await asyncio.wait_for(task, timeout=2)
+    assert events[0]["data"]["student_id"] == str(student.id)
+
+    grid = (
+        await client.get(
+            f"/api/v1/live-lessons/{lesson_id}/progress?exercise_id={ex.id}",
+            headers=auth_header(teacher),
+        )
+    ).json()
+    row = next(m for m in grid["students"] if m["id"] == str(student.id))
+    assert row["submitted"] is True
