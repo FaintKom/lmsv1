@@ -445,7 +445,9 @@ async def lesson_events_endpoint(
         gen(),
         media_type="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
+            # no-transform: keeps compression middlewares (Next dev proxy,
+            # any gzip layer) from buffering the stream
+            "Cache-Control": "no-cache, no-transform",
             "X-Accel-Buffering": "no",  # nginx: don't buffer this response
         },
     )
