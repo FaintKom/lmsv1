@@ -52,7 +52,9 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
   const qc = useQueryClient();
   // latest-handlers ref so the EventSource effect doesn't resubscribe per render
   const handlersRef = useRef(handlers);
-  handlersRef.current = handlers;
+  useEffect(() => {
+    handlersRef.current = handlers;
+  });
 
   useEffect(() => {
     if (!lessonId) return;
