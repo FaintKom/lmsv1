@@ -42,6 +42,7 @@ import app.integrations.models  # noqa
 import app.journal.models  # noqa
 import app.knowledge.models  # noqa
 import app.learning_paths.models  # noqa
+import app.live_lessons.models  # noqa
 import app.meetings.models  # noqa
 import app.metered_billing.models  # noqa
 import app.notifications.models  # noqa
