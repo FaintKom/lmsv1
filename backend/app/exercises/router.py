@@ -1,7 +1,8 @@
 import uuid
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Response, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_role
@@ -41,11 +42,13 @@ from app.exercises.service import (
     update_test_case_in_exercise,
     upload_file_submission,
 )
+from app.live_lessons.schemas import DraftRequest
 
 router = APIRouter()
 
 
 # ─── Exercise CRUD ───────────────────────────────────────────────────
+
 
 @router.post("", response_model=ExerciseResponse)
 async def create_exercise_endpoint(
@@ -68,8 +71,13 @@ async def list_exercises_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     items, total = await list_exercises(
-        db, user, exercise_type=exercise_type, lesson_id=lesson_id,
-        search=search, page=page, per_page=per_page,
+        db,
+        user,
+        exercise_type=exercise_type,
+        lesson_id=lesson_id,
+        search=search,
+        page=page,
+        per_page=per_page,
     )
     return ExerciseListResponse(
         items=[ExerciseResponse.model_validate(e) for e in items],
@@ -164,6 +172,7 @@ async def delete_exercise_endpoint(
 
 # ─── Questions (quiz exercises) ─────────────────────────────────────
 
+
 @router.post("/{exercise_id}/questions", response_model=QuestionInExercise)
 async def add_question_endpoint(
     exercise_id: uuid.UUID,
@@ -183,7 +192,9 @@ async def update_question_endpoint(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
-    question = await update_question_in_exercise(db, question_id, user, data.model_dump(exclude_unset=True))
+    question = await update_question_in_exercise(
+        db, question_id, user, data.model_dump(exclude_unset=True)
+    )
     return QuestionInExercise.model_validate(question)
 
 
@@ -199,6 +210,7 @@ async def delete_question_endpoint(
 
 
 # ─── Test cases (code challenge exercises) ──────────────────────────
+
 
 @router.post("/{exercise_id}/test-cases", response_model=TestCaseInExercise)
 async def add_test_case_endpoint(
@@ -238,6 +250,7 @@ async def delete_test_case_endpoint(
 
 # ─── Submissions ─────────────────────────────────────────────────────
 
+
 @router.get("/{exercise_id}/attempts")
 async def get_attempts_endpoint(
     exercise_id: uuid.UUID,
@@ -267,6 +280,7 @@ async def submit_exercise_endpoint(
         # Normal submission — attempt_number is stamped on the row at insert
         # time; only remaining/limit info is computed here.
         from app.exercises.service import _count_attempts, _get_exercise_with_relations
+
         exercise = await _get_exercise_with_relations(db, exercise_id)
         max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
         count = await _count_attempts(db, exercise_id, user.id)
@@ -306,7 +320,78 @@ async def list_submissions_endpoint(
     )
 
 
+# ─── Live-lesson drafts ──────────────────────────────────────────────
+
+
+@router.post("/{exercise_id}/draft", status_code=204)
+async def save_draft_endpoint(
+    exercise_id: uuid.UUID,
+    data: DraftRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Autosave a student's in-progress answer.
+
+    Server-side gate: drafts are only stored while the student is in an
+    active live lesson — keeps this write-path lesson-bounded on prod.
+    """
+    from app.live_lessons import realtime as live_realtime
+    from app.live_lessons.models import ExerciseDraft
+
+    active = await live_realtime.get_redis().get(live_realtime.active_lesson_key(user.id))
+    if active is None:
+        return Response(status_code=204)  # silent no-op
+    draft = await db.scalar(
+        select(ExerciseDraft).where(
+            ExerciseDraft.exercise_id == exercise_id,
+            ExerciseDraft.student_id == user.id,
+        )
+    )
+    if draft is None:
+        draft = ExerciseDraft(org_id=user.org_id, exercise_id=exercise_id, student_id=user.id)
+        db.add(draft)
+    draft.answers = data.answers
+    draft.source_code = data.source_code
+    await db.flush()
+    return Response(status_code=204)
+
+
+@router.get("/{exercise_id}/drafts/{student_id}")
+async def get_draft_endpoint(
+    exercise_id: uuid.UUID,
+    student_id: uuid.UUID,
+    request: Request,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.live_lessons.models import ExerciseDraft
+
+    draft = await db.scalar(
+        select(ExerciseDraft).where(
+            ExerciseDraft.exercise_id == exercise_id,
+            ExerciseDraft.student_id == student_id,
+            ExerciseDraft.org_id == user.org_id,
+        )
+    )
+    if draft is None:
+        raise HTTPException(status_code=404, detail="no draft")
+    etag = f'"{draft.updated_at.isoformat()}"'
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=304)
+    return JSONResponse(
+        content={
+            "exercise_id": str(draft.exercise_id),
+            "student_id": str(draft.student_id),
+            "answers": draft.answers,
+            "source_code": draft.source_code,
+            "updated_at": draft.updated_at.isoformat(),
+        },
+        headers={"ETag": etag},
+    )
+
+
 # ─── Helpers ─────────────────────────────────────────────────────────
+
 
 def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
     """Remove correct answers from response for students."""
@@ -322,10 +407,15 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
     # as a `word_bank` so the renderer has something to display.
     if resp.config:
         import random
+
         blanks = resp.config.get("blanks")
         correct_order = resp.config.get("correct_order")
         distractors = resp.config.get("distractors") or []
-        resp.config = {k: v for k, v in resp.config.items() if k not in ("solution_code", "correct_order", "blanks", "correct_answer")}
+        resp.config = {
+            k: v
+            for k, v in resp.config.items()
+            if k not in ("solution_code", "correct_order", "blanks", "correct_answer")
+        }
         if blanks:
             shuffled = list(blanks)
             random.shuffle(shuffled)
