@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import apiClient from "@/lib/api-client";
-import type { Scene } from "@/lib/api/live";
+import { saveDraft, type Scene } from "@/lib/api/live";
 import { useTranslation } from "@/lib/i18n/context";
 
 import { BoardView, type BoardViewHandle } from "./board-view";
@@ -108,6 +108,23 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       cancelled = true;
     };
   }, [exerciseId]);
+  // live-lesson draft autosave: throttled + dirty-checked (spec §11)
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSent = useRef<string>("");
+  const latestAnswers = useRef<Record<string, unknown> | null>(null);
+
+  const handleAnswers = (answers: Record<string, unknown>) => {
+    latestAnswers.current = answers;
+    if (draftTimer.current != null) return;
+    draftTimer.current = setTimeout(() => {
+      draftTimer.current = null;
+      const body = JSON.stringify(latestAnswers.current);
+      if (body === lastSent.current) return;
+      lastSent.current = body;
+      void saveDraft(exerciseId, latestAnswers.current);
+    }, 7000);
+  };
+
   if (!exercise) return null;
   if (!interactive) {
     return (
@@ -117,7 +134,9 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       </div>
     );
   }
-  return <V2ExerciseLive key={exercise.id} exercise={exercise} />;
+  return (
+    <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+  );
 }
 
 function SolutionPane({ payload }: { payload: Record<string, unknown> }) {

@@ -24,7 +24,7 @@
  * boolean paints all slots ok/no and retry returns every word to the bank.
  */
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -55,6 +55,9 @@ export interface FillBlanksV2Props {
   /** When provided, grading is deferred to the server (integrity model B);
    * local `blanks` is ignored. */
   onGrade?: V2GradeFn;
+  /** Live-lesson draft capture: fires with the same shape `onGrade` would
+   * receive whenever the in-progress answer changes. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
 }
@@ -87,6 +90,7 @@ export function FillBlanksV2({
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onGrade,
+  onAnswersChange,
   onQuit,
   onFinish,
 }: FillBlanksV2Props) {
@@ -126,6 +130,14 @@ export function FillBlanksV2({
   const [announce, setAnnounce] = useState("");
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
+
+  // live-lesson draft capture — same shape as the onGrade payload
+  useEffect(() => {
+    if (slots.some((s) => s != null)) {
+      onAnswersChange?.({ blanks: slots.map((s) => (s == null ? "" : wordBank[s])) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slots]);
 
   const pillRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const slotRefs = useRef<Record<number, HTMLButtonElement | null>>({});

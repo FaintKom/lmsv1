@@ -35,6 +35,9 @@ export interface TrueFalseV2Props {
   /** When provided, grading is deferred to the server (integrity model B);
    * local `correctAnswer` is ignored. */
   onGrade?: V2GradeFn;
+  /** Live-lesson draft capture: fires with the same shape `onGrade` would
+   * receive whenever the in-progress answer changes. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
   onFinish?: (result: {
     correct: boolean;
@@ -52,6 +55,7 @@ export function TrueFalseV2({
   maxAttemptsPerTask = 2,
   streak: initialStreak = 0,
   onGrade,
+  onAnswersChange,
   onQuit,
   onFinish,
 }: TrueFalseV2Props) {
@@ -64,6 +68,12 @@ export function TrueFalseV2({
   const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
+
+  // live-lesson draft capture
+  useEffect(() => {
+    if (pick !== null) onAnswersChange?.({ answer: pick });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pick]);
 
   // TF-02key: T / ← selects True, F / → selects False. Ignored while a
   // feedback sheet is open, during async grading, or when typing in an input.
