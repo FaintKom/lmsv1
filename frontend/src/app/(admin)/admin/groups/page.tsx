@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { StartLessonButton } from "@/components/live/start-lesson-button";
 import { toast } from "sonner";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import {
@@ -276,6 +277,7 @@ export default function GroupsPage() {
  </div>
  </div>
  <div className="flex items-center gap-3">
+ <StartLessonButton groupId={g.id} />
  <span className="rounded-pill bg-ink-100 px-2.5 py-1 text-xs font-medium text-text-muted ">
  {g.member_count} {t("admin.groups.members")}
  </span>

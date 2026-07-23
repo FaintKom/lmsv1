@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { LessonReview } from "@/components/live/lesson-review";
 import { PollModal } from "@/components/live/poll-modal";
 import { SceneView } from "@/components/live/scene-view";
 import { SignalBar } from "@/components/live/signal-bar";
@@ -71,6 +72,9 @@ export default function StudentLessonPage() {
   if (isLoading || !state) return null;
 
   if (ended) {
+    if (state.lesson.status === "ended" && (state.board_ids.length > 0 || state.lesson.summary)) {
+      return <LessonReview lesson={state.lesson} boardIds={state.board_ids} />;
+    }
     return (
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
         <div className="text-2xl font-semibold">{t("live.endedTitle")}</div>

@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
+import { LiveLessonBanner } from "@/components/live/live-lesson-banner";
 import { Menu } from "lucide-react";
 
 // Routes under the (dashboard) route group that should render for all roles,
@@ -137,7 +138,7 @@ export default function DashboardLayout({
  <span className="text-sm font-bold text-text ">GrassLMS</span>
  </div>
  </div>
- <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12">{children}</main>
+ <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"><LiveLessonBanner />{children}</main>
  </div>
  <MobileTabBar />
  </div>

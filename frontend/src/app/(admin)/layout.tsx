@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileTabBar } from "@/components/layout/mobile-tab-bar";
@@ -13,8 +13,13 @@ export default function AdminLayout({
  children: React.ReactNode;
 }) {
  const router = useRouter();
+ const pathname = usePathname();
  const { user, branding, isAuthenticated, isLoading, fetchUser } = useAuthStore();
  const [sidebarOpen, setSidebarOpen] = useState(false);
+ // live lesson: projector window is fully chrome-free; the teacher screen
+ // keeps the sidebar but drops main padding (it manages its own layout)
+ const isProjector = /^\/admin\/live\/[^/]+\/screen$/.test(pathname);
+ const isLiveRoute = /^\/admin\/live\//.test(pathname);
 
  useEffect(() => {
  fetchUser();
@@ -67,6 +72,8 @@ export default function AdminLayout({
 
  if (!isAuthenticated || user?.role === "student") return null;
 
+ if (isProjector) return <>{children}</>;
+
  return (
  <div className="flex h-screen bg-surface-2 ">
  <a
@@ -94,7 +101,7 @@ export default function AdminLayout({
  <span className="text-sm font-bold text-text ">GrassLMS</span>
  </div>
  </div>
- <main id="main-content" className="flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12">{children}</main>
+ <main id="main-content" className={isLiveRoute ? "flex-1 overflow-hidden" : "flex-1 overflow-auto p-6 pb-20 md:p-10 md:pb-10 lg:p-12 lg:pb-12"}>{children}</main>
  </div>
  <MobileTabBar />
  </div>
