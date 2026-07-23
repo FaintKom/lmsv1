@@ -23,6 +23,7 @@ from app.live_lessons.schemas import (
     HeartbeatRequest,
     LessonStateResponse,
     LiveLessonResponse,
+    MessageRequest,
     PollCreateRequest,
     SceneRequest,
     SettingsRequest,
@@ -280,6 +281,21 @@ async def clear_signal_endpoint(
     except PermissionError:
         raise HTTPException(status_code=403, detail="forbidden")
     await service.set_signal(lesson, user, None)
+    return Response(status_code=204)
+
+
+@router.post("/{lesson_id}/messages", status_code=204)
+async def send_message_endpoint(
+    lesson_id: uuid.UUID,
+    data: MessageRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    try:
+        await service.send_hint(db, lesson, data.student_id, data.text)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     return Response(status_code=204)
 
 
