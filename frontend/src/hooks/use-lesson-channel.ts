@@ -86,7 +86,7 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
     };
     for (const name of EVENT_NAMES) {
       es.addEventListener(name, (e) => {
-        dispatch[name](JSON.parse((e as MessageEvent).data));
+        dispatch[name](JSON.parse((e as MessageEvent).data) as never);
       });
     }
     return () => es.close();
