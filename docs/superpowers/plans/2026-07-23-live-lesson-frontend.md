@@ -2076,6 +2076,60 @@ git commit -m "test(live-frontend): e2e happy path (start, join, scene sync, sig
 
 ---
 
+### Task 11: Draft capture for current live types (`onAnswersChange`)
+
+**Files:**
+- Modify: `frontend/src/components/exercises/v2/true-false-v2.tsx`
+- Modify: `frontend/src/components/exercises/v2/fill-blanks-v2.tsx`
+- Modify: `frontend/src/components/exercises/v2/ordering-v2.tsx`
+- Modify: `frontend/src/components/exercises/v2-exercise-live.tsx`
+- Modify: `frontend/src/components/live/scene-view.tsx` (TaskPane)
+
+- [ ] **Step 1:** In each of the three V2 components, add an optional prop `onAnswersChange?: (answers: unknown) => void` and call it wherever the component updates its internal answer state (the same value it would pass to `onGrade`): true_false — on choice select; fill_blanks — on each blank placement; ordering — on each reorder. Read each component first; the callback goes right next to the existing `setState` of the answer.
+
+- [ ] **Step 2:** Thread through `V2ExerciseLive`: add `onAnswersChange` to `V2ExerciseLiveProps`, include it in the `shared` object passed to all three components.
+
+- [ ] **Step 3:** In `SceneView`'s `TaskPane` (student, `interactive` mode), wire throttled draft saving:
+
+```tsx
+const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+const lastSent = useRef<string>("");
+
+const handleAnswers = (answers: unknown) => {
+  if (draftTimer.current) return;
+  draftTimer.current = setTimeout(() => {
+    draftTimer.current = null;
+    const body = JSON.stringify(answers);
+    if (body === lastSent.current) return; // dirty-check
+    lastSent.current = body;
+    void saveDraft(exerciseId, answers as Record<string, unknown>);
+  }, 7000);
+};
+// <V2ExerciseLive exercise={...} onAnswersChange={handleAnswers} />
+```
+
+(`saveDraft` from `@/lib/api/live`; import `useRef`.)
+
+- [ ] **Step 4:** `npx tsc --noEmit && npx vitest run` clean; manual check: student drags words in fill_blanks → teacher drawer shows the partial arrangement within ~10 s.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add frontend/src/components
+git commit -m "feat(live-frontend): draft capture from V2 live exercises (throttled, dirty-checked)"
+```
+
+---
+
+## Follow-up milestone (Plan 3, scheduled right after Plans 1+2 ship): full exercise-type coverage in live player
+
+Owner decision 2026-07-23: all 24 exercise types must work in the live `task` scene; base ships first, this follows immediately. Plan 3 gets written after the base is implemented, starting with an investigation task:
+
+- **Path A (preferred, investigate first):** reuse the EXISTING per-type student players from the regular lesson page (`(dashboard)/courses/[courseId]/lessons/[lessonId]`) inside the live task scene — every type already renders and submits there today; live mode may only need mount + submit-hook compatibility (the backend submit hook from Plan 1 is type-agnostic already).
+- **Path B (where A doesn't fit):** extend `V2_LIVE_TYPES` per type — backend `_strip_answers` support + `V2ExerciseLive` prop mapping per type (the current 3-type pattern).
+- **code_challenge** rides Path A (Monaco player + sandbox grading already work in the normal flow) and is the biggest peek/draft payoff — `onAnswersChange`/draft wiring for it lands in the same plan.
+- Draft capture per type follows whichever path the type takes (Task 11's mechanism is the template).
+
 ## Plan self-review notes (done at write time)
 
 - **Spec coverage:** teacher layout A §9 ✓ (T8), student screen §9 ✓ (T6), projector §9 ✓ (T9), entry via groups + banner §9 ✓ (T9; journal-slot button deferred, noted), board sync §8 ✓ (T4), materials §4 ✓ (T5), task assign §4/§9 ✓ (T5/T8), solution §4 ✓ (T5/T8), signals+polls §7 ✓ (T5/T7), hints §6 ✓ (T7), review mode §10 ✓ (T9), heartbeat/presence §6 ✓ (T6/T8), i18n ratchet ✓ (T3, every component calls useTranslation).
