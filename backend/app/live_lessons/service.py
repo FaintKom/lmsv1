@@ -341,3 +341,66 @@ async def roster(db: AsyncSession, lesson: LiveLesson) -> dict:
             }
         )
     return {"members": members}
+
+
+async def set_signal(lesson: LiveLesson, user: User, signal_type: str | None) -> None:
+    r = realtime.get_redis()
+    key = realtime.signals_key(lesson.id)
+    if signal_type is None:
+        await r.hdel(key, str(user.id))
+    else:
+        await r.hset(key, str(user.id), signal_type)
+    await realtime.publish(
+        lesson.id,
+        "teacher",
+        "signal",
+        {"student_id": str(user.id), "type": signal_type, "on": signal_type is not None},
+    )
+
+
+async def start_poll(lesson: LiveLesson, question: str, options: list[str]) -> dict:
+    r = realtime.get_redis()
+    poll = {"question": question, "options": options}
+    await r.set(realtime.poll_key(lesson.id), json.dumps(poll))
+    await r.delete(realtime.poll_votes_key(lesson.id))
+    await realtime.publish(lesson.id, "all", "poll_started", poll)
+    return poll
+
+
+async def _poll_counts(lesson: LiveLesson, poll: dict) -> list[int]:
+    r = realtime.get_redis()
+    votes = await r.hgetall(realtime.poll_votes_key(lesson.id))
+    counts = [0] * len(poll["options"])
+    for v in votes.values():
+        counts[int(v)] += 1
+    return counts
+
+
+async def vote_poll(lesson: LiveLesson, user: User, option: int) -> None:
+    r = realtime.get_redis()
+    poll_raw = await r.get(realtime.poll_key(lesson.id))
+    if poll_raw is None:
+        raise ValueError("no active poll")
+    poll = json.loads(poll_raw)
+    if option >= len(poll["options"]):
+        raise ValueError("bad option")
+    await r.hset(realtime.poll_votes_key(lesson.id), str(user.id), str(option))
+    counts = await _poll_counts(lesson, poll)
+    await realtime.publish(lesson.id, "teacher", "poll_progress", {"counts": counts})
+
+
+async def close_poll(lesson: LiveLesson) -> dict:
+    r = realtime.get_redis()
+    poll_raw = await r.get(realtime.poll_key(lesson.id))
+    if poll_raw is None:
+        raise ValueError("no active poll")
+    poll = json.loads(poll_raw)
+    counts = await _poll_counts(lesson, poll)
+    result = {**poll, "counts": counts}
+    await r.delete(realtime.poll_key(lesson.id), realtime.poll_votes_key(lesson.id))
+    await r.rpush(
+        realtime.scene_log_key(lesson.id),
+        json.dumps({"type": "poll", "poll": result, "at": datetime.now(timezone.utc).isoformat()}),
+    )
+    await realtime.publish(lesson.id, "all", "poll_closed", result)
+    return result

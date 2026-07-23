@@ -279,3 +279,64 @@ async def test_list_lessons_for_student(client, db, org, teacher, student):
     resp = await client.get("/api/v1/live-lessons", headers=auth_header(student))
     assert resp.status_code == 200
     assert [item["id"] for item in resp.json()] == [lesson_id]
+
+
+async def test_signal_set_and_clear(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/signals",
+        json={"type": "hand"},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 204
+    state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    ).json()
+    assert state["my_signal"] == "hand"
+    resp = await client.delete(
+        f"/api/v1/live-lessons/{lesson_id}/signals", headers=auth_header(student)
+    )
+    assert resp.status_code == 204
+    state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    ).json()
+    assert state["my_signal"] is None
+
+
+async def test_poll_lifecycle(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    poll = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson_id}/polls",
+            json={"question": "2+2?", "options": ["3", "4"]},
+            headers=auth_header(teacher),
+        )
+    ).json()
+    assert poll["question"] == "2+2?"
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/polls/vote",
+        json={"option": 1},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 204
+    closed = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson_id}/polls/close", headers=auth_header(teacher)
+        )
+    ).json()
+    assert closed["counts"] == [0, 1]
+    # poll gone from state
+    state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    ).json()
+    assert state["active_poll"] is None

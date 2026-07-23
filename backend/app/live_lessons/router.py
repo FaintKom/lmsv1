@@ -3,13 +3,14 @@
 import json as _json
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.models import StudentGroupMember
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
+from app.common.rate_limit import limiter
 from app.db.session import get_db
 from app.live_lessons import realtime, service
 from app.live_lessons.models import LessonBoard, LiveLesson
@@ -20,9 +21,12 @@ from app.live_lessons.schemas import (
     HeartbeatRequest,
     LessonStateResponse,
     LiveLessonResponse,
+    PollCreateRequest,
     SceneRequest,
     SettingsRequest,
+    SignalRequest,
     StartLessonRequest,
+    VoteRequest,
 )
 
 router = APIRouter()
@@ -173,6 +177,84 @@ async def roster_endpoint(
     if not is_teacher:
         raise HTTPException(status_code=403, detail="forbidden")
     return await service.roster(db, lesson)
+
+
+@router.post("/{lesson_id}/signals", status_code=204)
+@limiter.limit("20/minute")
+async def set_signal_endpoint(
+    request: Request,
+    lesson_id: uuid.UUID,
+    data: SignalRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    await service.set_signal(lesson, user, data.type)
+    return Response(status_code=204)
+
+
+@router.delete("/{lesson_id}/signals", status_code=204)
+async def clear_signal_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    await service.set_signal(lesson, user, None)
+    return Response(status_code=204)
+
+
+@router.post("/{lesson_id}/polls")
+async def start_poll_endpoint(
+    lesson_id: uuid.UUID,
+    data: PollCreateRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    return await service.start_poll(lesson, data.question, data.options)
+
+
+@router.post("/{lesson_id}/polls/vote", status_code=204)
+async def vote_poll_endpoint(
+    lesson_id: uuid.UUID,
+    data: VoteRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+        await service.vote_poll(lesson, user, data.option)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    return Response(status_code=204)
+
+
+@router.post("/{lesson_id}/polls/close")
+async def close_poll_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    try:
+        return await service.close_poll(lesson)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.post("/{lesson_id}/boards", response_model=BoardResponse, status_code=201)
