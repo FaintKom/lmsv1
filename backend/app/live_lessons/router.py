@@ -1,9 +1,11 @@
 """Live lessons API."""
 
+import asyncio
 import json as _json
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -306,6 +308,66 @@ async def get_board_endpoint(
     except PermissionError:
         raise HTTPException(status_code=403, detail="forbidden")
     return BoardResponse.model_validate(board)
+
+
+@router.get("/{lesson_id}/events")
+async def lesson_events_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # Authorize with the request-scoped session and capture what we need.
+    # The generator below must never touch `db`: the session is released
+    # when this handler returns, and a held session per stream would
+    # exhaust the pool (16 streams = 16 checked-out connections).
+    try:
+        lesson, is_teacher = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+
+    user_id = str(user.id)
+
+    def allowed(audience: str) -> bool:
+        if audience == "all":
+            return True
+        if audience == "teacher":
+            return is_teacher
+        return audience == f"student:{user_id}"
+
+    async def gen():
+        sub = realtime.subscribe(lesson_id)
+        try:
+            while True:
+                try:
+                    msg = await asyncio.wait_for(anext(sub), timeout=15)
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+                    continue
+                except StopAsyncIteration:
+                    break
+                if not allowed(msg["audience"]):
+                    continue
+                yield (
+                    f"event: {msg['event']}\n"
+                    f"data: {_json.dumps(msg['data'], ensure_ascii=False)}\n\n"
+                )
+                if msg["event"] == "lesson_ended":
+                    break
+        finally:
+            await sub.aclose()
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # nginx: don't buffer this response
+        },
+    )
 
 
 @router.get("/{lesson_id}", response_model=LessonStateResponse)
