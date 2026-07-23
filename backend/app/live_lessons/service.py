@@ -160,3 +160,75 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
         realtime.scene_log_key(lesson.id),
     )
     return lesson
+
+
+SOLUTION_PAYLOAD_CAP = 64_000  # bytes of JSON
+
+
+async def _solution_payload(db: AsyncSession, lesson: LiveLesson, payload: dict) -> dict:
+    """Server builds the snapshot so students never fetch each other's data."""
+    from app.exercises.models import ExerciseSubmission
+    from app.live_lessons.models import ExerciseDraft
+
+    anonymous = bool(payload.get("anonymous", False))
+    answers, source_code, student_id, exercise_id = None, None, None, None
+
+    if payload.get("submission_id"):
+        sub = await db.get(ExerciseSubmission, uuid.UUID(str(payload["submission_id"])))
+        if sub is None:
+            raise ValueError("submission not found")
+        answers, source_code = sub.answers, sub.source_code
+        student_id, exercise_id = sub.student_id, sub.exercise_id
+    elif payload.get("student_id") and payload.get("exercise_id"):
+        student_id = uuid.UUID(str(payload["student_id"]))
+        exercise_id = uuid.UUID(str(payload["exercise_id"]))
+        draft = await db.scalar(
+            select(ExerciseDraft).where(
+                ExerciseDraft.student_id == student_id,
+                ExerciseDraft.exercise_id == exercise_id,
+                ExerciseDraft.org_id == lesson.org_id,
+            )
+        )
+        if draft is None:
+            raise ValueError("draft not found")
+        answers, source_code = draft.answers, draft.source_code
+    else:
+        raise ValueError("solution payload needs submission_id or student_id+exercise_id")
+
+    student_name = None
+    if not anonymous and student_id is not None:
+        student = await db.get(User, student_id)
+        student_name = student.full_name if student else None
+
+    built = {
+        "exercise_id": str(exercise_id) if exercise_id else None,
+        "answers": answers,
+        "source_code": source_code,
+        "student_name": student_name,
+        "anonymous": anonymous,
+    }
+    if len(json.dumps(built, ensure_ascii=False)) > SOLUTION_PAYLOAD_CAP:
+        built["source_code"] = (source_code or "")[: SOLUTION_PAYLOAD_CAP // 2]
+        if len(json.dumps(built, ensure_ascii=False)) > SOLUTION_PAYLOAD_CAP:
+            raise ValueError("solution too large to broadcast")
+    return built
+
+
+async def set_scene(db: AsyncSession, lesson: LiveLesson, scene: dict) -> LiveLesson:
+    if scene["type"] == "solution":
+        scene = {**scene, "payload": await _solution_payload(db, lesson, scene["payload"])}
+    lesson.current_scene = scene
+    r = realtime.get_redis()
+    await r.set(realtime.scene_key(lesson.id), json.dumps(scene))
+    await r.rpush(
+        realtime.scene_log_key(lesson.id),
+        json.dumps({"type": scene["type"], "at": datetime.now(timezone.utc).isoformat()}),
+    )
+    await realtime.publish(lesson.id, "all", "scene_changed", scene)
+    return lesson
+
+
+async def set_follow_mode(db: AsyncSession, lesson: LiveLesson, follow_mode: str) -> LiveLesson:
+    lesson.follow_mode = follow_mode
+    await realtime.publish(lesson.id, "all", "settings_changed", {"follow_mode": follow_mode})
+    return lesson

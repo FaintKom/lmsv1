@@ -82,3 +82,87 @@ async def test_end_lesson_writes_summary(client, db, org, teacher, student):
     assert resp.json()["summary"] is not None
     # invite cleaned up
     assert await realtime.get_redis().get(realtime.invite_key(student.id)) is None
+
+
+async def test_set_scene_and_state(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "material", "payload": {"lesson_id": str(uuid.uuid4())}},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    state = await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    assert state.json()["lesson"]["current_scene"]["type"] == "material"
+
+
+async def test_student_cannot_set_scene(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "blank", "payload": {}},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403
+
+
+async def test_follow_mode_settings(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/settings",
+        json={"follow_mode": "strict"},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["follow_mode"] == "strict"
+
+
+async def test_solution_scene_embeds_submission(client, db, org, teacher, student):
+    from datetime import datetime, timezone
+
+    from app.exercises.models import ExerciseSubmission
+    from tests.conftest import make_course, make_exercise, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson_row.id, org.id)
+    sub = ExerciseSubmission(
+        exercise_id=ex.id,
+        student_id=student.id,
+        answers={"q1": "a"},
+        submitted_at=datetime.now(timezone.utc),
+    )
+    db.add(sub)
+    await db.flush()
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "solution", "payload": {"submission_id": str(sub.id), "anonymous": True}},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    scene = resp.json()["current_scene"]
+    assert scene["payload"]["answers"] == {"q1": "a"}
+    assert scene["payload"]["student_name"] is None  # anonymous

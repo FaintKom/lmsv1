@@ -15,10 +15,27 @@ from app.live_lessons.models import LessonBoard, LiveLesson
 from app.live_lessons.schemas import (
     LessonStateResponse,
     LiveLessonResponse,
+    SceneRequest,
+    SettingsRequest,
     StartLessonRequest,
 )
 
 router = APIRouter()
+
+
+async def _teacher_lesson(lesson_id: uuid.UUID, user: User, db: AsyncSession) -> LiveLesson:
+    """Resolve a lesson the caller may control (teacher of it, or admin). 409 if ended."""
+    try:
+        lesson, is_teacher = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if not is_teacher:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    return lesson
 
 
 @router.post("", response_model=LiveLessonResponse, status_code=201)
@@ -71,6 +88,33 @@ async def active_lesson_endpoint(
         return {"lesson_id": str(lesson.id) if lesson else None}
     lesson_id = await realtime.get_redis().get(realtime.invite_key(user.id))
     return {"lesson_id": lesson_id}
+
+
+@router.patch("/{lesson_id}/scene", response_model=LiveLessonResponse)
+async def set_scene_endpoint(
+    lesson_id: uuid.UUID,
+    data: SceneRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    try:
+        lesson = await service.set_scene(db, lesson, data.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return LiveLessonResponse.model_validate(lesson)
+
+
+@router.patch("/{lesson_id}/settings", response_model=LiveLessonResponse)
+async def set_settings_endpoint(
+    lesson_id: uuid.UUID,
+    data: SettingsRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    lesson = await service.set_follow_mode(db, lesson, data.follow_mode)
+    return LiveLessonResponse.model_validate(lesson)
 
 
 @router.get("/{lesson_id}", response_model=LessonStateResponse)
