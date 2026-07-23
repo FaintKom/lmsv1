@@ -234,3 +234,48 @@ async def test_board_delta_payload_cap(client, db, org, teacher, student):
         headers=auth_header(teacher),
     )
     assert resp.status_code == 413
+
+
+async def test_heartbeat_and_roster(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/heartbeat",
+        json={"current_view": "scene"},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 204
+    roster = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}/roster", headers=auth_header(teacher))
+    ).json()
+    me = next(m for m in roster["members"] if m["id"] == str(student.id))
+    assert me["online"] is True
+    assert me["current_view"] == "scene"
+
+
+async def test_active_endpoint_for_student(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
+    assert resp.json()["lesson_id"] == lesson_id
+
+
+async def test_list_lessons_for_student(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    await client.post(f"/api/v1/live-lessons/{lesson_id}/end", headers=auth_header(teacher))
+    resp = await client.get("/api/v1/live-lessons", headers=auth_header(student))
+    assert resp.status_code == 200
+    assert [item["id"] for item in resp.json()] == [lesson_id]

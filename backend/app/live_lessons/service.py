@@ -291,3 +291,53 @@ async def apply_board_delta(
         {"board_id": str(board.id), "updated": updated, "deleted": deleted, "version": version},
     )
     return board
+
+
+async def heartbeat(
+    lesson: LiveLesson, user: User, current_view: str, exercise_id: uuid.UUID | None
+) -> None:
+    r = realtime.get_redis()
+    if user.id == lesson.teacher_id:
+        await r.set(realtime.teacher_seen_key(lesson.id), "1", ex=realtime.TEACHER_STALE_SECONDS)
+        return
+    key = realtime.presence_key(lesson.id, user.id)
+    prev = await r.get(key)
+    value = json.dumps(
+        {"view": current_view, "exercise_id": str(exercise_id) if exercise_id else None}
+    )
+    await r.set(key, value, ex=realtime.PRESENCE_TTL)
+    await r.set(realtime.active_lesson_key(user.id), str(lesson.id), ex=realtime.PRESENCE_TTL)
+    await r.hincrby(realtime.attendance_key(lesson.id), str(user.id), 1)
+    if prev != value:  # first beat or view/task changed -> notify teacher
+        await realtime.publish(
+            lesson.id,
+            "teacher",
+            "presence",
+            {"student_id": str(user.id), "online": True, **json.loads(value)},
+        )
+
+
+async def roster(db: AsyncSession, lesson: LiveLesson) -> dict:
+    r = realtime.get_redis()
+    rows = await db.execute(
+        select(User.id, User.full_name)
+        .join(StudentGroupMember, StudentGroupMember.user_id == User.id)
+        .where(StudentGroupMember.group_id == lesson.group_id)
+        .order_by(User.full_name)
+    )
+    signals = await r.hgetall(realtime.signals_key(lesson.id))
+    members = []
+    for uid, name in rows:
+        presence_raw = await r.get(realtime.presence_key(lesson.id, uid))
+        presence = json.loads(presence_raw) if presence_raw else None
+        members.append(
+            {
+                "id": str(uid),
+                "name": name,
+                "online": presence is not None,
+                "current_view": presence["view"] if presence else None,
+                "exercise_id": presence["exercise_id"] if presence else None,
+                "signal": signals.get(str(uid)),
+            }
+        )
+    return {"members": members}

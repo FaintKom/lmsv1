@@ -3,10 +3,11 @@
 import json as _json
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.admin.models import StudentGroupMember
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.db.session import get_db
@@ -16,6 +17,7 @@ from app.live_lessons.schemas import (
     BoardCreateRequest,
     BoardDeltaRequest,
     BoardResponse,
+    HeartbeatRequest,
     LessonStateResponse,
     LiveLessonResponse,
     SceneRequest,
@@ -118,6 +120,59 @@ async def set_settings_endpoint(
     lesson = await _teacher_lesson(lesson_id, user, db)
     lesson = await service.set_follow_mode(db, lesson, data.follow_mode)
     return LiveLessonResponse.model_validate(lesson)
+
+
+@router.get("", response_model=list[LiveLessonResponse])
+async def list_lessons_endpoint(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    q = select(LiveLesson).where(LiveLesson.org_id == user.org_id)
+    if user.role == UserRole.student:
+        q = q.join(StudentGroupMember, StudentGroupMember.group_id == LiveLesson.group_id).where(
+            StudentGroupMember.user_id == user.id
+        )
+    elif user.role == UserRole.teacher:
+        q = q.where(LiveLesson.teacher_id == user.id)
+    q = q.order_by(LiveLesson.created_at.desc()).limit(50)
+    rows = (await db.execute(q)).scalars().all()
+    return [LiveLessonResponse.model_validate(x) for x in rows]
+
+
+@router.post("/{lesson_id}/heartbeat", status_code=204)
+async def heartbeat_endpoint(
+    lesson_id: uuid.UUID,
+    data: HeartbeatRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    await service.heartbeat(lesson, user, data.current_view, data.exercise_id)
+    return Response(status_code=204)
+
+
+@router.get("/{lesson_id}/roster")
+async def roster_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        lesson, is_teacher = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if not is_teacher:
+        raise HTTPException(status_code=403, detail="forbidden")
+    return await service.roster(db, lesson)
 
 
 @router.post("/{lesson_id}/boards", response_model=BoardResponse, status_code=201)
