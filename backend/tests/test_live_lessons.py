@@ -166,3 +166,71 @@ async def test_solution_scene_embeds_submission(client, db, org, teacher, studen
     scene = resp.json()["current_scene"]
     assert scene["payload"]["answers"] == {"q1": "a"}
     assert scene["payload"]["student_name"] is None  # anonymous
+
+
+async def test_board_delta_flow(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    board = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson_id}/boards",
+            json={"kind": "board"},
+            headers=auth_header(teacher),
+        )
+    ).json()
+    el = {"id": "el1", "type": "rectangle", "x": 0, "y": 0}
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/boards/{board['id']}",
+        json={"updated": [el], "deleted": [], "version": 1},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    # student fetches full scene
+    got = (
+        await client.get(
+            f"/api/v1/live-lessons/{lesson_id}/boards/{board['id']}",
+            headers=auth_header(student),
+        )
+    ).json()
+    assert got["version"] == 1
+    assert got["scene"]["elements"] == [el]
+    # delete the element
+    await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/boards/{board['id']}",
+        json={"updated": [], "deleted": ["el1"], "version": 2},
+        headers=auth_header(teacher),
+    )
+    got2 = (
+        await client.get(
+            f"/api/v1/live-lessons/{lesson_id}/boards/{board['id']}",
+            headers=auth_header(student),
+        )
+    ).json()
+    assert got2["scene"]["elements"] == []
+
+
+async def test_board_delta_payload_cap(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    board = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson_id}/boards",
+            json={"kind": "board"},
+            headers=auth_header(teacher),
+        )
+    ).json()
+    huge = {"id": "big", "type": "freedraw", "points": "x" * 300_000}
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/boards/{board['id']}",
+        json={"updated": [huge], "deleted": [], "version": 1},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 413

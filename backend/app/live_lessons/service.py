@@ -11,7 +11,7 @@ from app.admin.models import StudentGroup, StudentGroupMember
 from app.attendance.models import AttendanceRecord, AttendanceStatus
 from app.auth.models import User, UserRole
 from app.live_lessons import realtime
-from app.live_lessons.models import LiveLesson
+from app.live_lessons.models import LessonBoard, LiveLesson
 from app.notifications.service import create_notification
 
 ATTENDANCE_PRESENT_SECONDS = 300  # >=5 min of heartbeats => present
@@ -232,3 +232,62 @@ async def set_follow_mode(db: AsyncSession, lesson: LiveLesson, follow_mode: str
     lesson.follow_mode = follow_mode
     await realtime.publish(lesson.id, "all", "settings_changed", {"follow_mode": follow_mode})
     return lesson
+
+
+BOARD_DELTA_CAP = 200_000  # bytes of JSON per PATCH
+
+
+async def create_board(
+    db: AsyncSession, lesson: LiveLesson, kind: str, material_ref: str | None
+) -> LessonBoard:
+    board = LessonBoard(
+        live_lesson_id=lesson.id,
+        kind=kind,
+        scene={"elements": [], "appState": {}},
+        material_ref=material_ref,
+    )
+    db.add(board)
+    await db.flush()
+    return board
+
+
+async def get_board(db: AsyncSession, lesson: LiveLesson, board_id: uuid.UUID) -> LessonBoard:
+    board = await db.scalar(
+        select(LessonBoard).where(
+            LessonBoard.id == board_id, LessonBoard.live_lesson_id == lesson.id
+        )
+    )
+    if board is None:
+        raise ValueError("board not found")
+    return board
+
+
+async def apply_board_delta(
+    db: AsyncSession,
+    lesson: LiveLesson,
+    board: LessonBoard,
+    updated: list[dict],
+    deleted: list[str],
+    version: int,
+) -> LessonBoard:
+    if (
+        len(json.dumps({"updated": updated, "deleted": deleted}, ensure_ascii=False))
+        > BOARD_DELTA_CAP
+    ):
+        raise OverflowError("delta too large")
+    elements = {e["id"]: e for e in board.scene.get("elements", []) if "id" in e}
+    for e in updated:
+        if "id" in e:
+            elements[e["id"]] = e
+    for el_id in deleted:
+        elements.pop(el_id, None)
+    # reassign (not mutate) so SQLAlchemy sees the JSONB change
+    board.scene = {**board.scene, "elements": list(elements.values())}
+    board.version = version
+    await realtime.publish(
+        lesson.id,
+        "all",
+        "board_delta",
+        {"board_id": str(board.id), "updated": updated, "deleted": deleted, "version": version},
+    )
+    return board

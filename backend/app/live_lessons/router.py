@@ -13,6 +13,9 @@ from app.db.session import get_db
 from app.live_lessons import realtime, service
 from app.live_lessons.models import LessonBoard, LiveLesson
 from app.live_lessons.schemas import (
+    BoardCreateRequest,
+    BoardDeltaRequest,
+    BoardResponse,
     LessonStateResponse,
     LiveLessonResponse,
     SceneRequest,
@@ -115,6 +118,57 @@ async def set_settings_endpoint(
     lesson = await _teacher_lesson(lesson_id, user, db)
     lesson = await service.set_follow_mode(db, lesson, data.follow_mode)
     return LiveLessonResponse.model_validate(lesson)
+
+
+@router.post("/{lesson_id}/boards", response_model=BoardResponse, status_code=201)
+async def create_board_endpoint(
+    lesson_id: uuid.UUID,
+    data: BoardCreateRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    board = await service.create_board(db, lesson, data.kind, data.material_ref)
+    return BoardResponse.model_validate(board)
+
+
+@router.patch("/{lesson_id}/boards/{board_id}", response_model=BoardResponse)
+async def board_delta_endpoint(
+    lesson_id: uuid.UUID,
+    board_id: uuid.UUID,
+    data: BoardDeltaRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    try:
+        board = await service.get_board(db, lesson, board_id)
+        board = await service.apply_board_delta(
+            db, lesson, board, data.updated, data.deleted, data.version
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="board not found")
+    except OverflowError:
+        raise HTTPException(status_code=413, detail="delta too large")
+    return BoardResponse.model_validate(board)
+
+
+@router.get("/{lesson_id}/boards/{board_id}", response_model=BoardResponse)
+async def get_board_endpoint(
+    lesson_id: uuid.UUID,
+    board_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # works for ended lessons too (post-lesson review)
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+        board = await service.get_board(db, lesson, board_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    return BoardResponse.model_validate(board)
 
 
 @router.get("/{lesson_id}", response_model=LessonStateResponse)
