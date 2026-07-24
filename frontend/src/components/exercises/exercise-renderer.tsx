@@ -163,11 +163,13 @@ interface ExerciseRendererProps {
  courseId?: string;
  prevLesson?: LessonNavItem | null;
  nextLesson?: LessonNavItem | null;
+ /** Live-lesson draft capture (code/web types) — fires with the same shape submit uses. */
+ onAnswersChange?: (answers: Record<string, unknown>) => void;
 }
 
 const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d"]);
 
-export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson }: ExerciseRendererProps) {
+export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson, onAnswersChange }: ExerciseRendererProps) {
  const router = useRouter();
  const { t } = useTranslation();
  const [submitting, setSubmitting] = useState(false);
@@ -304,6 +306,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  exercise={exercise}
  onSubmit={handleSubmit}
  onFileUpload={handleFileUpload}
+ onAnswersChange={onAnswersChange}
  />
  )}
  </>
@@ -490,10 +493,12 @@ function ExerciseBody({
  exercise,
  onSubmit,
  onFileUpload,
+ onAnswersChange,
 }: {
  exercise: Exercise;
  onSubmit: (body: Record<string, unknown>) => void;
  onFileUpload: (file: File) => void;
+ onAnswersChange?: (answers: Record<string, unknown>) => void;
 }) {
  switch (exercise.exercise_type) {
  case "quiz":
@@ -564,6 +569,7 @@ function ExerciseBody({
  exerciseId={exercise.id}
  config={exercise.config as { language?: string; starter_code?: string }}
  testCases={exercise.test_cases || []}
+ onAnswersChange={onAnswersChange}
  onSubmit={(body) => {
  if (!(body as { _already_submitted?: boolean })._already_submitted) {
  onSubmit(body);
@@ -632,6 +638,7 @@ function ExerciseBody({
  <WebEditorExercise
  exerciseId={exercise.id}
  config={exercise.config as { description?: string; starter_html?: string; starter_css?: string; starter_js?: string; requirements?: string[] }}
+ onAnswersChange={onAnswersChange}
  onSubmit={(body) => {
  if (!(body as { _already_submitted?: boolean })._already_submitted) {
  onSubmit(body);
@@ -790,6 +797,7 @@ function CodeChallengeExercise({
  config,
  testCases,
  onSubmit,
+ onAnswersChange,
 }: {
  exerciseId: string;
  config: {
@@ -800,6 +808,7 @@ function CodeChallengeExercise({
  };
  testCases: TestCase[];
  onSubmit: (body: Record<string, unknown>) => void;
+ onAnswersChange?: (answers: Record<string, unknown>) => void;
 }) {
  const [code, setCode] = useState(config.starter_code || "");
  const [selectedLang, setSelectedLang] = useState(config.language || "python");
@@ -978,7 +987,10 @@ function CodeChallengeExercise({
  height="100%"
  language={monacoLang}
  value={code}
- onChange={(value) => setCode(value || "")}
+ onChange={(value) => {
+ setCode(value || "");
+ onAnswersChange?.({ source_code: value || "", language: selectedLang });
+ }}
  theme="vs-light"
  options={{
  minimap: { enabled: false },

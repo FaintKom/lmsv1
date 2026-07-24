@@ -18,6 +18,8 @@ interface WebEditorExerciseProps {
  exerciseId: string;
  config: WebEditorConfig;
  onSubmit: (body: Record<string, unknown>) => void;
+ /** Live-lesson draft capture — same shape submit uses. */
+ onAnswersChange?: (answers: Record<string, unknown>) => void;
 }
 
 type EditorTab = "html" | "css" | "js";
@@ -58,10 +60,17 @@ export default function WebEditorExercise({
  exerciseId,
  config,
  onSubmit,
+ onAnswersChange,
 }: WebEditorExerciseProps) {
  const [htmlCode, setHtmlCode] = useState(config.starter_html || "");
  const [cssCode, setCssCode] = useState(config.starter_css || "");
  const [jsCode, setJsCode] = useState(config.starter_js || "");
+
+ // live-lesson draft capture
+ useEffect(() => {
+ onAnswersChange?.({ web_code: { html: htmlCode, css: cssCode, js: jsCode } });
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, [htmlCode, cssCode, jsCode]);
  const [activeTab, setActiveTab] = useState<EditorTab>("html");
  const [previewDoc, setPreviewDoc] = useState("");
  const [isSubmitting, setIsSubmitting] = useState(false);

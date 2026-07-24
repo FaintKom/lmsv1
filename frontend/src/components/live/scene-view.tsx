@@ -123,7 +123,8 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       const body = JSON.stringify(latestAnswers.current);
       if (body === lastSent.current) return;
       lastSent.current = body;
-      void saveDraft(exerciseId, latestAnswers.current);
+      const src = (latestAnswers.current as { source_code?: string } | null)?.source_code;
+      void saveDraft(exerciseId, latestAnswers.current, src);
     }, 7000);
   };
 
@@ -143,7 +144,11 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
   }
   return (
     <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
-      <ExerciseRenderer key={exercise.id} exercise={exercise as never} />
+      <ExerciseRenderer
+        key={exercise.id}
+        exercise={exercise as never}
+        onAnswersChange={handleAnswers}
+      />
     </div>
   );
 }
