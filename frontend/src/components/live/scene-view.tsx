@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
+import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import apiClient from "@/lib/api-client";
 import { saveDraft, type Scene } from "@/lib/api/live";
+import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 import { useTranslation } from "@/lib/i18n/context";
 
 import { BoardView, type BoardViewHandle } from "./board-view";
@@ -134,8 +136,15 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       </div>
     );
   }
+  if (isV2LiveType(exercise.exercise_type)) {
+    return (
+      <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+    );
+  }
   return (
-    <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+    <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
+      <ExerciseRenderer key={exercise.id} exercise={exercise as never} />
+    </div>
   );
 }
 
