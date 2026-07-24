@@ -394,6 +394,56 @@ async def test_submission_event_published_and_progress(client, db, org, teacher,
     assert row["submitted"] is True
 
 
+async def test_upload_publishes_submission_event(client, db, org, teacher, student):
+    import asyncio
+    import uuid as _uuid
+
+    from app.exercises.models import ExerciseType
+    from tests.conftest import make_course, make_exercise, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(
+        db,
+        lesson_row.id,
+        org.id,
+        exercise_type=ExerciseType.file_upload,
+        config={"allowed_types": [".pdf"]},
+    )
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/heartbeat",
+        json={"current_view": "scene"},
+        headers=auth_header(student),
+    )
+
+    events = []
+
+    async def listen():
+        async for msg in realtime.subscribe(_uuid.UUID(lesson_id)):
+            if msg["event"] == "submission":
+                events.append(msg)
+                break
+
+    task = asyncio.create_task(listen())
+    await asyncio.sleep(0.05)
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/upload",
+        files={"file": ("notes.pdf", b"%PDF-1.4\n%live smoke\n", "application/pdf")},
+        headers=auth_header(student),
+    )
+    assert resp.status_code in (200, 201), resp.text
+    await asyncio.wait_for(task, timeout=2)
+    assert events[0]["data"]["student_id"] == str(student.id)
+
+
 async def test_message_creates_notification(client, db, org, teacher, student):
     from sqlalchemy import select as sa_select
 
