@@ -115,18 +115,32 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
   const lastSent = useRef<string>("");
   const latestAnswers = useRef<Record<string, unknown> | null>(null);
 
+  const flushDraft = () => {
+    draftTimer.current = null;
+    const body = JSON.stringify(latestAnswers.current);
+    if (body === lastSent.current || latestAnswers.current == null) return;
+    lastSent.current = body;
+    const src = (latestAnswers.current as { source_code?: string }).source_code;
+    void saveDraft(exerciseId, latestAnswers.current, src);
+  };
+
   const handleAnswers = (answers: Record<string, unknown>) => {
     latestAnswers.current = answers;
     if (draftTimer.current != null) return;
-    draftTimer.current = setTimeout(() => {
-      draftTimer.current = null;
-      const body = JSON.stringify(latestAnswers.current);
-      if (body === lastSent.current) return;
-      lastSent.current = body;
-      const src = (latestAnswers.current as { source_code?: string } | null)?.source_code;
-      void saveDraft(exerciseId, latestAnswers.current, src);
-    }, 7000);
+    draftTimer.current = setTimeout(flushDraft, 7000);
   };
+
+  // scene switch / unmount: don't lose the last few seconds of typing
+  useEffect(
+    () => () => {
+      if (draftTimer.current != null) {
+        clearTimeout(draftTimer.current);
+        flushDraft();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exerciseId],
+  );
 
   if (!exercise) return null;
   if (!interactive) {
