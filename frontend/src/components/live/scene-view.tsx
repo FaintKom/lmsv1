@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
+import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import apiClient from "@/lib/api-client";
 import { saveDraft, type Scene } from "@/lib/api/live";
+import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 import { useTranslation } from "@/lib/i18n/context";
 
 import { BoardView, type BoardViewHandle } from "./board-view";
@@ -113,17 +115,32 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
   const lastSent = useRef<string>("");
   const latestAnswers = useRef<Record<string, unknown> | null>(null);
 
+  const flushDraft = () => {
+    draftTimer.current = null;
+    const body = JSON.stringify(latestAnswers.current);
+    if (body === lastSent.current || latestAnswers.current == null) return;
+    lastSent.current = body;
+    const src = (latestAnswers.current as { source_code?: string }).source_code;
+    void saveDraft(exerciseId, latestAnswers.current, src);
+  };
+
   const handleAnswers = (answers: Record<string, unknown>) => {
     latestAnswers.current = answers;
     if (draftTimer.current != null) return;
-    draftTimer.current = setTimeout(() => {
-      draftTimer.current = null;
-      const body = JSON.stringify(latestAnswers.current);
-      if (body === lastSent.current) return;
-      lastSent.current = body;
-      void saveDraft(exerciseId, latestAnswers.current);
-    }, 7000);
+    draftTimer.current = setTimeout(flushDraft, 7000);
   };
+
+  // scene switch / unmount: don't lose the last few seconds of typing
+  useEffect(
+    () => () => {
+      if (draftTimer.current != null) {
+        clearTimeout(draftTimer.current);
+        flushDraft();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exerciseId],
+  );
 
   if (!exercise) return null;
   if (!interactive) {
@@ -134,8 +151,19 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       </div>
     );
   }
+  if (isV2LiveType(exercise.exercise_type)) {
+    return (
+      <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+    );
+  }
   return (
-    <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+    <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
+      <ExerciseRenderer
+        key={exercise.id}
+        exercise={exercise as never}
+        onAnswersChange={handleAnswers}
+      />
+    </div>
   );
 }
 

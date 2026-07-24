@@ -321,6 +321,27 @@ async def upload_file_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     submission = await upload_file_submission(db, exercise_id, user, file)
+
+    # live-lesson hook: mirror of the submit endpoint (see submit_exercise_endpoint)
+    try:
+        from app.live_lessons import realtime as live_realtime
+
+        active = await live_realtime.get_redis().get(live_realtime.active_lesson_key(user.id))
+        if active:
+            await live_realtime.publish(
+                uuid.UUID(active),
+                "teacher",
+                "submission",
+                {
+                    "student_id": str(user.id),
+                    "exercise_id": str(exercise_id),
+                    "passed": submission.passed,
+                    "score": submission.score,
+                },
+            )
+    except Exception:  # noqa: BLE001 — a broken hook must never fail an upload
+        pass
+
     return ExerciseSubmissionResponse.model_validate(submission)
 
 
