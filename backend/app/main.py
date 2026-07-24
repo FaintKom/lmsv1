@@ -58,6 +58,7 @@ from app.gamification.router import router as gamification_router
 from app.integrations.router import router as integrations_router
 from app.journal.router import router as journal_router
 from app.learning_paths.router import router as learning_paths_router
+from app.live_lessons.router import router as live_lessons_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
 from app.meetings.router import router as meetings_router
@@ -307,6 +308,7 @@ async def lifespan(app: FastAPI):
     import app.assignments.models  # noqa
     import app.learning_paths.models  # noqa
     import app.calendar.models  # noqa
+    import app.live_lessons.models  # noqa
     import app.meetings.models  # noqa
     import app.skills.models  # noqa
     import app.exercises.models  # noqa
@@ -484,6 +486,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
     app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
+    app.include_router(live_lessons_router, prefix="/api/v1/live-lessons", tags=["Live Lessons"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])

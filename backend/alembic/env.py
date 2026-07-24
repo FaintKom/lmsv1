@@ -26,6 +26,7 @@ import app.integrations.models  # noqa: F401
 import app.journal.models  # noqa: F401
 import app.knowledge.models  # noqa: F401
 import app.learning_paths.models  # noqa: F401
+import app.live_lessons.models  # noqa: F401
 import app.meetings.models  # noqa: F401
 import app.metered_billing.models  # noqa: F401
 import app.notifications.models  # noqa: F401

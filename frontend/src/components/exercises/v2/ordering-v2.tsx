@@ -17,7 +17,7 @@
  * where every row is by definition correct and locks `ok`.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -40,6 +40,9 @@ export interface OrderingV2Props {
   /** When provided, grading is deferred to the server (integrity model B);
    * the chosen value sequence is sent as `{ order }`. */
   onGrade?: V2GradeFn;
+  /** Live-lesson draft capture: fires with the same shape `onGrade` would
+   * receive whenever the arrangement changes. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
 }
@@ -65,6 +68,7 @@ export function OrderingV2({
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
   onGrade,
+  onAnswersChange,
   onQuit,
   onFinish,
 }: OrderingV2Props) {
@@ -85,6 +89,13 @@ export function OrderingV2({
   /** OR-02: row whose arrow buttons are visible (focused or hovered). */
   const [focusPos, setFocusPos] = useState<number | null>(null);
   const [hoverPos, setHoverPos] = useState<number | null>(null);
+
+  // live-lesson draft capture — same shape as the onGrade payload
+  useEffect(() => {
+    onAnswersChange?.({ order: order.map((i) => items[i]) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order]);
+
   const startY = useRef(0);
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { fire, layer } = useConfetti();

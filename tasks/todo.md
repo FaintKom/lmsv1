@@ -5,6 +5,22 @@
 
 ---
 
+## Live Lesson Mode (2026-07-23) — спека + планы готовы, имплементация не начата
+
+Спека: `docs/superpowers/specs/2026-07-23-live-lesson-mode-design.md`.
+Планы: `docs/superpowers/plans/2026-07-23-live-lesson-{backend,frontend}.md`.
+
+- [ ] Plan 1: backend (модуль live_lessons, SSE + Redis pub/sub, доски, сигналы,
+      опросы, черновики, журнал/посещаемость) — 12 задач.
+- [ ] Plan 2: frontend (экран препода layout A, экран ученика, проектор,
+      ревью, e2e) — 11 задач.
+- [ ] Plan 3 (писать после 1+2): ВСЕ типы упражнений в live-плеере —
+      решение владельца, milestone сразу после базы. Путь A: переиспользовать
+      плееры обычной страницы урока; code_challenge = главный выигрыш для peek.
+      Набросок — в конце Plan 2.
+
+---
+
 ## Feedback-grammar integration: design handoff → v2 exercises (2026-06-10)
 
 Source: `GrassLMS Design System.zip` → `%TEMP%\grasslms-design-system\design_handoff_grasslms\feedback\`.

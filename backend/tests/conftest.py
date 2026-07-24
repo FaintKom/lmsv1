@@ -42,6 +42,7 @@ import app.integrations.models  # noqa
 import app.journal.models  # noqa
 import app.knowledge.models  # noqa
 import app.learning_paths.models  # noqa
+import app.live_lessons.models  # noqa
 import app.meetings.models  # noqa
 import app.metered_billing.models  # noqa
 import app.notifications.models  # noqa
@@ -86,6 +87,22 @@ def _reset_rate_limiter():
     except Exception:
         pass
     yield
+
+
+# ---------------------------------------------------------------------------
+# Live lessons realtime: every test gets a fresh in-memory redis so pub/sub
+# and TTL keys never leak between tests (and no real Redis is required).
+@pytest_asyncio.fixture(autouse=True)
+async def _fake_redis():
+    import fakeredis.aioredis as fakeredis
+
+    from app.live_lessons import realtime
+
+    client = fakeredis.FakeRedis(decode_responses=True)
+    realtime.set_redis(client)
+    yield
+    await client.flushall()
+    realtime.set_redis(None)
 
 
 # ---------------------------------------------------------------------------

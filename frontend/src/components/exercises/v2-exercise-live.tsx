@@ -35,6 +35,8 @@ interface LiveExercise {
 export interface V2ExerciseLiveProps {
   exercise: LiveExercise;
   onFinish?: (r: { correct: boolean; attemptsUsed: number; streak: number }) => void;
+  /** Live-lesson draft capture — forwarded to the underlying V2 component. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
 }
 
@@ -44,7 +46,12 @@ interface AttemptStatus {
   max_reached: boolean;
 }
 
-export function V2ExerciseLive({ exercise, onFinish, onQuit }: V2ExerciseLiveProps) {
+export function V2ExerciseLive({
+  exercise,
+  onFinish,
+  onAnswersChange,
+  onQuit,
+}: V2ExerciseLiveProps) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<AttemptStatus | null>(null);
   // Time-on-task clock — armed once when this live exercise mounts.
@@ -111,6 +118,7 @@ export function V2ExerciseLive({ exercise, onFinish, onQuit }: V2ExerciseLivePro
   const shared = {
     maxAttemptsPerTask: remaining,
     onGrade,
+    onAnswersChange,
     onFinish,
     onQuit,
   } as const;
