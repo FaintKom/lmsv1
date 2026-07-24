@@ -5,19 +5,23 @@
 
 ---
 
-## Live Lesson Mode (2026-07-23) — спека + планы готовы, имплементация не начата
+## Live Lesson Mode (2026-07-23)
 
 Спека: `docs/superpowers/specs/2026-07-23-live-lesson-mode-design.md`.
-Планы: `docs/superpowers/plans/2026-07-23-live-lesson-{backend,frontend}.md`.
+Планы: `docs/superpowers/plans/2026-07-23-live-lesson-{backend,frontend}.md`,
+`docs/superpowers/plans/2026-07-24-live-player-full-types.md`.
 
-- [ ] Plan 1: backend (модуль live_lessons, SSE + Redis pub/sub, доски, сигналы,
-      опросы, черновики, журнал/посещаемость) — 12 задач.
-- [ ] Plan 2: frontend (экран препода layout A, экран ученика, проектор,
-      ревью, e2e) — 11 задач.
-- [ ] Plan 3 (писать после 1+2): ВСЕ типы упражнений в live-плеере —
-      решение владельца, milestone сразу после базы. Путь A: переиспользовать
-      плееры обычной страницы урока; code_challenge = главный выигрыш для peek.
-      Набросок — в конце Plan 2.
+- [x] Plan 1: backend (SSE + Redis pub/sub, доски, сигналы, опросы, черновики,
+      журнал) — **задеплоен в прод 2026-07-24** (PR #179).
+- [x] Plan 2: frontend (экран препода layout A, экран ученика, проектор,
+      ревью) — в том же PR #179. Смоук-фиксы: SSE no-transform (gzip-прокси
+      буферизовал стрим); dev BACKEND_URL смотрел в прод.
+- [x] Plan 3: все 24 типа в live-плеере через ExerciseRenderer + upload-хук +
+      черновики code/web — ветка `feat/live-player-full-types` (2026-07-24).
+- [ ] Backlog: integrity model B для не-V2 типов (ответы в config у клиента —
+      инвентаризация в Plan 3 Task 3); refresh токена для пассивного проектора
+      (SSE 401-луп после 30 мин); invite ученикам, добавленным в группу
+      после старта урока.
 
 ---
 

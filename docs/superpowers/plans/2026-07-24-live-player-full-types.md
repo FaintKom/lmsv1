@@ -70,7 +70,35 @@ Check `isV2LiveType` exact export name in `frontend/src/lib/exercises/v2-adapter
 
 ---
 
-### Task 3: Answer-strip audit for non-V2 configs
+### Task 3: Answer-strip audit — DOWNSCOPED after investigation (2026-07-24)
+
+**Finding:** the non-V2 renderers are CLIENT-graded by design — they read the
+answer keys from config to grade and to show feedback (`translation-exercise.tsx`
+uses `accepted_answers`, `conjugation-exercise.tsx` grades against `row.correct`,
+dialogue/reading read `options[].is_correct`, etc.). Stripping those keys breaks
+the components outright — on the regular lesson page too. Converting ~15
+renderers to server-side feedback is the "integrity model B for all types"
+project (exactly why V2ExerciseLive covers only 3 types today). That is NOT in
+this plan's scope.
+
+**What this task ships instead:**
+- [ ] Document the limitation in the spec §13 backlog: "answers live in config
+  for non-V2 types; a technically savvy student can read them via devtools —
+  identical exposure to the regular lesson page, live mode adds no regression.
+  Fix = migrate renderers to integrity model B (server grading + stripped
+  config), one type at a time, starting with the most exam-critical."
+- [ ] Full answer-key inventory (verified against `submissions/service.py`
+  graders) recorded here for the future migration:
+  matching `pairs`; categorize `categories[].items`; translation
+  `accepted_answers`; sentence_builder `correct_order` (already stripped +
+  word_bank derived); dialogue `messages[].options[].is_correct`; conjugation
+  `table[].correct`; reading `questions[].correct_answer|options[].is_correct`;
+  crossword `words[].word`; map_pin_drop `pins[].x/y/tolerance`; bubble_sheet
+  `questions[].correct`; math_interactive `template_config` answer fields
+  (choices[].correct, correct_answers, final_answer, answers, rule_answer,
+  target_*); srs_flashcard/word_search — answers are shown by design, no leak.
+
+### ~~Task 3 (original): Answer-strip audit for non-V2 configs~~ (superseded above)
 
 **Files:**
 - Modify: `backend/app/exercises/router.py` (`_strip_answers`)
