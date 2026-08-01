@@ -132,7 +132,7 @@ jobs:
 
       - name: Build & push backend
         if: steps.changes.outputs.rebuild_backend == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: backend
           push: true
@@ -144,7 +144,7 @@ jobs:
 
       - name: Build & push frontend
         if: steps.changes.outputs.rebuild_frontend == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: frontend
           push: true
@@ -156,7 +156,7 @@ jobs:
 
       - name: Build & push sandbox
         if: steps.changes.outputs.rebuild_sandbox == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: sandbox
           push: true
