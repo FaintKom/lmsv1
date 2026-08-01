@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { LessonReview } from "@/components/live/lesson-review";
@@ -22,6 +23,7 @@ import { useTranslation } from "@/lib/i18n/context";
 export default function StudentLessonPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const qc = useQueryClient();
   const params = useParams<{ lessonId: string }>();
   const lessonId = params.lessonId;
 
@@ -53,7 +55,12 @@ export default function StudentLessonPage() {
       setPollResult(r);
     },
     onMessage: (m) => toast(t("live.hint.received"), { description: m.text, duration: 15000 }),
-    onLessonEnded: () => setEnded(true),
+    onLessonEnded: () => {
+      setEnded(true);
+      // refetch so the review branch sees the final summary/boards, not
+      // the state cached at join time
+      void qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] });
+    },
   });
 
   // heartbeat every 5s while mounted
@@ -72,7 +79,7 @@ export default function StudentLessonPage() {
   if (isLoading || !state) return null;
 
   if (ended) {
-    if (state.lesson.status === "ended" && (state.board_ids.length > 0 || state.lesson.summary)) {
+    if (state.board_ids.length > 0 || state.lesson.summary) {
       return <LessonReview lesson={state.lesson} boardIds={state.board_ids} />;
     }
     return (

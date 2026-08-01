@@ -82,14 +82,20 @@ export function PollPanel({
           ))}
         </div>
       )}
-      <label className={LABEL}>{t("live.poll.question")}</label>
+      <label htmlFor="poll-question" className={LABEL}>
+        {t("live.poll.question")}
+      </label>
       <input
+        id="poll-question"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         className={`mb-3 ${INPUT}`}
       />
-      <label className={LABEL}>{t("live.poll.options")}</label>
+      <label htmlFor="poll-options" className={LABEL}>
+        {t("live.poll.options")}
+      </label>
       <textarea
+        id="poll-options"
         value={optionsText}
         onChange={(e) => setOptionsText(e.target.value)}
         rows={4}

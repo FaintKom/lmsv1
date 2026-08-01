@@ -227,11 +227,43 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
           {String(payload.source_code)}
         </pre>
       ) : null}
-      {payload.answers ? (
-        <pre className="mt-4 overflow-x-auto rounded-md bg-surface-2 p-4 font-mono text-sm text-text">
-          {JSON.stringify(payload.answers, null, 2)}
-        </pre>
-      ) : null}
+      {payload.answers ? <AnswerList answers={payload.answers as Record<string, unknown>} /> : null}
+    </div>
+  );
+}
+
+/** Human-readable answers instead of a JSON dump. Arrays render as
+ * numbered chips, primitives as labeled rows; anything nested falls back
+ * to compact JSON. */
+function AnswerList({ answers }: { answers: Record<string, unknown> }) {
+  return (
+    <div className="mt-4 flex flex-col gap-3">
+      {Object.entries(answers).map(([key, value]) => (
+        <div key={key}>
+          <div className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text-subtle">
+            {key.replace(/_/g, " ")}
+          </div>
+          {Array.isArray(value) ? (
+            <div className="flex flex-wrap gap-1.5">
+              {value.map((v, i) => (
+                <span
+                  key={i}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-paper-2 px-2.5 py-1 text-sm font-semibold text-text"
+                >
+                  <span className="font-mono text-[10px] font-bold text-ink-300">{i + 1}</span>
+                  {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                </span>
+              ))}
+            </div>
+          ) : typeof value === "object" && value !== null ? (
+            <pre className="overflow-x-auto rounded-md bg-surface-2 p-3 font-mono text-xs text-text">
+              {JSON.stringify(value, null, 2)}
+            </pre>
+          ) : (
+            <span className="text-sm font-semibold text-text">{String(value)}</span>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
