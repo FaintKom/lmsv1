@@ -54,14 +54,31 @@ export default function TeacherLivePage() {
   const [pollCounts, setPollCounts] = useState<number[] | null>(null);
   const [members, setMembers] = useState<RosterMember[]>([]);
   const [pickingMaterial, setPickingMaterial] = useState(false);
+  const [confirmEnd, setConfirmEnd] = useState(false);
   const previewBoardRef = useRef<BoardViewHandle | null>(null);
   const setSceneMut = useSetScene(lessonId);
 
   const currentScene = lesson?.current_scene ?? null;
+  // remember the last material/task so the task and review rails keep
+  // working after the scene moves on (board, poll, blank...)
+  const [lastMaterial, setLastMaterial] = useState<string | null>(null);
+  const [lastExercise, setLastExercise] = useState<string | null>(null);
+  useEffect(() => {
+    if (currentScene?.type === "material" && currentScene.payload.lesson_id) {
+      setLastMaterial(currentScene.payload.lesson_id as string);
+    }
+    if (currentScene?.type === "task" && currentScene.payload.exercise_id) {
+      setLastExercise(currentScene.payload.exercise_id as string);
+    }
+  }, [currentScene]);
   const taskExerciseId =
-    currentScene?.type === "task" ? (currentScene.payload.exercise_id as string) : null;
+    currentScene?.type === "task"
+      ? (currentScene.payload.exercise_id as string)
+      : lastExercise;
   const materialLessonId =
-    currentScene?.type === "material" ? (currentScene.payload.lesson_id as string) : null;
+    currentScene?.type === "material"
+      ? (currentScene.payload.lesson_id as string)
+      : lastMaterial;
 
   const { data: rosterData } = useRoster(lessonId, !!lesson);
   useEffect(() => {
@@ -179,11 +196,7 @@ export default function TeacherLivePage() {
             <MonitorPlay size={14} /> {t("live.projector")}
           </button>
           <button
-            onClick={async () => {
-              if (!confirm(t("live.endConfirm"))) return;
-              await endLesson(lessonId);
-              router.push("/admin/groups");
-            }}
+            onClick={() => setConfirmEnd(true)}
             className="btn-pop btn-pop--coral rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-white"
           >
             {t("live.end")}
@@ -320,6 +333,31 @@ export default function TeacherLivePage() {
           exerciseId={taskExerciseId}
           onClose={() => setPicked(null)}
         />
+      )}
+
+      {confirmEnd && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
+          <div className="w-full max-w-[420px] rounded-xl bg-paper-2 p-8 shadow-lg">
+            <h3 className="mb-6 text-lg font-bold text-text">{t("live.endConfirm")}</h3>
+            <div className="flex justify-end gap-2.5">
+              <button
+                onClick={() => setConfirmEnd(false)}
+                className="btn-pop btn-pop--secondary rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={async () => {
+                  await endLesson(lessonId);
+                  router.push("/admin/groups");
+                }}
+                className="btn-pop btn-pop--coral rounded-md bg-danger px-4 py-2 text-sm font-bold text-white"
+              >
+                {t("live.end")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
