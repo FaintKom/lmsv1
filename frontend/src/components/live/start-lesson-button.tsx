@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Play } from "lucide-react";
 import { toast } from "sonner";
 
 import { getApiError } from "@/lib/api-client";
@@ -35,9 +36,9 @@ export function StartLessonButton({ groupId }: { groupId: string }) {
           }
         }
       }}
-      className="rounded-pill bg-primary px-3 py-1 text-sm font-medium text-white disabled:opacity-50"
+      className="btn-pop inline-flex items-center gap-1.5 rounded-sm bg-primary px-3.5 py-1.5 text-xs font-bold text-white"
     >
-      ▶ {t("live.start")}
+      <Play size={12} strokeWidth={3} /> {t("live.start")}
     </button>
   );
 }

@@ -3,6 +3,15 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  BookOpen,
+  MonitorPlay,
+  PenLine,
+  Puzzle,
+  SearchCheck,
+  Square,
+  type LucideIcon,
+} from "lucide-react";
 
 import { BoardEditor } from "@/components/live/board-editor";
 import { ExercisePicker } from "@/components/live/exercise-picker";
@@ -96,29 +105,36 @@ export default function TeacherLivePage() {
     await setSceneMut.mutateAsync({ type: "board", payload: { board_id: board.id } });
   };
 
-  const railBtn = (key: Rail, emoji: string, label: string, onClick?: () => void) => (
+  const railBtn = (key: Rail, Icon: LucideIcon, label: string, onClick?: () => void) => (
     <button
       key={key}
       title={label}
+      aria-label={label}
       onClick={onClick ?? (() => setRail(key))}
-      className={`flex h-11 w-11 items-center justify-center rounded-lg text-xl ${
-        rail === key ? "bg-primary text-white" : "bg-surface-2 hover:bg-paper-2"
+      className={`flex h-11 w-11 items-center justify-center rounded-md transition-colors ${
+        rail === key
+          ? "bg-primary text-white"
+          : "text-ink-500 hover:bg-surface-2 hover:text-text"
       }`}
     >
-      {emoji}
+      <Icon size={18} strokeWidth={2} />
     </button>
   );
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* top bar */}
-      <div className="flex items-center gap-3 border-b border-border bg-paper-2 px-4 py-2">
-        <span className="font-semibold">{t("live.lesson")}</span>
-        <LessonTimer startedAt={lesson.created_at} />
-        <span className="text-sm text-text-muted">
-          🟢 {onlineCount} {t("live.online")}
+      <div className="flex h-14 items-center gap-3 border-b border-border bg-paper-2 px-5">
+        <span className="flex items-center gap-2 font-extrabold text-text">
+          <span className="h-2 w-2 animate-pulse rounded-pill bg-coral-500" />
+          {t("live.lesson")}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <LessonTimer startedAt={lesson.created_at} />
+        <span className="flex items-center gap-1.5 rounded-pill bg-green-100 px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums text-green-800">
+          <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
+          {onlineCount} {t("live.online")}
+        </span>
+        <div className="ml-auto flex items-center gap-2.5">
           <button
             onClick={() =>
               void setFollowMode(
@@ -126,7 +142,7 @@ export default function TeacherLivePage() {
                 lesson.follow_mode === "free" ? "strict" : "free",
               ).then(() => qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] }))
             }
-            className="rounded-pill bg-surface-2 px-3 py-1 text-sm"
+            className="btn-pop btn-pop--secondary rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
           >
             {lesson.follow_mode === "strict"
               ? t("live.followMode.strict")
@@ -136,9 +152,9 @@ export default function TeacherLivePage() {
             onClick={() =>
               window.open(`/admin/live/${lessonId}/screen`, "_blank", "noopener,noreferrer")
             }
-            className="rounded-pill bg-surface-2 px-3 py-1 text-sm"
+            className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
           >
-            🖥 {t("live.projector")}
+            <MonitorPlay size={14} /> {t("live.projector")}
           </button>
           <button
             onClick={async () => {
@@ -146,7 +162,7 @@ export default function TeacherLivePage() {
               await endLesson(lessonId);
               router.push("/admin/groups");
             }}
-            className="rounded-pill bg-danger px-3 py-1 text-sm font-medium text-white"
+            className="btn-pop btn-pop--coral rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-white"
           >
             {t("live.end")}
           </button>
@@ -155,15 +171,15 @@ export default function TeacherLivePage() {
 
       <div className="flex min-h-0 flex-1">
         {/* scene rail */}
-        <div className="flex flex-col gap-2 border-r border-border bg-paper-2 p-2">
-          {railBtn("blank", "⬜", t("live.scene.blank"), () => {
+        <div className="flex flex-col gap-1.5 border-r border-border bg-paper-2 p-2">
+          {railBtn("blank", Square, t("live.scene.blank"), () => {
             setRail("blank");
             void setSceneMut.mutateAsync({ type: "blank", payload: {} });
           })}
-          {railBtn("board", "🖊", t("live.scene.board"), () => void switchToBoard())}
-          {railBtn("material", "📖", t("live.scene.material"))}
-          {railBtn("task", "🧩", t("live.scene.task"))}
-          {railBtn("solution", "🔍", t("live.scene.solution"))}
+          {railBtn("board", PenLine, t("live.scene.board"), () => void switchToBoard())}
+          {railBtn("material", BookOpen, t("live.scene.material"))}
+          {railBtn("task", Puzzle, t("live.scene.task"))}
+          {railBtn("solution", SearchCheck, t("live.scene.solution"))}
         </div>
 
         {/* stage */}
@@ -183,7 +199,7 @@ export default function TeacherLivePage() {
                 }}
               />
             ) : (
-              <div className="p-6 text-text-muted">—</div>
+              <EmptyHint icon={BookOpen} text="—" />
             ))}
           {rail === "task" &&
             (materialLessonId ? (
@@ -197,11 +213,16 @@ export default function TeacherLivePage() {
                 }}
               />
             ) : currentScene?.type === "task" ? (
-              <div className="flex h-full items-center justify-center text-xl text-text-muted">
-                🧩 {String(currentScene.payload.title ?? "")}
+              <div className="flex h-full flex-col items-center justify-center gap-4">
+                <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+                  <Puzzle size={28} />
+                </span>
+                <span className="text-md font-extrabold text-text">
+                  {String(currentScene.payload.title ?? "")}
+                </span>
               </div>
             ) : (
-              <div className="p-6 text-sm text-text-muted">{t("live.pickMaterial")}</div>
+              <EmptyHint icon={BookOpen} text={t("live.pickMaterial")} />
             ))}
           {rail === "solution" && (
             <SolutionSetup
@@ -211,8 +232,10 @@ export default function TeacherLivePage() {
             />
           )}
           {rail === "blank" && (
-            <div className="flex h-full items-center justify-center text-2xl text-text-subtle">
-              ⬜
+            <div className="flex h-full items-center justify-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-surface-2 text-ink-300">
+                <Square size={28} />
+              </span>
             </div>
           )}
         </div>
@@ -224,8 +247,10 @@ export default function TeacherLivePage() {
               <button
                 key={k}
                 onClick={() => setTab(k)}
-                className={`flex-1 p-2 text-sm ${
-                  tab === k ? "border-b-2 border-primary font-medium" : "text-text-muted"
+                className={`flex-1 border-b-2 px-2 py-3 text-[13px] font-bold transition-colors ${
+                  tab === k
+                    ? "border-primary text-text"
+                    : "border-transparent text-text-muted hover:text-text"
                 }`}
               >
                 {t(`live.tab.${k}`)}
@@ -238,7 +263,9 @@ export default function TeacherLivePage() {
               (progressData ? (
                 <ProgressGrid rows={progressData.students} />
               ) : (
-                <div className="text-sm text-text-subtle">{t("live.pickExercise")}</div>
+                <div className="pt-2 text-center text-sm text-text-subtle">
+                  {t("live.pickExercise")}
+                </div>
               ))}
             {tab === "poll" && <PollPanel lessonId={lessonId} liveCounts={pollCounts} />}
           </div>
@@ -267,9 +294,20 @@ function LessonTimer({ startedAt }: { startedAt: string }) {
   const mm = String(Math.floor(secs / 60)).padStart(2, "0");
   const ss = String(secs % 60).padStart(2, "0");
   return (
-    <span className="font-mono text-sm text-text-muted">
-      ⏱ {mm}:{ss}
+    <span className="font-mono text-sm tabular-nums text-text-muted">
+      {mm}:{ss}
     </span>
+  );
+}
+
+function EmptyHint({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
+      <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+        <Icon size={28} />
+      </span>
+      <span className="max-w-[280px] text-center text-sm text-text-muted">{text}</span>
+    </div>
   );
 }
 
@@ -285,15 +323,16 @@ function SolutionSetup({
   const { t } = useTranslation();
   const [anonymous, setAnonymous] = useState(true);
   if (!exerciseId) {
-    return <div className="p-6 text-sm text-text-muted">{t("live.pickExercise")}</div>;
+    return <EmptyHint icon={SearchCheck} text={t("live.pickExercise")} />;
   }
   return (
     <div className="p-6">
-      <label className="mb-3 flex items-center gap-2 text-sm">
+      <label className="mb-4 flex items-center gap-2.5 text-sm font-semibold text-text">
         <input
           type="checkbox"
           checked={anonymous}
           onChange={(e) => setAnonymous(e.target.checked)}
+          className="h-[18px] w-[18px] rounded-sm border-2 border-ink-200 accent-[var(--color-primary)]"
         />
         {t("live.anonymous")}
       </label>
@@ -306,7 +345,7 @@ function SolutionSetup({
               payload: { exercise_id: exerciseId, student_id: m.id, anonymous },
             })
           }
-          className="block w-full rounded-lg p-2 text-left text-sm hover:bg-paper-2"
+          className="block w-full rounded-md p-2 text-left text-sm font-semibold text-text transition-colors hover:bg-surface-2"
         >
           {t("live.showSolution")}: {m.name}
         </button>

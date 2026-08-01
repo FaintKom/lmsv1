@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import { fetchDraft, sendHint, type Draft, type RosterMember } from "@/lib/api/live";
@@ -44,16 +45,22 @@ export function StudentDrawer({
   }, [exerciseId, member.id]);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-96 border-l border-border bg-paper-2 p-4 shadow-lg">
+    <div className="fixed inset-y-0 right-0 z-40 w-96 border-l border-border bg-paper-2 p-5 shadow-lg">
       <div className="mb-4 flex items-center justify-between">
-        <div className="font-semibold">{member.name}</div>
-        <button onClick={onClose} className="text-text-muted">
-          ✕
+        <div className="text-md font-bold text-text">{member.name}</div>
+        <button
+          onClick={onClose}
+          aria-label={t("common.close")}
+          className="flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-2"
+        >
+          <X size={16} />
         </button>
       </div>
-      <div className="mb-2 text-sm font-medium">{t("live.draft")}</div>
+      <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+        {t("live.draft")}
+      </div>
       {draft ? (
-        <pre className="max-h-64 overflow-auto rounded-lg bg-surface-2 p-3 font-mono text-xs">
+        <pre className="max-h-64 overflow-auto rounded-md bg-ink-900 p-3 font-mono text-xs text-paper">
           {draft.source_code ?? JSON.stringify(draft.answers, null, 2)}
         </pre>
       ) : (
@@ -64,7 +71,7 @@ export function StudentDrawer({
           value={hint}
           onChange={(e) => setHint(e.target.value)}
           placeholder={t("live.hint.placeholder")}
-          className="w-full rounded-lg border border-border bg-surface-2 p-2 text-sm"
+          className="w-full rounded-md border-2 border-border bg-paper-2 px-3 py-2 text-sm transition-colors placeholder:text-ink-300 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
           rows={3}
         />
         <button
@@ -74,7 +81,7 @@ export function StudentDrawer({
             setHint("");
             toast.success(t("live.hint.send"));
           }}
-          className="mt-2 w-full rounded-lg bg-primary p-2 text-sm font-medium text-white disabled:opacity-50"
+          className="btn-pop mt-2 w-full rounded-md bg-primary p-2.5 text-sm font-bold text-white"
         >
           {t("live.hint.send")}
         </button>

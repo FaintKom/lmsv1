@@ -13,16 +13,18 @@ export function LessonReview({ lesson, boardIds }: { lesson: LiveLesson; boardId
   const scenes = (lesson.summary?.scenes ?? []) as { type: string; at: string }[];
 
   return (
-    <div className="p-6">
-      <h1 className="mb-4 text-xl font-semibold">{t("live.review")}</h1>
+    <div className="p-8">
+      <h1 className="mb-5 text-xl font-extrabold text-text">{t("live.review")}</h1>
       {boardIds.length > 0 && (
         <div className="mb-4 flex gap-2">
           {boardIds.map((id, i) => (
             <button
               key={id}
               onClick={() => setOpenBoard(id)}
-              className={`rounded-pill px-3 py-1 text-sm ${
-                openBoard === id ? "bg-primary text-white" : "bg-surface-2"
+              className={`rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors ${
+                openBoard === id
+                  ? "bg-primary text-white"
+                  : "border-2 border-border bg-paper-2 text-text hover:border-green-300"
               }`}
             >
               {t("live.scene.board")} {i + 1}
@@ -31,15 +33,19 @@ export function LessonReview({ lesson, boardIds }: { lesson: LiveLesson; boardId
         </div>
       )}
       {openBoard && (
-        <div className="h-[60vh] rounded-lg border border-border">
+        <div className="h-[60vh] overflow-hidden rounded-lg border border-border bg-paper-2 shadow-sm">
           <BoardView lessonId={lesson.id} boardId={openBoard} handleRef={handleRef} />
         </div>
       )}
-      <div className="mt-6">
+      <div className="mt-6 rounded-lg border border-border bg-paper-2 p-5">
         {scenes.map((s, i) => (
-          <div key={i} className="text-sm text-text-muted">
-            {new Date(s.at).toLocaleTimeString()} —{" "}
-            {t(`live.scene.${s.type}` as never) || s.type}
+          <div key={i} className="flex items-baseline gap-3 py-1 text-sm text-text-muted">
+            <span className="font-mono text-[11px] tabular-nums text-text-subtle">
+              {new Date(s.at).toLocaleTimeString()}
+            </span>
+            <span className="font-semibold text-text">
+              {t(`live.scene.${s.type}` as never) || s.type}
+            </span>
           </div>
         ))}
       </div>
