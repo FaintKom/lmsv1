@@ -34,6 +34,8 @@ from app.live_lessons.schemas import (
 
 router = APIRouter()
 
+SSE_PING_SECONDS = 15  # keepalive cadence; tests shrink this
+
 
 async def _teacher_lesson(lesson_id: uuid.UUID, user: User, db: AsyncSession) -> LiveLesson:
     """Resolve a lesson the caller may control (teacher of it, or admin). 409 if ended."""
@@ -98,8 +100,22 @@ async def active_lesson_endpoint(
             )
         )
         return {"lesson_id": str(lesson.id) if lesson else None}
-    lesson_id = await realtime.get_redis().get(realtime.invite_key(user.id))
-    return {"lesson_id": lesson_id}
+    # Membership is read live so students added to the group mid-lesson see
+    # the banner too (the old redis invite key was written once at start).
+    lesson = await db.scalar(
+        select(LiveLesson)
+        .join(StudentGroupMember, StudentGroupMember.group_id == LiveLesson.group_id)
+        .where(
+            StudentGroupMember.user_id == user.id,
+            LiveLesson.status == "active",
+            LiveLesson.org_id == user.org_id,
+        )
+        .order_by(LiveLesson.created_at.desc())
+        .limit(1)
+    )
+    if lesson is not None and await service.teacher_stale(lesson):
+        lesson = None  # abandoned lesson: don't advertise it; start/state paths finalize it
+    return {"lesson_id": str(lesson.id) if lesson else None}
 
 
 @router.patch("/{lesson_id}/scene", response_model=LiveLessonResponse)
@@ -421,15 +437,25 @@ async def lesson_events_endpoint(
 
     async def gen():
         sub = realtime.subscribe(lesson_id)
+        nxt: asyncio.Task | None = None
         try:
             while True:
-                try:
-                    msg = await asyncio.wait_for(anext(sub), timeout=15)
-                except asyncio.TimeoutError:
+                if nxt is None:
+                    nxt = asyncio.ensure_future(anext(sub))
+                # NOT asyncio.wait_for: its timeout cancels anext(), which
+                # finalizes the subscription generator — the next anext()
+                # raises StopAsyncIteration and the stream dies right after
+                # the first ping (prod: every SSE connection closed at ~15s).
+                done, _ = await asyncio.wait({nxt}, timeout=SSE_PING_SECONDS)
+                if not done:
                     yield ": ping\n\n"
                     continue
+                try:
+                    msg = nxt.result()
                 except StopAsyncIteration:
                     break
+                finally:
+                    nxt = None
                 if not allowed(msg["audience"]):
                     continue
                 yield (
@@ -439,6 +465,12 @@ async def lesson_events_endpoint(
                 if msg["event"] == "lesson_ended":
                     break
         finally:
+            if nxt is not None:
+                nxt.cancel()
+                try:
+                    await nxt
+                except (asyncio.CancelledError, StopAsyncIteration):
+                    pass
             await sub.aclose()
 
     return StreamingResponse(

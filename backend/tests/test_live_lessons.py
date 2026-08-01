@@ -29,9 +29,9 @@ async def test_start_lesson(client: AsyncClient, db, org, teacher, student):
     body = resp.json()
     assert body["status"] == "active"
     assert body["current_scene"]["type"] == "blank"
-    # invite key set for the student
-    r = realtime.get_redis()
-    assert await r.get(realtime.invite_key(student.id)) == body["id"]
+    # student sees the lesson via /active (live membership query)
+    resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
+    assert resp.json()["lesson_id"] == body["id"]
 
 
 async def test_start_conflicts_when_active_and_fresh(client, db, org, teacher, student):
@@ -80,8 +80,9 @@ async def test_end_lesson_writes_summary(client, db, org, teacher, student):
     assert resp.status_code == 200
     assert resp.json()["status"] == "ended"
     assert resp.json()["summary"] is not None
-    # invite cleaned up
-    assert await realtime.get_redis().get(realtime.invite_key(student.id)) is None
+    # /active no longer advertises the lesson
+    resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
+    assert resp.json()["lesson_id"] is None
 
 
 async def test_set_scene_and_state(client, db, org, teacher, student):
@@ -266,6 +267,38 @@ async def test_active_endpoint_for_student(client, db, org, teacher, student):
     ).json()["id"]
     resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
     assert resp.json()["lesson_id"] == lesson_id
+
+
+async def test_active_for_student_added_after_start(client, db, org, teacher, student):
+    from app.auth.models import UserRole
+    from tests.conftest import _make_user
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    # a student joining the group mid-lesson must still see it via /active
+    late = _make_user(db, org, UserRole.student, suffix="late")
+    await db.flush()
+    db.add(StudentGroupMember(group_id=g.id, user_id=late.id))
+    await db.flush()
+    resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(late))
+    assert resp.json()["lesson_id"] == lesson_id
+
+
+async def test_active_hides_stale_lesson(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    # teacher gone: no teacher_seen key => not advertised to students
+    await realtime.get_redis().delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
+    assert resp.json()["lesson_id"] is None
 
 
 async def test_list_lessons_for_student(client, db, org, teacher, student):

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+import apiClient from "@/lib/api-client";
 import type { BoardDelta, FollowMode, Poll, PollResult, Scene, SignalType } from "@/lib/api/live";
 
 export interface LessonChannelHandlers {
@@ -58,17 +59,10 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
 
   useEffect(() => {
     if (!lessonId) return;
-    const es = new EventSource(`/api/v1/live-lessons/${lessonId}/events`);
+    let es: EventSource | null = null;
+    let stopped = false;
     let hadDrop = false;
-
-    es.onopen = () => {
-      if (hadDrop) {
-        qc.invalidateQueries({ queryKey: ["live", lessonId] });
-      }
-    };
-    es.onerror = () => {
-      hadDrop = true; // EventSource auto-reconnects
-    };
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
     const dispatch: Record<string, (data: never) => void> = {
       scene_changed: (d) => handlersRef.current.onSceneChanged?.(d),
@@ -83,14 +77,46 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       message: (d) => handlersRef.current.onMessage?.(d),
       lesson_ended: () => {
         handlersRef.current.onLessonEnded?.();
-        es.close();
+        stopped = true;
+        es?.close();
       },
     };
-    for (const name of EVENT_NAMES) {
-      es.addEventListener(name, (e) => {
-        dispatch[name](JSON.parse((e as MessageEvent).data) as never);
-      });
-    }
-    return () => es.close();
+
+    const connect = () => {
+      es = new EventSource(`/api/v1/live-lessons/${lessonId}/events`);
+      es.onopen = () => {
+        if (hadDrop) {
+          qc.invalidateQueries({ queryKey: ["live", lessonId] });
+        }
+      };
+      es.onerror = () => {
+        // EventSource never sees the status code, so once the access-token
+        // cookie expires its native auto-reconnect loops into 401 forever —
+        // passive screens (projector) make no axios calls that would refresh
+        // the session. Take over reconnection: close, ping an authenticated
+        // endpoint (apiClient's interceptor rotates the cookies on 401,
+        // redirects to /login if the session is truly dead), reconnect.
+        hadDrop = true;
+        es?.close();
+        void apiClient
+          .get("/auth/me", { _silentError: true } as object)
+          .catch(() => {})
+          .finally(() => {
+            if (!stopped) timer = setTimeout(connect, 2000);
+          });
+      };
+      for (const name of EVENT_NAMES) {
+        es.addEventListener(name, (e) => {
+          dispatch[name](JSON.parse((e as MessageEvent).data) as never);
+        });
+      }
+    };
+
+    connect();
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      es?.close();
+    };
   }, [lessonId, qc]);
 }
