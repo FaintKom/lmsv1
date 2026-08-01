@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Check, RotateCcw } from "lucide-react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
@@ -147,9 +148,11 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
     title?: string;
     config: Record<string, unknown>;
   } | null>(null);
+  const [done, setDone] = useState<null | "solved" | "closed">(null);
   useEffect(() => {
     let cancelled = false;
     setExercise(null);
+    setDone(null);
     void apiClient
       .get(`/exercises/${exerciseId}`)
       .then(({ data }) => {
@@ -203,9 +206,42 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       </div>
     );
   }
+  if (done) {
+    // finished or closed the player — a clear resting state instead of a
+    // reset player or a blank stage (audit S4)
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <span
+          className={`flex h-16 w-16 items-center justify-center rounded-lg ${
+            done === "solved" ? "bg-green-100 text-green-700" : "bg-surface-2 text-ink-400"
+          }`}
+        >
+          <Check size={28} strokeWidth={2.5} />
+        </span>
+        <div className="text-xl font-extrabold text-text">{exercise.title ?? ""}</div>
+        {done === "solved" && (
+          <div className="font-mono text-xs font-bold uppercase tracking-wide text-green-700">
+            {t("live.solved")}
+          </div>
+        )}
+        <button
+          onClick={() => setDone(null)}
+          className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+        >
+          <RotateCcw size={14} /> {t("live.scene.task")}
+        </button>
+      </div>
+    );
+  }
   if (isV2LiveType(exercise.exercise_type)) {
     return (
-      <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+      <V2ExerciseLive
+        key={exercise.id}
+        exercise={exercise}
+        onAnswersChange={handleAnswers}
+        onFinish={() => setDone("solved")}
+        onQuit={() => setDone("closed")}
+      />
     );
   }
   return (
