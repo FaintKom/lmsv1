@@ -148,15 +148,17 @@ export default function TeacherLivePage() {
     <button
       key={key}
       title={label}
-      aria-label={label}
       onClick={onClick ?? (() => setRail(key))}
-      className={`flex h-11 w-11 items-center justify-center rounded-md transition-colors ${
+      className={`flex h-14 w-16 flex-col items-center justify-center gap-1 rounded-md transition-colors ${
         rail === key
           ? "bg-primary text-white"
           : "text-ink-500 hover:bg-surface-2 hover:text-text"
       }`}
     >
-      <Icon size={18} strokeWidth={2} />
+      <Icon size={17} strokeWidth={2} />
+      <span className="max-w-full truncate px-1 font-mono text-[9px] font-bold uppercase tracking-wide">
+        {label}
+      </span>
     </button>
   );
 
@@ -172,6 +174,9 @@ export default function TeacherLivePage() {
         <span className="flex items-center gap-1.5 rounded-pill bg-green-100 px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums text-green-800">
           <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
           {onlineCount} {t("live.online")}
+        </span>
+        <span className="rounded-pill bg-ink-100 px-2.5 py-1 font-mono text-[11px] font-bold text-ink-700">
+          {t("live.nowShowing")}: {t(`live.scene.${currentScene?.type ?? "blank"}` as never)}
         </span>
         <div className="ml-auto flex items-center gap-2.5">
           <button
@@ -285,13 +290,7 @@ export default function TeacherLivePage() {
               onSet={(scene) => void setSceneMut.mutateAsync(scene)}
             />
           )}
-          {rail === "blank" && (
-            <div className="flex h-full items-center justify-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-surface-2 text-ink-300">
-                <Square size={28} />
-              </span>
-            </div>
-          )}
+          {rail === "blank" && <EmptyHint icon={Square} text={t("live.startHint")} />}
         </div>
 
         {/* right panel */}

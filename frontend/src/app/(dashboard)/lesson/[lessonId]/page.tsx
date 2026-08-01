@@ -106,7 +106,14 @@ export default function StudentLessonPage() {
       {poll && <PollModal lessonId={lessonId} poll={poll} onDone={() => setPoll(null)} />}
       {pollResult && (
         <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-paper-2 p-4 shadow-md">
-          <div className="mb-2 text-sm font-bold text-text">
+          <button
+            onClick={() => setPollResult(null)}
+            aria-label={t("common.close")}
+            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-2"
+          >
+            ✕
+          </button>
+          <div className="mb-2 pr-7 text-sm font-bold text-text">
             {t("live.poll.results")}: {pollResult.question}
           </div>
           {pollResult.options.map((opt, i) => (
