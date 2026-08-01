@@ -109,8 +109,31 @@ interface MaterialBlock {
   type: string;
   body?: string;
   format?: string;
+  url?: string;
   page?: number;
   sort_order?: number;
+}
+
+/** youtube/vimeo links become embeds; anything else gets a native player */
+function VideoEmbed({ url }: { url: string }) {
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/);
+  const vimeo = url.match(/vimeo\.com\/(\d+)/);
+  const embed = yt
+    ? `https://www.youtube.com/embed/${yt[1]}`
+    : vimeo
+      ? `https://player.vimeo.com/video/${vimeo[1]}`
+      : null;
+  if (embed) {
+    return (
+      <iframe
+        src={embed}
+        className="aspect-video w-full rounded-lg border border-border"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
+  return <video controls src={url} className="w-full rounded-lg border border-border" />;
 }
 
 function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
@@ -119,10 +142,12 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
   // ponytail: text/html blocks only; exercises go through the task scene.
   const [blocks, setBlocks] = useState<MaterialBlock[] | null>(null);
   const [title, setTitle] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   useEffect(() => {
     let cancelled = false;
     setBlocks(null);
     setTitle(null);
+    setPage(1);
     void apiClient
       .get(`/courses/${payload.course_id}/lessons/${payload.lesson_id}`)
       .then(({ data }) => {
@@ -133,9 +158,10 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
           all
             .filter(
               (b) =>
-                (b.type === "text" || b.type === "html") &&
-                typeof b.body === "string" &&
-                b.body.trim().length > 0,
+                ((b.type === "text" || b.type === "html") &&
+                  typeof b.body === "string" &&
+                  b.body.trim().length > 0) ||
+                (b.type === "video" && typeof b.url === "string" && b.url.length > 0),
             )
             .sort(
               (a, b) => (a.page ?? 1) - (b.page ?? 1) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
@@ -160,18 +186,45 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
       </div>
     );
   }
+  const pages = [...new Set(blocks.map((b) => b.page ?? 1))].sort((a, b) => a - b);
+  const visible = blocks.filter((b) => (b.page ?? 1) === page);
+  const pageNav =
+    pages.length > 1 ? (
+      <div className="mb-6 flex items-center gap-1.5">
+        {pages.map((p) => (
+          <button
+            key={p}
+            onClick={() => setPage(p)}
+            className={`flex h-8 w-8 items-center justify-center rounded-md font-mono text-[11px] font-bold transition-colors ${
+              p === page
+                ? "bg-primary text-white"
+                : "bg-surface-2 text-ink-700 hover:bg-ink-100"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+    ) : null;
+
   return (
     <div className="h-full overflow-y-auto p-8">
       <div className="mx-auto max-w-[820px]">
         <h1 className="mb-6 text-2xl font-extrabold text-text">{title}</h1>
-        {blocks.map((b) => (
+        {pageNav}
+        {visible.map((b) => (
           <div key={b.id} className="mb-8">
-            <ContentRenderer
-              body={b.body as string}
-              format={(b.format as never) || ("html" as never)}
-            />
+            {b.type === "video" ? (
+              <VideoEmbed url={b.url as string} />
+            ) : (
+              <ContentRenderer
+                body={b.body as string}
+                format={(b.format as never) || ("html" as never)}
+              />
+            )}
           </div>
         ))}
+        {pageNav}
       </div>
     </div>
   );

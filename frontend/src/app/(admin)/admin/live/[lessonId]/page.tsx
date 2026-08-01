@@ -118,6 +118,7 @@ export default function TeacherLivePage() {
       setMembers((ms) =>
         ms.map((m) => (m.id === s.student_id ? { ...m, signal: s.on ? s.type : null } : m)),
       ),
+    onSignalsCleared: () => setMembers((ms) => ms.map((m) => ({ ...m, signal: null }))),
     onSubmission: () => {
       void qc.invalidateQueries({ queryKey: ["live", lessonId, "progress"] });
     },

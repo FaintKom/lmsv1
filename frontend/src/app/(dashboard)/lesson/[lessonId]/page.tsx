@@ -35,6 +35,8 @@ export default function StudentLessonPage() {
   const [ended, setEnded] = useState(false);
   const [connected, setConnected] = useState(true);
   const [followMode, setFollowMode] = useState<FollowMode>("free");
+  // bumps when the server clears signals (scene switch) — remounts SignalBar
+  const [signalEpoch, setSignalEpoch] = useState(0);
   const boardHandleRef = useRef<BoardViewHandle | null>(null);
   const prevSceneType = useRef<string | null>(null);
 
@@ -61,6 +63,7 @@ export default function StudentLessonPage() {
     },
     onConnectionChange: setConnected,
     onSettingsChanged: (s) => setFollowMode(s.follow_mode),
+    onSignalsCleared: () => setSignalEpoch((e) => e + 1),
     onBoardDelta: (d) => boardHandleRef.current?.applyRemoteDelta(d as never),
     onPollStarted: (p) => {
       setPollResult(null);
@@ -136,7 +139,11 @@ export default function StudentLessonPage() {
           />
         )}
       </div>
-      <SignalBar lessonId={lessonId} initial={state.my_signal} />
+      <SignalBar
+        key={signalEpoch}
+        lessonId={lessonId}
+        initial={signalEpoch === 0 ? state.my_signal : null}
+      />
       {poll && <PollModal lessonId={lessonId} poll={poll} onDone={() => setPoll(null)} />}
       {pollResult && (
         <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-paper-2 p-4 shadow-md">

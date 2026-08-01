@@ -20,6 +20,8 @@ export interface LessonChannelHandlers {
     exercise_id: string | null;
   }) => void;
   onSignal?: (s: { student_id: string; type: SignalType | null; on: boolean }) => void;
+  /** scene switched — all signals were cleared server-side */
+  onSignalsCleared?: () => void;
   onSubmission?: (s: {
     student_id: string;
     exercise_id: string;
@@ -42,6 +44,7 @@ const EVENT_NAMES = [
   "poll_progress",
   "presence",
   "signal",
+  "signals_cleared",
   "submission",
   "message",
   "lesson_ended",
@@ -76,6 +79,7 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       poll_progress: (d) => handlersRef.current.onPollProgress?.(d),
       presence: (d) => handlersRef.current.onPresence?.(d),
       signal: (d) => handlersRef.current.onSignal?.(d),
+      signals_cleared: () => handlersRef.current.onSignalsCleared?.(),
       submission: (d) => handlersRef.current.onSubmission?.(d),
       message: (d) => handlersRef.current.onMessage?.(d),
       lesson_ended: () => {

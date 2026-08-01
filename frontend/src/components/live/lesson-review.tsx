@@ -25,7 +25,11 @@ export function LessonReview({
   const { t } = useTranslation();
   const [openBoard, setOpenBoard] = useState<string | null>(boardIds[0] ?? null);
   const handleRef = useRef<BoardViewHandle | null>(null);
-  const scenes = (lesson.summary?.scenes ?? []) as { type: string; at: string }[];
+  const scenes = (lesson.summary?.scenes ?? []) as {
+    type: string;
+    at: string;
+    poll?: { question: string; options: string[]; counts: number[] };
+  }[];
   const results = (lesson.summary?.results ?? []) as ResultRow[];
 
   return (
@@ -94,6 +98,15 @@ export function LessonReview({
             <span className="font-semibold text-text">
               {t(`live.scene.${s.type}` as never) || s.type}
             </span>
+            {s.poll && (
+              <span className="min-w-0 flex-1 truncate">
+                {s.poll.question}
+                {" — "}
+                {s.poll.options
+                  .map((opt, oi) => `${opt}: ${s.poll?.counts[oi] ?? 0}`)
+                  .join(" · ")}
+              </span>
+            )}
           </div>
         ))}
       </div>
