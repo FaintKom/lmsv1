@@ -56,8 +56,12 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Prop
     return <SolutionPane payload={scene.payload} />;
   }
   return (
-    <div className="flex h-full items-center justify-center text-2xl text-text-muted">
-      {t("live.lesson")}
+    <div className="flex h-full flex-col items-center justify-center gap-4">
+      <span className="flex items-center gap-2 rounded-pill bg-coral-50 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-coral-700">
+        <span className="h-2 w-2 animate-pulse rounded-pill bg-coral-500" />
+        {t("live.lesson")}
+      </span>
+      <div className="text-xl font-extrabold text-text">{t("live.waiting")}</div>
     </div>
   );
 }
