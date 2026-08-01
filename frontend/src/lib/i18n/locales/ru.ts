@@ -2692,6 +2692,7 @@ const ru: TranslationMap = {
  "live.notInLesson": "не в уроке",
  "live.draft": "Черновик",
  "live.projectorHint": "Откроется отдельным окном для экрана класса",
+ "live.teacherOnly": "Видно только вам",
  "live.nowShowing": "Класс видит",
  "live.waiting": "Ждём преподавателя…",
  "live.startHint": "Выберите сцену слева — класс увидит её мгновенно",
