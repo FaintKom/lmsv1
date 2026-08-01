@@ -62,22 +62,43 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Prop
   );
 }
 
+interface MaterialBlock {
+  id: string;
+  type: string;
+  body?: string;
+  format?: string;
+  page?: number;
+  sort_order?: number;
+}
+
 function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
-  const [content, setContent] = useState<{ body: string; format: string } | null>(null);
+  // Lessons come back in v2 blocks format (normalize_lesson_content wraps
+  // legacy content.body into a text block) — render the readable blocks.
+  // ponytail: text/html blocks only; exercises go through the task scene.
+  const [blocks, setBlocks] = useState<MaterialBlock[] | null>(null);
   const [title, setTitle] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    setContent(null);
+    setBlocks(null);
     setTitle(null);
     void apiClient
       .get(`/courses/${payload.course_id}/lessons/${payload.lesson_id}`)
       .then(({ data }) => {
         if (cancelled) return;
         setTitle((data.title as string) ?? "");
-        const body = data.content?.body;
-        if (typeof body === "string" && body.trim().length > 0) {
-          setContent({ body, format: data.content?.format || "markdown" });
-        }
+        const all = (data.content?.blocks ?? []) as MaterialBlock[];
+        setBlocks(
+          all
+            .filter(
+              (b) =>
+                (b.type === "text" || b.type === "html") &&
+                typeof b.body === "string" &&
+                b.body.trim().length > 0,
+            )
+            .sort(
+              (a, b) => (a.page ?? 1) - (b.page ?? 1) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
+            ),
+        );
       })
       .catch(() => {});
     return () => {
@@ -85,8 +106,8 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
     };
   }, [payload.course_id, payload.lesson_id]);
   if (title === null) return null; // loading
-  if (!content) {
-    // lesson has no text body (e.g. exercises-only) — show its title,
+  if (!blocks || blocks.length === 0) {
+    // nothing readable (empty or exercises-only lesson) — show its title,
     // not a blank stage
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
@@ -98,8 +119,18 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
     );
   }
   return (
-    <div className="h-full overflow-y-auto p-6">
-      <ContentRenderer body={content.body} format={content.format as never} />
+    <div className="h-full overflow-y-auto p-8">
+      <div className="mx-auto max-w-[820px]">
+        <h1 className="mb-6 text-2xl font-extrabold text-text">{title}</h1>
+        {blocks.map((b) => (
+          <div key={b.id} className="mb-8">
+            <ContentRenderer
+              body={b.body as string}
+              format={(b.format as never) || ("html" as never)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
