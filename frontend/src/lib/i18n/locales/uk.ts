@@ -2743,6 +2743,7 @@ const uk: TranslationMap = {
  "live.anonymous": "Анонімно",
  "live.notInLesson": "не на уроці",
  "live.draft": "Чернетка",
+ "live.projectorHint": "Відкриється окремим вікном для екрана класу",
  "live.nowShowing": "Клас бачить",
  "live.waiting": "Чекаємо на викладача…",
  "live.startHint": "Оберіть сцену ліворуч — клас побачить її миттєво",

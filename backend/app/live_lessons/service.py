@@ -212,8 +212,16 @@ async def _solution_payload(db: AsyncSession, lesson: LiveLesson, payload: dict)
         student = await db.get(User, student_id)
         student_name = student.full_name if student else None
 
+    exercise_title = None
+    if exercise_id is not None:
+        from app.exercises.models import Exercise
+
+        ex = await db.get(Exercise, exercise_id)
+        exercise_title = ex.title if ex else None
+
     built = {
         "exercise_id": str(exercise_id) if exercise_id else None,
+        "exercise_title": exercise_title,
         "answers": answers,
         "source_code": source_code,
         "student_name": student_name,

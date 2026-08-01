@@ -56,7 +56,8 @@ export function StudentDrawer({
           <X size={16} />
         </button>
       </div>
-      <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+      <div className="mb-2 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-green-500" />
         {t("live.draft")}
       </div>
       {draft ? (

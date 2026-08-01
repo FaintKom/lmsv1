@@ -40,10 +40,15 @@ export function SignalBar({
   );
 
   return (
-    <div className="flex items-center justify-center gap-3 border-t border-border bg-paper-2 p-3">
-      {btn("hand", t("live.signal.hand"), "✋")}
-      {btn("confused", t("live.signal.confused"), "🤔")}
-      {btn("done", t("live.signal.done"), "✅")}
+    <div className="flex flex-col items-center gap-1.5 border-t border-border bg-paper-2 p-3 pt-2">
+      <div className="font-mono text-[10px] font-bold uppercase tracking-wide text-text-subtle">
+        {t("live.signalHint")}
+      </div>
+      <div className="flex items-center justify-center gap-3">
+        {btn("hand", t("live.signal.hand"), "✋")}
+        {btn("confused", t("live.signal.confused"), "🤔")}
+        {btn("done", t("live.signal.done"), "✅")}
+      </div>
     </div>
   );
 }

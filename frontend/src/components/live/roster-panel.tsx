@@ -13,9 +13,17 @@ export function RosterPanel({
   onPick: (m: RosterMember) => void;
 }) {
   const { t } = useTranslation();
+  // signals first, then online, then alphabetically — the row that needs
+  // attention is always on top
+  const sorted = [...members].sort(
+    (a, b) =>
+      Number(!!b.signal) - Number(!!a.signal) ||
+      Number(b.online) - Number(a.online) ||
+      a.name.localeCompare(b.name),
+  );
   return (
     <div className="flex flex-col gap-1 overflow-y-auto">
-      {members.map((m) => (
+      {sorted.map((m) => (
         <button
           key={m.id}
           onClick={() => onPick(m)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Check, RotateCcw } from "lucide-react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
@@ -17,9 +18,11 @@ interface Props {
   scene: Scene;
   boardHandleRef: React.MutableRefObject<BoardViewHandle | null>;
   interactive: boolean; // false on projector
+  /** strict follow mode: the student cannot close the assigned task */
+  canQuit?: boolean;
 }
 
-export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Props) {
+export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQuit = true }: Props) {
   const { t } = useTranslation();
 
   if (scene.type === "board") {
@@ -49,7 +52,11 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Prop
   }
   if (scene.type === "task") {
     return (
-      <TaskPane exerciseId={scene.payload.exercise_id as string} interactive={interactive} />
+      <TaskPane
+        exerciseId={scene.payload.exercise_id as string}
+        interactive={interactive}
+        canQuit={canQuit}
+      />
     );
   }
   if (scene.type === "solution") {
@@ -139,7 +146,15 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
   );
 }
 
-function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive: boolean }) {
+function TaskPane({
+  exerciseId,
+  interactive,
+  canQuit = true,
+}: {
+  exerciseId: string;
+  interactive: boolean;
+  canQuit?: boolean;
+}) {
   const { t } = useTranslation();
   const [exercise, setExercise] = useState<{
     id: string;
@@ -147,9 +162,11 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
     title?: string;
     config: Record<string, unknown>;
   } | null>(null);
+  const [done, setDone] = useState<null | "solved" | "closed">(null);
   useEffect(() => {
     let cancelled = false;
     setExercise(null);
+    setDone(null);
     void apiClient
       .get(`/exercises/${exerciseId}`)
       .then(({ data }) => {
@@ -203,9 +220,42 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
       </div>
     );
   }
+  if (done) {
+    // finished or closed the player — a clear resting state instead of a
+    // reset player or a blank stage (audit S4)
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <span
+          className={`flex h-16 w-16 items-center justify-center rounded-lg ${
+            done === "solved" ? "bg-green-100 text-green-700" : "bg-surface-2 text-ink-400"
+          }`}
+        >
+          <Check size={28} strokeWidth={2.5} />
+        </span>
+        <div className="text-xl font-extrabold text-text">{exercise.title ?? ""}</div>
+        {done === "solved" && (
+          <div className="font-mono text-xs font-bold uppercase tracking-wide text-green-700">
+            {t("live.solved")}
+          </div>
+        )}
+        <button
+          onClick={() => setDone(null)}
+          className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+        >
+          <RotateCcw size={14} /> {t("live.scene.task")}
+        </button>
+      </div>
+    );
+  }
   if (isV2LiveType(exercise.exercise_type)) {
     return (
-      <V2ExerciseLive key={exercise.id} exercise={exercise} onAnswersChange={handleAnswers} />
+      <V2ExerciseLive
+        key={exercise.id}
+        exercise={exercise}
+        onAnswersChange={handleAnswers}
+        onFinish={() => setDone("solved")}
+        onQuit={canQuit ? () => setDone("closed") : undefined}
+      />
     );
   }
   return (
@@ -223,6 +273,11 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
   const { t } = useTranslation();
   return (
     <div className="h-full overflow-y-auto p-8">
+      {payload.exercise_title ? (
+        <h2 className="mb-1 text-xl font-extrabold text-text">
+          {String(payload.exercise_title)}
+        </h2>
+      ) : null}
       <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
         {payload.anonymous ? t("live.anonymous") : String(payload.student_name ?? "")}
       </div>

@@ -2684,6 +2684,7 @@ const tr: TranslationMap = {
  "live.anonymous": "Anonim",
  "live.notInLesson": "derste değil",
  "live.draft": "Taslak",
+ "live.projectorHint": "Sınıf ekranı için ayrı bir pencerede açılır",
  "live.nowShowing": "Sınıf görüyor",
  "live.waiting": "Öğretmen bekleniyor…",
  "live.startHint": "Soldan bir sahne seçin — sınıf anında görür",

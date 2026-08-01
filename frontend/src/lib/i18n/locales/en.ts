@@ -2743,6 +2743,7 @@ const en: TranslationMap = {
  "live.anonymous": "Anonymous",
  "live.notInLesson": "not in lesson",
  "live.draft": "Draft",
+ "live.projectorHint": "Opens in a new window for the classroom screen",
  "live.nowShowing": "Class sees",
  "live.waiting": "Waiting for the teacher…",
  "live.startHint": "Pick a scene on the left — the class sees it instantly",

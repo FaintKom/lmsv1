@@ -28,6 +28,9 @@ export interface LessonChannelHandlers {
   }) => void;
   onMessage?: (m: { text: string }) => void;
   onLessonEnded?: () => void;
+  /** Fires false on stream drop, true once reconnected — drive a
+   * "reconnecting" indicator so students know they may be behind. */
+  onConnectionChange?: (connected: boolean) => void;
 }
 
 const EVENT_NAMES = [
@@ -85,11 +88,13 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
     const connect = () => {
       es = new EventSource(`/api/v1/live-lessons/${lessonId}/events`);
       es.onopen = () => {
+        handlersRef.current.onConnectionChange?.(true);
         if (hadDrop) {
           qc.invalidateQueries({ queryKey: ["live", lessonId] });
         }
       };
       es.onerror = () => {
+        handlersRef.current.onConnectionChange?.(false);
         // EventSource never sees the status code, so once the access-token
         // cookie expires its native auto-reconnect loops into 401 forever —
         // passive screens (projector) make no axios calls that would refresh
