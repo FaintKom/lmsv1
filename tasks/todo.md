@@ -18,10 +18,14 @@
       буферизовал стрим); dev BACKEND_URL смотрел в прод.
 - [x] Plan 3: все 24 типа в live-плеере через ExerciseRenderer + upload-хук +
       черновики code/web — ветка `feat/live-player-full-types` (2026-07-24).
+- [x] Фикс SSE-стабильности + backlog×2 (PR #183, прод 2026-08-01):
+      стрим умирал через 15с (wait_for/anext — см. lessons.md);
+      проектор — reconnect с refresh cookies через /auth/me;
+      /active — живой DB-запрос членства (опоздавшие ученики видят баннер),
+      redis invite-ключи удалены.
+- [x] Рестайл live-экранов под Lively design system (PR #184, 2026-08-01).
 - [ ] Backlog: integrity model B для не-V2 типов (ответы в config у клиента —
-      инвентаризация в Plan 3 Task 3); refresh токена для пассивного проектора
-      (SSE 401-луп после 30 мин); invite ученикам, добавленным в группу
-      после старта урока.
+      инвентаризация в Plan 3 Task 3).
 
 ---
 
