@@ -43,6 +43,12 @@ class LessonStateResponse(BaseModel):
     my_signal: str | None = None
     active_poll: dict | None = None
     board_ids: list[uuid.UUID] = Field(default_factory=list)
+    # teacher view only — student questions asked during the lesson
+    questions: list[dict] | None = None
+
+
+class QuestionRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=500)
 
 
 class BoardCreateRequest(BaseModel):

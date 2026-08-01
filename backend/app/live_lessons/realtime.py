@@ -75,6 +75,10 @@ def teacher_grace_key(lesson_id):
     return f"lesson:{lesson_id}:teacher_grace"  # planted when seen-key is missing
 
 
+def questions_key(lesson_id):
+    return f"lesson:{lesson_id}:questions"  # list of student question json
+
+
 def scene_log_key(lesson_id):
     return f"lesson:{lesson_id}:scene_log"  # list of scene json entries
 

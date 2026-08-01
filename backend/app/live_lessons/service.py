@@ -150,10 +150,12 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
 
     scene_log = [json.loads(s) for s in await r.lrange(realtime.scene_log_key(lesson.id), 0, -1)]
     poll_raw = await r.get(realtime.poll_key(lesson.id))
+    questions = [json.loads(q) for q in await r.lrange(realtime.questions_key(lesson.id), 0, -1)]
     lesson.summary = {
         "attendance_seconds": attendance_seconds,
         "scenes": scene_log,
         "last_poll": json.loads(poll_raw) if poll_raw else None,
+        "questions": questions,
         # class results snapshot — the live progress dies with the lesson,
         # this is what the teacher reviews afterwards
         "results": await _lesson_results(db, lesson, member_ids),
@@ -173,6 +175,7 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
         realtime.teacher_seen_key(lesson.id),
         realtime.teacher_grace_key(lesson.id),
         realtime.scene_log_key(lesson.id),
+        realtime.questions_key(lesson.id),
     )
     return lesson
 

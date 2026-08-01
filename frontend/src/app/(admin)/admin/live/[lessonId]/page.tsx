@@ -35,6 +35,7 @@ import {
   useRoster,
   useSetScene,
   type RosterMember,
+  type StudentQuestion,
 } from "@/lib/api/live";
 import { useLessonChannel } from "@/hooks/use-lesson-channel";
 import { useTranslation } from "@/lib/i18n/context";
@@ -58,6 +59,10 @@ export default function TeacherLivePage() {
   const [pickingTask, setPickingTask] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
   const [classMsg, setClassMsg] = useState("");
+  const [questions, setQuestions] = useState<StudentQuestion[]>([]);
+  useEffect(() => {
+    if (state?.questions) setQuestions(state.questions);
+  }, [state?.questions]);
   const previewBoardRef = useRef<BoardViewHandle | null>(null);
   const setSceneMut = useSetScene(lessonId);
 
@@ -121,6 +126,7 @@ export default function TeacherLivePage() {
         ms.map((m) => (m.id === s.student_id ? { ...m, signal: s.on ? s.type : null } : m)),
       ),
     onSignalsCleared: () => setMembers((ms) => ms.map((m) => ({ ...m, signal: null }))),
+    onStudentQuestion: (q) => setQuestions((qs) => [...qs, q]),
     onSubmission: () => {
       void qc.invalidateQueries({ queryKey: ["live", lessonId, "progress"] });
     },
@@ -359,7 +365,9 @@ export default function TeacherLivePage() {
           <div className="flex border-b border-border">
             {(["group", "task", "poll"] as const).map((k) => {
               const signalCount =
-                k === "group" ? members.filter((m) => m.signal).length : 0;
+                k === "group"
+                  ? members.filter((m) => m.signal).length + questions.length
+                  : 0;
               return (
                 <button
                   key={k}
@@ -383,6 +391,30 @@ export default function TeacherLivePage() {
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             {tab === "group" && (
               <div className="flex h-full flex-col">
+                {questions.length > 0 && (
+                  <div className="mb-3 rounded-md bg-sun-50 p-3">
+                    <div className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
+                      {t("live.questionsTitle")}
+                    </div>
+                    {questions.map((q, i) => (
+                      <div key={`${q.at}-${i}`} className="flex items-start gap-2 py-1 text-sm">
+                        <span className="min-w-0 flex-1">
+                          <span className="font-bold text-text">{q.name}: </span>
+                          <span className="text-text-muted">{q.text}</span>
+                        </span>
+                        <button
+                          onClick={() =>
+                            setQuestions((qs) => qs.filter((_, idx) => idx !== i))
+                          }
+                          aria-label={t("common.close")}
+                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-sun-100"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   <RosterPanel members={members} onPick={setPicked} />
                 </div>

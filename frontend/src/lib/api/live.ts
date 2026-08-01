@@ -37,11 +37,20 @@ export interface PollResult extends Poll {
   counts: number[];
 }
 
+export interface StudentQuestion {
+  student_id: string;
+  name: string;
+  text: string;
+  at: string;
+}
+
 export interface LessonState {
   lesson: LiveLesson;
   my_signal: SignalType | null;
   active_poll: Poll | null;
   board_ids: string[];
+  /** teacher view only */
+  questions?: StudentQuestion[] | null;
 }
 
 export interface Board {
@@ -214,6 +223,10 @@ export async function sendHint(lessonId: string, studentId: string, text: string
 
 export async function sendClassMessage(lessonId: string, text: string) {
   await apiClient.post(`/live-lessons/${lessonId}/messages`, { student_id: null, text });
+}
+
+export async function askQuestion(lessonId: string, text: string) {
+  await apiClient.post(`/live-lessons/${lessonId}/questions`, { text });
 }
 
 export async function saveDraft(

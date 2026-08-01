@@ -3,6 +3,7 @@
 import asyncio
 import json as _json
 import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
@@ -25,6 +26,7 @@ from app.live_lessons.schemas import (
     LiveLessonResponse,
     MessageRequest,
     PollCreateRequest,
+    QuestionRequest,
     SceneRequest,
     SettingsRequest,
     SignalRequest,
@@ -315,6 +317,37 @@ async def send_message_endpoint(
     return Response(status_code=204)
 
 
+@router.post("/{lesson_id}/questions", status_code=204)
+@limiter.limit("10/minute")
+async def ask_question_endpoint(
+    request: Request,
+    lesson_id: uuid.UUID,
+    data: QuestionRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Student asks the teacher a text question (teacher-only visibility)."""
+    try:
+        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    entry = {
+        "student_id": str(user.id),
+        "name": user.full_name,
+        "text": data.text,
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    r = realtime.get_redis()
+    await r.rpush(realtime.questions_key(lesson.id), _json.dumps(entry, ensure_ascii=False))
+    await r.ltrim(realtime.questions_key(lesson.id), -50, -1)
+    await realtime.publish(lesson_id, "teacher", "student_question", entry)
+    return Response(status_code=204)
+
+
 @router.post("/{lesson_id}/polls")
 async def start_poll_endpoint(
     lesson_id: uuid.UUID,
@@ -492,7 +525,7 @@ async def lesson_state_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        lesson, _ = await service.get_lesson_for_user(db, lesson_id, user)
+        lesson, is_teacher = await service.get_lesson_for_user(db, lesson_id, user)
     except ValueError:
         raise HTTPException(status_code=404, detail="lesson not found")
     except PermissionError:
@@ -506,9 +539,15 @@ async def lesson_state_endpoint(
     board_rows = await db.execute(
         select(LessonBoard.id).where(LessonBoard.live_lesson_id == lesson.id)
     )
+    questions = None
+    if is_teacher:
+        questions = [
+            _json.loads(q) for q in await r.lrange(realtime.questions_key(lesson.id), 0, -1)
+        ]
     return LessonStateResponse(
         lesson=LiveLessonResponse.model_validate(lesson),
         my_signal=my_signal,
         active_poll=_json.loads(poll_raw) if poll_raw else None,
         board_ids=[row[0] for row in board_rows],
+        questions=questions,
     )
