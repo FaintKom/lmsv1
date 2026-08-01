@@ -3,6 +3,10 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
+// Excalidraw ≥0.18 ships styles separately — without this import the
+// toolbar renders as unstyled full-size SVGs ("giant icons" bug).
+import "@excalidraw/excalidraw/index.css";
+
 import { fetchBoard } from "@/lib/api/live";
 import { useTranslation } from "@/lib/i18n/context";
 

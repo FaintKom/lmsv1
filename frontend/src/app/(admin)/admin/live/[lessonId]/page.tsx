@@ -187,20 +187,17 @@ export default function TeacherLivePage() {
           {rail === "board" && currentScene?.type === "board" && (
             <BoardEditor lessonId={lessonId} boardId={currentScene.payload.board_id as string} />
           )}
-          {rail === "material" &&
-            (lesson.course_id ? (
-              <MaterialPicker
-                courseId={lesson.course_id}
-                onPick={(materialLesson) => {
-                  void setSceneMut.mutateAsync({
-                    type: "material",
-                    payload: { lesson_id: materialLesson, course_id: lesson.course_id },
-                  });
-                }}
-              />
-            ) : (
-              <EmptyHint icon={BookOpen} text="—" />
-            ))}
+          {rail === "material" && (
+            <MaterialPicker
+              defaultCourseId={lesson.course_id}
+              onPick={(courseId, materialLesson) => {
+                void setSceneMut.mutateAsync({
+                  type: "material",
+                  payload: { lesson_id: materialLesson, course_id: courseId },
+                });
+              }}
+            />
+          )}
           {rail === "task" &&
             (materialLessonId ? (
               <ExercisePicker
