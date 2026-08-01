@@ -67,12 +67,16 @@ export default function TeacherLivePage() {
     courseId: string | null;
   } | null>(null);
   const [lastExercise, setLastExercise] = useState<string | null>(null);
+  const [lastBoard, setLastBoard] = useState<string | null>(null);
   useEffect(() => {
     if (currentScene?.type === "material" && currentScene.payload.lesson_id) {
       setLastMaterial({
         lessonId: currentScene.payload.lesson_id as string,
         courseId: (currentScene.payload.course_id as string) ?? null,
       });
+    }
+    if (currentScene?.type === "board" && currentScene.payload.board_id) {
+      setLastBoard(currentScene.payload.board_id as string);
     }
     if (currentScene?.type === "task" && currentScene.payload.exercise_id) {
       setLastExercise(currentScene.payload.exercise_id as string);
@@ -136,7 +140,7 @@ export default function TeacherLivePage() {
 
   if (lesson.status === "ended") {
     if (state && (state.board_ids.length > 0 || lesson.summary)) {
-      return <LessonReview lesson={lesson} boardIds={state.board_ids} />;
+      return <LessonReview lesson={lesson} boardIds={state.board_ids} teacherView />;
     }
     return (
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
@@ -154,7 +158,14 @@ export default function TeacherLivePage() {
   const switchToBoard = async () => {
     setRail("board");
     if (currentScene?.type === "board") return;
+    // coming back to the board must show the SAME board — a fresh empty
+    // one every time looked like the drawing was lost
+    if (lastBoard) {
+      await setSceneMut.mutateAsync({ type: "board", payload: { board_id: lastBoard } });
+      return;
+    }
     const board = await createBoard(lessonId, "board");
+    setLastBoard(board.id);
     await setSceneMut.mutateAsync({ type: "board", payload: { board_id: board.id } });
   };
 
@@ -192,6 +203,11 @@ export default function TeacherLivePage() {
         <span className="rounded-pill bg-ink-100 px-2.5 py-1 font-mono text-[11px] font-bold text-ink-700">
           {t("live.nowShowing")}: {t(`live.scene.${currentScene?.type ?? "blank"}` as never)}
         </span>
+        {!lesson.course_id && (
+          <span className="rounded-pill bg-sun-100 px-2.5 py-1 font-mono text-[11px] font-bold text-sun-700">
+            {t("live.noAttendance")}
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-2.5">
           <button
             onClick={() =>

@@ -2745,6 +2745,8 @@ const en: TranslationMap = {
  "live.draft": "Draft",
  "live.projectorHint": "Opens in a new window for the classroom screen",
  "live.teacherOnly": "Visible only to you",
+ "live.resultsTitle": "Results",
+ "live.noAttendance": "No course linked - attendance won't be recorded",
  "live.nowShowing": "Class sees",
  "live.waiting": "Waiting for the teacher…",
  "live.startHint": "Pick a scene on the left — the class sees it instantly",

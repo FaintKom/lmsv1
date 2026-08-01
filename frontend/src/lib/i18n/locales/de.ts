@@ -2745,6 +2745,8 @@ const de: TranslationMap = {
  "live.draft": "Entwurf",
  "live.projectorHint": "Öffnet sich in einem neuen Fenster für den Klassenbildschirm",
  "live.teacherOnly": "Nur für Sie sichtbar",
+ "live.resultsTitle": "Ergebnisse",
+ "live.noAttendance": "Kein Kurs verknüpft - Anwesenheit wird nicht erfasst",
  "live.nowShowing": "Die Klasse sieht",
  "live.waiting": "Warten auf die Lehrkraft…",
  "live.startHint": "Links eine Szene wählen — die Klasse sieht sie sofort",

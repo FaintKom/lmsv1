@@ -2683,6 +2683,8 @@ const es: TranslationMap = {
  "live.draft": "Borrador",
  "live.projectorHint": "Se abre en una ventana aparte para la pantalla del aula",
  "live.teacherOnly": "Solo visible para ti",
+ "live.resultsTitle": "Resultados",
+ "live.noAttendance": "Sin curso vinculado - no se registrara la asistencia",
  "live.nowShowing": "La clase ve",
  "live.waiting": "Esperando al profesor…",
  "live.startHint": "Elige una escena a la izquierda — la clase la verá al instante",
