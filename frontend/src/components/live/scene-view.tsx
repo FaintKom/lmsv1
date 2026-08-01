@@ -52,11 +52,7 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQui
   }
   if (scene.type === "task") {
     return (
-      <TaskPane
-        exerciseId={scene.payload.exercise_id as string}
-        interactive={interactive}
-        canQuit={canQuit}
-      />
+      <TaskPane payload={scene.payload} interactive={interactive} canQuit={canQuit} />
     );
   }
   if (scene.type === "solution") {
@@ -147,15 +143,21 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
 }
 
 function TaskPane({
-  exerciseId,
+  payload,
   interactive,
   canQuit = true,
 }: {
-  exerciseId: string;
+  payload: Record<string, unknown>;
   interactive: boolean;
   canQuit?: boolean;
 }) {
   const { t } = useTranslation();
+  const exerciseId = payload.exercise_id as string;
+  // the task payload carries its source material so students can peek at
+  // the theory without leaving the exercise
+  const materialLessonId = (payload.material_lesson_id as string) ?? null;
+  const materialCourseId = (payload.material_course_id as string) ?? null;
+  const [showMaterial, setShowMaterial] = useState(false);
   const [exercise, setExercise] = useState<{
     id: string;
     exercise_type: string;
@@ -220,6 +222,32 @@ function TaskPane({
       </div>
     );
   }
+  const materialOverlay =
+    materialLessonId && materialCourseId ? (
+      <>
+        <button
+          onClick={() => setShowMaterial(true)}
+          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+        >
+          📖 {t("live.scene.material")}
+        </button>
+        {showMaterial && (
+          <div className="absolute inset-0 z-40 bg-paper-2">
+            <MaterialPane
+              payload={{ lesson_id: materialLessonId, course_id: materialCourseId }}
+            />
+            <button
+              onClick={() => setShowMaterial(false)}
+              aria-label={t("common.close")}
+              className="absolute right-4 top-4 z-50 flex h-9 w-9 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </>
+    ) : null;
+
   if (done) {
     // finished or closed the player — a clear resting state instead of a
     // reset player or a blank stage (audit S4)
@@ -249,22 +277,28 @@ function TaskPane({
   }
   if (isV2LiveType(exercise.exercise_type)) {
     return (
-      <V2ExerciseLive
-        key={exercise.id}
-        exercise={exercise}
-        onAnswersChange={handleAnswers}
-        onFinish={() => setDone("solved")}
-        onQuit={canQuit ? () => setDone("closed") : undefined}
-      />
+      <div className="relative h-full">
+        {materialOverlay}
+        <V2ExerciseLive
+          key={exercise.id}
+          exercise={exercise}
+          onAnswersChange={handleAnswers}
+          onFinish={() => setDone("solved")}
+          onQuit={canQuit ? () => setDone("closed") : undefined}
+        />
+      </div>
     );
   }
   return (
-    <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
-      <ExerciseRenderer
-        key={exercise.id}
-        exercise={exercise as never}
-        onAnswersChange={handleAnswers}
-      />
+    <div className="relative h-full">
+      {materialOverlay}
+      <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
+        <ExerciseRenderer
+          key={exercise.id}
+          exercise={exercise as never}
+          onAnswersChange={handleAnswers}
+        />
+      </div>
     </div>
   );
 }

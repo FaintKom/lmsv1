@@ -133,17 +133,21 @@ export function V2ExerciseLive({
         />
       );
     case "fill_blanks":
+      // students get a server-shuffled word_bank; the teacher preview sees
+      // the full config where only `blanks` exists — fall back to it
       return (
         <FillBlanksV2
           text={cfg.text as string | undefined}
-          wordBank={(cfg.word_bank as string[]) ?? []}
+          wordBank={((cfg.word_bank ?? cfg.blanks) as string[]) ?? []}
           {...shared}
         />
       );
     case "ordering":
+      // same asymmetry: word_bank is generated at strip time for students;
+      // the unstripped teacher config carries items / correct_order
       return (
         <OrderingV2
-          items={(cfg.word_bank as string[]) ?? []}
+          items={((cfg.word_bank ?? cfg.items ?? cfg.correct_order) as string[]) ?? []}
           hint={cfg.hint as string | undefined}
           {...shared}
         />

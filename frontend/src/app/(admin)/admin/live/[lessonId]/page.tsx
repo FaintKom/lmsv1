@@ -62,14 +62,27 @@ export default function TeacherLivePage() {
   const currentScene = lesson?.current_scene ?? null;
   // remember the last material/task so the task and review rails keep
   // working after the scene moves on (board, poll, blank...)
-  const [lastMaterial, setLastMaterial] = useState<string | null>(null);
+  const [lastMaterial, setLastMaterial] = useState<{
+    lessonId: string;
+    courseId: string | null;
+  } | null>(null);
   const [lastExercise, setLastExercise] = useState<string | null>(null);
   useEffect(() => {
     if (currentScene?.type === "material" && currentScene.payload.lesson_id) {
-      setLastMaterial(currentScene.payload.lesson_id as string);
+      setLastMaterial({
+        lessonId: currentScene.payload.lesson_id as string,
+        courseId: (currentScene.payload.course_id as string) ?? null,
+      });
     }
     if (currentScene?.type === "task" && currentScene.payload.exercise_id) {
       setLastExercise(currentScene.payload.exercise_id as string);
+      // task payloads carry their source material — survives page reloads
+      if (currentScene.payload.material_lesson_id) {
+        setLastMaterial({
+          lessonId: currentScene.payload.material_lesson_id as string,
+          courseId: (currentScene.payload.material_course_id as string) ?? null,
+        });
+      }
     }
   }, [currentScene]);
   const taskExerciseId =
@@ -79,7 +92,7 @@ export default function TeacherLivePage() {
   const materialLessonId =
     currentScene?.type === "material"
       ? (currentScene.payload.lesson_id as string)
-      : lastMaterial;
+      : (lastMaterial?.lessonId ?? null);
 
   const { data: rosterData } = useRoster(lessonId, !!lesson);
   useEffect(() => {
@@ -293,7 +306,16 @@ export default function TeacherLivePage() {
                   setPickingTask(false);
                   void setSceneMut.mutateAsync({
                     type: "task",
-                    payload: { exercise_id: ex.id, title: ex.title },
+                    payload: {
+                      exercise_id: ex.id,
+                      title: ex.title,
+                      // students can peek at the source material from the task
+                      material_lesson_id: materialLessonId,
+                      material_course_id:
+                        currentScene?.type === "material"
+                          ? ((currentScene.payload.course_id as string) ?? null)
+                          : (lastMaterial?.courseId ?? null),
+                    },
                   });
                 }}
               />
