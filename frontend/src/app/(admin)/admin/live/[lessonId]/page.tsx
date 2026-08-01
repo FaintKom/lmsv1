@@ -196,6 +196,7 @@ export default function TeacherLivePage() {
             onClick={() =>
               window.open(`/admin/live/${lessonId}/screen`, "_blank", "noopener,noreferrer")
             }
+            title={t("live.projectorHint")}
             className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
           >
             <MonitorPlay size={14} /> {t("live.projector")}
