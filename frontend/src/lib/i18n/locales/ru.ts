@@ -2695,6 +2695,7 @@ const ru: TranslationMap = {
  "live.teacherOnly": "Видно только вам",
  "live.resultsTitle": "Результаты",
  "live.noAttendance": "Курс не привязан - посещаемость не запишется",
+ "live.messageAll": "Сообщение классу",
  "live.nowShowing": "Класс видит",
  "live.waiting": "Ждём преподавателя…",
  "live.startHint": "Выберите сцену слева — класс увидит её мгновенно",

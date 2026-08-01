@@ -2747,6 +2747,7 @@ const uk: TranslationMap = {
  "live.teacherOnly": "Бачите лише ви",
  "live.resultsTitle": "Результати",
  "live.noAttendance": "Курс не прив'язано - відвідуваність не запишеться",
+ "live.messageAll": "Повідомлення класу",
  "live.nowShowing": "Клас бачить",
  "live.waiting": "Чекаємо на викладача…",
  "live.startHint": "Оберіть сцену ліворуч — клас побачить її миттєво",

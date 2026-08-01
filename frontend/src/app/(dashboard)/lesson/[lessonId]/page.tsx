@@ -73,7 +73,11 @@ export default function StudentLessonPage() {
       setPoll(null);
       setPollResult(r);
     },
-    onMessage: (m) => toast(t("live.hint.received"), { description: m.text, duration: 15000 }),
+    onMessage: (m) =>
+      toast(m.broadcast ? t("live.messageAll") : t("live.hint.received"), {
+        description: m.text,
+        duration: 15000,
+      }),
     onLessonEnded: () => {
       setEnded(true);
       // refetch so the review branch sees the final summary/boards, not

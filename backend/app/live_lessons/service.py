@@ -477,7 +477,21 @@ async def close_poll(lesson: LiveLesson) -> dict:
     return result
 
 
-async def send_hint(db: AsyncSession, lesson: LiveLesson, student_id: uuid.UUID, text: str) -> None:
+async def send_hint(
+    db: AsyncSession, lesson: LiveLesson, student_id: uuid.UUID | None, text: str
+) -> None:
+    """student_id None => broadcast the message to the whole class."""
+    if student_id is None:
+        await realtime.publish(lesson.id, "all", "message", {"text": text, "broadcast": True})
+        for sid in await group_member_ids(db, lesson.group_id):
+            await create_notification(
+                db,
+                user_id=sid,
+                title="Сообщение от преподавателя",
+                body=text,
+                link=f"/lesson/{lesson.id}",
+            )
+        return
     member = await db.scalar(
         select(StudentGroupMember).where(
             StudentGroupMember.group_id == lesson.group_id,
@@ -486,7 +500,9 @@ async def send_hint(db: AsyncSession, lesson: LiveLesson, student_id: uuid.UUID,
     )
     if member is None:
         raise ValueError("student not in lesson group")
-    await realtime.publish(lesson.id, f"student:{student_id}", "message", {"text": text})
+    await realtime.publish(
+        lesson.id, f"student:{student_id}", "message", {"text": text, "broadcast": False}
+    )
     await create_notification(
         db,
         user_id=student_id,

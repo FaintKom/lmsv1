@@ -2688,6 +2688,7 @@ const tr: TranslationMap = {
  "live.teacherOnly": "Sadece siz görürsünüz",
  "live.resultsTitle": "Sonuçlar",
  "live.noAttendance": "Kurs bağlı değil - yoklama kaydedilmeyecek",
+ "live.messageAll": "Sınıfa mesaj",
  "live.nowShowing": "Sınıf görüyor",
  "live.waiting": "Öğretmen bekleniyor…",
  "live.startHint": "Soldan bir sahne seçin — sınıf anında görür",
