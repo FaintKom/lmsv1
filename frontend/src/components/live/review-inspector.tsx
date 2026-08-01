@@ -5,7 +5,7 @@ import { Eye } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
 import { fetchDraft, type Draft, type ProgressRow, type RosterMember } from "@/lib/api/live";
-import { AnswerList } from "@/components/live/scene-view";
+import { AnswerList, SceneSkeleton } from "@/components/live/scene-view";
 import { useTranslation } from "@/lib/i18n/context";
 
 interface ExerciseInfo {
@@ -79,6 +79,8 @@ export function ReviewInspector({
     (exercise?.config?.text as string | undefined) ||
     null;
 
+  if (!exercise) return <SceneSkeleton />;
+
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="mb-1 flex items-center gap-3">
@@ -94,6 +96,9 @@ export function ReviewInspector({
       </div>
       {context && <p className="mb-5 max-w-[720px] text-sm text-text-muted">{context}</p>}
 
+      {members.length === 0 && (
+        <div className="pt-8 text-center text-sm text-text-subtle">—</div>
+      )}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {members.map((m) => {
           const row = progressById.get(m.id);
