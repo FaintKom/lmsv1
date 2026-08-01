@@ -64,13 +64,16 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Prop
 
 function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
   const [content, setContent] = useState<{ body: string; format: string } | null>(null);
+  const [title, setTitle] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
     setContent(null);
+    setTitle(null);
     void apiClient
       .get(`/courses/${payload.course_id}/lessons/${payload.lesson_id}`)
       .then(({ data }) => {
         if (cancelled) return;
+        setTitle((data.title as string) ?? "");
         const body = data.content?.body;
         if (typeof body === "string" && body.trim().length > 0) {
           setContent({ body, format: data.content?.format || "markdown" });
@@ -81,7 +84,19 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
       cancelled = true;
     };
   }, [payload.course_id, payload.lesson_id]);
-  if (!content) return null;
+  if (title === null) return null; // loading
+  if (!content) {
+    // lesson has no text body (e.g. exercises-only) — show its title,
+    // not a blank stage
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-2xl text-sun-700">
+          📖
+        </span>
+        <span className="text-xl font-extrabold text-text">{title}</span>
+      </div>
+    );
+  }
   return (
     <div className="h-full overflow-y-auto p-6">
       <ContentRenderer body={content.body} format={content.format as never} />
