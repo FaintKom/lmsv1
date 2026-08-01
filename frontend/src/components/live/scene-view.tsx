@@ -18,9 +18,11 @@ interface Props {
   scene: Scene;
   boardHandleRef: React.MutableRefObject<BoardViewHandle | null>;
   interactive: boolean; // false on projector
+  /** strict follow mode: the student cannot close the assigned task */
+  canQuit?: boolean;
 }
 
-export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Props) {
+export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQuit = true }: Props) {
   const { t } = useTranslation();
 
   if (scene.type === "board") {
@@ -50,7 +52,11 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive }: Prop
   }
   if (scene.type === "task") {
     return (
-      <TaskPane exerciseId={scene.payload.exercise_id as string} interactive={interactive} />
+      <TaskPane
+        exerciseId={scene.payload.exercise_id as string}
+        interactive={interactive}
+        canQuit={canQuit}
+      />
     );
   }
   if (scene.type === "solution") {
@@ -140,7 +146,15 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
   );
 }
 
-function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive: boolean }) {
+function TaskPane({
+  exerciseId,
+  interactive,
+  canQuit = true,
+}: {
+  exerciseId: string;
+  interactive: boolean;
+  canQuit?: boolean;
+}) {
   const { t } = useTranslation();
   const [exercise, setExercise] = useState<{
     id: string;
@@ -240,7 +254,7 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
         exercise={exercise}
         onAnswersChange={handleAnswers}
         onFinish={() => setDone("solved")}
-        onQuit={() => setDone("closed")}
+        onQuit={canQuit ? () => setDone("closed") : undefined}
       />
     );
   }

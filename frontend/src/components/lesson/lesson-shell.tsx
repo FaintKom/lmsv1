@@ -385,9 +385,13 @@ export function LessonShell({
   return (
     <div className="lf-shell">
       <div className="lf-top">
-        <button className="lf-close" aria-label={t("exercise.quit")} onClick={onQuit}>
-          <Ico.X />
-        </button>
+        {onQuit ? (
+          <button className="lf-close" aria-label={t("exercise.quit")} onClick={onQuit}>
+            <Ico.X />
+          </button>
+        ) : (
+          <span />
+        )}
         {showBar ? (
           <>
             <div className="lf-progress">

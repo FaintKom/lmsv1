@@ -13,6 +13,7 @@ import type { BoardViewHandle } from "@/components/live/board-view";
 import {
   sendHeartbeat,
   useLessonState,
+  type FollowMode,
   type Poll,
   type PollResult,
   type Scene,
@@ -33,6 +34,7 @@ export default function StudentLessonPage() {
   const [pollResult, setPollResult] = useState<PollResult | null>(null);
   const [ended, setEnded] = useState(false);
   const [connected, setConnected] = useState(true);
+  const [followMode, setFollowMode] = useState<FollowMode>("free");
   const boardHandleRef = useRef<BoardViewHandle | null>(null);
   const prevSceneType = useRef<string | null>(null);
 
@@ -41,6 +43,7 @@ export default function StudentLessonPage() {
     if (state) {
       setScene(state.lesson.current_scene);
       setPoll(state.active_poll);
+      setFollowMode(state.lesson.follow_mode);
       if (state.lesson.status === "ended") setEnded(true);
     }
   }, [state]);
@@ -57,6 +60,7 @@ export default function StudentLessonPage() {
       prevSceneType.current = s.type;
     },
     onConnectionChange: setConnected,
+    onSettingsChanged: (s) => setFollowMode(s.follow_mode),
     onBoardDelta: (d) => boardHandleRef.current?.applyRemoteDelta(d as never),
     onPollStarted: (p) => {
       setPollResult(null);
@@ -115,9 +119,21 @@ export default function StudentLessonPage() {
           {t("live.reconnecting")}
         </div>
       )}
+      {followMode === "strict" && (
+        <div className="flex items-center justify-center gap-2 border-b border-border bg-surface-2 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700">
+          <span className="h-1.5 w-1.5 rounded-pill bg-primary" />
+          {t("live.followStrictBanner")}
+        </div>
+      )}
       <div className="min-h-0 flex-1">
         {scene && (
-          <SceneView lessonId={lessonId} scene={scene} boardHandleRef={boardHandleRef} interactive />
+          <SceneView
+            lessonId={lessonId}
+            scene={scene}
+            boardHandleRef={boardHandleRef}
+            interactive
+            canQuit={followMode !== "strict"}
+          />
         )}
       </div>
       <SignalBar lessonId={lessonId} initial={state.my_signal} />
