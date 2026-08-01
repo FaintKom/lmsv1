@@ -15,6 +15,7 @@ import {
 
 import { BoardEditor } from "@/components/live/board-editor";
 import { ExercisePicker } from "@/components/live/exercise-picker";
+import { LessonReview } from "@/components/live/lesson-review";
 import { MaterialPicker } from "@/components/live/material-picker";
 import { PollPanel } from "@/components/live/poll-panel";
 import { ProgressGrid } from "@/components/live/progress-grid";
@@ -101,6 +102,23 @@ export default function TeacherLivePage() {
   const onlineCount = useMemo(() => members.filter((m) => m.online).length, [members]);
 
   if (!lesson) return null;
+
+  if (lesson.status === "ended") {
+    if (state && (state.board_ids.length > 0 || lesson.summary)) {
+      return <LessonReview lesson={lesson} boardIds={state.board_ids} />;
+    }
+    return (
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
+        <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
+        <button
+          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
+          onClick={() => router.push("/admin/groups")}
+        >
+          {t("common.back")}
+        </button>
+      </div>
+    );
+  }
 
   const switchToBoard = async () => {
     setRail("board");

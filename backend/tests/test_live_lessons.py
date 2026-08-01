@@ -53,13 +53,37 @@ async def test_start_auto_ends_stale_lesson(client, db, org, teacher, student):
         "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
     )
     lesson_id = r1.json()["id"]
-    # simulate teacher gone: drop the teacher_seen key
-    await realtime.get_redis().delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    # teacher truly gone: seen key expired AND the grace marker matured
+    r = realtime.get_redis()
+    await r.delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    await r.set(realtime.teacher_grace_key(uuid.UUID(lesson_id)), "1")
     r2 = await client.post(
         "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
     )
     assert r2.status_code == 201
     assert r2.json()["id"] != lesson_id
+
+
+async def test_redis_flush_does_not_end_lesson(client, db, org, teacher, student):
+    """Deploy restarts redis and wipes teacher_seen for every active lesson.
+    The first stale-check after that must NOT finalize the lesson — it plants
+    a grace marker and the teacher's next heartbeat revives the key."""
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    await realtime.get_redis().delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    state = await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    assert state.json()["lesson"]["status"] == "active"
+    # scene switching keeps working
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "blank", "payload": {}},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
 
 
 async def test_student_cannot_start(client, db, org, teacher, student):
@@ -295,8 +319,10 @@ async def test_active_hides_stale_lesson(client, db, org, teacher, student):
             "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
         )
     ).json()["id"]
-    # teacher gone: no teacher_seen key => not advertised to students
-    await realtime.get_redis().delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    # teacher truly gone: seen key expired AND grace marker matured
+    r = realtime.get_redis()
+    await r.delete(realtime.teacher_seen_key(uuid.UUID(lesson_id)))
+    await r.set(realtime.teacher_grace_key(uuid.UUID(lesson_id)), "1")
     resp = await client.get("/api/v1/live-lessons/active", headers=auth_header(student))
     assert resp.json()["lesson_id"] is None
 

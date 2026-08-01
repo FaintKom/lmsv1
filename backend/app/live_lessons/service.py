@@ -48,8 +48,20 @@ async def get_lesson_for_user(
 
 
 async def teacher_stale(lesson: LiveLesson) -> bool:
+    """A missing teacher_seen key is NOT proof the teacher left: a redis
+    restart (every deploy) wipes it for all active lessons at once. First
+    observation plants a grace marker and reports alive — a live teacher's
+    5s heartbeat recreates teacher_seen well within the grace window. Only
+    if the marker is already there and the teacher still hasn't beaten do
+    we call the lesson stale."""
     r = realtime.get_redis()
-    return await r.get(realtime.teacher_seen_key(lesson.id)) is None
+    if await r.get(realtime.teacher_seen_key(lesson.id)) is not None:
+        return False
+    grace = realtime.teacher_grace_key(lesson.id)
+    if await r.get(grace) is None:
+        await r.set(grace, "1", ex=realtime.TEACHER_STALE_SECONDS)
+        return False
+    return True
 
 
 async def start_lesson(
@@ -156,6 +168,7 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
         realtime.poll_key(lesson.id),
         realtime.poll_votes_key(lesson.id),
         realtime.teacher_seen_key(lesson.id),
+        realtime.teacher_grace_key(lesson.id),
         realtime.scene_log_key(lesson.id),
     )
     return lesson

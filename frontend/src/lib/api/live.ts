@@ -1,5 +1,6 @@
-import apiClient from "@/lib/api-client";
+import apiClient, { getApiError } from "@/lib/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // ---------- types (mirror backend live_lessons schemas) ----------
 
@@ -273,6 +274,11 @@ export function useSetScene(lessonId: string) {
       qc.setQueryData<LessonState>(["live", lessonId, "state"], (old) =>
         old ? { ...old, lesson } : old,
       );
+    },
+    onError: (err) => {
+      // a swallowed 409 here looked like "clicking does nothing" in prod
+      toast.error(getApiError(err));
+      void qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] });
     },
   });
 }
