@@ -29,13 +29,13 @@ export default function ProjectorPage() {
 
   if (ended) {
     return (
-      <div className="flex h-screen items-center justify-center text-3xl">
+      <div className="flex h-screen items-center justify-center bg-paper text-3xl font-extrabold text-text">
         {t("live.endedTitle")}
       </div>
     );
   }
   return (
-    <div className="h-screen w-screen bg-white">
+    <div className="h-screen w-screen bg-paper-2">
       {scene && (
         <SceneView
           lessonId={lessonId}

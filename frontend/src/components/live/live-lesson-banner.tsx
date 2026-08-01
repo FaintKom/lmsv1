@@ -21,11 +21,14 @@ export function LiveLessonBanner() {
 
   if (!lessonId || pathname.startsWith("/lesson/")) return null;
   return (
-    <div className="flex items-center justify-between gap-3 bg-primary px-4 py-2 text-sm text-white">
-      <span>🔴 {t("live.joinBanner")}</span>
+    <div className="mb-4 flex items-center justify-between gap-3 rounded-md bg-primary px-4 py-2.5 text-sm text-white shadow-pop">
+      <span className="flex items-center gap-2 font-semibold">
+        <span className="h-2 w-2 animate-pulse rounded-pill bg-sun-300" />
+        {t("live.joinBanner")}
+      </span>
       <button
         onClick={() => router.push(`/lesson/${lessonId}`)}
-        className="rounded-pill bg-white/20 px-3 py-1 font-medium"
+        className="rounded-pill bg-paper-2 px-3.5 py-1 text-xs font-bold text-green-800 transition-transform hover:translate-y-px"
       >
         {t("live.join")}
       </button>

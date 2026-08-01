@@ -145,9 +145,11 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
   if (!exercise) return null;
   if (!interactive) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2">
-        <div className="text-3xl font-bold">{exercise.title ?? ""}</div>
-        <div className="text-text-muted">{t("live.scene.task")}</div>
+      <div className="flex h-full flex-col items-center justify-center gap-3">
+        <div className="text-3xl font-extrabold text-text">{exercise.title ?? ""}</div>
+        <div className="font-mono text-xs font-bold uppercase tracking-wide text-text-subtle">
+          {t("live.scene.task")}
+        </div>
       </div>
     );
   }
@@ -170,17 +172,17 @@ function TaskPane({ exerciseId, interactive }: { exerciseId: string; interactive
 function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
   const { t } = useTranslation();
   return (
-    <div className="h-full overflow-y-auto p-6">
-      <div className="mb-4 text-sm text-text-muted">
+    <div className="h-full overflow-y-auto p-8">
+      <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
         {payload.anonymous ? t("live.anonymous") : String(payload.student_name ?? "")}
       </div>
       {payload.source_code ? (
-        <pre className="overflow-x-auto rounded-lg bg-surface-2 p-4 font-mono text-sm">
+        <pre className="overflow-x-auto rounded-md bg-ink-900 p-4 font-mono text-sm text-paper">
           {String(payload.source_code)}
         </pre>
       ) : null}
       {payload.answers ? (
-        <pre className="mt-4 overflow-x-auto rounded-lg bg-surface-2 p-4 font-mono text-sm">
+        <pre className="mt-4 overflow-x-auto rounded-md bg-surface-2 p-4 font-mono text-sm text-text">
           {JSON.stringify(payload.answers, null, 2)}
         </pre>
       ) : null}

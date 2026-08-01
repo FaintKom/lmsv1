@@ -76,10 +76,10 @@ export default function StudentLessonPage() {
       return <LessonReview lesson={state.lesson} boardIds={state.board_ids} />;
     }
     return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
-        <div className="text-2xl font-semibold">{t("live.endedTitle")}</div>
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
+        <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="rounded-lg bg-primary px-4 py-2 text-white"
+          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
           onClick={() => router.push("/dashboard")}
         >
           {t("live.toDashboard")}
@@ -98,13 +98,16 @@ export default function StudentLessonPage() {
       <SignalBar lessonId={lessonId} initial={state.my_signal} />
       {poll && <PollModal lessonId={lessonId} poll={poll} onDone={() => setPoll(null)} />}
       {pollResult && (
-        <div className="fixed bottom-20 left-1/2 z-40 -translate-x-1/2 rounded-lg bg-paper-2 p-4 shadow-lg">
-          <div className="mb-2 font-medium">
+        <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-paper-2 p-4 shadow-md">
+          <div className="mb-2 text-sm font-bold text-text">
             {t("live.poll.results")}: {pollResult.question}
           </div>
           {pollResult.options.map((opt, i) => (
-            <div key={i} className="text-sm">
-              {opt} — {pollResult.counts[i]}
+            <div key={i} className="flex items-baseline justify-between gap-4 py-0.5 text-sm">
+              <span className="font-semibold text-text">{opt}</span>
+              <span className="font-mono text-[11px] font-bold tabular-nums text-green-700">
+                {pollResult.counts[i]}
+              </span>
             </div>
           ))}
         </div>

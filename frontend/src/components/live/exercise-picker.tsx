@@ -33,15 +33,20 @@ export function ExercisePicker({
     };
   }, [lessonRowId]);
   return (
-    <div className="h-full overflow-y-auto p-4">
-      <div className="mb-2 font-medium">{t("live.pickExercise")}</div>
+    <div className="h-full overflow-y-auto p-5">
+      <div className="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+        {t("live.pickExercise")}
+      </div>
       {items.map((ex) => (
         <button
           key={ex.id}
           onClick={() => onPick(ex)}
-          className="block w-full rounded-lg p-2 text-left text-sm hover:bg-paper-2"
+          className="flex w-full items-center gap-2 rounded-md p-2 text-left text-sm font-semibold text-text transition-colors hover:bg-surface-2"
         >
-          {ex.title} <span className="text-xs text-text-subtle">({ex.exercise_type})</span>
+          <span className="min-w-0 flex-1 truncate">{ex.title}</span>
+          <span className="rounded-pill bg-ink-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700">
+            {ex.exercise_type}
+          </span>
         </button>
       ))}
     </div>

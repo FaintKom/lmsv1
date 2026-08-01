@@ -29,8 +29,10 @@ export function SignalBar({
     <button
       key={type}
       onClick={() => void toggle(type)}
-      className={`rounded-pill px-4 py-2 text-sm font-medium transition ${
-        active === type ? "bg-primary text-white" : "bg-surface-2 text-text hover:bg-paper-2"
+      className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
+        active === type
+          ? "btn-pop bg-primary text-white"
+          : "border-2 border-border bg-paper-2 text-text hover:border-green-300"
       }`}
     >
       {emoji} {label}
