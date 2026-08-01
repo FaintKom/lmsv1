@@ -25,6 +25,10 @@ import {
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
 
+// Excalidraw ≥0.18 ships styles separately — without this import the
+// toolbar renders as unstyled full-size SVGs ("giant icons" bug).
+import "@excalidraw/excalidraw/index.css";
+
 // Excalidraw is heavy (>1MB gzip) — lazy load on client only.
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((m) => m.Excalidraw),
