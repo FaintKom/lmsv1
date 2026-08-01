@@ -171,7 +171,7 @@ export function MaterialPicker({
       <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => setCourseId(null)}
-          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700 transition-colors hover:bg-ink-100"
+          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700 transition-colors hover:bg-ink-100"
         >
           <ChevronLeft size={11} strokeWidth={3} /> {t("common.back")}
         </button>

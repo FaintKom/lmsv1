@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, RotateCcw } from "lucide-react";
+import { BookOpen, Check, RotateCcw, X } from "lucide-react";
 
 import { ContentRenderer } from "@/components/common/content-renderer";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
@@ -12,6 +12,39 @@ import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 import { useTranslation } from "@/lib/i18n/context";
 
 import { BoardView, type BoardViewHandle } from "./board-view";
+
+/** Soft 200ms entrance so scene switches glide instead of jumping.
+ * The global prefers-reduced-motion rule collapses the transition. */
+function FadeIn({ children }: { children: React.ReactNode }) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return (
+    <div
+      className={`h-full transition-all duration-200 ease-out ${
+        shown ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Spec §11.2 shimmer lines — no more blank stage while a scene fetches. */
+export function SceneSkeleton() {
+  return (
+    <div className="mx-auto h-full max-w-[820px] p-8">
+      <div className="lms-skeleton mb-6 h-8 w-2/5" />
+      <div className="lms-skeleton mb-3 h-4 w-full" />
+      <div className="lms-skeleton mb-3 h-4 w-11/12" />
+      <div className="lms-skeleton mb-8 h-4 w-3/5" />
+      <div className="lms-skeleton mb-3 h-4 w-full" />
+      <div className="lms-skeleton h-4 w-4/5" />
+    </div>
+  );
+}
 
 interface Props {
   lessonId: string;
@@ -24,18 +57,22 @@ interface Props {
 
 export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQuit = true }: Props) {
   const { t } = useTranslation();
+  // remount FadeIn per logical scene so switches glide in
+  const sceneKey = `${scene.type}:${String(
+    scene.payload.exercise_id ?? scene.payload.lesson_id ?? scene.payload.board_id ?? "",
+  )}`;
 
+  let body: React.ReactNode;
   if (scene.type === "board") {
-    return (
+    body = (
       <BoardView
         lessonId={lessonId}
         boardId={scene.payload.board_id as string}
         handleRef={boardHandleRef}
       />
     );
-  }
-  if (scene.type === "material") {
-    return (
+  } else if (scene.type === "material") {
+    body = (
       <div className="relative h-full">
         <MaterialPane payload={scene.payload} />
         {scene.payload.annotation_board_id ? (
@@ -49,24 +86,22 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQui
         ) : null}
       </div>
     );
-  }
-  if (scene.type === "task") {
-    return (
-      <TaskPane payload={scene.payload} interactive={interactive} canQuit={canQuit} />
+  } else if (scene.type === "task") {
+    body = <TaskPane payload={scene.payload} interactive={interactive} canQuit={canQuit} />;
+  } else if (scene.type === "solution") {
+    body = <SolutionPane payload={scene.payload} />;
+  } else {
+    body = (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <span className="flex items-center gap-2 rounded-pill bg-coral-50 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-coral-700">
+          <span className="h-2 w-2 animate-pulse rounded-pill bg-coral-500" />
+          {t("live.lesson")}
+        </span>
+        <div className="text-xl font-extrabold text-text">{t("live.waiting")}</div>
+      </div>
     );
   }
-  if (scene.type === "solution") {
-    return <SolutionPane payload={scene.payload} />;
-  }
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-4">
-      <span className="flex items-center gap-2 rounded-pill bg-coral-50 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-coral-700">
-        <span className="h-2 w-2 animate-pulse rounded-pill bg-coral-500" />
-        {t("live.lesson")}
-      </span>
-      <div className="text-xl font-extrabold text-text">{t("live.waiting")}</div>
-    </div>
-  );
+  return <FadeIn key={sceneKey}>{body}</FadeIn>;
 }
 
 interface MaterialBlock {
@@ -112,14 +147,14 @@ function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
       cancelled = true;
     };
   }, [payload.course_id, payload.lesson_id]);
-  if (title === null) return null; // loading
+  if (title === null) return <SceneSkeleton />; // loading
   if (!blocks || blocks.length === 0) {
     // nothing readable (empty or exercises-only lesson) — show its title,
     // not a blank stage
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-2xl text-sun-700">
-          📖
+        <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+          <BookOpen size={28} />
         </span>
         <span className="text-xl font-extrabold text-text">{title}</span>
       </div>
@@ -211,7 +246,7 @@ function TaskPane({
     [exerciseId],
   );
 
-  if (!exercise) return null;
+  if (!exercise) return <SceneSkeleton />;
   if (!interactive) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
@@ -227,9 +262,9 @@ function TaskPane({
       <>
         <button
           onClick={() => setShowMaterial(true)}
-          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-2 text-xs font-bold text-text"
         >
-          📖 {t("live.scene.material")}
+          <BookOpen size={14} /> {t("live.scene.material")}
         </button>
         {showMaterial && (
           <div className="absolute inset-0 z-40 bg-paper-2">
@@ -239,9 +274,9 @@ function TaskPane({
             <button
               onClick={() => setShowMaterial(false)}
               aria-label={t("common.close")}
-              className="absolute right-4 top-4 z-50 flex h-9 w-9 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
+              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
             >
-              ✕
+              <X size={18} />
             </button>
           </div>
         )}
@@ -292,7 +327,12 @@ function TaskPane({
   return (
     <div className="relative h-full">
       {materialOverlay}
-      <div className="mx-auto h-full max-w-[880px] overflow-y-auto p-4">
+      {/* pt clears the floating Material chip over the legacy card */}
+      <div
+        className={`mx-auto h-full max-w-[880px] overflow-y-auto px-4 pb-4 ${
+          materialOverlay ? "pt-16" : "pt-4"
+        }`}
+      >
         <ExerciseRenderer
           key={exercise.id}
           exercise={exercise as never}
