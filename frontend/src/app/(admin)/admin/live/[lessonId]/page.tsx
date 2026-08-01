@@ -296,19 +296,28 @@ export default function TeacherLivePage() {
         {/* right panel */}
         <div className="flex w-80 flex-col border-l border-border bg-paper-2">
           <div className="flex border-b border-border">
-            {(["group", "task", "poll"] as const).map((k) => (
-              <button
-                key={k}
-                onClick={() => setTab(k)}
-                className={`flex-1 border-b-2 px-2 py-3 text-[13px] font-bold transition-colors ${
-                  tab === k
-                    ? "border-primary text-text"
-                    : "border-transparent text-text-muted hover:text-text"
-                }`}
-              >
-                {t(`live.tab.${k}`)}
-              </button>
-            ))}
+            {(["group", "task", "poll"] as const).map((k) => {
+              const signalCount =
+                k === "group" ? members.filter((m) => m.signal).length : 0;
+              return (
+                <button
+                  key={k}
+                  onClick={() => setTab(k)}
+                  className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-[13px] font-bold transition-colors ${
+                    tab === k
+                      ? "border-primary text-text"
+                      : "border-transparent text-text-muted hover:text-text"
+                  }`}
+                >
+                  {t(`live.tab.${k}`)}
+                  {signalCount > 0 && (
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-pill bg-coral-500 px-1 font-mono text-[10px] font-bold text-white">
+                      {signalCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
             {tab === "group" && <RosterPanel members={members} onPick={setPicked} />}
@@ -400,6 +409,7 @@ function SolutionSetup({
 }) {
   const { t } = useTranslation();
   const [anonymous, setAnonymous] = useState(true);
+  const [pending, setPending] = useState<{ id: string; name: string } | null>(null);
   if (!exerciseId) {
     return <EmptyHint icon={SearchCheck} text={t("live.pickExercise")} />;
   }
@@ -417,17 +427,44 @@ function SolutionSetup({
       {members.map((m) => (
         <button
           key={m.id}
-          onClick={() =>
-            onSet({
-              type: "solution",
-              payload: { exercise_id: exerciseId, student_id: m.id, anonymous },
-            })
-          }
+          onClick={() => setPending(m)}
           className="block w-full rounded-md p-2 text-left text-sm font-semibold text-text transition-colors hover:bg-surface-2"
         >
           {t("live.showSolution")}: {m.name}
         </button>
       ))}
+
+      {/* broadcast goes to every screen — confirm first (audit T4) */}
+      {pending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
+          <div className="w-full max-w-[420px] rounded-xl bg-paper-2 p-8 shadow-lg">
+            <h3 className="mb-2 text-lg font-bold text-text">{t("live.showToClass")}</h3>
+            <div className="mb-6 text-sm text-text-muted">
+              {anonymous ? t("live.anonymous") : pending.name}
+            </div>
+            <div className="flex justify-end gap-2.5">
+              <button
+                onClick={() => setPending(null)}
+                className="btn-pop btn-pop--secondary rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={() => {
+                  onSet({
+                    type: "solution",
+                    payload: { exercise_id: exerciseId, student_id: pending.id, anonymous },
+                  });
+                  setPending(null);
+                }}
+                className="btn-pop rounded-md bg-primary px-4 py-2 text-sm font-bold text-white"
+              >
+                {t("live.showSolution")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

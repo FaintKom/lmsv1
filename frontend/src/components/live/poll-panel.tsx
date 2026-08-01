@@ -65,13 +65,16 @@ export function PollPanel({
       </div>
     );
   }
-  return (
-    <div>
-      {result && (
+  // results view: keep the finished poll on screen until the teacher
+  // explicitly starts composing a new one (audit T5)
+  if (result) {
+    return (
+      <div>
         <div className="mb-4 rounded-md bg-surface-2 p-3">
           <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
             {t("live.poll.results")}
           </div>
+          <div className="mb-2 text-sm font-bold text-text">{result.question}</div>
           {result.options.map((opt, i) => (
             <CountBar
               key={i}
@@ -81,7 +84,21 @@ export function PollPanel({
             />
           ))}
         </div>
-      )}
+        <button
+          onClick={() => {
+            setResult(null);
+            setQuestion("");
+            setOptionsText("");
+          }}
+          className="btn-pop w-full rounded-md bg-primary p-2.5 text-sm font-bold text-white"
+        >
+          {t("live.newPoll")}
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div>
       <label htmlFor="poll-question" className={LABEL}>
         {t("live.poll.question")}
       </label>
