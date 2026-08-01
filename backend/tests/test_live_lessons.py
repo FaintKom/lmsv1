@@ -503,6 +503,30 @@ async def test_upload_publishes_submission_event(client, db, org, teacher, stude
     assert events[0]["data"]["student_id"] == str(student.id)
 
 
+async def test_scene_change_clears_signals(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/signals",
+        json={"type": "hand"},
+        headers=auth_header(student),
+    )
+    await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "blank", "payload": {}},
+        headers=auth_header(teacher),
+    )
+    roster = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}/roster", headers=auth_header(teacher))
+    ).json()
+    me = next(m for m in roster["members"] if m["id"] == str(student.id))
+    assert me["signal"] is None
+
+
 async def test_summary_includes_results(client, db, org, teacher, student):
     from tests.conftest import make_course, make_exercise, make_lesson, make_module
 

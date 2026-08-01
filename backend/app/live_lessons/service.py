@@ -288,6 +288,9 @@ async def set_scene(db: AsyncSession, lesson: LiveLesson, scene: dict) -> LiveLe
     lesson.current_scene = scene
     r = realtime.get_redis()
     await r.set(realtime.scene_key(lesson.id), json.dumps(scene))
+    # a new scene makes raised hands stale — clear them for everyone
+    await r.delete(realtime.signals_key(lesson.id))
+    await realtime.publish(lesson.id, "all", "signals_cleared", {})
     await r.rpush(
         realtime.scene_log_key(lesson.id),
         json.dumps({"type": scene["type"], "at": datetime.now(timezone.utc).isoformat()}),
