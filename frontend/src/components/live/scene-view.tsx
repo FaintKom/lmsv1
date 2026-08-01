@@ -293,8 +293,8 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
 
 /** Human-readable answers instead of a JSON dump. Arrays render as
  * numbered chips, primitives as labeled rows; anything nested falls back
- * to compact JSON. */
-function AnswerList({ answers }: { answers: Record<string, unknown> }) {
+ * to compact JSON. Also used by the teacher's review inspector. */
+export function AnswerList({ answers }: { answers: Record<string, unknown> }) {
   return (
     <div className="mt-4 flex flex-col gap-3">
       {Object.entries(answers).map(([key, value]) => (

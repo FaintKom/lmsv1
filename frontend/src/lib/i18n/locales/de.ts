@@ -2744,6 +2744,7 @@ const de: TranslationMap = {
  "live.notInLesson": "nicht in der Stunde",
  "live.draft": "Entwurf",
  "live.projectorHint": "Öffnet sich in einem neuen Fenster für den Klassenbildschirm",
+ "live.teacherOnly": "Nur für Sie sichtbar",
  "live.nowShowing": "Die Klasse sieht",
  "live.waiting": "Warten auf die Lehrkraft…",
  "live.startHint": "Links eine Szene wählen — die Klasse sieht sie sofort",
