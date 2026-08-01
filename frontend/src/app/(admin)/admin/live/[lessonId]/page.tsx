@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
@@ -19,7 +19,9 @@ import { MaterialPicker } from "@/components/live/material-picker";
 import { PollPanel } from "@/components/live/poll-panel";
 import { ProgressGrid } from "@/components/live/progress-grid";
 import { RosterPanel } from "@/components/live/roster-panel";
+import { SceneView } from "@/components/live/scene-view";
 import { StudentDrawer } from "@/components/live/student-drawer";
+import type { BoardViewHandle } from "@/components/live/board-view";
 import {
   createBoard,
   endLesson,
@@ -50,6 +52,8 @@ export default function TeacherLivePage() {
   const [picked, setPicked] = useState<RosterMember | null>(null);
   const [pollCounts, setPollCounts] = useState<number[] | null>(null);
   const [members, setMembers] = useState<RosterMember[]>([]);
+  const [pickingMaterial, setPickingMaterial] = useState(false);
+  const previewBoardRef = useRef<BoardViewHandle | null>(null);
   const setSceneMut = useSetScene(lessonId);
 
   const currentScene = lesson?.current_scene ?? null;
@@ -177,7 +181,10 @@ export default function TeacherLivePage() {
             void setSceneMut.mutateAsync({ type: "blank", payload: {} });
           })}
           {railBtn("board", PenLine, t("live.scene.board"), () => void switchToBoard())}
-          {railBtn("material", BookOpen, t("live.scene.material"))}
+          {railBtn("material", BookOpen, t("live.scene.material"), () => {
+            setRail("material");
+            setPickingMaterial(false);
+          })}
           {railBtn("task", Puzzle, t("live.scene.task"))}
           {railBtn("solution", SearchCheck, t("live.scene.solution"))}
         </div>
@@ -187,17 +194,36 @@ export default function TeacherLivePage() {
           {rail === "board" && currentScene?.type === "board" && (
             <BoardEditor lessonId={lessonId} boardId={currentScene.payload.board_id as string} />
           )}
-          {rail === "material" && (
-            <MaterialPicker
-              defaultCourseId={lesson.course_id}
-              onPick={(courseId, materialLesson) => {
-                void setSceneMut.mutateAsync({
-                  type: "material",
-                  payload: { lesson_id: materialLesson, course_id: courseId },
-                });
-              }}
-            />
-          )}
+          {rail === "material" &&
+            (currentScene?.type === "material" && !pickingMaterial ? (
+              // teacher sees what the class sees, with a switch-source chip
+              <div className="relative h-full">
+                <SceneView
+                  lessonId={lessonId}
+                  scene={currentScene}
+                  boardHandleRef={previewBoardRef}
+                  interactive={false}
+                />
+                <button
+                  onClick={() => setPickingMaterial(true)}
+                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+                >
+                  <BookOpen size={14} /> {t("live.pickMaterial")}
+                </button>
+              </div>
+            ) : (
+              <MaterialPicker
+                defaultCourseId={lesson.course_id}
+                activeLessonId={materialLessonId}
+                onPick={(courseId, materialLesson) => {
+                  setPickingMaterial(false);
+                  void setSceneMut.mutateAsync({
+                    type: "material",
+                    payload: { lesson_id: materialLesson, course_id: courseId },
+                  });
+                }}
+              />
+            ))}
           {rail === "task" &&
             (materialLessonId ? (
               <ExercisePicker
