@@ -2681,6 +2681,7 @@ const es: TranslationMap = {
  "live.anonymous": "Anónimo",
  "live.notInLesson": "fuera de la clase",
  "live.draft": "Borrador",
+ "live.projectorHint": "Se abre en una ventana aparte para la pantalla del aula",
  "live.nowShowing": "La clase ve",
  "live.waiting": "Esperando al profesor…",
  "live.startHint": "Elige una escena a la izquierda — la clase la verá al instante",
