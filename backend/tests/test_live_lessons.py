@@ -503,6 +503,37 @@ async def test_upload_publishes_submission_event(client, db, org, teacher, stude
     assert events[0]["data"]["student_id"] == str(student.id)
 
 
+async def test_summary_includes_results(client, db, org, teacher, student):
+    from tests.conftest import make_course, make_exercise, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson_row.id, org.id)
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"answers": []},
+        headers=auth_header(student),
+    )
+    assert resp.status_code in (200, 201)
+    ended = (
+        await client.post(f"/api/v1/live-lessons/{lesson_id}/end", headers=auth_header(teacher))
+    ).json()
+    results = ended["summary"]["results"]
+    assert len(results) == 1
+    assert results[0]["exercise_id"] == str(ex.id)
+    st = results[0]["students"][0]
+    assert st["id"] == str(student.id)
+    assert st["attempts"] == 1
+
+
 async def test_message_creates_notification(client, db, org, teacher, student):
     from sqlalchemy import select as sa_select
 

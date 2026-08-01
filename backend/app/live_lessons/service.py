@@ -154,6 +154,9 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
         "attendance_seconds": attendance_seconds,
         "scenes": scene_log,
         "last_poll": json.loads(poll_raw) if poll_raw else None,
+        # class results snapshot — the live progress dies with the lesson,
+        # this is what the teacher reviews afterwards
+        "results": await _lesson_results(db, lesson, member_ids),
     }
     lesson.status = "ended"
     lesson.ended_at = datetime.now(timezone.utc)
@@ -172,6 +175,51 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
         realtime.scene_log_key(lesson.id),
     )
     return lesson
+
+
+async def _lesson_results(
+    db: AsyncSession, lesson: LiveLesson, member_ids: list[uuid.UUID]
+) -> list[dict]:
+    """Per-exercise, per-student outcome for everything submitted during
+    the lesson window. Stored in summary so the review outlives redis."""
+    from app.exercises.models import Exercise, ExerciseSubmission
+
+    if not member_ids:
+        return []
+    rows = (
+        await db.execute(
+            select(ExerciseSubmission, Exercise.title, User.full_name)
+            .join(Exercise, Exercise.id == ExerciseSubmission.exercise_id)
+            .join(User, User.id == ExerciseSubmission.student_id)
+            .where(
+                ExerciseSubmission.student_id.in_(member_ids),
+                ExerciseSubmission.created_at >= lesson.created_at,
+            )
+            .order_by(ExerciseSubmission.created_at)
+        )
+    ).all()
+    by_exercise: dict[str, dict] = {}
+    for sub, ex_title, student_name in rows:
+        ex = by_exercise.setdefault(
+            str(sub.exercise_id),
+            {"exercise_id": str(sub.exercise_id), "title": ex_title, "students": {}},
+        )
+        st = ex["students"].setdefault(
+            str(sub.student_id),
+            {
+                "id": str(sub.student_id),
+                "name": student_name,
+                "attempts": 0,
+                "passed": False,
+                "score": None,
+            },
+        )
+        st["attempts"] += 1
+        if sub.passed:
+            st["passed"] = True
+        if sub.score is not None:
+            st["score"] = sub.score
+    return [{**ex, "students": list(ex["students"].values())} for ex in by_exercise.values()]
 
 
 SOLUTION_PAYLOAD_CAP = 64_000  # bytes of JSON

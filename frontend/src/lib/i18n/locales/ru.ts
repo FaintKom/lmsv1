@@ -2693,6 +2693,8 @@ const ru: TranslationMap = {
  "live.draft": "Черновик",
  "live.projectorHint": "Откроется отдельным окном для экрана класса",
  "live.teacherOnly": "Видно только вам",
+ "live.resultsTitle": "Результаты",
+ "live.noAttendance": "Курс не привязан - посещаемость не запишется",
  "live.nowShowing": "Класс видит",
  "live.waiting": "Ждём преподавателя…",
  "live.startHint": "Выберите сцену слева — класс увидит её мгновенно",
