@@ -212,6 +212,10 @@ export async function sendHint(lessonId: string, studentId: string, text: string
   await apiClient.post(`/live-lessons/${lessonId}/messages`, { student_id: studentId, text });
 }
 
+export async function sendClassMessage(lessonId: string, text: string) {
+  await apiClient.post(`/live-lessons/${lessonId}/messages`, { student_id: null, text });
+}
+
 export async function saveDraft(
   exerciseId: string,
   answers: Record<string, unknown> | null,

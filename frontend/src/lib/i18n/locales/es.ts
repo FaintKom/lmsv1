@@ -2685,6 +2685,7 @@ const es: TranslationMap = {
  "live.teacherOnly": "Solo visible para ti",
  "live.resultsTitle": "Resultados",
  "live.noAttendance": "Sin curso vinculado - no se registrara la asistencia",
+ "live.messageAll": "Mensaje a la clase",
  "live.nowShowing": "La clase ve",
  "live.waiting": "Esperando al profesor…",
  "live.startHint": "Elige una escena a la izquierda — la clase la verá al instante",

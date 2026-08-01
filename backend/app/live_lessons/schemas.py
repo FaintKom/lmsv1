@@ -84,7 +84,7 @@ class VoteRequest(BaseModel):
 
 
 class MessageRequest(BaseModel):
-    student_id: uuid.UUID
+    student_id: uuid.UUID | None = None  # None => broadcast to the class
     text: str = Field(min_length=1, max_length=2000)
 
 

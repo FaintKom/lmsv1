@@ -27,6 +27,7 @@ import type { BoardViewHandle } from "@/components/live/board-view";
 import {
   createBoard,
   endLesson,
+  sendClassMessage,
   sendHeartbeat,
   setFollowMode,
   useLessonState,
@@ -56,6 +57,7 @@ export default function TeacherLivePage() {
   const [pickingMaterial, setPickingMaterial] = useState(false);
   const [pickingTask, setPickingTask] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [classMsg, setClassMsg] = useState("");
   const previewBoardRef = useRef<BoardViewHandle | null>(null);
   const setSceneMut = useSetScene(lessonId);
 
@@ -379,7 +381,38 @@ export default function TeacherLivePage() {
             })}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            {tab === "group" && <RosterPanel members={members} onPick={setPicked} />}
+            {tab === "group" && (
+              <div className="flex h-full flex-col">
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                  <RosterPanel members={members} onPick={setPicked} />
+                </div>
+                <div className="mt-3 border-t border-border pt-3">
+                  <label
+                    htmlFor="class-msg"
+                    className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700"
+                  >
+                    {t("live.messageAll")}
+                  </label>
+                  <textarea
+                    id="class-msg"
+                    rows={2}
+                    value={classMsg}
+                    onChange={(e) => setClassMsg(e.target.value)}
+                    className="w-full rounded-md border-2 border-border bg-paper-2 px-3 py-2 text-sm transition-colors placeholder:text-ink-300 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
+                  />
+                  <button
+                    disabled={!classMsg.trim()}
+                    onClick={async () => {
+                      await sendClassMessage(lessonId, classMsg.trim());
+                      setClassMsg("");
+                    }}
+                    className="btn-pop mt-2 w-full rounded-md bg-primary p-2 text-xs font-bold text-white"
+                  >
+                    {t("live.messageAll")}
+                  </button>
+                </div>
+              </div>
+            )}
             {tab === "task" &&
               (progressData ? (
                 <ProgressGrid rows={progressData.students} />

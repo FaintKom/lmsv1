@@ -503,6 +503,31 @@ async def test_upload_publishes_submission_event(client, db, org, teacher, stude
     assert events[0]["data"]["student_id"] == str(student.id)
 
 
+async def test_broadcast_message_to_class(client, db, org, teacher, student):
+    from sqlalchemy import select as sa_select
+
+    from app.notifications.models import Notification
+
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/messages",
+        json={"text": "Take a 5 minute break"},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 204
+    notes = (
+        (await db.execute(sa_select(Notification).where(Notification.user_id == student.id)))
+        .scalars()
+        .all()
+    )
+    assert any("Take a 5 minute break" in (n.body or "") for n in notes)
+
+
 async def test_scene_change_clears_signals(client, db, org, teacher, student):
     g = await make_group(db, org, teacher, [student])
     lesson_id = (

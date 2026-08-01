@@ -28,7 +28,7 @@ export interface LessonChannelHandlers {
     passed: boolean | null;
     score: number | null;
   }) => void;
-  onMessage?: (m: { text: string }) => void;
+  onMessage?: (m: { text: string; broadcast?: boolean }) => void;
   onLessonEnded?: () => void;
   /** Fires false on stream drop, true once reconnected — drive a
    * "reconnecting" indicator so students know they may be behind. */
