@@ -273,6 +273,11 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
   const { t } = useTranslation();
   return (
     <div className="h-full overflow-y-auto p-8">
+      {payload.exercise_title ? (
+        <h2 className="mb-1 text-xl font-extrabold text-text">
+          {String(payload.exercise_title)}
+        </h2>
+      ) : null}
       <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
         {payload.anonymous ? t("live.anonymous") : String(payload.student_name ?? "")}
       </div>
