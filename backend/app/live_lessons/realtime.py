@@ -67,10 +67,6 @@ def active_lesson_key(student_id):
     return f"student:{student_id}:active_lesson"
 
 
-def invite_key(student_id):
-    return f"student:{student_id}:lesson_invite"
-
-
 def teacher_seen_key(lesson_id):
     return f"lesson:{lesson_id}:teacher_seen"  # TTL = TEACHER_STALE_SECONDS
 
@@ -80,7 +76,6 @@ def scene_log_key(lesson_id):
 
 
 PRESENCE_TTL = 15  # seconds; heartbeat every 5s
-INVITE_TTL = 4 * 3600  # 4h, deleted explicitly on end
 TEACHER_STALE_SECONDS = 600  # no teacher heartbeat for 10 min => stale lesson
 
 

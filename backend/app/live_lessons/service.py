@@ -89,7 +89,6 @@ async def start_lesson(
     await r.set(realtime.scene_key(lesson.id), json.dumps(lesson.current_scene))
     await r.set(realtime.teacher_seen_key(lesson.id), "1", ex=realtime.TEACHER_STALE_SECONDS)
     for sid in await group_member_ids(db, group_id):
-        await r.set(realtime.invite_key(sid), str(lesson.id), ex=realtime.INVITE_TTL)
         await create_notification(
             db,
             user_id=sid,
@@ -149,7 +148,7 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
 
     await realtime.publish(lesson.id, "all", "lesson_ended", {})
     for sid in member_ids:
-        await r.delete(realtime.invite_key(sid), realtime.active_lesson_key(sid))
+        await r.delete(realtime.active_lesson_key(sid))
     await r.delete(
         realtime.scene_key(lesson.id),
         realtime.attendance_key(lesson.id),
