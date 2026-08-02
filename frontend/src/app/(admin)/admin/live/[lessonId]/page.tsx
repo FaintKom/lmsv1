@@ -514,7 +514,7 @@ export default function TeacherLivePage() {
                             setQuestions((qs) => qs.filter((_, idx) => idx !== i))
                           }
                           aria-label={t("common.close")}
-                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-sun-100"
+                          className="-my-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-sun-100"
                         >
                           ✕
                         </button>
