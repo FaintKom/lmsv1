@@ -86,10 +86,38 @@ async def start_lesson(
         else:
             return existing, False
 
+    resolved_course_id = course_id or group.course_id
+    # auto-link the journal: a live lesson with a course IS that course's
+    # session for today — get-or-create the journal row so results and
+    # attendance land where the teacher looks after class
+    if class_session_id is None and resolved_course_id is not None:
+        from app.journal.models import ClassSession
+
+        today = date.today()
+        cs = await db.scalar(
+            select(ClassSession).where(
+                ClassSession.course_id == resolved_course_id,
+                ClassSession.session_date == today,
+            )
+        )
+        if cs is None:
+            cs = ClassSession(
+                org_id=user.org_id,
+                course_id=resolved_course_id,
+                group_id=group_id,
+                session_date=today,
+                held=True,
+                topic="",
+                created_by=user.id,
+            )
+            db.add(cs)
+            await db.flush()
+        class_session_id = cs.id
+
     lesson = LiveLesson(
         org_id=user.org_id,
         group_id=group_id,
-        course_id=course_id or group.course_id,
+        course_id=resolved_course_id,
         teacher_id=user.id,
         class_session_id=class_session_id,
         current_scene={"type": "blank", "payload": {}},
