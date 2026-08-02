@@ -36,6 +36,7 @@ import {
 } from "@/components/exercises/v2/bubble-sheet-v2";
 import { MatchingV2 } from "@/components/exercises/v2/matching-v2";
 import { CategorizeV2 } from "@/components/exercises/v2/categorize-v2";
+import { ReadingV2 } from "@/components/exercises/v2/reading-v2";
 
 interface LiveExercise {
   id: string;
@@ -250,6 +251,37 @@ export function V2ExerciseLive({
           }
         />
       );
+    case "reading": {
+      // config questions carry either dict options ({id,label,is_correct})
+      // or plain strings; the grader wants the id in the first case
+      const raw = (cfg.questions as {
+        question?: string;
+        type?: string;
+        options?: (string | { id?: string; text?: string; label?: string })[];
+        hint?: string;
+      }[]) ?? [];
+      const questions = raw.map((q) => {
+        const opts = q.options ?? [];
+        return {
+          question: q.question ?? "",
+          options: opts.map((o) =>
+            typeof o === "string" ? o : (o.label ?? o.text ?? ""),
+          ),
+          optionIds: opts.map((o) =>
+            typeof o === "string" ? o : (o.id ?? o.label ?? o.text ?? ""),
+          ),
+          hint: q.hint,
+        };
+      });
+      return (
+        <ReadingV2
+          passage={(cfg.passage as string) ?? ""}
+          questions={questions}
+          onCheck={onCheck}
+          {...shared}
+        />
+      );
+    }
     case "categorize":
       return (
         <CategorizeV2

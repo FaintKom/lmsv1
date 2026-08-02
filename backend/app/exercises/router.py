@@ -553,9 +553,27 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
         # builds the grid from `words[].word.length`, so removing the word
         # blanks the puzzle. Stripping it needs the V2 crossword (cells/clues)
         # wired first — tracked in plans/014 as the remaining slice.
-        if isinstance(resp.config.get("questions"), list):  # bubble_sheet
+        if isinstance(resp.config.get("questions"), list):  # bubble_sheet / reading
             resp.config["questions"] = [
-                {k: v for k, v in q.items() if k != "correct"} if isinstance(q, dict) else q
+                {
+                    # bubble_sheet keys off `correct`; reading off
+                    # `correct_answer` plus per-option `is_correct`
+                    **{k: v for k, v in q.items() if k not in ("correct", "correct_answer")},
+                    **(
+                        {
+                            "options": [
+                                {k: v for k, v in o.items() if k != "is_correct"}
+                                if isinstance(o, dict)
+                                else o
+                                for o in q["options"]
+                            ]
+                        }
+                        if isinstance(q.get("options"), list)
+                        else {}
+                    ),
+                }
+                if isinstance(q, dict)
+                else q
                 for q in resp.config["questions"]
             ]
         # matching: the left→right mapping IS the answer. Ship the two
