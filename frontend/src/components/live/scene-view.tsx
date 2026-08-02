@@ -136,7 +136,7 @@ function VideoEmbed({ url }: { url: string }) {
   return <video controls src={url} className="w-full rounded-lg border border-border" />;
 }
 
-function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
+export function MaterialPane({ payload }: { payload: Record<string, unknown> }) {
   // Lessons come back in v2 blocks format (normalize_lesson_content wraps
   // legacy content.body into a text block) — render the readable blocks.
   // ponytail: text/html blocks only; exercises go through the task scene.
