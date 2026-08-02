@@ -212,7 +212,7 @@ export default function Home() {
  { value: "37", label: t("landing.metricLangsLabel"), sub: t("landing.metricLangsSub") },
  { value: "15+", label: t("landing.metricExLabel"), sub: t("landing.metricExSub") },
  { value: "4", label: t("landing.metricIfLangsLabel"), sub: t("landing.metricIfLangsSub") },
- { value: "200-800", label: t("landing.metricSatLabel"), sub: t("landing.metricSatSub") },
+ { value: "24", label: t("landing.metricTypesLabel"), sub: t("landing.metricTypesSub") },
  ].map((m) => (
  <div key={m.label} className="text-center">
  <p className="text-4xl font-extrabold text-primary md:text-5xl">{m.value}</p>
@@ -283,22 +283,6 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
- <div className="mb-4 flex items-center gap-3">
- <div className="rounded-lg bg-info-soft p-3"><PieChart className="h-6 w-6 text-info-fg" /></div>
- <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSat")}</h3>
- </div>
- <p className="mb-4 text-sm leading-relaxed text-text-muted">
- {t("landing.showcaseSatDesc")}
- </p>
- <div className="flex flex-wrap gap-2">
- {[t("landing.showcaseFeatAdaptive"), t("landing.showcaseFeatDesmos"), t("landing.showcaseFeatScoreAn"), t("landing.showcaseFeatDomain"), t("landing.showcaseFeatKeys")].map((f) => (
- <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-info-soft px-3 py-1 text-xs font-medium text-info-fg">
- <CheckCircle className="h-3 w-3" /> {f}
- </span>
- ))}
- </div>
- </div>
  </div>
  </div>
  </section>
