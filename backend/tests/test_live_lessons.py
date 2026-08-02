@@ -503,6 +503,30 @@ async def test_upload_publishes_submission_event(client, db, org, teacher, stude
     assert events[0]["data"]["student_id"] == str(student.id)
 
 
+async def test_student_question_reaches_teacher_state(client, db, org, teacher, student):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson_id}/questions",
+        json={"text": "What is a fixture?"},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 204
+    # teacher sees it in state; student does not
+    t_state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(teacher))
+    ).json()
+    assert t_state["questions"][0]["text"] == "What is a fixture?"
+    s_state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    ).json()
+    assert s_state["questions"] is None
+
+
 async def test_broadcast_message_to_class(client, db, org, teacher, student):
     from sqlalchemy import select as sa_select
 

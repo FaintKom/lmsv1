@@ -22,6 +22,13 @@ export interface LessonChannelHandlers {
   onSignal?: (s: { student_id: string; type: SignalType | null; on: boolean }) => void;
   /** scene switched — all signals were cleared server-side */
   onSignalsCleared?: () => void;
+  /** a student asked a text question (teacher audience only) */
+  onStudentQuestion?: (q: {
+    student_id: string;
+    name: string;
+    text: string;
+    at: string;
+  }) => void;
   onSubmission?: (s: {
     student_id: string;
     exercise_id: string;
@@ -45,6 +52,7 @@ const EVENT_NAMES = [
   "presence",
   "signal",
   "signals_cleared",
+  "student_question",
   "submission",
   "message",
   "lesson_ended",
@@ -80,6 +88,7 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       presence: (d) => handlersRef.current.onPresence?.(d),
       signal: (d) => handlersRef.current.onSignal?.(d),
       signals_cleared: () => handlersRef.current.onSignalsCleared?.(),
+      student_question: (d) => handlersRef.current.onStudentQuestion?.(d),
       submission: (d) => handlersRef.current.onSubmission?.(d),
       message: (d) => handlersRef.current.onMessage?.(d),
       lesson_ended: () => {
