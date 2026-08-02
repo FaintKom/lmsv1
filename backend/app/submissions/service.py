@@ -119,6 +119,12 @@ def grade_interactive_detail(
         return score, passed, None
     if exercise_type == "matching":
         return _grade_matching_detail(content, answers)
+    if exercise_type == "reading":
+        return _grade_reading_detail(content, answers)
+    if exercise_type == "dialogue":
+        return _grade_dialogue_detail(content, answers)
+    if exercise_type == "crossword":
+        return _grade_crossword_detail(content, answers)
     if exercise_type == "categorize":
         return _grade_categorize_detail(content, answers)
     if exercise_type == "conjugation":
@@ -299,7 +305,12 @@ def _grade_sentence_builder_detail(content: dict, answers: dict) -> tuple[float,
 
 
 def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade dialogue - check selected options.
+    score, passed, _ = _grade_dialogue_detail(content, answers)
+    return score, passed
+
+
+def _grade_dialogue_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade dialogue — check selected options. per_item = {message index: verdict}.
 
     Each message may have `options` as either:
       - a list of strings (label-only, no correctness marker; a matching
@@ -309,29 +320,28 @@ def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
     """
     messages = content.get("messages") or []
     selections = (answers or {}).get("selections") or {}
-    total = 0
-    correct = 0
+    per_item: dict[str, bool] = {}
     for i, msg in enumerate(messages):
         options = (msg or {}).get("options")
         if not options:
             continue
-        total += 1
         selected = selections.get(str(i))
-        if selected is None:
-            continue
-        for opt in options:
-            if isinstance(opt, str):
-                if selected == opt:
-                    correct += 1
-                    break
-            elif isinstance(opt, dict):
-                if opt.get("id") == selected and opt.get("is_correct"):
-                    correct += 1
-                    break
-    if total == 0:
-        return 1.0, True
-    score = correct / total
-    return score, score >= 0.7
+        ok = False
+        if selected is not None:
+            for opt in options:
+                if isinstance(opt, str):
+                    if selected == opt:
+                        ok = True
+                        break
+                elif isinstance(opt, dict):
+                    if opt.get("id") == selected and opt.get("is_correct"):
+                        ok = True
+                        break
+        per_item[str(i)] = ok
+    if not per_item:
+        return 1.0, True, None
+    score = sum(per_item.values()) / len(per_item)
+    return score, score >= 0.7, per_item
 
 
 def _grade_conjugation(content: dict, answers: dict) -> tuple[float, bool]:
@@ -370,7 +380,12 @@ def _grade_conjugation_detail(content: dict, answers: dict) -> tuple[float, bool
 
 
 def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade reading comprehension - grade each question.
+    score, passed, _ = _grade_reading_detail(content, answers)
+    return score, passed
+
+
+def _grade_reading_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade reading comprehension. per_item = {question index: verdict}.
 
     Each question may have `options` as either:
       - a list of strings (compare student answer directly to
@@ -380,18 +395,18 @@ def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
     questions = content.get("questions") or []
     student_answers = (answers or {}).get("answers") or {}
     if not questions:
-        return 1.0, True
-    correct = 0
+        return 1.0, True, None
+    per_item: dict[str, bool] = {}
     for i, q in enumerate(questions):
         if not isinstance(q, dict):
             continue
         student = student_answers.get(str(i), "")
         q_type = q.get("type")
+        matched = False
         if q_type == "multiple_choice":
             options = q.get("options") or []
             expected_answer = (q.get("correct_answer") or "").strip().lower()
             student_str = (student or "").strip().lower()
-            matched = False
             for opt in options:
                 if isinstance(opt, str):
                     # Label-only fixture: compare student pick to correct_answer.
@@ -402,15 +417,12 @@ def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
                     if opt.get("id") == student and opt.get("is_correct"):
                         matched = True
                         break
-            if matched:
-                correct += 1
         elif q_type == "text":
             expected = (q.get("correct_answer") or "").strip().lower()
-            given = (student or "").strip().lower()
-            if given == expected:
-                correct += 1
-    score = correct / len(questions)
-    return score, score >= 0.7
+            matched = (student or "").strip().lower() == expected
+        per_item[str(i)] = matched
+    score = sum(per_item.values()) / len(questions)
+    return score, score >= 0.7, per_item
 
 
 def _grade_srs_flashcard(content: dict, answers: dict) -> tuple[float, bool]:
@@ -427,19 +439,23 @@ def _grade_srs_flashcard(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_crossword(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade crossword — compare each word placement."""
+    score, passed, _ = _grade_crossword_detail(content, answers)
+    return score, passed
+
+
+def _grade_crossword_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade crossword. per_item = {word index: verdict}."""
     words = content.get("words", [])
     student_words = answers.get("words", {})
     if not words:
-        return 1.0, True
-    correct = 0
+        return 1.0, True, None
+    per_item: dict[str, bool] = {}
     for i, w in enumerate(words):
-        expected = w.get("word", "").strip().lower()
+        expected = (w.get("word") or "").strip().lower()
         given = (student_words.get(str(i)) or "").strip().lower()
-        if given == expected:
-            correct += 1
-    score = correct / len(words)
-    return score, score >= 0.7
+        per_item[str(i)] = given == expected
+    score = sum(per_item.values()) / len(words)
+    return score, score >= 0.7, per_item
 
 
 def _grade_word_search(content: dict, answers: dict) -> tuple[float, bool]:

@@ -399,3 +399,67 @@ async def test_submit_matching_scores_server_side(client: AsyncClient, student, 
     body = resp.json()
     assert body["passed"] is True
     assert body["per_item"] == {"a": True, "b": True}
+
+
+# ─── PR-3: quiz / reading / dialogue / crossword ─────────────────────────
+
+
+async def test_check_reading_per_question(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.reading,
+        {
+            "questions": [
+                {"question": "2+2?", "type": "text", "correct_answer": "4"},
+                {"question": "3+3?", "type": "text", "correct_answer": "6"},
+            ]
+        },
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"answers": {"0": "4", "1": "7"}}},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["per_item"] == {"0": True, "1": False}
+
+
+async def test_check_quiz_uses_the_questions_relation(
+    client: AsyncClient, student, teacher, org, db
+):
+    """Quiz answers live in a relation, not config — /check must still grade."""
+    from tests.conftest import make_course, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson.id, org.id, exercise_type=ExerciseType.quiz)
+    created = await client.post(
+        f"/api/v1/exercises/{ex.id}/questions",
+        json={
+            "question_text": "2+2?",
+            "question_type": "text_answer",
+            "correct_answer": "4",
+            "points": 1,
+        },
+        headers=auth_header(teacher),
+    )
+    assert created.status_code == 200
+    qid = created.json()["id"]
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"answers": [{"question_id": qid, "text": "4"}]}},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200
+    assert good.json()["per_item"] == {qid: True}
+
+    bad = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"answers": [{"question_id": qid, "text": "5"}]}},
+        headers=auth_header(student),
+    )
+    assert bad.json()["per_item"] == {qid: False}

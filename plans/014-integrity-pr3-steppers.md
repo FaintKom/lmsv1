@@ -1,6 +1,7 @@
 # 014 — Integrity model B, PR-3: quiz, reading, dialogue, crossword steppers
 
-- **Status**: TODO
+- **Status**: PARTIAL — backend infrastructure landed (see "Progress" at the
+  bottom); the strips and the frontend wiring are still TODO
 - **Commit**: a01d106
 - **Severity**: HIGH (per-question answers readable in DevTools)
 - **Category**: integrity model B (server-graded exercises)
@@ -118,3 +119,43 @@ as specified in plan 013 step 7.
   counts from `length`.
 - **Done when**: all four stepper types play fully server-graded and leak
   nothing.
+
+---
+
+## Progress — 2026-08-02
+
+**Landed (backend infrastructure, safe on its own):**
+- `_grade_reading_detail`, `_grade_dialogue_detail`, `_grade_crossword_detail`
+  wired into `grade_interactive_detail`, so `/submit` and `/check` return
+  per-item verdicts for these types. Grading semantics unchanged — the thin
+  `_grade_X` wrappers keep the old signatures.
+- `/exercises/{id}/check` gained a **quiz** branch: quiz answers live in the
+  `questions` relation, so it grades through `is_answer_correct` (the same
+  helper `_submit_quiz` uses) and returns `{question_id: verdict}`. The
+  relation is read with an explicit query — a cached exercise instance can
+  carry a stale empty collection right after questions are added.
+- Tests: per-question reading `/check`, quiz `/check` via the relation.
+
+**Deliberately NOT landed (would break students):** the config strips for
+reading, dialogue and crossword. All three legacy renderers — the ones
+students actually get, since these types are not in `V2_LIVE_TYPES` — grade
+**client-side** from the very keys the strip removes:
+- `reading-exercise.tsx:63-66` reads `options[].is_correct` / `correct_answer`
+- `dialogue-exercise.tsx:114` reads `options[].is_correct`
+- `crossword-exercise.tsx:47,87,104` builds the **grid geometry** from
+  `words[].word.length`, so stripping `word` blanks the puzzle entirely
+
+Shipping a strip without its frontend makes the type unplayable — the same
+verticality rule PR-1 and PR-2 followed.
+
+**Remaining work (one PR per type, each vertical):**
+1. `reading` — `ReadingV2` requires `correct: number` per question; make it
+   optional and drive verdicts from `onCheck` per question index. Then strip
+   `questions[].correct_answer` and `options[].is_correct`.
+2. `dialogue` — `DialogueV2` takes `messages` + a flat `options` array while
+   the config nests options per message; map in `V2ExerciseLive`, verdicts by
+   message index. Then strip `options[].is_correct`.
+3. `crossword` — `CrosswordV2` takes `cells` + `clues`, not `words[]`; build
+   them from `row/col/direction/length` and ship `length` instead of `word`.
+4. `quiz` — `QuizV2` per-question flow on `onCheck` (the `/check` branch is
+   already there); nothing to strip, the relation is stripped already.
