@@ -5,8 +5,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  ListOrdered,
   MonitorPlay,
   PenLine,
   Puzzle,
@@ -46,6 +51,10 @@ import { useLessonChannel } from "@/hooks/use-lesson-channel";
 import { useTranslation } from "@/lib/i18n/context";
 
 type Rail = "blank" | "board" | "material" | "task" | "solution";
+
+/** One conductor programme step. `hidden` steps stay in the editor but are
+ *  skipped by navigation and excluded from the n/m counter. */
+type Step = { kind: "material" | "task" | "board"; id: string; title: string; hidden?: boolean };
 
 export default function TeacherLivePage() {
   const { t } = useTranslation();
@@ -161,13 +170,39 @@ export default function TeacherLivePage() {
     enabled: !!materialLessonId,
     staleTime: 60_000,
   });
-  const steps = useMemo(() => {
+  const autoSteps = useMemo(() => {
     if (!materialLessonId) return [];
     return [
       { kind: "material" as const, id: materialLessonId, title: "" },
       ...(programExs ?? []).map((e) => ({ kind: "task" as const, id: e.id, title: e.title })),
     ];
   }, [materialLessonId, programExs]);
+
+  // Conductor v2: the teacher may reorder / hide steps and append a board.
+  // `programme === null` means "follow the auto list"; any edit pins a copy
+  // for the session (never persisted — Reset drops back to auto).
+  const [programme, setProgramme] = useState<Step[] | null>(null);
+  const [editingProgramme, setEditingProgramme] = useState(false);
+  const fullSteps: Step[] = programme ?? autoSteps;
+  // Navigation only ever sees visible steps.
+  const steps = useMemo(() => fullSteps.filter((s) => !s.hidden), [fullSteps]);
+
+  const editProgramme = (fn: (draft: Step[]) => Step[]) =>
+    setProgramme((cur) => fn([...(cur ?? autoSteps)]));
+  const moveStep = (idx: number, delta: number) =>
+    editProgramme((draft) => {
+      const to = idx + delta;
+      if (to < 0 || to >= draft.length) return draft;
+      [draft[idx], draft[to]] = [draft[to], draft[idx]];
+      return draft;
+    });
+  const toggleStep = (idx: number) =>
+    editProgramme((draft) => {
+      draft[idx] = { ...draft[idx], hidden: !draft[idx].hidden };
+      return draft;
+    });
+  const addBoardStep = () =>
+    editProgramme((draft) => [...draft, { kind: "board", id: "board", title: "" }]);
   // index of the scene currently broadcast, if it is part of the programme
   const liveStepIndex = useMemo(() => {
     if (currentScene?.type === "material" && currentScene.payload.lesson_id === materialLessonId)
@@ -176,6 +211,10 @@ export default function TeacherLivePage() {
       const i = steps.findIndex(
         (s) => s.kind === "task" && s.id === currentScene.payload.exercise_id,
       );
+      if (i >= 0) return i;
+    }
+    if (currentScene?.type === "board") {
+      const i = steps.findIndex((s) => s.kind === "board");
       if (i >= 0) return i;
     }
     return null;
@@ -188,6 +227,10 @@ export default function TeacherLivePage() {
   const goStep = (idx: number) => {
     const step = steps[idx];
     if (!step) return;
+    if (step.kind === "board") {
+      void switchToBoard();
+      return;
+    }
     if (step.kind === "material") {
       setRail("material");
       setPickingMaterial(false);
@@ -216,7 +259,8 @@ export default function TeacherLivePage() {
   // ←/→ drive the programme unless focus is in a field or a modal is open
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (confirmEnd || picked) return;
+      // the programme editor owns the arrows while it is open
+      if (confirmEnd || picked || editingProgramme) return;
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "ArrowRight" && canNext) goStep(stepBase + 1);
@@ -225,7 +269,17 @@ export default function TeacherLivePage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepBase, canNext, canPrev, confirmEnd, picked, steps]);
+  }, [stepBase, canNext, canPrev, confirmEnd, picked, editingProgramme, steps]);
+
+  // Esc closes the programme editor
+  useEffect(() => {
+    if (!editingProgramme) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setEditingProgramme(false);
+    };
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [editingProgramme]);
 
 
   if (!lesson) return null;
@@ -323,7 +377,87 @@ export default function TeacherLivePage() {
             >
               <ChevronRight size={15} strokeWidth={2.5} />
             </button>
+            <button
+              onClick={() => setEditingProgramme((v) => !v)}
+              aria-label={t("live.programme")}
+              title={t("live.programme")}
+              aria-expanded={editingProgramme}
+              className={`flex h-7 w-7 items-center justify-center rounded-pill transition-colors ${
+                editingProgramme ? "bg-ink-100 text-text" : "text-ink-700 hover:bg-ink-100"
+              }`}
+            >
+              <ListOrdered size={15} strokeWidth={2.5} />
+            </button>
           </span>
+        )}
+        {editingProgramme && (
+          <>
+            {/* click-away catcher — the panel itself sits above it */}
+            <div className="fixed inset-0 z-30" onClick={() => setEditingProgramme(false)} />
+            <div className="absolute left-1/2 top-12 z-40 w-80 -translate-x-1/2 rounded-md border border-border bg-surface p-2 shadow-md">
+              <div className="eyebrow px-1.5 pb-1.5">{t("live.programme")}</div>
+              {fullSteps.map((s, i) => {
+                const StepIcon = s.kind === "material" ? BookOpen : s.kind === "board" ? PenLine : Puzzle;
+                return (
+                  <div
+                    key={`${s.kind}-${s.id}-${i}`}
+                    className={`flex h-9 items-center gap-1.5 rounded-sm px-1.5 transition-colors hover:bg-surface-2 ${
+                      s.hidden ? "opacity-50" : ""
+                    }`}
+                  >
+                    <StepIcon size={15} className="shrink-0 text-text-subtle" />
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text">
+                      {s.kind === "material"
+                        ? t("live.scene.material")
+                        : s.kind === "board"
+                          ? t("live.scene.board")
+                          : s.title}
+                    </span>
+                    {s.hidden && <span className="eyebrow shrink-0">{t("live.stepHidden")}</span>}
+                    <button
+                      onClick={() => moveStep(i, -1)}
+                      disabled={i === 0}
+                      aria-label={t("live.prevStep")}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100 disabled:opacity-30"
+                    >
+                      <ChevronUp size={14} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      onClick={() => moveStep(i, 1)}
+                      disabled={i === fullSteps.length - 1}
+                      aria-label={t("live.nextStep")}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100 disabled:opacity-30"
+                    >
+                      <ChevronDown size={14} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      onClick={() => toggleStep(i)}
+                      aria-label={t("live.stepHidden")}
+                      aria-pressed={!!s.hidden}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100"
+                    >
+                      {s.hidden ? <EyeOff size={14} strokeWidth={2.5} /> : <Eye size={14} strokeWidth={2.5} />}
+                    </button>
+                  </div>
+                );
+              })}
+              <div className="mt-1.5 flex items-center gap-2 border-t border-border pt-1.5">
+                <button
+                  onClick={addBoardStep}
+                  className="rounded-sm px-2 py-1.5 text-sm font-bold text-primary hover:bg-surface-2"
+                >
+                  {t("live.programmeAddBoard")}
+                </button>
+                <button
+                  onClick={() => setProgramme(null)}
+                  disabled={programme === null}
+                  className="ml-auto rounded-sm px-2 py-1.5 text-sm font-semibold text-text-muted hover:bg-surface-2 disabled:opacity-40"
+                >
+                  {t("live.programmeReset")}
+                </button>
+              </div>
+            </div>
+          </>
         )}
         <div className="ml-auto flex items-center gap-2.5">
           <button
