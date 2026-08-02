@@ -459,6 +459,10 @@ const de: TranslationMap = {
 
  // Profile
  "profile.title": "Mein Profil",
+ "profile.theme": "Design",
+ "profile.themeLight": "Hell",
+ "profile.themeDark": "Dunkel",
+ "profile.themeSystem": "System",
  "profile.editProfile": "Profil bearbeiten",
  "profile.save": "Änderungen speichern",
  "profile.cancel": "Abbrechen",

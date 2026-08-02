@@ -46,8 +46,27 @@ export default function RootLayout({
  children: React.ReactNode;
 }>) {
  return (
- <html lang="en">
+ <html lang="en" suppressHydrationWarning>
  <head>
+ {/* Theme contract (frontend/design/README.md): `.dark` on <html>,
+     choice persisted in localStorage["lms.theme"]. This runs before
+     paint so the first frame is already in the right theme.
+     suppressHydrationWarning above: the class is set pre-hydration.
+
+     Default is 'light', NOT 'system': ~1500 component usages still hold
+     raw scale utilities (bg-paper-2, text-ink-700) which do not flip with
+     `.dark`, so following the OS would drop users into a half-dark UI.
+     Switch the default to 'system' once plan 018 (dark readiness) lands. */}
+ <script
+ dangerouslySetInnerHTML={{
+ __html: `(function () {
+  var t = localStorage.getItem('lms.theme') || 'light';
+  var dark = t === 'dark' || (t === 'system' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.classList.toggle('dark', dark);
+})();`,
+ }}
+ />
  <link rel="apple-touch-icon" href="/icon-192.png" />
  </head>
  <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>

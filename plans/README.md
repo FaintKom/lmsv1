@@ -41,8 +41,14 @@ notes in the root CLAUDE.md before merging, and poll the deploy run after.
 | 015 | Live review: student "My results" (S7) | P2 | S | — | TODO |
 | 016 | Conductor v2: programme editor | P3 | M | — | TODO |
 | 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | TODO |
+| 018 | Dark readiness: raw utilities → semantic (unblocks theme=system) | P2 | L (sliced) | 008 | TODO |
 
-Recommended order: 012 → 009 → 013 → 014 → 008 → 010 → 011 → 015 → 016 → 017.
+Recommended order: 012 → 009 → 015 → 008 → 013 → 014 → 010 → 011 → 018 → 016 → 017.
+
+**Dark-theme note (2026-08-02):** 008 ships the toggle with the default
+pinned to `light`, because ~1500 component usages still hold raw scale
+utilities that do not flip in `.dark` (measured; see 018). 018 is the
+prerequisite for defaulting to `system`.
 012/009 are quick wins; 013/014 close the answer-leak security gap; 017 runs
 last as the compliance sweep over everything.
 
