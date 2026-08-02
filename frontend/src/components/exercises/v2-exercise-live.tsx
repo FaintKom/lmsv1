@@ -39,6 +39,7 @@ import { CategorizeV2 } from "@/components/exercises/v2/categorize-v2";
 import { ReadingV2 } from "@/components/exercises/v2/reading-v2";
 import { DialogueV2 } from "@/components/exercises/v2/dialogue-v2";
 import { QuizV2 } from "@/components/exercises/v2/quiz-v2";
+import { CrosswordV2 } from "@/components/exercises/v2/crossword-v2";
 
 interface LiveExercise {
   id: string;
@@ -302,6 +303,60 @@ export function V2ExerciseLive({
           questions={questions}
           onCheck={onCheck}
           {...shared}
+        />
+      );
+    }
+    case "crossword": {
+      // stripped config: words[{clue,row,col,direction,length}] — no letters.
+      // Walk each word's cells to build the grid; the first cell of a word
+      // carries its clue number (across before down at a shared start).
+      const raw = (cfg.words as {
+        clue?: string;
+        row?: number;
+        col?: number;
+        direction?: "across" | "down";
+        length?: number;
+        word?: string;
+      }[]) ?? [];
+      const size = (cfg.grid_size as number) ?? 10;
+      const cells: Record<string, { ch?: string; num?: number }> = {};
+      const across: { n: number; text: string }[] = [];
+      const down: { n: number; text: string }[] = [];
+      const wordIndexByNum: Record<number, number> = {};
+      let num = 0;
+      raw.forEach((w, wi) => {
+        const len = w.length ?? w.word?.length ?? 0;
+        const r0 = w.row ?? 0;
+        const c0 = w.col ?? 0;
+        if (len <= 0) return;
+        num += 1;
+        wordIndexByNum[num] = wi;
+        (w.direction === "down" ? down : across).push({ n: num, text: w.clue ?? "" });
+        for (let i = 0; i < len; i++) {
+          const r = w.direction === "down" ? r0 + i : r0;
+          const c = w.direction === "down" ? c0 : c0 + i;
+          const key = `${r},${c}`;
+          const ch = w.word ? w.word[i]?.toUpperCase() : undefined;
+          cells[key] = {
+            ...(cells[key] ?? {}),
+            ...(ch ? { ch } : {}),
+            ...(i === 0 && cells[key]?.num == null ? { num } : {}),
+          };
+        }
+      });
+      return (
+        <CrosswordV2
+          width={size}
+          height={size}
+          cells={cells}
+          clues={{ across, down }}
+          wordIndexByNum={wordIndexByNum}
+          onCheck={onCheck}
+          maxAttemptsPerTask={remaining}
+          onGrade={onGrade}
+          onAnswersChange={onAnswersChange}
+          onQuit={onQuit}
+          onFinish={onFinish}
         />
       );
     }

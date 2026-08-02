@@ -60,6 +60,7 @@ export const V2_LIVE_TYPES = [
   "reading",
   "dialogue",
   "quiz",
+  "crossword",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 
