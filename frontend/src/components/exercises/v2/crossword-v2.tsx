@@ -329,7 +329,7 @@ export function CrosswordV2({
         <div
           style={{
             fontWeight: 700,
-            color: "var(--ink-500)",
+            color: "var(--color-text-muted)",
             fontSize: 12,
             marginBottom: 4,
           }}
@@ -363,7 +363,7 @@ export function CrosswordV2({
                 fontFamily: "var(--font-sans)",
                 fontSize: 13.5,
                 fontWeight: isActive ? 800 : 600,
-                color: isActive ? "var(--green-800)" : "var(--ink-500)",
+                color: isActive ? "var(--green-800)" : "var(--color-text-muted)",
                 cursor: feedback || wi < 0 ? "default" : "pointer",
                 transition: "background 120ms, color 120ms",
               }}

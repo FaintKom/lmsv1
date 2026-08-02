@@ -137,14 +137,14 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  {submitted && isCorrect === false && config.correct_order && (
  <div className="rounded-lg bg-surface-2 border border-border-strong px-5 py-3">
  <p className="text-xs font-semibold text-text-subtle mb-2">Correct order:</p>
- <p className="text-sm font-medium text-ink-700 ">
+ <p className="text-sm font-medium text-text ">
  {config.correct_order.join(" ")}
  </p>
  </div>
  )}
 
  {/* Word pool */}
- <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm p-5">
+ <div className="rounded-lg border border-border-strong bg-surface shadow-sm p-5">
  <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle mb-3">
  Available words
  </p>
@@ -157,7 +157,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  key={`p-${i}`}
  onClick={() => addWord(word, i)}
  disabled={submitted}
- className="rounded-lg border-2 border-border-strong bg-paper-2 px-4 py-2.5 text-sm font-semibold text-ink-700 transition duration-200 hover:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+ className="rounded-lg border-2 border-border-strong bg-surface px-4 py-2.5 text-sm font-semibold text-text transition duration-200 hover:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
  >
  {word}
  </button>

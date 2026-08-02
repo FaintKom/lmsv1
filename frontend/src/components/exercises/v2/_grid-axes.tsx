@@ -57,7 +57,7 @@ export function GridAxes({
         y1={toY(0)}
         x2={size - pad}
         y2={toY(0)}
-        stroke="var(--ink-500)"
+        stroke="var(--color-text-muted)"
         strokeWidth="1.5"
       />
       <line
@@ -65,17 +65,17 @@ export function GridAxes({
         y1={pad}
         x2={toX(0)}
         y2={size - pad}
-        stroke="var(--ink-500)"
+        stroke="var(--color-text-muted)"
         strokeWidth="1.5"
       />
       {/* arrows */}
       <polygon
         points={`${size - pad},${toY(0)} ${size - pad - 8},${toY(0) - 5} ${size - pad - 8},${toY(0) + 5}`}
-        fill="var(--ink-500)"
+        fill="var(--color-text-muted)"
       />
       <polygon
         points={`${toX(0)},${pad} ${toX(0) - 5},${pad + 8} ${toX(0) + 5},${pad + 8}`}
-        fill="var(--ink-500)"
+        fill="var(--color-text-muted)"
       />
       {ticks &&
         Array.from({ length: range * 2 + 1 }, (_, i) => {
@@ -89,7 +89,7 @@ export function GridAxes({
                 fontSize="11"
                 fontFamily="var(--font-mono)"
                 textAnchor="middle"
-                fill="var(--ink-500)"
+                fill="var(--color-text-muted)"
               >
                 {v}
               </text>
@@ -99,7 +99,7 @@ export function GridAxes({
                 fontSize="11"
                 fontFamily="var(--font-mono)"
                 textAnchor="end"
-                fill="var(--ink-500)"
+                fill="var(--color-text-muted)"
               >
                 {v}
               </text>
@@ -113,7 +113,7 @@ export function GridAxes({
           fontSize="11"
           fontFamily="var(--font-mono)"
           textAnchor="end"
-          fill="var(--ink-500)"
+          fill="var(--color-text-muted)"
         >
           0
         </text>

@@ -130,8 +130,8 @@ export function ScormPackageV2({
         <div style={{ maxWidth: 540, margin: "0 auto" }}>
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 16,
               overflow: "hidden",
             }}
@@ -140,14 +140,14 @@ export function ScormPackageV2({
             <div
               style={{
                 padding: "10px 14px",
-                borderBottom: "1px solid var(--ink-100)",
+                borderBottom: "1px solid var(--color-border)",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
-                color: "var(--ink-500)",
+                color: "var(--color-text-muted)",
               }}
             >
               <span
@@ -171,7 +171,7 @@ export function ScormPackageV2({
                 justifyContent: "center",
                 alignItems: "center",
                 gap: 16,
-                background: "var(--paper)",
+                background: "var(--color-bg)",
                 position: "relative",
               }}
             >
@@ -203,7 +203,7 @@ export function ScormPackageV2({
                     <p
                       style={{
                         fontSize: 13,
-                        color: "var(--ink-500)",
+                        color: "var(--color-text-muted)",
                         marginTop: 8,
                         maxWidth: 320,
                       }}
@@ -261,7 +261,7 @@ export function ScormPackageV2({
                     <p
                       style={{
                         fontSize: 13,
-                        color: "var(--ink-500)",
+                        color: "var(--color-text-muted)",
                         marginTop: 6,
                       }}
                     >

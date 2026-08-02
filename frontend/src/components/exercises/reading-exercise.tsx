@@ -78,7 +78,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  return (
  <div className="space-y-5">
  {/* Passage card */}
- <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm overflow-hidden">
+ <div className="rounded-lg border border-border-strong bg-surface shadow-sm overflow-hidden">
  <div className="flex items-center gap-2 px-5 py-3 border-b border-border bg-surface-2 ">
  <span className="text-lg">{"\uD83D\uDCD6"}</span>
  <span className="text-xs font-semibold uppercase tracking-wider text-text-muted ">
@@ -86,7 +86,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  </span>
  </div>
  <div className="p-5 max-h-[320px] overflow-y-auto">
- <div className="text-[15px] leading-[1.8] text-ink-700 whitespace-pre-wrap font-[Georgia,serif]">
+ <div className="text-[15px] leading-[1.8] text-text whitespace-pre-wrap font-[Georgia,serif]">
  {config.passage || "No passage provided."}
  </div>
  </div>
@@ -126,13 +126,13 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  key={qi}
  className={`transition duration-300 ${qi === currentQ ? "block" : "hidden"}`}
  >
- <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm p-5 space-y-4">
+ <div className="rounded-lg border border-border-strong bg-surface shadow-sm p-5 space-y-4">
  {/* Question text */}
  <div className="flex items-start gap-3">
  <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-pill bg-primary-soft text-sm font-bold text-primary ">
  {qi + 1}
  </span>
- <p className="text-[15px] font-medium text-ink-700 pt-1">
+ <p className="text-[15px] font-medium text-text pt-1">
  {q.question || q.text}
  </p>
  </div>
@@ -158,7 +158,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  ? "border-danger bg-danger-soft text-danger-fg "
  : isSelected
  ? "border-primary bg-success-soft text-text shadow-sm"
- : "border-border-strong text-ink-700 hover:border-primary hover:bg-success-soft/50 "
+ : "border-border-strong text-text hover:border-primary hover:bg-success-soft/50 "
  }
  disabled:cursor-default
  `}
@@ -191,7 +191,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  ? "border-primary bg-success-soft text-success-fg "
  : submitted && results[String(qi)] === false
  ? "border-danger bg-danger-soft text-danger-fg "
- : "border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
+ : "border-border-strong bg-surface-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}

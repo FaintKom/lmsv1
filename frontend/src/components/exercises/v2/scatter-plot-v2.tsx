@@ -237,7 +237,7 @@ export function ScatterPlotV2({
               y1={toY(0)}
               x2={PAD.l + PLOTW}
               y2={toY(0)}
-              stroke="var(--ink-500)"
+              stroke="var(--color-text-muted)"
               strokeWidth="1.5"
             />
             <line
@@ -245,7 +245,7 @@ export function ScatterPlotV2({
               y1={PAD.t}
               x2={PAD.l}
               y2={toY(0)}
-              stroke="var(--ink-500)"
+              stroke="var(--color-text-muted)"
               strokeWidth="1.5"
             />
             {/* labels */}
@@ -257,7 +257,7 @@ export function ScatterPlotV2({
                   y={toY(0) + 16}
                   fontSize="11"
                   textAnchor="middle"
-                  fill="var(--ink-500)"
+                  fill="var(--color-text-muted)"
                   fontFamily="var(--font-mono)"
                 >
                   {v}
@@ -272,7 +272,7 @@ export function ScatterPlotV2({
                   y={toY(v) + 4}
                   fontSize="11"
                   textAnchor="end"
-                  fill="var(--ink-500)"
+                  fill="var(--color-text-muted)"
                   fontFamily="var(--font-mono)"
                 >
                   {v}
@@ -296,7 +296,7 @@ export function ScatterPlotV2({
                 cy={toY(p.y)}
                 r="4.5"
                 fill="var(--clay-500)"
-                stroke="var(--paper-2)"
+                stroke="var(--color-surface)"
                 strokeWidth="1"
               />
             ))}
@@ -340,7 +340,7 @@ export function ScatterPlotV2({
                   cy={toY(pt.y)}
                   r="11"
                   fill="var(--green-600)"
-                  stroke="var(--paper-2)"
+                  stroke="var(--color-surface)"
                   strokeWidth="3"
                 />
               </g>
@@ -350,7 +350,7 @@ export function ScatterPlotV2({
             <div
               style={{
                 padding: 12,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 borderRadius: 10,
                 textAlign: "center",
               }}
@@ -362,7 +362,7 @@ export function ScatterPlotV2({
                   fontWeight: 700,
                   fontSize: 16,
                   marginTop: 4,
-                  color: "var(--ink-900)",
+                  color: "var(--color-text)",
                 }}
               >
                 y = {m.toFixed(2)}x{" "}
@@ -372,7 +372,7 @@ export function ScatterPlotV2({
             <div
               style={{
                 fontSize: 12,
-                color: "var(--ink-500)",
+                color: "var(--color-text-muted)",
                 lineHeight: 1.5,
               }}
             >

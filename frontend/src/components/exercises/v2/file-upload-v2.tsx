@@ -179,7 +179,7 @@ export function FileUploadV2({
             onDrop={(e) => !feedback && onDrop(e)}
             style={{
               padding: "44px 24px",
-              background: hover ? "var(--green-50)" : "var(--paper-2)",
+              background: hover ? "var(--green-50)" : "var(--color-surface)",
               border: `3px dashed ${hover ? "var(--green-500)" : "var(--ink-200)"}`,
               borderRadius: 18,
               textAlign: "center",
@@ -205,7 +205,7 @@ export function FileUploadV2({
               style={{
                 fontWeight: 700,
                 fontSize: 17,
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
               }}
             >
               {file ? file.name : dropLabelText}
@@ -213,7 +213,7 @@ export function FileUploadV2({
             <div
               style={{
                 fontSize: 13,
-                color: "var(--ink-400)",
+                color: "var(--color-text-subtle)",
                 marginTop: 6,
               }}
             >
@@ -281,7 +281,7 @@ export function FileUploadV2({
                   style={{
                     fontWeight: 700,
                     fontSize: 14,
-                    color: "var(--ink-900)",
+                    color: "var(--color-text)",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -292,7 +292,7 @@ export function FileUploadV2({
                 <div
                   style={{
                     fontSize: 11,
-                    color: "var(--ink-500)",
+                    color: "var(--color-text-muted)",
                     fontFamily: "var(--font-mono)",
                   }}
                 >
@@ -311,7 +311,7 @@ export function FileUploadV2({
                   background: "transparent",
                   border: "none",
                   cursor: feedback ? "default" : "pointer",
-                  color: "var(--ink-500)",
+                  color: "var(--color-text-muted)",
                   width: 28,
                   height: 28,
                   borderRadius: 999,

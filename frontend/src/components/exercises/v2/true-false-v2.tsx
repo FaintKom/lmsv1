@@ -189,14 +189,14 @@ export function TrueFalseV2({
       >
         <div
           style={{
-            background: "var(--paper-2)",
-            border: "2px solid var(--ink-100)",
+            background: "var(--color-surface)",
+            border: "2px solid var(--color-border)",
             borderRadius: 18,
             padding: "26px 24px",
             textAlign: "center",
             fontFamily: "var(--font-mono)",
             fontSize: 18,
-            color: "var(--ink-900)",
+            color: "var(--color-text)",
             maxWidth: 460,
             margin: "0 auto 24px",
             lineHeight: 1.5,
@@ -238,7 +238,7 @@ export function TrueFalseV2({
             fontSize: 10,
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            color: "var(--ink-300)",
+            color: "var(--color-text-subtle)",
           }}
         >
           {t("exercise.trueFalse.keyTip")}

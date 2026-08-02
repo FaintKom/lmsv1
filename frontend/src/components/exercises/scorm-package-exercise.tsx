@@ -105,7 +105,7 @@ export function SCORMConfigEditor({
 
  return (
  <div className="space-y-4">
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4">
+ <div className="rounded-lg border border-border-strong bg-surface p-4">
  <p className="mb-2 text-sm font-medium text-text">SCORM / xAPI Package</p>
  <p className="mb-3 text-xs text-text-muted">
  Upload a <strong>.zip</strong> exported from Articulate Storyline,
@@ -143,7 +143,7 @@ export function SCORMConfigEditor({
  ? "border-success bg-success-soft"
  : pkg.status === "failed"
  ? "border-danger bg-danger-soft"
- : "border-border-strong bg-paper-2"
+ : "border-border-strong bg-surface"
  }`}
  >
  <div className="flex items-start gap-2">
@@ -282,7 +282,7 @@ export function SCORMPackageRenderer({
 
  if (!cfg.package_id) {
  return (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-6 text-center text-sm text-text-muted">
+ <div className="rounded-lg border border-border-strong bg-surface p-6 text-center text-sm text-text-muted">
  No SCORM package uploaded yet. Ask your teacher to upload one.
  </div>
  );
@@ -301,12 +301,12 @@ export function SCORMPackageRenderer({
  {iframeSrc ? (
  <iframe
  src={iframeSrc}
- className="h-[600px] w-full rounded-lg border border-border-strong bg-paper-2"
+ className="h-[600px] w-full rounded-lg border border-border-strong bg-surface"
  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
  title={cfg.title || "SCORM content"}
  />
  ) : (
- <div className="flex h-[600px] w-full items-center justify-center rounded-lg border border-border-strong bg-paper-2">
+ <div className="flex h-[600px] w-full items-center justify-center rounded-lg border border-border-strong bg-surface">
  <p className="text-sm text-text-muted">Loading SCORM content…</p>
  </div>
  )}

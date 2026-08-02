@@ -63,7 +63,7 @@ const DEFAULTS: Required<Pick<SortCategory, "color" | "border" | "text">>[] = [
   { color: "var(--green-50)", border: "var(--green-300)", text: "var(--green-800)" },
   { color: "var(--sun-50)", border: "var(--sun-400)", text: "var(--sun-700)" },
   { color: "var(--clay-50)", border: "var(--clay-300)", text: "var(--clay-700)" },
-  { color: "var(--ink-50)", border: "var(--ink-300)", text: "var(--ink-700)" },
+  { color: "var(--color-surface-2)", border: "var(--ink-300)", text: "var(--ink-700)" },
 ];
 
 interface DragState {
@@ -317,7 +317,7 @@ export function CardSortV2({
                   style={{
                     minHeight: 150,
                     background: pal.color,
-                    border: `2px dashed ${isOver ? pal.border : "var(--ink-200)"}`,
+                    border: `2px dashed ${isOver ? pal.border : "var(--color-border-strong)"}`,
                     borderRadius: 14,
                     padding: 10,
                     display: "flex",
@@ -363,7 +363,7 @@ export function CardSortV2({
                             ? "var(--green-100)"
                             : wrong
                               ? "var(--err-bg)"
-                              : "var(--paper-2)",
+                              : "var(--color-surface)",
                           padding: "8px 12px",
                           borderRadius: 8,
                           fontFamily: "var(--font-mono)",
@@ -394,9 +394,9 @@ export function CardSortV2({
           </div>
           <div
             style={{
-              background: "var(--paper-2)",
+              background: "var(--color-surface)",
               borderRadius: 14,
-              border: "2px solid var(--ink-100)",
+              border: "2px solid var(--color-border)",
               padding: 12,
               minHeight: 70,
               display: "flex",
@@ -407,7 +407,7 @@ export function CardSortV2({
             }}
           >
             {unsorted.length === 0 ? (
-              <span style={{ color: "var(--ink-400)", fontSize: 13 }}>
+              <span style={{ color: "var(--color-text-subtle)", fontSize: 13 }}>
                 {t("exercise.allPlacedHitCheck")}
               </span>
             ) : (
@@ -454,7 +454,7 @@ export function CardSortV2({
               textAlign: "center",
               fontFamily: "var(--font-mono)",
               fontSize: 11,
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               marginTop: 14,

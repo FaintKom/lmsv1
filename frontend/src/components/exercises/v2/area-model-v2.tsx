@@ -44,7 +44,7 @@ const CELL_PAL = [
   "var(--green-50)",
   "var(--sun-50)",
   "var(--clay-50)",
-  "var(--ink-50)",
+  "var(--color-surface-2)",
 ];
 
 /**
@@ -278,7 +278,7 @@ export function AreaModelV2({
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontSize: 10,
-                        color: "var(--ink-500)",
+                        color: "var(--color-text-muted)",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -301,13 +301,13 @@ export function AreaModelV2({
                         minHeight: 40,
                         padding: "8px 6px",
                         borderRadius: 6,
-                        border: "1px solid var(--ink-200)",
+                        border: "1px solid var(--color-border-strong)",
                         fontFamily: "var(--font-mono)",
                         fontWeight: 700,
                         fontSize: 16,
                         textAlign: "center",
-                        background: "var(--paper)",
-                        color: "var(--ink-900)",
+                        background: "var(--color-bg)",
+                        color: "var(--color-text)",
                         outline: "none",
                       }}
                     />
@@ -321,7 +321,7 @@ export function AreaModelV2({
             style={{
               marginTop: 18,
               padding: 14,
-              background: "var(--paper-2)",
+              background: "var(--color-surface)",
               border: `2px solid ${
                 totalOk === true
                   ? "var(--green-500)"
@@ -341,7 +341,7 @@ export function AreaModelV2({
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
                 fontSize: 16,
-                color: "var(--ink-700)",
+                color: "var(--color-text)",
               }}
             >
               {a} × {b} =
@@ -374,7 +374,7 @@ export function AreaModelV2({
                 fontWeight: 800,
                 fontSize: 18,
                 textAlign: "center",
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
               }}
             />
           </div>
@@ -382,7 +382,7 @@ export function AreaModelV2({
             style={{
               marginTop: 8,
               fontSize: 11,
-              color: "var(--ink-400)",
+              color: "var(--color-text-subtle)",
               textAlign: "center",
               fontFamily: "var(--font-mono)",
             }}

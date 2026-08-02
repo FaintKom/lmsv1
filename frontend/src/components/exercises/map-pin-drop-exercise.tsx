@@ -96,7 +96,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
                     ? "border-primary bg-primary text-white"
                     : isPlaced
                     ? "border-primary bg-success-soft text-success-fg"
-                    : "border-border-strong bg-paper-2 text-text-muted"
+                    : "border-border-strong bg-surface text-text-muted"
                 }`}
               >
                 📍 {pin.label}
@@ -138,7 +138,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
                   {pins[i].label}
                 </span>
                 <svg
-                  className={`h-6 w-5 ${isCorrect === true ? "text-primary" : isCorrect === false ? "text-danger" : "text-ink-700"}`}
+                  className={`h-6 w-5 ${isCorrect === true ? "text-primary" : isCorrect === false ? "text-danger" : "text-text"}`}
                   viewBox="0 0 20 24"
                   fill="currentColor"
                 >

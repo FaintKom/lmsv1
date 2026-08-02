@@ -146,7 +146,7 @@ export default function CrosswordExercise({ config, onSubmit }: Props) {
                       ? "bg-success-soft"
                       : submitted && cellCorrect === false
                       ? "bg-danger-soft"
-                      : "bg-paper-2"
+                      : "bg-surface"
                   }`}
                 >
                   {cell.number && (
@@ -160,7 +160,7 @@ export default function CrosswordExercise({ config, onSubmit }: Props) {
                     value={inputs[ri][ci]}
                     onChange={(e) => handleChange(ri, ci, e.target.value)}
                     disabled={submitted}
-                    className="absolute inset-0 w-full h-full bg-transparent text-center text-sm font-bold text-ink-700 uppercase outline-none focus:bg-primary/10 disabled:cursor-not-allowed"
+                    className="absolute inset-0 w-full h-full bg-transparent text-center text-sm font-bold text-text uppercase outline-none focus:bg-primary/10 disabled:cursor-not-allowed"
                   />
                 </div>
               );
@@ -172,7 +172,7 @@ export default function CrosswordExercise({ config, onSubmit }: Props) {
       {/* Clues */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <h4 className="mb-2 text-sm font-semibold text-ink-700">Across</h4>
+          <h4 className="mb-2 text-sm font-semibold text-text">Across</h4>
           <ul className="space-y-1">
             {words
               .map((w, i) => ({ ...w, idx: i }))
@@ -196,7 +196,7 @@ export default function CrosswordExercise({ config, onSubmit }: Props) {
           </ul>
         </div>
         <div>
-          <h4 className="mb-2 text-sm font-semibold text-ink-700">Down</h4>
+          <h4 className="mb-2 text-sm font-semibold text-text">Down</h4>
           <ul className="space-y-1">
             {words
               .map((w, i) => ({ ...w, idx: i }))

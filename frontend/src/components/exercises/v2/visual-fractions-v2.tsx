@@ -157,7 +157,7 @@ export function VisualFractionsV2({
               cx="0"
               cy="0"
               r="85"
-              fill="var(--paper-2)"
+              fill="var(--color-surface)"
               stroke="var(--ink-200)"
               strokeWidth="2"
             />
@@ -206,7 +206,7 @@ export function VisualFractionsV2({
                   padding: 0,
                   background: shaded.has(i)
                     ? "var(--green-500)"
-                    : "var(--paper-2)",
+                    : "var(--color-surface)",
                   border: `2px solid ${shaded.has(i) ? "var(--green-600)" : "var(--ink-200)"}`,
                   borderRadius: 8,
                   cursor: feedback ? "default" : "pointer",
@@ -223,7 +223,7 @@ export function VisualFractionsV2({
               fontFamily: "var(--font-mono)",
               fontSize: 28,
               fontWeight: 800,
-              color: "var(--ink-900)",
+              color: "var(--color-text)",
               lineHeight: 1,
             }}
           >
@@ -251,12 +251,12 @@ export function VisualFractionsV2({
             style={{
               fontFamily: "var(--font-sans)",
               fontSize: 13,
-              color: "var(--ink-400)",
+              color: "var(--color-text-subtle)",
               marginTop: -8,
             }}
           >
             {t("exercise.target")} ·{" "}
-            <b style={{ color: "var(--ink-700)" }}>
+            <b style={{ color: "var(--color-text)" }}>
               {numerator}/{denominator}
             </b>
           </div>

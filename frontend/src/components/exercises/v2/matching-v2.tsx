@@ -627,7 +627,7 @@ export function MatchingV2({
               textAlign: "center",
               fontFamily: "var(--font-mono)",
               fontSize: 11,
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               marginTop: 22,

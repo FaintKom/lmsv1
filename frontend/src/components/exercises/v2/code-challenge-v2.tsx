@@ -221,8 +221,8 @@ export function CodeChallengeV2({
           {/* Left — problem + examples */}
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               padding: 18,
               fontSize: 13.5,
@@ -231,7 +231,7 @@ export function CodeChallengeV2({
               maxHeight: 420,
             }}
           >
-            <p style={{ margin: "0 0 14px 0", color: "var(--ink-700)" }}>
+            <p style={{ margin: "0 0 14px 0", color: "var(--color-text)" }}>
               {problem.desc}
             </p>
             <div className="gp-eyebrow" style={{ marginBottom: 6 }}>
@@ -242,7 +242,7 @@ export function CodeChallengeV2({
                 <div
                   key={i}
                   style={{
-                    background: "var(--ink-50)",
+                    background: "var(--color-surface-2)",
                     borderRadius: 8,
                     padding: 10,
                   }}
@@ -251,7 +251,7 @@ export function CodeChallengeV2({
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 12,
-                      color: "var(--ink-500)",
+                      color: "var(--color-text-muted)",
                     }}
                   >
                     {t("exercise.input")}
@@ -260,7 +260,7 @@ export function CodeChallengeV2({
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 13,
-                      color: "var(--ink-900)",
+                      color: "var(--color-text)",
                     }}
                   >
                     {ex.input}
@@ -269,7 +269,7 @@ export function CodeChallengeV2({
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 12,
-                      color: "var(--ink-500)",
+                      color: "var(--color-text-muted)",
                       marginTop: 6,
                     }}
                   >
@@ -279,7 +279,7 @@ export function CodeChallengeV2({
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 13,
-                      color: "var(--ink-900)",
+                      color: "var(--color-text)",
                     }}
                   >
                     {ex.output}
@@ -303,14 +303,14 @@ export function CodeChallengeV2({
                 onChange={(e) => setLanguage(e.target.value)}
                 disabled={!!feedback}
                 style={{
-                  background: "var(--paper-2)",
-                  border: "2px solid var(--ink-100)",
+                  background: "var(--color-surface)",
+                  border: "2px solid var(--color-border)",
                   borderRadius: 10,
                   padding: "6px 10px",
                   fontFamily: "var(--font-mono)",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "var(--ink-700)",
+                  color: "var(--color-text)",
                 }}
               >
                 {langs.map((l) => (
@@ -322,14 +322,14 @@ export function CodeChallengeV2({
                 onClick={handleRun}
                 disabled={running || !onRun || !!feedback}
                 style={{
-                  background: "var(--paper-2)",
-                  border: "2px solid var(--ink-200)",
+                  background: "var(--color-surface)",
+                  border: "2px solid var(--color-border-strong)",
                   borderRadius: 10,
                   padding: "6px 12px",
                   fontFamily: "var(--font-sans)",
                   fontSize: 12,
                   fontWeight: 700,
-                  color: "var(--ink-700)",
+                  color: "var(--color-text)",
                   cursor: running || !onRun ? "default" : "pointer",
                   display: "inline-flex",
                   alignItems: "center",
@@ -342,8 +342,8 @@ export function CodeChallengeV2({
                     className="gp-spin"
                     aria-hidden
                     style={{
-                      borderColor: "var(--ink-200)",
-                      borderTopColor: "var(--ink-500)",
+                      borderColor: "var(--color-border-strong)",
+                      borderTopColor: "var(--color-text-muted)",
                     }}
                   />
                 ) : (
@@ -356,7 +356,7 @@ export function CodeChallengeV2({
                   marginLeft: "auto",
                   fontFamily: "var(--font-mono)",
                   fontSize: 11,
-                  color: "var(--ink-400)",
+                  color: "var(--color-text-subtle)",
                 }}
               >
                 {problem.filename ?? "solution"}
@@ -403,9 +403,9 @@ export function CodeChallengeV2({
             {/* output / tests panel */}
             <div
               style={{
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 borderRadius: 12,
-                border: "2px solid var(--ink-100)",
+                border: "2px solid var(--color-border)",
                 minHeight: 110,
                 maxHeight: 180,
                 overflow: "hidden",
@@ -416,7 +416,7 @@ export function CodeChallengeV2({
               <div
                 style={{
                   display: "flex",
-                  borderBottom: "1px solid var(--ink-100)",
+                  borderBottom: "1px solid var(--color-border)",
                 }}
               >
                 {(["output", "tests"] as Tab[]).map((tb) => (
@@ -459,24 +459,24 @@ export function CodeChallengeV2({
               >
                 {tab === "output" ? (
                   running ? (
-                    <span style={{ color: "var(--ink-400)" }}>{t("exercise.running")}</span>
+                    <span style={{ color: "var(--color-text-subtle)" }}>{t("exercise.running")}</span>
                   ) : output ? (
                     <pre
                       style={{
                         margin: 0,
                         whiteSpace: "pre-wrap",
-                        color: "var(--ink-700)",
+                        color: "var(--color-text)",
                       }}
                     >
                       {output}
                     </pre>
                   ) : (
-                    <span style={{ color: "var(--ink-500)" }}>
+                    <span style={{ color: "var(--color-text-muted)" }}>
                       {"> "}{t("exercise.pressRunToTest")}
                     </span>
                   )
                 ) : !results ? (
-                  <span style={{ color: "var(--ink-400)" }}>
+                  <span style={{ color: "var(--color-text-subtle)" }}>
                     {t("exercise.submitToRunTests")}
                   </span>
                 ) : (

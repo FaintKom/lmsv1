@@ -51,15 +51,15 @@ export interface TablePatternV2Props {
 const cellH: React.CSSProperties = {
   padding: "10px 8px",
   textAlign: "center",
-  background: "var(--ink-50)",
-  color: "var(--ink-500)",
-  borderRight: "1px solid var(--ink-100)",
+  background: "var(--color-surface-2)",
+  color: "var(--color-text-muted)",
+  borderRight: "1px solid var(--color-border)",
 };
 const cell: React.CSSProperties = {
   padding: "10px 8px",
   textAlign: "center",
-  color: "var(--ink-900)",
-  borderRight: "1px solid var(--ink-100)",
+  color: "var(--color-text)",
+  borderRight: "1px solid var(--color-border)",
 };
 
 const normRule = (s: string) =>
@@ -178,8 +178,8 @@ export function TablePatternV2({
         <div style={{ maxWidth: 460, margin: "0 auto" }}>
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               overflow: "hidden",
               marginBottom: 16,
@@ -200,7 +200,7 @@ export function TablePatternV2({
                   {x}
                 </div>
               ))}
-              <div style={{ ...cellH, borderTop: "2px solid var(--ink-100)" }}>
+              <div style={{ ...cellH, borderTop: "2px solid var(--color-border)" }}>
                 f(x)
               </div>
               {xValues.map((_, i) => {
@@ -214,7 +214,7 @@ export function TablePatternV2({
                       key={i}
                       style={{
                         ...cell,
-                        borderTop: "2px solid var(--ink-100)",
+                        borderTop: "2px solid var(--color-border)",
                       }}
                     >
                       {y}
@@ -226,7 +226,7 @@ export function TablePatternV2({
                     key={i}
                     style={{
                       ...cell,
-                      borderTop: "2px solid var(--ink-100)",
+                      borderTop: "2px solid var(--color-border)",
                       padding: 4,
                     }}
                   >
@@ -252,7 +252,7 @@ export function TablePatternV2({
                         fontSize: 15,
                         fontWeight: 700,
                         textAlign: "center",
-                        color: "var(--ink-900)",
+                        color: "var(--color-text)",
                         outline: "none",
                       }}
                     />

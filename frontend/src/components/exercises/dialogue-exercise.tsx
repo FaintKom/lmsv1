@@ -209,7 +209,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  : choiceResult === false
  ? "bg-danger text-white"
  : "bg-primary text-white"
- : "bg-paper-2 border border-border text-ink-700 "
+ : "bg-surface border border-border text-text "
  }`}
  >
  {displayText}
@@ -236,7 +236,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  <button
  key={opt.id}
  onClick={() => handleChoice(currentChoiceIndex, opt.id)}
- className="w-full text-left rounded-lg border-2 border-primary-soft bg-paper-2 px-4 py-3 text-sm font-medium text-ink-700 transition duration-200 hover:border-primary hover:bg-success-soft hover:shadow-sm active:scale-[0.98]"
+ className="w-full text-left rounded-lg border-2 border-primary-soft bg-surface px-4 py-3 text-sm font-medium text-text transition duration-200 hover:border-primary hover:bg-success-soft hover:shadow-sm active:scale-[0.98]"
  >
  {opt.text}
  </button>

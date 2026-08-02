@@ -245,9 +245,9 @@ export function ConjugationV2({
           style={{
             maxWidth: 460,
             margin: "0 auto",
-            background: "var(--paper-2)",
+            background: "var(--color-surface)",
             borderRadius: 16,
-            border: "2px solid var(--ink-100)",
+            border: "2px solid var(--color-border)",
             overflow: "hidden",
           }}
         >
@@ -277,7 +277,7 @@ export function ConjugationV2({
                     flexShrink: 0,
                     fontFamily: "var(--font-mono)",
                     fontSize: 13,
-                    color: "var(--ink-500)",
+                    color: "var(--color-text-muted)",
                     fontWeight: 500,
                   }}
                 >

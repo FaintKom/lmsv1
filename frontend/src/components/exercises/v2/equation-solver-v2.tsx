@@ -181,7 +181,7 @@ export function EquationSolverV2({
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 11,
-                      color: "var(--ink-400)",
+                      color: "var(--color-text-subtle)",
                       textAlign: "center",
                       padding: "2px 0",
                       letterSpacing: "0.06em",
@@ -196,14 +196,14 @@ export function EquationSolverV2({
                     background:
                       i === chain.length - 1 && feedback?.kind === "ok"
                         ? "var(--green-50)"
-                        : "var(--paper-2)",
+                        : "var(--color-surface)",
                     border: `2px solid ${i === chain.length - 1 && feedback?.kind === "ok" ? "var(--green-500)" : "var(--ink-100)"}`,
                     borderRadius: 14,
                     padding: "12px 18px",
                     fontFamily: "var(--font-mono)",
                     fontSize: 22,
                     fontWeight: 700,
-                    color: "var(--ink-900)",
+                    color: "var(--color-text)",
                     textAlign: "center",
                     letterSpacing: "0.04em",
                   }}
@@ -220,7 +220,7 @@ export function EquationSolverV2({
                   textAlign: "center",
                   marginBottom: 10,
                   fontSize: 14,
-                  color: "var(--ink-700)",
+                  color: "var(--color-text)",
                   fontWeight: 600,
                 }}
               >

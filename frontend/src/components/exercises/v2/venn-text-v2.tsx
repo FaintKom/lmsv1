@@ -179,7 +179,7 @@ export function VennTextV2({
             fontWeight: 500,
             fontSize: 11,
             textAlign: "center",
-            color: "var(--ink-900)",
+            color: "var(--color-text)",
             outline: "none",
             resize: "none",
             lineHeight: 1.2,
@@ -212,8 +212,8 @@ export function VennTextV2({
             style={{
               width: "100%",
               height: 260,
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
             }}
           >

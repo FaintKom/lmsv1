@@ -464,7 +464,7 @@ export function CategorizeV2({
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: 11,
-                  color: "var(--ink-300)",
+                  color: "var(--color-text-subtle)",
                   alignSelf: "center",
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
@@ -541,7 +541,7 @@ export function CategorizeV2({
                       fontWeight: 800,
                       textTransform: "none",
                       letterSpacing: "normal",
-                      color: "var(--ink-700)",
+                      color: "var(--color-text)",
                     }}
                   >
                     <span
@@ -592,7 +592,7 @@ export function CategorizeV2({
                           background: st
                             ? undefined
                             : deferred
-                              ? "color-mix(in oklab, var(--link-color) 7%, var(--paper-2))"
+                              ? "color-mix(in oklab, var(--link-color) 7%, var(--color-surface))"
                               : "var(--green-50)",
                         }}
                       >
@@ -609,7 +609,7 @@ export function CategorizeV2({
               textAlign: "center",
               fontFamily: "var(--font-mono)",
               fontSize: 11,
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               marginTop: 18,

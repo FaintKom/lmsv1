@@ -184,7 +184,7 @@ export function ArithmeticPuzzleV2({
                     alignItems: "center",
                     gap: 6,
                     padding: "12px 16px",
-                    background: isLocked ? "var(--green-50)" : "var(--paper-2)",
+                    background: isLocked ? "var(--green-50)" : "var(--color-surface)",
                     border: `2px solid ${
                       isLocked
                         ? "var(--green-300)"
@@ -197,7 +197,7 @@ export function ArithmeticPuzzleV2({
                     fontFamily: "var(--font-mono)",
                     fontSize: 22,
                     fontWeight: 700,
-                    color: "var(--ink-900)",
+                    color: "var(--color-text)",
                     justifyContent: "center",
                     transition: "border-color 150ms, background 200ms",
                   }}
@@ -242,7 +242,7 @@ export function ArithmeticPuzzleV2({
                             : isWrong
                               ? "var(--clay-50)"
                               : v == null
-                                ? "var(--ink-50)"
+                                ? "var(--color-surface-2)"
                                 : "var(--green-50)",
                           border: `2px solid ${
                             isCorrect

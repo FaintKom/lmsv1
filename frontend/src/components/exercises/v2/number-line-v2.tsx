@@ -330,7 +330,7 @@ export function NumberLineV2({
                           ? "var(--green-700)"
                           : isZero
                             ? "var(--ink-900)"
-                            : "var(--ink-500)",
+                            : "var(--color-text-muted)",
                       }}
                     >
                       {n}
@@ -410,7 +410,7 @@ export function NumberLineV2({
               fontFamily: "var(--font-mono)",
               fontSize: 11,
               fontWeight: 600,
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               marginTop: 8,

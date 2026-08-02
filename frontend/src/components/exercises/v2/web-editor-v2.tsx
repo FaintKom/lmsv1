@@ -53,7 +53,7 @@ export interface WebEditorV2Props {
 type Tab = "html" | "css" | "js";
 
 const DEFAULT_PREVIEW_BODY =
-  "display:grid;place-items:center;height:100vh;background:var(--paper);margin:0";
+  "display:grid;place-items:center;height:100vh;background:var(--color-bg);margin:0";
 
 export function WebEditorV2({
   starter,
@@ -164,8 +164,8 @@ export function WebEditorV2({
           {/* code panel */}
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               display: "flex",
               flexDirection: "column",
@@ -175,7 +175,7 @@ export function WebEditorV2({
             <div
               style={{
                 display: "flex",
-                borderBottom: "1px solid var(--ink-100)",
+                borderBottom: "1px solid var(--color-border)",
               }}
             >
               {(["html", "css", "js"] as Tab[]).map((tb) => (
@@ -208,7 +208,7 @@ export function WebEditorV2({
                   padding: "10px 12px",
                   fontFamily: "var(--font-mono)",
                   fontSize: 11,
-                  color: "var(--ink-400)",
+                  color: "var(--color-text-subtle)",
                 }}
               >
                 index.{tab}
@@ -245,8 +245,8 @@ export function WebEditorV2({
             <div
               style={{
                 flex: 1,
-                background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
+                background: "var(--color-surface)",
+                border: "2px solid var(--color-border)",
                 borderRadius: 14,
                 overflow: "hidden",
                 minHeight: 0,
@@ -257,7 +257,7 @@ export function WebEditorV2({
               <div
                 style={{
                   padding: "8px 14px",
-                  borderBottom: "1px solid var(--ink-100)",
+                  borderBottom: "1px solid var(--color-border)",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
@@ -292,7 +292,7 @@ export function WebEditorV2({
                     marginLeft: 10,
                     fontFamily: "var(--font-mono)",
                     fontSize: 11,
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                   }}
                 >
                   {t("exercise.preview")}
@@ -306,14 +306,14 @@ export function WebEditorV2({
                   flex: 1,
                   border: "none",
                   width: "100%",
-                  background: "var(--paper)",
+                  background: "var(--color-bg)",
                 }}
               />
             </div>
             <div
               style={{
-                background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
+                background: "var(--color-surface)",
+                border: "2px solid var(--color-border)",
                 borderRadius: 14,
                 padding: 12,
                 display: "flex",
@@ -347,7 +347,7 @@ export function WebEditorV2({
                   </span>
                   <span
                     style={{
-                      color: r.ok ? "var(--green-800)" : "var(--ink-500)",
+                      color: r.ok ? "var(--green-800)" : "var(--color-text-muted)",
                       fontWeight: r.ok ? 700 : 500,
                     }}
                   >

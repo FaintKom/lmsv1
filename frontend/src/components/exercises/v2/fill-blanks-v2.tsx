@@ -324,7 +324,7 @@ export function FillBlanksV2({
           style={{
             fontSize: 19,
             lineHeight: 2.3,
-            color: "var(--ink-900)",
+            color: "var(--color-text)",
             maxWidth: 560,
             margin: "8px auto 28px",
             textAlign: "center",
@@ -352,8 +352,8 @@ export function FillBlanksV2({
                       color: "var(--green-700)",
                     }
                   : {
-                      background: "var(--ink-50)",
-                      color: "var(--ink-300)",
+                      background: "var(--color-surface-2)",
+                      color: "var(--color-text-subtle)",
                       borderBottomStyle: "dashed",
                     }
                 : undefined;

@@ -43,10 +43,10 @@ function WhiteboardLoading() {
         height: 480,
         display: "grid",
         placeItems: "center",
-        background: "var(--paper-2)",
-        border: "2px solid var(--ink-100)",
+        background: "var(--color-surface)",
+        border: "2px solid var(--color-border)",
         borderRadius: 14,
-        color: "var(--ink-500)",
+        color: "var(--color-text-muted)",
         fontFamily: "var(--font-mono)",
         fontSize: 13,
       }}
@@ -208,7 +208,7 @@ export function WhiteboardV2({
                 borderRadius: 12,
                 fontFamily: "var(--font-sans)",
                 fontSize: 14,
-                color: "var(--ink-700)",
+                color: "var(--color-text)",
                 lineHeight: 1.5,
               }}
             >
@@ -220,8 +220,8 @@ export function WhiteboardV2({
               height,
               borderRadius: 14,
               overflow: "hidden",
-              border: "2px solid var(--ink-100)",
-              background: "var(--paper-2)",
+              border: "2px solid var(--color-border)",
+              background: "var(--color-surface)",
             }}
           >
             <Excalidraw
@@ -235,7 +235,7 @@ export function WhiteboardV2({
             style={{
               marginTop: 10,
               fontSize: 12,
-              color: "var(--ink-400)",
+              color: "var(--color-text-subtle)",
               fontFamily: "var(--font-mono)",
               textAlign: "center",
             }}

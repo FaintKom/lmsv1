@@ -167,7 +167,7 @@ export default function WebEditorExercise({
  {/* Description + requirements */}
  {config.description && (
  <div className="rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <p className="text-sm text-ink-700 ">{config.description}</p>
+ <p className="text-sm text-text ">{config.description}</p>
  {config.requirements && config.requirements.length > 0 && (
  <div className="mt-3">
  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">
@@ -188,7 +188,7 @@ export default function WebEditorExercise({
 
  {/* Main editor area */}
  <div
- className={`rounded-lg border border-border-strong overflow-hidden bg-paper-2 ${
+ className={`rounded-lg border border-border-strong overflow-hidden bg-surface ${
  isExpanded ? "fixed inset-4 z-50 flex flex-col" : ""
  }`}
  >
@@ -227,14 +227,14 @@ export default function WebEditorExercise({
  </button>
  <button
  onClick={handleReset}
- className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-ink-100 transition-colors"
+ className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-surface-2 transition-colors"
  title="Reset to starter code"
  >
  <RotateCcw className="h-3.5 w-3.5" />
  </button>
  <button
  onClick={() => setIsExpanded(!isExpanded)}
- className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-ink-100 transition-colors"
+ className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-text-subtle hover:bg-surface-2 transition-colors"
  title={isExpanded ? "Exit fullscreen" : "Fullscreen"}
  >
  {isExpanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
@@ -283,7 +283,7 @@ export default function WebEditorExercise({
  <Eye className="h-3.5 w-3.5 text-text-subtle" />
  <span className="text-xs font-semibold text-text-muted ">Preview</span>
  </div>
- <div className={`bg-paper-2 ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
+ <div className={`bg-surface ${isExpanded ? "flex-1" : ""}`} style={isExpanded ? undefined : { height: previewHeight }}>
  <iframe
  srcDoc={previewDoc}
  sandbox="allow-scripts allow-same-origin"

@@ -250,7 +250,7 @@ export function MapPinDropV2({
             aspectRatio,
             background: "linear-gradient(180deg, #cce7ff 0%, #b3d9ff 100%)",
             borderRadius: 18,
-            border: "2px solid var(--ink-100)",
+            border: "2px solid var(--color-border)",
             cursor: feedback ? "default" : "crosshair",
             overflow: "hidden",
           }}
@@ -353,7 +353,7 @@ export function MapPinDropV2({
             textAlign: "center",
             marginTop: 12,
             fontSize: 13,
-            color: "var(--ink-400)",
+            color: "var(--color-text-subtle)",
           }}
         >
           {!pin ? t("exercise.mapPin.tapAnywhere") : t("exercise.mapPin.pinReady")}

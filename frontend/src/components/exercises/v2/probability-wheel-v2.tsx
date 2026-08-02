@@ -290,7 +290,7 @@ export function ProbabilityWheelV2({
                   <path
                     d={describeArc(a.start, a.end)}
                     fill={a.color}
-                    stroke="var(--paper-2)"
+                    stroke="var(--color-surface)"
                     strokeWidth="2"
                   />
                   <text
@@ -369,7 +369,7 @@ export function ProbabilityWheelV2({
                   style={{
                     marginBottom: 8,
                     fontSize: 12,
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                     fontFamily: "var(--font-sans)",
                   }}
                 >
@@ -397,7 +397,7 @@ export function ProbabilityWheelV2({
                         borderRadius: 10,
                         background: isPicked
                           ? "var(--green-50)"
-                          : "var(--paper-2)",
+                          : "var(--color-surface)",
                         border: `2px solid ${isPicked ? "var(--green-500)" : "var(--ink-100)"}`,
                         cursor:
                           reachedTarget && !feedback ? "pointer" : "default",
@@ -405,7 +405,7 @@ export function ProbabilityWheelV2({
                         fontFamily: "var(--font-mono)",
                         fontSize: 13,
                         fontWeight: 600,
-                        color: "var(--ink-900)",
+                        color: "var(--color-text)",
                       }}
                     >
                       <div
@@ -442,7 +442,7 @@ export function ProbabilityWheelV2({
                           float: "right",
                           fontFamily: "var(--font-mono)",
                           fontSize: 11,
-                          color: "var(--ink-500)",
+                          color: "var(--color-text-muted)",
                           position: "relative",
                         }}
                       >

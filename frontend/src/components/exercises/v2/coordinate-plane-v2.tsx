@@ -386,7 +386,7 @@ export function CoordinatePlaneV2({
                       gap: 10,
                       padding: "8px 10px",
                       borderRadius: 10,
-                      background: "var(--paper-2)",
+                      background: "var(--color-surface)",
                       border:
                         "2px solid " +
                         (graded
@@ -419,7 +419,7 @@ export function CoordinatePlaneV2({
                         fontFamily: "var(--font-mono)",
                         fontSize: 14,
                         fontWeight: 700,
-                        color: "var(--ink-900)",
+                        color: "var(--color-text)",
                       }}
                     >
                       ({tg.x}, {tg.y})
@@ -444,7 +444,7 @@ export function CoordinatePlaneV2({
                 fontFamily: "var(--font-mono)",
                 fontSize: 10,
                 fontWeight: 600,
-                color: "var(--ink-300)",
+                color: "var(--color-text-subtle)",
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 lineHeight: 1.7,

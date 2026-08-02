@@ -65,19 +65,19 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  <p className="text-sm font-medium text-success-soft mb-1">Conjugate the verb</p>
  <p className="text-3xl font-bold tracking-tight">{config.verb || "?"}</p>
  {config.tense && (
- <span className="mt-3 inline-block rounded-pill bg-paper-2/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+ <span className="mt-3 inline-block rounded-pill bg-surface/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
  {config.tense}
  </span>
  )}
  {config.language && (
- <span className="mt-3 ml-2 inline-block rounded-pill bg-paper-2/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+ <span className="mt-3 ml-2 inline-block rounded-pill bg-surface/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
  {config.language}
  </span>
  )}
  </div>
 
  {/* Conjugation rows */}
- <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm overflow-hidden">
+ <div className="rounded-lg border border-border-strong bg-surface shadow-sm overflow-hidden">
  {pronouns.map((pronoun, i) => {
  const isCorrect = submitted ? results[pronoun] : undefined;
  const rowBg =
@@ -86,7 +86,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  : isCorrect === false
  ? "bg-danger-soft "
  : i % 2 === 0
- ? "bg-paper-2 "
+ ? "bg-surface "
  : "bg-surface-2/60 ";
 
  return (
@@ -117,7 +117,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  ? "border-2 border-primary bg-success-soft text-success-fg "
  : submitted && isCorrect === false
  ? "border-2 border-danger bg-danger-soft text-danger-fg "
- : "border-2 border-border-strong bg-surface-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
+ : "border-2 border-border-strong bg-surface-2 text-text focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}

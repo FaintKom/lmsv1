@@ -51,14 +51,14 @@ function DPadBtn({ dir, onClick, disabled }: DPadBtnProps) {
       disabled={disabled}
       aria-label={`Move ${dir}`}
       style={{
-        background: "var(--paper-2)",
+        background: "var(--color-surface)",
         border: "none",
         borderRadius: 14,
         boxShadow: "0 4px 0 0 var(--ink-200)",
         cursor: disabled ? "default" : "pointer",
         fontSize: 22,
         fontWeight: 800,
-        color: "var(--ink-700)",
+        color: "var(--color-text)",
         transition: "transform 100ms, box-shadow 100ms",
       }}
       onPointerDown={(e) => {
@@ -146,7 +146,7 @@ export function World3DV2({
             style={{
               background:
                 "linear-gradient(180deg, #d4f1c4 0%, #ecf9e7 100%)",
-              border: "2px solid var(--ink-100)",
+              border: "2px solid var(--color-border)",
               borderRadius: 18,
               position: "relative",
               height: 360,

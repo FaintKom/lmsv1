@@ -217,7 +217,7 @@ export function NumericInputV2({
                 >
                   <Lightbulb size={14} /> {t("exercise.example")}
                 </span>
-                <span style={{ color: "var(--ink-400)" }}>
+                <span style={{ color: "var(--color-text-subtle)" }}>
                   {showExample ? "−" : "+"}
                 </span>
               </button>
@@ -227,11 +227,11 @@ export function NumericInputV2({
                     marginTop: 8,
                     fontFamily: "var(--font-mono)",
                     fontSize: 12,
-                    color: "var(--ink-700)",
+                    color: "var(--color-text)",
                     lineHeight: 1.5,
                   }}
                 >
-                  <div style={{ color: "var(--ink-500)" }}>{example.q}</div>
+                  <div style={{ color: "var(--color-text-muted)" }}>{example.q}</div>
                   <div style={{ marginTop: 2 }}>
                     {example.work} ={" "}
                     <b style={{ color: "var(--green-700)" }}>{example.a}</b>
@@ -303,7 +303,7 @@ export function NumericInputV2({
                   minHeight: 48,
                   padding: "8px 0",
                   borderRadius: 10,
-                  background: "var(--paper-2)",
+                  background: "var(--color-surface)",
                   border: "none",
                   fontFamily: "var(--font-mono)",
                   fontWeight: 700,
@@ -342,7 +342,7 @@ export function NumericInputV2({
                 minHeight: 48,
                 padding: "8px 0",
                 borderRadius: 10,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 border: "none",
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
@@ -368,7 +368,7 @@ export function NumericInputV2({
               marginTop: 16,
               fontFamily: "var(--font-mono)",
               fontSize: 11,
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               letterSpacing: "0.06em",
             }}
           >

@@ -243,13 +243,13 @@ export function ReadingV2({
         <div className="rd-grid">
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               padding: "18px 20px",
               fontSize: 14.5,
               lineHeight: 1.6,
-              color: "var(--ink-700)",
+              color: "var(--color-text)",
               fontFamily: "var(--font-sans)",
               maxHeight: 340,
               overflowY: "auto",
