@@ -58,6 +58,7 @@ export const V2_LIVE_TYPES = [
   "categorize",
   // stepper types (PR-3): per-question verdicts through /check
   "reading",
+  "dialogue",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 

@@ -13,13 +13,14 @@
  * Per-task HP + streak.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 /** DG-03: bubbles cap to the pane, not the viewport. */
 const BUBBLE_MAX_WIDTH = "min(340px, 78cqw)";
@@ -37,10 +38,26 @@ export interface DialogueReplyOption {
   correct: boolean;
 }
 
+/** One decision point: the NPC message that asks, and the replies offered. */
+export interface DialogueStep {
+  /** Index into `messages` of the bubble this choice answers. */
+  messageIndex: number;
+  options: DialogueReplyOption[];
+}
+
 export interface DialogueV2Props {
   /** Conversation context — NPC bubbles shown above the picker. */
   messages: DialogueNpcMessage[];
-  options: DialogueReplyOption[];
+  /** Single-decision shape (preview / legacy fixtures). */
+  options?: DialogueReplyOption[];
+  /** Multi-decision shape: every option-bearing message becomes a step and
+   *  the widget walks them one at a time. Prod dialogues have 2+ of these. */
+  steps?: DialogueStep[];
+  /** Non-persisting per-step check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission once the last step is answered. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   /** Shown as feedback "no" message when student picks wrong. */
   prompt?: string;
   eyebrow?: string;
@@ -58,6 +75,10 @@ export interface DialogueV2Props {
 export function DialogueV2({
   messages,
   options,
+  steps,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   prompt,
   eyebrow,
   title,
@@ -81,7 +102,30 @@ export function DialogueV2({
   const { fire, layer } = useConfetti();
   const logRef = useRef<HTMLDivElement | null>(null);
 
-  const correctOpt = options.find((o) => o.correct);
+  const serverGraded = !!onCheck;
+  const [checking, setChecking] = useState(false);
+  /** Index of the decision point being answered. */
+  const [dIdx, setDIdx] = useState(0);
+  /** Picks so far, keyed by message index — the payload `_grade_dialogue`
+   *  expects under `selections`. */
+  const answersRef = useRef<Record<string, string>>({});
+
+  /** Decision points. The legacy single-`options` shape becomes one step
+   *  that answers the last message, so old callers behave exactly as before. */
+  const stepList: DialogueStep[] = useMemo(
+    () =>
+      steps && steps.length > 0
+        ? steps
+        : [{ messageIndex: Math.max(0, messages.length - 1), options: options ?? [] }],
+    [steps, options, messages.length],
+  );
+  const step = stepList[Math.min(dIdx, stepList.length - 1)];
+  const curOptions = step.options;
+  /** Bubbles are revealed up to and including the message that asks. */
+  const revealLimit = Math.min(messages.length, step.messageIndex + 1);
+  const isLastStep = dIdx >= stepList.length - 1;
+
+  const correctOpt = curOptions.find((o) => o.correct);
 
   /* DG-01: keep the latest bubble in view by scrolling the LOG element —
    * scrollIntoView would scroll the host app/page around the exercise. */
@@ -93,7 +137,7 @@ export function DialogueV2({
   /* Staged reveal: typing dots, then the message pops in (700ms before the
    * first message, 900ms before each next one, 120ms swap gap). */
   useEffect(() => {
-    if (stage >= messages.length) {
+    if (stage >= revealLimit) {
       setTyping(false);
       return;
     }
@@ -110,15 +154,39 @@ export function DialogueV2({
       clearTimeout(dots);
       if (swap !== undefined) clearTimeout(swap);
     };
-  }, [stage, messages.length]);
+  }, [stage, revealLimit]);
 
   const shown = messages.slice(0, stage);
-  const allShown = stage >= messages.length;
+  const allShown = stage >= revealLimit;
   const nextMsg = messages[stage];
 
-  const handleCheck = () => {
-    const opt = options.find((o) => o.id === pick);
-    if (opt?.correct) {
+  const handleCheck = async () => {
+    if (checking || pick === null) return;
+
+    let isCorrect: boolean;
+    if (serverGraded) {
+      answersRef.current = { ...answersRef.current, [String(step.messageIndex)]: pick };
+      onAnswersChange?.({ selections: answersRef.current });
+      setChecking(true);
+      try {
+        const res = await onCheck!({ selections: answersRef.current });
+        const pi = res.perItem;
+        isCorrect = !!(pi && !Array.isArray(pi) && pi[String(step.messageIndex)]);
+        // last decision answered right → record the attempt once
+        if (isCorrect && isLastStep && onGrade) {
+          void onGrade({ selections: answersRef.current });
+        }
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      isCorrect = !!curOptions.find((o) => o.id === pick)?.correct;
+    }
+
+    if (isCorrect) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.dialogue.goodReply") : t("exercise.gotIt"),
@@ -156,6 +224,15 @@ export function DialogueV2({
   };
 
   const handleContinue = () => {
+    // more decision points left → walk to the next one instead of finishing
+    if (feedback?.kind === "ok" && !isLastStep) {
+      setDIdx((i) => i + 1);
+      setPick(null);
+      setEliminated([]);
+      setFeedback(null);
+      setUsedAttempts(0);
+      return;
+    }
     onFinish?.({
       correct: feedback?.kind === "ok",
       attemptsUsed: usedAttempts + (feedback?.kind === "ok" ? 1 : 0),
@@ -250,7 +327,7 @@ export function DialogueV2({
                 }
                 style={{ maxWidth: BUBBLE_MAX_WIDTH }}
               >
-                {options.find((o) => o.id === pick)?.text}
+                {curOptions.find((o) => o.id === pick)?.text}
               </div>
             </div>
           )}
@@ -273,7 +350,7 @@ export function DialogueV2({
                 margin: "0 auto",
               }}
             >
-              {options.map((o) => {
+              {curOptions.map((o) => {
                 // Reveal the correct option only when the task is over —
                 // never on a retryable miss (answer-leak guard).
                 const taskOver =

@@ -549,6 +549,22 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 {k: v for k, v in row.items() if k != "correct"} if isinstance(row, dict) else row
                 for row in resp.config["table"]
             ]
+        # dialogue: the option flagged is_correct is the answer key
+        if isinstance(resp.config.get("messages"), list):
+            resp.config["messages"] = [
+                {
+                    **m,
+                    "options": [
+                        {k: v for k, v in o.items() if k != "is_correct"}
+                        if isinstance(o, dict)
+                        else o
+                        for o in m["options"]
+                    ],
+                }
+                if isinstance(m, dict) and isinstance(m.get("options"), list)
+                else m
+                for m in resp.config["messages"]
+            ]
         # NOTE crossword is deliberately NOT stripped yet: the renderer in use
         # builds the grid from `words[].word.length`, so removing the word
         # blanks the puzzle. Stripping it needs the V2 crossword (cells/clues)
