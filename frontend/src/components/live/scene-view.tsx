@@ -23,7 +23,7 @@ function FadeIn({ children }: { children: React.ReactNode }) {
   }, []);
   return (
     <div
-      className={`h-full transition-all duration-200 ease-out ${
+      className={`h-full transition-[transform,opacity] duration-200 ease-out ${
         shown ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
       }`}
     >
