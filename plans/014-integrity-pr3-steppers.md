@@ -152,9 +152,15 @@ verticality rule PR-1 and PR-2 followed.
 1. `reading` — `ReadingV2` requires `correct: number` per question; make it
    optional and drive verdicts from `onCheck` per question index. Then strip
    `questions[].correct_answer` and `options[].is_correct`.
-2. `dialogue` — `DialogueV2` takes `messages` + a flat `options` array while
-   the config nests options per message; map in `V2ExerciseLive`, verdicts by
-   message index. Then strip `options[].is_correct`.
+2. `dialogue` — **needs a stepper, not just a mapping.** `DialogueV2` takes
+   `messages` + ONE flat `options` array, i.e. a single decision; measured in
+   prod (2026-08-03) every dialogue has **2 option-bearing messages out of
+   5**, so the widget must walk the decision points one at a time the way
+   `ReadingV2` walks questions: keep an index over the option-bearing
+   messages, reveal NPC bubbles up to that point, send
+   `{selections: {messageIndex: optionId}}` accumulated so far to `/check`,
+   and read `per_item[messageIndex]`. Only then strip
+   `messages[].options[].is_correct`.
 3. `crossword` — `CrosswordV2` takes `cells` + `clues`, not `words[]`; build
    them from `row/col/direction/length` and ship `length` instead of `word`.
 4. `quiz` — `QuizV2` per-question flow on `onCheck` (the `/check` branch is
