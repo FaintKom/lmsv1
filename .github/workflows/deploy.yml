@@ -269,3 +269,31 @@ jobs:
               ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
               "cd /opt/lms && \
                echo '${{ needs.build.outputs.target }}' > .github/.last-deployed-sha"
+
+      # 2026-08-02 outage: every deploy pulls fresh images and the old layers
+      # were never collected. After ~8 deploys in a day the 38G disk hit 100%,
+      # Postgres PANICed on WAL writes ("No space left on device"), its
+      # healthcheck went red and the backend refused to start — prod 502.
+      # Keep 7 days of images so a rollback target always exists locally, and
+      # drop the build cache (images are built in CI since 2026-07-19; the box
+      # only builds in the transitional fallback path).
+      - name: Reclaim disk
+        if: always()
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+              "docker image prune -a -f --filter 'until=168h' >/dev/null 2>&1 || true; \
+               docker builder prune -f >/dev/null 2>&1 || true; \
+               journalctl --vacuum-size=200M >/dev/null 2>&1 || true; \
+               df -h / | tail -1"
+
+      - name: Warn when the disk is filling up
+        if: always()
+        run: |
+          USE=$(ssh -i ~/.ssh/id_ed25519 \
+                    ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+                    "df --output=pcent / | tail -1 | tr -dc '0-9'")
+          echo "root filesystem at ${USE}%"
+          if [ "${USE:-0}" -ge 85 ]; then
+            echo "::warning::Prod disk at ${USE}% after cleanup — investigate before the next deploy (see the 2026-08-02 outage note in tasks/lessons.md)"
+          fi
