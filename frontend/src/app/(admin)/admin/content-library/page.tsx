@@ -612,12 +612,12 @@ function ExercisesTab() {
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
- <tr className="border-b border-border ">
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.idCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.titleCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.typeCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.createdCol")}</th>
- <th className="px-6 py-3 text-right font-semibold text-text-muted ">{t("common.actions")}</th>
+ <tr className="border-b border-border bg-surface-2">
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.idCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.titleCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.typeCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.createdCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-right">{t("common.actions")}</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-border ">
@@ -629,24 +629,24 @@ function ExercisesTab() {
  className="cursor-pointer transition-colors hover:bg-surface-2 "
  onClick={() => router.push(`/admin/content-library/${ex.id}`)}
  >
- <td className="px-6 py-3">
+ <td className="px-2.5 py-0">
  <span className="rounded bg-ink-100 px-2 py-0.5 font-mono text-xs font-medium text-text-muted ">
  {ex.display_id}
  </span>
  </td>
- <td className="px-6 py-3 font-medium text-ink-700 ">
+ <td className="px-2.5 py-0 font-medium text-ink-700 ">
  {ex.title}
  </td>
- <td className="px-6 py-3">
+ <td className="px-2.5 py-0">
  <span className={`inline-flex items-center gap-1.5 rounded-pill px-2.5 py-0.5 text-xs font-medium ${EXERCISE_TYPE_COLORS[ex.exercise_type]}`}>
  <Icon className="h-3 w-3" />
  {EXERCISE_TYPE_LABELS[ex.exercise_type]}
  </span>
  </td>
- <td className="px-6 py-3 text-text-muted ">
+ <td className="px-2.5 py-0 text-text-muted ">
  {new Date(ex.created_at).toLocaleDateString()}
  </td>
- <td className="px-6 py-3">
+ <td className="px-2.5 py-0">
  <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
  <Button
  variant="ghost"
@@ -981,14 +981,14 @@ function AssignmentsTab() {
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
- <tr className="border-b border-border ">
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.titleCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.courseCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.dueDateCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.maxScoreCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.submissionsCol")}</th>
- <th className="px-6 py-3 text-left font-semibold text-text-muted ">{t("admin.contentLibrary.statusCol")}</th>
- <th className="px-6 py-3 text-right font-semibold text-text-muted ">{t("common.actions")}</th>
+ <tr className="border-b border-border bg-surface-2">
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.titleCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.courseCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.dueDateCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.maxScoreCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.submissionsCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.contentLibrary.statusCol")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-right">{t("common.actions")}</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-border ">
@@ -1003,22 +1003,22 @@ function AssignmentsTab() {
  key={a.id}
  className="transition-colors hover:bg-surface-2 "
  >
- <td className="px-6 py-3 font-medium text-ink-700 ">
+ <td className="px-2.5 py-0 font-medium text-ink-700 ">
  {a.title}
  </td>
- <td className="px-6 py-3 text-text-muted ">
+ <td className="px-2.5 py-0 text-text-muted ">
  {courseName}
  </td>
- <td className="px-6 py-3 text-text-muted ">
+ <td className="px-2.5 py-0 text-text-muted ">
  {new Date(a.due_date).toLocaleString()}
  </td>
- <td className="px-6 py-3 text-text-muted ">
+ <td className="px-2.5 py-0 text-text-muted ">
  {a.max_score}
  </td>
- <td className="px-6 py-3 text-text-muted ">
+ <td className="px-2.5 py-0 text-text-muted ">
  {a.submissions_count ?? 0}
  </td>
- <td className="px-6 py-3">
+ <td className="px-2.5 py-0">
  <span
  className={`inline-flex rounded-pill px-2.5 py-0.5 text-xs font-medium ${
  STATUS_BADGE[status] ?? STATUS_BADGE.active
@@ -1027,7 +1027,7 @@ function AssignmentsTab() {
  {status}
  </span>
  </td>
- <td className="px-6 py-3">
+ <td className="px-2.5 py-0">
  <div className="flex items-center justify-end gap-1">
  <Button
  variant="ghost"

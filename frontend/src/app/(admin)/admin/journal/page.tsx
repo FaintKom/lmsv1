@@ -807,7 +807,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
               <table className="w-full border-separate border-spacing-0 tabular-nums">
                 <thead>
                   <tr>
-                    <th className="sticky left-0 top-0 z-30 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-ink-100 bg-surface p-3 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
                       {t("journal.student")}
                     </th>
                     {dates.map((d) => {
@@ -829,7 +829,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                         </th>
                       );
                     })}
-                    <th className="sticky right-0 top-0 z-30 border-b-[1.5px] border-l-[1.5px] border-ink-100 bg-surface px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
                       {t("journal.attShort")}
                     </th>
                   </tr>
@@ -837,7 +837,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 <tbody>
                   {studentStats.map(({ stu, pct }) => (
                     <tr key={stu.student_id}>
-                      <td className="sticky left-0 z-10 h-[38px] whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-3.5 text-[13px] font-semibold text-ink-900">
+                      <td className="sticky left-0 z-10 h-8 whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-2.5 text-[13px] font-semibold text-ink-900">
                         {stu.student_name}
                       </td>
                       {dates.map((d) => {
@@ -885,7 +885,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td className="sticky left-0 z-10 border-r-[1.5px] border-t-[1.5px] border-ink-100 bg-ink-50 px-3.5 py-2.5 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
                       {t("journal.presentFrom")} {students.length}
                     </td>
                     {colTotals.map((tot, i) => (

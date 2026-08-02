@@ -38,12 +38,14 @@ interface GradebookData {
  averages: Record<string, number | null>;
 }
 
+/** DESIGN_SPEC §8 grade cells: >=85 green tint, 60-84 no tint, <60 clay.
+ *  The tint never carries meaning alone — the number is always rendered. */
 function scoreColor(score: number | null | undefined, max: number) {
  if (score == null) return "";
  const pct = max > 0 ? (score / max) * 100 : 0;
- if (pct >= 80) return "bg-primary-soft text-success-fg ";
- if (pct >= 60) return "bg-sun-100 text-warning-fg ";
- return "bg-danger-soft text-danger-fg ";
+ if (pct >= 85) return "bg-green-50 text-green-800";
+ if (pct >= 60) return "text-text";
+ return "bg-clay-50 text-clay-700";
 }
 
 export default function GradebookPage() {
@@ -236,23 +238,25 @@ export default function GradebookPage() {
  {data && !loading && data.students.length > 0 && (
  <Card className="border-l-4 border-l-green-400">
  <CardContent className="overflow-x-auto p-0">
+ {/* Dense mode (DESIGN_SPEC §8): 32px rows, sticky axes, mono caps
+     header, tabular numbers, radius <= 6 inside cells. */}
  <table className="w-full text-sm">
- <thead>
- <tr className="border-b border-border-strong ">
- <th className="sticky left-0 z-10 bg-paper-2 px-4 py-3 text-left font-semibold text-ink-700 ">
+ <thead className="sticky top-0 z-20">
+ <tr className="border-b border-border-strong bg-surface-2">
+ <th className="eyebrow sticky left-0 z-10 h-8 bg-surface-2 px-2.5 py-0 text-left">
  {t("admin.gradebook.student")}
  </th>
  {data.columns.map((col) => (
  <th
  key={col.id}
- className="min-w-[100px] px-3 py-3 text-center font-medium text-text-muted "
+ className="min-w-[100px] px-2.5 py-0 text-center align-middle"
  >
- <div className="text-xs">{typeLabel(col.type)}</div>
- <div className="truncate text-[11px] font-normal text-text-subtle " title={col.title}>
+ <div className="eyebrow">{typeLabel(col.type)}</div>
+ <div className="truncate text-[11px] font-normal text-text-subtle" title={col.title}>
  {col.title}
  </div>
  </th>
- ))} <th className="px-3 py-3 text-center font-semibold text-ink-700 ">
+ ))} <th className="eyebrow h-8 px-2.5 py-0 text-center">
  {t("admin.gradebook.avgPct")}
  </th>
  </tr>
@@ -263,24 +267,23 @@ export default function GradebookPage() {
  return (
  <tr
  key={s.id}
- className={idx % 2 === 0 ? "bg-paper-2 " : "bg-surface-2/50 "}
+ className={`h-8 ${idx % 2 === 0 ? "bg-paper-2" : "bg-surface-2"}`}
  >
- <td className="sticky left-0 z-10 bg-inherit px-4 py-2.5 font-medium text-text ">
+ <td className="sticky left-0 z-10 bg-inherit px-2.5 py-0 font-medium text-text">
  <Link
  href={`/admin/students/${s.id}`}
  title={t("admin.studentProfile.viewProfile")}
- className="truncate max-w-[200px] block text-primary underline-offset-2 hover:underline"
+ className="block max-w-[200px] truncate text-primary underline-offset-2 hover:underline"
  >
  {s.full_name}
  </Link>
- <div className="truncate text-[11px] text-text-subtle ">{s.email}</div>
  </td>
  {data.columns.map((col) => {
  const val = data.rows[s.id]?.[col.id];
  // Quiz cells with a recorded score open the per-question breakdown.
  const reviewable = col.type === "quiz" && col.quiz_id && val != null;
  return (
- <td key={col.id} className="px-3 py-2.5 text-center">
+ <td key={col.id} className="px-2.5 py-0 text-center">
  {val != null ? (
  reviewable ? (
  <button
@@ -293,12 +296,12 @@ export default function GradebookPage() {
  })
  }
  title={t("admin.quizReview.openTitle")}
- className={`inline-block min-w-[48px] cursor-pointer rounded-md px-2 py-0.5 text-xs font-medium underline-offset-2 transition-opacity hover:opacity-80 hover:underline ${scoreColor(val, col.max_score)}`}
+ className={`inline-block min-w-[48px] cursor-pointer rounded-xs px-2 py-0.5 text-xs font-medium tabular-nums underline-offset-2 transition-opacity hover:opacity-80 hover:underline ${scoreColor(val, col.max_score)}`}
  >
  {val}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
  </button>
  ) : (
- <span className={`inline-block min-w-[48px] rounded-md px-2 py-0.5 text-xs font-medium ${scoreColor(val, col.max_score)}`}>
+ <span className={`inline-block min-w-[48px] rounded-xs px-2 py-0.5 text-xs font-medium tabular-nums ${scoreColor(val, col.max_score)}`}>
  {val}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
  </span>
  )
@@ -308,9 +311,9 @@ export default function GradebookPage() {
  </td>
  );
  })}
- <td className="px-3 py-2.5 text-center">
+ <td className="px-2.5 py-0 text-center">
  {avg != null ? (
- <span className={`inline-block min-w-[48px] rounded-md px-2 py-0.5 text-xs font-bold ${scoreColor(avg, 100)}`}>
+ <span className={`inline-block min-w-[48px] rounded-xs px-2 py-0.5 text-xs font-bold tabular-nums ${scoreColor(avg, 100)}`}>
  {avg}%
  </span>
  ) : (
@@ -321,16 +324,16 @@ export default function GradebookPage() {
  );
  })}
  {/* Averages row */}
- <tr className="border-t-2 border-ink-300 bg-surface-2 font-semibold ">
- <td className="sticky left-0 z-10 bg-surface-2 px-4 py-2.5 text-ink-700 ">
+ <tr className="h-8 border-t-2 border-border-strong bg-surface-2 font-semibold">
+ <td className="eyebrow sticky left-0 z-10 bg-surface-2 px-2.5 py-0">
  {t("admin.gradebook.averageRow")}
  </td>
  {data.columns.map((col) => {
  const avg = data.averages[col.id];
  return (
- <td key={col.id} className="px-3 py-2.5 text-center">
+ <td key={col.id} className="px-2.5 py-0 text-center">
  {avg != null ? (
- <span className={`inline-block min-w-[48px] rounded-md px-2 py-0.5 text-xs font-medium ${scoreColor(avg, col.max_score)}`}>
+ <span className={`inline-block min-w-[48px] rounded-xs px-2 py-0.5 text-xs font-medium tabular-nums ${scoreColor(avg, col.max_score)}`}>
  {avg}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
  </span>
  ) : (
@@ -339,7 +342,7 @@ export default function GradebookPage() {
  </td>
  );
  })}
- <td className="px-3 py-2.5 text-center">&mdash;</td>
+ <td className="px-2.5 py-0 text-center">&mdash;</td>
  </tr>
  </tbody>
  </table>

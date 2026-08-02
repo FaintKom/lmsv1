@@ -236,21 +236,21 @@ export default function AdminUsersPage() {
  <div className="overflow-x-auto">
  <table className="w-full">
  <thead>
- <tr className="border-b border-border-strong text-left text-xs font-medium uppercase tracking-wider text-text-subtle">
- <th className="px-5 py-3">{t("common.name")}</th>
- <th className="px-5 py-3">{t("common.email")}</th>
- <th className="px-5 py-3">{t("common.role")}</th>
- <th className="px-5 py-3">{t("admin.users.methodist")}</th>
- {isSuperAdmin && <th className="px-5 py-3">{t("admin.users.organization")}</th>}
- <th className="px-5 py-3">{t("common.status")}</th>
- <th className="px-5 py-3">{t("common.joined")}</th>
- <th className="px-5 py-3"></th>
+ <tr className="border-b border-border-strong bg-surface-2 text-left">
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("common.name")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("common.email")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("common.role")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.users.methodist")}</th>
+ {isSuperAdmin && <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("admin.users.organization")}</th>}
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("common.status")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left">{t("common.joined")}</th>
+ <th className="eyebrow h-8 px-2.5 py-0 text-left"></th>
  </tr>
  </thead>
  <tbody>
  {users.map((u) => (
  <tr key={u.id} className="border-b border-slate-50 text-sm hover:bg-surface-2/50 ">
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0">
  <div className="flex items-center gap-3">
  <div className="flex h-8 w-8 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-xs font-semibold text-white">
  {u.full_name.charAt(0).toUpperCase()}
@@ -258,8 +258,8 @@ export default function AdminUsersPage() {
  <span className="font-medium text-text ">{u.full_name}</span>
  </div>
  </td>
- <td className="px-5 py-4 text-text-muted ">{u.email}</td>
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0 text-text-muted ">{u.email}</td>
+ <td className="px-2.5 py-0">
  <select
  value={u.role}
  onChange={(e) => handleRoleChange(u.id, e.target.value)}
@@ -271,7 +271,7 @@ export default function AdminUsersPage() {
  {isSuperAdmin && <option value="super_admin">super_admin</option>}
  </select>
  </td>
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0">
  {u.role === "teacher" ? (
  <button
  onClick={() => handleToggleMethodist(u.id, !!u.is_methodist)}
@@ -288,7 +288,7 @@ export default function AdminUsersPage() {
  )}
  </td>
  {isSuperAdmin && (
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0">
  <select
  value={u.org_id}
  onChange={(e) => handleOrgChange(u.id, e.target.value)}
@@ -302,7 +302,7 @@ export default function AdminUsersPage() {
  </select>
  </td>
  )}
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0">
  <button
  onClick={() => handleToggleActive(u.id, u.is_active)}
  className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
@@ -314,10 +314,10 @@ export default function AdminUsersPage() {
  {u.is_active ? t("common.active") : t("common.inactive")}
  </button>
  </td>
- <td className="px-5 py-4 text-xs text-text-subtle">
+ <td className="px-2.5 py-0 text-xs text-text-subtle">
  {new Date(u.created_at).toLocaleDateString()}
  </td>
- <td className="px-5 py-4">
+ <td className="px-2.5 py-0">
  <div className="flex items-center gap-1">
  <button
  onClick={() => handleResetPassword(u.id, u.email)}
