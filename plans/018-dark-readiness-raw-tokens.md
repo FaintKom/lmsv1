@@ -1,0 +1,100 @@
+# 018 — Dark readiness: raw scale utilities → semantic (unblocks theme = system)
+
+- **Status**: TODO
+- **Commit**: 82bad96
+- **Severity**: HIGH (blocks the dark theme from being usable)
+- **Category**: design-system v2 compliance
+- **Estimated scope**: ~1500 utility occurrences across most pages; do it in
+  slices (one PR per area), not one mega-diff
+
+## Problem
+
+`.dark` in `frontend/src/app/globals.css` flips only the SEMANTIC aliases
+(`--color-bg`, `--color-surface`, `--color-text`, …). The design system's
+rule is "semantic utilities only in components" — but the app widely uses
+RAW scale utilities, which keep their light values in dark mode:
+
+| utility | occurrences (2026-08-02) | flips in dark? |
+|---|---|---|
+| `bg-paper` / `bg-paper-2` | 459 / 442 | **no** |
+| `text-ink-700` | 466 | **no** |
+| `bg-ink-50`, `border-ink-100`, `text-ink-900` | 55 / 34 / 20 | **no** |
+| `bg-white`, `text-white` on light surfaces | 25 | **no** |
+| `bg-surface`, `text-text`, `border-border` | 243 / 1818 / 677 | yes |
+
+Result: with `.dark` applied the page background and body text flip, but
+cards stay white with near-black text — the half-dark UI observed on the
+dev server on 2026-08-02. This is why the theme default was set to `light`
+in `layout.tsx` (see the comment there) instead of `system`.
+
+**A blanket "invert the ink ramp inside .dark" is NOT a valid shortcut**:
+`ink-900` also serves as an always-dark surface — modal scrims
+(`bg-ink-900/40`, e.g. `components/assessments/quiz-submission-breakdown.tsx`),
+code blocks (`bg-ink-900 text-ink-100`, e.g.
+`app/(admin)/admin/content-library/[exerciseId]/submissions/page.tsx:330`)
+and `.rail-dark` (`--color-surface: var(--ink-900)`). Inverting would turn
+scrims white and make code blocks unreadable.
+
+## Target
+
+1. **Substitution table** (apply per file, verify visually):
+
+| raw | semantic replacement |
+|---|---|
+| `bg-paper` | `bg-bg` |
+| `bg-paper-2` | `bg-surface` |
+| `bg-ink-50` | `bg-surface-2` |
+| `border-ink-100` | `border-border` |
+| `border-ink-200`/`border-ink-300` | `border-border-strong` |
+| `text-ink-900` | `text-text` |
+| `text-ink-700` | `text-text` (body) — use `text-text-muted` only where the design intends secondary text |
+| `text-ink-500` | `text-text-muted` |
+| `text-ink-400`/`text-ink-300` | `text-text-subtle` |
+| `bg-white` on a card | `bg-surface` |
+
+2. **Keep as raw (intentional, always-dark or brand-fixed)** — do not
+   convert, add a short comment where it isn't obvious:
+   - scrims: `bg-ink-900/40`, `/45`, `/60`
+   - code/terminal blocks: `bg-ink-900` + `text-ink-100`
+   - `.rail-dark` block in globals.css
+   - subject gradients in `course-card.tsx` and the catalog pages
+   - voxel palettes (`lib/avatar/voxels.ts`, `lib/room/voxels.ts`)
+   - `text-white` on `bg-primary` / `bg-danger` / gradient covers
+
+3. **Slices** (one PR each, in this order — highest traffic first):
+   1. shared components: `components/ui/*`, `components/layout/*`,
+      `components/lesson/lesson-shell.tsx`
+   2. student surface: `(dashboard)/dashboard`, `courses`, `lesson/*`,
+      `assignments`, `achievements`
+   3. teacher surface: `(admin)/admin/*` except journal/gradebook
+   4. data screens: journal, gradebook (coordinate with plan 011)
+   5. exercises: `components/exercises/v2/*` (44 widgets — many use inline
+      `style={{ background: "var(--paper-2)" }}`; those need the same
+      substitution at the CSS-variable level: `var(--color-surface)` etc.)
+
+4. After slice 5: flip the default in `layout.tsx` and `theme-toggle.tsx`
+   from `light` to `system`, and delete the explanatory comments.
+
+## Repo conventions to follow
+
+- Tailwind utility names map 1:1 to the `@theme inline` block in
+  `globals.css` — `bg-surface` exists because `--color-surface` is exported
+  there. Check the block before inventing a utility name.
+- Exemplar of correct semantic usage:
+  `frontend/src/components/live/lesson-review.tsx` (post-2026-08-02).
+- Inline `style={{ ... "var(--paper-2)" }}` in V2 widgets → swap the CSS var,
+  not the class.
+
+## Verification (per slice)
+
+- **Mechanical**: `npx tsc --noEmit && npm run build`; then
+  `rg -n "bg-paper|text-ink-700|bg-ink-50|border-ink-100" <slice paths>` →
+  only intentional hits remain.
+- **Feel check**: with `localStorage["lms.theme"]="dark"` walk the slice's
+  pages — every card, input, table and chip must be dark; no white boxes,
+  no near-black text on dark surfaces; scrims still dark; code blocks still
+  dark-on-light-text; the sidebar rail unchanged.
+- Contrast spot-check: body text on `--color-bg` ≥ 4.5:1 in BOTH themes.
+- **Done when**: the slice shows no light-mode leftovers in dark, and the
+  light theme is pixel-identical to before (the substitutions are
+  value-identical in light).

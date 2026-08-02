@@ -6,6 +6,7 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Settings, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useTranslation } from "@/lib/i18n/context";
 
 const MENU_ITEM_KEYS = [
@@ -105,6 +106,16 @@ export default function SettingsPage() {
  <p className="text-sm text-text-muted ">
  {t("admin.settings.subtitle")}
  </p>
+ </div>
+
+ {/* Appearance (theme contract: frontend/design/README.md) */}
+ <div className="mb-6 rounded-lg border border-border-strong bg-paper-2">
+ <div className="border-b border-border px-6 py-4">
+ <h2 className="font-semibold text-text">{t("profile.theme")}</h2>
+ </div>
+ <div className="p-6">
+ <ThemeToggle />
+ </div>
  </div>
 
  {/* P2-2: Branding card */}

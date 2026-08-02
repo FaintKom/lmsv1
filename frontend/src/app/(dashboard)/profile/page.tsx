@@ -9,6 +9,7 @@ import apiClient from "@/lib/api-client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LangCode } from "@/components/gamification/lang-code";
 import {
  Save,
@@ -19,6 +20,7 @@ import {
  X,
  Globe,
  FileText,
+ Palette,
  Bell,
  Download,
  Key,
@@ -426,6 +428,19 @@ export default function ProfilePage() {
  </CardContent>
  </Card>
  )}
+
+ {/* Appearance */}
+ <Card className="mb-6">
+ <CardHeader>
+ <CardTitle className="flex items-center gap-2 text-base">
+ <Palette className="h-4 w-4" />
+ {t("profile.theme")}
+ </CardTitle>
+ </CardHeader>
+ <CardContent>
+ <ThemeToggle />
+ </CardContent>
+ </Card>
 
  {/* Email Notifications */}
  <Card className="mb-6">

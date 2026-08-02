@@ -459,6 +459,10 @@ const uk: TranslationMap = {
 
  // Profile
  "profile.title": "Мій профіль",
+ "profile.theme": "Тема",
+ "profile.themeLight": "Світла",
+ "profile.themeDark": "Темна",
+ "profile.themeSystem": "Системна",
  "profile.editProfile": "Редагувати профіль",
  "profile.save": "Зберегти зміни",
  "profile.cancel": "Скасувати",
