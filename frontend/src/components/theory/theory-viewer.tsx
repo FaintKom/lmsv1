@@ -62,7 +62,7 @@ export function TheoryViewer({
   const source = content.source;
   if (!source?.url) {
     return (
-      <div className="rounded-[14px] border border-border bg-ink-50 p-6 text-center text-sm text-text-muted">
+      <div className="rounded-[14px] border border-border bg-surface-2 p-6 text-center text-sm text-text-muted">
         {t("theory.noSource")}
       </div>
     );
@@ -72,7 +72,7 @@ export function TheoryViewer({
   const notes = content.speaker_notes ?? [];
 
   return (
-    <div className="rounded-[16px] border border-border bg-paper-2 p-5">
+    <div className="rounded-[16px] border border-border bg-surface p-5">
       {/* header */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-info-soft px-2.5 py-1 font-mono text-[10px] font-extrabold tracking-wider text-info-fg">
@@ -123,7 +123,7 @@ export function TheoryViewer({
         {notes.length > 0 && (
           <button
             onClick={() => setShowNotes((s) => !s)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-ink-50 px-3 py-2 text-xs font-bold text-text-muted hover:bg-ink-100"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-3 py-2 text-xs font-bold text-text-muted hover:bg-surface-2"
           >
             <StickyNote className="h-3.5 w-3.5" />
             {showNotes ? t("theory.hideNotes") : t("theory.notes")}
@@ -133,14 +133,14 @@ export function TheoryViewer({
           href={src}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-ink-50 px-3 py-2 text-xs font-bold text-text-muted hover:bg-ink-100"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-3 py-2 text-xs font-bold text-text-muted hover:bg-surface-2"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           {t("theory.openExternal")}
         </a>
         <button
           onClick={() => setFullscreen(true)}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-ink-50 px-3 py-2 text-xs font-bold text-text-muted hover:bg-ink-100"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-3 py-2 text-xs font-bold text-text-muted hover:bg-surface-2"
         >
           <Maximize2 className="h-3.5 w-3.5" />
           {t("theory.fullscreen")}

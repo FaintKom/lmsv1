@@ -148,7 +148,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  value={answers[eqIdx]}
  onChange={(e) => handleChange(eqIdx, e.target.value)}
  disabled={checked && results[eqIdx]}
- className={`w-14 rounded-lg border-2 bg-paper-2 px-2 py-1.5 text-center text-lg font-bold outline-none transition-colors ${
+ className={`w-14 rounded-lg border-2 bg-surface px-2 py-1.5 text-center text-lg font-bold outline-none transition-colors ${
  checked
  ? results[eqIdx]
  ? "border-primary text-success-fg "
@@ -166,7 +166,7 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  className={`text-lg font-bold ${
  cell.display === "+" || cell.display === "-" || cell.display === "×" || cell.display === "÷" || cell.display === "="
  ? "text-text-subtle "
- : "text-ink-700 "
+ : "text-text "
  }`}
  >
  {cell.display}

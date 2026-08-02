@@ -68,7 +68,7 @@ function ToolbarButton({
  className={`rounded p-1.5 transition-colors ${
  active
  ? "bg-primary-soft text-success-fg "
- : "text-text-muted hover:bg-ink-100 hover:text-ink-700 "
+ : "text-text-muted hover:bg-surface-2 hover:text-text "
  }`}
  >
  {children}
@@ -425,7 +425,7 @@ export function BlockEditor({
 
  return (
  <div
- className={`block-editor rounded-lg border border-border-strong bg-paper-2 overflow-hidden ${
+ className={`block-editor rounded-lg border border-border-strong bg-surface overflow-hidden ${
  editable ? "shadow-sm" : ""
  }`}
  >

@@ -87,7 +87,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  return (
  <div className="flex flex-col items-center gap-4">
  <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}
- className="rounded-lg border border-border-strong bg-paper-2 ">
+ className="rounded-lg border border-border-strong bg-surface ">
  {gridLines}
 
  {/* Shaded region */}
@@ -131,7 +131,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  className={`px-4 py-2 text-sm font-bold transition-colors ${
  userOperator === op
  ? "bg-primary text-white"
- : "bg-paper-2 text-text-muted hover:bg-surface-2 "
+ : "bg-surface text-text-muted hover:bg-surface-2 "
  }`}>
  {op.replace(">=", "\u2265").replace("<=", "\u2264")}
  </button>

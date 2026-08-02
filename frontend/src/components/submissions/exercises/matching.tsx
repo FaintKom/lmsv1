@@ -55,7 +55,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
  ? "border-primary bg-success-soft text-success-fg "
  : selected[p.left]
  ? "border-primary bg-success-soft text-success-fg "
- : "border-border-strong text-ink-700 hover:border-primary "
+ : "border-border-strong text-text hover:border-primary "
  }`}
  >
  {p.left}
@@ -79,7 +79,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
  usedRight.has(right)
  ? "border-border bg-surface-2 text-text-subtle "
  : activeLeft
- ? "border-border-strong text-ink-700 hover:border-primary hover:bg-success-soft "
+ ? "border-border-strong text-text hover:border-primary hover:bg-success-soft "
  : "border-border-strong text-text-muted "
  }`}
  >

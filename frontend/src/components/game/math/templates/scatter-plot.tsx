@@ -103,7 +103,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  viewBox={`0 0 ${svgW} ${svgH}`}
  width="100%"
  style={{ maxWidth: svgW, touchAction: "none" }}
- className="rounded-lg border border-border-strong bg-paper-2 "
+ className="rounded-lg border border-border-strong bg-surface "
  onPointerMove={handlePointerMove}
  onPointerUp={() => setDragging(null)}
  onPointerLeave={() => setDragging(null)}
@@ -179,7 +179,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  </label>
  {mode === "correlation" ? (
  <select value={answer} onChange={(e) => setAnswer(e.target.value)}
- className="rounded-lg border-2 border-primary bg-paper-2 px-4 py-2 text-sm font-semibold ">
+ className="rounded-lg border-2 border-primary bg-surface px-4 py-2 text-sm font-semibold ">
  <option value="">Select...</option>
  <option value="positive">Positive</option>
  <option value="negative">Negative</option>
@@ -189,7 +189,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  <input type="text" value={answer} onChange={(e) => setAnswer(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleCheck()}
  placeholder="Enter value"
- className="w-28 rounded-lg border-2 border-primary bg-paper-2 px-3 py-2 text-center text-lg font-bold " />
+ className="w-28 rounded-lg border-2 border-primary bg-surface px-3 py-2 text-center text-lg font-bold " />
  )}
  </div>
  )}

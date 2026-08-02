@@ -50,7 +50,7 @@ export function NewcomerChecklist({
  }
 
  return (
- <div className="mb-8 rounded-lg border border-border-strong/60 border-l-4 border-l-green-500 bg-paper-2 shadow-sm">
+ <div className="mb-8 rounded-lg border border-border-strong/60 border-l-4 border-l-green-500 bg-surface shadow-sm">
  {/* Header */}
  <div className="flex items-center justify-between p-5 pb-3">
  <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ export function NewcomerChecklist({
  </div>
  <button
  onClick={handleDismiss}
- className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-ink-100 hover:text-text-muted"
+ className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted"
  aria-label="Dismiss checklist"
  >
  <X className="h-4 w-4" />
@@ -72,7 +72,7 @@ export function NewcomerChecklist({
  </div>
 
  {/* Progress bar */}
- <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
+ <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
  <div
  className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${pct}%` }}
@@ -96,7 +96,7 @@ export function NewcomerChecklist({
  className={
  item.done
  ? "text-sm text-text-subtle line-through"
- : "text-sm font-medium text-ink-700 "
+ : "text-sm font-medium text-text "
  }
  >
  {item.label}

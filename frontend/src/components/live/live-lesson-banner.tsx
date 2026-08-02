@@ -28,7 +28,7 @@ export function LiveLessonBanner() {
       </span>
       <button
         onClick={() => router.push(`/lesson/${lessonId}`)}
-        className="rounded-pill bg-paper-2 px-3.5 py-1 text-xs font-bold text-green-800 transition-transform hover:translate-y-px"
+        className="rounded-pill bg-surface px-3.5 py-1 text-xs font-bold text-green-800 transition-transform hover:translate-y-px"
       >
         {t("live.join")}
       </button>

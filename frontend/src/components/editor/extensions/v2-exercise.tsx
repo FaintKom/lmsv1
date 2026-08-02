@@ -178,10 +178,10 @@ function NodeView(p: ReactNodeViewProps<any>) {
         contentEditable={false}
         style={{
           margin: "20px 0",
-          border: "2px solid var(--ink-100)",
+          border: "2px solid var(--color-border)",
           borderRadius: 14,
           overflow: "hidden",
-          background: "var(--paper)",
+          background: "var(--color-bg)",
         }}
       >
         <div style={{ minHeight: 320 }}>
@@ -202,7 +202,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
         margin: "20px 0",
         border: "2px solid var(--green-300)",
         borderRadius: 14,
-        background: "var(--paper-2)",
+        background: "var(--color-surface)",
         overflow: "hidden",
       }}
     >
@@ -233,14 +233,14 @@ function NodeView(p: ReactNodeViewProps<any>) {
           value={attrs.exerciseType ?? ""}
           onChange={(e) => onTypeChange(e.target.value as V2ExerciseType)}
           style={{
-            background: "var(--paper)",
+            background: "var(--color-bg)",
             border: "1px solid var(--green-300)",
             borderRadius: 8,
             padding: "4px 8px",
             fontFamily: "var(--font-mono)",
             fontSize: 12,
             fontWeight: 600,
-            color: "var(--ink-900)",
+            color: "var(--color-text)",
           }}
         >
           <option value="" disabled>
@@ -300,7 +300,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
         <div
           style={{
             padding: 12,
-            borderBottom: "1px solid var(--ink-100)",
+            borderBottom: "1px solid var(--color-border)",
             display: "flex",
             flexDirection: "column",
             gap: 6,
@@ -312,7 +312,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
               fontSize: 10,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "var(--ink-500)",
+              color: "var(--color-text-muted)",
               fontWeight: 600,
             }}
           >
@@ -332,7 +332,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
               background: parseError ? "var(--clay-50)" : "var(--paper)",
               fontFamily: "var(--font-mono)",
               fontSize: 12,
-              color: "var(--ink-900)",
+              color: "var(--color-text)",
               outline: "none",
               resize: "vertical",
             }}
@@ -366,7 +366,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
           style={{
             minHeight: 320,
             position: "relative",
-            background: "var(--paper)",
+            background: "var(--color-bg)",
           }}
         >
           <V2LessonRunner steps={runnerSteps} />

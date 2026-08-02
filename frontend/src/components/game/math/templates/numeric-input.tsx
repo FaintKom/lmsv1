@@ -72,7 +72,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  <div className="flex flex-col items-center gap-5">
  {/* Question */}
  <div className="w-full max-w-lg rounded-lg border border-border-strong bg-surface-2 px-5 py-4 ">
- <div className="text-base font-medium text-ink-700 ">
+ <div className="text-base font-medium text-text ">
  {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
  </div>
  {false && cfg.standard && (
@@ -101,7 +101,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  ? isCorrect
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-primary bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-surface text-success-fg focus:border-primary "
  }`}
  autoFocus
  />
@@ -151,7 +151,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  <p className={`text-sm font-semibold mb-1 ${isCorrect ? "text-primary " : "text-danger-fg "}`}>
  {isCorrect ? "Correct!" : `Incorrect. The answer is ${cfg.correct_answers[0]}`}
  </p>
- <p className="text-sm text-ink-700 ">
+ <p className="text-sm text-text ">
  {cfg.explanation}
  </p>
  </div>

@@ -22,7 +22,7 @@ const STATUS_STYLES: Record<AttendanceStatus, { on: string; off: string }> = {
     off: "bg-success-soft text-success-fg hover:bg-success/20",
   },
   late: {
-    on: "bg-warning text-ink-900",
+    on: "bg-warning text-text",
     off: "bg-warning-soft text-warning-fg hover:bg-warning/20",
   },
   absent: {
@@ -31,7 +31,7 @@ const STATUS_STYLES: Record<AttendanceStatus, { on: string; off: string }> = {
   },
   excused: {
     on: "bg-ink-400 text-white",
-    off: "bg-ink-100 text-text-muted hover:bg-ink-200",
+    off: "bg-surface-2 text-text-muted hover:bg-ink-200",
   },
 };
 

@@ -100,21 +100,21 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  <label className="mb-1.5 block text-xs font-medium text-text-muted">Grid Size</label>
  <select value={`${gridWidth}x${gridDepth}`}
  onChange={(e) => { const s = GRID_SIZES.find((s) => `${s.w}x${s.d}` === e.target.value); if (s) handleGridResize(s.w, s.d); }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  {GRID_SIZES.map((s) => <option key={s.label} value={`${s.w}x${s.d}`}>{s.label}</option>)}
  </select>
  </div>
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted">Difficulty</label>
  <select value={difficulty} onChange={(e) => updateConfig({ difficulty: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  {DIFFICULTIES.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
  </select>
  </div>
  <div>
  <label className="mb-1.5 block text-xs font-medium text-text-muted">Win Condition</label>
  <select value={winCondition} onChange={(e) => updateConfig({ win_condition: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value="reach_goal">Reach Goal</option>
  <option value="collect_all">Collect All</option>
  </select>
@@ -123,7 +123,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  <label className="mb-1.5 block text-xs font-medium text-text-muted">Place Height (Y)</label>
  <input type="number" min={0} max={5} value={placeY}
  onChange={(e) => setPlaceY(parseInt(e.target.value) || 0)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
 
@@ -133,25 +133,25 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  <label className="mb-1 block text-xs text-text-muted">Player X</label>
  <input type="number" min={0} max={gridWidth - 1} value={(playerStart.x as number) || 0}
  onChange={(e) => updateConfig({ player_start: { ...playerStart, x: parseInt(e.target.value) || 0 } })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Player Z</label>
  <input type="number" min={0} max={gridDepth - 1} value={(playerStart.z as number) || 0}
  onChange={(e) => updateConfig({ player_start: { ...playerStart, z: parseInt(e.target.value) || 0 } })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Player Y (height)</label>
  <input type="number" min={0} max={5} value={(playerStart.y as number) || 0}
  onChange={(e) => updateConfig({ player_start: { ...playerStart, y: parseInt(e.target.value) || 0 } })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Direction</label>
  <select value={(playerStart.direction as string) || "east"}
  onChange={(e) => updateConfig({ player_start: { ...playerStart, direction: e.target.value } })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value="north">North (↑)</option>
  <option value="east">East (→)</option>
  <option value="south">South (↓)</option>
@@ -162,7 +162,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
 
  <label className="flex items-center gap-2 text-sm text-text-muted ">
  <input type="checkbox" checked={allowPython} onChange={(e) => updateConfig({ allow_python: e.target.checked })}
- className="h-4 w-4 rounded border-ink-300 text-primary" />
+ className="h-4 w-4 rounded border-border-strong text-primary" />
  Allow Python mode
  </label>
 
@@ -176,7 +176,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
  activeTool === t.type
  ? "bg-primary-soft text-success-fg "
- : "bg-surface-2 text-text-muted hover:bg-ink-100 "
+ : "bg-surface-2 text-text-muted hover:bg-surface-2 "
  }`}>
  <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: t.color }} />
  {t.label}
@@ -188,7 +188,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  </div>
 
  {/* Top-down grid editor */}
- <div className="flex-1 rounded-lg border border-border-strong bg-paper-2 p-3 ">
+ <div className="flex-1 rounded-lg border border-border-strong bg-surface p-3 ">
  <p className="mb-2 text-xs text-text-subtle">Click cells to place objects (top-down view, Y={placeY})</p>
  <div className="inline-grid gap-px" style={{ gridTemplateColumns: `repeat(${gridWidth}, 1fr)` }}>
  {Array.from({ length: gridDepth }, (_, z) =>
@@ -271,7 +271,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  <div key={i} className="mb-2 flex gap-2">
  <input value={hint} onChange={(e) => { const h = [...hints]; h[i] = e.target.value; updateConfig({ hints: h }); }}
  placeholder={`Hint ${i + 1}`}
- className="flex-1 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  <Button variant="ghost" size="sm" onClick={() => updateConfig({ hints: hints.filter((_, j) => j !== i) })}>&times;</Button>
  </div>
  ))}

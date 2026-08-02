@@ -225,7 +225,7 @@ export function V2LessonRunner({
           display: "grid",
           placeItems: "center",
           height: "100%",
-          color: "var(--ink-500)",
+          color: "var(--color-text-muted)",
           fontFamily: "var(--font-sans)",
         }}
       >

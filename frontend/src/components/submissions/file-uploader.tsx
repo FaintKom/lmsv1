@@ -90,7 +90,7 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
  <div className="space-y-4">
  {/* Instructions */}
  {instructions && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4">
+ <div className="rounded-lg border border-border-strong bg-surface p-4">
  <p className="text-sm text-text-muted">{instructions}</p>
  </div>
  )}
@@ -106,7 +106,7 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
  className={`cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
  dragOver
  ? "border-primary bg-success-soft"
- : "border-ink-300 hover:border-primary hover:bg-surface-2"
+ : "border-border-strong hover:border-primary hover:bg-surface-2"
  }`}
  onClick={() => inputRef.current?.click()}
  >
@@ -137,15 +137,15 @@ export default function FileUploader({ lessonId, content, onComplete }: FileUplo
  {/* Uploaded files */}
  {files.length > 0 && (
  <div className="space-y-2">
- <h4 className="text-sm font-semibold text-ink-700">Uploaded Files</h4>
+ <h4 className="text-sm font-semibold text-text">Uploaded Files</h4>
  {files.map((f) => (
  <div
  key={f.id}
- className="flex items-center gap-3 rounded-lg border border-border-strong bg-paper-2 px-4 py-3"
+ className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface px-4 py-3"
  >
  <FileText className="h-5 w-5 text-text-subtle" />
  <div className="min-w-0 flex-1">
- <p className="truncate text-sm font-medium text-ink-700">
+ <p className="truncate text-sm font-medium text-text">
  {f.original_filename}
  </p>
  <p className="text-xs text-text-subtle">

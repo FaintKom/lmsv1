@@ -101,7 +101,7 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  viewBox={`0 0 ${width} ${height}`}
  width="100%"
  style={{ maxWidth: width, touchAction: "none" }}
- className="rounded-lg border border-border-strong bg-paper-2 "
+ className="rounded-lg border border-border-strong bg-surface "
  onPointerMove={handlePointerMove}
  onPointerUp={handlePointerUp}
  onPointerLeave={handlePointerUp}

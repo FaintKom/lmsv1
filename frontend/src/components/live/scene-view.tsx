@@ -198,7 +198,7 @@ export function MaterialPane({ payload }: { payload: Record<string, unknown> }) 
             className={`flex h-8 w-8 items-center justify-center rounded-md font-mono text-[11px] font-bold transition-colors ${
               p === page
                 ? "bg-primary text-white"
-                : "bg-surface-2 text-ink-700 hover:bg-ink-100"
+                : "bg-surface-2 text-text hover:bg-surface-2"
             }`}
           >
             {p}
@@ -315,19 +315,19 @@ function TaskPane({
       <>
         <button
           onClick={() => setShowMaterial(true)}
-          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-2 text-xs font-bold text-text"
+          className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
         >
           <BookOpen size={14} /> {t("live.scene.material")}
         </button>
         {showMaterial && (
-          <div className="absolute inset-0 z-40 bg-paper-2">
+          <div className="absolute inset-0 z-40 bg-surface">
             <MaterialPane
               payload={{ lesson_id: materialLessonId, course_id: materialCourseId }}
             />
             <button
               onClick={() => setShowMaterial(false)}
               aria-label={t("common.close")}
-              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
+              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-surface-2"
             >
               <X size={18} />
             </button>
@@ -343,7 +343,7 @@ function TaskPane({
       <div className="flex h-full flex-col items-center justify-center gap-4">
         <span
           className={`flex h-16 w-16 items-center justify-center rounded-lg ${
-            done === "solved" ? "bg-green-100 text-green-700" : "bg-surface-2 text-ink-400"
+            done === "solved" ? "bg-green-100 text-green-700" : "bg-surface-2 text-text-subtle"
           }`}
         >
           <Check size={28} strokeWidth={2.5} />
@@ -356,7 +356,7 @@ function TaskPane({
         )}
         <button
           onClick={() => setDone(null)}
-          className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+          className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
         >
           <RotateCcw size={14} /> {t("live.scene.task")}
         </button>
@@ -405,7 +405,7 @@ function SolutionPane({ payload }: { payload: Record<string, unknown> }) {
           {String(payload.exercise_title)}
         </h2>
       ) : null}
-      <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+      <div className="mb-4 font-mono text-xs font-bold uppercase tracking-wide text-text">
         {payload.anonymous ? t("live.anonymous") : String(payload.student_name ?? "")}
       </div>
       {payload.source_code ? (
@@ -434,9 +434,9 @@ export function AnswerList({ answers }: { answers: Record<string, unknown> }) {
               {value.map((v, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-paper-2 px-2.5 py-1 text-sm font-semibold text-text"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-sm font-semibold text-text"
                 >
-                  <span className="font-mono text-[10px] font-bold text-ink-300">{i + 1}</span>
+                  <span className="font-mono text-[10px] font-bold text-text-subtle">{i + 1}</span>
                   {typeof v === "object" ? JSON.stringify(v) : String(v)}
                 </span>
               ))}

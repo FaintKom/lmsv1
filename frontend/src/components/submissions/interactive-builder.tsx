@@ -153,7 +153,7 @@ export default function InteractiveBuilder({
 
  return (
  <div className="space-y-4">
- <div className="flex items-center gap-2 text-sm font-semibold text-ink-700">
+ <div className="flex items-center gap-2 text-sm font-semibold text-text">
  <Puzzle className="h-4 w-4 text-primary" />
  Interactive Exercise Builder
  </div>
@@ -167,7 +167,7 @@ export default function InteractiveBuilder({
  className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
  exerciseType === et.value
  ? "border-primary bg-success-soft text-success-fg"
- : "border-border-strong text-text-muted hover:border-ink-300"
+ : "border-border-strong text-text-muted hover:border-border-strong"
  }`}
  >
  {et.label}
@@ -183,7 +183,7 @@ export default function InteractiveBuilder({
  value={instruction}
  onChange={(e) => setInstruction(e.target.value)}
  placeholder="Instructions for the student..."
- className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
 
@@ -202,7 +202,7 @@ export default function InteractiveBuilder({
  setPairs(p);
  }}
  placeholder="Term"
- className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  <span className="text-text-subtle">↔</span>
  <input
@@ -214,7 +214,7 @@ export default function InteractiveBuilder({
  setPairs(p);
  }}
  placeholder="Definition"
- className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  <button
  onClick={() => setPairs(pairs.filter((_, j) => j !== i))}
@@ -249,7 +249,7 @@ export default function InteractiveBuilder({
  setCorrectOrder(it.filter(Boolean));
  }}
  placeholder={`Item ${i + 1}`}
- className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  <button
  onClick={() => {
@@ -281,7 +281,7 @@ export default function InteractiveBuilder({
  onChange={(e) => syncTemplate(e.target.value)}
  placeholder={"A {{blank}} is a named storage location."}
  rows={4}
- className="w-full rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
  {blankCount > 0 && (
@@ -301,7 +301,7 @@ export default function InteractiveBuilder({
  nb[i] = e.target.value;
  setBlanks(nb);
  }}
- className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
  ))}
@@ -321,7 +321,7 @@ export default function InteractiveBuilder({
  onChange={(e) => setStatement(e.target.value)}
  placeholder="JavaScript is a statically typed language."
  rows={2}
- className="w-full rounded border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
  <div>
@@ -368,7 +368,7 @@ export default function InteractiveBuilder({
  setCategories(c);
  }}
  placeholder="Category name"
- className="flex-1 rounded border border-ink-300 px-2 py-1.5 text-sm font-medium focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1.5 text-sm font-medium focus:border-primary focus:outline-none"
  />
  <button
  onClick={() => setCategories(categories.filter((_, j) => j !== ci))}
@@ -390,7 +390,7 @@ export default function InteractiveBuilder({
  setCategories(c);
  }}
  placeholder="Item"
- className="flex-1 rounded border border-ink-300 px-2 py-1 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1 text-sm focus:border-primary focus:outline-none"
  />
  <button
  onClick={() => {

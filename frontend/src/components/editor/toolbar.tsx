@@ -22,13 +22,13 @@ export function EditorBubbleMenu({ editor }: ToolbarProps) {
  `rounded p-1.5 transition-colors ${
  active
  ? "bg-primary-soft text-success-fg "
- : "text-text-muted hover:bg-ink-100 "
+ : "text-text-muted hover:bg-surface-2 "
  }`;
 
  return (
  <BubbleMenu
  editor={editor}
- className="flex items-center gap-0.5 rounded-lg border border-border-strong bg-paper-2 p-1 shadow-lg "
+ className="flex items-center gap-0.5 rounded-lg border border-border-strong bg-surface p-1 shadow-lg "
  >
  <button
  onClick={() => editor.chain().focus().toggleBold().run()}

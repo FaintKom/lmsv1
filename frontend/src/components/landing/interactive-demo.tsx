@@ -130,7 +130,7 @@ function PythonDemo() {
  ) : (
  <XCircle className="h-4 w-4 text-danger-fg" />
  )}
- <code className="rounded bg-ink-100 px-2 py-1 text-xs font-mono text-ink-700 ">
+ <code className="rounded bg-surface-2 px-2 py-1 text-xs font-mono text-text ">
  {output.split("\n").join(", ")}
  </code>
  </div>
@@ -165,7 +165,7 @@ function SATDemo() {
  return (
  <div>
  <div className="mb-4 rounded-lg bg-surface-2 px-5 py-4 ">
- <p className="text-base font-medium text-ink-700 ">
+ <p className="text-base font-medium text-text ">
  {SAT_QUESTION.text}
  </p>
  </div>
@@ -186,7 +186,7 @@ function SATDemo() {
  ? "border-danger bg-danger-soft "
  : showResult && isCorrect
  ? "border-primary bg-success-soft/50 "
- : "border-border-strong bg-paper-2 hover:border-primary hover:shadow-sm "
+ : "border-border-strong bg-surface hover:border-primary hover:shadow-sm "
  }`}
  >
  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
@@ -194,11 +194,11 @@ function SATDemo() {
  ? "bg-primary text-white"
  : showResult && isSelected
  ? "bg-danger text-white"
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}>
  {showResult && isCorrect ? "\u2713" : showResult && isSelected ? "\u2717" : c.label}
  </span>
- <span className="text-sm font-medium text-ink-700 ">{c.text}</span>
+ <span className="text-sm font-medium text-text ">{c.text}</span>
  {showResult && isSelected && !isCorrect && (
  <XCircle className="ml-auto h-4 w-4 text-danger shrink-0" />
  )}
@@ -287,7 +287,7 @@ function WebDemo() {
  }}
  />
  </div>
- <div className="bg-paper-2 " style={{ minHeight: 220 }}>
+ <div className="bg-surface " style={{ minHeight: 220 }}>
  <iframe
  srcDoc={preview}
  sandbox="allow-scripts allow-same-origin"
@@ -310,7 +310,7 @@ export function InteractiveDemo() {
  const [tab, setTab] = useState<DemoTab>("python");
 
  return (
- <section className="border-t border-border bg-paper-2 py-20">
+ <section className="border-t border-border bg-surface py-20">
  <div className="mx-auto max-w-3xl px-6">
  <div className="mb-8 text-center">
  <h2 className="mb-3 text-3xl font-bold text-text">
@@ -323,15 +323,15 @@ export function InteractiveDemo() {
 
  {/* Tabs */}
  <div className="mb-6 flex justify-center">
- <div className="inline-flex rounded-lg bg-ink-100 p-1 ">
+ <div className="inline-flex rounded-lg bg-surface-2 p-1 ">
  {TABS.map((t) => (
  <button
  key={t.key}
  onClick={() => setTab(t.key)}
  className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
  tab === t.key
- ? "bg-paper-2 text-text shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm "
+ : "text-text-muted hover:text-text "
  }`}
  >
  <span className="mr-1.5">{t.emoji}</span>
@@ -342,7 +342,7 @@ export function InteractiveDemo() {
  </div>
 
  {/* Demo content */}
- <div className="rounded-lg border border-border-strong bg-paper-2 p-6 shadow-sm ">
+ <div className="rounded-lg border border-border-strong bg-surface p-6 shadow-sm ">
  {tab === "python" && <PythonDemo />}
  {tab === "web" && <WebDemo />}
  </div>

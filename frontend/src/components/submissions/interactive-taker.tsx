@@ -101,8 +101,8 @@ export default function InteractiveTaker({
  return (
  <div className="space-y-4">
  {instruction && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4">
- <p className="text-sm font-medium text-ink-700">{instruction}</p>
+ <div className="rounded-lg border border-border-strong bg-surface p-4">
+ <p className="text-sm font-medium text-text">{instruction}</p>
  </div>
  )}
 

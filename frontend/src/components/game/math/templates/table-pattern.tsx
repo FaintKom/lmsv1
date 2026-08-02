@@ -69,7 +69,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  {xHeader}
  </th>
  {xValues.map((x, i) => (
- <th key={i} className="border-b border-border-strong bg-surface-2 px-5 py-3 text-center text-sm font-semibold text-ink-700 ">
+ <th key={i} className="border-b border-border-strong bg-surface-2 px-5 py-3 text-center text-sm font-semibold text-text ">
  {x}
  </th>
  ))}
@@ -83,7 +83,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  {yValues.map((y, i) => (
  <td key={i} className="border-border-strong px-2 py-2 text-center ">
  {y !== null ? (
- <span className="text-sm font-semibold text-ink-700 ">{y}</span>
+ <span className="text-sm font-semibold text-text ">{y}</span>
  ) : (
  <input
  type="number"
@@ -95,7 +95,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  ? cellResults[i]
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-primary bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-surface text-success-fg focus:border-primary "
  }`}
  placeholder="?"
  />
@@ -122,7 +122,7 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  ? ruleCorrect
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-primary bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-surface text-success-fg focus:border-primary "
  }`}
  />
  </div>

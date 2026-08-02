@@ -127,7 +127,7 @@ export default function TheoryConfig({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-ink-700">
+      <div className="flex items-center gap-2 text-sm font-semibold text-text">
         <Presentation className="h-4 w-4 text-primary" />
         {t("theory.cfg.header")}
       </div>
@@ -143,7 +143,7 @@ export default function TheoryConfig({
               className={`rounded-lg border-2 p-2.5 text-left transition-colors ${
                 kind === s.id
                   ? "border-primary bg-success-soft"
-                  : "border-border bg-paper-2 hover:border-ink-300"
+                  : "border-border bg-surface hover:border-border-strong"
               }`}
             >
               <div className="text-sm font-bold text-text">{s.label}</div>
@@ -162,7 +162,7 @@ export default function TheoryConfig({
           <div
             onClick={() => fileRef.current?.click()}
             className={`cursor-pointer rounded-lg border-2 border-dashed p-5 text-center transition-colors ${
-              url ? "border-primary bg-success-soft" : "border-ink-300 bg-paper-2 hover:border-primary"
+              url ? "border-primary bg-success-soft" : "border-border-strong bg-surface hover:border-primary"
             }`}
           >
             {url ? (
@@ -193,7 +193,7 @@ export default function TheoryConfig({
               value={shareLink}
               onChange={(e) => setShareLink(e.target.value)}
               placeholder="https://docs.google.com/presentation/d/…/edit"
-              className="flex-1 rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+              className="flex-1 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
             />
             <Button size="sm" onClick={handleConvert} disabled={!gslidesEmbed}>
               <Link2 className="mr-1 h-3 w-3" />
@@ -216,7 +216,7 @@ export default function TheoryConfig({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Recursion · Stack frames"
-            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+            className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
           />
         </div>
         <div>
@@ -225,7 +225,7 @@ export default function TheoryConfig({
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
             placeholder="How a function call unwinds"
-            className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+            className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
           />
         </div>
       </div>
@@ -239,7 +239,7 @@ export default function TheoryConfig({
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           placeholder={"Open with a relatable example.\nStress the base case."}
-          className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+          className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
         />
       </div>
 

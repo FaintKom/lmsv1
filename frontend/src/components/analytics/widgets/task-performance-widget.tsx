@@ -214,7 +214,7 @@ export function TaskPerformanceWidget({ props }: WidgetProps) {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="rounded border border-border bg-surface-2 px-2 py-1 text-xs font-medium text-text hover:bg-ink-100"
+            className="rounded border border-border bg-surface-2 px-2 py-1 text-xs font-medium text-text hover:bg-surface-2"
           >
             {t("analytics.taskPerf.exportCsv")}
           </button>

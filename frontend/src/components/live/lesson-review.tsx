@@ -47,12 +47,12 @@ export function LessonReview({
 
       {teacherView && results.length > 0 && (
         <div className="mb-6">
-          <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+          <div className="mb-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
             {t("live.resultsTitle")}
           </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {results.map((ex) => (
-              <div key={ex.exercise_id} className="rounded-lg border border-border bg-paper-2 p-4 shadow-sm">
+              <div key={ex.exercise_id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
                 <div className="mb-2 text-sm font-bold text-text">{ex.title}</div>
                 {ex.students.map((s) => (
                   <div key={s.id} className="flex items-center gap-2 py-0.5 text-sm">
@@ -77,7 +77,7 @@ export function LessonReview({
         </div>
       )}
       {!teacherView && (
-        <div className="mb-6 rounded-lg border border-border bg-paper-2 p-6 shadow-sm">
+        <div className="mb-6 rounded-lg border border-border bg-surface p-6 shadow-sm">
           <div className="eyebrow mb-3">{t("live.myResults")}</div>
           {myResults.length === 0 ? (
             <p className="text-sm text-text-muted">{t("live.noAttempted")}</p>
@@ -111,7 +111,7 @@ export function LessonReview({
               className={`rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors ${
                 openBoard === id
                   ? "bg-primary text-white"
-                  : "border-2 border-border bg-paper-2 text-text hover:border-green-300"
+                  : "border-2 border-border bg-surface text-text hover:border-green-300"
               }`}
             >
               {t("live.scene.board")} {i + 1}
@@ -120,11 +120,11 @@ export function LessonReview({
         </div>
       )}
       {openBoard && (
-        <div className="h-[60vh] overflow-hidden rounded-lg border border-border bg-paper-2 shadow-sm">
+        <div className="h-[60vh] overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
           <BoardView lessonId={lesson.id} boardId={openBoard} handleRef={handleRef} />
         </div>
       )}
-      <div className="mt-6 rounded-lg border border-border bg-paper-2 p-5">
+      <div className="mt-6 rounded-lg border border-border bg-surface p-5">
         {scenes.map((s, i) => (
           <div key={i} className="flex items-baseline gap-3 py-1 text-sm text-text-muted">
             <span className="font-mono text-[11px] tabular-nums text-text-subtle">

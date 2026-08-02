@@ -31,7 +31,7 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
 
   if (!meta.configFields || meta.configFields.length === 0) {
     return (
-      <div className="absolute right-0 top-10 w-72 bg-paper-2 border border-border rounded-md shadow-lg z-30 p-3 text-sm text-text-muted">
+      <div className="absolute right-0 top-10 w-72 bg-surface border border-border rounded-md shadow-lg z-30 p-3 text-sm text-text-muted">
         Nothing to configure for this widget.
         <button
           type="button"
@@ -58,7 +58,7 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
 
   return (
     <div
-      className="absolute right-0 top-10 w-80 bg-paper-2 border border-border rounded-md shadow-lg z-30"
+      className="absolute right-0 top-10 w-80 bg-surface border border-border rounded-md shadow-lg z-30"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between border-b border-border px-3 py-2">

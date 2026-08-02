@@ -136,8 +136,8 @@ export default function SrsFlashcardExercise({
     return (
       <div className="gl-mobile-card text-center">
         <div className="text-3xl mb-3">🎉</div>
-        <h2 className="text-2xl font-bold text-ink-900 mb-2">All done for today!</h2>
-        <p className="text-ink-500">
+        <h2 className="text-2xl font-bold text-text mb-2">All done for today!</h2>
+        <p className="text-text-muted">
           {reviewedToday > 0
             ? `You reviewed ${reviewedToday} card${reviewedToday === 1 ? "" : "s"}. Come back tomorrow.`
             : "No cards due right now."}
@@ -149,14 +149,14 @@ export default function SrsFlashcardExercise({
   return (
     <div className="gl-mobile-card">
       {instructions && (
-        <p className="text-sm text-ink-500 mb-3">{instructions}</p>
+        <p className="text-sm text-text-muted mb-3">{instructions}</p>
       )}
 
       <div className="gl-mobile-progress" aria-label="Session progress">
         <div className="fill" style={{ width: `${progress}%` }} />
       </div>
 
-      <div className="text-xs text-ink-400 font-mono uppercase tracking-wider mb-4 text-center">
+      <div className="text-xs text-text-subtle font-mono uppercase tracking-wider mb-4 text-center">
         {reviewedToday + 1} / {reviewedToday + totalDue}
       </div>
 

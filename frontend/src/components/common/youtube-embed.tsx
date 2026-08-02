@@ -175,7 +175,7 @@ export function YouTubeEmbed({ url, className }: YouTubeEmbedProps) {
  )}
  <div className="mt-1 flex items-center gap-2">
  {metadata.channel && (
- <span className="truncate text-xs text-ink-300 sm:text-sm">
+ <span className="truncate text-xs text-text-subtle sm:text-sm">
  {metadata.channel}
  </span>
  )}

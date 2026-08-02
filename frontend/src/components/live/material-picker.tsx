@@ -102,16 +102,16 @@ export function MaterialPicker({
     return (
       <div className="h-full overflow-y-auto p-6">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <div className="font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+          <div className="font-mono text-xs font-bold uppercase tracking-wide text-text">
             {t("live.pickMaterial")}
           </div>
-          <label className="flex h-9 w-56 items-center gap-2 rounded-md border-2 border-border bg-paper-2 px-3 transition-colors focus-within:border-border-focus">
-            <Search size={14} className="shrink-0 text-ink-400" />
+          <label className="flex h-9 w-56 items-center gap-2 rounded-md border-2 border-border bg-surface px-3 transition-colors focus-within:border-border-focus">
+            <Search size={14} className="shrink-0 text-text-subtle" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("common.search")}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-ink-300"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-text-subtle"
             />
           </label>
         </div>
@@ -126,7 +126,7 @@ export function MaterialPicker({
                   setQuery("");
                   setCourseId(c.id);
                 }}
-                className="group flex items-center gap-3.5 rounded-lg border border-border bg-paper-2 p-3.5 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md active:translate-y-0"
+                className="group flex items-center gap-3.5 rounded-lg border border-border bg-surface p-3.5 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md active:translate-y-0"
               >
                 <span
                   className="flex h-14 w-14 shrink-0 items-end justify-start rounded-md p-1.5"
@@ -155,7 +155,7 @@ export function MaterialPicker({
                 </span>
                 <ChevronRight
                   size={16}
-                  className="shrink-0 text-ink-300 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-green-700"
+                  className="shrink-0 text-text-subtle transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-green-700"
                 />
               </button>
             ))}
@@ -171,7 +171,7 @@ export function MaterialPicker({
       <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => setCourseId(null)}
-          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700 transition-colors hover:bg-ink-100"
+          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text transition-colors hover:bg-surface-2"
         >
           <ChevronLeft size={11} strokeWidth={3} /> {t("common.back")}
         </button>
@@ -188,13 +188,13 @@ export function MaterialPicker({
       {course?.modules.map((m, mi) => (
         <div key={m.id} className="mb-5">
           <div className="mb-1.5 flex items-center gap-2">
-            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-sm bg-surface-2 font-mono text-[10px] font-bold text-ink-700">
+            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-sm bg-surface-2 font-mono text-[10px] font-bold text-text">
               {mi + 1}
             </span>
             <span className="font-mono text-[11px] font-semibold uppercase tracking-wide text-text-subtle">
               {m.title}
             </span>
-            <span className="font-mono text-[10px] text-ink-300">
+            <span className="font-mono text-[10px] text-text-subtle">
               {(m.lessons ?? []).length} {t("courses.lessons")}
             </span>
           </div>

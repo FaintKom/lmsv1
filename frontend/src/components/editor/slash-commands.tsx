@@ -172,7 +172,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
 
  if (items.length === 0) {
  return (
- <div className="slash-menu rounded-lg border border-border-strong bg-paper-2 p-3 shadow-lg ">
+ <div className="slash-menu rounded-lg border border-border-strong bg-surface p-3 shadow-lg ">
  <p className="text-sm text-text-subtle">No results</p>
  </div>
  );
@@ -181,7 +181,7 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
  return (
  <div
  ref={containerRef}
- className="slash-menu max-h-72 overflow-y-auto rounded-lg border border-border-strong bg-paper-2 p-1 shadow-lg "
+ className="slash-menu max-h-72 overflow-y-auto rounded-lg border border-border-strong bg-surface p-1 shadow-lg "
  >
  {items.map((item, index) => {
  const Icon = item.icon;
@@ -192,10 +192,10 @@ function CommandList({ items, command }: CommandListProps & { ref?: React.Ref<Co
  className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors ${
  index === selectedIndex
  ? "bg-success-soft text-success-fg "
- : "text-ink-700 hover:bg-surface-2 "
+ : "text-text hover:bg-surface-2 "
  }`}
  >
- <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-border-strong bg-paper-2 ">
+ <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-border-strong bg-surface ">
  <Icon className="h-4 w-4" />
  </div>
  <div>

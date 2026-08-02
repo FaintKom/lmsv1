@@ -403,7 +403,7 @@ export function LessonShell({
                   fontFamily: "var(--font-mono)",
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "var(--ink-500)",
+                  color: "var(--color-text-muted)",
                   fontVariantNumeric: "tabular-nums",
                   flexShrink: 0,
                 }}
@@ -454,7 +454,7 @@ export function LessonShell({
       {feedback ? (
         <FeedbackSheet feedback={feedback} onContinue={onContinue} onRetry={onRetry} />
       ) : (
-        <div className="lf-bottom" style={{ background: "var(--paper)" }}>
+        <div className="lf-bottom" style={{ background: "var(--color-bg)" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             {/* SH-07: hide Skip entirely when there is nothing to skip to —
                 a permanently disabled ghost button is just noise. */}

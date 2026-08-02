@@ -68,7 +68,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  <th className="border-b border-r border-border-strong bg-surface-2 px-5 py-3 text-left text-xs font-semibold text-text-muted "></th>
  {colHeaders.map((h, i) => (
  <th key={i} className={`border-b border-border-strong px-5 py-3 text-center text-sm font-bold ${
- i === colHeaders.length - 1 ? "bg-success-soft text-success-fg " : "bg-surface-2 text-ink-700 "
+ i === colHeaders.length - 1 ? "bg-success-soft text-success-fg " : "bg-surface-2 text-text "
  }`}>
  {h}
  </th>
@@ -79,7 +79,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  {cells.map((row, r) => (
  <tr key={r}>
  <td className={`border-r border-b border-border-strong px-5 py-3 text-sm font-bold ${
- r === cells.length - 1 ? "bg-success-soft text-success-fg " : "bg-surface-2 text-ink-700 "
+ r === cells.length - 1 ? "bg-success-soft text-success-fg " : "bg-surface-2 text-text "
  }`}>
  {rowHeaders[r]}
  </td>
@@ -91,7 +91,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  if (!isBlank) {
  return (
  <td key={c} className={`border-b border-border-strong px-5 py-3 text-center text-sm font-semibold ${
- isTotal ? "bg-surface-2 text-ink-700 " : "text-text-muted "
+ isTotal ? "bg-surface-2 text-text " : "text-text-muted "
  }`}>
  {cell}
  </td>
@@ -110,7 +110,7 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  ? results[key]
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-primary bg-paper-2 text-success-fg focus:border-primary "
+ : "border-primary bg-surface text-success-fg focus:border-primary "
  }`}
  placeholder="?"
  />

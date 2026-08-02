@@ -180,7 +180,7 @@ export default function World3DExercise({
  return (
  <div className="flex h-full flex-col gap-0">
  {/* Toolbar */}
- <div className="flex items-center justify-between border-b border-border-strong bg-paper-2 px-4 py-2 ">
+ <div className="flex items-center justify-between border-b border-border-strong bg-surface px-4 py-2 ">
  <div className="flex items-center gap-2">
  {allowPython && (
  <div className="flex rounded-lg border border-border-strong ">
@@ -240,7 +240,7 @@ export default function World3DExercise({
  </div>
 
  {/* Status */}
- <div className="border-t border-border-strong bg-paper-2 p-3 ">
+ <div className="border-t border-border-strong bg-surface p-3 ">
  {completed ? (
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2 text-primary ">

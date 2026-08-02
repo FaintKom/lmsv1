@@ -45,7 +45,7 @@ export function StudentDrawer({
   }, [exerciseId, member.id]);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-96 border-l border-border bg-paper-2 p-5 shadow-lg">
+    <div className="fixed inset-y-0 right-0 z-40 w-96 border-l border-border bg-surface p-5 shadow-lg">
       <div className="mb-4 flex items-center justify-between">
         <div className="text-md font-bold text-text">{member.name}</div>
         <button
@@ -56,7 +56,7 @@ export function StudentDrawer({
           <X size={16} />
         </button>
       </div>
-      <div className="mb-2 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+      <div className="mb-2 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
         <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-green-500" />
         {t("live.draft")}
       </div>
@@ -72,7 +72,7 @@ export function StudentDrawer({
           value={hint}
           onChange={(e) => setHint(e.target.value)}
           placeholder={t("live.hint.placeholder")}
-          className="w-full rounded-md border-2 border-border bg-paper-2 px-3 py-2 text-sm transition-colors placeholder:text-ink-300 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
+          className="w-full rounded-md border-2 border-border bg-surface px-3 py-2 text-sm transition-colors placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
           rows={3}
         />
         <button

@@ -154,9 +154,9 @@ export function CalendarView({ canCreate = false }: Props) {
 
  {/* Create Form */}
  {showForm && canCreate && (
- <form onSubmit={handleSubmit} className="rounded-lg border border-border-strong bg-paper-2 p-4 shadow-sm ">
+ <form onSubmit={handleSubmit} className="rounded-lg border border-border-strong bg-surface p-4 shadow-sm ">
  <div className="mb-3 flex items-center justify-between">
- <h3 className="text-sm font-semibold text-ink-700 ">New Event</h3>
+ <h3 className="text-sm font-semibold text-text ">New Event</h3>
  <button type="button" onClick={() => setShowForm(false)} className="text-text-subtle hover:text-text-muted">
  <X className="h-4 w-4" />
  </button>
@@ -215,10 +215,10 @@ export function CalendarView({ canCreate = false }: Props) {
 
  {/* Event Detail Popup */}
  {selectedEvent && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4 shadow-sm ">
+ <div className="rounded-lg border border-border-strong bg-surface p-4 shadow-sm ">
  <div className="flex items-start justify-between">
  <div>
- <h3 className="text-sm font-semibold text-ink-700 ">{selectedEvent.title}</h3>
+ <h3 className="text-sm font-semibold text-text ">{selectedEvent.title}</h3>
  <p className="mt-1 text-xs text-text-muted ">
  <span
  className="mr-2 inline-block h-2 w-2 rounded-pill"
@@ -252,7 +252,7 @@ export function CalendarView({ canCreate = false }: Props) {
  )}
 
  {/* Calendar */}
- <div className="rounded-lg border border-border-strong bg-paper-2 p-2 shadow-sm [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]: [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-ink-700 [&_.fc-toolbar-title]:">
+ <div className="rounded-lg border border-border-strong bg-surface p-2 shadow-sm [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]: [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-text [&_.fc-toolbar-title]:">
  <FullCalendar
  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
  initialView="dayGridMonth"

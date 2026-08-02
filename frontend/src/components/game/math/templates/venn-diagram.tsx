@@ -109,7 +109,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  const renderValue = (key: string) => {
  const val = regions[key as keyof typeof regions];
  if (val !== null) return (
- <span className="text-lg font-bold text-ink-700 ">{val}</span>
+ <span className="text-lg font-bold text-text ">{val}</span>
  );
  return (
  <input
@@ -122,7 +122,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  ? results[key]
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-primary bg-paper-2 text-success-fg "
+ : "border-primary bg-surface text-success-fg "
  }`}
  placeholder="?"
  />
@@ -133,7 +133,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <div className="flex flex-col items-center gap-5">
  {/* Venn diagram SVG */}
  <svg viewBox="0 0 460 300" width="100%" style={{ maxWidth: 460 }}
- className="rounded-lg border border-border-strong bg-paper-2 ">
+ className="rounded-lg border border-border-strong bg-surface ">
  {/* Background rect representing "universe" */}
  <rect x={10} y={10} width={440} height={280} rx={12} fill="none" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="6 3" />
  <text x={230} y={30} textAnchor="middle" fontSize={12} fill="#94a3b8">Total: {total}</text>
@@ -186,7 +186,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  return (
  <span key={key} className="flex items-center gap-1.5">
  <span
- className="inline-block h-2.5 w-2.5 rounded-full border border-ink-300"
+ className="inline-block h-2.5 w-2.5 rounded-full border border-border-strong"
  style={bg}
  />
  {regionLabels[key]}

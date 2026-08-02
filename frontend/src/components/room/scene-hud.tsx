@@ -20,10 +20,10 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
         <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-gray-500">
           {t("nav.achievements")} · {t("room.breadcrumb")}
         </p>
-        <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-ink-700">
+        <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">
           {t("room.welcomePrefix")}{" "}
           <span
-            className="inline-block rounded-[6px] px-2 py-0 text-ink-900"
+            className="inline-block rounded-[6px] px-2 py-0 text-text"
             style={{
               background: "#ffe9a3",
               transform: "rotate(-1.5deg)",
@@ -59,8 +59,8 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
 
 function HintPill({ kbd, label }: { kbd: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-medium text-ink-700 shadow-sm backdrop-blur">
-      <kbd className="rounded border border-ink-200 bg-ink-50 px-1.5 py-0.5 font-mono text-[10px] text-ink-700">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-medium text-text shadow-sm backdrop-blur">
+      <kbd className="rounded border border-border-strong bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-text">
         {kbd}
       </kbd>
       {label}

@@ -43,7 +43,7 @@ export function DashboardFilterBar({ dashboard }: Props) {
         <select
           value={filters.range ?? "30d"}
           onChange={(e) => patch({ range: e.target.value })}
-          className="px-2 py-1 bg-paper-2 border border-border rounded"
+          className="px-2 py-1 bg-surface border border-border rounded"
         >
           {RANGE_OPTIONS.map((r) => (
             <option key={r.value} value={r.value}>
@@ -62,7 +62,7 @@ export function DashboardFilterBar({ dashboard }: Props) {
               course_ids: e.target.value ? [e.target.value] : [],
             })
           }
-          className="px-2 py-1 bg-paper-2 border border-border rounded max-w-[16rem]"
+          className="px-2 py-1 bg-surface border border-border rounded max-w-[16rem]"
         >
           <option value="">— All courses —</option>
           {(courses ?? []).map((c) => (

@@ -79,7 +79,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16 text-ink-400">
+      <div className="flex items-center justify-center py-16 text-text-subtle">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     );
@@ -115,7 +115,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
 
   if (data.groups.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-10 text-center text-sm text-ink-400">
+      <div className="rounded-xl border border-border bg-surface p-10 text-center text-sm text-text-subtle">
         {t("pacing.noGroups")}
       </div>
     );
@@ -141,7 +141,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
                 <div className="text-2xl font-extrabold leading-none text-text">
                   {x.v}
                 </div>
-                <div className="mt-1 text-[10.5px] font-bold uppercase tracking-wider text-ink-400">
+                <div className="mt-1 text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
                   {x.label}
                 </div>
               </div>
@@ -152,7 +152,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
 
       {/* Group table */}
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
-        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-ink-100 px-5 py-3 font-mono text-[10.5px] font-bold uppercase tracking-wider text-ink-400">
+        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-border px-5 py-3 font-mono text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
           <span>{t("pacing.col.group")}</span>
           <span>{t("pacing.col.progress")}</span>
           <span>{t("pacing.col.nextTopic")}</span>
@@ -169,7 +169,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
         ))}
       </div>
 
-      <div className="flex items-center gap-2 text-[11.5px] text-ink-400">
+      <div className="flex items-center gap-2 text-[11.5px] text-text-subtle">
         <Route className="h-3.5 w-3.5" />
         {t("pacing.boardHint")}
       </div>
@@ -198,7 +198,7 @@ function PacingBoardRow({
     <button
       type="button"
       onClick={onOpen}
-      className={`grid w-full grid-cols-[230px_1fr_150px_116px_28px] items-center gap-0 px-5 py-3.5 text-left transition-colors hover:bg-ink-50 ${
+      className={`grid w-full grid-cols-[230px_1fr_150px_116px_28px] items-center gap-0 px-5 py-3.5 text-left transition-colors hover:bg-surface-2 ${
         isFirst ? "" : "border-t border-ink-50"
       }`}
     >
@@ -212,7 +212,7 @@ function PacingBoardRow({
           <span className="block truncate text-[13.5px] font-extrabold text-text">
             {g.group_name}
           </span>
-          <span className="block text-[11px] font-semibold text-ink-400">
+          <span className="block text-[11px] font-semibold text-text-subtle">
             {[g.teacher_name, g.default_room_name].filter(Boolean).join(" · ") ||
               g.course_title}
           </span>
@@ -221,7 +221,7 @@ function PacingBoardRow({
 
       {/* Progress bar with planned-today marker */}
       <div className="pr-7">
-        <div className="relative h-3 rounded-full bg-ink-100">
+        <div className="relative h-3 rounded-full bg-surface-2">
           <div
             className={`h-full rounded-full ${m.bar}`}
             style={{ width: `${coveredPct}%` }}
@@ -235,7 +235,7 @@ function PacingBoardRow({
           </div>
         </div>
         <div className="mt-1.5 flex justify-between">
-          <span className="font-mono text-[11px] font-bold text-ink-500">
+          <span className="font-mono text-[11px] font-bold text-text-muted">
             {g.covered} / {g.total} {t("pacing.topicsShort")}
           </span>
           {g.badge === "behind" && (
@@ -252,7 +252,7 @@ function PacingBoardRow({
       </div>
 
       {/* Next topic */}
-      <span className="truncate pr-2 text-xs font-semibold text-ink-500">
+      <span className="truncate pr-2 text-xs font-semibold text-text-muted">
         {g.next_topic_title || "—"}
       </span>
 
@@ -266,7 +266,7 @@ function PacingBoardRow({
         </span>
       </span>
 
-      <span className="flex items-center justify-center text-ink-300">
+      <span className="flex items-center justify-center text-text-subtle">
         <ChevronRight className="h-4 w-4" />
       </span>
     </button>
@@ -287,7 +287,7 @@ function PacingTimeline({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16 text-ink-400">
+      <div className="flex items-center justify-center py-16 text-text-subtle">
         <Loader2 className="h-5 w-5 animate-spin" />
       </div>
     );
@@ -360,14 +360,14 @@ function PacingTimeline({
         <h2 className="text-lg font-extrabold text-text">
           {t("pacing.timelineTitle")} · {data.group_name}
         </h2>
-        <p className="text-sm text-ink-400">{t("pacing.timelineSubtitle")}</p>
+        <p className="text-sm text-text-subtle">{t("pacing.timelineSubtitle")}</p>
       </div>
 
       {/* 4 KPIs */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {kpis.map((x, i) => (
           <div key={i} className="rounded-xl border border-border bg-surface p-4">
-            <div className="text-[10.5px] font-bold uppercase tracking-wider text-ink-400">
+            <div className="text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
               {x.l}
             </div>
             <div
@@ -387,19 +387,19 @@ function PacingTimeline({
           <span className="text-sm font-extrabold text-text">
             {t("pacing.bandTitle")}
           </span>
-          <div className="flex gap-3.5 text-[11px] font-semibold text-ink-500">
+          <div className="flex gap-3.5 text-[11px] font-semibold text-text-muted">
             <LegendDot className="bg-green-500" label={t("pacing.legend.covered")} />
             <LegendDot className="bg-sun-400" label={t("pacing.legend.current")} />
             <LegendDot
               className="border-2 border-dashed border-green-300"
               label={t("pacing.legend.next")}
             />
-            <LegendDot className="bg-ink-100" label={t("pacing.legend.ahead")} />
+            <LegendDot className="bg-surface-2" label={t("pacing.legend.ahead")} />
           </div>
         </div>
 
         {data.topics.length === 0 ? (
-          <p className="py-6 text-center text-sm text-ink-400">
+          <p className="py-6 text-center text-sm text-text-subtle">
             {t("pacing.noCurriculum")}
           </p>
         ) : (
@@ -447,7 +447,7 @@ function TimelineSegment({
   topic: PacingTimelineTopic;
   widthPct: number;
 }) {
-  let box = "bg-ink-50 text-ink-400 border border-ink-100";
+  let box = "bg-surface-2 text-text-subtle border border-border";
   if (topic.state === "covered") box = "bg-green-500 text-white";
   else if (topic.state === "current") box = "bg-sun-400 text-ink-900";
   else if (topic.state === "next")
@@ -456,7 +456,7 @@ function TimelineSegment({
   const dateColor =
     topic.state === "covered" || topic.state === "current"
       ? "text-green-700"
-      : "text-ink-300";
+      : "text-text-subtle";
 
   return (
     <div className="min-w-0" style={{ width: `${widthPct}%` }}>
@@ -493,7 +493,7 @@ function BackButton({ onBack, label }: { onBack: () => void; label: string }) {
     <button
       type="button"
       onClick={onBack}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-ink-100 bg-paper-2 py-1.5 pl-2 pr-3 text-xs font-bold text-ink-500 transition-colors hover:bg-ink-50"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface py-1.5 pl-2 pr-3 text-xs font-bold text-text-muted transition-colors hover:bg-surface-2"
     >
       <ChevronLeft className="h-4 w-4" />
       {label}

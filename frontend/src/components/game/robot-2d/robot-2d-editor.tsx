@@ -152,7 +152,7 @@ export default function Robot2DEditor({
  const size = GRID_SIZES.find((s) => `${s.w}x${s.h}` === e.target.value);
  if (size) handleGridResize(size.w, size.h);
  }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  >
  {GRID_SIZES.map((s) => (
  <option key={s.label} value={`${s.w}x${s.h}`}>
@@ -175,7 +175,7 @@ export default function Robot2DEditor({
  available_blocks: DIFFICULTY_BLOCKS[e.target.value as Difficulty],
  })
  }
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  >
  {DIFFICULTIES.map((d) => (
  <option key={d.value} value={d.value}>
@@ -193,7 +193,7 @@ export default function Robot2DEditor({
  <select
  value={winCondition}
  onChange={(e) => updateConfig({ win_condition: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  >
  {WIN_CONDITIONS.map((wc) => (
  <option key={wc.value} value={wc.value}>
@@ -218,7 +218,7 @@ export default function Robot2DEditor({
  })
  }
  placeholder="Unlimited"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  </div>
@@ -229,7 +229,7 @@ export default function Robot2DEditor({
  type="checkbox"
  checked={allowPython}
  onChange={(e) => updateConfig({ allow_python: e.target.checked })}
- className="h-4 w-4 rounded border-ink-300 text-primary"
+ className="h-4 w-4 rounded border-border-strong text-primary"
  />
  Allow Python mode (for advanced students)
  </label>
@@ -250,7 +250,7 @@ export default function Robot2DEditor({
  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
  activeTool === tool.type
  ? "bg-primary-soft text-success-fg "
- : "bg-surface-2 text-text-muted hover:bg-ink-100 "
+ : "bg-surface-2 text-text-muted hover:bg-surface-2 "
  }`}
  >
  <Icon className="h-4 w-4" />
@@ -262,7 +262,7 @@ export default function Robot2DEditor({
 
  {/* Grid canvas */}
  <div
- className="flex-1 rounded-lg border border-border-strong bg-paper-2 p-4 "
+ className="flex-1 rounded-lg border border-border-strong bg-surface p-4 "
  style={{ maxWidth: gridWidth * 52 + 32 }}
  >
  <GridRenderer
@@ -295,7 +295,7 @@ export default function Robot2DEditor({
  value={hint}
  onChange={(e) => handleHintChange(i, e.target.value)}
  placeholder={`Hint ${i + 1}`}
- className="flex-1 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  <Button
  variant="ghost"

@@ -50,7 +50,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  <div className="flex flex-col gap-5">
  {/* Question */}
  <div className="rounded-lg border border-border-strong bg-surface-2 px-5 py-4 ">
- <div className="text-base font-medium text-ink-700 ">
+ <div className="text-base font-medium text-text ">
  {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
  </div>
  {false && cfg.standard && (
@@ -65,7 +65,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  {cfg.choices.map((choice, i) => {
  const isThis = selected === i;
  let borderClass = "border-border-strong ";
- let bgClass = "bg-paper-2 ";
+ let bgClass = "bg-surface ";
 
  if (submitted) {
  if (choice.correct) {
@@ -97,12 +97,12 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  ? "bg-danger text-white"
  : isThis
  ? "bg-primary text-white"
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}
  >
  {labels[i]}
  </span>
- <span className="text-sm font-medium text-ink-700 ">
+ <span className="text-sm font-medium text-text ">
  {containsMath(choice.text) ? <MathRenderer content={choice.text} /> : choice.text}
  </span>
  {submitted && choice.correct && (
@@ -129,7 +129,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  <p className={`text-xs font-semibold mb-1 ${isCorrect ? "text-primary " : "text-warning-fg "}`}>
  {isCorrect ? "Correct!" : "Not quite"}
  </p>
- <p className="text-sm text-ink-700 ">
+ <p className="text-sm text-text ">
  {cfg.explanation}
  </p>
  </div>

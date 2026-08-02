@@ -105,7 +105,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  <div className="flex flex-col gap-5">
  {/* Unsorted cards */}
  {unsorted.length > 0 && (
- <div className="flex flex-wrap gap-2 rounded-lg border-2 border-dashed border-ink-300 bg-surface-2 p-4 ">
+ <div className="flex flex-wrap gap-2 rounded-lg border-2 border-dashed border-border-strong bg-surface-2 p-4 ">
  <span className="w-full text-xs font-medium text-text-subtle mb-1">
  Drag cards to the correct category ({unsorted.length} remaining)
  </span>
@@ -115,12 +115,12 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  draggable
  onDragStart={() => setDragCard(card)}
  onClick={() => setTappedCard(tappedCard?.id === card.id ? null : card)}
- className={`rounded-lg border-2 bg-paper-2 px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:shadow-md active:scale-95 ${
+ className={`rounded-lg border-2 bg-surface px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:shadow-md active:scale-95 ${
  tappedCard?.id === card.id
  ? "border-primary ring-2 ring-primary text-success-fg "
  : checked && results[card.id] === false
  ? "border-danger text-danger-fg "
- : "border-border-strong text-ink-700 hover:border-primary "
+ : "border-border-strong text-text hover:border-primary "
  }`}
  >
  {card.text}
@@ -164,7 +164,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  ? results[card.id]
  ? "border-primary bg-success-soft text-success-fg "
  : "border-danger bg-danger-soft text-danger-fg "
- : "border-border-strong bg-paper-2 text-ink-700 "
+ : "border-border-strong bg-surface text-text "
  }`}
  >
  <span>{card.text}</span>

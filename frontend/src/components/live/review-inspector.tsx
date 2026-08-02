@@ -86,7 +86,7 @@ export function ReviewInspector({
       <div className="mb-1 flex items-center gap-3">
         <h2 className="text-xl font-extrabold text-text">{exercise?.title ?? ""}</h2>
         {exercise?.exercise_type && (
-          <span className="rounded-pill bg-ink-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700">
+          <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text">
             {exercise.exercise_type}
           </span>
         )}
@@ -104,7 +104,7 @@ export function ReviewInspector({
           const row = progressById.get(m.id);
           const draft = drafts[m.id];
           return (
-            <div key={m.id} className="rounded-lg border border-border bg-paper-2 p-4 shadow-sm">
+            <div key={m.id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
               <div className="mb-2 flex items-center gap-2">
                 <span
                   className={`h-2 w-2 rounded-pill ${m.online ? "bg-primary" : "bg-ink-200"}`}
@@ -117,7 +117,7 @@ export function ReviewInspector({
                         ? "bg-green-100 text-green-800"
                         : row.submitted
                           ? "bg-clay-50 text-clay-700"
-                          : "bg-ink-100 text-ink-700"
+                          : "bg-surface-2 text-text"
                     }`}
                   >
                     {row.attempts} {t("live.attempts")}

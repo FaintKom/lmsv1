@@ -150,16 +150,16 @@ export function TeacherOnboarding() {
  className={`flex items-center gap-4 rounded-lg border px-4 py-3 transition ${
  isDone
  ? "border-primary-soft bg-success-soft/50 "
- : "border-border-strong bg-paper-2 "
+ : "border-border-strong bg-surface "
  }`}
  >
  <div className={`rounded-lg p-2 ${
- isDone ? "bg-primary-soft text-primary " : "bg-ink-100 text-text-subtle "
+ isDone ? "bg-primary-soft text-primary " : "bg-surface-2 text-text-subtle "
  }`}>
  {isDone ? <CheckCircle className="h-5 w-5" /> : step.icon}
  </div>
  <div className="flex-1 min-w-0">
- <p className={`text-sm font-semibold ${isDone ? "text-success-fg line-through " : "text-ink-700 "}`}>
+ <p className={`text-sm font-semibold ${isDone ? "text-success-fg line-through " : "text-text "}`}>
  {step.title}
  </p>
  <p className="text-xs text-text-muted ">{step.description}</p>
