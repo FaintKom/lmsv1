@@ -150,25 +150,6 @@ export default function TeacherLivePage() {
 
   const onlineCount = useMemo(() => members.filter((m) => m.online).length, [members]);
 
-  if (!lesson) return null;
-
-  if (lesson.status === "ended") {
-    if (state && (state.board_ids.length > 0 || lesson.summary)) {
-      return <LessonReview lesson={lesson} boardIds={state.board_ids} teacherView />;
-    }
-    return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
-        <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
-        <button
-          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
-          onClick={() => router.push("/admin/groups")}
-        >
-          {t("common.back")}
-        </button>
-      </div>
-    );
-  }
-
   // ── conductor: auto-programme from the picked material ──────────────
   // steps = [material, task1, task2...]; Next/Prev (or ←/→) walk them.
   const { data: programExs } = useQuery({
@@ -212,7 +193,7 @@ export default function TeacherLivePage() {
       setPickingMaterial(false);
       void setSceneMut.mutateAsync({
         type: "material",
-        payload: { lesson_id: step.id, course_id: lastMaterial?.courseId ?? lesson.course_id },
+        payload: { lesson_id: step.id, course_id: lastMaterial?.courseId ?? lesson?.course_id ?? null },
       });
     } else {
       setRail("task");
@@ -223,7 +204,7 @@ export default function TeacherLivePage() {
           exercise_id: step.id,
           title: step.title,
           material_lesson_id: materialLessonId,
-          material_course_id: lastMaterial?.courseId ?? lesson.course_id,
+          material_course_id: lastMaterial?.courseId ?? lesson?.course_id ?? null,
         },
       });
     }
@@ -245,6 +226,26 @@ export default function TeacherLivePage() {
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepBase, canNext, canPrev, confirmEnd, picked, steps]);
+
+
+  if (!lesson) return null;
+
+  if (lesson.status === "ended") {
+    if (state && (state.board_ids.length > 0 || lesson.summary)) {
+      return <LessonReview lesson={lesson} boardIds={state.board_ids} teacherView />;
+    }
+    return (
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
+        <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
+        <button
+          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
+          onClick={() => router.push("/admin/groups")}
+        >
+          {t("common.back")}
+        </button>
+      </div>
+    );
+  }
 
   const switchToBoard = async () => {
     setRail("board");
