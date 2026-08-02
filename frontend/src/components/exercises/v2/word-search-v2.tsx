@@ -178,8 +178,8 @@ export function WordSearchV2({
             onPointerUp={onUp}
             onPointerCancel={onUp}
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               padding: 8,
               userSelect: "none",
@@ -233,7 +233,7 @@ export function WordSearchV2({
                   key={w}
                   style={{
                     padding: "8px 14px",
-                    background: found[w] ? "var(--green-50)" : "var(--paper-2)",
+                    background: found[w] ? "var(--green-50)" : "var(--color-surface)",
                     border: `2px solid ${found[w] ? "var(--green-500)" : "var(--ink-100)"}`,
                     borderRadius: 999,
                     fontFamily: "var(--font-mono)",

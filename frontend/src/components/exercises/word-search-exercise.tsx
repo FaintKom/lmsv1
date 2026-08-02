@@ -158,7 +158,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
               className={`rounded-pill border px-3 py-1 text-xs font-medium transition ${
                 found
                   ? "border-primary bg-success-soft text-success-fg line-through"
-                  : "border-border-strong bg-paper-2 text-ink-700"
+                  : "border-border-strong bg-surface text-text"
               }`}
             >
               {w}
@@ -195,7 +195,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
                       ? "bg-primary text-white"
                       : isSelecting
                       ? "bg-info-soft text-info-fg"
-                      : "bg-paper-2 text-ink-700 hover:bg-surface-2"
+                      : "bg-surface text-text hover:bg-surface-2"
                   }`}
                 >
                   {letter}

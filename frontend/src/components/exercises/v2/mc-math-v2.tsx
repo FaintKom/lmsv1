@@ -154,8 +154,8 @@ export function McMathV2({
         <div style={{ maxWidth: 460, margin: "0 auto" }}>
           <div
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               padding: "20px 22px",
               marginBottom: 18,
@@ -163,7 +163,7 @@ export function McMathV2({
             }}
           >
             {prompt && (
-              <span style={{ fontSize: 16, color: "var(--ink-500)" }}>
+              <span style={{ fontSize: 16, color: "var(--color-text-muted)" }}>
                 <MaybeMath text={prompt} />
               </span>
             )}
@@ -172,7 +172,7 @@ export function McMathV2({
                 fontFamily: "var(--font-math)", // MM-02
                 fontSize: 36,
                 fontWeight: 600,
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
                 marginTop: prompt ? 6 : 0,
               }}
             >

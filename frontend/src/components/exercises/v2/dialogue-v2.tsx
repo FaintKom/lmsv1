@@ -283,7 +283,7 @@ export function DialogueV2({
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 10,
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                     fontWeight: 700,
                     marginBottom: 3,
                     letterSpacing: "0.06em",

@@ -275,7 +275,7 @@ export function InequalityGraphV2({
                       padding: "8px 0",
                       borderRadius: 8,
                       minHeight: 36,
-                      background: op === o ? "var(--ink-900)" : "var(--paper-2)",
+                      background: op === o ? "var(--ink-900)" : "var(--color-surface)",
                       color: op === o ? "#fff" : "var(--ink-700)",
                       border:
                         "2px solid " +
@@ -316,7 +316,7 @@ export function InequalityGraphV2({
                       borderRadius: 8,
                       minHeight: 40,
                       background:
-                        side === s ? "var(--green-600)" : "var(--paper-2)",
+                        side === s ? "var(--green-600)" : "var(--color-surface)",
                       color: side === s ? "#fff" : "var(--ink-700)",
                       border:
                         "2px solid " +

@@ -317,10 +317,10 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  return (
  <>
  {/* Placeholder in the page flow */}
- <div className="rounded-lg border border-border-strong bg-paper-2 ">
+ <div className="rounded-lg border border-border-strong bg-surface ">
  <div className="flex items-center justify-between border-b border-border px-5 py-3 ">
  <div>
- <h3 className="text-sm font-semibold text-ink-700 ">{exercise.title}</h3>
+ <h3 className="text-sm font-semibold text-text ">{exercise.title}</h3>
  <span className="text-xs capitalize text-text-subtle">{exercise.exercise_type.replace(/_/g, " ")}</span>
  </div>
  <span className="text-xs text-primary">{t("game.fullscreen")}</span>
@@ -329,27 +329,27 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
  {/* Fullscreen overlay via portal */}
  {createPortal(
- <div className="fixed inset-0 z-[100] flex flex-col bg-paper-2 ">
+ <div className="fixed inset-0 z-[100] flex flex-col bg-surface ">
  {/* Fullscreen header */}
- <div className="flex h-11 shrink-0 items-center justify-between border-b border-border-strong bg-paper-2 px-3 sm:px-4 ">
+ <div className="flex h-11 shrink-0 items-center justify-between border-b border-border-strong bg-surface px-3 sm:px-4 ">
  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
  {/* Prev lesson */}
  {prevLesson && courseId && (
  <button
  onClick={() => { closeFullscreen(); router.push(`/courses/${courseId}/lessons/${prevLesson.id}`); }}
- className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-text-subtle transition-colors hover:bg-ink-100 hover:text-ink-700 "
+ className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-text-subtle transition-colors hover:bg-surface-2 hover:text-text "
  title={prevLesson.title}
  >
  <ChevronLeft className="h-4 w-4" />
  <span className="hidden sm:inline max-w-[100px] truncate">{prevLesson.title}</span>
  </button>
  )}
- <h3 className="text-xs sm:text-sm font-semibold text-ink-700 truncate">{exercise.title}</h3>
+ <h3 className="text-xs sm:text-sm font-semibold text-text truncate">{exercise.title}</h3>
  {/* Next lesson */}
  {nextLesson && courseId && (
  <button
  onClick={() => { closeFullscreen(); router.push(`/courses/${courseId}/lessons/${nextLesson.id}`); }}
- className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-text-subtle transition-colors hover:bg-ink-100 hover:text-ink-700 "
+ className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-medium text-text-subtle transition-colors hover:bg-surface-2 hover:text-text "
  title={nextLesson.title}
  >
  <span className="hidden sm:inline max-w-[100px] truncate">{nextLesson.title}</span>
@@ -359,7 +359,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  </div>
  <button
  onClick={closeFullscreen}
- className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-ink-100 hover:text-ink-700 "
+ className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-surface-2 hover:text-text "
  title="Exit fullscreen (Esc)"
  >
  <Minimize2 className="h-3.5 w-3.5" />
@@ -381,11 +381,11 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
  // Normal card view
  return (
- <div className="rounded-lg border border-border-strong bg-paper-2 ">
+ <div className="rounded-lg border border-border-strong bg-surface ">
  {/* Header */}
  <div className="flex items-center justify-between border-b border-border px-5 py-3 ">
  <div>
- <h3 className="text-sm font-semibold text-ink-700 ">{exercise.title}</h3>
+ <h3 className="text-sm font-semibold text-text ">{exercise.title}</h3>
  <span className="text-xs capitalize text-text-subtle">{exercise.exercise_type.replace(/_/g, " ")}</span>
  </div>
  {isGameType && (
@@ -415,18 +415,18 @@ function AnswerReveal({ answer }: { answer: Record<string, unknown> }) {
  return (
  <div className="rounded-lg border border-primary-soft bg-success-soft p-5 text-center ">
  <CheckCircle className="mx-auto mb-2 h-10 w-10 text-primary" />
- <p className="text-lg font-semibold text-ink-700 ">
+ <p className="text-lg font-semibold text-text ">
  Answer Revealed
  </p>
  <p className="mt-1 text-xs text-text-muted">Max attempts reached — exercise marked as complete</p>
  {answerValue != null && (
- <div className="mt-3 rounded-lg bg-paper-2 p-3 text-left text-sm text-ink-700 ">
+ <div className="mt-3 rounded-lg bg-surface p-3 text-left text-sm text-text ">
  <p className="font-semibold text-success-fg ">Correct answer:</p>
  <p className="mt-1">{typeof answerValue === "object" ? JSON.stringify(answerValue, null, 2) : String(answerValue)}</p>
  </div>
  )}
  {explanation && (
- <div className="mt-2 rounded-lg bg-paper-2 p-3 text-left text-sm text-text-muted ">
+ <div className="mt-2 rounded-lg bg-surface p-3 text-left text-sm text-text-muted ">
  <p className="font-semibold">Explanation:</p>
  <p className="mt-1">{explanation}</p>
  </div>
@@ -463,7 +463,7 @@ function ResultDisplay({
  ) : (
  <XCircle className="mx-auto mb-2 h-10 w-10 text-warning-fg" />
  )}
- <p className="text-lg font-semibold text-ink-700 ">
+ <p className="text-lg font-semibold text-text ">
  {passed ? "Passed!" : "Not quite"}
  </p>
  <p className="text-sm text-text-muted">Score: {scorePercent}%</p>
@@ -737,7 +737,7 @@ function QuizExercise({
  <div className="space-y-6">
  {questions.map((q, qi) => (
  <div key={q.id}>
- <p className="mb-3 text-sm font-medium text-ink-700 ">
+ <p className="mb-3 text-sm font-medium text-text ">
  {qi + 1}. <MaybeMath text={q.question_text} />
  </p>
  <div className="space-y-2">
@@ -747,7 +747,7 @@ function QuizExercise({
  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
  selected[q.id] === opt.text
  ? "border-primary bg-success-soft text-success-fg "
- : "border-border-strong text-text-muted hover:border-ink-300 "
+ : "border-border-strong text-text-muted hover:border-border-strong "
  }`}
  >
  <input
@@ -891,7 +891,7 @@ function CodeChallengeExercise({
  {/* Task description */}
  {config.description && (
  <div className="px-5 pb-4">
- <p className="text-sm leading-relaxed text-ink-700 whitespace-pre-line">
+ <p className="text-sm leading-relaxed text-text whitespace-pre-line">
  {config.description}
  </p>
  </div>
@@ -911,11 +911,11 @@ function CodeChallengeExercise({
  <div className="mt-1 grid grid-cols-2 gap-2">
  <div>
  <span className="text-text-subtle">Input:</span>
- <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700">{ex.input}</pre>
+ <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text">{ex.input}</pre>
  </div>
  <div>
  <span className="text-text-subtle">Output:</span>
- <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700">{ex.output}</pre>
+ <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text">{ex.output}</pre>
  </div>
  </div>
  {ex.explanation && (
@@ -940,11 +940,11 @@ function CodeChallengeExercise({
  <div className="mt-1 grid grid-cols-2 gap-2">
  <div>
  <span className="text-text-subtle">Input:</span>
- <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700 ">{tc.input}</pre>
+ <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text ">{tc.input}</pre>
  </div>
  <div>
  <span className="text-text-subtle">Expected:</span>
- <pre className="mt-0.5 rounded bg-paper-2 p-1.5 font-mono text-ink-700 ">{tc.expected_output}</pre>
+ <pre className="mt-0.5 rounded bg-surface p-1.5 font-mono text-text ">{tc.expected_output}</pre>
  </div>
  </div>
  </div>
@@ -953,12 +953,12 @@ function CodeChallengeExercise({
  )}
 
  {/* Toolbar */}
- <div className="flex items-center justify-between border-y border-border-strong bg-paper-2 px-4 py-2 ">
+ <div className="flex items-center justify-between border-y border-border-strong bg-surface px-4 py-2 ">
  <div className="relative">
  <select
  value={selectedLang}
  onChange={(e) => setSelectedLang(e.target.value)}
- className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 hover:border-primary focus:outline-none "
+ className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-text hover:border-primary focus:outline-none "
  >
  {langs.map((l) => (
  <option key={l.key} value={l.key}>{l.name}</option>
@@ -1006,7 +1006,7 @@ function CodeChallengeExercise({
  </div>
 
  {/* Output Panel */}
- <div className="flex w-[340px] flex-col bg-paper-2 ">
+ <div className="flex w-[340px] flex-col bg-surface ">
  <div className="flex border-b border-border-strong " role="tablist" aria-label="Code output tabs">
  <button
  role="tab"
@@ -1045,7 +1045,7 @@ function CodeChallengeExercise({
 
  <div id={`panel-${activeTab}`} role="tabpanel" className="flex-1 overflow-auto bg-surface-2 p-4 ">
  {activeTab === "output" ? (
- <pre className="whitespace-pre-wrap font-mono text-sm text-ink-700 ">
+ <pre className="whitespace-pre-wrap font-mono text-sm text-text ">
  {output || <span className="text-text-subtle">Click Run to execute your code</span>}
  </pre>
  ) : (
@@ -1078,7 +1078,7 @@ function CodeChallengeExercise({
  {!r.passed && r.actual_output && (
  <div className="mt-2">
  <p className="text-xs font-medium uppercase text-text-subtle">Output:</p>
- <pre className="mt-1 rounded-lg bg-paper-2 p-2 font-mono text-sm text-ink-700 ">
+ <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-sm text-text ">
  {r.actual_output}
  </pre>
  </div>
@@ -1111,7 +1111,7 @@ function FileUploadExercise({
  return (
  <div className="space-y-4">
  <div
- className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-ink-300 bg-surface-2 px-6 py-10 text-center transition-colors hover:border-primary "
+ className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border-strong bg-surface-2 px-6 py-10 text-center transition-colors hover:border-primary "
  onDragOver={(e) => e.preventDefault()}
  onDrop={(e) => {
  e.preventDefault();

@@ -43,15 +43,15 @@ export interface TwoWayTableV2Props {
 const cellH: React.CSSProperties = {
   padding: "10px 8px",
   textAlign: "center",
-  background: "var(--ink-50)",
-  color: "var(--ink-500)",
-  borderRight: "1px solid var(--ink-100)",
+  background: "var(--color-surface-2)",
+  color: "var(--color-text-muted)",
+  borderRight: "1px solid var(--color-border)",
 };
 const cell: React.CSSProperties = {
   padding: "10px 8px",
   textAlign: "center",
-  color: "var(--ink-900)",
-  borderRight: "1px solid var(--ink-100)",
+  color: "var(--color-text)",
+  borderRight: "1px solid var(--color-border)",
 };
 
 export function TwoWayTableV2({
@@ -165,8 +165,8 @@ export function TwoWayTableV2({
           style={{
             maxWidth: 480,
             margin: "0 auto",
-            background: "var(--paper-2)",
-            border: "2px solid var(--ink-100)",
+            background: "var(--color-surface)",
+            border: "2px solid var(--color-border)",
             borderRadius: 14,
             overflow: "hidden",
           }}
@@ -188,7 +188,7 @@ export function TwoWayTableV2({
                   color:
                     i === colLabels.length - 1
                       ? "var(--green-700)"
-                      : "var(--ink-500)",
+                      : "var(--color-text-muted)",
                 }}
               >
                 {c}
@@ -199,7 +199,7 @@ export function TwoWayTableV2({
                 <div
                   style={{
                     ...cellH,
-                    borderTop: "1px solid var(--ink-100)",
+                    borderTop: "1px solid var(--color-border)",
                     fontWeight: 800,
                     textAlign: "left",
                     color:
@@ -226,8 +226,8 @@ export function TwoWayTableV2({
                         key={ci}
                         style={{
                           ...cell,
-                          borderTop: "1px solid var(--ink-100)",
-                          background: isTotal ? "var(--green-50)" : "var(--paper-2)",
+                          borderTop: "1px solid var(--color-border)",
+                          background: isTotal ? "var(--green-50)" : "var(--color-surface)",
                           color: isTotal ? "var(--green-800)" : "var(--ink-900)",
                           fontFamily: "var(--font-mono)",
                           fontWeight: isTotal ? 800 : 600,
@@ -242,7 +242,7 @@ export function TwoWayTableV2({
                       key={ci}
                       style={{
                         ...cell,
-                        borderTop: "1px solid var(--ink-100)",
+                        borderTop: "1px solid var(--color-border)",
                         padding: 6,
                       }}
                     >
@@ -274,7 +274,7 @@ export function TwoWayTableV2({
                           fontSize: 16,
                           fontWeight: 700,
                           textAlign: "center",
-                          color: "var(--ink-900)",
+                          color: "var(--color-text)",
                           outline: "none",
                         }}
                       />
@@ -291,7 +291,7 @@ export function TwoWayTableV2({
               textAlign: "center",
               marginTop: 12,
               fontSize: 13,
-              color: "var(--ink-500)",
+              color: "var(--color-text-muted)",
             }}
           >
             {t("exercise.hintPrefix")} {hint}

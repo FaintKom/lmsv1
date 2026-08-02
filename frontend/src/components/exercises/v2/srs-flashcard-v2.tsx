@@ -427,7 +427,7 @@ export function SRSFlashcardV2({
                           // ("извините") fit narrow panes without clipping.
                           fontSize: "clamp(34px, 13cqw, 58px)",
                           fontWeight: 700,
-                          color: "var(--ink-900)",
+                          color: "var(--color-text)",
                           lineHeight: 1.15,
                           letterSpacing: "-0.02em",
                           overflowWrap: "anywhere",
@@ -439,7 +439,7 @@ export function SRSFlashcardV2({
                         style={{
                           marginTop: 8,
                           fontSize: 13,
-                          color: "var(--ink-400)",
+                          color: "var(--color-text-subtle)",
                         }}
                       >
                         {t("exercise.tapToFlip")}
@@ -453,7 +453,7 @@ export function SRSFlashcardV2({
                         style={{
                           fontSize: 32,
                           fontWeight: 800,
-                          color: "var(--ink-900)",
+                          color: "var(--color-text)",
                           overflowWrap: "anywhere",
                         }}
                       >
@@ -464,7 +464,7 @@ export function SRSFlashcardV2({
                           style={{
                             marginTop: 6,
                             fontSize: 16,
-                            color: "var(--ink-500)",
+                            color: "var(--color-text-muted)",
                             fontFamily: "var(--font-mono)",
                           }}
                         >

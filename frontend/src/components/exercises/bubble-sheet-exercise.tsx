@@ -52,7 +52,7 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between rounded-lg bg-surface-2 px-4 py-2.5">
-        <span className="text-sm font-semibold text-ink-700">Answer Sheet</span>
+        <span className="text-sm font-semibold text-text">Answer Sheet</span>
         <span className="text-xs text-text-muted">{questions.length} questions · Passing: {passingScore}%</span>
       </div>
 
@@ -68,10 +68,10 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
                   ? "border-primary bg-success-soft"
                   : isCorrect === false
                   ? "border-danger bg-danger-soft"
-                  : "border-border bg-paper-2"
+                  : "border-border bg-surface"
               }`}
             >
-              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-ink-100 text-xs font-bold text-ink-700">
+              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-surface-2 text-xs font-bold text-text">
                 {q.number || qi + 1}
               </span>
 
@@ -91,7 +91,7 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
                           ? "border-danger bg-danger text-white"
                           : isSelected
                           ? "border-primary bg-primary text-white scale-110"
-                          : "border-border-strong bg-paper-2 text-text-muted hover:border-ink-300 hover:bg-surface-2"
+                          : "border-border-strong bg-surface text-text-muted hover:border-border-strong hover:bg-surface-2"
                       } disabled:cursor-not-allowed`}
                     >
                       {opt}

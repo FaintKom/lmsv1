@@ -240,7 +240,7 @@ export function FunctionMachineV2({
                 fontSize: 18,
                 minWidth: 120,
                 textAlign: "center",
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
                 transition: "transform 600ms",
                 transform: running ? "translateY(40px)" : "translateY(0)",
               }}
@@ -271,7 +271,7 @@ export function FunctionMachineV2({
             <div
               style={{
                 background:
-                  lastOut !== null ? "var(--clay-50)" : "var(--ink-50)",
+                  lastOut !== null ? "var(--clay-50)" : "var(--color-surface-2)",
                 border: `2px solid ${lastOut !== null ? "var(--clay-300)" : "var(--ink-200)"}`,
                 borderRadius: 999,
                 padding: "10px 16px",
@@ -316,13 +316,13 @@ export function FunctionMachineV2({
                   width: 80,
                   padding: "10px 10px",
                   borderRadius: 10,
-                  border: "2px solid var(--ink-200)",
+                  border: "2px solid var(--color-border-strong)",
                   fontFamily: "var(--font-mono)",
                   fontSize: 16,
                   fontWeight: 700,
                   textAlign: "center",
-                  background: "var(--paper-2)",
-                  color: "var(--ink-900)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-text)",
                   outline: "none",
                   minHeight: 44,
                 }}
@@ -351,7 +351,7 @@ export function FunctionMachineV2({
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 10,
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                     alignSelf: "center",
                   }}
                 >
@@ -365,13 +365,13 @@ export function FunctionMachineV2({
                     disabled={running || !!feedback}
                     style={{
                       padding: "4px 10px",
-                      background: "var(--ink-50)",
-                      border: "1px solid var(--ink-200)",
+                      background: "var(--color-surface-2)",
+                      border: "1px solid var(--color-border-strong)",
                       borderRadius: 999,
                       fontFamily: "var(--font-mono)",
                       fontSize: 12,
                       fontWeight: 700,
-                      color: "var(--ink-700)",
+                      color: "var(--color-text)",
                       cursor:
                         running || feedback ? "default" : "pointer",
                       opacity: history.some((h) => h.x === n) ? 0.35 : 1,
@@ -390,8 +390,8 @@ export function FunctionMachineV2({
             </div>
             <div
               style={{
-                background: "var(--paper-2)",
-                border: "2px solid var(--ink-100)",
+                background: "var(--color-surface)",
+                border: "2px solid var(--color-border)",
                 borderRadius: 12,
                 padding: 8,
                 minHeight: 100,
@@ -399,14 +399,14 @@ export function FunctionMachineV2({
                 overflowY: "auto",
                 fontFamily: "var(--font-mono)",
                 fontSize: 13,
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
                 marginBottom: 14,
               }}
             >
               {history.length === 0 ? (
                 <div
                   style={{
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                     fontSize: 11,
                     textAlign: "center",
                     padding: 12,
@@ -425,7 +425,7 @@ export function FunctionMachineV2({
                     }}
                   >
                     <span style={{ color: "var(--sun-700)" }}>x={h.x}</span>
-                    <span style={{ color: "var(--ink-300)" }}>→</span>
+                    <span style={{ color: "var(--color-text-subtle)" }}>→</span>
                     <span style={{ color: "var(--clay-700)" }}>y={h.y}</span>
                   </div>
                 ))

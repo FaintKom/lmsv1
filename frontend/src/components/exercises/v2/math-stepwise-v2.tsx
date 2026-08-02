@@ -261,7 +261,7 @@ export function MathStepwiseV2({
               fontWeight: 600,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
-              color: "var(--ink-300)",
+              color: "var(--color-text-subtle)",
               textAlign: "center",
             }}
           >

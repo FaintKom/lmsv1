@@ -285,12 +285,12 @@ export function TranslationV2({
             style={{
               flex: 1,
               padding: "16px 18px",
-              background: "var(--paper-2)",
+              background: "var(--color-surface)",
               borderRadius: 14,
-              border: "2px solid var(--ink-100)",
+              border: "2px solid var(--color-border)",
               fontSize: 19,
               fontWeight: 600,
-              color: "var(--ink-900)",
+              color: "var(--color-text)",
               lineHeight: 1.4,
               position: "relative",
             }}

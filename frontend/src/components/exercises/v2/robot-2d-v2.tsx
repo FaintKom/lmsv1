@@ -307,8 +307,8 @@ export function Robot2DV2({
           <div
             className={bonk ? "rb-bonk" : undefined}
             style={{
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
               padding: 8,
               alignSelf: "start",
@@ -358,7 +358,7 @@ export function Robot2DV2({
                         background: isGoal
                           ? "var(--green-100)"
                           : (r + c) % 2 === 0
-                            ? "var(--ink-50)"
+                            ? "var(--color-surface-2)"
                             : "var(--paper)",
                         borderRadius: 6,
                         display: "grid",
@@ -418,7 +418,7 @@ export function Robot2DV2({
             <div
               style={{
                 flex: 1,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 borderRadius: 12,
                 padding: 10,
                 minHeight: 140,
@@ -432,7 +432,7 @@ export function Robot2DV2({
               {blocks.length === 0 ? (
                 <span
                   style={{
-                    color: "var(--ink-400)",
+                    color: "var(--color-text-subtle)",
                     fontSize: 13,
                     textAlign: "center",
                     padding: 20,

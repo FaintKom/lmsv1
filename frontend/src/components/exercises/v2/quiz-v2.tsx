@@ -141,10 +141,10 @@ export function QuizV2({
         <div style={{ fontSize: 44 }} aria-hidden="true">
           🪴
         </div>
-        <div style={{ fontWeight: 800, fontSize: 19, color: "var(--ink-900)" }}>
+        <div style={{ fontWeight: 800, fontSize: 19, color: "var(--color-text)" }}>
           {t("exercise.quiz.emptyTitle")}
         </div>
-        <div style={{ color: "var(--ink-500)", fontSize: 14, maxWidth: 300 }}>
+        <div style={{ color: "var(--color-text-muted)", fontSize: 14, maxWidth: 300 }}>
           {t("exercise.quiz.emptyBody")}
         </div>
       </div>

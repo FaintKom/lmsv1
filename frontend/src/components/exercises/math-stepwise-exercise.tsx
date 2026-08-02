@@ -81,9 +81,9 @@ export function MathStepwiseConfigEditor({
  onChange: (c: Record<string, unknown>) => void;
 }) {
  const cfg = config as MathStepwiseConfig;
- const labelCls = "mb-1 block text-sm font-medium text-ink-700";
+ const labelCls = "mb-1 block text-sm font-medium text-text";
  const inputCls =
- "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
+ "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
 
  const [generating, setGenerating] = useState(false);
 
@@ -161,12 +161,12 @@ export function MathStepwiseConfigEditor({
  </div>
 
  <div>
- <label className="flex items-center gap-2 text-sm text-ink-700">
+ <label className="flex items-center gap-2 text-sm text-text">
  <input
  type="checkbox"
  checked={cfg.validate_steps ?? true}
  onChange={(e) => onChange({ ...config, validate_steps: e.target.checked })}
- className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary"
+ className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
  />
  Validate each intermediate step (SymPy equivalence)
  </label>
@@ -176,7 +176,7 @@ export function MathStepwiseConfigEditor({
  </p>
  </div>
 
- <div className="rounded-lg border border-border-strong bg-paper-2 p-3">
+ <div className="rounded-lg border border-border-strong bg-surface p-3">
  <div className="flex items-center justify-between mb-2">
  <span className="text-sm font-medium text-text">Expected steps (hint sequence)</span>
  <Button
@@ -199,7 +199,7 @@ export function MathStepwiseConfigEditor({
  <ol className="list-decimal pl-5 space-y-1 text-sm text-text">
  {(cfg.expected_steps || []).map((s, i) => (
  <li key={i}>
- <code className="rounded bg-ink-100 px-1.5 py-0.5">{s}</code>
+ <code className="rounded bg-surface-2 px-1.5 py-0.5">{s}</code>
  </li>
  ))}
  </ol>
@@ -375,7 +375,7 @@ export function MathStepwiseRenderer({
 
  return (
  <div className="space-y-4">
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4">
+ <div className="rounded-lg border border-border-strong bg-surface p-4">
  <p className="mb-1 text-xs font-medium uppercase text-text-muted">Problem</p>
  <p className="text-base text-text">{cfg.problem || "(no problem set)"}</p>
  </div>
@@ -422,7 +422,7 @@ export function MathStepwiseRenderer({
  }
  onBlur={() => void validateStep(i)}
  placeholder="Type your step..."
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  )}
  {step.note && step.status === "bad" && (
@@ -435,7 +435,7 @@ export function MathStepwiseRenderer({
  {steps.length > 1 && (
  <button
  onClick={() => removeStep(i)}
- className="rounded p-1 text-text-subtle hover:bg-ink-100"
+ className="rounded p-1 text-text-subtle hover:bg-surface-2"
  title="Remove step"
  >
  <Trash2 className="h-3 w-3" />
@@ -450,8 +450,8 @@ export function MathStepwiseRenderer({
  </Button>
  </div>
 
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4">
- <label className="mb-1 block text-sm font-medium text-ink-700">
+ <div className="rounded-lg border border-border-strong bg-surface p-4">
+ <label className="mb-1 block text-sm font-medium text-text">
  Final answer
  </label>
  <input
@@ -459,7 +459,7 @@ export function MathStepwiseRenderer({
  value={finalAnswer}
  onChange={(e) => setFinalAnswer(e.target.value)}
  placeholder="e.g. x = 2 or x = 3"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  <p className="mt-1 text-xs text-text-muted">
  Multiple solutions: separate with &quot;or&quot;, comma, or semicolon.

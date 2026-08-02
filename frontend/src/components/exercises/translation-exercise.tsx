@@ -85,7 +85,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  return (
  <div className="space-y-5">
  {/* Source text card */}
- <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm overflow-hidden">
+ <div className="rounded-lg border border-border-strong bg-surface shadow-sm overflow-hidden">
  {/* Language bar */}
  <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-surface-2 ">
  <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
 
  {/* Source text */}
  <div className="p-6">
- <p className="text-xl font-semibold text-ink-700 leading-relaxed">
+ <p className="text-xl font-semibold text-text leading-relaxed">
  {config.source_text || "No text provided"}
  </p>
  </div>
@@ -130,7 +130,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  ? "border-primary bg-success-soft text-success-fg "
  : submitted && isCorrect === false
  ? "border-danger bg-danger-soft text-danger-fg "
- : "border-border-strong bg-paper-2 text-ink-700 focus:border-primary focus:ring-2 focus:ring-primary/20"
+ : "border-border-strong bg-surface text-text focus:border-primary focus:ring-2 focus:ring-primary/20"
  }
  disabled:cursor-not-allowed
  `}
@@ -138,7 +138,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  {/* Character count */}
  <span
  className={`absolute bottom-3 right-4 text-xs font-medium ${
- charCount > maxLen * 0.9 ? "text-warning-fg" : "text-ink-300 "
+ charCount > maxLen * 0.9 ? "text-warning-fg" : "text-text-subtle "
  }`}
  >
  {charCount}/{maxLen}
@@ -179,7 +179,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  className={`rounded-pill px-4 py-2 text-sm font-medium transition duration-200 ${
  revealedHints.has(i)
  ? "bg-primary-soft text-success-fg border border-primary-soft "
- : "bg-ink-100 text-text-subtle border border-border-strong hover:bg-ink-200 "
+ : "bg-surface-2 text-text-subtle border border-border-strong hover:bg-ink-200 "
  }`}
  >
  {revealedHints.has(i) ? h : `Hint ${i + 1}`}

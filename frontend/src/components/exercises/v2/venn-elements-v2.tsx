@@ -305,7 +305,7 @@ export function VennElementsV2({
             ? "var(--green-500)"
             : no
               ? "var(--err-border)"
-              : "var(--paper-2)",
+              : "var(--color-surface)",
           color: ok || no ? "#fff" : "var(--ink-900)",
           border: `2px solid ${ok ? "var(--green-700)" : no ? "var(--err-fg)" : isArmed ? "var(--green-600)" : "var(--ink-300)"}`,
           boxShadow: isArmed
@@ -366,8 +366,8 @@ export function VennElementsV2({
               position: "relative",
               width: "100%",
               aspectRatio: "420 / 260",
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
             }}
           >
@@ -386,7 +386,7 @@ export function VennElementsV2({
                 y="24"
                 fontFamily="var(--font-mono)"
                 fontSize="11"
-                fill="var(--ink-500)"
+                fill="var(--color-text-muted)"
                 fontWeight="600"
                 letterSpacing="0.08em"
               >
@@ -437,7 +437,7 @@ export function VennElementsV2({
                 y="190"
                 fontFamily="var(--font-mono)"
                 fontSize="9"
-                fill="var(--ink-500)"
+                fill="var(--color-text-muted)"
                 textAnchor="middle"
                 fontWeight="700"
                 letterSpacing="0.08em"
@@ -502,7 +502,7 @@ export function VennElementsV2({
             style={{
               marginTop: 12,
               padding: 10,
-              background: "var(--ink-50)",
+              background: "var(--color-surface-2)",
               borderRadius: 12,
               display: "flex",
               flexWrap: "wrap",
@@ -513,7 +513,7 @@ export function VennElementsV2({
           >
             {unplaced.length === 0 ? (
               <span
-                style={{ fontSize: 12, color: "var(--ink-400)", padding: 10 }}
+                style={{ fontSize: 12, color: "var(--color-text-subtle)", padding: 10 }}
               >
                 {t("exercise.allPlacedHitCheck")}
               </span>
@@ -525,7 +525,7 @@ export function VennElementsV2({
             style={{
               marginTop: 8,
               fontSize: 11,
-              color: "var(--ink-400)",
+              color: "var(--color-text-subtle)",
               textAlign: "center",
             }}
           >

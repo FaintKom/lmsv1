@@ -173,13 +173,13 @@ export function VennDiagramV2({
               height: 40,
               borderRadius: 8,
               background: "rgba(255,255,255,0.95)",
-              border: "2px solid var(--ink-200)",
+              border: "2px solid var(--color-border-strong)",
               display: "grid",
               placeItems: "center",
               fontFamily: "var(--font-mono)",
               fontWeight: 800,
               fontSize: 16,
-              color: "var(--ink-900)",
+              color: "var(--color-text)",
             }}
           >
             {v}
@@ -220,7 +220,7 @@ export function VennDiagramV2({
               fontWeight: 800,
               fontSize: 16,
               textAlign: "center",
-              color: "var(--ink-900)",
+              color: "var(--color-text)",
               outline: "none",
             }}
           />
@@ -259,8 +259,8 @@ export function VennDiagramV2({
             style={{
               width: "100%",
               height: 240,
-              background: "var(--paper-2)",
-              border: "2px solid var(--ink-100)",
+              background: "var(--color-surface)",
+              border: "2px solid var(--color-border)",
               borderRadius: 14,
             }}
           >
@@ -270,7 +270,7 @@ export function VennDiagramV2({
                 y="24"
                 fontFamily="var(--font-mono)"
                 fontSize="11"
-                fill="var(--ink-500)"
+                fill="var(--color-text-muted)"
                 fontWeight="600"
                 letterSpacing="0.08em"
               >
@@ -325,7 +325,7 @@ export function VennDiagramV2({
               y="218"
               fontFamily="var(--font-mono)"
               fontSize="9"
-              fill="var(--ink-500)"
+              fill="var(--color-text-muted)"
               textAnchor="middle"
               fontWeight="600"
             >
@@ -337,10 +337,10 @@ export function VennDiagramV2({
               style={{
                 marginTop: 14,
                 padding: 12,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 borderRadius: 10,
                 fontSize: 13,
-                color: "var(--ink-700)",
+                color: "var(--color-text)",
               }}
             >
               {prompt}

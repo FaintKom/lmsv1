@@ -228,7 +228,7 @@ export function BubbleSheetV2({
             <div
               key={q.n}
               style={{
-                background: "var(--paper-2)",
+                background: "var(--color-surface)",
                 border: `2px solid ${isKept ? "var(--green-200)" : "var(--ink-100)"}`,
                 borderRadius: 14,
                 padding: "14px 18px",
@@ -248,8 +248,8 @@ export function BubbleSheetV2({
                     width: 26,
                     height: 26,
                     borderRadius: 999,
-                    background: isKept ? "var(--green-600)" : "var(--ink-50)",
-                    color: isKept ? "#fff" : "var(--ink-500)",
+                    background: isKept ? "var(--green-600)" : "var(--color-surface-2)",
+                    color: isKept ? "#fff" : "var(--color-text-muted)",
                     display: "grid",
                     placeItems: "center",
                     fontFamily: "var(--font-mono)",
@@ -266,7 +266,7 @@ export function BubbleSheetV2({
                     fontFamily: "var(--font-mono)",
                     fontSize: 14,
                     fontWeight: 500,
-                    color: "var(--ink-900)",
+                    color: "var(--color-text)",
                     flex: 1,
                   }}
                 >
@@ -288,11 +288,11 @@ export function BubbleSheetV2({
                   const isWrongPick =
                     revealCorrect && picked && i !== q.correct;
                   const keptLock = isKept && picked; // BS-02
-                  let bg = "var(--paper-2)";
+                  let bg = "var(--color-surface)";
                   let color = "var(--ink-700)";
                   let border = "var(--ink-200)";
-                  let bubbleBg = "var(--paper-2)";
-                  let bubbleColor = "var(--ink-500)";
+                  let bubbleBg = "var(--color-surface)";
+                  let bubbleColor = "var(--color-text-muted)";
                   if (isCorrect || keptLock) {
                     bg = "var(--green-50)";
                     color = "var(--green-800)";
@@ -306,8 +306,8 @@ export function BubbleSheetV2({
                     bubbleBg = "var(--clay-500)";
                     bubbleColor = "#fff";
                   } else if (picked) {
-                    bg = "var(--ink-50)";
-                    color = "var(--ink-900)";
+                    bg = "var(--color-surface-2)";
+                    color = "var(--color-text)";
                     border = "var(--ink-900)";
                     bubbleBg = "var(--ink-900)";
                     bubbleColor = "#fff";

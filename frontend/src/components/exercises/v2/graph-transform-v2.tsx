@@ -267,13 +267,13 @@ export function GraphTransformV2({
             <div
               style={{
                 padding: 12,
-                background: "var(--ink-50)",
+                background: "var(--color-surface-2)",
                 borderRadius: 10,
                 fontFamily: "var(--font-mono)",
                 textAlign: "center",
                 fontSize: 14,
                 fontWeight: 700,
-                color: "var(--ink-900)",
+                color: "var(--color-text)",
               }}
             >
               y = {a}(x {h >= 0 ? `− ${h}` : `+ ${-h}`})² {signed(v)}
