@@ -177,14 +177,17 @@ export default function AdminCoursesPage() {
  );
  }
 
+ // DESIGN_SPEC §3 chips: pill, 12/700, solid tint. These sit on top of
+ // course covers, so the fill must be opaque — a soft/translucent tint over
+ // an image never passes a squint test.
  const statusBadge = (status: string) => {
  const colors: Record<string, string> = {
- draft: "bg-sun-100 text-warning-fg ",
- published: "bg-primary-soft text-success-fg ",
- archived: "bg-ink-100 text-text-muted ",
+ draft: "bg-sun-100 text-sun-700",
+ published: "bg-green-100 text-green-800",
+ archived: "bg-ink-50 text-ink-500",
  };
  return (
- <span className={`rounded-pill px-2 py-0.5 text-xs font-medium ${colors[status] || "bg-ink-100 text-text-muted "}`}>
+ <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors[status] || "bg-ink-50 text-ink-500"}`}>
  {status}
  </span>
  );
@@ -192,10 +195,12 @@ export default function AdminCoursesPage() {
 
  const canCreateTemplate = isAdmin || isMethodist;
 
+ // v2 subject gradients (DESIGN_SPEC §4) — same mapping as course-card.tsx
  const CATEGORY_GRADIENTS: Record<string, string> = {
- programming: "from-green-500 to-emerald-600",
- math: "from-emerald-500 to-teal-600",
- languages: "from-amber-500 to-orange-600",
+ programming: "from-green-600 to-green-900",
+ math: "from-green-400 to-green-800",
+ languages: "from-clay-500 to-clay-700",
+ sat: "from-sun-500 to-sun-700",
  };
 
  const renderCourseCard = (course: AdminCourse | Course, opts: { showCopy?: boolean; showEdit?: boolean; showDelete?: boolean } = {}) => {
@@ -203,7 +208,7 @@ export default function AdminCoursesPage() {
  const isTemplate = 'is_template' in course && course.is_template;
  const thumbnailUrl = 'thumbnail_url' in course ? course.thumbnail_url : null;
  const category = 'category' in course ? course.category : null;
- const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-emerald-500 to-green-600" : "from-green-500 to-emerald-600");
+ const gradient = CATEGORY_GRADIENTS[category || ""] || "from-green-400 to-green-800";
 
  return (
  <Card key={course.id} className="group overflow-hidden transition hover:shadow-lg ">
@@ -386,7 +391,7 @@ export default function AdminCoursesPage() {
  type="checkbox"
  checked={form.is_template}
  onChange={(e) => setForm({ ...form, is_template: e.target.checked })}
- className="rounded border-ink-300 text-primary focus:ring-emerald-500"
+ className="rounded border-border-strong text-primary focus:ring-primary"
  />
  {t("admin.courses.createAsTemplate")}
  <span className="text-xs text-text-subtle">{t("admin.courses.templateHint")}</span>
