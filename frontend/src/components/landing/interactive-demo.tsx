@@ -15,11 +15,13 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
  ),
 });
 
-type DemoTab = "python" | "sat" | "web";
+// SAT tab removed 2026-08-02: the SAT practice feature is retired, so the
+// landing must not advertise it (the SATDemo component below is unused but
+// kept for a possible return).
+type DemoTab = "python" | "web";
 
 const TABS: { key: DemoTab; emoji: string; label: string }[] = [
  { key: "python", emoji: "\ud83d\udc0d", label: "Python" },
- { key: "sat", emoji: "\ud83d\udcdd", label: "SAT Math" },
  { key: "web", emoji: "\ud83c\udf10", label: "Web Dev" },
 ];
 
@@ -154,6 +156,9 @@ const SAT_QUESTION = {
  explanation: "3x + 7 = 22 \u2192 3x = 15 \u2192 x = 5",
 };
 
+// Dormant: the SAT tab was removed when the feature was retired (2026-08-02).
+// Kept so restoring the tab is a one-line change.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SATDemo() {
  const [selected, setSelected] = useState<number | null>(null);
 
@@ -339,7 +344,6 @@ export function InteractiveDemo() {
  {/* Demo content */}
  <div className="rounded-lg border border-border-strong bg-paper-2 p-6 shadow-sm ">
  {tab === "python" && <PythonDemo />}
- {tab === "sat" && <SATDemo />}
  {tab === "web" && <WebDemo />}
  </div>
 

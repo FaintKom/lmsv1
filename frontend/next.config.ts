@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/pricing", destination: "/", permanent: false },
+      // SAT practice retired from the product surface (2026-08-02, owner
+      // decision). The engine stays in components/sat/* and the store; only
+      // the routes and nav entries are gone.
+      { source: "/sat-practice", destination: "/dashboard", permanent: false },
+      { source: "/sat-practice/:path*", destination: "/dashboard", permanent: false },
     ];
   },
   async rewrites() {

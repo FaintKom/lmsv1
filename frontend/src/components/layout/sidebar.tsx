@@ -25,7 +25,6 @@ import {
  Building2,
  Settings,
  Library,
- Calculator,
  Plug,
  Heart,
  MessagesSquare,
@@ -85,7 +84,6 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  const studentNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
  { href: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
  { href: "/courses", label: t("nav.courses"), icon: BookOpen },
- { href: "/sat-practice", label: "SAT Practice", icon: Calculator },
  { href: "/assignments", label: t("nav.assignments"), icon: ClipboardList },
  // My room + My avatar live as tabs inside /achievements now.
  { href: "/achievements", label: t("nav.achievements"), icon: Trophy },
