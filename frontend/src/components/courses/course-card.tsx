@@ -28,7 +28,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
 
  return (
  <Link href={`/courses/${course.id}`} className="group">
- <div className="overflow-hidden rounded-[18px] border border-border bg-paper-2 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
+ <div className="overflow-hidden rounded-[18px] border border-border bg-surface shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
  {/* Cover */}
  {course.thumbnail_url ? (
  <div className="relative h-36 overflow-hidden">
@@ -74,7 +74,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  </span>
  </div>
  <div
- className="h-[10px] overflow-hidden rounded-pill bg-ink-100"
+ className="h-[10px] overflow-hidden rounded-pill bg-surface-2"
  role="progressbar"
  aria-valuenow={Math.round(progress)}
  aria-valuemin={0}

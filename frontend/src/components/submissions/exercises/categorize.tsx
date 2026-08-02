@@ -90,9 +90,9 @@ export default function CategorizeExercise({
  setDraggedItem(null);
  }
  }}
- className="min-h-[120px] rounded-lg border-2 border-dashed border-ink-300 p-4 transition-colors hover:border-primary "
+ className="min-h-[120px] rounded-lg border-2 border-dashed border-border-strong p-4 transition-colors hover:border-primary "
  >
- <h4 className="mb-3 text-sm font-semibold text-ink-700 ">{cat.name}</h4>
+ <h4 className="mb-3 text-sm font-semibold text-text ">{cat.name}</h4>
  <div className="flex flex-wrap gap-1.5">
  {assignments[cat.name]?.map((item) => (
  <span

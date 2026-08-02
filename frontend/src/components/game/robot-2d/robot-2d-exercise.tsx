@@ -284,11 +284,11 @@ export default function Robot2DExercise({
  {/* Grid area — the hero */}
  <div className="flex w-full lg:w-[480px] shrink-0 flex-col bg-[#f2f0eb] ">
  {/* Speech-bubble instruction (like Code.org) */}
- <div className="flex items-center gap-3 px-4 py-3 bg-paper-2 border-b border-[#e5e0d5] ">
+ <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-[#e5e0d5] ">
  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-[#4C97FF] text-white text-lg">
  🤖
  </div>
- <p className="text-sm font-semibold text-ink-700 ">{taskText}</p>
+ <p className="text-sm font-semibold text-text ">{taskText}</p>
  </div>
 
  {/* Grid visualization */}
@@ -297,17 +297,17 @@ export default function Robot2DExercise({
  </div>
 
  {/* Playback controls — Code.org style */}
- <div className="flex items-center justify-between bg-paper-2 border-t border-[#e5e0d5] px-3 py-2.5 ">
+ <div className="flex items-center justify-between bg-surface border-t border-[#e5e0d5] px-3 py-2.5 ">
  {/* Stats badges */}
  <div className="flex items-center gap-2">
- <span className="rounded-md bg-ink-100 px-2 py-1 text-[11px] font-semibold text-text-muted ">
+ <span className="rounded-md bg-surface-2 px-2 py-1 text-[11px] font-semibold text-text-muted ">
  {stepsUsed} {t("game.steps")}
  </span>
  {mode === "blocks" && (
  <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
  maxBlocks && blockCount > maxBlocks
  ? "bg-danger-soft text-danger-fg "
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}>
  {blockCount}{maxBlocks ? `/${maxBlocks}` : ""} {t("game.blocks")}
  </span>
@@ -363,13 +363,13 @@ export default function Robot2DExercise({
 
  {/* Status overlay: completion / failure / hint */}
  {(completed || failed || showHint) && (
- <div className="border-t border-border-strong bg-paper-2 px-4 py-3 ">
+ <div className="border-t border-border-strong bg-surface px-4 py-3 ">
  {completed && (
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
  <div className="flex gap-0.5">
  {[1, 2, 3].map((n) => (
- <span key={n} className={`text-xl transition ${n <= getStars(stepsUsed, blockCount) ? "text-warning scale-110" : "text-ink-300 "}`}>★</span>
+ <span key={n} className={`text-xl transition ${n <= getStars(stepsUsed, blockCount) ? "text-warning scale-110" : "text-text-subtle "}`}>★</span>
  ))}
  </div>
  <div>
@@ -402,13 +402,13 @@ export default function Robot2DExercise({
  <div className="flex flex-1 flex-col min-w-0 min-h-[250px] border-t lg:border-t-0 lg:border-l border-[#e5e0d5] ">
  {/* Mode toggle header */}
  {allowPython && (
- <div className="flex items-center gap-1 border-b border-border-strong/60 bg-paper-2 px-4 py-2 ">
+ <div className="flex items-center gap-1 border-b border-border-strong/60 bg-surface px-4 py-2 ">
  <button onClick={() => setMode("blocks")}
- className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-ink-700 "}`}>
+ className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "blocks" ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-text "}`}>
  <Blocks className="h-3.5 w-3.5" /> Блоки
  </button>
  <button onClick={() => setMode("python")}
- className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-ink-700 "}`}>
+ className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${mode === "python" ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-text "}`}>
  <Code className="h-3.5 w-3.5" /> Python
  </button>
  </div>

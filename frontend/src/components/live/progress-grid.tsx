@@ -25,7 +25,7 @@ function StatusTile({ row }: { row: ProgressRow }) {
       </span>
     );
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded-sm border-2 border-ink-200 text-ink-300">
+    <span className="flex h-5 w-5 items-center justify-center rounded-sm border-2 border-border-strong text-text-subtle">
       ·
     </span>
   );

@@ -290,7 +290,7 @@ function PythonCodeView({
 
  return (
  <pre
- className={`h-full overflow-auto rounded-lg p-4 font-mono text-sm bg-surface-2 text-ink-700`}
+ className={`h-full overflow-auto rounded-lg p-4 font-mono text-sm bg-surface-2 text-text`}
  >
  {code || "# Build blocks to see Python code here"}
  </pre>

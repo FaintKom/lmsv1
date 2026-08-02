@@ -44,7 +44,7 @@ function TemplatePicker({
  <button
  type="button"
  onClick={() => setOpen((o) => !o)}
- className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-left text-sm font-medium text-ink-700 hover:border-ink-300 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2 text-left text-sm font-medium text-text hover:border-border-strong focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  aria-haspopup="listbox"
  aria-expanded={open}
  >
@@ -55,7 +55,7 @@ function TemplatePicker({
  {open && (
  <div
  role="listbox"
- className="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-auto rounded-lg border border-border-strong bg-paper shadow-lg"
+ className="absolute left-0 right-0 z-30 mt-1 max-h-72 overflow-auto rounded-lg border border-border-strong bg-bg shadow-lg"
  >
  {list.map((t) => {
  const Icon = t.Icon;
@@ -73,7 +73,7 @@ function TemplatePicker({
  className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors ${
  selected
  ? "bg-primary-soft text-primary"
- : "text-ink-700 hover:bg-ink-100"
+ : "text-text hover:bg-surface-2"
  }`}
  >
  <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
@@ -134,7 +134,7 @@ export default function MathEditor({ config, onConfigChange }: MathEditorProps) 
  onChange={(e) => updateConfig({ instructions: e.target.value })}
  rows={2}
  placeholder="Enter instructions for the student..."
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
 
@@ -218,13 +218,13 @@ function CoordinatePlaneConfig({
  <label className="mb-1 block text-xs text-text-muted">Grid Range (±)</label>
  <input type="number" min={3} max={20} value={gridRange}
  onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) || 6 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Tolerance</label>
  <input type="number" step={0.1} min={0.1} max={2} value={(config.tolerance as number) || 0.5}
  onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.5 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  <div>
@@ -258,25 +258,25 @@ function NumberLineConfig({ config, onChange }: { config: Record<string, unknown
  <label className="mb-1 block text-xs text-text-muted">Min</label>
  <input type="number" value={(config.range_min as number) ?? 0}
  onChange={(e) => onChange({ ...config, range_min: parseInt(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Max</label>
  <input type="number" value={(config.range_max as number) ?? 10}
  onChange={(e) => onChange({ ...config, range_max: parseInt(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Targets (comma-sep)</label>
  <input type="text" value={((config.targets as number[]) || [3, 7]).join(", ")}
  onChange={(e) => onChange({ ...config, targets: e.target.value.split(",").map((s) => parseFloat(s.trim())).filter((n) => !isNaN(n)) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Tick Interval</label>
  <input type="number" step={0.5} min={0.5} value={(config.tick_interval as number) || 1}
  onChange={(e) => onChange({ ...config, tick_interval: parseFloat(e.target.value) || 1 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  );
@@ -289,19 +289,19 @@ function FractionsConfig({ config, onChange }: { config: Record<string, unknown>
  <label className="mb-1 block text-xs text-text-muted">Numerator</label>
  <input type="number" min={1} value={(config.target_numerator as number) || 3}
  onChange={(e) => onChange({ ...config, target_numerator: parseInt(e.target.value) || 1 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Denominator</label>
  <input type="number" min={2} value={(config.target_denominator as number) || 8}
  onChange={(e) => onChange({ ...config, target_denominator: parseInt(e.target.value) || 2 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Display</label>
  <select value={(config.display_type as string) || "pie"}
  onChange={(e) => onChange({ ...config, display_type: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value="pie">Pie</option>
  <option value="bar">Bar</option>
  </select>
@@ -332,7 +332,7 @@ function EquationBalanceConfig({
  const addTerm = () => writeTerms([...terms, { value: 1, label: "1" }]);
  const removeTerm = (i: number) => writeTerms(terms.filter((_, j) => j !== i));
 
- const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+ const numCls = "w-20 rounded border border-border-strong bg-surface px-2 py-1 text-sm";
 
  return (
  <div className="space-y-3">
@@ -348,7 +348,7 @@ function EquationBalanceConfig({
  left_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
  })
  }
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  <div>
@@ -362,7 +362,7 @@ function EquationBalanceConfig({
  right_fixed: e.target.value.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n)),
  })
  }
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  <div>
@@ -370,7 +370,7 @@ function EquationBalanceConfig({
  <select
  value={(config.target_side as string) || "right"}
  onChange={(e) => onChange({ ...config, target_side: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  >
  <option value="right">Right side only</option>
  <option value="left">Left side only</option>
@@ -396,7 +396,7 @@ function EquationBalanceConfig({
  {terms.map((t, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-1.5"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <label className="flex items-center gap-1 text-xs text-text-muted">
@@ -420,7 +420,7 @@ function EquationBalanceConfig({
  type="text"
  value={t.label}
  onChange={(e) => updateTerm(i, { label: e.target.value })}
- className="w-24 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ className="w-24 rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
  </label>
  <button
@@ -586,7 +586,7 @@ function ArithmeticPuzzleConfig({
  const removeRow = (i: number) => persist(rows.filter((_, j) => j !== i));
 
  const numCls =
- "w-16 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm text-center";
+ "w-16 rounded border border-border-strong bg-surface px-2 py-1 text-sm text-center";
 
  return (
  <div className="space-y-3">
@@ -597,7 +597,7 @@ function ArithmeticPuzzleConfig({
  {rows.map((r, i) => (
  <div
  key={i}
- className="flex flex-wrap items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="flex flex-wrap items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <input
@@ -611,7 +611,7 @@ function ArithmeticPuzzleConfig({
  <select
  value={r.op}
  onChange={(e) => updateRow(i, { op: e.target.value as Row["op"] })}
- className="rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ className="rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  >
  <option value="+">+</option>
  <option value="-">−</option>
@@ -728,7 +728,7 @@ function FunctionGraphConfig({
  fnType === "quadratic" ? "y = ax² + bx + c" :
  "y = a · base^x + c";
 
- const inputCls = "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm";
+ const inputCls = "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm";
 
  return (
  <div className="space-y-3">
@@ -894,7 +894,7 @@ function EquationSolverConfig({
  ]);
  const removeStep = (i: number) => writeAll(steps.filter((_, j) => j !== i));
 
- const inputCls = "rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+ const inputCls = "rounded border border-border-strong bg-surface px-2 py-1 text-sm";
 
  return (
  <div className="space-y-3">
@@ -934,7 +934,7 @@ function EquationSolverConfig({
  {steps.map((s, i) => (
  <div
  key={i}
- className="space-y-1.5 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="space-y-1.5 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
  <div className="flex items-center gap-2">
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
@@ -1028,7 +1028,7 @@ function MCMathConfig({
  rows={2}
  value={(config.question as string) || ""}
  onChange={(e) => onChange({ ...config, question: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
 
@@ -1048,7 +1048,7 @@ function MCMathConfig({
  {choices.map((c, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
  <label
  className="flex items-center gap-1.5 text-xs font-semibold text-text-muted"
@@ -1068,7 +1068,7 @@ function MCMathConfig({
  value={c.text}
  onChange={(e) => updateChoice(i, { text: e.target.value })}
  placeholder={`Choice ${labels[i]}`}
- className="flex-1 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ className="flex-1 rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
  {choices.length > 2 && (
  <button
@@ -1094,7 +1094,7 @@ function MCMathConfig({
  rows={2}
  value={(config.explanation as string) || ""}
  onChange={(e) => onChange({ ...config, explanation: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  </div>
@@ -1107,26 +1107,26 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
  <div>
  <label className="mb-1 block text-xs text-text-muted">Question</label>
  <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Correct Answers (comma-sep)</label>
  <input type="text" value={((config.correct_answers as number[]) || [7]).join(", ")}
  onChange={(e) => onChange({ ...config, correct_answers: e.target.value.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n)) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Tolerance</label>
  <input type="number" step={0.01} value={(config.tolerance as number) || 0.01}
  onChange={(e) => onChange({ ...config, tolerance: parseFloat(e.target.value) || 0.01 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Explanation</label>
  <textarea rows={2} value={(config.explanation as string) || ""} onChange={(e) => onChange({ ...config, explanation: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  );
@@ -1156,7 +1156,7 @@ function ScatterPlotConfig({
  };
  const removePoint = (i: number) => writePoints(points.filter((_, j) => j !== i));
 
- const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+ const numCls = "w-20 rounded border border-border-strong bg-surface px-2 py-1 text-sm";
 
  return (
  <div className="space-y-3">
@@ -1166,7 +1166,7 @@ function ScatterPlotConfig({
  <select
  value={(config.mode as string) || "best_fit"}
  onChange={(e) => onChange({ ...config, mode: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  >
  <option value="best_fit">Best Fit Line</option>
  <option value="correlation">Identify Correlation</option>
@@ -1180,7 +1180,7 @@ function ScatterPlotConfig({
  step={0.1}
  value={(config.target_slope as number) ?? 1}
  onChange={(e) => onChange({ ...config, target_slope: parseFloat(e.target.value) || 0 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  <div>
@@ -1190,7 +1190,7 @@ function ScatterPlotConfig({
  step={0.5}
  value={(config.target_intercept as number) ?? 0}
  onChange={(e) => onChange({ ...config, target_intercept: parseFloat(e.target.value) || 0 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  </div>
@@ -1210,7 +1210,7 @@ function ScatterPlotConfig({
  {points.map((p, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-1.5"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <label className="flex items-center gap-1 text-xs text-text-muted">
@@ -1394,7 +1394,7 @@ function TwoWayTableConfig({
  type="text"
  value={h}
  onChange={(e) => updateHeader("row", i, e.target.value)}
- className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ className="w-full rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
  ))}
  </div>
@@ -1416,7 +1416,7 @@ function TwoWayTableConfig({
  type="text"
  value={h}
  onChange={(e) => updateHeader("col", i, e.target.value)}
- className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm"
+ className="w-full rounded border border-border-strong bg-surface px-2 py-1 text-sm"
  />
  ))}
  </div>
@@ -1428,20 +1428,20 @@ function TwoWayTableConfig({
  Cells — tick the checkbox to make a cell a blank the student fills.
  The value next to it becomes the expected answer.
  </p>
- <div className="overflow-x-auto rounded-lg border border-border-strong bg-paper-2">
+ <div className="overflow-x-auto rounded-lg border border-border-strong bg-surface">
  <table className="w-full text-xs">
  <thead>
  <tr>
- <th className="bg-ink-100 px-2 py-1"></th>
+ <th className="bg-surface-2 px-2 py-1"></th>
  {colHeaders.map((h, i) => (
- <th key={i} className="bg-ink-100 px-2 py-1 text-text-muted">{h}</th>
+ <th key={i} className="bg-surface-2 px-2 py-1 text-text-muted">{h}</th>
  ))}
  </tr>
  </thead>
  <tbody>
  {cells.map((row, r) => (
  <tr key={r}>
- <th className="bg-ink-100 px-2 py-1 text-left text-text-muted">{rowHeaders[r]}</th>
+ <th className="bg-surface-2 px-2 py-1 text-left text-text-muted">{rowHeaders[r]}</th>
  {row.map((v, c) => {
  const key = `r${r}c${c}`;
  const isBlank = v === null;
@@ -1550,7 +1550,7 @@ function CardSortConfig({
  writeCards(cards.map((c, j) => (j === i ? { ...c, ...patch } : c)));
  const removeCard = (i: number) => writeCards(cards.filter((_, j) => j !== i));
 
- const inputCls = "rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+ const inputCls = "rounded border border-border-strong bg-surface px-2 py-1 text-sm";
 
  return (
  <div className="space-y-4">
@@ -1572,7 +1572,7 @@ function CardSortConfig({
  {categories.map((cat, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
  <input
  type="color"
@@ -1621,7 +1621,7 @@ function CardSortConfig({
  {cards.map((card, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <input
@@ -1701,7 +1701,7 @@ function TablePatternConfig({
  };
  const removeRow = (i: number) => writeRows(rows.filter((_, j) => j !== i));
 
- const numCls = "w-20 rounded border border-border-strong bg-paper-2 px-2 py-1 text-sm";
+ const numCls = "w-20 rounded border border-border-strong bg-surface px-2 py-1 text-sm";
 
  return (
  <div className="space-y-3">
@@ -1713,7 +1713,7 @@ function TablePatternConfig({
  value={(config.rule_label as string) || ""}
  placeholder="e.g. f(x) ="
  onChange={(e) => onChange({ ...config, rule_label: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  <div>
@@ -1723,7 +1723,7 @@ function TablePatternConfig({
  value={(config.rule_answer as string) || ""}
  placeholder="e.g. 2x+1"
  onChange={(e) => onChange({ ...config, rule_answer: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
  />
  </div>
  </div>
@@ -1746,7 +1746,7 @@ function TablePatternConfig({
  {rows.map((r, i) => (
  <div
  key={i}
- className="flex items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-1.5"
+ className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-1.5"
  >
  <span className="w-8 text-xs font-semibold text-text-subtle">#{i + 1}</span>
  <label className="flex items-center gap-1 text-xs text-text-muted">
@@ -1799,17 +1799,17 @@ function InequalityConfig({ config, onChange }: { config: Record<string, unknown
  <div>
  <label className="mb-1 block text-xs text-text-muted">Slope</label>
  <input type="number" step={0.5} value={(config.slope as number) ?? 1} onChange={(e) => onChange({ ...config, slope: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Intercept</label>
  <input type="number" step={0.5} value={(config.intercept as number) ?? 0} onChange={(e) => onChange({ ...config, intercept: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Operator</label>
  <select value={(config.operator as string) || ">="} onChange={(e) => onChange({ ...config, operator: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value=">">{">"}</option><option value=">=">{"\u2265"}</option>
  <option value="<">{"<"}</option><option value="<=">{"\u2264"}</option>
  </select>
@@ -1817,7 +1817,7 @@ function InequalityConfig({ config, onChange }: { config: Record<string, unknown
  <div>
  <label className="mb-1 block text-xs text-text-muted">Grid Range</label>
  <input type="number" min={3} max={10} value={(config.grid_range as number) || 6} onChange={(e) => onChange({ ...config, grid_range: parseInt(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  );
@@ -1829,7 +1829,7 @@ function GraphTransformConfig({ config, onChange }: { config: Record<string, unk
  <div>
  <label className="mb-1 block text-xs text-text-muted">Parent Function</label>
  <select value={(config.parent_function as string) || "x^2"} onChange={(e) => onChange({ ...config, parent_function: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm ">
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm ">
  <option value="x^2">x²</option><option value="|x|">|x|</option>
  <option value="sqrt(x)">√x</option><option value="x^3">x³</option>
  </select>
@@ -1837,17 +1837,17 @@ function GraphTransformConfig({ config, onChange }: { config: Record<string, unk
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target H shift</label>
  <input type="number" step={0.5} value={(config.target_h as number) ?? 2} onChange={(e) => onChange({ ...config, target_h: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target V shift</label>
  <input type="number" step={0.5} value={(config.target_v as number) ?? -1} onChange={(e) => onChange({ ...config, target_v: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target stretch (a)</label>
  <input type="number" step={0.25} value={(config.target_a as number) ?? 1} onChange={(e) => onChange({ ...config, target_a: parseFloat(e.target.value) })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm " />
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
  </div>
  );
@@ -1935,7 +1935,7 @@ function VennConfig({
  };
 
  const inputCls =
- "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm";
+ "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm";
 
  return (
  <div className="space-y-4">
@@ -1971,7 +1971,7 @@ function VennConfig({
  </div>
 
  {/* Intersection toggle */}
- <label className="flex items-center gap-2 text-sm text-ink-700">
+ <label className="flex items-center gap-2 text-sm text-text">
  <input
  type="checkbox"
  checked={useIntersection}
@@ -1994,9 +1994,9 @@ function VennConfig({
  return (
  <div
  key={key}
- className="flex flex-wrap items-center gap-3 rounded-lg border border-border-strong bg-paper-2 px-3 py-2"
+ className="flex flex-wrap items-center gap-3 rounded-lg border border-border-strong bg-surface px-3 py-2"
  >
- <span className="w-40 text-sm font-medium text-ink-700">
+ <span className="w-40 text-sm font-medium text-text">
  {regionLabel[key]}
  </span>
  <label className="flex items-center gap-1.5 text-xs text-text-muted">
@@ -2044,7 +2044,7 @@ function CustomHtmlEditor({ html, onChange }: { html: string; onChange: (h: stri
  Custom HTML/JS/CSS
  </label>
  <p className="mb-2 text-xs text-text-subtle">
- Use <code className="bg-ink-100 px-1 rounded ">window.LMS.reportResult({"{"} passed: true, score: 1.0 {"}"})</code> to submit the result.
+ Use <code className="bg-surface-2 px-1 rounded ">window.LMS.reportResult({"{"} passed: true, score: 1.0 {"}"})</code> to submit the result.
  </p>
  <div className="h-[300px] rounded-lg border border-border-strong overflow-hidden ">
  <Editor

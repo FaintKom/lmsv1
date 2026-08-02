@@ -72,7 +72,7 @@ export default function QuizSubmissionBreakdown({
     role="dialog"
     aria-modal="true"
     aria-label={t("admin.quizReview.title")}
-    className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-lg bg-paper-2 shadow-2xl"
+    className="relative flex max-h-[85vh] w-full max-w-2xl flex-col rounded-lg bg-surface shadow-2xl"
    >
     {/* Header */}
     <div className="flex items-start justify-between border-b border-border-strong px-6 py-4">
@@ -86,7 +86,7 @@ export default function QuizSubmissionBreakdown({
      </div>
      <button
       onClick={onClose}
-      className="rounded-lg p-1 text-text-subtle hover:bg-ink-100 hover:text-text-muted"
+      className="rounded-lg p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted"
       aria-label={t("common.close")}
      >
       <X className="h-4 w-4" aria-hidden="true" />
@@ -150,7 +150,7 @@ export default function QuizSubmissionBreakdown({
             )}
            </span>
            <div className="flex-1">
-            <p className="text-sm font-medium text-ink-700">
+            <p className="text-sm font-medium text-text">
              <span className="mr-1 text-text-subtle">{i + 1}.</span>
              <MaybeMath text={q.question_text} />
             </p>

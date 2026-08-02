@@ -22,11 +22,11 @@ export default function CookieConsent() {
  };
 
  return (
- <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-strong bg-paper-2 px-4 py-3 shadow-lg ">
+ <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-strong bg-surface px-4 py-3 shadow-lg ">
  <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
  <p className="text-sm text-text-muted ">
  {t("cookie.message")}{" "}
- <Link href="/cookies" className="underline hover:text-ink-700 ">
+ <Link href="/cookies" className="underline hover:text-text ">
  {t("cookie.learnMore")}
  </Link>
  </p>

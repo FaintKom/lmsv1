@@ -154,8 +154,8 @@ export function SkillGraphV2({
     <div
       style={{
         width: "100%",
-        background: "var(--paper-2)",
-        border: "2px solid var(--ink-100)",
+        background: "var(--color-surface)",
+        border: "2px solid var(--color-border)",
         borderRadius: 18,
         overflow: "hidden",
       }}
@@ -164,12 +164,12 @@ export function SkillGraphV2({
         <div
           style={{
             padding: "12px 18px",
-            borderBottom: "1px solid var(--ink-100)",
+            borderBottom: "1px solid var(--color-border)",
             fontFamily: "var(--font-mono)",
             fontSize: 11,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
-            color: "var(--ink-500)",
+            color: "var(--color-text-muted)",
             fontWeight: 600,
           }}
         >
@@ -293,12 +293,12 @@ export function SkillGraphV2({
       <div
         style={{
           padding: "10px 16px",
-          borderTop: "1px solid var(--ink-100)",
+          borderTop: "1px solid var(--color-border)",
           display: "flex",
           gap: 16,
           fontFamily: "var(--font-mono)",
           fontSize: 10,
-          color: "var(--ink-500)",
+          color: "var(--color-text-muted)",
           flexWrap: "wrap",
           letterSpacing: "0.06em",
         }}

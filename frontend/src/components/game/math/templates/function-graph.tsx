@@ -161,7 +161,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
  {/* Graph */}
  <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}
- className="rounded-lg border border-border-strong bg-paper-2 ">
+ className="rounded-lg border border-border-strong bg-surface ">
  {gridLines}
 
  {/* Target function (dashed) */}

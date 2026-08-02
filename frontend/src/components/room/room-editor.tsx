@@ -130,9 +130,9 @@ export function RoomEditor({ state }: { state: RoomState }) {
         />
       </div>
 
-      <aside className="flex h-full flex-col gap-3 overflow-y-auto border-t border-ink-100 bg-paper-2 p-4 lg:border-l lg:border-t-0">
+      <aside className="flex h-full flex-col gap-3 overflow-y-auto border-t border-border bg-surface p-4 lg:border-l lg:border-t-0">
         {/* Tabs */}
-        <div className="flex gap-0 border-b border-ink-100">
+        <div className="flex gap-0 border-b border-border">
           {tabs.map((tb) => (
             <button
               key={tb.id}
@@ -140,7 +140,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
               onClick={() => setTab(tb.id)}
               className={cn(
                 "relative flex-1 py-2 text-[12px] font-semibold transition-colors",
-                tab === tb.id ? "text-green-700" : "text-text-muted hover:text-ink-700",
+                tab === tb.id ? "text-green-700" : "text-text-muted hover:text-text",
               )}
             >
               {tb.label}
@@ -172,10 +172,10 @@ export function RoomEditor({ state }: { state: RoomState }) {
                         className={cn(
                           "flex flex-col gap-1 rounded-[10px] border p-1.5 text-left transition",
                           locked
-                            ? "cursor-not-allowed border-ink-100 bg-ink-50 opacity-60"
+                            ? "cursor-not-allowed border-border bg-surface-2 opacity-60"
                             : placed
                               ? "border-green-400 bg-success-soft"
-                              : "border-ink-100 bg-paper hover:border-green-300",
+                              : "border-border bg-bg hover:border-green-300",
                         )}
                       >
                         <div className="relative aspect-[10/7] overflow-hidden rounded-md bg-white p-1">
@@ -186,7 +186,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
                             </span>
                           )}
                         </div>
-                        <span className="truncate text-[11px] font-medium text-ink-700">
+                        <span className="truncate text-[11px] font-medium text-text">
                           {label(item)}
                         </span>
                         {!placed && item.price > 0 && (
@@ -220,9 +220,9 @@ export function RoomEditor({ state }: { state: RoomState }) {
 
         {/* Selected-item controls */}
         {sel ? (
-          <div className="mt-auto rounded-[12px] border border-green-300 bg-paper p-3">
+          <div className="mt-auto rounded-[12px] border border-green-300 bg-bg p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="truncate text-[13px] font-semibold text-ink-700">
+              <span className="truncate text-[13px] font-semibold text-text">
                 {selItem ? label(selItem) : sel.item_id}
               </span>
               <button
@@ -265,7 +265,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
             </div>
           </div>
         ) : (
-          <p className="mt-auto rounded-[12px] bg-ink-50 p-3 text-[12px] text-text-muted">
+          <p className="mt-auto rounded-[12px] bg-surface-2 p-3 text-[12px] text-text-muted">
             {t("room.editor.hint") ||
               "Click an item to add it, then move/rotate/resize it with the buttons. Tap an item in the room to edit it."}
           </p>
@@ -297,14 +297,14 @@ function SettingGrid({
             "flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left text-[12px] font-medium transition",
             currentId === item.id
               ? "border-green-400 bg-success-soft text-success-fg"
-              : "border-ink-100 bg-paper hover:border-green-300",
+              : "border-border bg-bg hover:border-green-300",
           )}
         >
           {(() => {
             const sw = item.color_hex ?? (item.floor_type ? FLOOR_SWATCH[item.floor_type] : null);
             return sw ? (
               <span
-                className="h-4 w-4 shrink-0 rounded-full border border-ink-200"
+                className="h-4 w-4 shrink-0 rounded-full border border-border-strong"
                 style={{ background: sw }}
               />
             ) : null;

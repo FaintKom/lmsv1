@@ -16,8 +16,8 @@ export default function TrueFalseExercise({
 
  return (
  <div>
- <div className="mb-6 rounded-lg border border-border-strong bg-paper-2 p-6 ">
- <p className="text-lg font-medium text-ink-700 ">{statement}</p>
+ <div className="mb-6 rounded-lg border border-border-strong bg-surface p-6 ">
+ <p className="text-lg font-medium text-text ">{statement}</p>
  </div>
 
  <div className="flex gap-4">

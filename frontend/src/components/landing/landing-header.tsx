@@ -26,7 +26,7 @@ function HeaderLocaleSwitcher() {
  <div ref={ref} className="relative">
  <button
  onClick={() => setOpen(!open)}
- className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-text-muted hover:bg-ink-100 hover:text-ink-700"
+ className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2 hover:text-text"
  aria-label="Change language"
  aria-expanded={open}
  aria-haspopup="listbox"
@@ -38,7 +38,7 @@ function HeaderLocaleSwitcher() {
  <div
  role="listbox"
  aria-label="Select language"
- className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-border-strong bg-paper-2 py-1 shadow-lg z-50"
+ className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-border-strong bg-surface py-1 shadow-lg z-50"
  >
  {LOCALES.map((l) => (
  <button
@@ -63,7 +63,7 @@ function HeaderLocaleSwitcher() {
 
 export function LandingHeader() {
  return (
- <header className="sticky top-0 z-50 border-b border-border bg-paper-2/80 backdrop-blur-lg">
+ <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-lg">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <div className="flex items-center gap-2.5">
  <div className="relative flex h-9 w-9 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">

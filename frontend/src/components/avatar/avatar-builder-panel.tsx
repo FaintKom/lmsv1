@@ -75,7 +75,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
     <div className="flex h-full flex-col gap-4 p-5">
       <WalletPill wallet={state.wallet} />
 
-      <div className="flex gap-0 overflow-x-auto border-b border-ink-100 scrollbar-thin">
+      <div className="flex gap-0 overflow-x-auto border-b border-border scrollbar-thin">
         {TABS.map((tabDef) => (
           <button
             key={tabDef.id}
@@ -83,7 +83,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
             onClick={() => setTab(tabDef.id)}
             className={cn(
               "relative shrink-0 px-3 py-2 text-[12px] font-semibold transition-colors",
-              tab === tabDef.id ? "text-green-700" : "text-text-muted hover:text-ink-700",
+              tab === tabDef.id ? "text-green-700" : "text-text-muted hover:text-text",
             )}
           >
             {t(tabDef.key)}
@@ -134,8 +134,8 @@ function AvatarCard({
       onClick={onClick}
       disabled={isLocked}
       className={cn(
-        "group relative flex w-full flex-col gap-2 rounded-[14px] border bg-paper-2 p-2.5 text-left transition",
-        "border-ink-100 hover:-translate-y-px hover:border-green-300 hover:shadow-sm",
+        "group relative flex w-full flex-col gap-2 rounded-[14px] border bg-surface p-2.5 text-left transition",
+        "border-border hover:-translate-y-px hover:border-green-300 hover:shadow-sm",
         isEquipped &&
           "border-green-500 shadow-[0_0_0_2px_var(--green-100,#d4f0db),0_1px_2px_rgba(20,30,15,0.06)]",
         isLocked && "cursor-not-allowed opacity-85",
@@ -147,7 +147,7 @@ function AvatarCard({
         </div>
       </div>
 
-      <p className="text-[12.5px] font-bold leading-tight text-ink-700">
+      <p className="text-[12.5px] font-bold leading-tight text-text">
         {t(item.i18n_key) || item.name}
       </p>
 
@@ -178,7 +178,7 @@ function StatusPill({ status, t }: { status: Status; t: (k: string) => string })
     equipped: "bg-primary text-white",
     owned: "bg-green-50 text-green-800",
     free: "bg-green-50 text-green-800",
-    locked: "bg-ink-100 text-ink-500",
+    locked: "bg-surface-2 text-text-muted",
   };
   return (
     <span

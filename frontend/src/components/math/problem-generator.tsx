@@ -104,7 +104,7 @@ export function ProblemGenerator() {
  <select
  value={type}
  onChange={(e) => setType(e.target.value)}
- className="block w-40 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="block w-40 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  >
  {PROBLEM_TYPES.map((t) => (
  <option key={t.value} value={t.value}>
@@ -120,7 +120,7 @@ export function ProblemGenerator() {
  <select
  value={difficulty}
  onChange={(e) => setDifficulty(e.target.value)}
- className="block w-32 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="block w-32 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  >
  {DIFFICULTIES.map((d) => (
  <option key={d.value} value={d.value}>
@@ -139,7 +139,7 @@ export function ProblemGenerator() {
  max={20}
  value={count}
  onChange={(e) => setCount(Math.max(1, Math.min(20, Number(e.target.value))))}
- className="block w-20 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="block w-20 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
 
@@ -175,7 +175,7 @@ export function ProblemGenerator() {
  </div>
  <button
  onClick={handleGenerate}
- className="ml-auto rounded-lg bg-paper-2 px-4 py-2 text-sm font-medium text-ink-700 shadow-sm hover:bg-surface-2"
+ className="ml-auto rounded-lg bg-surface px-4 py-2 text-sm font-medium text-text shadow-sm hover:bg-surface-2"
  >
  Try Again
  </button>
@@ -218,7 +218,7 @@ export function ProblemGenerator() {
  index + 1
  )}
  </span>
- <span className="text-sm font-medium text-ink-700">
+ <span className="text-sm font-medium text-text">
  {problem.question}
  </span>
  </div>
@@ -247,7 +247,7 @@ export function ProblemGenerator() {
  ? isCorrect
  ? "border-primary bg-success-soft text-success-fg"
  : "border-danger bg-danger-soft text-danger-fg"
- : "border-border-strong bg-paper-2 focus:border-primary focus:ring-primary"
+ : "border-border-strong bg-surface focus:border-primary focus:ring-primary"
  }`}
  />
  {isChecked && !isCorrect && (

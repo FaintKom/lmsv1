@@ -38,7 +38,7 @@ export function ExercisePicker({
   }, [lessonRowId]);
   return (
     <div className="h-full overflow-y-auto p-5">
-      <div className="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-ink-700">
+      <div className="mb-3 font-mono text-xs font-bold uppercase tracking-wide text-text">
         {t("live.pickExercise")}
       </div>
       {items.map((ex) => {
@@ -65,7 +65,7 @@ export function ExercisePicker({
               {(isLive || isPicked) && <Check size={9} strokeWidth={4} className="text-white" />}
             </span>
             <span className="min-w-0 flex-1 truncate">{ex.title}</span>
-            <span className="rounded-pill bg-ink-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700">
+            <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text">
               {ex.exercise_type}
             </span>
             {isLive && (

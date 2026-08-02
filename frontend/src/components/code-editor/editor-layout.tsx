@@ -100,12 +100,12 @@ export function EditorLayout({
  return (
  <div className="flex h-full flex-col">
  {/* Toolbar */}
- <div className="flex items-center justify-between border-b border-border-strong bg-paper-2 px-4 py-2.5">
+ <div className="flex items-center justify-between border-b border-border-strong bg-surface px-4 py-2.5">
  <div className="relative">
  <select
  value={selectedLang}
  onChange={(e) => setSelectedLang(e.target.value)}
- className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-ink-700 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-text hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  >
  {langs.map((l) => (
  <option key={l.key} value={l.key}>
@@ -159,7 +159,7 @@ export function EditorLayout({
  </div>
 
  {/* Output Panel */}
- <div className="flex w-[400px] flex-col bg-paper-2">
+ <div className="flex w-[400px] flex-col bg-surface">
  <div className="flex border-b border-border-strong">
  <button
  onClick={() => setActiveTab("output")}
@@ -198,7 +198,7 @@ export function EditorLayout({
 
  <div className="flex-1 overflow-auto bg-surface-2 p-4">
  {activeTab === "output" ? (
- <pre className="whitespace-pre-wrap font-mono text-sm text-ink-700">
+ <pre className="whitespace-pre-wrap font-mono text-sm text-text">
  {output || (
  <span className="text-text-subtle">
  Click Run to execute your code
@@ -239,7 +239,7 @@ export function EditorLayout({
  <p className="text-[11px] font-medium uppercase text-text-subtle">
  Output:
  </p>
- <pre className="mt-1 rounded-lg bg-paper-2 p-2 font-mono text-xs text-ink-700">
+ <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-xs text-text">
  {result.actual_output}
  </pre>
  </div>

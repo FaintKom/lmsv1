@@ -212,7 +212,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  {i + 1}
  </span>
  <div className="flex-1">
- <p className="text-sm font-medium text-ink-700"><MaybeMath text={q.question_text} /></p>
+ <p className="text-sm font-medium text-text"><MaybeMath text={q.question_text} /></p>
  <span className="text-[10px] text-text-subtle">{q.points} point{q.points > 1 ? "s" : ""}</span>
  </div>
  </div>
@@ -226,14 +226,14 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
  answers[q.id] === opt.id
  ? "border-primary bg-success-soft text-success-fg"
- : "border-border-strong text-text-muted hover:border-ink-300 hover:bg-surface-2"
+ : "border-border-strong text-text-muted hover:border-border-strong hover:bg-surface-2"
  }`}
  >
  <span
  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 text-[10px] font-bold ${
  answers[q.id] === opt.id
  ? "border-primary bg-primary text-white"
- : "border-ink-300 text-text-subtle"
+ : "border-border-strong text-text-subtle"
  }`}
  >
  {String.fromCharCode(65 + optIndex)}
@@ -251,7 +251,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  value={answers[q.id] || ""}
  onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
  placeholder="Type your answer..."
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  )}

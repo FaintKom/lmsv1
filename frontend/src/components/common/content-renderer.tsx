@@ -13,7 +13,7 @@ import { sanitizeHtml } from "@/lib/sanitize-html";
 
 const BlockEditor = dynamic(
  () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
- { ssr: false, loading: () => <div className="animate-pulse h-20 rounded bg-ink-100 " /> }
+ { ssr: false, loading: () => <div className="animate-pulse h-20 rounded bg-surface-2 " /> }
 );
 
 interface ContentRendererProps {
@@ -352,7 +352,7 @@ function SandboxedIframe({ html }: { html: string }) {
  ref={handleRef}
  srcDoc={srcdoc}
  sandbox="allow-scripts"
- className="w-full border-0 rounded-lg overflow-hidden bg-paper-2 "
+ className="w-full border-0 rounded-lg overflow-hidden bg-surface "
  style={{ minHeight: 120 }}
  scrolling="no"
  title="Interactive widget"

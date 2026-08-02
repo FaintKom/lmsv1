@@ -130,7 +130,7 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  viewBox={`0 0 ${svgSize} ${svgSize}`}
  width="100%"
  style={{ maxWidth: svgSize, touchAction: "none" }}
- className="rounded-lg border border-border-strong bg-paper-2 "
+ className="rounded-lg border border-border-strong bg-surface "
  onPointerMove={handlePointerMove}
  onPointerUp={handlePointerUp}
  onPointerLeave={handlePointerUp}

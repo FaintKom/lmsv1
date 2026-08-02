@@ -83,7 +83,7 @@ export function WaitlistForm({ source = "landing" }: WaitlistFormProps) {
  placeholder="you@school.edu"
  value={email}
  onChange={(e) => setEmail(e.target.value)}
- className="flex-1 rounded-lg border border-ink-300 bg-paper-2 px-4 py-2.5 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="flex-1 rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  disabled={status === "submitting"}
  />
  <Button type="submit" size="lg" disabled={status === "submitting"}>
@@ -100,7 +100,7 @@ export function WaitlistForm({ source = "landing" }: WaitlistFormProps) {
  id="waitlist-role"
  value={role}
  onChange={(e) => setRole(e.target.value as Role)}
- className="rounded-md border border-border-strong bg-paper-2 px-2 py-1 text-xs text-ink-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="rounded-md border border-border-strong bg-surface px-2 py-1 text-xs text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  disabled={status === "submitting"}
  >
  <option value="teacher">Teacher</option>

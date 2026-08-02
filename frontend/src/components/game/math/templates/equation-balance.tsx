@@ -157,7 +157,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  <button
  onClick={() => addToSide(term, "left")}
  disabled={checked}
- className="bg-ink-100 px-2 py-1.5 text-sm font-semibold text-ink-700 transition-colors hover:bg-primary-soft hover:text-success-fg"
+ className="bg-surface-2 px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:bg-primary-soft hover:text-success-fg"
  title="Add to left side"
  >
  ← {term.label}
@@ -165,7 +165,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  <button
  onClick={() => addToSide(term, "right")}
  disabled={checked}
- className="border-l border-border-strong bg-ink-100 px-2 py-1.5 text-sm font-semibold text-ink-700 transition-colors hover:bg-primary-soft hover:text-success-fg"
+ className="border-l border-border-strong bg-surface-2 px-2 py-1.5 text-sm font-semibold text-text transition-colors hover:bg-primary-soft hover:text-success-fg"
  title="Add to right side"
  >
  {term.label} →
@@ -176,7 +176,7 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  key={term.id}
  onClick={() => addToSide(term, targetSide as "left" | "right")}
  disabled={checked}
- className="rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-semibold text-ink-700 transition-colors hover:bg-primary-soft hover:text-success-fg "
+ className="rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-semibold text-text transition-colors hover:bg-primary-soft hover:text-success-fg "
  >
  +{term.label}
  </button>

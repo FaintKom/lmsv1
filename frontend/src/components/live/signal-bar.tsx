@@ -36,7 +36,7 @@ export function SignalBar({
       className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
           ? "btn-pop bg-primary text-white"
-          : "border-2 border-border bg-paper-2 text-text hover:border-green-300"
+          : "border-2 border-border bg-surface text-text hover:border-green-300"
       }`}
     >
       {emoji} {label}
@@ -44,7 +44,7 @@ export function SignalBar({
   );
 
   return (
-    <div className="flex flex-col items-center gap-1.5 border-t border-border bg-paper-2 p-3 pt-2">
+    <div className="flex flex-col items-center gap-1.5 border-t border-border bg-surface p-3 pt-2">
       <div className="font-mono text-[10px] font-bold uppercase tracking-wide text-text-subtle">
         {t("live.signalHint")}
       </div>
@@ -54,7 +54,7 @@ export function SignalBar({
         {btn("done", t("live.signal.done"), "✅")}
         <button
           onClick={() => setAsking(true)}
-          className="inline-flex items-center gap-1.5 rounded-pill border-2 border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"
+          className="inline-flex items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"
         >
           <MessageCircleQuestion size={16} /> {t("live.ask")}
         </button>
@@ -62,19 +62,19 @@ export function SignalBar({
 
       {asking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
-          <div className="w-full max-w-[480px] rounded-xl bg-paper-2 p-8 shadow-lg">
+          <div className="w-full max-w-[480px] rounded-xl bg-surface p-8 shadow-lg">
             <h3 className="mb-4 text-lg font-bold text-text">{t("live.ask")}</h3>
             <textarea
               autoFocus
               rows={3}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="w-full rounded-md border-2 border-border bg-paper-2 px-3 py-2 text-sm transition-colors placeholder:text-ink-300 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
+              className="w-full rounded-md border-2 border-border bg-surface px-3 py-2 text-sm transition-colors placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
             />
             <div className="mt-4 flex justify-end gap-2.5">
               <button
                 onClick={() => setAsking(false)}
-                className="btn-pop btn-pop--secondary rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+                className="btn-pop btn-pop--secondary rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
               >
                 {t("common.cancel")}
               </button>

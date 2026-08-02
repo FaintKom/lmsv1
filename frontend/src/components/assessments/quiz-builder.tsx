@@ -241,7 +241,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  value={q.question_text}
  onChange={(e) => setter({ ...q, question_text: e.target.value })}
  rows={2}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none "
  />
  </div>
 
@@ -270,7 +270,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  type="number"
  value={q.points}
  onChange={(e) => setter({ ...q, points: parseInt(e.target.value) || 1 })}
- className="w-16 rounded-lg border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
+ className="w-16 rounded-lg border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
  />
  </div>
  </div>
@@ -288,7 +288,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 transition-colors ${
  opt.is_correct
  ? "border-primary bg-primary"
- : "border-ink-300 "
+ : "border-border-strong "
  }`}
  >
  {opt.is_correct && <CheckCircle className="h-3 w-3 text-white" />}
@@ -298,7 +298,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  value={opt.text}
  onChange={(e) => updateOptionIn(q, i, "text", e.target.value, setter)}
  placeholder={`Option ${String.fromCharCode(65 + i)}`}
- className="flex-1 rounded-lg border border-ink-300 px-2 py-1 text-sm focus:border-primary focus:outline-none "
+ className="flex-1 rounded-lg border border-border-strong px-2 py-1 text-sm focus:border-primary focus:outline-none "
  />
  {q.options.length > 2 && (
  <button
@@ -331,7 +331,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  type="text"
  value={q.correct_answer}
  onChange={(e) => setter({ ...q, correct_answer: e.target.value })}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none "
  />
  </div>
  )}
@@ -391,7 +391,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  ) : (
  <div className="flex items-center justify-between rounded-lg border border-border-strong bg-surface-2 px-4 py-3 ">
  <div>
- <h4 className="text-sm font-semibold text-ink-700 ">{title}</h4>
+ <h4 className="text-sm font-semibold text-text ">{title}</h4>
  <span className="text-xs text-text-subtle">
  Pass: {passingScore}% · {timeLimit ? `${timeLimit} min` : "No time limit"} · {questions.length} question{questions.length !== 1 ? "s" : ""}
  </span>
@@ -423,7 +423,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  {i + 1}
  </span>
  <div className="flex-1 min-w-0">
- <p className="text-sm font-medium text-ink-700 ">{q.question_text}</p>
+ <p className="text-sm font-medium text-text ">{q.question_text}</p>
  <span className="text-[10px] uppercase text-text-subtle">
  {q.question_type.replace("_", " ")} · {q.points} pt
  </span>
@@ -496,7 +496,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  setNewQuestion(emptyQuestion(questions.length));
  setShowAddQuestion(true);
  }}
- className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-3 text-sm font-medium text-text-subtle hover:border-primary hover:text-primary "
+ className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong py-3 text-sm font-medium text-text-subtle hover:border-primary hover:text-primary "
  >
  <Plus className="h-4 w-4" />
  Add Question
@@ -516,7 +516,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none "
  />
  </div>
  <div className="flex gap-3">
@@ -528,7 +528,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  type="number"
  value={passingScore}
  onChange={(e) => setPassingScore(parseInt(e.target.value) || 70)}
- className="w-24 rounded-lg border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
+ className="w-24 rounded-lg border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
  />
  </div>
  <div>
@@ -540,7 +540,7 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  value={timeLimit}
  onChange={(e) => setTimeLimit(e.target.value)}
  placeholder="No limit"
- className="w-24 rounded-lg border border-ink-300 px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
+ className="w-24 rounded-lg border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none "
  />
  </div>
  </div>

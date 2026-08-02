@@ -72,7 +72,7 @@ function DroppableBlank({
  className={`mx-1 inline-block min-w-[80px] rounded-lg border-2 border-dashed px-3 py-1 text-center text-sm transition-colors ${
  isOver
  ? "border-primary bg-success-soft text-primary "
- : "border-ink-300 bg-surface-2 text-text-subtle "
+ : "border-border-strong bg-surface-2 text-text-subtle "
  }`}
  >
  {isOver ? "Drop here" : "___"}
@@ -157,7 +157,7 @@ export default function FillBlanksExercise({
  >
  <div className="space-y-6">
  {/* Text with drop zones */}
- <div className="rounded-lg border border-border-strong bg-paper-2 p-6 text-base leading-loose text-ink-700 ">
+ <div className="rounded-lg border border-border-strong bg-surface p-6 text-base leading-loose text-text ">
  {parts.map((part, i) => {
  const currentBlankIndex = blankIndex;
  if (i < parts.length - 1) blankIndex++;
