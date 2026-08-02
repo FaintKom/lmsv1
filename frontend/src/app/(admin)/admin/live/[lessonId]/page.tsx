@@ -589,7 +589,10 @@ export default function TeacherLivePage() {
               <button
                 onClick={async () => {
                   await endLesson(lessonId);
-                  router.push("/admin/groups");
+                  setConfirmEnd(false);
+                  // stay on the page — the state refetch flips status to
+                  // "ended" and renders the lesson review in place
+                  await qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] });
                 }}
                 className="btn-pop btn-pop--coral rounded-md bg-danger px-4 py-2 text-sm font-bold text-white"
               >
