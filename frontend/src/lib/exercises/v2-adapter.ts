@@ -61,6 +61,8 @@ export const V2_LIVE_TYPES = [
   "dialogue",
   "quiz",
   "crossword",
+  // stripped in PR-1; its widget only grew multi-pin support later
+  "map_pin_drop",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 
