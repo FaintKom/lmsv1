@@ -111,7 +111,7 @@ export default function DashboardPage() {
  </div>
 
  {/* Streak card */}
- <div className="relative overflow-hidden rounded-xl border border-border bg-paper-2 p-6">
+ <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-6">
  <div className="mb-3.5 flex items-start justify-between">
  <div>
  <p className="eyebrow mb-1">Current Streak</p>
@@ -135,19 +135,19 @@ export default function DashboardPage() {
  {/* KPI strip — v2: text only, no icon tiles; streak lives in the hero,
      so the 4th KPI is XP (average grade needs a new endpoint — todo) */}
  <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
- <div className="rounded-lg border border-border bg-paper-2 p-5 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
  <p className="eyebrow mb-1">Enrolled</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : enrolledCount}</p>
  </div>
- <div className="rounded-lg border border-border bg-paper-2 p-5 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
  <p className="eyebrow mb-1">Completed</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : completedCount}</p>
  </div>
- <div className="rounded-lg border border-border bg-paper-2 p-5 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
  <p className="eyebrow mb-1">Avg. Progress</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : `${avgProgress}%`}</p>
  </div>
- <div className="rounded-lg border border-border bg-paper-2 p-5 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
  <p className="eyebrow mb-1">XP</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : xp}</p>
  </div>
@@ -179,8 +179,8 @@ export default function DashboardPage() {
  };
  return (
  <Link key={i} href={rec.link}>
- <div className="rounded-md border border-border bg-paper-2 p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
- <span className={`mb-2 inline-block rounded-pill px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${chipColors[rec.type] || "bg-ink-100 text-ink-700"}`}>
+ <div className="rounded-md border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
+ <span className={`mb-2 inline-block rounded-pill px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${chipColors[rec.type] || "bg-surface-2 text-text"}`}>
  {rec.type.replace("_", " ")}
  </span>
  <p className="text-sm font-bold text-text">{rec.title}</p>
@@ -212,7 +212,7 @@ export default function DashboardPage() {
 
  {/* Bottom row: upcoming events + quick actions */}
  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
- <div className="rounded-lg border border-border bg-paper-2 p-6 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
  <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-text">
  <Calendar className="h-4.5 w-4.5 text-clay-500" />
  {t("dash.upcoming")}
@@ -236,7 +236,7 @@ export default function DashboardPage() {
  )}
  </div>
 
- <div className="rounded-lg border border-border bg-paper-2 p-6 shadow-sm">
+ <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
  <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-text">
  <Sparkles className="h-4.5 w-4.5 text-primary" />
  Quick Actions
@@ -247,11 +247,11 @@ export default function DashboardPage() {
  <BookOpen className="h-5 w-5 text-text-subtle" />
  <span className="text-sm font-semibold text-text">Browse available courses</span>
  </div>
- <ArrowRight className="h-4 w-4 text-ink-300" />
+ <ArrowRight className="h-4 w-4 text-text-subtle" />
  </Link>
  {enrolledCourses.length === 0 && (
  <div className="flex flex-col items-center py-6 text-center">
- <div className="mb-3 rounded-full bg-ink-100 p-3">
+ <div className="mb-3 rounded-full bg-surface-2 p-3">
  <Clock className="h-5 w-5 text-text-subtle" />
  </div>
  <p className="text-sm font-medium text-text-muted">No activity yet</p>

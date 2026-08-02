@@ -81,7 +81,7 @@ export default function PathDetailPage() {
  <div className="mx-auto max-w-3xl">
  <Link
  href="/paths"
- className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-ink-700 "
+ className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text "
  >
  <ArrowLeft className="h-4 w-4" /> {t("paths.backToLearningPaths")}
  </Link>
@@ -130,7 +130,7 @@ export default function PathDetailPage() {
  ? "border-primary bg-primary-soft "
  : isCurrent
  ? "border-primary bg-primary-soft "
- : "border-ink-300 bg-ink-100 "
+ : "border-border-strong bg-surface-2 "
  }`}>
  {step.completed ? (
  <CheckCircle className="h-5 w-5 text-primary " />
@@ -159,7 +159,7 @@ export default function PathDetailPage() {
  {step.course_title}
  </h3>
  {!step.is_required && (
- <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] text-text-muted ">
+ <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] text-text-muted ">
  {t("common.optional")}
  </span>
  )}

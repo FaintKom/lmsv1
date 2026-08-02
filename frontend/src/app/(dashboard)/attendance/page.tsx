@@ -13,7 +13,7 @@ const BADGE_STYLES: Record<AttendanceStatus, string> = {
   present: "bg-success-soft text-success-fg",
   late: "bg-warning-soft text-warning-fg",
   absent: "bg-danger-soft text-danger-fg",
-  excused: "bg-ink-100 text-text-muted",
+  excused: "bg-surface-2 text-text-muted",
 };
 
 export default function StudentAttendancePage() {

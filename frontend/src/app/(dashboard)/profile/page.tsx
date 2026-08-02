@@ -306,7 +306,7 @@ export default function ProfilePage() {
  <CardTitle className="text-base">Edit Profile</CardTitle>
  <button
  onClick={handleCancel}
- className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-ink-100 hover:text-text-muted "
+ className="rounded-lg p-1 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted "
  >
  <X className="h-5 w-5" />
  </button>
@@ -315,7 +315,7 @@ export default function ProfilePage() {
  <CardContent>
  <form onSubmit={handleSave} className="space-y-4">
  <div>
- <label className="mb-1 flex items-center gap-1 text-sm font-medium text-ink-700 ">
+ <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <User className="h-3.5 w-3.5" />
  Full Name
  </label>
@@ -323,13 +323,13 @@ export default function ProfilePage() {
  type="text"
  value={fullName}
  onChange={(e) => setFullName(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  required
  />
  </div>
 
  <div>
- <label className="mb-1 flex items-center gap-1 text-sm font-medium text-ink-700 ">
+ <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <Mail className="h-3.5 w-3.5" />
  Email
  </label>
@@ -345,7 +345,7 @@ export default function ProfilePage() {
  </div>
 
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label className="mb-1 block text-sm font-medium text-text ">
  Avatar URL
  </label>
  <input
@@ -353,12 +353,12 @@ export default function ProfilePage() {
  value={avatarUrl}
  onChange={(e) => setAvatarUrl(e.target.value)}
  placeholder="https://example.com/avatar.jpg"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  />
  </div>
 
  <div>
- <label className="mb-1 flex items-center gap-1 text-sm font-medium text-ink-700 ">
+ <label className="mb-1 flex items-center gap-1 text-sm font-medium text-text ">
  <FileText className="h-3.5 w-3.5" />
  Bio
  </label>
@@ -367,7 +367,7 @@ export default function ProfilePage() {
  onChange={(e) => setBio(e.target.value)}
  placeholder="Tell us about yourself..."
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary "
  />
  </div>
 
@@ -399,21 +399,21 @@ export default function ProfilePage() {
  <User className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
  <p className="text-xs font-medium text-text-subtle ">Full Name</p>
- <p className="text-sm text-ink-700 ">{user?.full_name}</p>
+ <p className="text-sm text-text ">{user?.full_name}</p>
  </div>
  </div>
  <div className="flex items-start gap-3">
  <Mail className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
  <p className="text-xs font-medium text-text-subtle ">Email</p>
- <p className="text-sm text-ink-700 ">{user?.email}</p>
+ <p className="text-sm text-text ">{user?.email}</p>
  </div>
  </div>
  <div className="flex items-start gap-3">
  <Shield className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
  <p className="text-xs font-medium text-text-subtle ">Role</p>
- <p className="text-sm capitalize text-ink-700 ">{user?.role}</p>
+ <p className="text-sm capitalize text-text ">{user?.role}</p>
  </div>
  </div>
  {user?.bio && (
@@ -421,7 +421,7 @@ export default function ProfilePage() {
  <FileText className="mt-0.5 h-4 w-4 text-text-subtle " />
  <div>
  <p className="text-xs font-medium text-text-subtle ">Bio</p>
- <p className="text-sm text-ink-700 ">{user.bio}</p>
+ <p className="text-sm text-text ">{user.bio}</p>
  </div>
  </div>
  )}
@@ -469,10 +469,10 @@ export default function ProfilePage() {
  type="checkbox"
  checked={emailPrefs[item.key]}
  onChange={(e) => setEmailPrefs({ ...emailPrefs, [item.key]: e.target.checked })}
- className="mt-1 rounded border-ink-300 text-primary focus:ring-primary"
+ className="mt-1 rounded border-border-strong text-primary focus:ring-primary"
  />
  <div>
- <p className="text-sm font-medium text-ink-700 ">{item.label}</p>
+ <p className="text-sm font-medium text-text ">{item.label}</p>
  <p className="text-xs text-text-subtle ">{item.desc}</p>
  </div>
  </label>
@@ -504,7 +504,7 @@ export default function ProfilePage() {
  onChange={(e) => setCurrentPassword(e.target.value)}
  required
  autoComplete="current-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <div>
@@ -518,7 +518,7 @@ export default function ProfilePage() {
  required
  minLength={8}
  autoComplete="new-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  <p className="mt-1 text-xs text-text-subtle ">
  Minimum 8 characters. Use a password manager.
@@ -535,7 +535,7 @@ export default function ProfilePage() {
  required
  minLength={8}
  autoComplete="new-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder-ink-300 hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <Button type="submit" disabled={changingPassword}>
@@ -605,7 +605,7 @@ export default function ProfilePage() {
  onChange={(e) => setDeletePassword(e.target.value)}
  required
  autoComplete="current-password"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder-ink-300 focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder-ink-300 focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger-soft"
  />
  </div>
  <div className="flex items-center gap-3">

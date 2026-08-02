@@ -23,7 +23,7 @@ function useStatusBadge() {
  case "overdue":
  return <span className="rounded-pill bg-danger-soft px-2.5 py-0.5 text-xs font-medium text-danger-fg ">{t("assign.statusOverdue")}</span>;
  default:
- return <span className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{t("assign.statusPending")}</span>;
+ return <span className="rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{t("assign.statusPending")}</span>;
  }
  }
  return statusBadge;
@@ -112,7 +112,7 @@ export default function AssignmentsPage() {
  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
  tab === t.key
  ? "bg-primary-soft text-success-fg "
- : "text-text-muted hover:bg-ink-100 "
+ : "text-text-muted hover:bg-surface-2 "
  }`}
  >
  {t.label}
@@ -126,7 +126,7 @@ export default function AssignmentsPage() {
  {filtered.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <ClipboardList className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
@@ -185,7 +185,7 @@ export default function AssignmentsPage() {
  )}
  </div>
  </div>
- <ArrowRight className="h-4 w-4 shrink-0 text-ink-300 " />
+ <ArrowRight className="h-4 w-4 shrink-0 text-text-subtle " />
  </CardContent>
  </Card>
  </Link>

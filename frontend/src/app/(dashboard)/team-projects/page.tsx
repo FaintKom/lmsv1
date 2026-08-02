@@ -55,7 +55,7 @@ function TeamPanel({ projectId }: { projectId: string }) {
             {(membersQuery.data ?? []).map((m) => (
               <li
                 key={m.user_id}
-                className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs text-text-muted"
+                className="rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs text-text-muted"
               >
                 {m.user_name}
               </li>
@@ -182,7 +182,7 @@ export default function StudentTeamProjectsPage() {
                 <CardContent className="p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-ink-700">{p.title}</h3>
+                      <h3 className="text-sm font-semibold text-text">{p.title}</h3>
                       {p.description && (
                         <p className="mt-1 text-xs text-text-muted">{p.description}</p>
                       )}
@@ -195,7 +195,7 @@ export default function StudentTeamProjectsPage() {
                         <>
                           <button
                             onClick={() => setOpenId(openId === p.id ? null : p.id)}
-                            className="flex items-center gap-1.5 rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
+                            className="flex items-center gap-1.5 rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
                           >
                             <Users className="h-3.5 w-3.5" /> {t("teamProjects.viewTeam")}
                           </button>

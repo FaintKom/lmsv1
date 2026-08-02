@@ -124,7 +124,7 @@ export default function StudentPeerReviewPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-ink-700">
+                      <h3 className="text-sm font-semibold text-text">
                         {r.assignment_title}
                       </h3>
                       <p className="mt-1 text-xs text-text-muted">

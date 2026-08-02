@@ -111,15 +111,15 @@ export default function ChildDetailPage() {
  )}
 
  {/* Tabs */}
- <div className="flex gap-1 rounded-lg bg-ink-100 p-1 ">
+ <div className="flex gap-1 rounded-lg bg-surface-2 p-1 ">
  {(["progress", "grades"] as const).map((tabKey) => (
  <button
  key={tabKey}
  onClick={() => setTab(tabKey)}
  className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
  tab === tabKey
- ? "bg-paper-2 text-ink-700 shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm "
+ : "text-text-muted hover:text-text "
  }`}
  >
  {t(`parent.${tabKey}`)}
@@ -137,12 +137,12 @@ export default function ChildDetailPage() {
  <Card key={i}>
  <CardContent className="flex items-center justify-between p-4">
  <div>
- <p className="font-medium text-ink-700 ">{e.course_title}</p>
+ <p className="font-medium text-text ">{e.course_title}</p>
  <p className="text-xs text-text-subtle">
  {e.completed_at ? "Completed" : `${Math.round(e.progress_percent)}% complete`}
  </p>
  </div>
- <div className="h-2 w-24 overflow-hidden rounded-pill bg-ink-100 ">
+ <div className="h-2 w-24 overflow-hidden rounded-pill bg-surface-2 ">
  <div
  className={`h-full rounded-pill ${e.completed_at ? "bg-primary" : "bg-primary"}`}
  style={{ width: `${e.progress_percent}%` }}
@@ -166,7 +166,7 @@ export default function ChildDetailPage() {
  <CardContent className="p-4">
  <div className="flex items-center justify-between">
  <div>
- <p className="font-medium text-ink-700 ">{g.assignment_title}</p>
+ <p className="font-medium text-text ">{g.assignment_title}</p>
  <p className="text-xs text-text-subtle">
  {new Date(g.submitted_at).toLocaleDateString()} &middot; {g.status}
  </p>
