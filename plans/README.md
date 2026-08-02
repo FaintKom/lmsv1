@@ -22,6 +22,30 @@ plan, with the plan's test command as the gate.
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
+## 2026-08-02 batch — design system v2 follow-ups, integrity model B, live lessons
+
+Written at commit `a01d106` for lower-capability executors: every plan is
+self-contained (exact excerpts, values, STOP conditions). One branch/PR per
+plan; **merging to main deploys to prod** — read `.github/workflows/deploy.yml`
+notes in the root CLAUDE.md before merging, and poll the deploy run after.
+
+| Plan | Title | Priority | Effort | Depends on | Status |
+|------|-------|----------|--------|------------|--------|
+| 012 | Retire SAT Practice from the product surface | P1 (owner ask) | S | — | TODO |
+| 009 | btn-pop shadow follows org branding | P1 | XS | — | TODO |
+| 013 | Integrity PR-2: matching + categorize + multi-pin map | P1 | L | — | TODO |
+| 014 | Integrity PR-3: quiz/reading/dialogue/crossword steppers | P1 | L | 013 (onCheck plumbing) | TODO |
+| 008 | Dark theme: no-FOUC + Light/Dark/System toggle | P2 | M | — | TODO |
+| 010 | Catalog pages Lively pass (student + admin courses) | P2 | M | — | TODO |
+| 011 | Dense mode for data screens | P2 | M-L | — | TODO |
+| 015 | Live review: student "My results" (S7) | P2 | S | — | TODO |
+| 016 | Conductor v2: programme editor | P3 | M | — | TODO |
+| 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | TODO |
+
+Recommended order: 012 → 009 → 013 → 014 → 008 → 010 → 011 → 015 → 016 → 017.
+012/009 are quick wins; 013/014 close the answer-leak security gap; 017 runs
+last as the compliance sweep over everything.
+
 ## Dependency notes
 
 - **002 must land with or immediately after 001.** The tests in 002 assert the
