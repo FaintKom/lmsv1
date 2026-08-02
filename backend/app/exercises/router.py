@@ -281,6 +281,34 @@ async def check_exercise_endpoint(
     from app.submissions.service import grade_interactive_detail
 
     exercise = await get_exercise(db, exercise_id, user)
+    if exercise.exercise_type == ExerciseType.quiz:
+        # quiz answers live in the `questions` relation, not in config —
+        # reuse the same correctness helper the submit path grades with
+        from app.assessments.grading import is_answer_correct
+
+        answers = data.interactive_answers.get("answers") or []
+        if isinstance(answers, dict):  # {question_id: value} shorthand
+            answers = [
+                {"question_id": qid, **(v if isinstance(v, dict) else {"answer": v})}
+                for qid, v in answers.items()
+            ]
+        by_q = {str(a.get("question_id")): a for a in answers if isinstance(a, dict)}
+        # read the relation fresh — a cached exercise instance can carry a
+        # stale (empty) collection right after questions were added
+        from app.assessments.models import Question
+
+        q_rows = await db.execute(
+            select(Question)
+            .where(Question.exercise_id == exercise.id)
+            .order_by(Question.sort_order)
+        )
+        questions = list(q_rows.scalars().all())
+        per_item = {str(q.id): is_answer_correct(q, by_q.get(str(q.id))) for q in questions}
+        score = (sum(per_item.values()) / len(questions)) if questions else 1.0
+        passing = (exercise.config or {}).get("passing_score", 70) / 100
+        return CheckExerciseResponse(
+            score=round(score, 4), passed=score >= passing, per_item=per_item
+        )
     score, passed, per_item = grade_interactive_detail(
         exercise.config or {}, exercise.exercise_type.value, data.interactive_answers
     )
@@ -496,9 +524,12 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 "blanks",
                 "correct_answer",
                 "accepted_answers",  # translation
-                "words",
                 "distractors",
             )
+            # `words` is the sentence_builder duplicate of correct_order —
+            # drop it only there. Crossword uses `words` for its grid entries
+            # and has its own strip below.
+            and not (k == "words" and correct_order is not None)
         }
         if blanks:
             shuffled = list(blanks)
@@ -518,6 +549,10 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 {k: v for k, v in row.items() if k != "correct"} if isinstance(row, dict) else row
                 for row in resp.config["table"]
             ]
+        # NOTE crossword is deliberately NOT stripped yet: the renderer in use
+        # builds the grid from `words[].word.length`, so removing the word
+        # blanks the puzzle. Stripping it needs the V2 crossword (cells/clues)
+        # wired first — tracked in plans/014 as the remaining slice.
         if isinstance(resp.config.get("questions"), list):  # bubble_sheet
             resp.config["questions"] = [
                 {k: v for k, v in q.items() if k != "correct"} if isinstance(q, dict) else q
