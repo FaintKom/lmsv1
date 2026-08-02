@@ -638,6 +638,47 @@ async def test_summary_includes_results(client, db, org, teacher, student):
     assert st["attempts"] == 1
 
 
+async def test_student_state_hides_other_students_results(client, db, org, teacher, student):
+    """A student's lesson state must carry only their own outcomes."""
+    from app.auth.models import UserRole
+    from tests.conftest import _make_user, make_course, make_exercise, make_lesson, make_module
+
+    other = _make_user(db, org, UserRole.student, suffix="peer")
+    await db.flush()
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson_row.id, org.id)
+
+    g = await make_group(db, org, teacher, [student, other])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+    for s in (student, other):
+        await client.post(
+            f"/api/v1/exercises/{ex.id}/submit", json={"answers": []}, headers=auth_header(s)
+        )
+    await client.post(f"/api/v1/live-lessons/{lesson_id}/end", headers=auth_header(teacher))
+
+    teacher_summary = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(teacher))
+    ).json()["lesson"]["summary"]
+    assert len(teacher_summary["results"][0]["students"]) == 2
+    assert "attendance_seconds" in teacher_summary
+
+    student_state = await client.get(
+        f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student)
+    )
+    summary = student_state.json()["lesson"]["summary"]
+    rows = summary["results"][0]["students"]
+    assert [r["id"] for r in rows] == [str(student.id)]
+    assert str(other.id) not in student_state.text
+    assert "attendance_seconds" not in summary
+
+
 async def test_message_creates_notification(client, db, org, teacher, student):
     from sqlalchemy import select as sa_select
 
