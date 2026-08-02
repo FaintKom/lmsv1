@@ -175,7 +175,7 @@ export default function AchievementsPage() {
 
  {/* Tabs */}
  <div className={cn(
- "mb-6 flex flex-wrap gap-1 rounded-lg bg-ink-100 p-1",
+ "mb-6 flex flex-wrap gap-1 rounded-lg bg-surface-2 p-1",
  isFullWidth && "mx-auto max-w-6xl px-4 lg:px-6"
  )} role="tablist">
  {tabs.map((tb) => (
@@ -187,8 +187,8 @@ export default function AchievementsPage() {
  className={cn(
  "flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
  tab === tb.key
- ? "bg-paper-2 text-success-fg shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-success-fg shadow-sm "
+ : "text-text-muted hover:text-text "
  )}
  >
  {tb.icon}
@@ -266,10 +266,10 @@ function AvatarTab() {
  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-gray-500">
  {t("nav.achievements")} · {t("nav.myAvatar")}
  </p>
- <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-ink-700">
+ <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">
  {t("avatar.welcomePrefix")}{" "}
  <span
- className="inline-block rounded-[6px] px-2 py-0 text-ink-900"
+ className="inline-block rounded-[6px] px-2 py-0 text-text"
  style={{
  background: "#ffe9a3",
  transform: "rotate(-1.5deg)",
@@ -281,7 +281,7 @@ function AvatarTab() {
  </h1>
  </div>
  </div>
- <aside className="overflow-y-auto border-t border-ink-100 bg-paper-2 lg:border-l lg:border-t-0">
+ <aside className="overflow-y-auto border-t border-border bg-surface lg:border-l lg:border-t-0">
  <AvatarBuilderPanel state={state} />
  </aside>
  </div>
@@ -331,7 +331,7 @@ function AchievementsTab({
  <span>Progress to {league.next_league}</span>
  <span>{streak?.total_xp || 0} / {league.next_xp} XP</span>
  </div>
- <div className="h-3 w-full overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
+ <div className="h-3 w-full overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
  <div
  className="h-full rounded-pill transition-[width] duration-500"
  style={{
@@ -449,13 +449,13 @@ function AchievementsTab({
  i === 0 ? "bg-sun-100 text-warning-fg "
  : i === 1 ? "bg-ink-200 text-text-muted "
  : i === 2 ? "bg-clay-300 text-clay-700 "
- : "bg-ink-100 text-text-subtle "
+ : "bg-surface-2 text-text-subtle "
  }`}>
  {i + 1}
  </span>
  <div className="min-w-0 flex-1">
  <div className="flex items-center gap-1.5">
- <p className="truncate text-sm font-medium text-ink-700 ">{entry.user_name}</p>
+ <p className="truncate text-sm font-medium text-text ">{entry.user_name}</p>
  {entry.league && (
  <LeagueMark
  kind={leagueKindFromName(entry.league.name)}
@@ -523,7 +523,7 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
  {certificates.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center py-16">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <Award className="h-8 w-8 text-text-subtle" />
  </div>
  <h3 className="text-lg font-semibold text-text-muted ">No certificates yet</h3>
@@ -541,7 +541,7 @@ function CertificatesTab({ certificates }: { certificates: CertificateData[] }) 
  <Award className="h-6 w-6 text-warning-fg" />
  </div>
  <div className="min-w-0 flex-1">
- <h3 className="text-sm font-semibold text-ink-700 ">
+ <h3 className="text-sm font-semibold text-text ">
  {cert.course_title}
  </h3>
  <p className="text-xs text-text-subtle ">
@@ -581,7 +581,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  {skills.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center py-12 text-center">
- <div className="mb-3 rounded-pill bg-ink-100 p-3 ">
+ <div className="mb-3 rounded-pill bg-surface-2 p-3 ">
  <Zap className="h-6 w-6 text-text-subtle" />
  </div>
  <p className="text-sm font-medium text-text-muted">{t("skills.noSkills") || "No skills earned yet"}</p>
@@ -623,10 +623,10 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <CardContent className="p-4">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
- <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-ink-100 text-text-muted"}`}>
+ <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-surface-2 text-text-muted"}`}>
  {s.skill_icon || "⚡"}
  </span>
- <span className="font-medium text-ink-700 ">{s.skill_name}</span>
+ <span className="font-medium text-text ">{s.skill_name}</span>
  </div>
  <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-xs font-bold text-success-fg ">
  {t("skills.level") || "Lv."}{s.level}
@@ -637,7 +637,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <span>{s.total_xp} XP</span>
  <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
  </div>
- <div className="h-1.5 overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
+ <div className="h-1.5 overflow-hidden rounded-pill bg-surface-2 " role="progressbar" aria-valuenow={progressToNext} aria-valuemin={0} aria-valuemax={100}>
  <div className="h-full rounded-pill bg-primary" style={{ width: `${progressToNext}%` }} />
  </div>
  </div>

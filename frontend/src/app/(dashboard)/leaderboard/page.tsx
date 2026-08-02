@@ -33,7 +33,7 @@ interface LeaderboardEntry {
 
 const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
  bronze: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
- silver: { bg: "bg-ink-100 ", text: "text-text-muted ", border: "border-ink-300 " },
+ silver: { bg: "bg-surface-2 ", text: "text-text-muted ", border: "border-border-strong " },
  gold: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
  platinum: { bg: "bg-info-soft ", text: "text-info-fg ", border: "border-info " },
  diamond: { bg: " ", text: "text-text ", border: "border-border " },
@@ -49,7 +49,7 @@ function getRankStyle(rank: number) {
  if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-200/50 ";
  if (rank === 2) return "bg-gradient-to-r from-slate-300 to-slate-400 text-white shadow-lg shadow-ink-200/50 ";
  if (rank === 3) return "bg-gradient-to-r from-amber-600 to-orange-700 text-white shadow-lg shadow-orange-200/50 ";
- return "bg-ink-100 text-text-muted ";
+ return "bg-surface-2 text-text-muted ";
 }
 
 function getRankIcon(rank: number) {

@@ -220,7 +220,7 @@ export default function LessonViewerPage() {
   return (
    <div className="-m-6 md:-m-10 lg:-m-12 -mb-20 md:-mb-10 lg:-mb-12 flex min-h-screen">
     {/* Lesson sidebar skeleton */}
-    <div className="hidden w-80 flex-col border-r border-border bg-paper-2 md:flex">
+    <div className="hidden w-80 flex-col border-r border-border bg-surface md:flex">
      <div className="border-b border-border px-5 pb-4 pt-5">
       <div className="lms-skeleton mb-3 h-3 w-20" />
       <div className="lms-skeleton mb-1 h-2.5 w-40" />
@@ -237,7 +237,7 @@ export default function LessonViewerPage() {
     </div>
     {/* Main content skeleton */}
     <div className="flex flex-1 flex-col">
-     <div className="border-b border-border bg-paper-2 px-6 py-5 md:px-14">
+     <div className="border-b border-border bg-surface px-6 py-5 md:px-14">
       <div className="lms-skeleton h-3 w-48" />
      </div>
      <div className="flex-1 px-6 py-9 md:px-14">
@@ -265,7 +265,7 @@ export default function LessonViewerPage() {
  if (!course || !lesson) {
   return (
    <div className="flex flex-col items-center justify-center py-16 text-center">
-    <div className="mb-4 rounded-full bg-ink-100 p-4">
+    <div className="mb-4 rounded-full bg-surface-2 p-4">
      <FileText className="h-8 w-8 text-text-subtle" />
     </div>
     <h3 className="mb-1 text-lg font-bold text-text">{t("lesson.notFound")}</h3>
@@ -305,10 +305,10 @@ export default function LessonViewerPage() {
 
    {/* ── Lesson sidebar ─────────────────────────────────────────── */}
    {lessonSidebarCollapsed ? (
-    <div className="hidden md:flex flex-col items-center border-r border-border bg-paper-2 py-3 px-1.5 w-12 shrink-0">
+    <div className="hidden md:flex flex-col items-center border-r border-border bg-surface py-3 px-1.5 w-12 shrink-0">
      <button
       onClick={() => setLessonSidebarCollapsed(false)}
-      className="rounded-lg p-2 text-text-muted hover:bg-ink-100 hover:text-text"
+      className="rounded-lg p-2 text-text-muted hover:bg-surface-2 hover:text-text"
       title={t("lesson.expandSidebar")}
      >
       <PanelLeft className="h-4 w-4" />
@@ -317,7 +317,7 @@ export default function LessonViewerPage() {
    ) : null}
    <aside
     className={cn(
-     "fixed top-0 left-0 z-50 flex h-full w-[min(320px,85vw)] flex-col border-r border-border bg-paper-2 transition-transform duration-200 overscroll-contain md:relative md:z-auto md:w-80 md:translate-x-0",
+     "fixed top-0 left-0 z-50 flex h-full w-[min(320px,85vw)] flex-col border-r border-border bg-surface transition-transform duration-200 overscroll-contain md:relative md:z-auto md:w-80 md:translate-x-0",
      sidebarOpen ? "translate-x-0" : "-translate-x-full",
      lessonSidebarCollapsed && "md:hidden"
     )}
@@ -334,7 +334,7 @@ export default function LessonViewerPage() {
       </Link>
       <button
        onClick={() => setLessonSidebarCollapsed(true)}
-       className="hidden md:flex rounded-lg p-1.5 text-text-muted hover:bg-ink-100 hover:text-text"
+       className="hidden md:flex rounded-lg p-1.5 text-text-muted hover:bg-surface-2 hover:text-text"
        title={t("lesson.collapseSidebar")}
       >
        <PanelLeftClose className="h-4 w-4" />
@@ -347,7 +347,7 @@ export default function LessonViewerPage() {
       {course.title}
      </h3>
      <div className="flex items-center gap-2.5">
-      <div className="h-[7px] flex-1 overflow-hidden rounded-pill bg-ink-100">
+      <div className="h-[7px] flex-1 overflow-hidden rounded-pill bg-surface-2">
        <div
         className="h-full rounded-pill"
         style={{
@@ -428,7 +428,7 @@ export default function LessonViewerPage() {
                 ? "bg-green-100 font-bold text-green-800"
                 : isDone
                   ? "text-text-subtle"
-                  : "text-text-muted hover:bg-ink-50 hover:text-text"
+                  : "text-text-muted hover:bg-surface-2 hover:text-text"
               )}
              >
               {/* Check circle */}
@@ -439,7 +439,7 @@ export default function LessonViewerPage() {
                  ? "bg-primary text-white shadow-[0_0_0_3px_var(--green-100)]"
                  : isDone
                    ? "bg-green-500 text-white"
-                   : "border-[1.5px] border-ink-200 bg-transparent"
+                   : "border-[1.5px] border-border-strong bg-transparent"
                )}
               >
                {isDone ? "✓" : isActive ? "▸" : ""}
@@ -468,14 +468,14 @@ export default function LessonViewerPage() {
     {!sidebarOpen && (
      <button
       onClick={() => setSidebarOpen(true)}
-      className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-paper-2 shadow-md text-text-muted hover:text-text md:hidden"
+      className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-surface shadow-md text-text-muted hover:text-text md:hidden"
      >
       <ArrowRight className="h-4 w-4" />
      </button>
     )}
 
     {/* Header bar */}
-    <div className="flex items-center gap-4 border-b border-border bg-paper-2 px-6 py-5 md:px-14">
+    <div className="flex items-center gap-4 border-b border-border bg-surface px-6 py-5 md:px-14">
      <div className="text-xs font-semibold text-text-muted">
       {currentModuleIndex >= 0 && (
        <>
@@ -492,7 +492,7 @@ export default function LessonViewerPage() {
         target="_blank"
         rel="noopener noreferrer"
         title={t("print.worksheetHint")}
-        className="inline-flex items-center gap-1.5 rounded-pill bg-ink-50 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-ink-100 hover:text-text"
+        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-surface-2 hover:text-text"
        >
         <Printer className="h-3 w-3" /> {t("print.worksheet")}
        </Link>
@@ -501,7 +501,7 @@ export default function LessonViewerPage() {
         target="_blank"
         rel="noopener noreferrer"
         title={t("print.answerKeyHint")}
-        className="inline-flex items-center gap-1.5 rounded-pill bg-ink-50 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-ink-100 hover:text-text"
+        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-surface-2 hover:text-text"
        >
         <Printer className="h-3 w-3" /> {t("print.answerKey")}
        </Link>
@@ -524,7 +524,7 @@ export default function LessonViewerPage() {
         {lesson.content_type.replace("_", " ")}
        </span>
        {lesson.duration_minutes && (
-        <span className="inline-flex items-center gap-1.5 rounded-pill bg-ink-100 px-3 py-[5px] text-xs font-bold text-ink-700">
+        <span className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-[5px] text-xs font-bold text-text">
          <Clock className="h-3 w-3" />
          {lesson.duration_minutes} {t("lesson.minSuffix")}
         </span>
@@ -614,7 +614,7 @@ export default function LessonViewerPage() {
 
     {/* ── Footer nav — visible only when scrolled to bottom ──── */}
     <div className={cn(
-     "mb-14 flex items-center gap-3.5 border-t border-border bg-paper-2 px-6 py-3.5 transition-opacity duration-200 md:mb-0 md:px-14",
+     "mb-14 flex items-center gap-3.5 border-t border-border bg-surface px-6 py-3.5 transition-opacity duration-200 md:mb-0 md:px-14",
      footerVisible ? "opacity-100" : "pointer-events-none h-0 overflow-hidden opacity-0"
     )}>
      {isCompleted && (
@@ -628,7 +628,7 @@ export default function LessonViewerPage() {
      {prevLesson && (
       <Link
        href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-       className="hidden items-center gap-2.5 rounded-xl bg-ink-50 px-3.5 py-2 text-[13px] font-bold text-text transition hover:-translate-y-0.5 sm:flex"
+       className="hidden items-center gap-2.5 rounded-xl bg-surface-2 px-3.5 py-2 text-[13px] font-bold text-text transition hover:-translate-y-0.5 sm:flex"
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
@@ -814,7 +814,7 @@ function PageNav({
    <button
     disabled={prevPage === null}
     onClick={() => prevPage !== null && setCurrentPage(prevPage)}
-    className="flex items-center gap-2 rounded-xl bg-ink-50 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
+    className="flex items-center gap-2 rounded-xl bg-surface-2 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
    >
     <ArrowLeft className="h-3 w-3" />
     {t("common.previous")}
@@ -827,7 +827,7 @@ function PageNav({
       onClick={() => setCurrentPage(p)}
       className={cn(
        "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors",
-       p === currentPage ? "bg-primary text-white" : "text-text-muted hover:bg-ink-100"
+       p === currentPage ? "bg-primary text-white" : "text-text-muted hover:bg-surface-2"
       )}
      >
       {p}
@@ -838,7 +838,7 @@ function PageNav({
    <button
     disabled={nextPage === null}
     onClick={() => nextPage !== null && setCurrentPage(nextPage)}
-    className="flex items-center gap-2 rounded-xl bg-ink-50 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
+    className="flex items-center gap-2 rounded-xl bg-surface-2 px-3.5 py-2 text-xs font-bold text-text disabled:opacity-40"
    >
     {t("common.next")}
     <ArrowRight className="h-3 w-3" />
@@ -895,7 +895,7 @@ function LegacyContent({
     {lesson.content_type === "code_challenge" && challenge && (
      <div>
       {challenge.description && (
-       <div className="mb-4 rounded-[14px] border border-border bg-paper-2 p-5">
+       <div className="mb-4 rounded-[14px] border border-border bg-surface p-5">
         <h3 className="mb-2 text-sm font-bold text-text">{challenge.title}</h3>
         <div className="prose prose-sm prose-slate max-w-none text-text-muted">
          <p>{challenge.description}</p>
@@ -914,7 +914,7 @@ function LegacyContent({
     )}
 
     {lesson.content_type === "code_challenge" && !challenge && (
-     <div className="rounded-[14px] border border-border bg-ink-50 p-6 text-center">
+     <div className="rounded-[14px] border border-border bg-surface-2 p-6 text-center">
       <Code className="mx-auto mb-2 h-10 w-10 text-text-subtle" />
       <p className="text-sm text-text-muted">
        {t("lesson.noChallenge")}

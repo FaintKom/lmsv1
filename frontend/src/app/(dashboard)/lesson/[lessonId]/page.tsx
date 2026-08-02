@@ -160,7 +160,7 @@ export default function StudentLessonPage() {
         </div>
       )}
       {followMode === "strict" && (
-        <div className="flex items-center justify-center gap-2 border-b border-border bg-surface-2 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700">
+        <div className="flex items-center justify-center gap-2 border-b border-border bg-surface-2 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text">
           <span className="h-1.5 w-1.5 rounded-pill bg-primary" />
           {t("live.followStrictBanner")}
         </div>
@@ -183,13 +183,13 @@ export default function StudentLessonPage() {
           scene?.type !== "task" && (
             <button
               onClick={() => setMaterialOpen(true)}
-              className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-2 text-xs font-bold text-text"
+              className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
             >
               <BookOpen size={14} /> {t("live.scene.material")}
             </button>
           )}
         {materialOpen && lastMaterial && (
-          <div className="absolute inset-0 z-40 bg-paper-2">
+          <div className="absolute inset-0 z-40 bg-surface">
             <MaterialPane
               payload={{
                 lesson_id: lastMaterial.lessonId,
@@ -199,7 +199,7 @@ export default function StudentLessonPage() {
             <button
               onClick={() => setMaterialOpen(false)}
               aria-label={t("common.close")}
-              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
+              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-surface-2"
             >
               <X size={18} />
             </button>
@@ -213,7 +213,7 @@ export default function StudentLessonPage() {
       />
       {poll && <PollModal lessonId={lessonId} poll={poll} onDone={() => setPoll(null)} />}
       {pollResult && (
-        <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-paper-2 p-4 shadow-md">
+        <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-surface p-4 shadow-md">
           <button
             onClick={() => setPollResult(null)}
             aria-label={t("common.close")}

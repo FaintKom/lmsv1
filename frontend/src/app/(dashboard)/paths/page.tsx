@@ -65,7 +65,7 @@ export default function PathsPage() {
  {paths.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <Route className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">

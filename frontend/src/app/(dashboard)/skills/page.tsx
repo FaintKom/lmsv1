@@ -67,7 +67,7 @@ export default function SkillsPage() {
  {skills.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center py-12 text-center">
- <div className="mb-3 rounded-pill bg-ink-100 p-3 ">
+ <div className="mb-3 rounded-pill bg-surface-2 p-3 ">
  <Zap className="h-6 w-6 text-text-subtle" />
  </div>
  <p className="text-sm font-medium text-text-muted">{t("skills.noSkills")}</p>
@@ -115,10 +115,10 @@ export default function SkillsPage() {
  <CardContent className="p-4">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
- <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-ink-100 text-text-muted"}`}>
+ <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-surface-2 text-text-muted"}`}>
  {s.skill_icon || "⚡"}
  </span>
- <span className="font-medium text-ink-700 ">{s.skill_name}</span>
+ <span className="font-medium text-text ">{s.skill_name}</span>
  </div>
  <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-xs font-bold text-success-fg ">
  {t("skills.level")}{s.level}
@@ -129,7 +129,7 @@ export default function SkillsPage() {
  <span>{s.total_xp} XP</span>
  <span>Next: {(Math.floor(s.total_xp / 50) + 1) * 50} XP</span>
  </div>
- <div className="h-1.5 overflow-hidden rounded-pill bg-ink-100 ">
+ <div className="h-1.5 overflow-hidden rounded-pill bg-surface-2 ">
  <div className="h-full rounded-pill bg-primary" style={{ width: `${progressToNext}%` }} />
  </div>
  </div>

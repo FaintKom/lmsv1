@@ -42,7 +42,7 @@ export default function CoursesPage() {
  </div>
  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
  {Array.from({ length: 6 }).map((_, i) => (
- <div key={i} className="overflow-hidden rounded-lg border border-border bg-paper-2 shadow-sm">
+ <div key={i} className="overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
  <div className="lms-skeleton h-36 w-full !rounded-none" />
  <div className="p-5">
  <div className="lms-skeleton mb-2 h-4 w-3/4" />
@@ -67,8 +67,8 @@ export default function CoursesPage() {
  </p>
  </div>
  {courses.length === 0 ? (
- <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-paper-2 p-16 text-center shadow-sm">
- <div className="mb-4 rounded-full bg-ink-100 p-4">
+ <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface p-16 text-center shadow-sm">
+ <div className="mb-4 rounded-full bg-surface-2 p-4">
  <BookOpen className="h-8 w-8 text-text-subtle" />
  </div>
  <h3 className="mb-1 text-lg font-bold text-text">

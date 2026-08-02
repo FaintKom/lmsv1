@@ -65,7 +65,7 @@ export default function ProgressPage() {
  {enrollments.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <Trophy className="mb-4 h-12 w-12 text-ink-300 " />
+ <Trophy className="mb-4 h-12 w-12 text-text-subtle " />
  <h3 className="mb-2 text-lg font-semibold text-text-muted ">
  {t("progress.noEnrollments")}
  </h3>
@@ -107,7 +107,7 @@ export default function ProgressPage() {
  {/* In progress */}
  {inProgressEnrollments.length > 0 && (
  <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
+ <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
  <Clock className="h-4 w-4 text-warning-fg" />
  {t("progress.inProgress")}
  </h2>
@@ -129,7 +129,7 @@ export default function ProgressPage() {
  {t("progress.enrolledLabel")}{" "}
  {new Date(e.enrolled_at).toLocaleDateString()}
  {course?.category && (
- <span className="ml-2 rounded bg-ink-100 px-1.5 py-0.5 text-xs uppercase">
+ <span className="ml-2 rounded bg-surface-2 px-1.5 py-0.5 text-xs uppercase">
  {course.category}
  </span>
  )}
@@ -139,7 +139,7 @@ export default function ProgressPage() {
  <p className="text-xl font-bold text-primary">
  {Math.round(e.progress_percent)}%
  </p>
- <div className="mt-1 h-2 w-24 overflow-hidden rounded-pill bg-ink-100 ">
+ <div className="mt-1 h-2 w-24 overflow-hidden rounded-pill bg-surface-2 ">
  <div
  className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${e.progress_percent}%` }}
@@ -158,7 +158,7 @@ export default function ProgressPage() {
  {/* My Grades */}
  {grades.length > 0 && (
  <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
+ <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
  <FileText className="h-4 w-4 text-primary" />
  {t("progress.myGrades")}
  </h2>
@@ -199,7 +199,7 @@ export default function ProgressPage() {
  <p className="text-xs text-text-subtle">/ {g.max_score}</p>
  </div>
  ) : (
- <span className="rounded-pill bg-ink-100 px-2.5 py-1 text-xs font-medium text-text-muted ">
+ <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
  {t("progress.pending")}
  </span>
  )}
@@ -213,7 +213,7 @@ export default function ProgressPage() {
  {/* Completed */}
  {completedEnrollments.length > 0 && (
  <div>
- <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-700 ">
+ <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text ">
  <CheckCircle className="h-4 w-4 text-primary" />
  {t("progress.completed")}
  </h2>

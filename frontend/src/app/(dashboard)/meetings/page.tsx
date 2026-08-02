@@ -45,7 +45,7 @@ export default function MeetingsPage() {
  <CardContent className="p-4">
  <div className="flex items-start justify-between">
  <div>
- <h3 className="font-semibold text-ink-700 ">{m.title}</h3>
+ <h3 className="font-semibold text-text ">{m.title}</h3>
  {m.description && <p className="mt-1 text-xs text-text-muted">{m.description}</p>}
  </div>
  <span className="flex items-center gap-1 rounded-pill bg-primary-soft px-2 py-0.5 text-xs font-medium text-success-fg ">
@@ -71,7 +71,7 @@ export default function MeetingsPage() {
  ) : (
  <Card>
  <CardContent className="flex flex-col items-center py-12 text-center">
- <div className="mb-3 rounded-pill bg-ink-100 p-3 ">
+ <div className="mb-3 rounded-pill bg-surface-2 p-3 ">
  <Video className="h-6 w-6 text-text-subtle" />
  </div>
  <p className="text-sm font-medium text-text-muted">{t("meet.noLive")}</p>
@@ -88,7 +88,7 @@ export default function MeetingsPage() {
  <Card key={m.id}>
  <CardContent className="flex items-center justify-between p-3">
  <div>
- <p className="text-sm font-medium text-ink-700 ">{m.title}</p>
+ <p className="text-sm font-medium text-text ">{m.title}</p>
  <p className="text-xs text-text-subtle">{new Date(m.created_at).toLocaleDateString()}</p>
  </div>
  <span className="text-xs text-text-subtle">{t("meet.ended")}</span>

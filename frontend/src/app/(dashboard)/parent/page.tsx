@@ -97,7 +97,7 @@ export default function ParentDashboard() {
  ) : children.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center py-12 text-center">
- <div className="mb-3 rounded-pill bg-ink-100 p-3 ">
+ <div className="mb-3 rounded-pill bg-surface-2 p-3 ">
  <Users className="h-6 w-6 text-text-subtle" />
  </div>
  <p className="text-sm font-medium text-text-muted">{t("parent.noChildren")}</p>
@@ -114,10 +114,10 @@ export default function ParentDashboard() {
  {child.full_name.charAt(0).toUpperCase()}
  </div>
  <div className="flex-1">
- <p className="font-semibold text-ink-700 ">{child.full_name}</p>
+ <p className="font-semibold text-text ">{child.full_name}</p>
  <p className="text-xs text-text-subtle">{child.email}</p>
  </div>
- <ArrowRight className="h-4 w-4 text-ink-300" />
+ <ArrowRight className="h-4 w-4 text-text-subtle" />
  </CardContent>
  </Card>
  </Link>

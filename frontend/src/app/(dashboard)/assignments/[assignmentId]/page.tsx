@@ -107,7 +107,7 @@ export default function AssignmentDetailPage() {
  <div className="mx-auto max-w-3xl">
  <Link
  href="/assignments"
- className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-ink-700 "
+ className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text "
  >
  <ArrowLeft className="h-4 w-4" /> {t("assignment.backTo")}
  </Link>
@@ -134,7 +134,7 @@ export default function AssignmentDetailPage() {
  </CardHeader>
  <CardContent>
  {assignment.description && (
- <div className="mb-4 whitespace-pre-wrap text-sm text-ink-700 ">
+ <div className="mb-4 whitespace-pre-wrap text-sm text-text ">
  {assignment.description}
  </div>
  )}
@@ -198,22 +198,22 @@ export default function AssignmentDetailPage() {
  </CardHeader>
  <CardContent className="space-y-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label className="mb-1 block text-sm font-medium text-text ">
  {t("assignment.yourAnswer")}
  </label>
  <textarea
  value={content}
  onChange={(e) => setContent(e.target.value)}
  rows={6}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500 "
  placeholder={t("assignment.yourAnswerPlaceholder")}
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label className="mb-1 block text-sm font-medium text-text ">
  {t("assignment.attachFile")}
  </label>
- <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-ink-300 p-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary ">
+ <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border-strong p-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary ">
  <Upload className="h-4 w-4" />
  {file ? file.name : t("assignment.chooseFile")}
  <input

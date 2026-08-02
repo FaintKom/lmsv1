@@ -57,10 +57,10 @@ const ICON_COLORS: Record<string, string> = {
   text:           "bg-green-100 text-green-700",
   video:          "bg-clay-100 text-clay-700",
   quiz:           "bg-sun-100 text-sun-700",
-  code_challenge: "bg-ink-100 text-ink-700",
+  code_challenge: "bg-surface-2 text-text",
   robot_2d:       "bg-green-100 text-green-700",
   math_interactive: "bg-sun-100 text-sun-700",
-  world_3d:       "bg-ink-100 text-ink-700",
+  world_3d:       "bg-surface-2 text-text",
 };
 
 export default function CourseDetailPage() {
@@ -202,7 +202,7 @@ export default function CourseDetailPage() {
                 {firstLessonId && (
                   <Link
                     href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
-                    className="btn-pop inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-ink-900"
+                    className="btn-pop inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-text"
                     style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
                   >
                     {t("course.startLearning")}
@@ -228,7 +228,7 @@ export default function CourseDetailPage() {
         {course.modules?.map((module, mi) => (
           <div
             key={module.id}
-            className="overflow-hidden rounded-[18px] border border-border bg-paper-2"
+            className="overflow-hidden rounded-[18px] border border-border bg-surface"
           >
             {/* module header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
@@ -248,14 +248,14 @@ export default function CourseDetailPage() {
               {module.lessons?.map((lesson) => {
                 const Icon = CONTENT_ICONS[lesson.content_type] || BookOpen;
                 const iconColor =
-                  ICON_COLORS[lesson.content_type] || "bg-ink-50 text-ink-500";
+                  ICON_COLORS[lesson.content_type] || "bg-surface-2 text-text-muted";
 
                 if (canAccessLessons) {
                   return (
                     <li key={lesson.id}>
                       <Link
                         href={`/courses/${params.courseId}/lessons/${lesson.id}${lessonPreviewSuffix}`}
-                        className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-ink-50/50"
+                        className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-surface-2/50"
                       >
                         <div
                           className={cn(

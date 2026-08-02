@@ -47,7 +47,7 @@ export default function CertificatesPage() {
  {certificates.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center py-16">
- <div className="mb-4 rounded-pill bg-ink-100 p-4">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4">
  <Award className="h-8 w-8 text-text-subtle" />
  </div>
  <h3 className="text-lg font-semibold text-text-muted ">{t("certs.noTitle")}</h3>
@@ -65,7 +65,7 @@ export default function CertificatesPage() {
  <Award className="h-6 w-6 text-warning-fg" />
  </div>
  <div className="min-w-0 flex-1">
- <h3 className="text-sm font-semibold text-ink-700 ">
+ <h3 className="text-sm font-semibold text-text ">
  {cert.course_title}
  </h3>
  <p className="text-xs text-text-subtle ">
