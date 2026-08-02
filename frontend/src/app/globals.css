@@ -407,7 +407,8 @@ button { font-family: inherit; }
    Button physics — signature shadow-pop with translate state machine.
    ================================================================= */
 .btn-pop {
-  --pop: var(--green-700);
+  /* follows org branding, same fallback chain as --color-primary-hover */
+  --pop: var(--primary-dark, var(--green-700));
   box-shadow: 0 4px 0 0 var(--pop);
   transition:
     transform var(--motion-fast) var(--motion-ease),
@@ -508,6 +509,7 @@ button { font-family: inherit; }
 .stagger-children > *:nth-child(4) { animation-delay: calc(var(--motion-stagger) * 3); }
 .stagger-children > *:nth-child(5) { animation-delay: calc(var(--motion-stagger) * 4); }
 .stagger-children > *:nth-child(n + 6) { animation-delay: calc(var(--motion-stagger) * 5); }
+
 
 /* Sun marker — typographic accent on hero headings */
 .sun-mark {
