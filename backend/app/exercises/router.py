@@ -565,10 +565,19 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 else m
                 for m in resp.config["messages"]
             ]
-        # NOTE crossword is deliberately NOT stripped yet: the renderer in use
-        # builds the grid from `words[].word.length`, so removing the word
-        # blanks the puzzle. Stripping it needs the V2 crossword (cells/clues)
-        # wired first — tracked in plans/014 as the remaining slice.
+        # crossword: keep the geometry and the clue, replace the solution
+        # word with its length so the grid can still be drawn. Guarded on
+        # `grid_size` so the sentence_builder `words` key never matches.
+        if isinstance(resp.config.get("words"), list) and resp.config.get("grid_size"):
+            resp.config["words"] = [
+                {
+                    **{k: v for k, v in w.items() if k != "word"},
+                    "length": len(str(w.get("word") or "")),
+                }
+                if isinstance(w, dict)
+                else w
+                for w in resp.config["words"]
+            ]
         if isinstance(resp.config.get("questions"), list):  # bubble_sheet / reading
             resp.config["questions"] = [
                 {

@@ -559,3 +559,53 @@ async def test_check_dialogue_per_message(client: AsyncClient, student, teacher,
     )
     assert resp.status_code == 200
     assert resp.json()["per_item"] == {"0": True, "1": False}
+
+
+async def test_crossword_ships_length_not_word(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.crossword,
+        {
+            "grid_size": 5,
+            "words": [
+                {"word": "cat", "clue": "pet", "row": 0, "col": 0, "direction": "across"},
+                {"word": "cow", "clue": "moo", "row": 0, "col": 0, "direction": "down"},
+            ],
+        },
+    )
+    cfg = await _student_config(client, student, ex)
+    assert [w.get("word") for w in cfg["words"]] == [None, None]
+    assert [w["length"] for w in cfg["words"]] == [3, 3]
+    assert [w["clue"] for w in cfg["words"]] == ["pet", "moo"]
+    assert cfg["words"][1]["direction"] == "down"
+
+
+async def test_check_crossword_per_word(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.crossword,
+        {
+            "grid_size": 5,
+            "words": [
+                {"word": "cat", "clue": "pet", "row": 0, "col": 0, "direction": "across"},
+                {"word": "cow", "clue": "moo", "row": 0, "col": 0, "direction": "down"},
+            ],
+        },
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"words": {"0": "cat", "1": "dog"}}},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["per_item"] == {"0": True, "1": False}
+    count = await db.scalar(
+        select(func.count())
+        .select_from(ExerciseSubmission)
+        .where(ExerciseSubmission.exercise_id == ex.id)
+    )
+    assert count == 0

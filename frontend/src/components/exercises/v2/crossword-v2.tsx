@@ -25,10 +25,13 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface CrosswordCell {
-  /** Single uppercase letter expected in this cell. */
-  ch: string;
+  /** Single uppercase letter expected in this cell. Required for local
+   *  (preview) grading; omitted live — the server strips it and verdicts
+   *  come from `onCheck` per word. */
+  ch?: string;
   /** Clue number rendered in the top-left corner (1, 2, …). */
   num?: number;
 }
@@ -47,8 +50,17 @@ export interface CrosswordV2Props {
     across: CrosswordClue[];
     down: CrosswordClue[];
   };
-  /** Optional answer string shown on heart-exhaust, e.g. "1A: CODE · 2D: DATA". */
+  /** Optional answer string shown on heart-exhaust, e.g. "1A: CODE · 2D: DATA".
+   *  Never set live — the stripped config carries no answers to summarise. */
   answerSummary?: string;
+  /** Clue number → index in the config's `words[]`, so per-word verdicts from
+   *  the server can be mapped back onto the grid. */
+  wordIndexByNum?: Record<number, number>;
+  /** Non-persisting per-word check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission once the whole grid is right. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   eyebrow?: string;
   title?: string;
   maxAttemptsPerTask?: number;
@@ -78,6 +90,10 @@ export function CrosswordV2({
   cells,
   clues,
   answerSummary,
+  wordIndexByNum,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
@@ -147,6 +163,10 @@ export function CrosswordV2({
   const [streak, setStreak] = useState(initialStreak);
   const { fire, layer } = useConfetti();
   const cellRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const serverGraded = !!onCheck;
+  const [checking, setChecking] = useState(false);
+  /** Cells the last server check flagged wrong — retry locks everything else. */
+  const lastWrongRef = useRef<string[]>([]);
 
   const activeWord = words[active.wi];
   const activeKey = activeWord?.keys[active.k];
@@ -175,13 +195,59 @@ export function CrosswordV2({
     (k) => locked[k] || (vals[k] || "").length > 0
   );
 
-  const handleCheck = () => {
+  /** Typed letters per config word index — the payload `_grade_crossword`
+   *  expects under `words`. Only words the adapter mapped are sent. */
+  const wordsPayload = () => {
+    const out: Record<string, string> = {};
+    words.forEach((w) => {
+      const wi = w.num != null ? wordIndexByNum?.[w.num] : undefined;
+      if (wi == null) return;
+      out[String(wi)] = w.keys.map((k) => vals[k] || "").join("");
+    });
+    return { words: out };
+  };
+
+  /** Cell keys belonging to words the server marked wrong. */
+  const wrongKeysFromVerdicts = (pi: Record<string, boolean>) => {
+    const bad: string[] = [];
+    words.forEach((w) => {
+      const wi = w.num != null ? wordIndexByNum?.[w.num] : undefined;
+      if (wi == null || pi[String(wi)]) return;
+      w.keys.forEach((k) => {
+        if (!locked[k]) bad.push(k);
+      });
+    });
+    return bad;
+  };
+
+  const handleCheck = async () => {
+    if (checking) return;
     const total = cellKeys.length;
-    const wrongKeys = cellKeys.filter(
-      (k) =>
-        !locked[k] &&
-        (vals[k] || "").toUpperCase() !== cells[k].ch.toUpperCase()
-    );
+    let wrongKeys: string[];
+
+    if (serverGraded) {
+      const payload = wordsPayload();
+      onAnswersChange?.(payload);
+      setChecking(true);
+      try {
+        const res = await onCheck!(payload);
+        const pi = res.perItem;
+        const map = pi && !Array.isArray(pi) ? (pi as Record<string, boolean>) : {};
+        wrongKeys = wrongKeysFromVerdicts(map);
+        lastWrongRef.current = wrongKeys;
+        if (wrongKeys.length === 0 && onGrade) void onGrade(payload);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      wrongKeys = cellKeys.filter(
+        (k) => !locked[k] && (vals[k] || "").toUpperCase() !== (cells[k].ch ?? "").toUpperCase(),
+      );
+    }
+
     if (wrongKeys.length === 0) {
       setFeedback({
         kind: "ok",
@@ -197,7 +263,8 @@ export function CrosswordV2({
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
     if (remaining <= 0) {
-      setRevealed(true); // CW-05
+      // CW-05 reveal needs the answer letters; live they were never sent
+      setRevealed(!serverGraded);
       setFeedback({
         kind: "no",
         msg: t("exercise.crossword.revealShown"),
@@ -220,12 +287,18 @@ export function CrosswordV2({
   };
 
   const handleRetry = () => {
-    // CW-03: everything currently correct locks green.
-    const locks: Record<string, boolean> = {};
-    cellKeys.forEach((k) => {
-      if ((vals[k] || "").toUpperCase() === cells[k].ch.toUpperCase())
-        locks[k] = true;
-    });
+    // CW-03: everything currently correct locks green. Live the verdicts came
+    // from the server, so anything not flagged wrong on the last check locks.
+    const locks: Record<string, boolean> = { ...locked };
+    if (serverGraded) {
+      cellKeys.forEach((k) => {
+        if (!lastWrongRef.current.includes(k) && (vals[k] || "").length > 0) locks[k] = true;
+      });
+    } else {
+      cellKeys.forEach((k) => {
+        if ((vals[k] || "").toUpperCase() === (cells[k].ch ?? "").toUpperCase()) locks[k] = true;
+      });
+    }
     setLocked(locks);
     setFeedback(null);
   };
@@ -349,7 +422,7 @@ export function CrosswordV2({
                   if (!cell) return <div key={c} className="cw-block" />;
                   const v = vals[key] || "";
                   const isLocked = !!locked[key];
-                  const isRight = v.toUpperCase() === cell.ch.toUpperCase();
+                  const isRight = !!cell.ch && v.toUpperCase() === cell.ch.toUpperCase();
                   const showReveal = revealed && !isRight && !isLocked;
                   const stateCls = feedback
                     ? isRight || isLocked
@@ -371,7 +444,7 @@ export function CrosswordV2({
                           cellRefs.current[key] = el;
                         }}
                         className={stateCls || undefined}
-                        value={showReveal ? cell.ch.toUpperCase() : v}
+                        value={showReveal && cell.ch ? cell.ch.toUpperCase() : v}
                         disabled={!!feedback || isLocked}
                         autoCapitalize="none"
                         autoComplete="off"
