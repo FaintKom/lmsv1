@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { BookOpen, X } from "lucide-react";
+
 import { LessonReview } from "@/components/live/lesson-review";
 import { PollModal } from "@/components/live/poll-modal";
-import { SceneView } from "@/components/live/scene-view";
+import { MaterialPane, SceneView } from "@/components/live/scene-view";
 import { SignalBar } from "@/components/live/signal-bar";
 import type { BoardViewHandle } from "@/components/live/board-view";
 import {
@@ -37,15 +39,34 @@ export default function StudentLessonPage() {
   const [followMode, setFollowMode] = useState<FollowMode>("free");
   // bumps when the server clears signals (scene switch) — remounts SignalBar
   const [signalEpoch, setSignalEpoch] = useState(0);
+  // free mode: remember the last seen material so the student can reopen it
+  const [lastMaterial, setLastMaterial] = useState<{
+    lessonId: string;
+    courseId: string;
+  } | null>(null);
+  const [materialOpen, setMaterialOpen] = useState(false);
   const boardHandleRef = useRef<BoardViewHandle | null>(null);
   const prevSceneType = useRef<string | null>(null);
 
   // seed local scene/poll from the authoritative GET
   useEffect(() => {
     if (state) {
-      setScene(state.lesson.current_scene);
+      const s = state.lesson.current_scene;
+      setScene(s);
       setPoll(state.active_poll);
       setFollowMode(state.lesson.follow_mode);
+      if (s?.type === "material" && s.payload.lesson_id && s.payload.course_id) {
+        setLastMaterial({
+          lessonId: s.payload.lesson_id as string,
+          courseId: s.payload.course_id as string,
+        });
+      }
+      if (s?.type === "task" && s.payload.material_lesson_id && s.payload.material_course_id) {
+        setLastMaterial({
+          lessonId: s.payload.material_lesson_id as string,
+          courseId: s.payload.material_course_id as string,
+        });
+      }
       if (state.lesson.status === "ended") setEnded(true);
     }
   }, [state]);
@@ -53,6 +74,18 @@ export default function StudentLessonPage() {
   useLessonChannel(ended ? null : lessonId, {
     onSceneChanged: (s) => {
       setScene(s);
+      if (s.type === "material" && s.payload.lesson_id && s.payload.course_id) {
+        setLastMaterial({
+          lessonId: s.payload.lesson_id as string,
+          courseId: s.payload.course_id as string,
+        });
+      }
+      if (s.type === "task" && s.payload.material_lesson_id && s.payload.material_course_id) {
+        setLastMaterial({
+          lessonId: s.payload.material_lesson_id as string,
+          courseId: s.payload.material_course_id as string,
+        });
+      }
       // announce the switch so the screen doesn't just "jump"
       if (prevSceneType.current !== s.type && s.type !== "blank") {
         toast(`${t("live.nowShowing")}: ${t(`live.scene.${s.type}` as never)}`, {
@@ -132,7 +165,7 @@ export default function StudentLessonPage() {
           {t("live.followStrictBanner")}
         </div>
       )}
-      <div className="min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1">
         {scene && (
           <SceneView
             lessonId={lessonId}
@@ -141,6 +174,36 @@ export default function StudentLessonPage() {
             interactive
             canQuit={followMode !== "strict"}
           />
+        )}
+        {/* free mode: reopen the last material from any scene (task has
+            its own button) */}
+        {followMode === "free" &&
+          lastMaterial &&
+          scene?.type !== "material" &&
+          scene?.type !== "task" && (
+            <button
+              onClick={() => setMaterialOpen(true)}
+              className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-2 text-xs font-bold text-text"
+            >
+              <BookOpen size={14} /> {t("live.scene.material")}
+            </button>
+          )}
+        {materialOpen && lastMaterial && (
+          <div className="absolute inset-0 z-40 bg-paper-2">
+            <MaterialPane
+              payload={{
+                lesson_id: lastMaterial.lessonId,
+                course_id: lastMaterial.courseId,
+              }}
+            />
+            <button
+              onClick={() => setMaterialOpen(false)}
+              aria-label={t("common.close")}
+              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-ink-100"
+            >
+              <X size={18} />
+            </button>
+          </div>
         )}
       </div>
       <SignalBar
