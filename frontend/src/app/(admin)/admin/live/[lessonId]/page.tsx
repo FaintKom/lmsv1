@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   MonitorPlay,
   PenLine,
   Puzzle,
@@ -12,6 +14,9 @@ import {
   Square,
   type LucideIcon,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+import { exercisesApi } from "@/lib/api/exercises";
 
 import { BoardEditor } from "@/components/live/board-editor";
 import { ExercisePicker } from "@/components/live/exercise-picker";
@@ -164,6 +169,83 @@ export default function TeacherLivePage() {
     );
   }
 
+  // ── conductor: auto-programme from the picked material ──────────────
+  // steps = [material, task1, task2...]; Next/Prev (or ←/→) walk them.
+  const { data: programExs } = useQuery({
+    queryKey: ["live", lessonId, "program", materialLessonId],
+    queryFn: async () => {
+      const resp = await exercisesApi.getByLesson(materialLessonId as string);
+      return (resp.data ?? []) as unknown as { id: string; title: string }[];
+    },
+    enabled: !!materialLessonId,
+    staleTime: 60_000,
+  });
+  const steps = useMemo(() => {
+    if (!materialLessonId) return [];
+    return [
+      { kind: "material" as const, id: materialLessonId, title: "" },
+      ...(programExs ?? []).map((e) => ({ kind: "task" as const, id: e.id, title: e.title })),
+    ];
+  }, [materialLessonId, programExs]);
+  // index of the scene currently broadcast, if it is part of the programme
+  const liveStepIndex = useMemo(() => {
+    if (currentScene?.type === "material" && currentScene.payload.lesson_id === materialLessonId)
+      return 0;
+    if (currentScene?.type === "task") {
+      const i = steps.findIndex(
+        (s) => s.kind === "task" && s.id === currentScene.payload.exercise_id,
+      );
+      if (i >= 0) return i;
+    }
+    return null;
+  }, [currentScene, steps, materialLessonId]);
+  const lastStepRef = useRef(0);
+  useEffect(() => {
+    if (liveStepIndex != null) lastStepRef.current = liveStepIndex;
+  }, [liveStepIndex]);
+
+  const goStep = (idx: number) => {
+    const step = steps[idx];
+    if (!step) return;
+    if (step.kind === "material") {
+      setRail("material");
+      setPickingMaterial(false);
+      void setSceneMut.mutateAsync({
+        type: "material",
+        payload: { lesson_id: step.id, course_id: lastMaterial?.courseId ?? lesson.course_id },
+      });
+    } else {
+      setRail("task");
+      setPickingTask(false);
+      void setSceneMut.mutateAsync({
+        type: "task",
+        payload: {
+          exercise_id: step.id,
+          title: step.title,
+          material_lesson_id: materialLessonId,
+          material_course_id: lastMaterial?.courseId ?? lesson.course_id,
+        },
+      });
+    }
+  };
+  const stepBase = liveStepIndex ?? lastStepRef.current;
+  const canPrev = steps.length > 0 && stepBase > 0;
+  const canNext = steps.length > 0 && stepBase < steps.length - 1;
+
+  // ←/→ drive the programme unless focus is in a field or a modal is open
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (confirmEnd || picked) return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "ArrowRight" && canNext) goStep(stepBase + 1);
+      if (e.key === "ArrowLeft" && canPrev) goStep(stepBase - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepBase, canNext, canPrev, confirmEnd, picked, steps]);
+
   const switchToBoard = async () => {
     setRail("board");
     if (currentScene?.type === "board") return;
@@ -215,6 +297,31 @@ export default function TeacherLivePage() {
         {!lesson.course_id && (
           <span className="rounded-pill bg-sun-100 px-2.5 py-1 font-mono text-[11px] font-bold text-sun-700">
             {t("live.noAttendance")}
+          </span>
+        )}
+        {steps.length > 0 && (
+          <span className="flex items-center gap-0.5 rounded-pill bg-surface-2 px-1 py-0.5">
+            <button
+              onClick={() => goStep(stepBase - 1)}
+              disabled={!canPrev}
+              aria-label={t("live.prevStep")}
+              title={t("live.prevStep")}
+              className="flex h-7 w-7 items-center justify-center rounded-pill text-ink-700 transition-colors hover:bg-ink-100 disabled:opacity-30"
+            >
+              <ChevronLeft size={15} strokeWidth={2.5} />
+            </button>
+            <span className="min-w-9 text-center font-mono text-[11px] font-bold tabular-nums text-ink-700">
+              {stepBase + 1}/{steps.length}
+            </span>
+            <button
+              onClick={() => goStep(stepBase + 1)}
+              disabled={!canNext}
+              aria-label={t("live.nextStep")}
+              title={t("live.nextStep")}
+              className="flex h-7 w-7 items-center justify-center rounded-pill text-ink-700 transition-colors hover:bg-ink-100 disabled:opacity-30"
+            >
+              <ChevronRight size={15} strokeWidth={2.5} />
+            </button>
           </span>
         )}
         <div className="ml-auto flex items-center gap-2.5">

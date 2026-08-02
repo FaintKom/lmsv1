@@ -2699,6 +2699,8 @@ const ru: TranslationMap = {
  "live.ask": "Спросить преподавателя",
  "live.askSent": "Вопрос отправлен",
  "live.questionsTitle": "Вопросы",
+ "live.prevStep": "Предыдущий шаг",
+ "live.nextStep": "Следующий шаг",
  "live.nowShowing": "Класс видит",
  "live.waiting": "Ждём преподавателя…",
  "live.startHint": "Выберите сцену слева — класс увидит её мгновенно",
