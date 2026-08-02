@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { BoardView, type BoardViewHandle } from "@/components/live/board-view";
 import type { LiveLesson } from "@/lib/api/live";
 import { useTranslation } from "@/lib/i18n/context";
+import { useAuthStore } from "@/stores/auth-store";
 
 interface ResultRow {
   exercise_id: string;
@@ -23,6 +24,7 @@ export function LessonReview({
   teacherView?: boolean;
 }) {
   const { t } = useTranslation();
+  const userId = useAuthStore((s) => s.user?.id);
   const [openBoard, setOpenBoard] = useState<string | null>(boardIds[0] ?? null);
   const handleRef = useRef<BoardViewHandle | null>(null);
   const scenes = (lesson.summary?.scenes ?? []) as {
@@ -31,6 +33,13 @@ export function LessonReview({
     poll?: { question: string; options: string[]; counts: number[] };
   }[];
   const results = (lesson.summary?.results ?? []) as ResultRow[];
+  // Student view: the server already trims `results` to the caller's own
+  // rows, so this only picks the matching entry per exercise.
+  const myResults = teacherView
+    ? []
+    : results
+        .map((ex) => ({ ex, mine: ex.students.find((s) => s.id === userId) }))
+        .filter((r): r is { ex: ResultRow; mine: ResultRow["students"][number] } => !!r.mine);
 
   return (
     <div className="p-8">
@@ -65,6 +74,32 @@ export function LessonReview({
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {!teacherView && (
+        <div className="mb-6 rounded-lg border border-border bg-paper-2 p-6 shadow-sm">
+          <div className="eyebrow mb-3">{t("live.myResults")}</div>
+          {myResults.length === 0 ? (
+            <p className="text-sm text-text-muted">{t("live.noAttempted")}</p>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {myResults.map(({ ex, mine }) => (
+                <div key={ex.exercise_id} className="flex items-center gap-2 py-0.5 text-sm">
+                  <span className="min-w-0 flex-1 truncate font-bold text-text">{ex.title}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle tabular-nums">
+                    {t("live.attemptsN").replace("{n}", String(mine.attempts))}
+                  </span>
+                  <span
+                    className={`rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold ${
+                      mine.passed ? "bg-green-100 text-green-800" : "bg-clay-50 text-clay-700"
+                    }`}
+                  >
+                    {mine.score != null ? `${Math.round(mine.score)}%` : mine.passed ? "✓" : "✗"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {boardIds.length > 0 && (

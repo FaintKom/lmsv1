@@ -518,6 +518,31 @@ async def lesson_events_endpoint(
     )
 
 
+def _own_results_only(summary: dict | None, student_id: uuid.UUID) -> dict | None:
+    """Students may see their own outcomes, never the rest of the class.
+
+    `summary.results` is per-exercise with every member's row; keep only the
+    caller's. Attendance is likewise class-wide — drop it for students.
+    """
+    if not summary:
+        return summary
+    trimmed = dict(summary)
+    sid = str(student_id)
+    results = trimmed.get("results")
+    if isinstance(results, list):
+        own = []
+        for ex in results:
+            if not isinstance(ex, dict):
+                continue
+            mine = [s for s in (ex.get("students") or []) if str(s.get("id")) == sid]
+            if mine:
+                own.append({**ex, "students": mine})
+        trimmed["results"] = own
+    trimmed.pop("attendance_seconds", None)
+    trimmed.pop("questions", None)
+    return trimmed
+
+
 @router.get("/{lesson_id}", response_model=LessonStateResponse)
 async def lesson_state_endpoint(
     lesson_id: uuid.UUID,
@@ -544,8 +569,11 @@ async def lesson_state_endpoint(
         questions = [
             _json.loads(q) for q in await r.lrange(realtime.questions_key(lesson.id), 0, -1)
         ]
+    lesson_resp = LiveLessonResponse.model_validate(lesson)
+    if not is_teacher:
+        lesson_resp.summary = _own_results_only(lesson_resp.summary, user.id)
     return LessonStateResponse(
-        lesson=LiveLessonResponse.model_validate(lesson),
+        lesson=lesson_resp,
         my_signal=my_signal,
         active_poll=_json.loads(poll_raw) if poll_raw else None,
         board_ids=[row[0] for row in board_rows],
