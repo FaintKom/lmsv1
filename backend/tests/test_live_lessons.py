@@ -503,6 +503,37 @@ async def test_upload_publishes_submission_event(client, db, org, teacher, stude
     assert events[0]["data"]["student_id"] == str(student.id)
 
 
+async def test_start_lesson_autolinks_journal_session(client, db, org, teacher, student):
+    from datetime import date as _date
+
+    from sqlalchemy import select as sa_select
+
+    from app.journal.models import ClassSession
+    from tests.conftest import make_course
+
+    course = await make_course(db, org, teacher)
+    g = StudentGroup(org_id=org.id, name="Live J", teacher_id=teacher.id, course_id=course.id)
+    db.add(g)
+    await db.flush()
+    db.add(StudentGroupMember(group_id=g.id, user_id=student.id))
+    await db.flush()
+
+    body = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()
+    assert body["class_session_id"] is not None
+    cs = await db.scalar(
+        sa_select(ClassSession).where(
+            ClassSession.course_id == course.id,
+            ClassSession.session_date == _date.today(),
+        )
+    )
+    assert cs is not None
+    assert str(cs.id) == body["class_session_id"]
+
+
 async def test_student_question_reaches_teacher_state(client, db, org, teacher, student):
     g = await make_group(db, org, teacher, [student])
     lesson_id = (
