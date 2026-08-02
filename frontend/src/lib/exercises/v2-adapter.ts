@@ -52,6 +52,10 @@ export const V2_LIVE_TYPES = [
   "sentence_builder",
   "conjugation",
   "bubble_sheet",
+  // deferred-check types (PR-2): graded per item through /check, with one
+  // submission recorded via onGrade when the task is solved
+  "matching",
+  "categorize",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 

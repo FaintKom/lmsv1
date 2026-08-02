@@ -117,6 +117,10 @@ def grade_interactive_detail(
     if exercise_type == "translation":
         score, passed = _grade_translation(content, answers)
         return score, passed, None
+    if exercise_type == "matching":
+        return _grade_matching_detail(content, answers)
+    if exercise_type == "categorize":
+        return _grade_categorize_detail(content, answers)
     if exercise_type == "conjugation":
         return _grade_conjugation_detail(content, answers)
     if exercise_type == "bubble_sheet":
@@ -165,17 +169,22 @@ def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple
 
 
 def _grade_matching(content: dict, answers: dict) -> tuple[float, bool]:
+    score, passed, _ = _grade_matching_detail(content, answers)
+    return score, passed
+
+
+def _grade_matching_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade matching. per_item = {left value: verdict} so the deferred-check
+    UI can lock correct pairs and unlink wrong ones."""
     pairs = content.get("pairs", [])
     if not pairs:
-        return 1.0, True
+        return 1.0, True, None
     student_pairs = answers.get("pairs", [])
-    correct = 0
     correct_map = {p["left"]: p["right"] for p in pairs}
-    for sp in student_pairs:
-        if correct_map.get(sp.get("left")) == sp.get("right"):
-            correct += 1
-    score = correct / len(pairs)
-    return score, score >= 0.7
+    picked = {sp.get("left"): sp.get("right") for sp in student_pairs if isinstance(sp, dict)}
+    per_item = {str(left): picked.get(left) == right for left, right in correct_map.items()}
+    score = sum(per_item.values()) / len(pairs)
+    return score, score >= 0.7, per_item
 
 
 def _grade_ordering(content: dict, answers: dict) -> tuple[float, bool]:
@@ -214,20 +223,30 @@ def _grade_true_false(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_categorize(content: dict, answers: dict) -> tuple[float, bool]:
+    score, passed, _ = _grade_categorize_detail(content, answers)
+    return score, passed
+
+
+def _grade_categorize_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade categorize. per_item = {item: verdict} — an item counts correct
+    only when it sits in the bucket its config category names."""
     categories = content.get("categories", [])
     student_categories = answers.get("categories", {})
     if not categories:
-        return 1.0, True
-    total = 0
-    correct = 0
+        return 1.0, True, None
+    # item -> where the student put it
+    placed: dict[str, str] = {}
+    for cat_name, items in (student_categories or {}).items():
+        for item in items or []:
+            placed[str(item)] = str(cat_name)
+    per_item: dict[str, bool] = {}
     for cat in categories:
-        cat_name = cat["name"]
-        correct_items = set(cat["items"])
-        student_items = set(student_categories.get(cat_name, []))
-        total += len(correct_items)
-        correct += len(correct_items & student_items)
-    score = correct / total if total > 0 else 1.0
-    return score, score >= 0.7
+        cat_name = str(cat["name"])
+        for item in cat.get("items") or []:
+            per_item[str(item)] = placed.get(str(item)) == cat_name
+    total = len(per_item)
+    score = sum(per_item.values()) / total if total > 0 else 1.0
+    return score, score >= 0.7, per_item
 
 
 def _grade_translation(content: dict, answers: dict) -> tuple[float, bool]:

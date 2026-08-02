@@ -34,6 +34,7 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface MatchingPair {
   left: string;
@@ -41,11 +42,23 @@ export interface MatchingPair {
 }
 
 export interface MatchingV2Props {
-  pairs: MatchingPair[];
+  /** Preview mode: the full mapping. Correctness is index identity.
+   *  Omitted live — the server strips it (integrity model B). */
+  pairs?: MatchingPair[];
+  /** Live mode: the two columns on their own. `rightItems` arrives
+   *  shuffled from the server, so index identity means nothing here —
+   *  verdicts come from `onCheck`. */
+  leftItems?: string[];
+  rightItems?: string[];
+  /** Non-persisting per-pair check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission once every pair is locked correct. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   eyebrow?: string;
   title?: string;
   /** Max wrong rounds before the task ends in failure.
-   * Default = min(3, pairs.length) (MT-04). */
+   * Default = min(3, pairCount) (MT-04). */
   maxAttemptsPerTask?: number;
   streak?: number;
   /**
@@ -96,6 +109,11 @@ const DRAG_THRESHOLD = 6;
 
 export function MatchingV2({
   pairs,
+  leftItems,
+  rightItems,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   eyebrow,
   title,
   maxAttemptsPerTask,
@@ -104,8 +122,14 @@ export function MatchingV2({
   onQuit,
   onFinish,
 }: MatchingV2Props) {
-  const maxAttempts = maxAttemptsPerTask ?? Math.min(3, pairs.length);
-  const indices = pairs.map((_, i) => i);
+  // Column labels: from the stripped config when live, from `pairs` in preview.
+  const leftLabels = leftItems ?? (pairs ?? []).map((p) => p.left);
+  const rightLabels = rightItems ?? (pairs ?? []).map((p) => p.right);
+  const pairCount = leftLabels.length;
+  const serverGraded = !!onCheck;
+  const maxAttempts = maxAttemptsPerTask ?? Math.min(3, pairCount);
+  const indices = leftLabels.map((_, i) => i);
+  const [checking, setChecking] = useState(false);
   const [leftOrder] = useState(() => shuffle(indices));
   const [rightOrder] = useState(() => shuffle(indices));
   const [picked, setPicked] = useState<TilePick | null>(null);
@@ -127,6 +151,8 @@ export function MatchingV2({
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const tileRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const dragRef = useRef<DragState | null>(null);
+  /** Every pair locked so far — the submission payload when the task is won. */
+  const solvedRef = useRef<SoftLink[]>([]);
 
   // MT-05: coarse pointers (touch) get a "tap to connect" hint line.
   const [coarse, setCoarse] = useState(false);
@@ -137,6 +163,14 @@ export function MatchingV2({
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  // live-lesson draft capture
+  useEffect(() => {
+    if (links.length + matched.length > 0) {
+      onAnswersChange?.(linksPayload([...solvedRef.current, ...links]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [links, matched]);
 
   // Re-render on resize so the SVG anchors recompute against fresh rects.
   useEffect(() => {
@@ -180,7 +214,8 @@ export function MatchingV2({
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: pairs.map((p) => `${p.left} → ${p.right}`).join(", "),
+        // no mapping to reveal in server mode — the config never carries it
+        correct: pairs?.map((p) => `${p.left} → ${p.right}`).join(", "),
       });
       setStreak(0);
     } else {
@@ -206,7 +241,7 @@ export function MatchingV2({
       const nm = [...matched, lIdx];
       setMatched(nm);
       setFresh(lIdx);
-      if (nm.length === pairs.length) {
+      if (nm.length === pairCount) {
         setTimeout(() => winTask(), 380);
       }
     } else {
@@ -218,17 +253,51 @@ export function MatchingV2({
     }
   };
 
-  /** Deferred check: correct pairs lock, wrong pairs flash and unlink. */
-  const check = () => {
-    const ok = links.filter((p) => p[0] === p[1]);
-    const bad = links.filter((p) => p[0] !== p[1]);
+  /** The pair list as the grader wants it: label ↔ label. */
+  const linksPayload = (ls: SoftLink[]) => ({
+    pairs: ls.map(([l, r]) => ({ left: leftLabels[l], right: rightLabels[r] })),
+  });
+
+  /** Deferred check: correct pairs lock, wrong pairs flash and unlink.
+   *  Server mode asks /check (no attempt consumed) and reads per-left
+   *  verdicts; preview mode compares indices locally. */
+  const check = async () => {
+    if (checking) return;
+    let ok: SoftLink[];
+    let bad: SoftLink[];
+    if (serverGraded) {
+      setChecking(true);
+      try {
+        const res = await onCheck!(linksPayload(links));
+        const pi = res.perItem;
+        const verdict = (l: number) =>
+          !!(pi && !Array.isArray(pi) && pi[String(leftLabels[l])]);
+        ok = links.filter(([l]) => verdict(l));
+        bad = links.filter(([l]) => !verdict(l));
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      ok = links.filter((p) => p[0] === p[1]);
+      bad = links.filter((p) => p[0] !== p[1]);
+    }
+    applyCheck(ok, bad);
+  };
+
+  const applyCheck = (ok: SoftLink[], bad: SoftLink[]) => {
     if (ok.length) {
+      solvedRef.current = [...solvedRef.current, ...ok];
       setMatched((m) => [...m, ...ok.map((p) => p[0])]);
       setFresh(ok[0][0]);
     }
     if (bad.length === 0) {
       setLinks([]);
       setFreshLink(null);
+      // server mode: one submission recorded when the task is actually solved
+      if (serverGraded && onGrade) void onGrade(linksPayload(solvedRef.current));
       setTimeout(() => winTask(), 380);
     } else {
       setLinks(bad);
@@ -448,12 +517,12 @@ export function MatchingV2({
         matched.includes(idx)
           ? t("exercise.matching.tileMatchedAria").replace(
               "{text}",
-              pairs[idx][side === "L" ? "left" : "right"]
+              (side === "L" ? leftLabels[idx] : rightLabels[idx])
             )
           : undefined
       }
     >
-      {pairs[idx][side === "L" ? "left" : "right"]}
+      {(side === "L" ? leftLabels[idx] : rightLabels[idx])}
     </button>
   );
 
@@ -470,9 +539,10 @@ export function MatchingV2({
         feedback={feedback}
         canCheck={
           deferred &&
-          links.length + matched.length === pairs.length &&
+          links.length + matched.length === pairCount &&
           !wrongPairs &&
-          !feedback
+          !feedback &&
+          !checking
         }
         checkLabel={t("exercise.matching.check")}
         checkHint={t("exercise.matching.checkHint")}

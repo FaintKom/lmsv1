@@ -523,6 +523,24 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                 {k: v for k, v in q.items() if k != "correct"} if isinstance(q, dict) else q
                 for q in resp.config["questions"]
             ]
+        # matching: the left→right mapping IS the answer. Ship the two
+        # columns separately, right side shuffled, and drop `pairs`.
+        if isinstance(resp.config.get("pairs"), list):
+            pairs = [p for p in resp.config["pairs"] if isinstance(p, dict)]
+            rights = [p.get("right") for p in pairs]
+            random.shuffle(rights)
+            resp.config = {k: v for k, v in resp.config.items() if k != "pairs"}
+            resp.config["left_items"] = [p.get("left") for p in pairs]
+            resp.config["right_items"] = rights
+        # categorize: same idea — category names plus a shuffled flat item
+        # pool, never the per-category membership.
+        if isinstance(resp.config.get("categories"), list):
+            cats = [c for c in resp.config["categories"] if isinstance(c, dict)]
+            items = [i for c in cats for i in (c.get("items") or [])]
+            random.shuffle(items)
+            resp.config = {k: v for k, v in resp.config.items() if k != "categories"}
+            resp.config["category_names"] = [c.get("name") for c in cats]
+            resp.config["items"] = items
         if isinstance(resp.config.get("pins"), list):  # map_pin_drop
             resp.config["pins"] = [
                 {k: v for k, v in p.items() if k not in ("x", "y", "tolerance")}

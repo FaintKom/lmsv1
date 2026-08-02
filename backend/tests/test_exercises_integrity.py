@@ -283,3 +283,119 @@ async def test_submit_bubble_sheet(client: AsyncClient, student, teacher, org, d
     )
     assert resp.status_code == 200
     assert resp.json()["passed"] is passed
+
+
+# ─── PR-2: matching / categorize / map_pin_drop ──────────────────────────
+
+
+async def test_matching_strips_pairs(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.matching,
+        {
+            "shuffle": True,
+            "pairs": [
+                {"left": "hello", "right": "hola"},
+                {"left": "bye", "right": "adiós"},
+            ],
+        },
+    )
+    cfg = await _student_config(client, student, ex)
+    assert "pairs" not in cfg
+    assert cfg["left_items"] == ["hello", "bye"]
+    assert sorted(cfg["right_items"]) == ["adiós", "hola"]
+
+
+async def test_categorize_strips_membership(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.categorize,
+        {
+            "categories": [
+                {"name": "Fruit", "items": ["apple", "pear"]},
+                {"name": "Tool", "items": ["hammer"]},
+            ]
+        },
+    )
+    cfg = await _student_config(client, student, ex)
+    assert "categories" not in cfg
+    assert cfg["category_names"] == ["Fruit", "Tool"]
+    assert sorted(cfg["items"]) == ["apple", "hammer", "pear"]
+
+
+async def test_check_matching_per_pair(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.matching,
+        {"pairs": [{"left": "a", "right": "1"}, {"left": "b", "right": "2"}]},
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={
+            "interactive_answers": {
+                "pairs": [{"left": "a", "right": "1"}, {"left": "b", "right": "1"}]
+            }
+        },
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["per_item"] == {"a": True, "b": False}
+    assert body["passed"] is False
+    count = await db.scalar(
+        select(func.count())
+        .select_from(ExerciseSubmission)
+        .where(ExerciseSubmission.exercise_id == ex.id)
+    )
+    assert count == 0
+
+
+async def test_check_categorize_per_item(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.categorize,
+        {
+            "categories": [
+                {"name": "Fruit", "items": ["apple"]},
+                {"name": "Tool", "items": ["hammer"]},
+            ]
+        },
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"categories": {"Fruit": ["apple", "hammer"]}}},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["per_item"] == {"apple": True, "hammer": False}
+
+
+async def test_submit_matching_scores_server_side(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.matching,
+        {"pairs": [{"left": "a", "right": "1"}, {"left": "b", "right": "2"}]},
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={
+            "interactive_answers": {
+                "pairs": [{"left": "a", "right": "1"}, {"left": "b", "right": "2"}]
+            }
+        },
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["passed"] is True
+    assert body["per_item"] == {"a": True, "b": True}

@@ -26,13 +26,14 @@
  * Same per-task HP + streak as the rest of the V2 family.
  */
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface CategorizeCategory {
   name: string;
@@ -43,7 +44,17 @@ export interface CategorizeCategory {
 }
 
 export interface CategorizeV2Props {
-  categories: CategorizeCategory[];
+  /** Preview mode: buckets with their membership. Omitted live — the
+   *  server strips it (integrity model B). */
+  categories?: CategorizeCategory[];
+  /** Live mode: bucket names and a shuffled flat item pool. */
+  categoryNames?: string[];
+  items?: string[];
+  /** Non-persisting per-item check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission once every chip is locked correct. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   eyebrow?: string;
   title?: string;
   maxAttemptsPerTask?: number;
@@ -81,6 +92,11 @@ const BUCKET_SWATCHES = [
 
 export function CategorizeV2({
   categories,
+  categoryNames,
+  items,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
@@ -90,12 +106,21 @@ export function CategorizeV2({
   onFinish,
 }: CategorizeV2Props) {
   const { t } = useTranslation();
+  const serverGraded = !!onCheck;
 
-  const all = useMemo(() => categories.flatMap((c) => c.items), [categories]);
-  /** item → its canonical category name. */
+  /** Buckets to render: full objects in preview, name-only live. */
+  const buckets: CategorizeCategory[] = useMemo(
+    () => categories ?? (categoryNames ?? []).map((name) => ({ name, items: [] })),
+    [categories, categoryNames],
+  );
+  const all = useMemo(
+    () => items ?? (categories ?? []).flatMap((c) => c.items),
+    [items, categories],
+  );
+  /** item → its canonical category name (preview only; live has no key). */
   const correctCat = useMemo(() => {
     const m: Record<string, string> = {};
-    categories.forEach((c) => c.items.forEach((it) => (m[it] = c.name)));
+    (categories ?? []).forEach((c) => c.items.forEach((it) => (m[it] = c.name)));
     return m;
   }, [categories]);
 
@@ -118,13 +143,24 @@ export function CategorizeV2({
   const bucketRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { fire, layer } = useConfetti();
 
+  // live-lesson draft capture
+  useEffect(() => {
+    if (Object.keys(placed).length === 0) return;
+    const byBucket: Record<string, string[]> = {};
+    Object.entries(placed).forEach(([item, bucket]) => {
+      (byBucket[bucket] ||= []).push(item);
+    });
+    onAnswersChange?.({ categories: byBucket });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placed]);
+
   const tray = all.filter((it) => !placed[it]);
   const reveal = () =>
-    categories.map((c) => `${c.items.join(", ")} → ${c.name}`).join(" · ");
+    (categories ?? []).map((c) => `${c.items.join(", ")} → ${c.name}`).join(" · ") || undefined;
 
   /** Bucket under the pointer — bounding-rect hit-testing (capture-safe). */
   const bucketAt = (x: number, y: number): string | null => {
-    for (const c of categories) {
+    for (const c of buckets) {
       const el = bucketRefs.current[c.name];
       if (!el) continue;
       const r = el.getBoundingClientRect();
@@ -245,19 +281,45 @@ export function CategorizeV2({
 
   /** Deferred check: correct chips lock `ok`, wrong chips shake `no` and
    * return to the tray (kept in place with marks when the task is over). */
-  const handleCheck = () => {
+  /** Bucket map as the grader wants it: {bucket: [items]}. */
+  const placedPayload = () => {
+    const byBucket: Record<string, string[]> = {};
+    Object.entries(placed).forEach(([item, bucket]) => {
+      (byBucket[bucket] ||= []).push(item);
+    });
+    return { categories: byBucket };
+  };
+
+  const handleCheck = async () => {
     if (grading) return;
     setGrading(true);
+    let verdict: (item: string) => boolean;
+    if (serverGraded) {
+      try {
+        const res = await onCheck!(placedPayload());
+        const pi = res.perItem;
+        const map = pi && !Array.isArray(pi) ? pi : {};
+        verdict = (it) => !!(map as Record<string, boolean>)[it];
+      } catch {
+        setGrading(false);
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      }
+    } else {
+      verdict = (it) => placed[it] === correctCat[it];
+    }
     const states: Record<string, ChipState> = {};
     const bad: string[] = [];
     all.forEach((it) => {
       if (!placed[it]) return;
-      const ok = placed[it] === correctCat[it];
+      const ok = verdict(it);
       states[it] = ok ? "ok" : "no";
       if (!ok) bad.push(it);
     });
     setChipStates(states);
     if (bad.length === 0) {
+      // server mode: one submission recorded when the task is actually solved
+      if (serverGraded && onGrade) void onGrade(placedPayload());
       winTask();
       return;
     }
@@ -424,7 +486,7 @@ export function CategorizeV2({
               gap: 16,
             }}
           >
-            {categories.map((c, ci) => {
+            {buckets.map((c, ci) => {
               const inBucket = all.filter((it) => placed[it] === c.name);
               const isOver = drag !== null && drag.over === c.name;
               const isFlash = flash !== null && flash.key === c.name;

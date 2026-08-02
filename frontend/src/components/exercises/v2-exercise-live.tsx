@@ -34,6 +34,8 @@ import {
   BubbleSheetV2,
   type BubbleSheetQuestion,
 } from "@/components/exercises/v2/bubble-sheet-v2";
+import { MatchingV2 } from "@/components/exercises/v2/matching-v2";
+import { CategorizeV2 } from "@/components/exercises/v2/categorize-v2";
 
 interface LiveExercise {
   id: string;
@@ -118,6 +120,16 @@ export function V2ExerciseLive({
       result.correctAnswer = formatCorrect(d.correct_answer);
     }
     return result;
+  };
+
+  /** Non-persisting per-item check — no submission row, no attempt spent.
+   *  Used by the deferred types (matching, categorize) between rounds. */
+  const onCheck: V2GradeFn = async (answers) => {
+    const res = await apiClient.post(`/exercises/${exercise.id}/check`, {
+      interactive_answers: answers,
+    });
+    const d = res.data ?? {};
+    return { correct: !!d.passed, perItem: d.per_item ?? undefined };
   };
 
   if (!status) return null;
@@ -220,6 +232,34 @@ export function V2ExerciseLive({
       });
       return <BubbleSheetV2 questions={questions} {...shared} />;
     }
+    case "matching":
+      return (
+        <MatchingV2
+          leftItems={(cfg.left_items as string[]) ?? undefined}
+          rightItems={(cfg.right_items as string[]) ?? undefined}
+          // teacher preview still sees the unstripped mapping
+          pairs={cfg.pairs as { left: string; right: string }[] | undefined}
+          onCheck={onCheck}
+          maxAttemptsPerTask={remaining}
+          onGrade={onGrade}
+          onAnswersChange={onAnswersChange}
+          onQuit={onQuit}
+          // matching reports wrongAttempts; the shared contract wants attemptsUsed
+          onFinish={(r) =>
+            onFinish?.({ correct: r.correct, attemptsUsed: r.wrongAttempts, streak: r.streak })
+          }
+        />
+      );
+    case "categorize":
+      return (
+        <CategorizeV2
+          categoryNames={(cfg.category_names as string[]) ?? undefined}
+          items={(cfg.items as string[]) ?? undefined}
+          categories={cfg.categories as { name: string; items: string[] }[] | undefined}
+          onCheck={onCheck}
+          {...shared}
+        />
+      );
     default:
       return null;
   }
