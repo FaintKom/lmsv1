@@ -20,10 +20,20 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface MapPinDropV2Props {
-  /** Target location as percent of map (0-100, both axes). */
-  target: { x: number; y: number };
+  /** Target location as percent of map (0-100, both axes). Preview only —
+   *  live the config carries no coordinates (integrity model B). */
+  target?: { x: number; y: number };
+  /** Live mode: one label per pin the student must place, in config order.
+   *  Verdicts come from `onCheck` as a positional boolean list. */
+  pinLabels?: string[];
+  /** Non-persisting check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission once every pin is placed correctly. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   /** Match tolerance in percent. Default 6. */
   tolerance?: number;
   /** Map background. Pass SVG / img / div with bg image. */
@@ -47,6 +57,10 @@ export interface MapPinDropV2Props {
 
 export function MapPinDropV2({
   target,
+  pinLabels,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   tolerance = 6,
   mapContent,
   correctHint,
@@ -60,6 +74,15 @@ export function MapPinDropV2({
 }: MapPinDropV2Props) {
   const { t } = useTranslation();
   const [pin, setPin] = useState<{ x: number; y: number } | null>(null);
+  const multi = (pinLabels?.length ?? 0) > 0;
+  /** Per-pin verdicts from the last server check (multi mode). */
+  const [verdicts, setVerdicts] = useState<boolean[]>([]);
+  const [checking, setChecking] = useState(false);
+  /** Multi-pin mode: which label the next click places, and what is placed. */
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [placed, setPlaced] = useState<({ x: number; y: number } | null)[]>(
+    () => (pinLabels ?? []).map(() => null),
+  );
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
@@ -73,14 +96,25 @@ export function MapPinDropV2({
     const rect = mapRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
+    if (multi) {
+      setPlaced((ps) => ps.map((p, i) => (i === activeIdx ? { x, y } : p)));
+      // move to the next unplaced label so a run of clicks fills the map
+      setActiveIdx((i) => {
+        const next = (pinLabels ?? []).findIndex((_, j) => j > i && !placed[j]);
+        return next === -1 ? i : next;
+      });
+      return;
+    }
     setPin({ x, y });
   };
 
-  const dist = pin ? Math.hypot(pin.x - target.x, pin.y - target.y) : Infinity;
+  const dist =
+    pin && target ? Math.hypot(pin.x - target.x, pin.y - target.y) : Infinity;
 
   /** MP-02: a compass nudge toward the target — direction only, never coords. */
   const compassHint = (): string => {
     if (!pin) return "";
+    if (!target) return "";
     const dx = target.x - pin.x;
     const dy = target.y - pin.y;
     const parts: string[] = [];
@@ -92,7 +126,57 @@ export function MapPinDropV2({
     return t("exercise.mapPin.tryFurther").replace("{dir}", parts.join("-"));
   };
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
+    if (checking) return;
+
+    if (multi) {
+      const payload = {
+        pins: placed.map((p) => ({ x: p?.x ?? -999, y: p?.y ?? -999 })),
+      };
+      onAnswersChange?.(payload);
+      setChecking(true);
+      let allRight = false;
+      try {
+        const res = await onCheck!(payload);
+        const pi = res.perItem;
+        const flags = Array.isArray(pi) ? pi : [];
+        setVerdicts(flags);
+        allRight = flags.length > 0 && flags.every(Boolean);
+        if (allRight && onGrade) void onGrade(payload);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+      if (allRight) {
+        setFeedback({
+          kind: "ok",
+          msg: usedAttempts === 0 ? t("exercise.mapPin.rightOnTarget") : t("exercise.gotIt"),
+        });
+        setStreak((s) => s + 1);
+        fire();
+        return;
+      }
+      const left = attemptsLeft - 1;
+      setAttemptsLeft(left);
+      setUsedAttempts((u) => u + 1);
+      setLostHeart(true);
+      setTimeout(() => setLostHeart(false), 500);
+      setFeedback({
+        kind: "no",
+        msg:
+          left <= 0
+            ? t("exercise.mapPin.offByABit")
+            : (left === 1
+                ? t("exercise.mapPin.offByABitAttempt")
+                : t("exercise.mapPin.offByABitAttempts")
+              ).replace("{n}", String(left)),
+      });
+      if (left <= 0) setStreak(0);
+      return;
+    }
+
     if (dist <= tolerance) {
       setFeedback({
         kind: "ok",
@@ -146,10 +230,10 @@ export function MapPinDropV2({
         maxHearts={maxAttemptsPerTask}
         streak={streak}
         lostHeart={lostHeart}
-        eyebrow={eyebrow}
+        eyebrow={multi && pinLabels ? pinLabels[activeIdx] : eyebrow}
         title={title ?? t("exercise.mapPin.title")}
         feedback={feedback}
-        canCheck={!!pin}
+        canCheck={multi ? placed.every(Boolean) && !checking : !!pin}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
@@ -173,6 +257,42 @@ export function MapPinDropV2({
         >
           {mapContent}
           {/* Drop pin */}
+          {/* Multi-pin: one marker per placed label, tinted by the last
+              server verdict (green = right, clay = wrong). */}
+          {multi &&
+            placed.map((p, i) =>
+              p ? (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${p.x}%`,
+                    top: `${p.y}%`,
+                    transform: "translate(-50%, -100%)",
+                    pointerEvents: "none",
+                    color:
+                      verdicts[i] === true
+                        ? "var(--green-600)"
+                        : verdicts[i] === false
+                          ? "var(--clay-500)"
+                          : "var(--ink-700)",
+                  }}
+                >
+                  <MapPin size={28} />
+                  <span
+                    style={{
+                      display: "block",
+                      textAlign: "center",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 10,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {pinLabels?.[i]}
+                  </span>
+                </div>
+              ) : null,
+            )}
           {pin && (
             <div
               style={{
@@ -193,8 +313,9 @@ export function MapPinDropV2({
               <MapPin size={32} />
             </div>
           )}
-          {/* Correct pin on wrong / out-of-attempts */}
-          {feedback && feedback.kind === "no" && (
+          {/* Correct pin on wrong / out-of-attempts. Preview only: the
+              stripped live config carries no coordinates to reveal. */}
+          {target && feedback && feedback.kind === "no" && (
             <>
               {/* MP-05: dashed tolerance ring around the target. */}
               <div

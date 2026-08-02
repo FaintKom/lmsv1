@@ -40,6 +40,7 @@ import { ReadingV2 } from "@/components/exercises/v2/reading-v2";
 import { DialogueV2 } from "@/components/exercises/v2/dialogue-v2";
 import { QuizV2 } from "@/components/exercises/v2/quiz-v2";
 import { CrosswordV2 } from "@/components/exercises/v2/crossword-v2";
+import { MapPinDropV2 } from "@/components/exercises/v2/map-pin-v2";
 
 interface LiveExercise {
   id: string;
@@ -303,6 +304,31 @@ export function V2ExerciseLive({
           questions={questions}
           onCheck={onCheck}
           {...shared}
+        />
+      );
+    }
+    case "map_pin_drop": {
+      // stripped config: pins[{label}] — coordinates and tolerance are gone,
+      // so the student places one marker per label and the server judges.
+      const pins = (cfg.pins as { label?: string }[]) ?? [];
+      return (
+        <MapPinDropV2
+          pinLabels={pins.map((p, i) => p.label ?? `#${i + 1}`)}
+          mapContent={
+            cfg.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={cfg.image_url as string}
+                alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : null
+          }
+          onCheck={onCheck}
+          maxAttemptsPerTask={remaining}
+          onGrade={onGrade}
+          onAnswersChange={onAnswersChange}
+          onQuit={onQuit}
         />
       );
     }
