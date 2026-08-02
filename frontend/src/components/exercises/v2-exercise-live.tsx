@@ -38,12 +38,21 @@ import { MatchingV2 } from "@/components/exercises/v2/matching-v2";
 import { CategorizeV2 } from "@/components/exercises/v2/categorize-v2";
 import { ReadingV2 } from "@/components/exercises/v2/reading-v2";
 import { DialogueV2 } from "@/components/exercises/v2/dialogue-v2";
+import { QuizV2 } from "@/components/exercises/v2/quiz-v2";
 
 interface LiveExercise {
   id: string;
   exercise_type: string;
   title?: string;
   config: Record<string, unknown>;
+  /** quiz only — answers live in this relation, not in config. The server
+   *  already strips `is_correct` / `correct_answer` for students. */
+  questions?: {
+    id: string;
+    question_text: string;
+    question_type?: string;
+    options?: { text?: string; label?: string; is_correct?: boolean }[] | null;
+  }[];
 }
 
 export interface V2ExerciseLiveProps {
@@ -252,6 +261,19 @@ export function V2ExerciseLive({
           }
         />
       );
+    case "quiz": {
+      const qs = (exercise.questions ?? []).map((q) => ({
+        id: q.id,
+        question_text: q.question_text,
+        answerMode:
+          q.question_type === "text_answer" ? ("text" as const) : ("selected_option" as const),
+        options: (q.options ?? []).map((o) => ({
+          text: o.text ?? o.label ?? "",
+          is_correct: o.is_correct,
+        })),
+      }));
+      return <QuizV2 questions={qs} onCheck={onCheck} onGrade={onGrade} onQuit={onQuit} />;
+    }
     case "reading": {
       // config questions carry either dict options ({id,label,is_correct})
       // or plain strings; the grader wants the id in the first case

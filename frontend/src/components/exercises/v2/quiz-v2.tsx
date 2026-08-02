@@ -24,7 +24,7 @@
  *     exhausted without a correct pick).
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
@@ -32,14 +32,25 @@ import {
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
 import { MaybeMath } from "@/components/common/math-renderer";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface QuizV2Question {
   question_text: string;
   options: { text: string; is_correct?: boolean }[];
+  /** Live mode: the question's server id — the key /check verdicts use. */
+  id?: string;
+  /** Live mode: how the server expects this question answered.
+   *  "text" sends the option label, otherwise the selected option text. */
+  answerMode?: "selected_option" | "text";
 }
 
 export interface QuizV2Props {
   questions: QuizV2Question[];
+  /** Non-persisting per-question check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission after the last question. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   /** Optional eyebrow line (e.g. course / lesson position). */
   eyebrow?: string;
   /** Maximum attempts the student has on each individual question. Default 3. */
@@ -59,6 +70,9 @@ export interface QuizV2Props {
 
 export function QuizV2({
   questions,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   eyebrow,
   maxAttemptsPerTask = 3,
   title,
@@ -77,6 +91,10 @@ export function QuizV2({
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [correctFirstTry, setCorrectFirstTry] = useState(0);
   const [correctEventually, setCorrectEventually] = useState(0);
+  const serverGraded = !!onCheck;
+  const [checking, setChecking] = useState(false);
+  /** Answers gathered so far, in the shape the quiz grader expects. */
+  const answersRef = useRef<Record<string, { question_id: string; text?: string; selected_option?: string }>>({});
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -135,9 +153,38 @@ export function QuizV2({
 
   const correctIdx = q.options.findIndex((o) => o.is_correct);
 
-  const handleCheck = () => {
-    if (pick === null) return;
-    const isCorrect = pick === correctIdx;
+  const handleCheck = async () => {
+    if (pick === null || checking) return;
+
+    let isCorrect: boolean;
+    if (serverGraded) {
+      const label = q.options[pick]?.text ?? "";
+      answersRef.current = {
+        ...answersRef.current,
+        [q.id ?? String(idx)]: {
+          question_id: q.id ?? String(idx),
+          ...(q.answerMode === "text" ? { text: label } : { selected_option: label }),
+        },
+      };
+      const payload = { answers: Object.values(answersRef.current) };
+      onAnswersChange?.(payload);
+      setChecking(true);
+      try {
+        const res = await onCheck!(payload);
+        const pi = res.perItem;
+        isCorrect = !!(pi && !Array.isArray(pi) && pi[q.id ?? String(idx)]);
+        if (isCorrect && onGrade && idx === questions.length - 1) {
+          void onGrade(payload);
+        }
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      isCorrect = pick === correctIdx;
+    }
 
     if (isCorrect) {
       setFeedback({
@@ -164,7 +211,8 @@ export function QuizV2({
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: q.options[correctIdx]?.text,
+        // nothing to reveal live — the stripped question carries no key
+        correct: correctIdx >= 0 ? q.options[correctIdx]?.text : undefined,
       });
       setStreak(0);
     } else {
