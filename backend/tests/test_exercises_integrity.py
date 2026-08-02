@@ -463,3 +463,34 @@ async def test_check_quiz_uses_the_questions_relation(
         headers=auth_header(student),
     )
     assert bad.json()["per_item"] == {qid: False}
+
+
+async def test_reading_strips_answers(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.reading,
+        {
+            "passage": "Once upon a time...",
+            "questions": [
+                {
+                    "question": "Who?",
+                    "type": "multiple_choice",
+                    "correct_answer": "a hero",
+                    "options": [
+                        {"id": "1", "label": "a hero", "is_correct": True},
+                        {"id": "2", "label": "a villain", "is_correct": False},
+                    ],
+                }
+            ],
+        },
+    )
+    cfg = await _student_config(client, student, ex)
+    q = cfg["questions"][0]
+    assert "correct_answer" not in q
+    assert all("is_correct" not in o for o in q["options"])
+    # display data survives
+    assert q["question"] == "Who?"
+    assert [o["label"] for o in q["options"]] == ["a hero", "a villain"]
+    assert cfg["passage"] == "Once upon a time..."

@@ -56,6 +56,8 @@ export const V2_LIVE_TYPES = [
   // submission recorded via onGrade when the task is solved
   "matching",
   "categorize",
+  // stepper types (PR-3): per-question verdicts through /check
+  "reading",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 

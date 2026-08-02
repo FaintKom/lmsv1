@@ -15,19 +15,24 @@
  *     option is only revealed when the question is over (no answer leak).
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface ReadingQuestion {
   question: string;
   options: string[];
-  /** 0-based index of correct option. */
-  correct: number;
+  /** 0-based index of correct option. Required for local (preview) grading;
+   *  omitted live — the server strips it and grades via `onCheck`. */
+  correct?: number;
+  /** Live mode: the value to submit per option (option id when the config
+   *  uses dict options; the label otherwise). */
+  optionIds?: string[];
   /** Hint shown alongside wrong-attempt feedback. */
   hint?: string;
 }
@@ -43,6 +48,11 @@ export interface ReadingV2Props {
   hint?: string;
   /** RD-03: multi-question flow over the same passage (takes precedence). */
   questions?: ReadingQuestion[];
+  /** Non-persisting per-question check (POST /exercises/:id/check). */
+  onCheck?: V2GradeFn;
+  /** Records the submission when the last question is solved. */
+  onGrade?: V2GradeFn;
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   eyebrow?: string;
   title?: string;
   passageLabel?: string;
@@ -63,6 +73,9 @@ export function ReadingV2({
   correct,
   hint,
   questions,
+  onCheck,
+  onGrade,
+  onAnswersChange,
   eyebrow,
   title,
   passageLabel,
@@ -101,10 +114,45 @@ export function ReadingV2({
 
   const q = qs[qIdx];
   const multi = qs.length > 1;
+  const serverGraded = !!onCheck;
+  const [checking, setChecking] = useState(false);
+  /** Every answer given so far, keyed by question index — the payload shape
+   *  `_grade_reading` expects. */
+  const answersRef = useRef<Record<string, string>>({});
 
-  const handleCheck = () => {
+  /** What to submit for option `i` of the current question: the option id
+   *  when the config carried dict options, the label otherwise. */
+  const valueFor = (i: number) => q.optionIds?.[i] ?? q.options[i] ?? "";
+
+  const handleCheck = async () => {
+    if (checking) return;
     setTotalAttempts((n) => n + 1);
-    if (pick === q.correct) {
+
+    let isCorrect: boolean;
+    if (serverGraded) {
+      if (pick === null) return;
+      answersRef.current = { ...answersRef.current, [String(qIdx)]: valueFor(pick) };
+      onAnswersChange?.({ answers: answersRef.current });
+      setChecking(true);
+      try {
+        const res = await onCheck!({ answers: answersRef.current });
+        const pi = res.perItem;
+        isCorrect = !!(pi && !Array.isArray(pi) && pi[String(qIdx)]);
+        // last question solved → record the attempt once
+        if (isCorrect && onGrade && qIdx === qs.length - 1) {
+          void onGrade({ answers: answersRef.current });
+        }
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+        return;
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      isCorrect = pick === q.correct;
+    }
+
+    if (isCorrect) {
       setFeedback({
         kind: "ok",
         msg: usedAttempts === 0 ? t("exercise.reading.right") : t("exercise.gotIt"),
@@ -126,7 +174,8 @@ export function ReadingV2({
       setFeedback({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
-        correct: q.options[q.correct],
+        // nothing to reveal in server mode — the config has no answer key
+        correct: q.correct != null ? q.options[q.correct] : undefined,
         explain: q.hint,
       });
       setStreak(0);
