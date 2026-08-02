@@ -33,8 +33,8 @@ export const COL = {
   green: 0x6bc44d,
   mint: 0x65c8b3,
   greenDeep: 0x0a8754,
-  coral: 0xff7a5c,
-  coralSoft: 0xffae9a,
+  clay: 0xff7a5c,
+  claySoft: 0xffae9a,
   sun: 0xffd84d,
   paper: 0xfafbf6,
   lavender: 0xa48dc8,
@@ -96,7 +96,7 @@ export type FloorType = "wood" | "tile" | "carpet" | "moss";
 const FLOOR_PALETTE: Record<FloorType, { base: number; dark: number }> = {
   wood: { base: COL.woodLight, dark: COL.woodMid },
   tile: { base: COL.cream, dark: COL.white },
-  carpet: { base: COL.coralSoft, dark: COL.coral },
+  carpet: { base: COL.claySoft, dark: COL.clay },
   moss: { base: 0x7fb069, dark: 0x5a9148 },
 };
 
@@ -171,7 +171,7 @@ export function buildBed(variant: BedVariant = "basic"): THREE.Group {
   vbox(g, 0.2, 1.8, 0.2, 4.6, 1.0, 7.6, COL.white);
   // Blanket sits flush on mattress (y=2.8..3.0), covering z=2.4..7.8.
   const blanket =
-    variant === "kids" ? COL.coral : variant === "double" ? COL.lavender : COL.green;
+    variant === "kids" ? COL.clay : variant === "double" ? COL.lavender : COL.green;
   vbox(g, 0.2, 2.8, 2.4, 4.6, 0.2, 5.4, blanket);
   // Foot-end fold sits ABOVE the blanket top (y=3.0..3.35).
   vbox(g, 0.2, 3.0, 7.4, 4.6, 0.35, 0.6, darker(blanket));
@@ -185,7 +185,7 @@ export function buildBed(variant: BedVariant = "basic"): THREE.Group {
   // blanket z=2.4..7.8) and on top of mattress (y=2.8..3.35).
   vbox(g, 0.5, 2.8, 0.4, 4.0, 0.55, 1.4, COL.white);
   // Pillow-end ribbon — above pillow top (y=3.35..3.7).
-  vbox(g, 1.4, 3.35, 0.55, 2.2, 0.35, 0.7, variant === "kids" ? COL.sun : COL.coralSoft);
+  vbox(g, 1.4, 3.35, 0.55, 2.2, 0.35, 0.7, variant === "kids" ? COL.sun : COL.claySoft);
   // Headboard — sits BEHIND the frame footprint at z=-0.4..0.
   vbox(g, 0, 1.8, -0.4, 5, 3.5, 0.4, COL.woodDark);
   // Headboard inlay panels — protrude BACK behind the headboard slab
@@ -207,7 +207,7 @@ export function buildBed(variant: BedVariant = "basic"): THREE.Group {
     // Head xz=0.7..1.4 → place face details at z=0.66..0.7 (just outside).
     vbox(g, 2.05, 4.95, 0.66, 0.12, 0.12, 0.04, COL.black);
     vbox(g, 2.55, 4.95, 0.66, 0.12, 0.12, 0.04, COL.black);
-    vbox(g, 2.3, 4.75, 0.66, 0.2, 0.1, 0.04, COL.coral);
+    vbox(g, 2.3, 4.75, 0.66, 0.2, 0.1, 0.04, COL.clay);
   }
   return g;
 }
@@ -310,7 +310,7 @@ export function buildBookshelfTall(): THREE.Group {
   vbox(g, 0.3, 5, 0, 2.4, 0.2, 0.8, COL.woodMid);
   // Back panel at z=0.8..1.0 (behind everything else).
   vbox(g, 0, 0, 0.8, 3, 8, 0.2, COL.woodDark);
-  const colors = [COL.red, COL.green, COL.blue, COL.sun, COL.lavender, COL.coral];
+  const colors = [COL.red, COL.green, COL.blue, COL.sun, COL.lavender, COL.clay];
   // Bottom shelf books (y=0.3..2.3, z=0.1..0.5).
   for (let i = 0; i < 5; i++) {
     vbox(g, 0.4 + i * 0.45, 0.3, 0.1, 0.4, 2.0, 0.4, colors[i % colors.length]);
@@ -371,9 +371,9 @@ export function buildDresser(variant: DresserVariant = "blue"): THREE.Group {
   vbox(g, 0.45, 4.85, 0.55, 0.25, 0.25, 0.25, COL.cream);
   vbox(g, 0.5, 5.1, 0.6, 0.15, 0.2, 0.15, COL.sun);
   // Flower pot + stem + bloom — all stacked along y with no overlap.
-  vbox(g, 1.1, 4.25, 0.5, 0.5, 0.75, 0.5, COL.coralSoft);
+  vbox(g, 1.1, 4.25, 0.5, 0.5, 0.75, 0.5, COL.claySoft);
   vbox(g, 1.3, 5.0, 0.65, 0.15, 0.4, 0.15, COL.leafDark);
-  vbox(g, 1.2, 5.4, 0.55, 0.35, 0.25, 0.35, COL.coral);
+  vbox(g, 1.2, 5.4, 0.55, 0.35, 0.25, 0.35, COL.clay);
   vbox(g, 1.27, 5.65, 0.62, 0.2, 0.1, 0.2, COL.sun);
   // Framed picture: 4 strips around 1.0×1.0 hole, canvas insert at the back.
   // Outer x=2.0..3.2, y=4.25..5.45, z=0.4..0.55.
@@ -383,13 +383,13 @@ export function buildDresser(variant: DresserVariant = "blue"): THREE.Group {
   vbox(g, 3.1, 4.35, 0.4, 0.1, 1.0, 0.15, COL.cream); // right strip
   vbox(g, 2.1, 4.35, 0.4, 1.0, 1.0, 0.04, COL.blue); // canvas at back of hole
   // Painted shape protrudes forward of canvas (z=0.36..0.4).
-  vbox(g, 2.3, 4.55, 0.36, 0.6, 0.6, 0.04, COL.coralSoft);
+  vbox(g, 2.3, 4.55, 0.36, 0.6, 0.6, 0.04, COL.claySoft);
   // Candle — at its own xz cell.
   vbox(g, 2.4, 4.25, 0.7, 0.15, 0.6, 0.15, COL.cream);
   vbox(g, 2.42, 4.85, 0.72, 0.11, 0.1, 0.11, COL.sun);
   // Books pile on the right (two flush-stacked along y).
   vbox(g, 3.3, 4.25, 0.6, 0.55, 0.25, 0.5, COL.green);
-  vbox(g, 3.3, 4.5, 0.6, 0.55, 0.22, 0.5, COL.coral);
+  vbox(g, 3.3, 4.5, 0.6, 0.55, 0.22, 0.5, COL.clay);
   return g;
 }
 
@@ -421,8 +421,8 @@ export function buildSofa(): THREE.Group {
   vbox(g, 3.85, 2.05, 0.5, 1.55, 1.45, 0.4, COL.white);
   // Throw pillow — y starts at 2.05 (cushion top), z 0.95..1.65 (away from
   // back cushions). Tassel ABOVE pillow top.
-  vbox(g, 4.6, 2.05, 0.95, 0.7, 0.7, 0.7, COL.coral);
-  vbox(g, 4.65, 2.75, 1.0, 0.6, 0.05, 0.6, darker(COL.coral, 0.6));
+  vbox(g, 4.6, 2.05, 0.95, 0.7, 0.7, 0.7, COL.clay);
+  vbox(g, 4.65, 2.75, 1.0, 0.6, 0.05, 0.6, darker(COL.clay, 0.6));
   // Wooden feet — entirely below the sofa.
   vbox(g, 0.05, -0.25, 0.1, 0.3, 0.25, 0.3, COL.woodDark);
   vbox(g, 5.65, -0.25, 0.1, 0.3, 0.25, 0.3, COL.woodDark);
@@ -472,7 +472,7 @@ export function buildArcade(): THREE.Group {
   vbox(g, 1.2, 2.55, 1.5, 0.2, 0.13, 0.2, COL.sun);
   vbox(g, 1.5, 2.55, 1.5, 0.2, 0.13, 0.2, COL.green);
   vbox(g, 1.2, 2.55, 1.75, 0.2, 0.13, 0.2, COL.blue);
-  vbox(g, 1.5, 2.55, 1.75, 0.2, 0.13, 0.2, COL.coral);
+  vbox(g, 1.5, 2.55, 1.75, 0.2, 0.13, 0.2, COL.clay);
   // Coin slot in front of cabinet face (z=-0.05..0). Insert lights protrude
   // further (z=-0.1..-0.05).
   vbox(g, 0.7, 1.5, -0.05, 0.6, 0.4, 0.05, COL.charcoal);
@@ -530,7 +530,7 @@ export function buildPlant(): THREE.Group {
   vbox(g, 0.2, 2.7, 0.3, 1.0, 0.5, 0.8, COL.leaf);
   vbox(g, 0.35, 3.2, 0.4, 0.7, 0.4, 0.6, COL.leaf);
   // Flower bud above crown, then sun stamen above bud.
-  vbox(g, 0.55, 3.6, 0.55, 0.3, 0.2, 0.3, COL.coral);
+  vbox(g, 0.55, 3.6, 0.55, 0.3, 0.2, 0.3, COL.clay);
   vbox(g, 0.62, 3.8, 0.62, 0.15, 0.1, 0.15, COL.sun);
   return g;
 }
@@ -595,7 +595,7 @@ export function buildWindow(): THREE.Group {
 
 export function buildPictures(): THREE.Group {
   const g = new THREE.Group();
-  const colors = [COL.coral, COL.green, COL.blue];
+  const colors = [COL.clay, COL.green, COL.blue];
   // Frame as 4 strips + canvas insert inside the hole. No nested cuboids.
   // Outer 1.2×1.2, hole 1.0×1.0, depth 0.15 (frame), 0.06 (canvas) at back.
   for (let i = 0; i < 3; i++) {
@@ -621,12 +621,12 @@ export function buildPlushie(): THREE.Group {
   // INSIDE the ear's y range only? No — ears x=0.1..0.4, inner x=0.15..0.35
   // means inner overlaps ear. Place inner FORWARD of ear (z=0.05..0.1
   // versus ear z=0.1..0.4) — no overlap.
-  vbox(g, 0.15, 2.05, 0.05, 0.2, 0.35, 0.05, COL.coralSoft);
-  vbox(g, 0.85, 2.05, 0.05, 0.2, 0.35, 0.05, COL.coralSoft);
+  vbox(g, 0.15, 2.05, 0.05, 0.2, 0.35, 0.05, COL.claySoft);
+  vbox(g, 0.85, 2.05, 0.05, 0.2, 0.35, 0.05, COL.claySoft);
   // Face — in front of head (head z=0.05..0.85, face z=-0.05..0.0).
   vbox(g, 0.3, 1.4, -0.05, 0.15, 0.15, 0.05, COL.black);
   vbox(g, 0.75, 1.4, -0.05, 0.15, 0.15, 0.05, COL.black);
-  vbox(g, 0.5, 1.2, -0.05, 0.2, 0.1, 0.05, COL.coral);
+  vbox(g, 0.5, 1.2, -0.05, 0.2, 0.1, 0.05, COL.clay);
   return g;
 }
 
@@ -667,7 +667,7 @@ export function buildClock(): THREE.Group {
   vbox(g, 0.8, 0.7, -0.1, 0.4, 0.1, 0.05, COL.charcoal);
   // Centre cap — front-most layer; its x,y (0.69..0.81 × 0.69..0.81) does
   // not overlap either hand (minute starts at y=0.8, hour starts at x=0.8).
-  vbox(g, 0.69, 0.69, -0.15, 0.12, 0.12, 0.05, COL.coral);
+  vbox(g, 0.69, 0.69, -0.15, 0.12, 0.12, 0.05, COL.clay);
   return g;
 }
 

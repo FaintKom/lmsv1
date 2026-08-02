@@ -5,7 +5,7 @@
  *
  * Adopted from q-language.jsx · ConjugationExerciseV2. Methodist
  * supplies infinitive ("hablar"), tense label ("Presente"), and
- * pronoun → correct-form rows. Per-row green/coral border highlights
+ * pronoun → correct-form rows. Per-row green/clay border highlights
  * which conjugations are off after Check.
  *
  * Per-task HP + streak. Retry keeps the typed forms so the student
@@ -266,7 +266,7 @@ export function ConjugationV2({
                       (isOk
                         ? "var(--green-500)"
                         : isWrong
-                          ? "var(--coral-500)"
+                          ? "var(--clay-500)"
                           : "var(--ink-100)"),
                     borderRadius: 10,
                     fontFamily: "var(--font-mono)",
@@ -275,7 +275,7 @@ export function ConjugationV2({
                     background: isOk
                       ? "var(--green-50)"
                       : isWrong
-                        ? "var(--coral-50)"
+                        ? "var(--clay-50)"
                         : "var(--paper)",
                   }}
                 />
@@ -283,7 +283,7 @@ export function ConjugationV2({
                   <span
                     style={{
                       width: 20,
-                      color: isOk ? "var(--green-600)" : "var(--coral-500)",
+                      color: isOk ? "var(--green-600)" : "var(--clay-500)",
                     }}
                   >
                     {isOk ? <Check size={18} /> : <X size={18} />}

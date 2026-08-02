@@ -141,7 +141,7 @@ export default function AssignmentDetailPage() {
  <div className="flex flex-wrap gap-4 text-xs text-text-muted ">
  <span>{t("assignment.due")}: {new Date(assignment.due_date).toLocaleString()}</span>
  <span>{t("assignment.maxScore")}: {assignment.max_score}</span>
- {assignment.allow_late && <span className="text-coral-700">{t("assignment.lateAllowed")}</span>}
+ {assignment.allow_late && <span className="text-clay-700">{t("assignment.lateAllowed")}</span>}
  </div>
  </CardContent>
  </Card>

@@ -286,7 +286,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
             background: "transparent",
             border: "none",
             cursor: "pointer",
-            color: "var(--coral-500)",
+            color: "var(--clay-500)",
             display: "grid",
             placeItems: "center",
             padding: 4,
@@ -328,8 +328,8 @@ function NodeView(p: ReactNodeViewProps<any>) {
               width: "100%",
               padding: 10,
               borderRadius: 8,
-              border: `1.5px solid ${parseError ? "var(--coral-500)" : "var(--ink-200)"}`,
-              background: parseError ? "var(--coral-50)" : "var(--paper)",
+              border: `1.5px solid ${parseError ? "var(--clay-500)" : "var(--ink-200)"}`,
+              background: parseError ? "var(--clay-50)" : "var(--paper)",
               fontFamily: "var(--font-mono)",
               fontSize: 12,
               color: "var(--ink-900)",
@@ -342,7 +342,7 @@ function NodeView(p: ReactNodeViewProps<any>) {
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: 10,
-                color: "var(--coral-700)",
+                color: "var(--clay-700)",
               }}
             >
               {parseError}

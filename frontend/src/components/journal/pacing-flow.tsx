@@ -34,7 +34,7 @@ import {
   type PacingTimelineTopic,
 } from "@/lib/api/pacing";
 
-// Status palette per README: ontrack green / behind coral / ahead sun.
+// Status palette per README: ontrack green / behind clay / ahead sun.
 const STATUS_META: Record<
   PacingBadge,
   { bg: string; fg: string; dot: string; bar: string; labelKey: string }
@@ -47,10 +47,10 @@ const STATUS_META: Record<
     labelKey: "pacing.status.ontrack",
   },
   behind: {
-    bg: "bg-coral-50",
-    fg: "text-coral-700",
-    dot: "bg-coral-500",
-    bar: "bg-coral-500",
+    bg: "bg-clay-50",
+    fg: "text-clay-700",
+    dot: "bg-clay-500",
+    bar: "bg-clay-500",
     labelKey: "pacing.status.behind",
   },
   ahead: {
@@ -86,7 +86,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
   }
   if (isError || !data) {
     return (
-      <p className="py-10 text-center text-sm text-coral-700">
+      <p className="py-10 text-center text-sm text-clay-700">
         {t("pacing.loadFailed")}
       </p>
     );
@@ -239,7 +239,7 @@ function PacingBoardRow({
             {g.covered} / {g.total} {t("pacing.topicsShort")}
           </span>
           {g.badge === "behind" && (
-            <span className="text-[11px] font-bold text-coral-700">
+            <span className="text-[11px] font-bold text-clay-700">
               {t("pacing.behindBy")} {Math.abs(g.delta)}
             </span>
           )}
@@ -296,7 +296,7 @@ function PacingTimeline({
     return (
       <div className="space-y-4">
         <BackButton onBack={onBack} label={t("pacing.allGroups")} />
-        <p className="py-10 text-center text-sm text-coral-700">
+        <p className="py-10 text-center text-sm text-clay-700">
           {t("pacing.loadFailed")}
         </p>
       </div>
@@ -333,13 +333,13 @@ function PacingTimeline({
         : CheckCircle2;
   const noteBox =
     data.badge === "behind"
-      ? "bg-coral-50 border-coral-300 text-coral-700"
+      ? "bg-clay-50 border-clay-300 text-clay-700"
       : data.badge === "ahead"
         ? "bg-sun-50 border-sun-300 text-sun-700"
         : "bg-green-25 border-green-100 text-green-800";
   const noteIconColor =
     data.badge === "behind"
-      ? "text-coral-500"
+      ? "text-clay-500"
       : data.badge === "ahead"
         ? "text-sun-500"
         : "text-green-600";

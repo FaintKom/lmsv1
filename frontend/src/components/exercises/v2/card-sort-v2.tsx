@@ -62,7 +62,7 @@ export interface CardSortV2Props {
 const DEFAULTS: Required<Pick<SortCategory, "color" | "border" | "text">>[] = [
   { color: "var(--green-50)", border: "var(--green-300)", text: "var(--green-800)" },
   { color: "var(--sun-50)", border: "var(--sun-400)", text: "var(--sun-700)" },
-  { color: "var(--coral-50)", border: "var(--coral-300)", text: "var(--coral-700)" },
+  { color: "var(--clay-50)", border: "var(--clay-300)", text: "var(--clay-700)" },
   { color: "var(--ink-50)", border: "var(--ink-300)", text: "var(--ink-700)" },
 ];
 

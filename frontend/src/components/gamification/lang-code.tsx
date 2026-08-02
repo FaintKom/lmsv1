@@ -13,7 +13,7 @@ export function LangCode({ code, label, active = false, onClick }: LangCodeProps
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition-all",
+        "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition",
         active
           ? "border-2 border-green-500 bg-green-50 text-green-800"
           : "border border-ink-100 bg-paper-2 text-ink-700 hover:border-ink-300 hover:bg-surface-2",

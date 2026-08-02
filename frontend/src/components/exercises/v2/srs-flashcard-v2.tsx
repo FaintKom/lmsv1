@@ -103,8 +103,8 @@ const BUTTON_STYLES: Omit<ButtonMeta, "label">[] = [
   {
     rating: Rating.Again,
     key: "again",
-    color: "var(--coral-500)",
-    shadow: "var(--coral-700)",
+    color: "var(--clay-500)",
+    shadow: "var(--clay-700)",
     textColor: "#fff",
   },
   {
@@ -229,7 +229,7 @@ export function SRSFlashcardV2({
    */
   const [queue, setQueue] = useState<number[]>(() => cards.map((_, i) => i));
   const [qPos, setQPos] = useState(0);
-  /** Card indices that lapsed at least once (coral progress dots). */
+  /** Card indices that lapsed at least once (clay progress dots). */
   const [lapsed, setLapsed] = useState<Record<number, boolean>>({});
   const [flipped, setFlipped] = useState(false);
   /** Card-swap animation phase: enter on mount/next card, exit on rating. */
@@ -379,7 +379,7 @@ export function SRSFlashcardV2({
                 .replace("{n}", String(qPos + 1))
                 .replace("{total}", String(queue.length))}
             >
-              {/* SR-03: dots follow the session queue; lapsed cards coral. */}
+              {/* SR-03: dots follow the session queue; lapsed cards clay. */}
               {queue.map((ci, i) => (
                 <i
                   key={i}

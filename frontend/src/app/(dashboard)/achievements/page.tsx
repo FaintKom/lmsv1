@@ -185,7 +185,7 @@ export default function AchievementsPage() {
  aria-selected={tab === tb.key}
  onClick={() => setTab(tb.key)}
  className={cn(
- "flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all",
+ "flex flex-1 min-w-[120px] items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
  tab === tb.key
  ? "bg-paper-2 text-success-fg shadow-sm "
  : "text-text-muted hover:text-ink-700 "
@@ -228,7 +228,7 @@ function RoomTab() {
 
  if (isError || !state) {
  return (
- <div className="grid min-h-[60vh] place-items-center text-sm text-coral-700">
+ <div className="grid min-h-[60vh] place-items-center text-sm text-clay-700">
  {t("room.error")}
  </div>
  );
@@ -252,7 +252,7 @@ function AvatarTab() {
 
  if (isError || !state) {
  return (
- <div className="grid min-h-[60vh] place-items-center text-sm text-coral-700">
+ <div className="grid min-h-[60vh] place-items-center text-sm text-clay-700">
  {t("room.error")}
  </div>
  );
@@ -333,7 +333,7 @@ function AchievementsTab({
  </div>
  <div className="h-3 w-full overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={Math.min(league.progress, 100)} aria-valuemin={0} aria-valuemax={100}>
  <div
- className="h-full rounded-pill transition-all duration-500"
+ className="h-full rounded-pill transition-[width] duration-500"
  style={{
  width: `${Math.min(league.progress, 100)}%`,
  background: `linear-gradient(90deg, ${league.color}, ${league.color}cc)`,
@@ -364,8 +364,8 @@ function AchievementsTab({
 
  <Card className="border-l-4 border-l-orange-400 hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-coral-300 p-3 ">
- <Flame className="h-5 w-5 text-coral-700" />
+ <div className="rounded-lg bg-clay-300 p-3 ">
+ <Flame className="h-5 w-5 text-clay-700" />
  </div>
  <div>
  <p className="text-xs font-medium text-text-muted ">Current Streak</p>
@@ -448,7 +448,7 @@ function AchievementsTab({
  <span className={`flex h-6 w-6 items-center justify-center rounded-pill text-xs font-bold ${
  i === 0 ? "bg-sun-100 text-warning-fg "
  : i === 1 ? "bg-ink-200 text-text-muted "
- : i === 2 ? "bg-coral-300 text-coral-700 "
+ : i === 2 ? "bg-clay-300 text-clay-700 "
  : "bg-ink-100 text-text-subtle "
  }`}>
  {i + 1}
@@ -469,7 +469,7 @@ function AchievementsTab({
  </p>
  </div>
  {entry.current_streak > 0 && (
- <span className="flex items-center gap-0.5 text-xs font-medium text-coral-700">
+ <span className="flex items-center gap-0.5 text-xs font-medium text-clay-700">
  <Flame className="h-3 w-3" />
  {entry.current_streak}
  </span>
@@ -505,9 +505,9 @@ function AchievementsTab({
  <p className="text-2xl font-bold text-primary">+50</p>
  <p className="mt-1 text-xs text-primary">Pass a code challenge</p>
  </div>
- <div className="rounded-lg bg-coral-50 p-4 text-center ">
- <p className="text-2xl font-bold text-coral-700">+5</p>
- <p className="mt-1 text-xs text-coral-700">Daily streak bonus</p>
+ <div className="rounded-lg bg-clay-50 p-4 text-center ">
+ <p className="text-2xl font-bold text-clay-700">+5</p>
+ <p className="mt-1 text-xs text-clay-700">Daily streak bonus</p>
  </div>
  </div>
  </CardContent>

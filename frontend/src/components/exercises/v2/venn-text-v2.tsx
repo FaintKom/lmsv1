@@ -169,11 +169,11 @@ export function VennTextV2({
             height: 48,
             padding: 6,
             borderRadius: 8,
-            border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--coral-500)" : "var(--ink-200)"}`,
+            border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--clay-500)" : "var(--ink-200)"}`,
             background: isOk
               ? "var(--green-50)"
               : isNo
-                ? "var(--coral-50)"
+                ? "var(--clay-50)"
                 : "rgba(255,255,255,0.95)",
             fontFamily: "var(--font-sans)",
             fontWeight: 500,

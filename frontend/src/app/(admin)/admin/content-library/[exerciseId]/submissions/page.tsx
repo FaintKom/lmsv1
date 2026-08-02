@@ -255,7 +255,7 @@ function SubmissionRow({
 
  {/* Expanded details */}
  {isExpanded && (
- <div className="border-t border-slate-50 bg-slate-25 px-14 py-4 ">
+ <div className="border-t border-border bg-surface-2 px-14 py-4 ">
  {/* Quiz answers */}
  {exerciseType === "quiz" && sub.answers && (
  <QuizAnswersDetail answers={sub.answers} />

@@ -134,7 +134,7 @@ function AvatarCard({
       onClick={onClick}
       disabled={isLocked}
       className={cn(
-        "group relative flex w-full flex-col gap-2 rounded-[14px] border bg-paper-2 p-2.5 text-left transition-all",
+        "group relative flex w-full flex-col gap-2 rounded-[14px] border bg-paper-2 p-2.5 text-left transition",
         "border-ink-100 hover:-translate-y-px hover:border-green-300 hover:shadow-sm",
         isEquipped &&
           "border-green-500 shadow-[0_0_0_2px_var(--green-100,#d4f0db),0_1px_2px_rgba(20,30,15,0.06)]",

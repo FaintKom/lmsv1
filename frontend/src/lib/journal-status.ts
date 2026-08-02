@@ -7,7 +7,7 @@
  * Tailwind tokens already declared in globals.css:
  *   present "P" → bg green-100 / text green-800 / dot green-600
  *   late    "L" → bg sun-100   / text sun-700   / dot sun-500
- *   absent  "A" → bg coral-50  / text coral-700 / dot coral-500
+ *   absent  "A" → bg clay-50  / text clay-700 / dot clay-500
  *   excused "E" → bg ink-100   / text ink-500   / dot ink-300
  *
  * UI labels stay localized (Present/Late/Absent/Excused via attendance.* keys);
@@ -48,9 +48,9 @@ export const ATT_STATUS: Record<AttendanceStatus, StatusToken> = {
   },
   absent: {
     letter: "A",
-    cell: "bg-coral-50 text-coral-700",
-    text: "text-coral-700",
-    dot: "bg-coral-500",
+    cell: "bg-clay-50 text-clay-700",
+    text: "text-clay-700",
+    dot: "bg-clay-500",
   },
   excused: {
     letter: "E",
@@ -81,8 +81,8 @@ export function countsPresent(status: AttendanceStatus | null): boolean {
 const GROUP_COLORS = [
   "#0a8754", // green-600
   "#f5b800", // sun-500
-  "#ff7a5c", // coral-500
-  "#2b91ff", // info
+  "var(--clay-500)", // clay-500
+  "var(--lagoon-600)", // info
   "#7c5cff", // violet
   "#3aa76d", // green-500
   "#ffb02e", // amber

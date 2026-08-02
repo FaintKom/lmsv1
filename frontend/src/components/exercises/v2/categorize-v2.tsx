@@ -75,8 +75,8 @@ interface DragState {
 const BUCKET_SWATCHES = [
   "var(--green-400)",
   "var(--sun-400)",
-  "var(--coral-300)",
-  "var(--info)",
+  "var(--clay-300)",
+  "var(--color-info)",
 ];
 
 export function CategorizeV2({

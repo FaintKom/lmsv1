@@ -5,7 +5,7 @@
  *
  * Adopted from q-math-templates.jsx · FunctionGraphExerciseV2.
  * Methodist supplies target {m, b}; student adjusts slope + intercept
- * sliders until the green solid line overlaps the coral dashed target.
+ * sliders until the green solid line overlaps the clay dashed target.
  *
  * Exercise-mechanics handoff (ex-graphs.jsx · FunctionGraphV2):
  * - GX-01 viewBox-only SVG (`.gx-svg`) inside `.gx-layout` (panel stacks
@@ -215,7 +215,7 @@ export function FunctionGraphV2({
             <GridAxes range={range} size={SIZE} pad={PAD} />
             <path
               d={linePath(target.m, target.b)}
-              stroke="var(--coral-500)"
+              stroke="var(--clay-500)"
               strokeWidth="2"
               strokeDasharray="4 4"
               fill="none"
@@ -266,21 +266,21 @@ export function FunctionGraphV2({
             <div
               style={{
                 padding: 10,
-                background: "var(--coral-50)",
+                background: "var(--clay-50)",
                 borderRadius: 10,
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
-                color: "var(--coral-700)",
+                color: "var(--clay-700)",
               }}
             >
               <span
                 style={{
                   width: 14,
                   height: 0,
-                  borderTop: "2.5px dashed var(--coral-500)",
+                  borderTop: "2.5px dashed var(--clay-500)",
                   display: "inline-block",
                 }}
               />

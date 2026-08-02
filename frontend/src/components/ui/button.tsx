@@ -29,7 +29,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "outline",
             "bg-transparent text-ink-700 hover:bg-surface-2 transition-colors":
               variant === "ghost",
-            "btn-pop btn-pop--coral bg-danger text-white hover:bg-danger":
+            "btn-pop btn-pop--clay bg-danger text-white hover:bg-danger":
               variant === "destructive",
             "btn-pop btn-pop--ink bg-ink-900 text-white hover:bg-ink-700":
               variant === "dark",

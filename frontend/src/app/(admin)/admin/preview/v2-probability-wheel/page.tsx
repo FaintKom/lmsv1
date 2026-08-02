@@ -21,7 +21,7 @@ export default function V2ProbabilityWheelPreview() {
           segments={[
             { label: "Green", color: "var(--green-500)", weight: 3 },
             { label: "Sun", color: "var(--sun-400)", weight: 1 },
-            { label: "Coral", color: "var(--coral-500)", weight: 1 },
+            { label: "Coral", color: "var(--clay-500)", weight: 1 },
             { label: "Blue", color: "#3b82f6", weight: 1 },
           ]}
           targetSpins={20}

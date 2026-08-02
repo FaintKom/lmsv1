@@ -66,12 +66,12 @@ function KpiCard({
   value: string | number;
   suffix?: string;
   icon: LucideIcon;
-  color: "green" | "sun" | "coral" | "ink";
+  color: "green" | "sun" | "clay" | "ink";
 }) {
   const iconStyles: Record<string, string> = {
     green: "bg-green-100 text-green-700",
     sun: "bg-sun-100 text-sun-700",
-    coral: "bg-coral-50 text-coral-700",
+    clay: "bg-clay-50 text-clay-700",
     ink: "bg-ink-100 text-ink-700",
   };
 
@@ -117,7 +117,7 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-[14px] border border-border bg-paper-2 p-4 transition-all hover:-translate-y-0.5 hover:border-green-300 hover:shadow-sm"
+      className="flex items-center justify-between rounded-[14px] border border-border bg-paper-2 p-4 transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-sm"
     >
       <div className="flex items-center gap-3">
         <div
@@ -211,7 +211,7 @@ export default function AdminDashboardPage() {
             label={t("admin.dashboard.toReview")}
             value={teacherStats?.to_review || 0}
             icon={Inbox}
-            color="coral"
+            color="clay"
           />
           <KpiCard
             label={t("admin.dashboard.avgScore")}
@@ -233,8 +233,8 @@ export default function AdminDashboardPage() {
             </div>
             <div className="space-y-2.5 p-5">
               {teacherStats.to_review > 0 && (
-                <div className="flex items-start gap-3 rounded-[10px] bg-coral-50 p-3">
-                  <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-coral-700" />
+                <div className="flex items-start gap-3 rounded-[10px] bg-clay-50 p-3">
+                  <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-clay-700" />
                   <p className="text-[13px] text-ink-700">
                     <span className="font-bold">{teacherStats.to_review}</span>{" "}
                     {teacherStats.to_review !== 1
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
                       : t("admin.dashboard.submissionWaiting")}{" "}
                     <Link
                       href="/admin/review"
-                      className="font-bold text-coral-700 hover:underline"
+                      className="font-bold text-clay-700 hover:underline"
                     >
                       {t("admin.dashboard.reviewNow")} →
                     </Link>
@@ -338,7 +338,7 @@ export default function AdminDashboardPage() {
                         sub.status === "graded"
                           ? "bg-green-100 text-green-700"
                           : sub.status === "late"
-                            ? "bg-coral-50 text-coral-700"
+                            ? "bg-clay-50 text-clay-700"
                             : "bg-ink-100 text-ink-700",
                       )}
                     >
@@ -392,7 +392,7 @@ export default function AdminDashboardPage() {
             href="/admin/review"
             icon={Inbox}
             label={t("admin.dashboard.reviewQueueLink")}
-            iconColor="bg-coral-50 text-coral-700"
+            iconColor="bg-clay-50 text-clay-700"
           />
         </div>
       </div>

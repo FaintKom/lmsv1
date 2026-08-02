@@ -70,7 +70,7 @@ function DomainBars({ stats }: { stats: Record<SATDomain, { correct: number; tot
  <span className="font-bold" style={{ color: DOMAIN_COLORS[d] }}>{s.percent}%</span>
  </div>
  <div className="h-3 rounded-pill bg-ink-100 overflow-hidden">
- <div className="h-full rounded-pill transition-all duration-700" style={{ width: `${s.percent}%`, backgroundColor: DOMAIN_COLORS[d] }} />
+ <div className="h-full rounded-pill transition-[width] duration-700" style={{ width: `${s.percent}%`, backgroundColor: DOMAIN_COLORS[d] }} />
  </div>
  <p className="text-[10px] text-text-subtle mt-0.5">{s.correct}/{s.total} correct across all tests</p>
  </div>

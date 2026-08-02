@@ -325,7 +325,7 @@ export function Robot2DV2({
                   left: "50%",
                   transform: "translateX(-50%)",
                   zIndex: 5,
-                  background: "var(--coral-500)",
+                  background: "var(--clay-500)",
                   color: "#fff",
                   fontFamily: "var(--font-mono)",
                   fontWeight: 800,
@@ -333,7 +333,7 @@ export function Robot2DV2({
                   letterSpacing: "0.06em",
                   padding: "3px 10px",
                   borderRadius: 999,
-                  boxShadow: "0 2px 0 0 var(--coral-700)",
+                  boxShadow: "0 2px 0 0 var(--clay-700)",
                 }}
               >
                 {t("exercise.robot2d.bonk")}

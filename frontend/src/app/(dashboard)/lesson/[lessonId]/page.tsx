@@ -154,7 +154,7 @@ export default function StudentLessonPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {!connected && (
-        <div className="fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-pill bg-coral-500 px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
+        <div className="fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-pill bg-clay-500 px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-white" />
           {t("live.reconnecting")}
         </div>

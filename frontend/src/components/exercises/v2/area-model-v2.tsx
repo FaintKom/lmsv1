@@ -43,7 +43,7 @@ export interface AreaModelV2Props {
 const CELL_PAL = [
   "var(--green-50)",
   "var(--sun-50)",
-  "var(--coral-50)",
+  "var(--clay-50)",
   "var(--ink-50)",
 ];
 
@@ -237,7 +237,7 @@ export function AreaModelV2({
                   fontFamily: "var(--font-mono)",
                   fontWeight: 800,
                   fontSize: 16,
-                  color: "var(--coral-700)",
+                  color: "var(--clay-700)",
                 }}
               >
                 {bn}
@@ -255,13 +255,13 @@ export function AreaModelV2({
                       background: isOk
                         ? "var(--green-50)"
                         : isNo
-                          ? "var(--coral-50)"
+                          ? "var(--clay-50)"
                           : CELL_PAL[palIdx],
                       border: `2px solid ${
                         isOk
                           ? "var(--green-500)"
                           : isNo
-                            ? "var(--coral-500)"
+                            ? "var(--clay-500)"
                             : "var(--ink-200)"
                       }`,
                       borderRadius: 10,
@@ -326,7 +326,7 @@ export function AreaModelV2({
                 totalOk === true
                   ? "var(--green-500)"
                   : totalOk === false
-                    ? "var(--coral-500)"
+                    ? "var(--clay-500)"
                     : "var(--ink-100)"
               }`,
               borderRadius: 12,
@@ -361,14 +361,14 @@ export function AreaModelV2({
                   totalOk === true
                     ? "var(--green-500)"
                     : totalOk === false
-                      ? "var(--coral-500)"
+                      ? "var(--clay-500)"
                       : "var(--ink-200)"
                 }`,
                 background:
                   totalOk === true
                     ? "var(--green-50)"
                     : totalOk === false
-                      ? "var(--coral-50)"
+                      ? "var(--clay-50)"
                       : "var(--paper)",
                 fontFamily: "var(--font-mono)",
                 fontWeight: 800,

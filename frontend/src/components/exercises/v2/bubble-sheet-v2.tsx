@@ -9,7 +9,7 @@
  * the student can fix only the wrong ones.
  *
  * Reveal pattern matches source: after Check, correct option turns
- * green; if student picked wrong, their pick turns coral.
+ * green; if student picked wrong, their pick turns clay.
  */
 
 import { useState } from "react";
@@ -236,10 +236,10 @@ export function BubbleSheetV2({
                     bubbleBg = "var(--green-600)";
                     bubbleColor = "#fff";
                   } else if (isWrongPick) {
-                    bg = "var(--coral-50)";
-                    color = "var(--coral-700)";
-                    border = "var(--coral-500)";
-                    bubbleBg = "var(--coral-500)";
+                    bg = "var(--clay-50)";
+                    color = "var(--clay-700)";
+                    border = "var(--clay-500)";
+                    bubbleBg = "var(--clay-500)";
                     bubbleColor = "#fff";
                   } else if (picked) {
                     bg = "var(--ink-50)";

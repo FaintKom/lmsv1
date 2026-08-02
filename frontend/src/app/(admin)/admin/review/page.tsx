@@ -114,7 +114,7 @@ export default function ReviewQueuePage() {
  <button
  key={item.id}
  onClick={() => handleSelect(item)}
- className={`w-full text-left rounded-lg border p-4 transition-all ${
+ className={`w-full text-left rounded-lg border p-4 transition ${
  selected?.id === item.id
  ? "border-primary bg-success-soft shadow-sm "
  : "border-border-strong bg-paper-2 hover:border-ink-300 hover:shadow-sm "
@@ -123,12 +123,12 @@ export default function ReviewQueuePage() {
  <div className="flex items-center gap-3">
  <div className={`rounded-lg p-2 ${
  item.status === "late"
- ? "bg-coral-300 "
+ ? "bg-clay-300 "
  : "bg-info-soft "
  }`}>
  <FileText className={`h-4 w-4 ${
  item.status === "late"
- ? "text-coral-700 "
+ ? "text-clay-700 "
  : "text-info-fg "
  }`} />
  </div>
@@ -146,7 +146,7 @@ export default function ReviewQueuePage() {
  {new Date(item.submitted_at).toLocaleDateString()}
  </span>
  {item.status === "late" && (
- <span className="rounded-pill bg-coral-300 px-1.5 py-0.5 text-[10px] font-medium text-coral-700 ">
+ <span className="rounded-pill bg-clay-300 px-1.5 py-0.5 text-[10px] font-medium text-clay-700 ">
  {t("admin.review.late")}
  </span>
  )}

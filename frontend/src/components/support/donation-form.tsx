@@ -178,7 +178,7 @@ export function DonationForm() {
           className="mt-1 w-full rounded-md border border-border bg-paper-2 px-3 py-2"
         />
         {errors.amount && (
-          <p className="text-xs text-coral-500">
+          <p className="text-xs text-clay-500">
             {(watch("amount") ?? 0) > 10000
               ? t("support.amountTooLarge")
               : t("support.amountTooSmall")}

@@ -115,7 +115,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  draggable
  onDragStart={() => setDragCard(card)}
  onClick={() => setTappedCard(tappedCard?.id === card.id ? null : card)}
- className={`rounded-lg border-2 bg-paper-2 px-4 py-2.5 text-sm font-semibold shadow-sm transition-all hover:shadow-md active:scale-95 ${
+ className={`rounded-lg border-2 bg-paper-2 px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:shadow-md active:scale-95 ${
  tappedCard?.id === card.id
  ? "border-primary ring-2 ring-primary text-success-fg "
  : checked && results[card.id] === false

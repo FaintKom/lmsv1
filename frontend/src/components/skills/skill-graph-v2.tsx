@@ -60,7 +60,7 @@ export interface SkillGraphV2Props {
 const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
   programming: "var(--green-500)",
   math: "var(--sun-400)",
-  language: "var(--coral-400)",
+  language: "var(--clay-400)",
   science: "#3b82f6",
   other: "var(--ink-400)",
 };

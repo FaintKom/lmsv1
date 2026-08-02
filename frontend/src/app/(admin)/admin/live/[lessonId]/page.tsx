@@ -284,7 +284,7 @@ export default function TeacherLivePage() {
       {/* top bar */}
       <div className="flex h-14 items-center gap-3 border-b border-border bg-paper-2 px-5">
         <span className="flex items-center gap-2 font-extrabold text-text">
-          <span className="h-2 w-2 animate-pulse rounded-pill bg-coral-500" />
+          <span className="h-2 w-2 animate-pulse rounded-pill bg-clay-500" />
           {t("live.lesson")}
         </span>
         <LessonTimer startedAt={lesson.created_at} />
@@ -350,7 +350,7 @@ export default function TeacherLivePage() {
           </button>
           <button
             onClick={() => setConfirmEnd(true)}
-            className="btn-pop btn-pop--coral rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-white"
+            className="btn-pop btn-pop--clay rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-white"
           >
             {t("live.end")}
           </button>
@@ -488,7 +488,7 @@ export default function TeacherLivePage() {
                 >
                   {t(`live.tab.${k}`)}
                   {signalCount > 0 && (
-                    <span className="flex h-4 min-w-4 items-center justify-center rounded-pill bg-coral-500 px-1 font-mono text-[10px] font-bold text-white">
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-pill bg-clay-500 px-1 font-mono text-[10px] font-bold text-white">
                       {signalCount}
                     </span>
                   )}
@@ -591,7 +591,7 @@ export default function TeacherLivePage() {
                   await endLesson(lessonId);
                   router.push("/admin/groups");
                 }}
-                className="btn-pop btn-pop--coral rounded-md bg-danger px-4 py-2 text-sm font-bold text-white"
+                className="btn-pop btn-pop--clay rounded-md bg-danger px-4 py-2 text-sm font-bold text-white"
               >
                 {t("live.end")}
               </button>

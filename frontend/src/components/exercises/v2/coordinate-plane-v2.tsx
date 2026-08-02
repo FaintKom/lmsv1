@@ -23,7 +23,7 @@
  *
  * Methodist supplies a list of target points (each with x, y, label).
  * Student drags matching-colored points on the SVG plane; correct
- * placement turns green, wrong turns coral. Per-task HP + streak.
+ * placement turns green, wrong turns clay. Per-task HP + streak.
  */
 
 import { useRef, useState } from "react";
@@ -57,7 +57,7 @@ export interface CoordinatePlaneV2Props {
   }) => void;
 }
 
-const COLORS = ["var(--green-600)", "var(--coral-500)", "#3b82f6", "#a855f7"];
+const COLORS = ["var(--green-600)", "var(--clay-500)", "#3b82f6", "#a855f7"];
 const SIZE = 380;
 const PAD = 36;
 
@@ -303,7 +303,7 @@ export function CoordinatePlaneV2({
               const fill = isOk
                 ? "var(--green-600)"
                 : isNo
-                  ? "var(--coral-500)"
+                  ? "var(--clay-500)"
                   : COLORS[i % COLORS.length];
               const locked = !!feedback || lockedOk.includes(i);
               return (

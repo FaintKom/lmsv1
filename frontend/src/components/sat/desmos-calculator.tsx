@@ -31,7 +31,7 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
 
  return (
  <div
- className={`fixed z-50 flex flex-col border border-border-strong bg-paper-2 shadow-2xl transition-all duration-200 ${
+ className={`fixed z-50 flex flex-col border border-border-strong bg-paper-2 shadow-2xl transition duration-200 ${
  expanded
  ? "inset-4 rounded-lg"
  : "bottom-0 right-0 h-[70vh] sm:h-[480px] w-full sm:w-[380px] rounded-tl-2xl border-l border-t"

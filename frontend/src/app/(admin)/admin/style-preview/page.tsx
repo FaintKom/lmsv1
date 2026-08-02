@@ -17,10 +17,10 @@ const EXTRA_STATS = [
 
 const colorMap: Record<string, { bg: string; iconBg: string; text: string; border: string; gradient: string; ring: string }> = {
  indigo: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
- emerald: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
- violet: { bg: "bg-emerald-50", iconBg: "bg-emerald-100", text: "text-emerald-600", border: "border-emerald-400", gradient: "from-emerald-50/80 to-white", ring: "ring-emerald-200" },
- amber: { bg: "bg-amber-50", iconBg: "bg-amber-100", text: "text-amber-600", border: "border-amber-400", gradient: "from-amber-50/80 to-white", ring: "ring-amber-200" },
- orange: { bg: "bg-orange-50", iconBg: "bg-orange-100", text: "text-orange-600", border: "border-orange-400", gradient: "from-orange-50/80 to-white", ring: "ring-orange-200" },
+ emerald: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
+ violet: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
+ amber: { bg: "bg-sun-50", iconBg: "bg-sun-100", text: "text-sun-600", border: "border-sun-400", gradient: "from-sun-50/80 to-white", ring: "ring-sun-200" },
+ orange: { bg: "bg-clay-50", iconBg: "bg-clay-100", text: "text-clay-600", border: "border-clay-400", gradient: "from-clay-50/80 to-white", ring: "ring-clay-200" },
 };
 
 const STYLES = [
@@ -39,7 +39,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 1: Gradient Accent
  if (style === "gradient") {
  return (
- <div className={`rounded-lg bg-gradient-to-br ${c.gradient} p-6 shadow-sm transition-all duration-200 hover:shadow-md`}>
+ <div className={`rounded-lg bg-gradient-to-br ${c.gradient} p-6 shadow-sm transition duration-200 hover:shadow-md`}>
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.iconBg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
@@ -56,7 +56,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 2: Left Color Bar
  if (style === "leftbar") {
  return (
- <div className={`flex items-center gap-4 rounded-lg border-l-4 ${c.border} bg-paper-2 p-6 shadow-sm transition-all duration-200 hover:shadow-md`}>
+ <div className={`flex items-center gap-4 rounded-lg border-l-4 ${c.border} bg-paper-2 p-6 shadow-sm transition duration-200 hover:shadow-md`}>
  <div className={`rounded-lg ${c.iconBg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
  </div>
@@ -71,7 +71,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 3: Minimal Clean (icon on top)
  if (style === "minimal") {
  return (
- <div className="rounded-lg bg-paper-2 p-6 shadow-md transition-all duration-200 hover:shadow-lg">
+ <div className="rounded-lg bg-paper-2 p-6 shadow-md transition duration-200 hover:shadow-lg">
  <div className={`mb-4 inline-flex rounded-lg ${c.iconBg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
  </div>
@@ -84,7 +84,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 4: Glass Morphism
  if (style === "glass") {
  return (
- <div className="relative overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-6 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md">
+ <div className="relative overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-6 shadow-sm backdrop-blur-sm transition duration-200 hover:shadow-md">
  <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${c.gradient.replace("to-white", `to-transparent`)} ${c.bg}`} />
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.iconBg} p-3`}>
@@ -102,7 +102,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 5: Neumorphism
  if (style === "neumorphism") {
  return (
- <div className="rounded-lg bg-surface-2 p-6 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all duration-200 hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
+ <div className="rounded-lg bg-surface-2 p-6 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition duration-200 hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.iconBg} p-3 shadow-inner`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
@@ -119,7 +119,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 6: Outlined Accent
  if (style === "outlined") {
  return (
- <div className={`rounded-lg border-2 ${c.border}/30 bg-paper-2 p-6 transition-all duration-200 hover:${c.border}/60 hover:shadow-md`}>
+ <div className={`rounded-lg border-2 ${c.border}/30 bg-paper-2 p-6 transition duration-200 hover:${c.border}/60 hover:shadow-md`}>
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.bg} p-3 ring-2 ${c.ring}`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
@@ -154,7 +154,7 @@ export default function StylePreviewPage() {
  <button
  key={s.id}
  onClick={() => setActiveStyle(s.id)}
- className={`rounded-lg border-2 px-4 py-3 text-left transition-all duration-200 ${
+ className={`rounded-lg border-2 px-4 py-3 text-left transition duration-200 ${
  activeStyle === s.id
  ? "border-primary bg-success-soft shadow-md"
  : "border-border bg-paper-2 hover:border-border-strong hover:shadow-sm"
@@ -208,7 +208,7 @@ export default function StylePreviewPage() {
 
  if (activeStyle === "gradient") {
  return (
- <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg bg-gradient-to-br ${c.gradient} p-5 shadow-sm transition-all hover:shadow-md`}>
+ <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg bg-gradient-to-br ${c.gradient} p-5 shadow-sm transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
  <span className="text-sm font-medium text-ink-700">{item.label}</span>
@@ -219,7 +219,7 @@ export default function StylePreviewPage() {
  }
  if (activeStyle === "leftbar") {
  return (
- <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-l-4 ${c.border} bg-paper-2 p-5 shadow-sm transition-all hover:shadow-md`}>
+ <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-l-4 ${c.border} bg-paper-2 p-5 shadow-sm transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
  <span className="text-sm font-medium text-ink-700">{item.label}</span>
@@ -230,7 +230,7 @@ export default function StylePreviewPage() {
  }
  if (activeStyle === "minimal") {
  return (
- <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-paper-2 p-5 shadow-md transition-all hover:shadow-lg">
+ <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-paper-2 p-5 shadow-md transition hover:shadow-lg">
  <div className="flex items-center gap-3">
  <div className={`rounded-lg ${c.iconBg} p-2`}>
  <Icon className={`h-4 w-4 ${c.text}`} />
@@ -243,7 +243,7 @@ export default function StylePreviewPage() {
  }
  if (activeStyle === "glass") {
  return (
- <div key={item.label} className="relative flex cursor-pointer items-center justify-between overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-5 shadow-sm backdrop-blur-sm transition-all hover:shadow-md">
+ <div key={item.label} className="relative flex cursor-pointer items-center justify-between overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-5 shadow-sm backdrop-blur-sm transition hover:shadow-md">
  <div className={`absolute inset-x-0 top-0 h-1 ${c.bg}`} />
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
@@ -255,7 +255,7 @@ export default function StylePreviewPage() {
  }
  if (activeStyle === "neumorphism") {
  return (
- <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-surface-2 p-5 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
+ <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-surface-2 p-5 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
  <span className="text-sm font-medium text-ink-700">{item.label}</span>
@@ -266,7 +266,7 @@ export default function StylePreviewPage() {
  }
  if (activeStyle === "outlined") {
  return (
- <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-2 ${c.border}/30 bg-paper-2 p-5 transition-all hover:shadow-md`}>
+ <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-2 ${c.border}/30 bg-paper-2 p-5 transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <div className={`rounded-lg ${c.bg} p-2 ring-2 ${c.ring}`}>
  <Icon className={`h-4 w-4 ${c.text}`} />
@@ -292,7 +292,7 @@ export default function StylePreviewPage() {
  const Icon = stat.icon;
  const c = colorMap[stat.color];
  return (
- <div key={stat.label} className="rounded-lg border border-border/60 bg-paper-2 p-5 shadow-sm transition-all hover:shadow-md">
+ <div key={stat.label} className="rounded-lg border border-border/60 bg-paper-2 p-5 shadow-sm transition hover:shadow-md">
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.bg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />

@@ -19,7 +19,7 @@ function useStatusBadge() {
  case "graded":
  return <span className="rounded-pill bg-primary-soft px-2.5 py-0.5 text-xs font-medium text-success-fg ">{t("assign.statusGraded")}</span>;
  case "late":
- return <span className="rounded-pill bg-coral-300 px-2.5 py-0.5 text-xs font-medium text-coral-700 ">{t("assign.statusLate")}</span>;
+ return <span className="rounded-pill bg-clay-300 px-2.5 py-0.5 text-xs font-medium text-clay-700 ">{t("assign.statusLate")}</span>;
  case "overdue":
  return <span className="rounded-pill bg-danger-soft px-2.5 py-0.5 text-xs font-medium text-danger-fg ">{t("assign.statusOverdue")}</span>;
  default:

@@ -264,11 +264,11 @@ export function TwoWayTableV2({
                           minHeight: 40,
                           padding: "8px 4px",
                           borderRadius: 6,
-                          border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--coral-500)" : "var(--ink-200)"}`,
+                          border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--clay-500)" : "var(--ink-200)"}`,
                           background: isOk
                             ? "var(--green-50)"
                             : isNo
-                              ? "var(--coral-50)"
+                              ? "var(--clay-50)"
                               : "var(--paper)",
                           fontFamily: "var(--font-mono)",
                           fontSize: 16,

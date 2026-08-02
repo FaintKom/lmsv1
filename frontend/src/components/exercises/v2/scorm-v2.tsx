@@ -51,7 +51,7 @@ export interface ScormPackageV2Props {
 const SLIDE_BG = [
   "var(--green-500)",
   "var(--sun-400)",
-  "var(--coral-500)",
+  "var(--clay-500)",
   "var(--green-700)",
 ];
 
@@ -171,7 +171,7 @@ export function ScormPackageV2({
                 justifyContent: "center",
                 alignItems: "center",
                 gap: 16,
-                background: "#fafbf6",
+                background: "var(--paper)",
                 position: "relative",
               }}
             >

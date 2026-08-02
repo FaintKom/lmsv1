@@ -88,7 +88,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
 
  {/* Sentence building area */}
  <div
- className={`min-h-[80px] rounded-lg border-2 border-dashed p-5 transition-all duration-200 ${
+ className={`min-h-[80px] rounded-lg border-2 border-dashed p-5 transition duration-200 ${
  submitted && isCorrect === true
  ? "border-primary bg-success-soft/50 "
  : submitted && isCorrect === false
@@ -118,7 +118,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  key={`s-${i}`}
  onClick={() => removeWord(word, i)}
  disabled={submitted}
- className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 shadow-sm
+ className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-200 shadow-sm
  ${
  submitted
  ? "bg-primary text-white cursor-default"
@@ -157,7 +157,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  key={`p-${i}`}
  onClick={() => addWord(word, i)}
  disabled={submitted}
- className="rounded-lg border-2 border-border-strong bg-paper-2 px-4 py-2.5 text-sm font-semibold text-ink-700 transition-all duration-200 hover:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+ className="rounded-lg border-2 border-border-strong bg-paper-2 px-4 py-2.5 text-sm font-semibold text-ink-700 transition duration-200 hover:border-primary hover:bg-success-soft hover:text-success-fg hover:shadow-sm active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
  >
  {word}
  </button>
@@ -172,14 +172,14 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={sentence.length === 0}
- className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Check Sentence
  </button>
  <button
  onClick={handleReset}
  disabled={sentence.length === 0}
- className="rounded-lg border-2 border-border-strong px-5 py-3.5 text-sm font-semibold text-text-muted transition-all duration-200 hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed"
+ className="rounded-lg border-2 border-border-strong px-5 py-3.5 text-sm font-semibold text-text-muted transition duration-200 hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Reset
  </button>

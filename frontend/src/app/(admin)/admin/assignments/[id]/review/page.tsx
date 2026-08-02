@@ -77,7 +77,7 @@ export default function AssignmentReviewPage() {
  case "submitted":
  return <span className="rounded-pill bg-info-soft px-2.5 py-0.5 text-xs font-medium text-info-fg ">{t("admin.assignmentReview.statusSubmitted")}</span>;
  case "late":
- return <span className="rounded-pill bg-coral-300 px-2.5 py-0.5 text-xs font-medium text-coral-700 ">{t("admin.assignmentReview.statusLate")}</span>;
+ return <span className="rounded-pill bg-clay-300 px-2.5 py-0.5 text-xs font-medium text-clay-700 ">{t("admin.assignmentReview.statusLate")}</span>;
  default:
  return <span className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{status}</span>;
  }

@@ -51,7 +51,7 @@ export function ExercisePicker({
               setPicked(ex.id);
               onPick(ex);
             }}
-            className={`mb-1 flex w-full items-center gap-2.5 rounded-md border-2 p-2.5 text-left text-sm transition-all duration-150 ${
+            className={`mb-1 flex w-full items-center gap-2.5 rounded-md border-2 p-2.5 text-left text-sm transition duration-150 ${
               isLive || isPicked
                 ? "border-primary bg-primary-soft font-bold text-success-fg"
                 : "border-transparent font-semibold text-text hover:bg-surface-2 active:scale-[0.99]"

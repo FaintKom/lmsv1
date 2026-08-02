@@ -1084,7 +1084,7 @@ export default function CourseEditorPage() {
  <SortableLessonItem key={lesson.id} id={lesson.id}>
  {/* Lesson card */}
  <div
- className={`rounded-lg border transition-all ${
+ className={`rounded-lg border transition ${
  isExpanded
  ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
  : "border-border-strong hover:border-ink-300 hover:bg-surface-2 "
@@ -1519,7 +1519,7 @@ export default function CourseEditorPage() {
  <button
  key={opt.value}
  onClick={() => setLessonForm({ ...lessonForm, content_type: opt.value, content: {} })}
- className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition-all ${
+ className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition ${
  selected
  ? `${TYPE_COLORS[opt.value]} border-current`
  : "border-transparent bg-surface-2 text-text-muted hover:bg-ink-100 "
@@ -1705,7 +1705,7 @@ export default function CourseEditorPage() {
  <p className="text-xs font-medium text-text-muted ">{student.progress_percent}%</p>
  <div className="h-1.5 w-16 overflow-hidden rounded-pill bg-ink-100 ">
  <div
- className="h-full rounded-pill bg-primary transition-all"
+ className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${student.progress_percent}%` }}
  />
  </div>

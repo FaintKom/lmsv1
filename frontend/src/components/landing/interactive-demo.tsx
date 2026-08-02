@@ -174,7 +174,7 @@ function SATDemo() {
  key={i}
  onClick={() => setSelected(i)}
  disabled={selected !== null}
- className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-3.5 text-left transition-all ${
+ className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-3.5 text-left transition ${
  showResult && isSelected && isCorrect
  ? "border-primary bg-success-soft "
  : showResult && isSelected && !isCorrect
@@ -323,7 +323,7 @@ export function InteractiveDemo() {
  <button
  key={t.key}
  onClick={() => setTab(t.key)}
- className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
+ className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
  tab === t.key
  ? "bg-paper-2 text-text shadow-sm "
  : "text-text-muted hover:text-ink-700 "

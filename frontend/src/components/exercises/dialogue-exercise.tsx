@@ -28,7 +28,7 @@ function getSpeakerColor(speaker: string): string {
  "bg-info",
  "bg-primary",
  "bg-primary-soft",
- "bg-coral-500",
+ "bg-clay-500",
  "",
  "bg-info-soft",
  ];
@@ -139,7 +139,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  return (
  <div
  key={i}
- className={`h-2 w-2 rounded-pill transition-all duration-300 ${
+ className={`h-2 w-2 rounded-pill transition duration-300 ${
  result === true
  ? "bg-primary w-3"
  : result === false
@@ -236,7 +236,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  <button
  key={opt.id}
  onClick={() => handleChoice(currentChoiceIndex, opt.id)}
- className="w-full text-left rounded-lg border-2 border-primary-soft bg-paper-2 px-4 py-3 text-sm font-medium text-ink-700 transition-all duration-200 hover:border-primary hover:bg-success-soft hover:shadow-sm active:scale-[0.98]"
+ className="w-full text-left rounded-lg border-2 border-primary-soft bg-paper-2 px-4 py-3 text-sm font-medium text-ink-700 transition duration-200 hover:border-primary hover:bg-success-soft hover:shadow-sm active:scale-[0.98]"
  >
  {opt.text}
  </button>
@@ -267,7 +267,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  {isFinished && !submitted && (
  <button
  onClick={handleSubmit}
- className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98]"
+ className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98]"
  >
  Complete Dialogue
  </button>

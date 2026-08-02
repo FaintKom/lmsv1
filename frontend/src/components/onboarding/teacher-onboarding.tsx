@@ -131,7 +131,7 @@ export function TeacherOnboarding() {
  <div className="mb-4 flex items-center gap-2">
  <div className="flex-1 h-2 rounded-pill bg-primary-soft overflow-hidden">
  <div
- className="h-full rounded-pill bg-primary transition-all duration-500"
+ className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${(completedCount / steps.length) * 100}%` }}
  />
  </div>
@@ -147,7 +147,7 @@ export function TeacherOnboarding() {
  return (
  <div
  key={step.id}
- className={`flex items-center gap-4 rounded-lg border px-4 py-3 transition-all ${
+ className={`flex items-center gap-4 rounded-lg border px-4 py-3 transition ${
  isDone
  ? "border-primary-soft bg-success-soft/50 "
  : "border-border-strong bg-paper-2 "

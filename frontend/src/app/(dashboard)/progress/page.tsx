@@ -141,7 +141,7 @@ export default function ProgressPage() {
  </p>
  <div className="mt-1 h-2 w-24 overflow-hidden rounded-pill bg-ink-100 ">
  <div
- className="h-full rounded-pill bg-primary transition-all"
+ className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${e.progress_percent}%` }}
  />
  </div>

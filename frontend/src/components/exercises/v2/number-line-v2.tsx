@@ -204,7 +204,7 @@ export function NumberLineV2({
       });
       setStreak(0);
     } else {
-      // Shake + coral, then settle back to neutral while the student retries.
+      // Shake + clay, then settle back to neutral while the student retries.
       if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
       shakeTimer.current = window.setTimeout(() => setMarkerState(""), 700);
       const tmpl = remaining === 1 ? t("exercise.numberLine.placedAtAttempt") : t("exercise.numberLine.placedAtAttempts");

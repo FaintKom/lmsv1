@@ -14,7 +14,7 @@ function StatusTile({ row }: { row: ProgressRow }) {
     );
   if (row.submitted)
     return (
-      <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-coral-500 text-white">
+      <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-clay-500 text-white">
         <X size={12} strokeWidth={3} />
       </span>
     );
