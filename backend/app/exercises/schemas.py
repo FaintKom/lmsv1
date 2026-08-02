@@ -7,6 +7,7 @@ from app.exercises.models import ExerciseType
 
 # ─── Config schemas per exercise type ───────────────────────────────
 
+
 class QuizConfig(BaseModel):
     passing_score: int = 70
     time_limit_minutes: int | None = None
@@ -127,6 +128,7 @@ class WebEditorConfig(BaseModel):
 
 # ─── Exercise CRUD schemas ──────────────────────────────────────────
 
+
 class ExerciseCreate(BaseModel):
     lesson_id: uuid.UUID
     exercise_type: ExerciseType
@@ -192,8 +194,10 @@ class ExerciseListResponse(BaseModel):
 
 # ─── Submission schemas ─────────────────────────────────────────────
 
+
 class SubmitExerciseRequest(BaseModel):
     """Universal submit request. Depending on exercise type, different fields are used."""
+
     # Quiz
     answers: list[dict] | None = None  # [{question_id, selected_option or text}]
     # Code
@@ -202,7 +206,9 @@ class SubmitExerciseRequest(BaseModel):
     # Interactive (matching, ordering, fill_blanks, true_false, categorize)
     interactive_answers: dict | None = None
     # Game levels (robot_2d, math_interactive, world_3d)
-    game_result: dict | None = None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
+    game_result: dict | None = (
+        None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
+    )
     # Web editor (HTML/CSS/JS)
     web_code: dict | None = None  # {html, css, js}
     # Time-on-task (Phase 1 analytics). Optional — older clients omit it and
@@ -243,8 +249,24 @@ class ExerciseSubmissionResponse(BaseModel):
     attempts_remaining: int | None = None
     max_attempts_reached: bool = False
     correct_answer: dict | None = None
+    # Per-item verdicts for interactive types (integrity model B): booleans
+    # only, keyed per slot ({pronoun: bool}, {"0": bool}) or positional list.
+    per_item: dict[str, bool] | list[bool] | None = None
 
     model_config = {"from_attributes": True}
+
+
+class CheckExerciseRequest(BaseModel):
+    """Non-persisting grade check (deferred-feedback UX). Same inner payload
+    as SubmitExerciseRequest.interactive_answers."""
+
+    interactive_answers: dict
+
+
+class CheckExerciseResponse(BaseModel):
+    score: float
+    passed: bool
+    per_item: dict[str, bool] | list[bool] | None = None
 
 
 class SubmissionListResponse(BaseModel):
@@ -255,6 +277,7 @@ class SubmissionListResponse(BaseModel):
 
 
 # ─── Question / TestCase management ─────────────────────────────────
+
 
 class QuestionCreate(BaseModel):
     question_text: str

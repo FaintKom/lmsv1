@@ -12,21 +12,23 @@
  * green; if student picked wrong, their pick turns coral.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LessonShell,
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface BubbleSheetQuestion {
   /** 1-based question number shown in the badge. */
   n: number;
   q: string;
   opts: string[];
-  /** 0-based index of the correct option. */
-  correct: number;
+  /** 0-based index of the correct option. Required for local (preview)
+   * grading; omitted live — the server grades via `onGrade`. */
+  correct?: number;
 }
 
 export interface BubbleSheetV2Props {
@@ -35,6 +37,11 @@ export interface BubbleSheetV2Props {
   title?: string;
   maxAttemptsPerTask?: number;
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B).
+   * Payload: {answers: {"<0-based index>": "<option letter>"}}. */
+  onGrade?: V2GradeFn;
+  /** Live-lesson draft capture. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
   onFinish?: (r: {
     correct: boolean;
@@ -45,12 +52,26 @@ export interface BubbleSheetV2Props {
   }) => void;
 }
 
+/** Server payload: q order index → picked option letter (A/B/C…). */
+const toServerAnswers = (
+  questions: BubbleSheetQuestion[],
+  ans: Record<number, number>,
+): Record<string, string> =>
+  Object.fromEntries(
+    questions
+      .map((q, idx) => [idx, ans[q.n]] as const)
+      .filter(([, pick]) => pick != null)
+      .map(([idx, pick]) => [String(idx), String.fromCharCode(65 + (pick as number))]),
+  );
+
 export function BubbleSheetV2({
   questions,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
+  onGrade,
+  onAnswersChange,
   onQuit,
   onFinish,
 }: BubbleSheetV2Props) {
@@ -58,33 +79,45 @@ export function BubbleSheetV2({
   const [ans, setAns] = useState<Record<number, number>>({});
   // BS-02: picks confirmed correct on a failed Check — locked + ✓ on retry.
   const [keptOk, setKeptOk] = useState<Record<number, number>>({});
+  /** Server mode: per-question verdicts (by q.n) from the last check. */
+  const [serverOk, setServerOk] = useState<Record<number, boolean>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [revealCorrect, setRevealCorrect] = useState(false);
+  const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
 
   const allAnswered = questions.every((q) => ans[q.n] != null);
-  const score = questions.filter((q) => ans[q.n] === q.correct).length;
+  /** Question verdict — server flags live, local compare in preview. */
+  const qOk = (q: BubbleSheetQuestion) =>
+    onGrade ? !!serverOk[q.n] : ans[q.n] === q.correct;
+  const score = questions.filter(qOk).length;
 
-  const handleCheck = () => {
-    const isAllCorrect = score === questions.length;
-    if (isAllCorrect) {
+  // live-lesson draft capture
+  useEffect(() => {
+    if (Object.keys(ans).length > 0)
+      onAnswersChange?.({ answers: toServerAnswers(questions, ans) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ans]);
+
+  const applyScore = (got: number, serverRemaining?: number) => {
+    if (got === questions.length) {
       setFeedback({
         kind: "ok",
         msg:
           usedAttempts === 0
-            ? t("exercise.perfectScore").replace("{score}", String(score)).replace("{total}", String(questions.length))
-            : t("exercise.gotThere").replace("{score}", String(score)).replace("{total}", String(questions.length)),
+            ? t("exercise.perfectScore").replace("{score}", String(got)).replace("{total}", String(questions.length))
+            : t("exercise.gotThere").replace("{score}", String(got)).replace("{total}", String(questions.length)),
       });
       setStreak((s) => s + 1);
       setRevealCorrect(true);
       fire();
       return;
     }
-    const remaining = attemptsLeft - 1;
+    const remaining = serverRemaining ?? attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
@@ -92,25 +125,56 @@ export function BubbleSheetV2({
     if (remaining <= 0) {
       setFeedback({
         kind: "no",
-        msg: t("exercise.scoreCorrect").replace("{score}", String(score)).replace("{total}", String(questions.length)),
-        explain: t("exercise.outOfAttemptsCorrectShown"),
+        msg: t("exercise.scoreCorrect").replace("{score}", String(got)).replace("{total}", String(questions.length)),
+        explain: onGrade ? undefined : t("exercise.outOfAttemptsCorrectShown"),
       });
       setStreak(0);
-      setRevealCorrect(true);
+      // server mode has no correct indices to reveal
+      if (!onGrade) setRevealCorrect(true);
     } else {
       setFeedback({
         kind: "no",
-        msg: t("exercise.scoreCorrect").replace("{score}", String(score)).replace("{total}", String(questions.length)),
+        msg: t("exercise.scoreCorrect").replace("{score}", String(got)).replace("{total}", String(questions.length)),
         explain: (remaining === 1 ? t("exercise.fixWrongOneLeft") : t("exercise.fixWrongOnes")).replace("{n}", String(remaining)),
       });
     }
+  };
+
+  const handleCheck = async () => {
+    if (checking) return;
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res = await onGrade({ answers: toServerAnswers(questions, ans) });
+        const pi = res.perItem;
+        const flags: Record<number, boolean> = {};
+        questions.forEach((q, idx) => {
+          flags[q.n] = res.correct
+            ? true
+            : pi && !Array.isArray(pi)
+              ? (pi[String(idx)] ?? false)
+              : false;
+        });
+        setServerOk(flags);
+        applyScore(
+          Object.values(flags).filter(Boolean).length,
+          res.attemptsRemaining,
+        );
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+    applyScore(score);
   };
 
   const handleRetry = () => {
     // Drop only the wrong picks so the student can re-answer them.
     const kept: Record<number, number> = {};
     for (const q of questions) {
-      if (ans[q.n] === q.correct) kept[q.n] = ans[q.n];
+      if (qOk(q) && ans[q.n] != null) kept[q.n] = ans[q.n];
     }
     setAns(kept);
     setKeptOk(kept); // BS-02
@@ -141,7 +205,7 @@ export function BubbleSheetV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.bubbleSheet.title")}
         feedback={feedback}
-        canCheck={allAnswered}
+        canCheck={allAnswered && !checking}
         checkHint={t("exercise.bubbleSheet.checkHint")}
         onCheck={handleCheck}
         onContinue={handleContinue}

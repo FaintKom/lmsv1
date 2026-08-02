@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Display ID generation ──────────────────────────────────────────
 
+
 async def generate_display_id(
     db: AsyncSession, org_id: uuid.UUID, exercise_type: ExerciseType
 ) -> str:
@@ -65,6 +66,7 @@ async def generate_display_id(
 
 # ─── Helpers ─────────────────────────────────────────────────────────
 
+
 def _check_permission(user: User) -> None:
     """Only admin, teacher, super_admin, and methodists can manage exercises."""
     if user.role in (UserRole.student, UserRole.parent):
@@ -87,6 +89,7 @@ async def _get_exercise_with_relations(db: AsyncSession, exercise_id: uuid.UUID)
 
 
 # ─── CRUD ────────────────────────────────────────────────────────────
+
 
 async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     _check_permission(user)
@@ -156,15 +159,12 @@ async def list_exercises(
         )
 
     # Count
-    count_result = await db.execute(
-        select(func.count()).select_from(base_query.subquery())
-    )
+    count_result = await db.execute(select(func.count()).select_from(base_query.subquery()))
     total = count_result.scalar() or 0
 
     # Paginated results
     result = await db.execute(
-        base_query
-        .options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
+        base_query.options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
         .order_by(Exercise.created_at.desc())
         .offset((page - 1) * per_page)
         .limit(per_page)
@@ -174,9 +174,7 @@ async def list_exercises(
     return exercises, total
 
 
-async def get_exercises_by_lesson(
-    db: AsyncSession, lesson_id: uuid.UUID
-) -> list[Exercise]:
+async def get_exercises_by_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> list[Exercise]:
     result = await db.execute(
         select(Exercise)
         .where(Exercise.lesson_id == lesson_id)
@@ -208,6 +206,7 @@ async def delete_exercise(db: AsyncSession, exercise_id: uuid.UUID, user: User) 
 
 
 # ─── Question management ────────────────────────────────────────────
+
 
 async def add_question_to_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
@@ -266,6 +265,7 @@ async def delete_question_from_exercise(
 
 # ─── Test case management ───────────────────────────────────────────
 
+
 async def add_test_case_to_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
 ) -> TestCase:
@@ -319,6 +319,7 @@ async def delete_test_case_from_exercise(
 
 
 # ─── Attempt tracking helpers ──────────────────────────────────────
+
 
 async def _count_attempts(db: AsyncSession, exercise_id: uuid.UUID, student_id: uuid.UUID) -> int:
     result = await db.execute(
@@ -376,7 +377,10 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
                     return {"answer": c.get("text", ""), "explanation": tc.get("explanation", "")}
         elif tt == "numeric_input":
             answers = tc.get("correct_answers", [])
-            return {"answer": answers[0] if answers else None, "explanation": tc.get("explanation", "")}
+            return {
+                "answer": answers[0] if answers else None,
+                "explanation": tc.get("explanation", ""),
+            }
         elif tt == "equation_solver":
             return {"answer": tc.get("final_answer", ""), "explanation": tc.get("explanation", "")}
         elif tt == "card_sort":
@@ -387,19 +391,30 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
         elif tt == "two_way_table":
             return {"answer": tc.get("answers", {}), "explanation": tc.get("explanation", "")}
         elif tt == "table_pattern":
-            return {"answer": tc.get("answers", {}), "rule": tc.get("rule_answer", ""), "explanation": tc.get("explanation", "")}
+            return {
+                "answer": tc.get("answers", {}),
+                "rule": tc.get("rule_answer", ""),
+                "explanation": tc.get("explanation", ""),
+            }
         elif tt == "scatter_plot":
-            return {"answer": {"slope": tc.get("target_slope"), "intercept": tc.get("target_intercept")}}
+            return {
+                "answer": {"slope": tc.get("target_slope"), "intercept": tc.get("target_intercept")}
+            }
         elif tt == "coordinate_plane":
             return {"answer": tc.get("target_points", [])}
         return {"explanation": tc.get("explanation", "")}
 
     elif ex_type == ExerciseType.quiz:
         questions = exercise.questions or []
-        return {"answers": [{
-            "question": q.question_text,
-            "correct_answer": q.correct_answer,
-        } for q in questions]}
+        return {
+            "answers": [
+                {
+                    "question": q.question_text,
+                    "correct_answer": q.correct_answer,
+                }
+                for q in questions
+            ]
+        }
 
     elif ex_type in (ExerciseType.matching,):
         return {"answer": config.get("pairs", [])}
@@ -414,7 +429,9 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
 
 
 async def get_attempt_status(
-    db: AsyncSession, exercise_id: uuid.UUID, user: User,
+    db: AsyncSession,
+    exercise_id: uuid.UUID,
+    user: User,
 ) -> dict:
     """Get current attempt count, remaining attempts, and last submission for a student."""
     exercise = await _get_exercise_with_relations(db, exercise_id)
@@ -453,6 +470,7 @@ async def get_attempt_status(
 
 
 # ─── Unified submission handler ─────────────────────────────────────
+
 
 async def submit_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
@@ -499,7 +517,9 @@ async def submit_exercise(
     elif exercise.exercise_type == ExerciseType.file_upload:
         raise BadRequestError("Use the /upload endpoint for file submissions")
     elif exercise.exercise_type in (
-        ExerciseType.robot_2d, ExerciseType.math_interactive, ExerciseType.world_3d
+        ExerciseType.robot_2d,
+        ExerciseType.math_interactive,
+        ExerciseType.world_3d,
     ):
         return await _submit_game_level(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.web_editor:
@@ -529,6 +549,7 @@ async def _submit_quiz(
 
     # Grade
     from app.assessments.grading import grade_quiz
+
     score_percent, _ = grade_quiz(questions, answers)
     passing = exercise.config.get("passing_score", 70)
     passed = score_percent >= passing
@@ -585,17 +606,19 @@ async def _submit_code(
         if is_pass:
             total_passed += 1
 
-        results.append({
-            "test_case_id": str(tc.id),
-            "input": tc.input,
-            "expected": expected,
-            "actual": actual,
-            "passed": is_pass,
-            "is_hidden": tc.is_hidden,
-            "status": result.get("status", "error"),
-            "stderr": result.get("stderr", ""),
-            "execution_time_ms": result.get("execution_time_ms", 0),
-        })
+        results.append(
+            {
+                "test_case_id": str(tc.id),
+                "input": tc.input,
+                "expected": expected,
+                "actual": actual,
+                "passed": is_pass,
+                "is_hidden": tc.is_hidden,
+                "status": result.get("status", "error"),
+                "stderr": result.get("stderr", ""),
+                "execution_time_ms": result.get("execution_time_ms", 0),
+            }
+        )
 
     all_passed = total_passed == total_tests
     exec_time = max((r.get("execution_time_ms", 0) for r in results), default=0)
@@ -636,8 +659,11 @@ async def _submit_interactive(
     interactive_answers = data.get("interactive_answers") or data.get("answers", {})
     config = exercise.config or {}
 
-    from app.submissions.service import grade_interactive
-    score, passed = grade_interactive(config, exercise.exercise_type.value, interactive_answers)
+    from app.submissions.service import grade_interactive_detail
+
+    score, passed, per_item = grade_interactive_detail(
+        config, exercise.exercise_type.value, interactive_answers
+    )
 
     submission = ExerciseSubmission(
         exercise_id=exercise.id,
@@ -656,7 +682,11 @@ async def _submit_interactive(
     if passed:
         await _award_xp(db, user.id, 25, "exercise_passed")
 
-    return await _reload_submission(db, submission.id)
+    sub = await _reload_submission(db, submission.id)
+    # Per-item verdicts ride along for the response serializer (booleans only,
+    # never expected answers — see grade_interactive_detail).
+    sub._per_item = per_item  # type: ignore[attr-defined]
+    return sub
 
 
 async def upload_file_submission(
@@ -717,6 +747,7 @@ async def upload_file_submission(
 
 # ─── Submission queries ──────────────────────────────────────────────
 
+
 async def list_submissions(
     db: AsyncSession,
     exercise_id: uuid.UUID,
@@ -730,9 +761,7 @@ async def list_submissions(
     if user.role == UserRole.student:
         base = base.where(ExerciseSubmission.student_id == user.id)
 
-    count_result = await db.execute(
-        select(func.count()).select_from(base.subquery())
-    )
+    count_result = await db.execute(select(func.count()).select_from(base.subquery()))
     total = count_result.scalar() or 0
 
     result = await db.execute(
@@ -803,6 +832,7 @@ async def _submit_game_level(
 
 # ─── Web Editor ────────────────────────────────────────────────────────
 
+
 async def _submit_web_editor(
     db: AsyncSession,
     exercise: Exercise,
@@ -845,18 +875,16 @@ async def _submit_web_editor(
 
 # ─── Helpers ─────────────────────────────────────────────────────────
 
+
 async def _reload_submission(db: AsyncSession, sid: uuid.UUID) -> ExerciseSubmission:
-    result = await db.execute(
-        select(ExerciseSubmission).where(ExerciseSubmission.id == sid)
-    )
+    result = await db.execute(select(ExerciseSubmission).where(ExerciseSubmission.id == sid))
     return result.scalar_one()
 
 
 async def _award_xp(db: AsyncSession, user_id: uuid.UUID, amount: int, reason: str) -> None:
     try:
         from app.gamification.service import award_xp
+
         await award_xp(db, user_id, amount, reason)
     except Exception:
-        logger.warning(
-            "XP award failed for user %s (reason=%s)", user_id, reason, exc_info=True
-        )
+        logger.warning("XP award failed for user %s (reason=%s)", user_id, reason, exc_info=True)

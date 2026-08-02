@@ -11,9 +11,9 @@
  * component renders feedback from. Display props are built from the stripped
  * config (statement / text+word_bank / word_bank).
  *
- * Scope is deliberately the three single-submit types whose answer is already
- * stripped — see v2-adapter.ts (`V2_LIVE_TYPES`) and tasks/todo.md for the
- * Tier-B/C backend follow-ups.
+ * Scope: single-submit types whose answers the server strips — see
+ * v2-adapter.ts (`V2_LIVE_TYPES`). Deferred/per-interaction types
+ * (matching, categorize, quiz…) are the Tier-B/C follow-ups in tasks/todo.md.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -24,6 +24,16 @@ import type { V2GradeFn, V2GradeResult, V2LiveType } from "@/lib/exercises/v2-ad
 import { TrueFalseV2 } from "@/components/exercises/v2/true-false-v2";
 import { FillBlanksV2 } from "@/components/exercises/v2/fill-blanks-v2";
 import { OrderingV2 } from "@/components/exercises/v2/ordering-v2";
+import { TranslationV2 } from "@/components/exercises/v2/translation-v2";
+import { SentenceBuilderV2 } from "@/components/exercises/v2/sentence-builder-v2";
+import {
+  ConjugationV2,
+  type ConjugationRow,
+} from "@/components/exercises/v2/conjugation-v2";
+import {
+  BubbleSheetV2,
+  type BubbleSheetQuestion,
+} from "@/components/exercises/v2/bubble-sheet-v2";
 
 interface LiveExercise {
   id: string;
@@ -102,6 +112,7 @@ export function V2ExerciseLive({
       correct: !!d.passed,
       attemptsRemaining: d.attempts_remaining ?? undefined,
       maxReached: !!d.max_attempts_reached,
+      perItem: d.per_item ?? undefined,
     };
     if (d.max_attempts_reached) {
       result.correctAnswer = formatCorrect(d.correct_answer);
@@ -152,6 +163,63 @@ export function V2ExerciseLive({
           {...shared}
         />
       );
+    case "translation": {
+      const accepted = (cfg.accepted_answers as string[]) ?? [];
+      return (
+        <TranslationV2
+          source={(cfg.source_text as string) ?? ""}
+          sourceLang={(cfg.source_language as string) ?? ""}
+          targetLang={(cfg.target_language as string) ?? ""}
+          accepted={accepted}
+          correct={accepted[0]}
+          hint={(cfg.hints as string[] | undefined)?.[0]}
+          {...shared}
+        />
+      );
+    }
+    case "sentence_builder":
+      return (
+        <SentenceBuilderV2
+          source={(cfg.instructions as string) ?? ""}
+          wordBank={cfg.word_bank as string[] | undefined}
+          correctWords={(cfg.correct_order ?? cfg.words) as string[] | undefined}
+          distractors={cfg.distractors as string[] | undefined}
+          {...shared}
+        />
+      );
+    case "conjugation":
+      return (
+        <ConjugationV2
+          infinitive={(cfg.verb as string) ?? ""}
+          tense={(cfg.tense as string) ?? ""}
+          rows={((cfg.table as ConjugationRow[]) ?? []).filter((r) => r?.pronoun)}
+          {...shared}
+        />
+      );
+    case "bubble_sheet": {
+      // backend shape: questions[{number?, question?, options?, correct?: letter}]
+      const raw = (cfg.questions as {
+        number?: number;
+        question?: string;
+        options?: string[];
+        correct?: string;
+      }[]) ?? [];
+      const numOptions = (cfg.num_options as number) ?? 4;
+      const questions: BubbleSheetQuestion[] = raw.map((q, i) => {
+        const opts =
+          q.options && q.options.length > 0
+            ? q.options
+            : Array.from({ length: numOptions }, (_, j) => String.fromCharCode(65 + j));
+        const letter = (q.correct ?? "").trim().toUpperCase();
+        return {
+          n: q.number ?? i + 1,
+          q: q.question ?? "",
+          opts,
+          correct: letter ? letter.charCodeAt(0) - 65 : undefined,
+        };
+      });
+      return <BubbleSheetV2 questions={questions} {...shared} />;
+    }
     default:
       return null;
   }

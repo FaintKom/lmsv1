@@ -78,12 +78,9 @@ export default function LessonViewerPage() {
    user.role === "super_admin" ||
    user.is_methodist);
 
- // Opt-in flag (`?v2=1`) to route Tier-A exercises through the V2 renderer.
- // Read client-side to stay SSR-safe and avoid a Suspense boundary.
- const [v2Flag, setV2Flag] = useState(false);
- useEffect(() => {
-  setV2Flag(new URLSearchParams(window.location.search).get("v2") === "1");
- }, []);
+ // V2 routing is the default for stripped types (integrity model B): their
+ // answers no longer reach the student config, so the legacy client-graded
+ // renderers can't grade them. The old `?v2=1` opt-in flag is gone.
 
  const [course, setCourse] = useState<Course | null>(null);
  const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -578,7 +575,7 @@ export default function LessonViewerPage() {
          {t("lesson.exercises")}
         </h2>
         {orphaned.map((ex) =>
-         v2Flag && isV2LiveType(ex.exercise_type) ? (
+         isV2LiveType(ex.exercise_type) ? (
           <V2ExerciseLive key={ex.id} exercise={ex as any} />
          ) : (
           <ExerciseRenderer
@@ -777,14 +774,20 @@ function BlockRenderer({
 
   case "exercise": {
    const exercise = exercises.find((ex) => ex.id === block.exercise_id);
-   return exercise ? (
+   if (!exercise) return null;
+   // stripped types must go through the server-graded V2 path — the legacy
+   // renderers grade client-side from answer keys the config no longer has
+   if (isV2LiveType(exercise.exercise_type)) {
+    return <V2ExerciseLive exercise={exercise as any} />;
+   }
+   return (
     <ExerciseRenderer
      exercise={exercise as any}
      courseId={courseId}
      prevLesson={prevLesson ? { id: prevLesson.lesson.id, title: prevLesson.lesson.title } : null}
      nextLesson={nextLesson ? { id: nextLesson.lesson.id, title: nextLesson.lesson.title } : null}
     />
-   ) : null;
+   );
   }
 
   default:
