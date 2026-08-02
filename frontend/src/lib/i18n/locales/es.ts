@@ -2689,6 +2689,8 @@ const es: TranslationMap = {
  "live.ask": "Pregunta al profesor",
  "live.askSent": "Pregunta enviada",
  "live.questionsTitle": "Preguntas",
+ "live.prevStep": "Paso anterior",
+ "live.nextStep": "Paso siguiente",
  "live.nowShowing": "La clase ve",
  "live.waiting": "Esperando al profesor…",
  "live.startHint": "Elige una escena a la izquierda — la clase la verá al instante",

@@ -2692,6 +2692,8 @@ const tr: TranslationMap = {
  "live.ask": "Öğretmene sor",
  "live.askSent": "Soru gönderildi",
  "live.questionsTitle": "Sorular",
+ "live.prevStep": "Önceki adım",
+ "live.nextStep": "Sonraki adım",
  "live.nowShowing": "Sınıf görüyor",
  "live.waiting": "Öğretmen bekleniyor…",
  "live.startHint": "Soldan bir sahne seçin — sınıf anında görür",

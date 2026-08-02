@@ -2751,6 +2751,8 @@ const uk: TranslationMap = {
  "live.ask": "Запитати викладача",
  "live.askSent": "Питання надіслано",
  "live.questionsTitle": "Питання",
+ "live.prevStep": "Попередній крок",
+ "live.nextStep": "Наступний крок",
  "live.nowShowing": "Клас бачить",
  "live.waiting": "Чекаємо на викладача…",
  "live.startHint": "Оберіть сцену ліворуч — клас побачить її миттєво",
