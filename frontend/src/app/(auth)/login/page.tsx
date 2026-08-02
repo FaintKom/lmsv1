@@ -53,7 +53,7 @@ export default function LoginPage() {
  </div>
  )}
  <div>
- <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.email")}
  </label>
  <Input
@@ -67,7 +67,7 @@ export default function LoginPage() {
  />
  </div>
  <div>
- <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.password")}
  </label>
  <Input

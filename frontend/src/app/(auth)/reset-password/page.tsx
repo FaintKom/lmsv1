@@ -96,7 +96,7 @@ function ResetPasswordForm() {
  </div>
  )}
  <div>
- <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.newPassword")}
  </label>
  <Input
@@ -109,7 +109,7 @@ function ResetPasswordForm() {
  />
  </div>
  <div>
- <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.confirmPassword")}
  </label>
  <Input

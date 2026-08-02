@@ -214,7 +214,7 @@ function RegisterForm() {
  {/* Organization name — for teacher registration only, hidden if invited student */}
  {!inviteOrg && form.role === "teacher" && (
  <div>
- <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-org" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.schoolOrgName")}
  </label>
  <Input
@@ -228,7 +228,7 @@ function RegisterForm() {
  )}
 
  <div>
- <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-fullname" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.fullName")}
  </label>
  <Input
@@ -241,7 +241,7 @@ function RegisterForm() {
  />
  </div>
  <div>
- <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.email")}
  </label>
  <Input
@@ -255,7 +255,7 @@ function RegisterForm() {
  />
  </div>
  <div>
- <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.password")}
  </label>
  <Input
@@ -275,7 +275,7 @@ function RegisterForm() {
  type="checkbox"
  checked={form.consent}
  onChange={(e) => setForm((prev) => ({ ...prev, consent: e.target.checked }))}
- className="mt-1 rounded border-ink-300 text-primary focus:ring-green-500"
+ className="mt-1 rounded border-border-strong text-primary focus:ring-green-500"
  />
  <label htmlFor="reg-consent" className="text-sm text-text-muted ">
  {t("auth.iAgreeTo")}{" "}
@@ -287,7 +287,7 @@ function RegisterForm() {
 
  {form.role === "student" && (
  <div>
- <label htmlFor="reg-dob" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-dob" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.dateOfBirth")}
  </label>
  <Input
@@ -309,7 +309,7 @@ function RegisterForm() {
  <p className="mb-3 text-sm text-text-muted">
  {t("consent.minorNotice")}
  </p>
- <label htmlFor="reg-parent-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reg-parent-email" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.parentEmail")}
  </label>
  <Input
@@ -333,7 +333,7 @@ function RegisterForm() {
  type="checkbox"
  checked={form.parentalConsent}
  onChange={(e) => setForm((prev) => ({ ...prev, parentalConsent: e.target.checked }))}
- className="mt-1 rounded border-ink-300 text-primary focus:ring-green-500"
+ className="mt-1 rounded border-border-strong text-primary focus:ring-green-500"
  />
  <label htmlFor="reg-parental-consent" className="text-sm text-text-muted ">
  {t("consent.parentalConfirm")}

@@ -23,11 +23,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           {
             "btn-pop bg-primary text-white hover:bg-primary-hover":
               variant === "default",
-            "btn-pop btn-pop--secondary bg-paper-2 text-text border border-border":
+            "btn-pop btn-pop--secondary bg-surface text-text border border-border":
               variant === "secondary",
-            "border border-border-strong bg-paper-2 text-ink-700 hover:bg-surface-2 hover:border-ink-300 transition-colors":
+            "border border-border-strong bg-surface text-text hover:bg-surface-2 hover:border-border-strong transition-colors":
               variant === "outline",
-            "bg-transparent text-ink-700 hover:bg-surface-2 transition-colors":
+            "bg-transparent text-text hover:bg-surface-2 transition-colors":
               variant === "ghost",
             "btn-pop btn-pop--clay bg-danger text-white hover:bg-danger":
               variant === "destructive",

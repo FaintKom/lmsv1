@@ -24,7 +24,7 @@ export default function LocaleSwitcher() {
  <div ref={ref} className="relative">
  <button
  onClick={() => setOpen(!open)}
- className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-text-muted hover:bg-ink-100 hover:text-ink-700"
+ className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-2 hover:text-text"
  aria-label="Change language"
  aria-expanded={open}
  aria-haspopup="listbox"
@@ -33,7 +33,7 @@ export default function LocaleSwitcher() {
  <span>{current?.flag}</span>
  </button>
  {open && (
- <div role="listbox" aria-label="Select language" className="absolute bottom-full left-0 z-50 mb-1 w-40 rounded-lg border border-border-strong bg-paper-2 py-1 shadow-2xl">
+ <div role="listbox" aria-label="Select language" className="absolute bottom-full left-0 z-50 mb-1 w-40 rounded-lg border border-border-strong bg-surface py-1 shadow-2xl">
  {LOCALES.map((l) => (
  <button
  key={l.code}

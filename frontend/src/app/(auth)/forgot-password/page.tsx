@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
  </div>
  )}
  <div>
- <label htmlFor="reset-email" className="mb-1.5 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="reset-email" className="mb-1.5 block text-sm font-medium text-text ">
  {t("auth.email")}
  </label>
  <Input

@@ -40,7 +40,7 @@ function VerifyEmailFlow() {
 
  return (
  <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4 ">
- <div className="w-full max-w-md rounded-lg bg-paper-2 p-8 shadow-sm ">
+ <div className="w-full max-w-md rounded-lg bg-surface p-8 shadow-sm ">
  <div className="mb-6 flex justify-center">
  {status === "loading" && (
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">

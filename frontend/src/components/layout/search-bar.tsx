@@ -113,12 +113,12 @@ export function SearchBar() {
  setOpen(true);
  setTimeout(() => inputRef.current?.focus(), 50);
  }}
- className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-xs text-text-muted transition-colors hover:border-ink-300 hover:bg-paper-2"
+ className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-surface-2 px-3 py-2 text-xs text-text-muted transition-colors hover:border-border-strong hover:bg-surface"
  aria-label="Search courses and lessons"
  >
  <Search className="h-3.5 w-3.5" aria-hidden="true" />
  <span className="flex-1 text-left">{t("search.placeholder") === "search.placeholder" ? "Search..." : t("search.placeholder")}</span>
- <kbd className="hidden rounded border border-border-strong bg-paper-2 px-1.5 py-0.5 text-xs font-medium text-text-muted sm:inline-block">
+ <kbd className="hidden rounded border border-border-strong bg-surface px-1.5 py-0.5 text-xs font-medium text-text-muted sm:inline-block">
  Ctrl+K
  </kbd>
  </button>
@@ -127,7 +127,7 @@ export function SearchBar() {
  {/* Search input */}
  {open && (
  <div className="relative">
- <div className="flex items-center gap-2 rounded-lg border border-primary bg-paper-2 px-3 py-2 shadow-sm ring-1 ring-primary-soft">
+ <div className="flex items-center gap-2 rounded-lg border border-primary bg-surface px-3 py-2 shadow-sm ring-1 ring-primary-soft">
  <Search className="h-3.5 w-3.5 text-primary" />
  <input
  ref={inputRef}
@@ -135,7 +135,7 @@ export function SearchBar() {
  value={query}
  onChange={(e) => handleChange(e.target.value)}
  placeholder={t("search.placeholder") === "search.placeholder" ? "Search courses and lessons..." : t("search.placeholder")}
- className="flex-1 bg-transparent text-xs text-ink-700 outline-none placeholder:text-text-subtle"
+ className="flex-1 bg-transparent text-xs text-text outline-none placeholder:text-text-subtle"
  />
  {query && (
  <button
@@ -154,7 +154,7 @@ export function SearchBar() {
 
  {/* Dropdown results */}
  {(hasResults || noResults || loading) && (
- <div role="listbox" aria-label="Search results" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-border-strong bg-paper-2 py-1 shadow-lg">
+ <div role="listbox" aria-label="Search results" className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border border-border-strong bg-surface py-1 shadow-lg">
  {loading && (
  <div className="px-3 py-4 text-center text-xs text-text-muted">
  Searching...
@@ -182,7 +182,7 @@ export function SearchBar() {
  >
  <BookOpen className="h-4 w-4 shrink-0 text-primary" />
  <div className="min-w-0 flex-1">
- <p className="truncate font-medium text-ink-700">{course.title}</p>
+ <p className="truncate font-medium text-text">{course.title}</p>
  {course.description && (
  <p className="truncate text-xs text-text-muted">{course.description}</p>
  )}
@@ -205,7 +205,7 @@ export function SearchBar() {
  >
  <FileText className="h-4 w-4 shrink-0 text-primary" />
  <div className="min-w-0 flex-1">
- <p className="truncate font-medium text-ink-700">{lesson.title}</p>
+ <p className="truncate font-medium text-text">{lesson.title}</p>
  {lesson.course_title && (
  <p className="truncate text-xs text-text-muted">
  in {lesson.course_title}

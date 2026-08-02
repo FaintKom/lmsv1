@@ -76,12 +76,12 @@ export function OrgSwitcher() {
  type="button"
  onClick={() => setOpen((o) => !o)}
  disabled={switching}
- className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-left text-sm transition-colors hover:bg-surface-2 disabled:opacity-60 "
+ className="flex w-full items-center gap-2 rounded-lg border border-border-strong bg-surface px-3 py-2 text-left text-sm transition-colors hover:bg-surface-2 disabled:opacity-60 "
  aria-haspopup="listbox"
  aria-expanded={open}
  >
  <Building2 className="h-4 w-4 flex-shrink-0 text-text-subtle" aria-hidden="true" />
- <span className="min-w-0 flex-1 truncate font-medium text-ink-700 ">
+ <span className="min-w-0 flex-1 truncate font-medium text-text ">
  {active?.org_name ?? "Organization"}
  </span>
  <ChevronDown
@@ -95,7 +95,7 @@ export function OrgSwitcher() {
  {open && (
  <ul
  role="listbox"
- className="absolute bottom-full left-0 right-0 z-50 mb-1 max-h-64 overflow-y-auto rounded-lg border border-border-strong bg-paper-2 py-1 shadow-lg "
+ className="absolute bottom-full left-0 right-0 z-50 mb-1 max-h-64 overflow-y-auto rounded-lg border border-border-strong bg-surface py-1 shadow-lg "
  >
  {data.memberships.map((m) => {
  const isActive = m.org_id === data.active_org_id;
@@ -110,7 +110,7 @@ export function OrgSwitcher() {
  {isActive && <Check className="h-4 w-4 text-primary" aria-hidden="true" />}
  </span>
  <span className="min-w-0 flex-1">
- <span className="block truncate font-medium text-ink-700 ">
+ <span className="block truncate font-medium text-text ">
  {m.org_name}
  </span>
  <span className="block truncate text-xs capitalize text-text-subtle">
