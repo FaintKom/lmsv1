@@ -398,7 +398,7 @@ button { font-family: inherit; }
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-300); }
 
-::selection { background: var(--sun-300); color: var(--ink-900); }
+::selection { background: var(--sun-300); color: var(--color-text); }
 
 .font-mono { font-family: var(--font-mono); }
 .tabular-nums { font-variant-numeric: tabular-nums; }
@@ -510,11 +510,21 @@ button { font-family: inherit; }
 .stagger-children > *:nth-child(5) { animation-delay: calc(var(--motion-stagger) * 4); }
 .stagger-children > *:nth-child(n + 6) { animation-delay: calc(var(--motion-stagger) * 5); }
 
+/* Role showcase — fade + slight rise on role switch */
+@keyframes role-fade {
+ from { opacity: 0; transform: translateY(8px); }
+ to { opacity: 1; transform: translateY(0); }
+}
+.role-fade { animation: role-fade 0.35s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+ .role-fade { animation: none; }
+}
+
 
 /* Sun marker — typographic accent on hero headings */
 .sun-mark {
   background: var(--sun-300);
-  color: var(--ink-900);
+  color: var(--color-text);
   padding: 0 8px;
   border-radius: var(--radius-xs);
   display: inline-block;
@@ -556,7 +566,7 @@ button { font-family: inherit; }
 .lms-lesson-content a { color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; }
 .lms-lesson-content a:hover { color: var(--green-800); }
 .lms-lesson-content code:not(pre code) {
- background: var(--ink-50);
+ background: var(--color-surface-2);
  padding: 0.1rem 0.35rem;
  border-radius: var(--radius-xs);
  font-family: var(--font-mono);
@@ -574,7 +584,7 @@ button { font-family: inherit; }
 .lms-lesson-content blockquote {
  border-left: 4px solid var(--green-300);
  padding: 0.5rem 0 0.5rem 1rem;
- color: var(--ink-500);
+ color: var(--color-text-muted);
  font-style: italic;
  margin: 1rem 0;
 }
@@ -647,9 +657,9 @@ button { font-family: inherit; }
  --callout-accent: var(--green-800);
 }
 .lms-lesson-content .lms-callout--recap {
- --callout-bg: var(--ink-50);
- --callout-border: var(--ink-300);
- --callout-accent: var(--ink-700);
+ --callout-bg: var(--color-surface-2);
+ --callout-border: var(--color-border-strong);
+ --callout-accent: var(--color-text);
 }
 
 /* Worked example card */
@@ -707,12 +717,12 @@ button { font-family: inherit; }
    .gp-*  — gameplay tokens (button, tile, eyebrow, title, animations)
    ================================================================= */
 .lf-shell {
- background: var(--paper);
+ background: var(--color-bg);
  height: 100%;
  display: flex;
  flex-direction: column;
  font-family: var(--font-sans);
- color: var(--ink-900);
+ color: var(--color-text);
  /* SH-02: exercises live in PANES (lesson pane + sidebar), not viewports —
     narrow-layout rules below fire on container width, not window width. */
  container-type: inline-size;
@@ -723,25 +733,25 @@ button { font-family: inherit; }
  align-items: center;
  gap: 16px;
  padding: 14px 20px 10px;
- border-bottom: 1px solid var(--ink-100);
- background: var(--paper);
+ border-bottom: 1px solid var(--color-border);
+ background: var(--color-bg);
 }
 .lf-close {
  width: 28px; height: 28px;
  border-radius: 999px;
  border: none;
- background: var(--ink-50);
- color: var(--ink-500);
+ background: var(--color-surface-2);
+ color: var(--color-text-muted);
  cursor: pointer;
  display: grid; place-items: center;
  transition: background 120ms;
 }
-.lf-close:hover { background: var(--ink-100); }
+.lf-close:hover { background: var(--color-surface-2); }
 .lf-progress {
  flex: 1;
  height: 14px;
  border-radius: 999px;
- background: var(--ink-100);
+ background: var(--color-surface-2);
  overflow: hidden;
  position: relative;
 }
@@ -775,8 +785,8 @@ button { font-family: inherit; }
 }
 
 .lf-bottom {
- border-top: 2px solid var(--ink-100);
- background: var(--paper-2);
+ border-top: 2px solid var(--color-border);
+ background: var(--color-surface);
  padding: 18px 22px 22px;
 }
 .lf-bottom.correct { background: var(--green-50); border-top-color: var(--green-300); }
@@ -794,25 +804,25 @@ button { font-family: inherit; }
 .lf-fb-text { font-weight: 800; font-size: 19px; }
 .lf-fb-text.ok { color: var(--green-800); }
 .lf-fb-text.no { color: var(--clay-700); }
-.lf-fb-sub { font-size: 13px; color: var(--ink-500); margin-top: 2px; font-weight: 500; }
+.lf-fb-sub { font-size: 13px; color: var(--color-text-muted); margin-top: 2px; font-weight: 500; }
 .lf-fb-correct { font-size: 14px; color: var(--clay-700); margin-top: 4px; font-weight: 600; }
 .lf-fb-correct b { font-weight: 800; }
 /* FIX-10: structured answer reveal — scrollable two-column list. */
 .lf-reveal { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; max-height: 120px; overflow: auto; }
 .lf-reveal li { font-size: 13.5px; font-weight: 600; color: var(--clay-700); display: flex; gap: 8px; align-items: baseline; }
 .lf-reveal li b { font-weight: 800; }
-.lf-reveal li .arr { color: var(--ink-300); font-family: var(--font-mono); }
+.lf-reveal li .arr { color: var(--color-text-subtle); font-family: var(--font-mono); }
 /* FIX-06: neutral "meh" tone — network/config hiccup, never the child's fault. */
-.lf-bottom.notice { background: var(--ink-50); border-top-color: var(--ink-200); }
+.lf-bottom.notice { background: var(--color-surface-2); border-top-color: var(--color-border-strong); }
 .lf-fb-icon.meh { background: var(--ink-400); }
-.lf-fb-text.meh { color: var(--ink-700); }
+.lf-fb-text.meh { color: var(--color-text); }
 /* XC-05: streak pill lights up while a streak is alive. */
 .lf-streak.lit { color: var(--sun-700); background: var(--sun-100); }
 /* SH-05: hearts as an icon row when the pool is small. */
 .lf-hearts .hrt { display: inline-grid; place-items: center; transition: transform 200ms var(--motion-ease), opacity 200ms; }
 .lf-hearts .hrt.empty { opacity: 0.28; transform: scale(0.86); }
 .lf-hearts .hrt.popping { animation: gp-pulse-heart calc(0.5s * var(--mdur)) var(--motion-ease); }
-.lf-steplabel { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink-500); font-variant-numeric: tabular-nums; flex: none; }
+.lf-steplabel { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--color-text-muted); font-variant-numeric: tabular-nums; flex: none; }
 
 .gp-btn {
  display: inline-flex;
@@ -840,15 +850,15 @@ button { font-family: inherit; }
    carries aria-disabled, so style that the same as :disabled. */
 .gp-btn:disabled,
 .gp-btn[aria-disabled="true"] {
- background: var(--ink-100);
- color: var(--ink-300);
+ background: var(--color-surface-2);
+ color: var(--color-text-subtle);
  box-shadow: 0 4px 0 0 var(--ink-200);
  cursor: not-allowed;
 }
 .gp-btn.clay { background: var(--clay-500); box-shadow: 0 4px 0 0 var(--clay-700); }
 .gp-btn.clay:hover { box-shadow: 0 2px 0 0 var(--clay-700); }
 .gp-btn.clay:active { box-shadow: 0 0 0 0 var(--clay-700); }
-.gp-btn.sun { background: var(--sun-400); color: var(--ink-900); box-shadow: 0 4px 0 0 var(--sun-500); }
+.gp-btn.sun { background: var(--sun-400); color: var(--color-text); box-shadow: 0 4px 0 0 var(--sun-500); }
 .gp-btn.sun:hover { box-shadow: 0 2px 0 0 var(--sun-500); }
 .gp-btn.sun:active { box-shadow: 0 0 0 0 var(--sun-500); }
 .gp-btn.ink { background: var(--ink-700); box-shadow: 0 4px 0 0 var(--ink-900); }
@@ -863,7 +873,7 @@ button { font-family: inherit; }
 }
 .gp-checkhint::after {
  content: ''; position: absolute; top: 100%; right: 24px;
- border: 5px solid transparent; border-top-color: var(--ink-900);
+ border: 5px solid transparent; border-top-color: var(--color-text);
 }
 /* FIX-08: async-grading spinner on the Check button. */
 .gp-spin {
@@ -873,8 +883,8 @@ button { font-family: inherit; }
 }
 @keyframes gp-rotate { to { transform: rotate(360deg); } }
 .gp-btn.ghost {
- background: var(--paper-2);
- color: var(--ink-500);
+ background: var(--color-surface);
+ color: var(--color-text-muted);
  box-shadow: 0 4px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100);
 }
 .gp-btn.ghost:hover { box-shadow: 0 2px 0 0 var(--ink-100), inset 0 0 0 2px var(--ink-100); }
@@ -890,9 +900,9 @@ button { font-family: inherit; }
  justify-content: center;
  padding: 12px 16px;
  border-radius: 14px;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
- color: var(--ink-900);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
+ color: var(--color-text);
  font-family: var(--font-sans);
  font-weight: 600;
  font-size: 15px;
@@ -929,7 +939,7 @@ button { font-family: inherit; }
 }
 /* linked but not yet checked (deferred mode) */
 .gp-tile.linked {
- border-color: color-mix(in oklab, var(--link-color) 55%, var(--ink-100));
+ border-color: color-mix(in oklab, var(--link-color) 55%, var(--color-border));
  background: color-mix(in oklab, var(--link-color) 7%, var(--paper-2));
 }
 /* 4 · result */
@@ -950,7 +960,7 @@ button { font-family: inherit; }
 /* QZ-01 / MM-05: remembered wrong picks stay struck-out across retries */
 .gp-tile.eliminated {
  opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none;
- background: var(--ink-50); border-style: dashed;
+ background: var(--color-surface-2); border-style: dashed;
  text-decoration: line-through; text-decoration-color: var(--clay-500); text-decoration-thickness: 2px;
 }
 .gp-tile:disabled { cursor: default; }
@@ -970,7 +980,7 @@ button { font-family: inherit; }
  width: 20px; height: 20px;
  border-radius: 999px;
  flex: none;
- border: 2px solid var(--ink-200);
+ border: 2px solid var(--color-border-strong);
  background: #fff;
  display: grid; place-items: center;
  color: #fff;
@@ -988,14 +998,14 @@ button { font-family: inherit; }
  font-size: 11px;
  letter-spacing: 0.12em;
  text-transform: uppercase;
- color: var(--ink-400);
+ color: var(--color-text-subtle);
 }
 .gp-title {
  font-family: var(--font-sans);
  font-weight: 800;
  font-size: 22px;
  line-height: 1.25;
- color: var(--ink-900);
+ color: var(--color-text);
  margin: 6px 0 0 0;
  text-wrap: pretty;
 }
@@ -1011,11 +1021,11 @@ button { font-family: inherit; }
  width: 100%;
  padding: 14px 16px;
  border-radius: 14px;
- border: 2px solid var(--ink-100);
+ border: 2px solid var(--color-border);
  font-family: var(--font-sans);
  font-size: 16px;
- color: var(--ink-900);
- background: var(--paper-2);
+ color: var(--color-text);
+ background: var(--color-surface);
  transition: border-color 120ms, box-shadow 120ms;
 }
 .gp-input:focus {
@@ -1146,8 +1156,8 @@ button { font-family: inherit; }
  display: flex;
  align-items: center;
  gap: 14px;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 14px;
  padding: 0 16px;
  height: 56px;
@@ -1159,7 +1169,7 @@ button { font-family: inherit; }
  touch-action: none;
  transition: transform 160ms ease, box-shadow 120ms, border-color 120ms, background 150ms;
 }
-.fb-dragrow:hover .grip { color: var(--ink-500); }
+.fb-dragrow:hover .grip { color: var(--color-text-muted); }
 .fb-dragrow.dragging {
  transition: none; cursor: grabbing; z-index: 10; position: relative;
  border-color: var(--green-300);
@@ -1168,7 +1178,7 @@ button { font-family: inherit; }
 .fb-dragrow.settled { animation: fb-settle calc(0.3s * var(--mdur)) ease both; }
 .fb-dragrow .num {
  font-family: var(--font-mono);
- background: var(--ink-50); color: var(--ink-500);
+ background: var(--color-surface-2); color: var(--color-text-muted);
  border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 700;
  transition: background 150ms, color 150ms;
 }
@@ -1182,8 +1192,8 @@ button { font-family: inherit; }
  display: inline-flex;
  align-items: center;
  gap: 8px;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 999px;
  padding: 10px 18px;
  font-weight: 700;
@@ -1211,8 +1221,8 @@ button { font-family: inherit; }
  flex: 1;
  min-height: 170px;
  border-radius: 18px;
- border: 2px dashed var(--ink-200);
- background: var(--paper);
+ border: 2px dashed var(--color-border-strong);
+ background: var(--color-bg);
  padding: 14px;
  display: flex;
  flex-direction: column;
@@ -1232,11 +1242,11 @@ button { font-family: inherit; }
  font-family: var(--font-mono);
  font-size: 10px; font-weight: 700;
  text-transform: uppercase; letter-spacing: 0.1em;
- color: var(--ink-400);
+ color: var(--color-text-subtle);
  display: flex; align-items: center; gap: 8px;
 }
 .fb-bucket-title .cnt {
- background: var(--ink-100); border-radius: 999px; padding: 1px 8px; font-size: 10px;
+ background: var(--color-surface-2); border-radius: 999px; padding: 1px 8px; font-size: 10px;
  transition: background 150ms, color 150ms;
 }
 .fb-bucket.over .fb-bucket-title .cnt { background: var(--link-color); color: #fff; }
@@ -1278,7 +1288,7 @@ button { font-family: inherit; }
  position: absolute; top: 100%; left: 50%;
  margin-left: -4px;
  border: 4px solid transparent;
- border-top-color: var(--ink-900);
+ border-top-color: var(--color-text);
 }
 .fb-marker-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-2px); }
 .fb-tick { transition: transform 120ms, background 120ms; }
@@ -1286,20 +1296,20 @@ button { font-family: inherit; }
 
 /* ---------- Numeric input ---------- */
 .fb-input {
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 14px;
  padding: 14px 18px;
  font-size: 22px; font-weight: 700;
  width: 180px;
  text-align: center;
  font-family: var(--font-mono);
- color: var(--ink-900);
+ color: var(--color-text);
  transition: border-color 150ms, box-shadow 150ms, background 150ms;
  outline: none;
 }
 .fb-input::placeholder { color: var(--ink-200); font-weight: 600; }
-.fb-input:hover:not(:disabled) { border-color: var(--ink-200); }
+.fb-input:hover:not(:disabled) { border-color: var(--color-border-strong); }
 .fb-input:focus { border-color: var(--green-500); box-shadow: 0 0 0 4px var(--green-100); }
 .fb-input.ok { border-color: var(--green-600); background: var(--green-50); color: var(--green-800); animation: fb-ripple-g calc(0.6s * var(--mdur)) ease-out both; }
 .fb-input.no { border-color: var(--err-border); background: var(--err-bg); color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
@@ -1325,16 +1335,16 @@ button { font-family: inherit; }
  flex: none;
  background: linear-gradient(135deg, var(--clay-300), var(--sun-400));
  display: grid; place-items: center;
- color: var(--ink-900); font-weight: 800; font-size: 15px;
+ color: var(--color-text); font-weight: 800; font-size: 15px;
 }
 .fb-bubble {
  padding: 11px 15px;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 16px 16px 16px 4px;
  font-size: 15px; font-weight: 600;
  max-width: 340px;
- color: var(--ink-900);
+ color: var(--color-text);
 }
 .fb-bubble.me {
  background: var(--green-600); color: #fff; border-color: var(--green-600);
@@ -1356,22 +1366,22 @@ button { font-family: inherit; }
 .rd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
 
 /* ---------- Crossword (CW-01..05) ---------- */
-.cw-grid { background: var(--paper-2); border-radius: 14px; border: 2px solid var(--ink-100); padding: 8px; --cw: 44px; }
+.cw-grid { background: var(--color-surface); border-radius: 14px; border: 2px solid var(--color-border); padding: 8px; --cw: 44px; }
 .cw-cell { position: relative; width: var(--cw); height: var(--cw); margin: 2px; }
 .cw-cell .num {
  position: absolute; top: 1px; left: 4px;
  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
- color: var(--ink-500); pointer-events: none; z-index: 1;
+ color: var(--color-text-muted); pointer-events: none; z-index: 1;
 }
 .cw-cell input {
  width: 100%; height: 100%;
  text-align: center; text-transform: uppercase;
- background: var(--paper);
- border: 2px solid var(--ink-200);
+ background: var(--color-bg);
+ border: 2px solid var(--color-border-strong);
  border-radius: 6px;
  font-family: var(--font-sans);
  font-weight: 800; font-size: 18px;
- color: var(--ink-900);
+ color: var(--color-text);
  padding: 0; outline: none; caret-color: var(--green-600);
  transition: border-color 120ms, background 150ms, box-shadow 120ms;
 }
@@ -1380,7 +1390,7 @@ button { font-family: inherit; }
 .cw-cell input.ok:disabled { color: var(--green-800); }
 .cw-cell input.no { background: var(--clay-50); border-color: var(--clay-500); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
 .cw-cell input.reveal { background: var(--green-25); border-color: var(--green-300); border-style: dashed; color: var(--green-700); }
-.cw-block { width: var(--cw); height: var(--cw); background: var(--ink-50); margin: 2px; border-radius: 6px; }
+.cw-block { width: var(--cw); height: var(--cw); background: var(--color-surface-2); margin: 2px; border-radius: 6px; }
 
 /* ---------- Flashcards (3D flip) ---------- */
 .fb-card3d { perspective: 1100px; cursor: pointer; user-select: none; }
@@ -1395,8 +1405,8 @@ button { font-family: inherit; }
 .fb-card-face {
  position: absolute; inset: 0;
  backface-visibility: hidden;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 18px;
  box-shadow: 0 4px 0 0 var(--ink-100);
  display: grid; place-items: center;
@@ -1421,7 +1431,7 @@ button { font-family: inherit; }
 .fb-dots i {
  width: 8px; height: 8px;
  border-radius: 50%;
- background: var(--ink-100);
+ background: var(--color-surface-2);
  transition: background 200ms, transform 200ms;
 }
 .fb-dots i.done { background: var(--green-500); }
@@ -1455,7 +1465,7 @@ button { font-family: inherit; }
 .fb-move-chip {
  font-family: var(--font-mono);
  font-size: 11px; font-weight: 700;
- background: var(--ink-50); color: var(--ink-500);
+ background: var(--color-surface-2); color: var(--color-text-muted);
  border-radius: 999px; padding: 3px 10px;
  animation: fb-pop calc(0.3s * var(--mdur)) cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -1482,8 +1492,8 @@ button { font-family: inherit; }
 }
 .gx-svg {
  width: 100%; height: auto; display: block;
- background: var(--paper-2);
- border: 2px solid var(--ink-100);
+ background: var(--color-surface);
+ border: 2px solid var(--color-border);
  border-radius: 14px;
  user-select: none;
 }
@@ -1512,30 +1522,30 @@ button { font-family: inherit; }
  font-family: var(--font-mono);
  font-size: 10px; font-weight: 700;
  letter-spacing: 0.08em; text-transform: uppercase;
- color: var(--ink-400);
+ color: var(--color-text-subtle);
  width: 56px; flex: none;
 }
 .fb-step-input {
  flex: 1;
  padding: 12px 16px;
  border-radius: 12px;
- border: 2px solid var(--ink-100);
- background: var(--paper-2);
+ border: 2px solid var(--color-border);
+ background: var(--color-surface);
  font-family: var(--font-mono);
  font-size: 17px; font-weight: 600;
- color: var(--ink-900);
+ color: var(--color-text);
  outline: none;
  transition: border-color 150ms, box-shadow 150ms, background 150ms;
 }
 .fb-step-input::placeholder { color: var(--ink-200); }
-.fb-step-input:hover:not(:disabled) { border-color: var(--ink-200); }
+.fb-step-input:hover:not(:disabled) { border-color: var(--color-border-strong); }
 .fb-step-input:focus { border-color: var(--green-500); box-shadow: 0 0 0 4px var(--green-100); }
 .fb-step-input.ok { border-color: var(--green-600); background: var(--green-50); color: var(--green-800); }
 .fb-step-input.no { border-color: var(--err-border); background: var(--err-bg); color: var(--err-fg); animation: fb-shake calc(0.4s * var(--mdur)) ease both; }
 
 /* ---------- Formula block (shared) ---------- */
 .fb-formula {
- background: var(--ink-50);
+ background: var(--color-surface-2);
  border-radius: 18px;
  padding: 26px;
  font-family: var(--font-mono);
@@ -1631,7 +1641,7 @@ button { font-family: inherit; }
  cursor: pointer;
  animation: fb-hl-sweep calc(0.5s * var(--mdur)) ease both;
  transition: background 150ms;
- color: var(--ink-900);
+ color: var(--color-text);
 }
 .th-hl:hover { background: var(--sun-400); }
 .th-ul {
@@ -1690,7 +1700,7 @@ button { font-family: inherit; }
  cursor: help;
  position: relative;
  font-weight: 700;
- color: var(--ink-900);
+ color: var(--color-text);
 }
 [data-term]::after {
  content: attr(data-term);
@@ -1720,7 +1730,7 @@ button { font-family: inherit; }
  left: 50%;
  margin-left: -4px;
  border: 4px solid transparent;
- border-top-color: var(--ink-900);
+ border-top-color: var(--color-text);
  opacity: 0;
  transition: opacity 150ms;
  pointer-events: none;
