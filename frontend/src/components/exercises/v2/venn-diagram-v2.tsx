@@ -210,11 +210,11 @@ export function VennDiagramV2({
               height: 40,
               padding: 0,
               borderRadius: 8,
-              border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--coral-500)" : "var(--ink-200)"}`,
+              border: `2px solid ${isOk ? "var(--green-500)" : isNo ? "var(--clay-500)" : "var(--ink-200)"}`,
               background: isOk
                 ? "var(--green-50)"
                 : isNo
-                  ? "var(--coral-50)"
+                  ? "var(--clay-50)"
                   : "rgba(255,255,255,0.95)",
               fontFamily: "var(--font-mono)",
               fontWeight: 800,

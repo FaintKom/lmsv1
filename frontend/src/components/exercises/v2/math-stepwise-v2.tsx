@@ -6,7 +6,7 @@
  * Adopted from q-math.jsx · MathStepwiseExerciseV2. Methodist supplies
  * the problem statement + an ordered list of expected intermediate
  * steps. Student types each line; Check validates per-line (whitespace
- * + case insensitive). Per-step green/coral border on submit.
+ * + case insensitive). Per-step green/clay border on submit.
  *
  * Per-task HP + streak; retry keeps typed steps so student fixes only
  * the wrong lines.
@@ -242,7 +242,7 @@ export function MathStepwiseV2({
                     <span
                       style={{
                         width: 22,
-                        color: isOk ? "var(--green-600)" : "var(--coral-500)",
+                        color: isOk ? "var(--green-600)" : "var(--clay-500)",
                       }}
                     >
                       {isOk ? <Check size={20} /> : <X size={20} />}

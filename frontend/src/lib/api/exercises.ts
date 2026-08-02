@@ -161,7 +161,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  ordering: "bg-sun-100 text-warning-fg ",
  fill_blanks: " text-text ",
  true_false: "bg-info-soft text-info-fg ",
- categorize: "bg-coral-300 text-coral-700 ",
+ categorize: "bg-clay-300 text-clay-700 ",
  file_upload: "bg-ink-100 text-ink-700 ",
  robot_2d: "bg-primary-soft text-success-fg ",
  math_interactive: "bg-primary-soft text-info-fg ",
@@ -177,7 +177,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  srs_flashcard: "bg-sun-100 text-warning-fg ",
  crossword: "bg-lime-100 text-lime-700 ",
  word_search: "bg-info-soft text-info-fg ",
- map_pin_drop: "bg-coral-300 text-coral-700 ",
+ map_pin_drop: "bg-clay-300 text-clay-700 ",
  bubble_sheet: "bg-ink-100 text-ink-700 ",
 };
 

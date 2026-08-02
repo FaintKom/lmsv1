@@ -124,7 +124,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  placeholder={`Type your ${getLangLabel(config.target_language)} translation...`}
  rows={3}
  disabled={submitted}
- className={`w-full rounded-lg border-2 px-5 py-4 text-[15px] font-medium transition-all duration-200 outline-none resize-none
+ className={`w-full rounded-lg border-2 px-5 py-4 text-[15px] font-medium transition duration-200 outline-none resize-none
  ${
  submitted && isCorrect === true
  ? "border-primary bg-success-soft text-success-fg "
@@ -176,7 +176,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  <button
  key={i}
  onClick={() => toggleHint(i)}
- className={`rounded-pill px-4 py-2 text-sm font-medium transition-all duration-200 ${
+ className={`rounded-pill px-4 py-2 text-sm font-medium transition duration-200 ${
  revealedHints.has(i)
  ? "bg-primary-soft text-success-fg border border-primary-soft "
  : "bg-ink-100 text-text-subtle border border-border-strong hover:bg-ink-200 "
@@ -194,7 +194,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={!answer.trim()}
- className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Submit Translation
  </button>

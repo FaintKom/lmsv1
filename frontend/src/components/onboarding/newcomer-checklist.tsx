@@ -74,7 +74,7 @@ export function NewcomerChecklist({
  {/* Progress bar */}
  <div className="mx-5 mb-4 h-1.5 overflow-hidden rounded-pill bg-ink-100 " role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Onboarding progress">
  <div
- className="h-full rounded-pill bg-primary transition-all duration-500"
+ className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${pct}%` }}
  />
  </div>

@@ -472,7 +472,7 @@ export function buildAccessory(variant: string | null): THREE.Group {
       return g;
     }
     case "avatar-acc-backpack": {
-      box(g, -0.8, 2.0, A.torsoBackZ, 1.6, 1.6, 0.5, COL.coral);
+      box(g, -0.8, 2.0, A.torsoBackZ, 1.6, 1.6, 0.5, COL.clay);
       box(g, -0.55, 2.2, A.torsoBackZ - 0.06, 0.45, 0.45, 0.06, COL.cream);
       box(g, 0.1, 2.2, A.torsoBackZ - 0.06, 0.45, 0.45, 0.06, COL.cream);
       return g;
@@ -601,8 +601,8 @@ export function buildGlasses(variant: string | null): THREE.Group {
       box(g, -0.95, y, z, 1.9, 0.6, 0.07, 0x111111);
       box(g, -0.88, y + 0.06, A.faceZ2, 1.76, 0.46, 0.05, 0x55ddff, { transparent: true, opacity: 0.6 });
       // Strap around the head sides.
-      box(g, -1.45, y + 0.15, -0.3, 0.08, 0.3, 1.6, COL.coral);
-      box(g, 1.37, y + 0.15, -0.3, 0.08, 0.3, 1.6, COL.coral);
+      box(g, -1.45, y + 0.15, -0.3, 0.08, 0.3, 1.6, COL.clay);
+      box(g, 1.37, y + 0.15, -0.3, 0.08, 0.3, 1.6, COL.clay);
       return g;
     }
     case "avatar-glasses-3d": {
@@ -624,12 +624,12 @@ export function buildBack(variant: string | null): THREE.Group {
   const bz = A.torsoBackZ;
   switch (variant) {
     case "avatar-back-backpack": {
-      box(g, -0.85, 1.8, bz, 1.7, 1.7, 0.5, COL.coral);
+      box(g, -0.85, 1.8, bz, 1.7, 1.7, 0.5, COL.clay);
       box(g, -0.55, 2.0, bz - 0.06, 0.45, 0.45, 0.06, COL.cream);
       box(g, 0.1, 2.0, bz - 0.06, 0.45, 0.45, 0.06, COL.cream);
       // Shoulder straps on the FRONT of the torso.
-      box(g, -0.75, 1.9, A.torsoFrontZ - 0.06, 0.16, 1.7, 0.12, COL.coral);
-      box(g, 0.59, 1.9, A.torsoFrontZ - 0.06, 0.16, 1.7, 0.12, COL.coral);
+      box(g, -0.75, 1.9, A.torsoFrontZ - 0.06, 0.16, 1.7, 0.12, COL.clay);
+      box(g, 0.59, 1.9, A.torsoFrontZ - 0.06, 0.16, 1.7, 0.12, COL.clay);
       return g;
     }
     case "avatar-back-cape": {
@@ -648,7 +648,7 @@ export function buildBack(variant: string | null): THREE.Group {
     }
     case "avatar-back-quiver": {
       box(g, 0.6, 2.0, bz, 0.55, 2.5, 0.55, COL.woodDark);
-      box(g, 0.66, 4.5, bz, 0.1, 0.45, 0.1, COL.coral);
+      box(g, 0.66, 4.5, bz, 0.1, 0.45, 0.1, COL.clay);
       box(g, 0.82, 4.5, bz, 0.1, 0.45, 0.1, 0xffd84d);
       box(g, 0.98, 4.5, bz, 0.1, 0.45, 0.1, COL.green);
       return g;
@@ -710,7 +710,7 @@ export function buildHand(variant: string | null): THREE.Group {
     case "avatar-hand-controller": {
       // Held in the right hand in front of the hip (not floating at centre).
       box(g, 0.8, 1.55, -0.5, 1.0, 0.4, 0.5, COL.charcoal);
-      box(g, 0.95, 1.95, -0.45, 0.15, 0.1, 0.05, COL.coral);
+      box(g, 0.95, 1.95, -0.45, 0.15, 0.1, 0.05, COL.clay);
       box(g, 1.2, 1.95, -0.45, 0.15, 0.1, 0.05, COL.sun);
       box(g, 1.45, 1.95, -0.45, 0.15, 0.1, 0.05, COL.green);
       return g;

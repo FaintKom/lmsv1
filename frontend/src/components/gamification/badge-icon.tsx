@@ -18,11 +18,11 @@ import { cn } from "@/lib/utils";
 type Entry = { Icon: LucideIcon; color: string; filled?: boolean };
 
 const MAP: Record<string, Entry> = {
-  streak_3: { Icon: Flame, color: "text-coral-500" },
-  streak_7: { Icon: Flame, color: "text-coral-500" },
-  streak_14: { Icon: Flame, color: "text-coral-500" },
-  streak_30: { Icon: Flame, color: "text-coral-700" },
-  streak_100: { Icon: Flame, color: "text-coral-700" },
+  streak_3: { Icon: Flame, color: "text-clay-500" },
+  streak_7: { Icon: Flame, color: "text-clay-500" },
+  streak_14: { Icon: Flame, color: "text-clay-500" },
+  streak_30: { Icon: Flame, color: "text-clay-700" },
+  streak_100: { Icon: Flame, color: "text-clay-700" },
 
   lessons_1: { Icon: BookOpen, color: "text-green-600" },
   lessons_10: { Icon: BookOpen, color: "text-green-600" },
@@ -40,8 +40,8 @@ const MAP: Record<string, Entry> = {
   math_first: { Icon: Calculator, color: "text-green-600" },
   math_perfect: { Icon: Calculator, color: "text-green-800" },
 
-  lang_first: { Icon: Languages, color: "text-coral-500" },
-  lang_master: { Icon: Languages, color: "text-coral-700" },
+  lang_first: { Icon: Languages, color: "text-clay-500" },
+  lang_master: { Icon: Languages, color: "text-clay-700" },
 
   course_complete: { Icon: Award, color: "text-green-700" },
   course_5: { Icon: Trophy, color: "text-yellow-500" },

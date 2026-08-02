@@ -4,11 +4,11 @@ import { HTMLAttributes } from "react";
 type ChipVariant =
   | "green"
   | "sun"
-  | "coral"
+  | "clay"
   | "ink"
   | "solid-green"
   | "solid-ink"
-  | "solid-coral";
+  | "solid-clay";
 
 interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: ChipVariant;
@@ -19,11 +19,11 @@ interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
 const VARIANT_CLASSES: Record<ChipVariant, string> = {
   green: "bg-primary-soft text-success-fg",
   sun: "bg-sun-100 text-sun-700",
-  coral: "bg-coral-50 text-coral-700",
+  clay: "bg-clay-50 text-clay-700",
   ink: "bg-ink-100 text-ink-700",
   "solid-green": "bg-primary text-white",
   "solid-ink": "bg-ink-900 text-white",
-  "solid-coral": "bg-coral-500 text-white",
+  "solid-clay": "bg-clay-500 text-white",
 };
 
 export function Chip({

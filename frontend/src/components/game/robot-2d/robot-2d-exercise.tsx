@@ -317,24 +317,24 @@ export default function Robot2DExercise({
  {/* Center controls */}
  <div className="flex items-center gap-2">
  <button onClick={handleReset} title={t("game.reset")}
- className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#8B5CF6] text-white transition-all hover:bg-[#7c3aed] active:scale-95 shadow-sm">
+ className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#8B5CF6] text-white transition hover:bg-[#7c3aed] active:scale-95 shadow-sm">
  <RotateCcw className="h-4 w-4" />
  </button>
 
  <button onClick={handleStep} disabled={isRunning || completed} title={t("game.step")}
- className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink-200 text-text-muted transition-all hover:bg-ink-300 active:scale-95 disabled:opacity-30 ">
+ className="flex h-10 w-10 items-center justify-center rounded-lg bg-ink-200 text-text-muted transition hover:bg-ink-300 active:scale-95 disabled:opacity-30 ">
  <SkipForward className="h-4 w-4" />
  </button>
 
  {isRunning ? (
  <button onClick={handlePause}
- className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 ">
+ className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-5 text-sm font-bold text-white shadow-md shadow-orange-200 transition hover:bg-[#e69400] active:scale-95 ">
  {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
  {isPaused ? "▶" : "⏸"}
  </button>
  ) : (
  <button onClick={handlePlay} disabled={completed}
- className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition-all hover:bg-[#e69400] active:scale-95 disabled:opacity-40 ">
+ className="flex h-10 items-center gap-1.5 rounded-lg bg-[#FFA400] px-6 text-sm font-bold text-white shadow-md shadow-orange-200 transition hover:bg-[#e69400] active:scale-95 disabled:opacity-40 ">
  <Play className="h-4 w-4" />
  {t("game.run")}
  </button>
@@ -369,7 +369,7 @@ export default function Robot2DExercise({
  <div className="flex items-center gap-3">
  <div className="flex gap-0.5">
  {[1, 2, 3].map((n) => (
- <span key={n} className={`text-xl transition-all ${n <= getStars(stepsUsed, blockCount) ? "text-warning scale-110" : "text-ink-300 "}`}>★</span>
+ <span key={n} className={`text-xl transition ${n <= getStars(stepsUsed, blockCount) ? "text-warning scale-110" : "text-ink-300 "}`}>★</span>
  ))}
  </div>
  <div>

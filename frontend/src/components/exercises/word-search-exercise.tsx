@@ -155,7 +155,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
           return (
             <span
               key={w}
-              className={`rounded-pill border px-3 py-1 text-xs font-medium transition-all ${
+              className={`rounded-pill border px-3 py-1 text-xs font-medium transition ${
                 found
                   ? "border-primary bg-success-soft text-success-fg line-through"
                   : "border-border-strong bg-paper-2 text-ink-700"
@@ -210,7 +210,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleSubmit}
           disabled={foundWords.size === 0}
-          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {allFound ? "Submit — All Found!" : `Submit (${foundWords.size}/${words.length})`}
         </button>

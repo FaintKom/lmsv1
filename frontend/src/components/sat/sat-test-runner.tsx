@@ -54,7 +54,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  return (
  <button key={i} onClick={() => onAnswer(choice.text)}
  onContextMenu={(e) => { e.preventDefault(); onEliminate(i); }}
- className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition-all duration-200 ${
+ className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition duration-200 ${
  isSelected
  ? "border-primary bg-success-soft shadow-md "
  : "border-border-strong bg-paper-2 hover:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
@@ -580,7 +580,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <button
  key={i}
  onClick={() => goTo(i)}
- className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
+ className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition ${
  isCurrent
  ? "bg-primary text-white ring-2 ring-primary"
  : isAnswered

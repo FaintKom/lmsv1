@@ -51,7 +51,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
           <ellipse cx="20" cy="14" rx="9" ry="7" fill="#e8b89a" />
-          <rect x="17" y="2" width="6" height="7" fill="#ff7a5c" />
+          <rect x="17" y="2" width="6" height="7" fill="var(--clay-500)" />
         </svg>
       );
 
@@ -61,7 +61,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
           <circle cx="20" cy="14" r="9" fill="#e8b89a" />
           <circle cx="16" cy="12" r="1.2" fill="#111" />
           <circle cx="24" cy="12" r="1.2" fill="#111" />
-          <path d="M16 17 Q20 19 24 17" stroke="#ff7a5c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path d="M16 17 Q20 19 24 17" stroke="var(--clay-500)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
         </svg>
       );
     case "avatar-face-wink":
@@ -70,7 +70,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
           <circle cx="20" cy="14" r="9" fill="#e8b89a" />
           <line x1="14" y1="12" x2="18" y2="12" stroke="#111" strokeWidth="1.5" />
           <circle cx="24" cy="12" r="1.2" fill="#111" />
-          <path d="M16 17 Q20 19 24 17" stroke="#ff7a5c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path d="M16 17 Q20 19 24 17" stroke="var(--clay-500)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
         </svg>
       );
     case "avatar-face-blush":
@@ -81,7 +81,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
           <circle cx="24" cy="12" r="1.2" fill="#111" />
           <ellipse cx="13" cy="15" rx="2" ry="1.5" fill="#ff8fa6" opacity="0.7" />
           <ellipse cx="27" cy="15" rx="2" ry="1.5" fill="#ff8fa6" opacity="0.7" />
-          <line x1="17" y1="17" x2="23" y2="17" stroke="#ff7a5c" strokeWidth="1.5" />
+          <line x1="17" y1="17" x2="23" y2="17" stroke="var(--clay-500)" strokeWidth="1.5" />
         </svg>
       );
     case "avatar-face-cool":
@@ -111,7 +111,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
           <circle cx="16" cy="13" r="3.2" fill="none" stroke="#111" strokeWidth="1.4" />
           <circle cx="24" cy="13" r="3.2" fill="none" stroke="#111" strokeWidth="1.4" />
           <line x1="19" y1="13" x2="21" y2="13" stroke="#111" strokeWidth="1.4" />
-          <line x1="16" y1="17" x2="23" y2="17" stroke="#ff7a5c" strokeWidth="1.4" />
+          <line x1="16" y1="17" x2="23" y2="17" stroke="var(--clay-500)" strokeWidth="1.4" />
         </svg>
       );
 
@@ -139,7 +139,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
     case "avatar-outfit-dress":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <path d="M12 8 L16 5 L24 5 L28 8 L26 11 L25 11 L29 23 L11 23 L15 11 L14 11 Z" fill="#ff7a5c" />
+          <path d="M12 8 L16 5 L24 5 L28 8 L26 11 L25 11 L29 23 L11 23 L15 11 L14 11 Z" fill="var(--clay-500)" />
         </svg>
       );
     case "avatar-outfit-sport":
@@ -169,7 +169,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
     case "avatar-acc-backpack":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <rect x="13" y="6" width="14" height="18" rx="2" fill="#ff7a5c" />
+          <rect x="13" y="6" width="14" height="18" rx="2" fill="var(--clay-500)" />
           <rect x="15" y="10" width="4" height="4" fill="#e8e1ce" />
           <rect x="21" y="10" width="4" height="4" fill="#e8e1ce" />
           <rect x="17" y="16" width="6" height="4" fill="#e8e1ce" />
@@ -215,8 +215,8 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
     case "avatar-body-girl":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <rect x="15" y="12" width="10" height="6" fill="#ff7a5c" />
-          <path d="M13 18 L27 18 L29 24 L11 24 Z" fill="#ff7a5c" />
+          <rect x="15" y="12" width="10" height="6" fill="var(--clay-500)" />
+          <path d="M13 18 L27 18 L29 24 L11 24 Z" fill="var(--clay-500)" />
           <rect x="12" y="13" width="3" height="6" fill="#e8b89a" />
           <rect x="25" y="13" width="3" height="6" fill="#e8b89a" />
           <circle cx="20" cy="9" r="4" fill="#e8b89a" />
@@ -322,7 +322,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
     case "avatar-back-backpack":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <rect x="13" y="6" width="14" height="18" rx="2" fill="#ff7a5c" />
+          <rect x="13" y="6" width="14" height="18" rx="2" fill="var(--clay-500)" />
           <rect x="15" y="10" width="4" height="4" fill="#e8e1ce" />
           <rect x="21" y="10" width="4" height="4" fill="#e8e1ce" />
           <rect x="17" y="16" width="6" height="4" fill="#e8e1ce" />
@@ -347,7 +347,7 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
           <rect x="17" y="6" width="6" height="20" rx="1" fill="#6b4422" />
-          <rect x="18" y="2" width="1" height="4" fill="#ff7a5c" />
+          <rect x="18" y="2" width="1" height="4" fill="var(--clay-500)" />
           <rect x="20" y="2" width="1" height="4" fill="#ffd84d" />
           <rect x="22" y="2" width="1" height="4" fill="#0a8754" />
         </svg>
@@ -400,9 +400,9 @@ export function AvatarItemPreview({ id }: AvatarItemPreviewProps) {
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
           <rect x="8" y="12" width="24" height="8" rx="3" fill="#2a2a2a" />
-          <circle cx="13" cy="16" r="1.2" fill="#ff7a5c" />
+          <circle cx="13" cy="16" r="1.2" fill="var(--clay-500)" />
           <circle cx="17" cy="16" r="1.2" fill="#ffd84d" />
-          <circle cx="23" cy="16" r="1.2" fill="#6bc44d" />
+          <circle cx="23" cy="16" r="1.2" fill="var(--green-400)" />
           <circle cx="27" cy="16" r="1.2" fill="#6da3d6" />
         </svg>
       );

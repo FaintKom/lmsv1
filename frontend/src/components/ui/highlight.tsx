@@ -16,7 +16,7 @@ export function Highlight({
         "inline-block px-2 rounded-lg -rotate-1",
         className
       )}
-      style={{ background: "#ffe066", color: "#0a1a10" }}
+      style={{ background: "#ffe066", color: "var(--ink-900)" }}
       {...props}
     >
       {children}

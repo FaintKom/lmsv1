@@ -53,7 +53,7 @@ export interface WebEditorV2Props {
 type Tab = "html" | "css" | "js";
 
 const DEFAULT_PREVIEW_BODY =
-  "display:grid;place-items:center;height:100vh;background:#fafbf6;margin:0";
+  "display:grid;place-items:center;height:100vh;background:var(--paper);margin:0";
 
 export function WebEditorV2({
   starter,
@@ -227,7 +227,7 @@ export function WebEditorV2({
                 fontFamily: "var(--font-mono)",
                 fontSize: 12.5,
                 lineHeight: 1.55,
-                background: "#1a2a1f",
+                background: "var(--ink-700)",
                 color: "#d4f1c4",
                 resize: "none",
               }}
@@ -268,7 +268,7 @@ export function WebEditorV2({
                     width: 10,
                     height: 10,
                     borderRadius: 999,
-                    background: "var(--coral-300)",
+                    background: "var(--clay-300)",
                   }}
                 />
                 <span

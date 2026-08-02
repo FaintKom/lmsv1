@@ -241,7 +241,7 @@ export function V2LessonRunner({
         style={{
           padding: 24,
           fontFamily: "var(--font-mono)",
-          color: "var(--coral-700)",
+          color: "var(--clay-700)",
         }}
       >
         V2LessonRunner: unknown exercise type &quot;{step.type}&quot;.

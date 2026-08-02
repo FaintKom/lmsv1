@@ -206,7 +206,7 @@ export default function AdminCoursesPage() {
  const gradient = CATEGORY_GRADIENTS[category || ""] || (isTemplate ? "from-emerald-500 to-green-600" : "from-green-500 to-emerald-600");
 
  return (
- <Card key={course.id} className="group overflow-hidden transition-all hover:shadow-lg ">
+ <Card key={course.id} className="group overflow-hidden transition hover:shadow-lg ">
  {/* Thumbnail / Gradient header */}
  {thumbnailUrl ? (
  <div className="relative h-32 overflow-hidden">

@@ -1,60 +1,73 @@
 /* =================================================================
-   GrassLMS — Lively · tokens.css · v1.0.0 · 2026-05-04
+   GrassLMS — Lively v2 · tokens.css · v2.0.0 · 2026-08-02
    GENERATED FROM tokens.json — DO NOT EDIT BY HAND.
-   To regenerate: update tokens.json in the design project, then re-export.
 
-   Drop-in replacement for the @theme block in `frontend/src/app/globals.css`.
-   Tailwind 4: tokens are exposed as CSS variables (under :root) and as
-   Tailwind utilities (under @theme inline).
+   Drop-in replacement for the @theme block in
+   `frontend/src/app/globals.css`.
 
-   Light only. v1 has no dark theme.
+   Changes vs v1.0.0:
+     · green-400/500 re-hued (#6bc44d/#3fb04b were yellow-green)
+     · coral-*  → clay-*     (renamed + retuned, see migration-map)
+     · info     → lagoon-*   (blue → teal-blue)
+     · ink ramp rebuilt on one warm green undertone
+     · paper #fafbf6 → #fbfcf7
+     · dark theme implemented (.dark) — v1 declared the contract but
+       shipped light only
    ================================================================= */
 
-@import "tailwindcss";
+/* @import "tailwindcss";  ← restore in the app repo */
 
 :root {
-  /* ---- BRAND GREEN (the hero) -------------------------- */
+  /* ---- BRAND GREEN ------------------------------------- */
   --green-25:  #f4fbef;
   --green-50:  #ecf9e7;
   --green-100: #d4f1c4;
   --green-200: #b6e69e;
   --green-300: #8fd770;
-  --green-400: #6bc44d;
-  --green-500: #3fb04b;
+  --green-400: #34a06a;
+  --green-500: #17915e;
   --green-600: #0a8754;   /* ★ primary action */
   --green-700: #07683f;
   --green-800: #054d2f;
   --green-900: #0a3d24;
 
-  /* ---- SECONDARY accents ------------------------------- */
-  --sun-50:    #fffbe5;
-  --sun-100:   #fff2b3;
-  --sun-300:   #ffe066;
-  --sun-400:   #ffd84d;   /* ★ highlight marker */
-  --sun-500:   #f5b800;
-  --sun-700:   #7a5500;
+  /* ---- SUN — marker, XP, reward, warning --------------- */
+  --sun-50:  #fffbe5;
+  --sun-100: #fff2b3;
+  --sun-300: #ffe066;
+  --sun-400: #ffd84d;     /* ★ highlight marker */
+  --sun-500: #f5b800;
+  --sun-700: #7a5500;
 
-  --coral-50:  #fff0eb;
-  --coral-300: #ffae9a;
-  --coral-500: #ff7a5c;   /* ★ streak / urgency */
-  --coral-700: #c33d22;
+  /* ---- CLAY — streak, urgency, danger (was coral) ------ */
+  --clay-50:  #fdefe7;
+  --clay-100: #fbd8c7;
+  --clay-300: #f6b394;
+  --clay-500: #e2552f;    /* ★ streak / danger */
+  --clay-600: #c1401d;
+  --clay-700: #9e300f;
 
-  /* ---- NEUTRALS — warm, never pure --------------------- */
-  --ink-50:  #f4f5f1;
-  --ink-100: #e6e8e4;
-  --ink-200: #c9cec9;
-  --ink-300: #9aa39d;
-  --ink-400: #6b7a70;
-  --ink-500: #4d5a51;
-  --ink-700: #1a2a1f;
-  --ink-900: #0a1a10;     /* ★ near-black with green undertone */
+  /* ---- LAGOON — links, info, live (was info blue) ------ */
+  --lagoon-50:  #e4f1f4;
+  --lagoon-200: #b9d9e0;
+  --lagoon-400: #3aa0b5;
+  --lagoon-600: #12798f;  /* ★ info */
+  --lagoon-800: #0a4652;
 
-  --paper:   #fafbf6;     /* ★ default page bg */
+  /* ---- INK — one warm green undertone ------------------ */
+  --ink-50:  #f3f5ef;
+  --ink-100: #e3e8dd;
+  --ink-200: #c4cdbe;
+  --ink-300: #93a08d;
+  --ink-400: #6a7568;
+  --ink-500: #485444;
+  --ink-700: #232b22;
+  --ink-900: #0d150d;
+
+  --paper:   #fbfcf7;     /* ★ page background — never #fff */
   --paper-2: #ffffff;     /* card surface */
 
-  --info:    #2b91ff;
-
-  /* ---- SEMANTIC aliases (use these in components) ------ */
+  /* ---- SEMANTIC (use these in components) -------------- */
   --color-bg:            var(--paper);
   --color-surface:       var(--paper-2);
   --color-surface-2:     var(--ink-50);
@@ -73,6 +86,10 @@
   --color-primary-soft:  var(--green-100);
   --color-primary-fg:    #ffffff;
 
+  --color-reward:        var(--sun-400);
+  --color-reward-soft:   var(--sun-100);
+  --color-reward-fg:     var(--sun-700);
+
   --color-success:       var(--green-600);
   --color-success-soft:  var(--green-50);
   --color-success-fg:    var(--green-800);
@@ -81,23 +98,25 @@
   --color-warning-soft:  var(--sun-50);
   --color-warning-fg:    var(--sun-700);
 
-  --color-danger:        var(--coral-500);
-  --color-danger-soft:   var(--coral-50);
-  --color-danger-fg:     var(--coral-700);
+  --color-danger:        var(--clay-500);
+  --color-danger-soft:   var(--clay-50);
+  --color-danger-fg:     var(--clay-700);
 
-  --color-info:          var(--info);
-  --color-info-soft:     #e6f2ff;
-  --color-info-fg:       #0a3a7a;
+  --color-info:          var(--lagoon-600);
+  --color-info-soft:     var(--lagoon-50);
+  --color-info-fg:       var(--lagoon-800);
 
   /* ---- ELEVATION --------------------------------------- */
-  --shadow-xs:  0 1px 2px rgba(10, 26, 16, 0.05);
-  --shadow-sm:  0 2px 6px -1px rgba(10, 26, 16, 0.07);
-  --shadow-md:  0 8px 24px -8px rgba(10, 26, 16, 0.12);
-  --shadow-lg:  0 18px 50px -20px rgba(10, 26, 16, 0.18);
-  --shadow-pop:       0 4px 0 0 var(--green-700);   /* ★ signature button */
-  --shadow-pop-coral: 0 4px 0 0 var(--coral-700);
-  --shadow-pop-sun:   0 4px 0 0 var(--sun-500);
-  --shadow-pop-ink:   0 4px 0 0 var(--ink-700);
+  --shadow-xs: 0 1px 2px rgba(13, 21, 13, 0.05);
+  --shadow-sm: 0 2px 6px -1px rgba(13, 21, 13, 0.07);
+  --shadow-md: 0 8px 24px -8px rgba(13, 21, 13, 0.14);
+  --shadow-lg: 0 18px 50px -20px rgba(13, 21, 13, 0.20);
+
+  --shadow-pop:      0 4px 0 0 var(--green-700);   /* ★ signature */
+  --shadow-pop-sun:  0 4px 0 0 var(--sun-500);
+  --shadow-pop-clay: 0 4px 0 0 var(--clay-700);
+  --shadow-pop-ink:  0 4px 0 0 var(--ink-900);
+  --ring-focus:      0 0 0 4px var(--green-100);
 
   /* ---- RADII ------------------------------------------- */
   --radius-xs:   6px;
@@ -108,52 +127,111 @@
   --radius-pill: 999px;
 
   /* ---- SPACING (4px base) ------------------------------ */
-  --s-1:  4px;
-  --s-2:  8px;
-  --s-3:  12px;
-  --s-4:  16px;
-  --s-5:  20px;
-  --s-6:  24px;
-  --s-8:  32px;
-  --s-10: 40px;
-  --s-12: 48px;
-  --s-16: 64px;
-  --s-20: 80px;
+  --s-1: 4px;   --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 20px;  --s-6: 24px;  --s-8: 32px;  --s-10: 40px;
+  --s-12: 48px; --s-16: 64px; --s-20: 80px;
+
+  /* ---- SIZES ------------------------------------------- */
+  --control-xs: 28px;
+  --control-sm: 36px;
+  --control-md: 44px;   /* min touch target */
+  --control-lg: 52px;
+  --row-dense:  32px;   /* journal / gradebook */
+  --row:        44px;
+  --rail:       240px;
+  --topbar:     56px;
+  --reading:    720px;
+  --outline:    220px;
+  --inspector:  300px;
 
   /* ---- TYPOGRAPHY -------------------------------------- */
   --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --t-xs:   12px;
-  --t-sm:   13px;
-  --t-base: 15px;
-  --t-md:   17px;
-  --t-lg:   20px;
-  --t-xl:   24px;
-  --t-2xl:  32px;
-  --t-3xl:  44px;
-  --t-4xl:  60px;
-  --t-5xl:  80px;
+  --t-xs: 12px;  --t-sm: 13px;  --t-base: 15px; --t-md: 17px;
+  --t-lg: 20px;  --t-xl: 24px;  --t-2xl: 32px;  --t-3xl: 44px;
+  --t-4xl: 60px; --t-5xl: 80px;
+
+  --tracking-display: -0.035em;
+  --tracking-heading: -0.025em;
+  --tracking-eyebrow: 0.12em;
+  --leading-body: 1.65;
 
   /* ---- MOTION ------------------------------------------ */
-  --motion-fast: 120ms;
-  --motion-base: 200ms;
-  --motion-slow: 400ms;
-  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-instant: 80ms;
+  --motion-fast:    120ms;
+  --motion-base:    200ms;
+  --motion-slow:    400ms;
+  --motion-stagger: 60ms;
+  --motion-ease:     cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-in:  cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* =================================================================
+   DARK THEME — `.dark` on <html>, per the theme contract.
+   Only semantic aliases flip; components never branch on theme.
+   ================================================================= */
+.dark {
+  --color-bg:            #0b100c;
+  --color-surface:       #111713;
+  --color-surface-2:     #171f19;
+
+  --color-text:          #e9efe9;
+  --color-text-muted:    #9aa89b;
+  --color-text-subtle:   #7b8a7d;
+  --color-text-inverse:  #0d150d;
+
+  --color-border:        #222b23;
+  --color-border-strong: #2f3a30;
+  --color-border-focus:  #35d07f;
+
+  --color-primary:       #35d07f;
+  --color-primary-hover: #5ade97;
+  --color-primary-soft:  rgba(53, 208, 127, 0.14);
+  --color-primary-fg:    #04160c;
+
+  --color-reward:        #ffd84d;
+  --color-reward-soft:   rgba(255, 216, 77, 0.16);
+  --color-reward-fg:     #ffe066;
+
+  --color-success:       #35d07f;
+  --color-success-soft:  rgba(53, 208, 127, 0.14);
+  --color-success-fg:    #8fe6b5;
+
+  --color-warning:       #ffc93d;
+  --color-warning-soft:  rgba(255, 201, 61, 0.14);
+  --color-warning-fg:    #ffe066;
+
+  --color-danger:        #ff7a52;
+  --color-danger-soft:   rgba(255, 122, 82, 0.14);
+  --color-danger-fg:     #ffb094;
+
+  --color-info:          #3aa0b5;
+  --color-info-soft:     rgba(58, 160, 181, 0.14);
+  --color-info-fg:       #9bd3df;
+
+  /* elevation by surface, not by shadow (dark-mode rule) */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 18px 50px -20px rgba(0, 0, 0, 0.7);
+
+  --shadow-pop:      0 4px 0 0 #1c6b45;
+  --shadow-pop-sun:  0 4px 0 0 #b88700;
+  --shadow-pop-clay: 0 4px 0 0 #a83c1c;
+  --shadow-pop-ink:  0 4px 0 0 #000000;
+  --ring-focus:      0 0 0 4px rgba(53, 208, 127, 0.25);
 }
 
 /* =================================================================
    Tailwind 4 — expose tokens as utilities.
-   `@theme inline` proxies to existing CSS vars (no copy of values).
-   Use semantic utilities in components, not raw scale (e.g.
-   `bg-primary` not `bg-green-600`).
+   Use semantic utilities in components (bg-primary), not raw scale.
    ================================================================= */
 @theme inline {
-  /* fonts */
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
 
-  /* full color scale — for design-system pages, charts, illustrations */
   --color-green-25:  var(--green-25);
   --color-green-50:  var(--green-50);
   --color-green-100: var(--green-100);
@@ -166,31 +244,38 @@
   --color-green-800: var(--green-800);
   --color-green-900: var(--green-900);
 
-  --color-sun-50:    var(--sun-50);
-  --color-sun-100:   var(--sun-100);
-  --color-sun-300:   var(--sun-300);
-  --color-sun-400:   var(--sun-400);
-  --color-sun-500:   var(--sun-500);
-  --color-sun-700:   var(--sun-700);
+  --color-sun-50:  var(--sun-50);
+  --color-sun-100: var(--sun-100);
+  --color-sun-300: var(--sun-300);
+  --color-sun-400: var(--sun-400);
+  --color-sun-500: var(--sun-500);
+  --color-sun-700: var(--sun-700);
 
-  --color-coral-50:  var(--coral-50);
-  --color-coral-300: var(--coral-300);
-  --color-coral-500: var(--coral-500);
-  --color-coral-700: var(--coral-700);
+  --color-clay-50:  var(--clay-50);
+  --color-clay-100: var(--clay-100);
+  --color-clay-300: var(--clay-300);
+  --color-clay-500: var(--clay-500);
+  --color-clay-600: var(--clay-600);
+  --color-clay-700: var(--clay-700);
 
-  --color-ink-50:    var(--ink-50);
-  --color-ink-100:   var(--ink-100);
-  --color-ink-200:   var(--ink-200);
-  --color-ink-300:   var(--ink-300);
-  --color-ink-400:   var(--ink-400);
-  --color-ink-500:   var(--ink-500);
-  --color-ink-700:   var(--ink-700);
-  --color-ink-900:   var(--ink-900);
+  --color-lagoon-50:  var(--lagoon-50);
+  --color-lagoon-200: var(--lagoon-200);
+  --color-lagoon-400: var(--lagoon-400);
+  --color-lagoon-600: var(--lagoon-600);
+  --color-lagoon-800: var(--lagoon-800);
 
-  --color-paper:     var(--paper);
-  --color-paper-2:   var(--paper-2);
+  --color-ink-50:  var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-700: var(--ink-700);
+  --color-ink-900: var(--ink-900);
 
-  /* semantic — preferred in components */
+  --color-paper:   var(--paper);
+  --color-paper-2: var(--paper-2);
+
   --color-bg:            var(--color-bg);
   --color-surface:       var(--color-surface);
   --color-surface-2:     var(--color-surface-2);
@@ -205,6 +290,9 @@
   --color-primary-hover: var(--color-primary-hover);
   --color-primary-soft:  var(--color-primary-soft);
   --color-primary-fg:    var(--color-primary-fg);
+  --color-reward:        var(--color-reward);
+  --color-reward-soft:   var(--color-reward-soft);
+  --color-reward-fg:     var(--color-reward-fg);
   --color-success:       var(--color-success);
   --color-success-soft:  var(--color-success-soft);
   --color-success-fg:    var(--color-success-fg);
@@ -218,7 +306,6 @@
   --color-info-soft:     var(--color-info-soft);
   --color-info-fg:       var(--color-info-fg);
 
-  /* radii */
   --radius-xs:   var(--radius-xs);
   --radius-sm:   var(--radius-sm);
   --radius-md:   var(--radius-md);
@@ -226,30 +313,22 @@
   --radius-xl:   var(--radius-xl);
   --radius-pill: var(--radius-pill);
 
-  /* spacing extensions */
-  --spacing-1:  var(--s-1);
-  --spacing-2:  var(--s-2);
-  --spacing-3:  var(--s-3);
-  --spacing-4:  var(--s-4);
-  --spacing-5:  var(--s-5);
-  --spacing-6:  var(--s-6);
-  --spacing-8:  var(--s-8);
-  --spacing-10: var(--s-10);
-  --spacing-12: var(--s-12);
-  --spacing-16: var(--s-16);
+  --spacing-1: var(--s-1);   --spacing-2: var(--s-2);
+  --spacing-3: var(--s-3);   --spacing-4: var(--s-4);
+  --spacing-5: var(--s-5);   --spacing-6: var(--s-6);
+  --spacing-8: var(--s-8);   --spacing-10: var(--s-10);
+  --spacing-12: var(--s-12); --spacing-16: var(--s-16);
   --spacing-20: var(--s-20);
 
-  /* shadows */
   --shadow-xs:        var(--shadow-xs);
   --shadow-sm:        var(--shadow-sm);
   --shadow-md:        var(--shadow-md);
   --shadow-lg:        var(--shadow-lg);
   --shadow-pop:       var(--shadow-pop);
-  --shadow-pop-coral: var(--shadow-pop-coral);
   --shadow-pop-sun:   var(--shadow-pop-sun);
+  --shadow-pop-clay:  var(--shadow-pop-clay);
   --shadow-pop-ink:   var(--shadow-pop-ink);
 
-  /* font sizes (named) — keeps Tailwind text-{size} aligned with our scale */
   --text-xs:   var(--t-xs);
   --text-sm:   var(--t-sm);
   --text-base: var(--t-base);
@@ -282,7 +361,27 @@ button { font-family: inherit; }
 :focus-visible {
   outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
+}
+
+/* signature press — apply to primary/reward/danger buttons only */
+.btn-pop {
+  box-shadow: var(--shadow-pop);
+  transition: transform var(--motion-fast) var(--motion-ease),
+              box-shadow var(--motion-fast) var(--motion-ease);
+}
+.btn-pop:hover  { transform: translateY(2px); box-shadow: 0 2px 0 0 var(--green-800); }
+.btn-pop:active { transform: translateY(4px); box-shadow: none; }
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--ink-100), var(--ink-50), var(--ink-100));
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s linear infinite;
+  border-radius: var(--radius-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -296,12 +395,20 @@ button { font-family: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--ink-200);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 2px solid var(--color-bg);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-300); }
 
 ::selection { background: var(--sun-300); color: var(--ink-900); }
 
-.font-mono     { font-family: var(--font-mono); }
-.tabular-nums  { font-variant-numeric: tabular-nums; }
+.font-mono    { font-family: var(--font-mono); }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}

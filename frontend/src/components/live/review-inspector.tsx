@@ -116,7 +116,7 @@ export function ReviewInspector({
                       row.passed
                         ? "bg-green-100 text-green-800"
                         : row.submitted
-                          ? "bg-coral-50 text-coral-700"
+                          ? "bg-clay-50 text-clay-700"
                           : "bg-ink-100 text-ink-700"
                     }`}
                   >

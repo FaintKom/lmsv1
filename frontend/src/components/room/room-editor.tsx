@@ -46,7 +46,7 @@ const STEP = 0.5;
 const FLOOR_SWATCH: Record<string, string> = {
   wood: "#d9a26a",
   tile: "#e8e1ce",
-  carpet: "#ffae9a",
+  carpet: "var(--clay-300)",
   moss: "#7fb069",
 };
 
@@ -170,7 +170,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
                         disabled={locked}
                         onClick={() => void place(item)}
                         className={cn(
-                          "flex flex-col gap-1 rounded-[10px] border p-1.5 text-left transition-all",
+                          "flex flex-col gap-1 rounded-[10px] border p-1.5 text-left transition",
                           locked
                             ? "cursor-not-allowed border-ink-100 bg-ink-50 opacity-60"
                             : placed
@@ -229,7 +229,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
                 type="button"
                 onClick={remove}
                 aria-label="Delete"
-                className="rounded-lg p-1.5 text-coral-700 hover:bg-coral-50"
+                className="rounded-lg p-1.5 text-clay-700 hover:bg-clay-50"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -294,7 +294,7 @@ function SettingGrid({
           type="button"
           onClick={() => onPick(item.id)}
           className={cn(
-            "flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left text-[12px] font-medium transition-all",
+            "flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left text-[12px] font-medium transition",
             currentId === item.id
               ? "border-green-400 bg-success-soft text-success-fg"
               : "border-ink-100 bg-paper hover:border-green-300",

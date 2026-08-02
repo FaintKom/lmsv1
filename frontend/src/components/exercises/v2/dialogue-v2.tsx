@@ -8,7 +8,7 @@
  * appear staged with a typing indicator before each (left-aligned
  * `fb-bubble` rows); options only show once the conversation is fully
  * "typed". Picked reply previews as a right-aligned bubble; on a wrong
- * grade the preview turns coral and shakes (`.no`).
+ * grade the preview turns clay and shakes (`.no`).
  *
  * Per-task HP + streak.
  */
@@ -241,7 +241,7 @@ export function DialogueV2({
           )}
 
           {/* DG-04: your reply lands in the log; on a wrong grade it turns
-              coral + shakes, then lifts back out when you hit Try again. */}
+              clay + shakes, then lifts back out when you hit Try again. */}
           {pick && (
             <div className="fb-bubble-row me pop">
               <div

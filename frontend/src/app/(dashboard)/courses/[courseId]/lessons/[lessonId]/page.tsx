@@ -628,7 +628,7 @@ export default function LessonViewerPage() {
      {prevLesson && (
       <Link
        href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-       className="hidden items-center gap-2.5 rounded-xl bg-ink-50 px-3.5 py-2 text-[13px] font-bold text-text transition-all hover:-translate-y-0.5 sm:flex"
+       className="hidden items-center gap-2.5 rounded-xl bg-ink-50 px-3.5 py-2 text-[13px] font-bold text-text transition hover:-translate-y-0.5 sm:flex"
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>

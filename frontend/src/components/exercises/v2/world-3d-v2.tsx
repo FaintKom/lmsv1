@@ -160,7 +160,7 @@ export function World3DV2({
               <defs>
                 <linearGradient id="tileGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#8fd770" />
-                  <stop offset="100%" stopColor="#6bc44d" />
+                  <stop offset="100%" stopColor="var(--green-400)" />
                 </linearGradient>
               </defs>
               {Array.from({ length: size }, (_, r) =>
@@ -200,11 +200,11 @@ export function World3DV2({
                             y="-20"
                             width="2"
                             height="20"
-                            fill="#1a2a1f"
+                            fill="var(--ink-700)"
                           />
                           <polygon
                             points="1,-20 18,-14 1,-8"
-                            fill="#ff7a5c"
+                            fill="var(--clay-500)"
                           />
                         </g>
                       )}
@@ -221,8 +221,8 @@ export function World3DV2({
                 <ellipse cx="0" cy="32" rx="14" ry="4" fill="rgba(0,0,0,0.3)" />
                 <rect x="-10" y="0" width="20" height="30" rx="6" fill="#0a8754" />
                 <circle cx="0" cy="-6" r="9" fill="#ffd84d" />
-                <circle cx="-3" cy="-7" r="1.5" fill="#1a2a1f" />
-                <circle cx="3" cy="-7" r="1.5" fill="#1a2a1f" />
+                <circle cx="-3" cy="-7" r="1.5" fill="var(--ink-700)" />
+                <circle cx="3" cy="-7" r="1.5" fill="var(--ink-700)" />
               </g>
             </svg>
             <div

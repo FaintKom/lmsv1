@@ -98,8 +98,8 @@ export default function ChildDetailPage() {
  </Card>
  <Card className="border-l-4 border-l-orange-400">
  <CardContent className="flex items-center gap-3 p-4">
- <div className="rounded-lg bg-coral-300 p-2 ">
- <Flame className="h-4 w-4 text-coral-700 " />
+ <div className="rounded-lg bg-clay-300 p-2 ">
+ <Flame className="h-4 w-4 text-clay-700 " />
  </div>
  <div>
  <p className="text-xs text-text-muted">{t("parent.streak")}</p>

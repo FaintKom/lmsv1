@@ -207,7 +207,7 @@ export function SessionDetail({
               }`}
             >
               <span
-                className={`absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white transition-all duration-150 ${
+                className={`absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white transition duration-150 ${
                   held ? "left-[18px]" : "left-0.5"
                 }`}
               />

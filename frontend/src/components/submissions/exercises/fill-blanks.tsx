@@ -32,7 +32,7 @@ function DraggableWord({ id, word, isPlaced }: { id: string; word: string; isPla
  ref={setNodeRef}
  {...listeners}
  {...attributes}
- className={`cursor-grab select-none rounded-lg border-2 border-primary-soft bg-success-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-sm transition-all hover:border-primary hover:bg-primary-soft hover:shadow-md active:cursor-grabbing ${
+ className={`cursor-grab select-none rounded-lg border-2 border-primary-soft bg-success-soft px-3 py-1.5 text-sm font-medium text-success-fg shadow-sm transition hover:border-primary hover:bg-primary-soft hover:shadow-md active:cursor-grabbing ${
  isDragging ? "opacity-30" : ""
  }`}
  >

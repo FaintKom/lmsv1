@@ -4,7 +4,7 @@
  * ScatterPlotV2 — drag the green line endpoints to best-fit the scatter.
  *
  * Adopted from q-math-templates.jsx · ScatterPlotExerciseV2. Quadrant-1
- * scatter (0..xMax, 0..yMax) with N coral data points. Student drags
+ * scatter (0..xMax, 0..yMax) with N clay data points. Student drags
  * two green handles to position a candidate best-fit line; matched
  * against target {m, b} with loose tolerance.
  *
@@ -295,7 +295,7 @@ export function ScatterPlotV2({
                 cx={toX(p.x)}
                 cy={toY(p.y)}
                 r="4.5"
-                fill="var(--coral-500)"
+                fill="var(--clay-500)"
                 stroke="var(--paper-2)"
                 strokeWidth="1"
               />

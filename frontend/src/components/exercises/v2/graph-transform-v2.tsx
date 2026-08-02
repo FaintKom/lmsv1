@@ -5,7 +5,7 @@
  *
  * Adopted from q-math-templates.jsx · GraphTransformExerciseV2.
  * Three sliders: horizontal shift h, vertical shift v, vertical
- * stretch a. Live green curve overlays coral dashed target.
+ * stretch a. Live green curve overlays clay dashed target.
  *
  * Exercise-mechanics handoff (ex-graphs.jsx · GraphTransformV2):
  * - GX-01 viewBox-only SVG (`.gx-svg`) inside `.gx-layout`.
@@ -220,7 +220,7 @@ export function GraphTransformV2({
             <GridAxes range={range} size={SIZE} pad={PAD} />
             <path
               d={pathStr(target.h, target.v, target.a)}
-              stroke="var(--coral-500)"
+              stroke="var(--clay-500)"
               strokeWidth="2"
               strokeDasharray="4 4"
               fill="none"

@@ -218,16 +218,18 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  aria-current={isActive ? "page" : undefined}
  data-tour={tourAnchor}
  className={cn(
- "flex items-center gap-[11px] rounded-[10px] px-[10px] py-[9px] text-[13px] font-semibold transition-colors duration-150",
+ "flex items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold transition-colors duration-150",
+ // v2 rail rule: active = reward on a sun tint — green disappears
+ // on the dark rail
  isActive
- ? "bg-primary text-white"
+ ? "bg-reward/16 text-reward"
  : "text-white/65 hover:bg-white/[0.05] hover:text-white"
  )}
  >
  <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
  {item.label}
  {item.badge ? (
- <span className="ml-auto rounded-pill bg-coral-500 px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-white">
+ <span className="ml-auto rounded-pill bg-clay-500 px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-white">
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}

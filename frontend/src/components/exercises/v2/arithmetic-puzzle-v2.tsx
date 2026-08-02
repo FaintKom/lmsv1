@@ -240,7 +240,7 @@ export function ArithmeticPuzzleV2({
                           background: isCorrect
                             ? "var(--green-50)"
                             : isWrong
-                              ? "var(--coral-50)"
+                              ? "var(--clay-50)"
                               : v == null
                                 ? "var(--ink-50)"
                                 : "var(--green-50)",
@@ -248,13 +248,13 @@ export function ArithmeticPuzzleV2({
                             isCorrect
                               ? "var(--green-500)"
                               : isWrong
-                                ? "var(--coral-500)"
+                                ? "var(--clay-500)"
                                 : v == null
                                   ? "var(--ink-200)"
                                   : "var(--green-500)"
                           }`,
                           color: isWrong
-                            ? "var(--coral-700)"
+                            ? "var(--clay-700)"
                             : v == null
                               ? "var(--ink-300)"
                               : "var(--green-800)",

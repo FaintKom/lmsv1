@@ -85,7 +85,7 @@ export default function Home() {
  </p>
  </div>
  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Code className="h-6 w-6 text-primary" />
  </div>
@@ -97,7 +97,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Calculator className="h-6 w-6 text-primary" />
  </div>
@@ -109,7 +109,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Brain className="h-6 w-6 text-primary" />
  </div>
@@ -121,7 +121,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-warning hover:shadow-lg hover:shadow-sun-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-warning hover:shadow-lg hover:shadow-sun-50">
  <div className="mb-5 inline-flex rounded-lg bg-sun-50 p-3.5">
  <Gamepad2 className="h-6 w-6 text-warning-fg" />
  </div>
@@ -133,7 +133,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-danger hover:shadow-lg hover:shadow-danger-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-danger hover:shadow-lg hover:shadow-danger-soft">
  <div className="mb-5 inline-flex rounded-lg bg-danger-soft p-3.5">
  <Trophy className="h-6 w-6 text-danger-fg" />
  </div>
@@ -145,7 +145,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:border-info hover:shadow-lg hover:shadow-info-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-info hover:shadow-lg hover:shadow-info-soft">
  <div className="mb-5 inline-flex rounded-lg bg-info-soft p-3.5">
  <BookOpen className="h-6 w-6 text-info-fg" />
  </div>
@@ -232,7 +232,7 @@ export default function Home() {
  <p className="text-text-muted">{t("landing.showcaseSubtitle")}</p>
  </div>
  <div className="grid gap-6 md:grid-cols-2">
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Monitor className="h-6 w-6 text-primary" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseStudentDash")}</h3>
@@ -249,7 +249,7 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Layout className="h-6 w-6 text-primary" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseTeacher")}</h3>
@@ -266,7 +266,7 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-sun-50 p-3"><Code className="h-6 w-6 text-warning-fg" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSandbox")}</h3>
@@ -283,7 +283,7 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition-all hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-info-soft p-3"><PieChart className="h-6 w-6 text-info-fg" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSat")}</h3>

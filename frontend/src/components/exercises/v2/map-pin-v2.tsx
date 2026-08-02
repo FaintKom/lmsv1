@@ -184,8 +184,8 @@ export function MapPinDropV2({
                 color: feedback
                   ? feedback.kind === "ok"
                     ? "var(--green-600)"
-                    : "var(--coral-500)"
-                  : "var(--coral-500)",
+                    : "var(--clay-500)"
+                  : "var(--clay-500)",
                 filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.25))",
                 transition: "color 200ms",
               }}

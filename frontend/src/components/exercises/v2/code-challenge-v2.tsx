@@ -366,7 +366,7 @@ export function CodeChallengeV2({
               style={{
                 flex: "1 1 200px",
                 minHeight: 0,
-                background: "#1a2a1f",
+                background: "var(--ink-700)",
                 borderRadius: 12,
                 padding: 14,
                 fontFamily: "var(--font-mono)",
@@ -494,11 +494,11 @@ export function CodeChallengeV2({
                           padding: "4px 8px",
                           background: r.passed
                             ? "var(--green-50)"
-                            : "var(--coral-50)",
+                            : "var(--clay-50)",
                           borderRadius: 6,
                           color: r.passed
                             ? "var(--green-800)"
-                            : "var(--coral-700)",
+                            : "var(--clay-700)",
                         }}
                       >
                         <div
@@ -515,7 +515,7 @@ export function CodeChallengeV2({
                               borderRadius: 999,
                               background: r.passed
                                 ? "var(--green-600)"
-                                : "var(--coral-500)",
+                                : "var(--clay-500)",
                               display: "grid",
                               placeItems: "center",
                               color: "#fff",

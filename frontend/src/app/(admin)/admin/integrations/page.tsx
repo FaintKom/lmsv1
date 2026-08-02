@@ -202,7 +202,7 @@ export default function IntegrationsPage() {
  return (
  <Card
  key={intg.provider}
- className={`relative overflow-hidden transition-all ${
+ className={`relative overflow-hidden transition ${
  isComingSoon ? "opacity-75" : "hover:shadow-lg"
  }`}
  >

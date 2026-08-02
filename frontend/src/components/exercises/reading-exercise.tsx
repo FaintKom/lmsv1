@@ -100,7 +100,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  <button
  key={i}
  onClick={() => setCurrentQ(i)}
- className={`h-2.5 rounded-pill transition-all duration-300 ${
+ className={`h-2.5 rounded-pill transition duration-300 ${
  i === currentQ
  ? "w-8 bg-primary"
  : submitted && results[String(i)] === true
@@ -124,7 +124,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  {questions.map((q, qi) => (
  <div
  key={qi}
- className={`transition-all duration-300 ${qi === currentQ ? "block" : "hidden"}`}
+ className={`transition duration-300 ${qi === currentQ ? "block" : "hidden"}`}
  >
  <div className="rounded-lg border border-border-strong bg-paper-2 shadow-sm p-5 space-y-4">
  {/* Question text */}
@@ -150,7 +150,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  key={opt.id}
  onClick={() => handleSelectOption(qi, opt.id)}
  disabled={submitted}
- className={`w-full text-left rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all duration-200
+ className={`w-full text-left rounded-lg border-2 px-4 py-3 text-sm font-medium transition duration-200
  ${
  isCorrectOption
  ? "border-primary bg-success-soft text-success-fg "
@@ -185,7 +185,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  onChange={(e) => handleTextChange(qi, e.target.value)}
  placeholder="Type your answer..."
  disabled={submitted}
- className={`w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all duration-200 outline-none
+ className={`w-full rounded-lg border-2 px-4 py-3 text-sm font-medium transition duration-200 outline-none
  ${
  submitted && results[String(qi)] === true
  ? "border-primary bg-success-soft text-success-fg "
@@ -212,7 +212,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  {totalQuestions > 1 && currentQ > 0 && (
  <button
  onClick={() => setCurrentQ((p) => p - 1)}
- className="rounded-lg border-2 border-border-strong px-5 py-3 text-sm font-semibold text-text-muted transition-all duration-200 hover:bg-surface-2 "
+ className="rounded-lg border-2 border-border-strong px-5 py-3 text-sm font-semibold text-text-muted transition duration-200 hover:bg-surface-2 "
  >
  {"\u2190"} Previous
  </button>
@@ -221,7 +221,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  {totalQuestions > 1 && currentQ < totalQuestions - 1 && (
  <button
  onClick={() => setCurrentQ((p) => p + 1)}
- className="rounded-lg border-2 border-primary-soft px-5 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:bg-success-soft "
+ className="rounded-lg border-2 border-primary-soft px-5 py-3 text-sm font-semibold text-primary transition duration-200 hover:bg-success-soft "
  >
  Next {"\u2192"}
  </button>
@@ -231,7 +231,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={!allAnswered}
- className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Submit Answers
  </button>

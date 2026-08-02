@@ -15,7 +15,7 @@
  *   - CW-03 correct letters lock green on retry ("N of M letters right")
  *   - CW-04 cell size via CSS var --cw (44px → 38px in narrow containers)
  *   - CW-05 failure reveal fills the missing letters as dashed-green ghosts
- *     instead of painting the whole grid coral
+ *     instead of painting the whole grid clay
  */
 
 import { useMemo, useRef, useState } from "react";

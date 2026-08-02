@@ -85,7 +85,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  key={i}
  onClick={() => !submitted && setSelected(i)}
  disabled={submitted}
- className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition-all ${borderClass} ${bgClass} ${
+ className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition ${borderClass} ${bgClass} ${
  !submitted ? "hover:border-primary " : ""
  }`}
  >

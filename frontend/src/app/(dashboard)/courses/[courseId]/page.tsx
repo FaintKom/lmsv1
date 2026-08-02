@@ -31,8 +31,8 @@ const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
   math:        { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "Σ" },
   algebra:     { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "x²" },
   geometry:    { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-700))", glyph: "△" },
-  languages:   { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
-  spanish:     { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
+  languages:   { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), #7a2e15)", glyph: "Ñ" },
+  spanish:     { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), #7a2e15)", glyph: "Ñ" },
   sat:         { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))", glyph: "★" },
   science:     { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "⚗" },
   python:      { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "Py" },
@@ -55,7 +55,7 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
 
 const ICON_COLORS: Record<string, string> = {
   text:           "bg-green-100 text-green-700",
-  video:          "bg-coral-100 text-coral-700",
+  video:          "bg-clay-100 text-clay-700",
   quiz:           "bg-sun-100 text-sun-700",
   code_challenge: "bg-ink-100 text-ink-700",
   robot_2d:       "bg-green-100 text-green-700",

@@ -22,9 +22,9 @@ export function ItemPreview({ id }: ItemPreviewProps) {
             width="32"
             height="10"
             rx="1"
-            fill={id === "bed-kids" ? "#ff7a5c" : id === "bed-double" ? "#a48dc8" : "#b07a3e"}
+            fill={id === "bed-kids" ? "var(--clay-500)" : id === "bed-double" ? "#a48dc8" : "#b07a3e"}
           />
-          <rect x="6" y="12" width="28" height="4" fill="#fafbf6" />
+          <rect x="6" y="12" width="28" height="4" fill="var(--paper)" />
           <rect x="4" y="6" width="6" height="12" fill="#6b4422" />
           <rect x="12" y="10" width="8" height="2" fill="#fff" />
         </svg>
@@ -95,8 +95,8 @@ export function ItemPreview({ id }: ItemPreviewProps) {
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
           <rect x="9" y="6" width="22" height="16" fill="#ffd84d" />
-          <rect x="11" y="8" width="8" height="12" fill="#fafbf6" />
-          <rect x="21" y="8" width="8" height="12" fill="#fafbf6" />
+          <rect x="11" y="8" width="8" height="12" fill="var(--paper)" />
+          <rect x="21" y="8" width="8" height="12" fill="var(--paper)" />
         </svg>
       );
     case "sofa":
@@ -126,7 +126,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="15" y="8" width="10" height="6" fill="#111c2a" />
           <rect x="15" y="15" width="10" height="3" fill="#2a2a2a" />
           <circle cx="17" cy="19" r="1" fill="#ffd84d" />
-          <circle cx="20" cy="19" r="1" fill="#6bc44d" />
+          <circle cx="20" cy="19" r="1" fill="var(--green-400)" />
           <circle cx="23" cy="19" r="1" fill="#6da3d6" />
         </svg>
       );
@@ -164,7 +164,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
     case "pictures":
       return (
         <svg viewBox="0 0 40 28" width="100%" height="100%">
-          <rect x="6" y="8" width="9" height="9" fill="#fff" stroke="#ff7a5c" strokeWidth="1.5" />
+          <rect x="6" y="8" width="9" height="9" fill="#fff" stroke="var(--clay-500)" strokeWidth="1.5" />
           <rect x="17" y="8" width="9" height="9" fill="#fff" stroke="#0a8754" strokeWidth="1.5" />
           <rect x="28" y="8" width="9" height="9" fill="#fff" stroke="#6da3d6" strokeWidth="1.5" />
         </svg>
@@ -186,7 +186,7 @@ export function ItemPreview({ id }: ItemPreviewProps) {
           <rect x="23" y="3" width="3" height="6" fill="#fff" />
           <circle cx="17" cy="11" r="1" fill="#2a2a2a" />
           <circle cx="23" cy="11" r="1" fill="#2a2a2a" />
-          <ellipse cx="20" cy="14" rx="1" ry="0.6" fill="#ff7a5c" />
+          <ellipse cx="20" cy="14" rx="1" ry="0.6" fill="var(--clay-500)" />
         </svg>
       );
     case "trophy":

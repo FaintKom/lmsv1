@@ -11,7 +11,7 @@
  *   - two columns: lessons-of-day (left) + an event timeline (right).
  *
  * Data: GET /journal/student-activity (compute-only aggregate). Result palette
- * (RES): done·grey / correct·green / partial·sun / wrong·coral / skipped·grey.
+ * (RES): done·grey / correct·green / partial·sun / wrong·clay / skipped·grey.
  */
 
 import { Suspense } from "react";
@@ -59,9 +59,9 @@ const RES: Record<
     labelKey: "journal.activity.resPartial",
   },
   wrong: {
-    dot: "bg-coral-500",
-    badgeBg: "bg-coral-50",
-    badgeFg: "text-coral-700",
+    dot: "bg-clay-500",
+    badgeBg: "bg-clay-50",
+    badgeFg: "text-clay-700",
     labelKey: "journal.activity.resWrong",
   },
   skipped: {
@@ -318,8 +318,8 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
           )}
         </div>
         {!lesson.attended ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-coral-50 px-2.5 py-1 text-[11px] font-bold text-coral-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-coral-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-clay-50 px-2.5 py-1 text-[11px] font-bold text-clay-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-clay-500" />
             {t("journal.activity.absent")}
           </span>
         ) : (

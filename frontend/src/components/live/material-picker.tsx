@@ -27,7 +27,7 @@ interface CourseRow {
 const COVERS = [
   "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))",
   "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))",
-  "radial-gradient(circle at 75% 25%, var(--coral-500), var(--coral-700))",
+  "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))",
   "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))",
 ];
 function coverFor(title: string) {
@@ -126,7 +126,7 @@ export function MaterialPicker({
                   setQuery("");
                   setCourseId(c.id);
                 }}
-                className="group flex items-center gap-3.5 rounded-lg border border-border bg-paper-2 p-3.5 text-left shadow-sm transition-all duration-150 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md active:translate-y-0"
+                className="group flex items-center gap-3.5 rounded-lg border border-border bg-paper-2 p-3.5 text-left shadow-sm transition duration-150 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md active:translate-y-0"
               >
                 <span
                   className="flex h-14 w-14 shrink-0 items-end justify-start rounded-md p-1.5"
@@ -208,7 +208,7 @@ export function MaterialPicker({
                   setPicked(l.id);
                   onPick(courseId, l.id);
                 }}
-                className={`mb-1 flex w-full items-center gap-2.5 rounded-md border-2 p-2.5 text-left text-sm transition-all duration-150 ${
+                className={`mb-1 flex w-full items-center gap-2.5 rounded-md border-2 p-2.5 text-left text-sm transition duration-150 ${
                   isLive || isPicked
                     ? "border-primary bg-primary-soft font-bold text-success-fg"
                     : "border-transparent font-semibold text-text hover:bg-surface-2 active:scale-[0.99]"

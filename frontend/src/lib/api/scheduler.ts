@@ -14,7 +14,7 @@
  * Teacher double-booking is additive: two slots on the same day with the same
  * teacher and overlapping time also clash (mirrors the backend Phase E1
  * `teacher_conflicts`). Both feed one `Set<slotId>` so a block can light up
- * coral for either reason.
+ * clay for either reason.
  *
  * Times are "HH:MM" strings (local site time); day_of_week is 0=Mon … 6=Sun.
  */

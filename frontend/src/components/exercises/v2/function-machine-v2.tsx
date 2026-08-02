@@ -19,7 +19,7 @@
  *
  * Per-task HP + streak.
  *
- * Design system: green machine body, sun input pill, coral output pill,
+ * Design system: green machine body, sun input pill, clay output pill,
  * LessonShell chrome.
  */
 
@@ -271,8 +271,8 @@ export function FunctionMachineV2({
             <div
               style={{
                 background:
-                  lastOut !== null ? "var(--coral-50)" : "var(--ink-50)",
-                border: `2px solid ${lastOut !== null ? "var(--coral-300)" : "var(--ink-200)"}`,
+                  lastOut !== null ? "var(--clay-50)" : "var(--ink-50)",
+                border: `2px solid ${lastOut !== null ? "var(--clay-300)" : "var(--ink-200)"}`,
                 borderRadius: 999,
                 padding: "10px 16px",
                 fontFamily: "var(--font-mono)",
@@ -280,7 +280,7 @@ export function FunctionMachineV2({
                 fontSize: 18,
                 minWidth: 120,
                 textAlign: "center",
-                color: lastOut !== null ? "var(--coral-700)" : "var(--ink-400)",
+                color: lastOut !== null ? "var(--clay-700)" : "var(--ink-400)",
                 transition: "all 200ms",
               }}
             >
@@ -426,7 +426,7 @@ export function FunctionMachineV2({
                   >
                     <span style={{ color: "var(--sun-700)" }}>x={h.x}</span>
                     <span style={{ color: "var(--ink-300)" }}>→</span>
-                    <span style={{ color: "var(--coral-700)" }}>y={h.y}</span>
+                    <span style={{ color: "var(--clay-700)" }}>y={h.y}</span>
                   </div>
                 ))
               )}

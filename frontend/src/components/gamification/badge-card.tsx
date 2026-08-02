@@ -16,7 +16,7 @@ export function BadgeCard({ name, description, criteriaKey, earned, earnedAt }: 
  return (
  <div
  className={cn(
- "rounded-lg border p-4 text-center transition-all",
+ "rounded-lg border p-4 text-center transition",
  earned
  ? "border-warning bg-gradient-to-b from-amber-50 to-white shadow-sm"
  : "border-border-strong bg-surface-2 opacity-60",
@@ -26,13 +26,13 @@ export function BadgeCard({ name, description, criteriaKey, earned, earnedAt }: 
  <span
  className={cn(
  "grid h-12 w-12 place-items-center rounded-full",
- earned ? "border-2 border-yellow-300 bg-white" : "bg-gray-100",
+ earned ? "border-2 border-sun-300 bg-white" : "bg-ink-50",
  )}
  >
  <BadgeIcon criteriaKey={criteriaKey} size={28} className={earned ? undefined : "opacity-50"} />
  </span>
  {!earned && (
- <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-gray-700 text-white shadow-sm">
+ <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-ink-700 text-white shadow-sm">
  <Lock className="h-3 w-3" />
  </span>
  )}

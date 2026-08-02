@@ -1,20 +1,22 @@
 import Link from "next/link";
 import type { Course } from "@/types/api";
 
+/* v2 subject gradients (DESIGN_SPEC §4): code green-600→900,
+   math green-400→800, language clay-500→700, SAT sun-500→700. */
 const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
- programming: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "</>" },
- math: { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "Σ" },
- algebra: { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "x²" },
- geometry: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-700))", glyph: "△" },
- languages: { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
- spanish: { gradient: "radial-gradient(circle at 75% 25%, var(--coral-500), #7a2e15)", glyph: "Ñ" },
- sat: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--sun-700))", glyph: "★" },
- science: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "⚗" },
- python: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--ink-900))", glyph: "Py" },
- javascript: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-400), var(--ink-900))", glyph: "JS" },
+ programming: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "</>" },
+ math: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "Σ" },
+ algebra: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "x²" },
+ geometry: { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "△" },
+ languages: { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))", glyph: "Ñ" },
+ spanish: { gradient: "radial-gradient(circle at 75% 25%, var(--clay-500), var(--clay-700))", glyph: "Ñ" },
+ sat: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-500), var(--sun-700))", glyph: "★" },
+ science: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "Sc" },
+ python: { gradient: "radial-gradient(circle at 75% 25%, var(--green-600), var(--green-900))", glyph: "Py" },
+ javascript: { gradient: "radial-gradient(circle at 75% 25%, var(--sun-500), var(--sun-700))", glyph: "JS" },
 };
 
-const DEFAULT_THEME = { gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))", glyph: "📚" };
+const DEFAULT_THEME = { gradient: "radial-gradient(circle at 75% 25%, var(--green-400), var(--green-800))", glyph: "≡" };
 
 interface CourseCardProps {
  course: Course;
@@ -26,7 +28,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
 
  return (
  <Link href={`/courses/${course.id}`} className="group">
- <div className="overflow-hidden rounded-[18px] border border-border bg-paper-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
+ <div className="overflow-hidden rounded-[18px] border border-border bg-paper-2 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
  {/* Cover */}
  {course.thumbnail_url ? (
  <div className="relative h-36 overflow-hidden">
@@ -80,7 +82,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  aria-label={`Course progress: ${Math.round(progress)}%`}
  >
  <div
- className="h-full rounded-pill transition-all duration-500"
+ className="h-full rounded-pill transition-[width] duration-500"
  style={{
  width: `${progress}%`,
  background: "linear-gradient(90deg, var(--green-400), var(--green-600))",

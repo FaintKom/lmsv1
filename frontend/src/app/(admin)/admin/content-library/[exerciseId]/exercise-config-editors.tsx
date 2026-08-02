@@ -49,7 +49,7 @@ export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
          <button
            type="button"
            onClick={() => onChange({ ...config, correct_answer: true })}
-           className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-all ${
+           className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition ${
              correct
                ? "border-primary bg-success-soft text-primary"
                : "border-border-strong text-text-muted hover:border-primary-soft"
@@ -60,7 +60,7 @@ export function TrueFalseConfigEditor({ config, onChange }: EditorProps) {
          <button
            type="button"
            onClick={() => onChange({ ...config, correct_answer: false })}
-           className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition-all ${
+           className={`flex-1 rounded-lg border-2 px-4 py-3 text-sm font-semibold transition ${
              !correct
                ? "border-danger bg-danger-soft text-danger-fg"
                : "border-border-strong text-text-muted hover:border-danger"
@@ -1189,7 +1189,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                onClick={() => setActivePinIndex(activePinIndex === i ? null : i)}
                title={activePinIndex === i ? "Deselect pin" : "Click to place on image"}
                className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                 i === activePinIndex ? "bg-primary text-white" : "bg-coral-300 text-coral-700 hover:bg-primary hover:text-white"
+                 i === activePinIndex ? "bg-primary text-white" : "bg-clay-300 text-clay-700 hover:bg-primary hover:text-white"
                }`}
              >
                {i === activePinIndex ? <MapPinIcon className="h-3.5 w-3.5" /> : i + 1}
@@ -1300,7 +1300,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
                        key={opt}
                        type="button"
                        onClick={() => updateQuestion(i, { correct: opt })}
-                       className={`w-7 h-7 rounded-full text-xs font-bold transition-all ${
+                       className={`w-7 h-7 rounded-full text-xs font-bold transition ${
                          q.correct === opt
                            ? "bg-primary text-white ring-2 ring-primary-soft"
                            : "bg-surface-2 text-text-muted hover:bg-ink-100"

@@ -7,7 +7,7 @@
  *   - top bar  : quit × · progress bar with "N / M" · streak · hearts
  *   - body     : eyebrow + title + the exercise itself
  *   - bottom   : either the action bar (Skip + Check) or a feedback sheet
- *                (green/coral) that swaps in after onCheck.
+ *                (green/clay) that swaps in after onCheck.
  *
  * Adopted from the 2026-05-23 design package (shell.jsx). Styles live in
  * globals.css under `.lf-*` and `.gp-*` so this file stays markup-only.
@@ -251,7 +251,7 @@ export function FeedbackSheet({
           {feedback.explain && <div className="lf-fb-sub">{feedback.explain}</div>}
         </div>
         <button
-          className={"gp-btn " + (ok ? "" : meh ? "ink" : "coral")}
+          className={"gp-btn " + (ok ? "" : meh ? "ink" : "clay")}
           onClick={canRetry ? onRetry : onContinue}
           style={{ padding: "14px 30px" }}
         >
@@ -271,7 +271,7 @@ export function FeedbackSheet({
 const CONFETTI_COLORS = [
   "var(--green-500)",
   "var(--sun-400)",
-  "var(--coral-500)",
+  "var(--clay-500)",
   "var(--green-300)",
   "var(--sun-300)",
 ];

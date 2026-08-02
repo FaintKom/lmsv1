@@ -58,7 +58,7 @@ export function PollPanel({
             setResult(await closePoll(lessonId));
             setRunning(false);
           }}
-          className="btn-pop btn-pop--coral mt-3 w-full rounded-md bg-danger p-2.5 text-sm font-bold text-white"
+          className="btn-pop btn-pop--clay mt-3 w-full rounded-md bg-danger p-2.5 text-sm font-bold text-white"
         >
           {t("live.poll.close")}
         </button>

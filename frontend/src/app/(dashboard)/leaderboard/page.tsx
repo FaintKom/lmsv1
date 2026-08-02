@@ -163,7 +163,7 @@ export default function LeaderboardPage() {
  </span>
  )}
  {entry.current_streak > 0 && (
- <span className="inline-flex items-center gap-0.5 text-[10px] text-coral-700">
+ <span className="inline-flex items-center gap-0.5 text-[10px] text-clay-700">
  <Flame className="h-3 w-3" />
  {entry.current_streak}d
  </span>
