@@ -494,3 +494,68 @@ async def test_reading_strips_answers(client: AsyncClient, student, teacher, org
     assert q["question"] == "Who?"
     assert [o["label"] for o in q["options"]] == ["a hero", "a villain"]
     assert cfg["passage"] == "Once upon a time..."
+
+
+async def test_dialogue_strips_is_correct(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.dialogue,
+        {
+            "context": "At the cafe",
+            "messages": [
+                {"speaker": "waiter", "text": "Hello!"},
+                {
+                    "speaker": "waiter",
+                    "text": "What would you like?",
+                    "options": [
+                        {"id": "a", "label": "A coffee", "is_correct": True},
+                        {"id": "b", "label": "A car", "is_correct": False},
+                    ],
+                },
+            ],
+        },
+    )
+    cfg = await _student_config(client, student, ex)
+    opts = cfg["messages"][1]["options"]
+    assert all("is_correct" not in o for o in opts)
+    assert [o["label"] for o in opts] == ["A coffee", "A car"]
+    # message without options is untouched
+    assert cfg["messages"][0] == {"speaker": "waiter", "text": "Hello!"}
+
+
+async def test_check_dialogue_per_message(client: AsyncClient, student, teacher, org, db):
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.dialogue,
+        {
+            "messages": [
+                {
+                    "speaker": "a",
+                    "text": "q1",
+                    "options": [
+                        {"id": "x", "label": "right", "is_correct": True},
+                        {"id": "y", "label": "wrong", "is_correct": False},
+                    ],
+                },
+                {
+                    "speaker": "a",
+                    "text": "q2",
+                    "options": [
+                        {"id": "p", "label": "right", "is_correct": True},
+                        {"id": "q", "label": "wrong", "is_correct": False},
+                    ],
+                },
+            ]
+        },
+    )
+    resp = await client.post(
+        f"/api/v1/exercises/{ex.id}/check",
+        json={"interactive_answers": {"selections": {"0": "x", "1": "q"}}},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["per_item"] == {"0": True, "1": False}

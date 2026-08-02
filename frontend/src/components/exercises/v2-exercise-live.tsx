@@ -37,6 +37,7 @@ import {
 import { MatchingV2 } from "@/components/exercises/v2/matching-v2";
 import { CategorizeV2 } from "@/components/exercises/v2/categorize-v2";
 import { ReadingV2 } from "@/components/exercises/v2/reading-v2";
+import { DialogueV2 } from "@/components/exercises/v2/dialogue-v2";
 
 interface LiveExercise {
   id: string;
@@ -277,6 +278,33 @@ export function V2ExerciseLive({
         <ReadingV2
           passage={(cfg.passage as string) ?? ""}
           questions={questions}
+          onCheck={onCheck}
+          {...shared}
+        />
+      );
+    }
+    case "dialogue": {
+      const msgs = (cfg.messages as {
+        speaker?: string;
+        text?: string;
+        options?: { id?: string; text?: string; label?: string }[];
+      }[]) ?? [];
+      const steps = msgs
+        .map((m, i) => ({ m, i }))
+        .filter(({ m }) => (m.options?.length ?? 0) > 0)
+        .map(({ m, i }) => ({
+          messageIndex: i,
+          options: (m.options ?? []).map((o, oi) => ({
+            id: o.id ?? String(oi),
+            text: o.label ?? o.text ?? "",
+            // no answer key live — verdicts come from /check
+            correct: false,
+          })),
+        }));
+      return (
+        <DialogueV2
+          messages={msgs.map((m) => ({ speaker: m.speaker ?? "", text: m.text ?? "" }))}
+          steps={steps}
           onCheck={onCheck}
           {...shared}
         />
