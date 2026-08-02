@@ -56,7 +56,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 2: Left Color Bar
  if (style === "leftbar") {
  return (
- <div className={`flex items-center gap-4 rounded-lg border-l-4 ${c.border} bg-paper-2 p-6 shadow-sm transition duration-200 hover:shadow-md`}>
+ <div className={`flex items-center gap-4 rounded-lg border-l-4 ${c.border} bg-surface p-6 shadow-sm transition duration-200 hover:shadow-md`}>
  <div className={`rounded-lg ${c.iconBg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
  </div>
@@ -71,7 +71,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 3: Minimal Clean (icon on top)
  if (style === "minimal") {
  return (
- <div className="rounded-lg bg-paper-2 p-6 shadow-md transition duration-200 hover:shadow-lg">
+ <div className="rounded-lg bg-surface p-6 shadow-md transition duration-200 hover:shadow-lg">
  <div className={`mb-4 inline-flex rounded-lg ${c.iconBg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
  </div>
@@ -84,7 +84,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 4: Glass Morphism
  if (style === "glass") {
  return (
- <div className="relative overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-6 shadow-sm backdrop-blur-sm transition duration-200 hover:shadow-md">
+ <div className="relative overflow-hidden rounded-lg border border-white/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm transition duration-200 hover:shadow-md">
  <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${c.gradient.replace("to-white", `to-transparent`)} ${c.bg}`} />
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.iconBg} p-3`}>
@@ -119,7 +119,7 @@ function StatCard({ stat, style }: { stat: typeof STATS[0]; style: string }) {
  // Style 6: Outlined Accent
  if (style === "outlined") {
  return (
- <div className={`rounded-lg border-2 ${c.border}/30 bg-paper-2 p-6 transition duration-200 hover:${c.border}/60 hover:shadow-md`}>
+ <div className={`rounded-lg border-2 ${c.border}/30 bg-surface p-6 transition duration-200 hover:${c.border}/60 hover:shadow-md`}>
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.bg} p-3 ring-2 ${c.ring}`}>
  <Icon className={`h-5 w-5 ${c.text}`} />
@@ -157,10 +157,10 @@ export default function StylePreviewPage() {
  className={`rounded-lg border-2 px-4 py-3 text-left transition duration-200 ${
  activeStyle === s.id
  ? "border-primary bg-success-soft shadow-md"
- : "border-border bg-paper-2 hover:border-border-strong hover:shadow-sm"
+ : "border-border bg-surface hover:border-border-strong hover:shadow-sm"
  }`}
  >
- <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-success-fg" : "text-ink-700"}`}>
+ <p className={`text-sm font-semibold ${activeStyle === s.id ? "text-success-fg" : "text-text"}`}>
  {s.name}
  </p>
  <p className="mt-0.5 text-[11px] text-text-subtle">{s.desc}</p>
@@ -211,45 +211,45 @@ export default function StylePreviewPage() {
  <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg bg-gradient-to-br ${c.gradient} p-5 shadow-sm transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
  if (activeStyle === "leftbar") {
  return (
- <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-l-4 ${c.border} bg-paper-2 p-5 shadow-sm transition hover:shadow-md`}>
+ <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-l-4 ${c.border} bg-surface p-5 shadow-sm transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
  if (activeStyle === "minimal") {
  return (
- <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-paper-2 p-5 shadow-md transition hover:shadow-lg">
+ <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-surface p-5 shadow-md transition hover:shadow-lg">
  <div className="flex items-center gap-3">
  <div className={`rounded-lg ${c.iconBg} p-2`}>
  <Icon className={`h-4 w-4 ${c.text}`} />
  </div>
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
  if (activeStyle === "glass") {
  return (
- <div key={item.label} className="relative flex cursor-pointer items-center justify-between overflow-hidden rounded-lg border border-white/60 bg-paper-2/70 p-5 shadow-sm backdrop-blur-sm transition hover:shadow-md">
+ <div key={item.label} className="relative flex cursor-pointer items-center justify-between overflow-hidden rounded-lg border border-white/60 bg-surface/70 p-5 shadow-sm backdrop-blur-sm transition hover:shadow-md">
  <div className={`absolute inset-x-0 top-0 h-1 ${c.bg}`} />
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
@@ -258,22 +258,22 @@ export default function StylePreviewPage() {
  <div key={item.label} className="flex cursor-pointer items-center justify-between rounded-lg bg-surface-2 p-5 shadow-[6px_6px_12px_#d1d5db,-6px_-6px_12px_#ffffff] transition hover:shadow-[8px_8px_16px_#d1d5db,-8px_-8px_16px_#ffffff]">
  <div className="flex items-center gap-3">
  <Icon className={`h-5 w-5 ${c.text}`} />
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
  if (activeStyle === "outlined") {
  return (
- <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-2 ${c.border}/30 bg-paper-2 p-5 transition hover:shadow-md`}>
+ <div key={item.label} className={`flex cursor-pointer items-center justify-between rounded-lg border-2 ${c.border}/30 bg-surface p-5 transition hover:shadow-md`}>
  <div className="flex items-center gap-3">
  <div className={`rounded-lg ${c.bg} p-2 ring-2 ${c.ring}`}>
  <Icon className={`h-4 w-4 ${c.text}`} />
  </div>
- <span className="text-sm font-medium text-ink-700">{item.label}</span>
+ <span className="text-sm font-medium text-text">{item.label}</span>
  </div>
- <span className="text-ink-300">&rarr;</span>
+ <span className="text-text-subtle">&rarr;</span>
  </div>
  );
  }
@@ -292,7 +292,7 @@ export default function StylePreviewPage() {
  const Icon = stat.icon;
  const c = colorMap[stat.color];
  return (
- <div key={stat.label} className="rounded-lg border border-border/60 bg-paper-2 p-5 shadow-sm transition hover:shadow-md">
+ <div key={stat.label} className="rounded-lg border border-border/60 bg-surface p-5 shadow-sm transition hover:shadow-md">
  <div className="flex items-center gap-4">
  <div className={`rounded-lg ${c.bg} p-3`}>
  <Icon className={`h-5 w-5 ${c.text}`} />

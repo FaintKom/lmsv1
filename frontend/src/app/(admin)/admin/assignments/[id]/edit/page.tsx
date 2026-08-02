@@ -110,7 +110,7 @@ export default function EditAssignmentPage() {
  {t("admin.assignmentEdit.title")}
  </h1>
 
- <form onSubmit={handleSave} className="space-y-5 rounded-lg border border-border-strong bg-paper-2 p-6 ">
+ <form onSubmit={handleSave} className="space-y-5 rounded-lg border border-border-strong bg-surface p-6 ">
  {/* Course badge (read-only) */}
  {form.course_title && (
  <div>
@@ -132,7 +132,7 @@ export default function EditAssignmentPage() {
  type="text"
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  />
  </div>
@@ -146,7 +146,7 @@ export default function EditAssignmentPage() {
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
  rows={4}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
  </div>
 
@@ -160,7 +160,7 @@ export default function EditAssignmentPage() {
  type="datetime-local"
  value={form.due_date}
  onChange={(e) => setForm({ ...form, due_date: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  />
  </div>
@@ -175,7 +175,7 @@ export default function EditAssignmentPage() {
  onChange={(e) =>
  setForm({ ...form, max_score: parseInt(e.target.value) || 100 })
  }
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
  </div>
  </div>
@@ -186,7 +186,7 @@ export default function EditAssignmentPage() {
  type="checkbox"
  checked={form.allow_late}
  onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
- className="rounded border-ink-300 text-primary focus:ring-green-500"
+ className="rounded border-border-strong text-primary focus:ring-green-500"
  />
  {t("admin.assignments.allowLate")}
  </label>
@@ -198,7 +198,7 @@ export default function EditAssignmentPage() {
  </Button>
  <Link
  href={`/admin/assignments/${id}/review`}
- className="flex items-center gap-1 rounded-lg bg-ink-100 px-4 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-ink-200 "
+ className="flex items-center gap-1 rounded-lg bg-surface-2 px-4 py-2 text-sm font-medium text-text transition-colors hover:bg-ink-200 "
  >
  {t("admin.assignmentEdit.viewSubmissions")} &rarr;
  </Link>

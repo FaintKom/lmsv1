@@ -109,7 +109,7 @@ export default function SettingsPage() {
  </div>
 
  {/* Appearance (theme contract: frontend/design/README.md) */}
- <div className="mb-6 rounded-lg border border-border-strong bg-paper-2">
+ <div className="mb-6 rounded-lg border border-border-strong bg-surface">
  <div className="border-b border-border px-6 py-4">
  <h2 className="font-semibold text-text">{t("profile.theme")}</h2>
  </div>
@@ -119,7 +119,7 @@ export default function SettingsPage() {
  </div>
 
  {/* P2-2: Branding card */}
- <div className="rounded-lg border border-border-strong bg-paper-2 ">
+ <div className="rounded-lg border border-border-strong bg-surface ">
  <div className="border-b border-border px-6 py-4 ">
  <h2 className="font-semibold text-text ">{t("admin.settings.brandingTitle")}</h2>
  <p className="text-xs text-text-subtle ">
@@ -128,7 +128,7 @@ export default function SettingsPage() {
  </div>
  <div className="space-y-5 p-6">
  <div>
- <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="displayName" className="mb-1 block text-sm font-medium text-text ">
  {t("admin.settings.displayName")}
  </label>
  <input
@@ -137,13 +137,13 @@ export default function SettingsPage() {
  value={displayName}
  onChange={(e) => setDisplayName(e.target.value)}
  placeholder={t("admin.settings.displayNamePlaceholder")}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  />
  <p className="mt-1 text-xs text-text-subtle">{t("admin.settings.displayNameHint")}</p>
  </div>
 
  <div>
- <label htmlFor="logoUrl" className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="logoUrl" className="mb-1 block text-sm font-medium text-text ">
  {t("admin.settings.logoUrl")}
  </label>
  <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function SettingsPage() {
  value={logoUrl}
  onChange={(e) => setLogoUrl(e.target.value)}
  placeholder="https://example.com/logo.png"
- className="flex-1 rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  />
  {logoUrl && (
  <img
@@ -168,7 +168,7 @@ export default function SettingsPage() {
  </div>
 
  <div>
- <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="primaryColor" className="mb-1 block text-sm font-medium text-text ">
  {t("admin.settings.primaryColor")}
  </label>
  <div className="flex items-center gap-3">
@@ -177,13 +177,13 @@ export default function SettingsPage() {
  type="color"
  value={primaryColor}
  onChange={(e) => setPrimaryColor(e.target.value)}
- className="h-10 w-10 cursor-pointer rounded-lg border border-ink-300 p-0.5 "
+ className="h-10 w-10 cursor-pointer rounded-lg border border-border-strong p-0.5 "
  />
  <input
  type="text"
  value={primaryColor}
  onChange={(e) => setPrimaryColor(e.target.value)}
- className="w-28 rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
+ className="w-28 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
  placeholder="#6366f1"
  />
  <div
@@ -195,7 +195,7 @@ export default function SettingsPage() {
  </div>
 
  <div>
- <label htmlFor="secondaryColor" className="mb-1 block text-sm font-medium text-ink-700 ">
+ <label htmlFor="secondaryColor" className="mb-1 block text-sm font-medium text-text ">
  {t("admin.settings.secondaryColor")}
  </label>
  <div className="flex items-center gap-3">
@@ -204,13 +204,13 @@ export default function SettingsPage() {
  type="color"
  value={secondaryColor}
  onChange={(e) => setSecondaryColor(e.target.value)}
- className="h-10 w-10 cursor-pointer rounded-lg border border-ink-300 p-0.5 "
+ className="h-10 w-10 cursor-pointer rounded-lg border border-border-strong p-0.5 "
  />
  <input
  type="text"
  value={secondaryColor}
  onChange={(e) => setSecondaryColor(e.target.value)}
- className="w-28 rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
+ className="w-28 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
  placeholder="#3b82f6"
  />
  <div
@@ -223,7 +223,7 @@ export default function SettingsPage() {
  </div>
  </div>
 
- <div className="rounded-lg border border-border-strong bg-paper-2 ">
+ <div className="rounded-lg border border-border-strong bg-surface ">
  <div className="border-b border-border px-6 py-4 ">
  <h2 className="font-semibold text-text ">{t("admin.settings.menuVisibility")}</h2>
  <p className="text-xs text-text-subtle ">
@@ -237,7 +237,7 @@ export default function SettingsPage() {
  className="flex cursor-pointer items-center justify-between px-6 py-3 hover:bg-surface-2 "
  >
  <div>
- <span className="text-sm font-medium text-ink-700 ">
+ <span className="text-sm font-medium text-text ">
  {t(item.labelKey)}
  </span>
  {item.adminOnly && (
@@ -254,7 +254,7 @@ export default function SettingsPage() {
  className="sr-only peer"
  />
  <div className="h-6 w-11 rounded-pill bg-ink-200 peer-checked:bg-primary transition-colors" />
- <div className="absolute left-0.5 top-0.5 h-5 w-5 rounded-pill bg-paper-2 shadow transition-transform peer-checked:translate-x-5" />
+ <div className="absolute left-0.5 top-0.5 h-5 w-5 rounded-pill bg-surface shadow transition-transform peer-checked:translate-x-5" />
  </div>
  </label>
  ))}

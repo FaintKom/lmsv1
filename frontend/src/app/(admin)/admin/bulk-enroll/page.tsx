@@ -301,7 +301,7 @@ export default function BulkEnrollPage() {
  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
  mode === "enroll"
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted hover:bg-ink-200 "
+ : "bg-surface-2 text-text-muted hover:bg-ink-200 "
  }`}
  >
  <Users className="h-4 w-4" />
@@ -312,7 +312,7 @@ export default function BulkEnrollPage() {
  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
  mode === "import"
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted hover:bg-ink-200 "
+ : "bg-surface-2 text-text-muted hover:bg-ink-200 "
  }`}
  >
  <UserPlus className="h-4 w-4" />
@@ -333,7 +333,7 @@ export default function BulkEnrollPage() {
  <select
  value={courseId}
  onChange={(e) => setCourseId(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text "
  >
  <option value="">{t("admin.bulkEnroll.selectCourseOption")}</option>
  {courses.map((c) => (
@@ -359,7 +359,7 @@ export default function BulkEnrollPage() {
  <select
  value={groupId}
  onChange={(e) => setGroupId(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text "
  >
  <option value="">{t("admin.bulkEnroll.noGroupOption")}</option>
  {groups.map((g) => (
@@ -383,9 +383,9 @@ export default function BulkEnrollPage() {
  <CardContent className="space-y-4">
  <div className="flex items-center justify-between">
  <p className="text-xs font-medium text-text-muted ">
- Format: header row with <code className="rounded bg-ink-100 px-1 ">email</code> (required),{" "}
- <code className="rounded bg-ink-100 px-1 ">name</code> and{" "}
- <code className="rounded bg-ink-100 px-1 ">password</code> (optional).
+ Format: header row with <code className="rounded bg-surface-2 px-1 ">email</code> (required),{" "}
+ <code className="rounded bg-surface-2 px-1 ">name</code> and{" "}
+ <code className="rounded bg-surface-2 px-1 ">password</code> (optional).
  </p>
  <button
  type="button"
@@ -406,7 +406,7 @@ export default function BulkEnrollPage() {
  className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
  isDragging
  ? "border-primary bg-success-soft "
- : "border-ink-300 bg-surface-2 hover:border-ink-400 "
+ : "border-border-strong bg-surface-2 hover:border-ink-400 "
  }`}
  >
  <Upload className={`mb-2 h-8 w-8 ${isDragging ? "text-primary" : "text-text-subtle"}`} />
@@ -433,7 +433,7 @@ export default function BulkEnrollPage() {
 
  {/* Manual textarea */}
  <details className="group">
- <summary className="cursor-pointer text-xs font-medium text-text-muted hover:text-ink-700 ">
+ <summary className="cursor-pointer text-xs font-medium text-text-muted hover:text-text ">
  {t("admin.bulkEnroll.pasteManually")}
  </summary>
  <textarea
@@ -445,7 +445,7 @@ export default function BulkEnrollPage() {
  }}
  placeholder={CSV_TEMPLATE}
  rows={8}
- className="mt-2 w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs text-text "
+ className="mt-2 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 font-mono text-xs text-text "
  />
  </details>
 
@@ -498,7 +498,7 @@ export default function BulkEnrollPage() {
  <tr key={i} className="hover:bg-surface-2 ">
  <td className="px-3 py-1.5 text-text-subtle">{i + 1}</td>
  <td className="px-3 py-1.5 font-mono text-text ">{row.email}</td>
- <td className="px-3 py-1.5 text-ink-700 ">{row.full_name || <span className="italic text-text-subtle">{t("admin.bulkEnroll.autoLabel")}</span>}</td>
+ <td className="px-3 py-1.5 text-text ">{row.full_name || <span className="italic text-text-subtle">{t("admin.bulkEnroll.autoLabel")}</span>}</td>
  <td className="px-3 py-1.5 text-text-muted">{row.password ? "***" : <span className="italic text-text-subtle">{mode === "enroll" ? t("admin.bulkEnroll.defaultLabel") : t("admin.bulkEnroll.randomLabel")}</span>}</td>
  </tr>
  ))}
@@ -524,7 +524,7 @@ export default function BulkEnrollPage() {
  value={defaultPassword}
  onChange={(e) => setDefaultPassword(e.target.value)}
  placeholder="Welcome2026!"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text "
  />
  <p className="mt-1 text-xs text-text-muted ">
  {t("admin.bulkEnroll.defaultPasswordHint")}
@@ -629,7 +629,7 @@ export default function BulkEnrollPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
  return (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-3 text-center ">
+ <div className="rounded-lg border border-border-strong bg-surface p-3 text-center ">
  <div className="text-2xl font-bold text-text ">{value}</div>
  <div className="text-xs text-text-muted ">{label}</div>
  </div>

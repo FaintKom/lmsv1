@@ -127,7 +127,7 @@ export default function OrganizationsPage() {
  </div>
 
  {showCreate && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4 ">
+ <div className="rounded-lg border border-border-strong bg-surface p-4 ">
  <h3 className="mb-3 font-semibold text-text ">{t("admin.organizations.createOrg")}</h3>
  <div className="flex items-end gap-3">
  <div className="flex-1">
@@ -140,7 +140,7 @@ export default function OrganizationsPage() {
  value={newOrgName}
  onChange={(e) => setNewOrgName(e.target.value)}
  placeholder={t("admin.organizations.orgNamePlaceholder")}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  onKeyDown={(e) => e.key === "Enter" && createOrg()}
  disabled={creating}
  />
@@ -159,7 +159,7 @@ export default function OrganizationsPage() {
  {orgs.map((org) => (
  <div
  key={org.id}
- className="flex items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-4 "
+ className="flex items-center gap-4 rounded-lg border border-border-strong bg-surface p-4 "
  >
  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-soft ">
  <Building2 className="h-6 w-6 text-primary " />
@@ -178,7 +178,7 @@ export default function OrganizationsPage() {
  <button onClick={saveEdit} className="rounded p-1 text-primary hover:bg-success-soft ">
  <Check className="h-4 w-4" />
  </button>
- <button onClick={() => setEditingId(null)} className="rounded p-1 text-text-subtle hover:bg-ink-100 ">
+ <button onClick={() => setEditingId(null)} className="rounded p-1 text-text-subtle hover:bg-surface-2 ">
  <X className="h-4 w-4" />
  </button>
  </div>
@@ -196,7 +196,7 @@ export default function OrganizationsPage() {
  <div className="flex items-center gap-1">
  <button
  onClick={() => startEdit(org)}
- className="rounded-lg p-2 text-text-subtle hover:bg-ink-100 hover:text-text-muted "
+ className="rounded-lg p-2 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
  title={t("admin.organizations.editTitle")}
  >
  <Pencil className="h-4 w-4" />

@@ -85,10 +85,10 @@ export default function AdminLayout({
  <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
  <div className="flex flex-1 flex-col overflow-hidden">
  {/* Mobile top bar */}
- <div className="flex h-14 items-center border-b border-border-strong/60 bg-paper-2 px-4 md:hidden ">
+ <div className="flex h-14 items-center border-b border-border-strong/60 bg-surface px-4 md:hidden ">
  <button
  onClick={() => setSidebarOpen(true)}
- className="rounded-lg p-2 text-text-muted hover:bg-ink-100 "
+ className="rounded-lg p-2 text-text-muted hover:bg-surface-2 "
  aria-label="Open menu"
  >
  <Menu className="h-5 w-5" />

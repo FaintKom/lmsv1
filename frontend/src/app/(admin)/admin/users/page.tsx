@@ -190,7 +190,7 @@ export default function AdminUsersPage() {
  placeholder={t("admin.users.fullName")}
  value={form.full_name}
  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
- className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
  required
  />
  <input
@@ -198,7 +198,7 @@ export default function AdminUsersPage() {
  placeholder={t("common.email")}
  value={form.email}
  onChange={(e) => setForm({ ...form, email: e.target.value })}
- className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
  required
  />
  <input
@@ -206,13 +206,13 @@ export default function AdminUsersPage() {
  placeholder={t("admin.users.password")}
  value={form.password}
  onChange={(e) => setForm({ ...form, password: e.target.value })}
- className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
  required
  />
  <select
  value={form.role}
  onChange={(e) => setForm({ ...form, role: e.target.value })}
- className="rounded-lg border border-ink-300 bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
+ className="rounded-lg border border-border-strong bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-green-500"
  >
  <option value="student">student</option>
  <option value="teacher">teacher</option>
@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
  {u.is_methodist ? t("admin.users.methodist") : t("admin.users.regular")}
  </button>
  ) : (
- <span className="text-xs text-ink-300">—</span>
+ <span className="text-xs text-text-subtle">—</span>
  )}
  </td>
  {isSuperAdmin && (
@@ -321,7 +321,7 @@ export default function AdminUsersPage() {
  <div className="flex items-center gap-1">
  <button
  onClick={() => handleResetPassword(u.id, u.email)}
- className="rounded p-1 text-ink-300 hover:bg-success-soft hover:text-primary"
+ className="rounded p-1 text-text-subtle hover:bg-success-soft hover:text-primary"
  title={t("admin.users.resetPasswordTitle")}
  >
  <KeyRound className="h-4 w-4" />

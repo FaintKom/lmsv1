@@ -84,12 +84,12 @@ export default function WaitlistPage() {
  </div>
 
  {entries.length === 0 ? (
- <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong bg-paper-2 p-12 text-center">
+ <div className="flex flex-col items-center gap-3 rounded-lg border border-border-strong bg-surface p-12 text-center">
  <Mail className="h-8 w-8 text-text-subtle" aria-hidden="true" />
  <p className="text-sm text-text-muted">{t("admin.waitlist.empty")}</p>
  </div>
  ) : (
- <div className="overflow-x-auto rounded-lg border border-border-strong bg-paper-2">
+ <div className="overflow-x-auto rounded-lg border border-border-strong bg-surface">
  <table className="w-full text-left text-sm">
  <thead className="border-b border-border-strong text-xs uppercase text-text-muted">
  <tr>

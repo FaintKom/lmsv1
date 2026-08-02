@@ -213,14 +213,14 @@ export default function GroupsPage() {
  {showCreate && (
  <Card className="mb-6">
  <CardContent className="p-5">
- <h3 className="mb-3 font-semibold text-ink-700 ">{t("admin.groups.createGroup")}</h3>
+ <h3 className="mb-3 font-semibold text-text ">{t("admin.groups.createGroup")}</h3>
  <div className="space-y-3">
  <input
  type="text"
  placeholder={t("admin.groups.namePlaceholder")}
  value={newName}
  onChange={(e) => setNewName(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  autoFocus
  />
  <input
@@ -228,7 +228,7 @@ export default function GroupsPage() {
  placeholder={t("admin.groups.descPlaceholder")}
  value={newDesc}
  onChange={(e) => setNewDesc(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  />
  <div className="flex gap-2">
  <Button size="sm" onClick={createGroup} disabled={!newName.trim()}>
@@ -250,7 +250,7 @@ export default function GroupsPage() {
  {/* Groups List */}
  {groups.length === 0 ? (
  <div className="flex flex-col items-center justify-center py-16 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4">
  <UsersRound className="h-8 w-8 text-text-subtle" />
  </div>
  <p className="text-sm text-text-muted ">
@@ -278,7 +278,7 @@ export default function GroupsPage() {
  </div>
  <div className="flex items-center gap-3">
  <StartLessonButton groupId={g.id} />
- <span className="rounded-pill bg-ink-100 px-2.5 py-1 text-xs font-medium text-text-muted ">
+ <span className="rounded-pill bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-muted ">
  {g.member_count} {t("admin.groups.members")}
  </span>
  {expandedGroup === g.id ? (
@@ -333,8 +333,8 @@ export default function GroupsPage() {
 
  {/* Add Members Panel */}
  {addingMembers === g.id && (
- <div className="mb-4 rounded-lg border border-border-strong bg-paper-2 p-4">
- <h4 className="mb-2 text-sm font-medium text-ink-700 ">
+ <div className="mb-4 rounded-lg border border-border-strong bg-surface p-4">
+ <h4 className="mb-2 text-sm font-medium text-text ">
  {t("admin.groups.selectUsersToAdd")}
  </h4>
  <div className="relative mb-2">
@@ -380,9 +380,9 @@ export default function GroupsPage() {
  );
  }
  }}
- className="rounded border-ink-300"
+ className="rounded border-border-strong"
  />
- <span className="font-medium text-ink-700 ">
+ <span className="font-medium text-text ">
  {u.full_name}
  </span>
  <span className="text-xs text-text-subtle">
@@ -421,8 +421,8 @@ export default function GroupsPage() {
 
  {/* Enroll in Course Panel */}
  {enrollingGroup === g.id && (
- <div className="mb-4 rounded-lg border border-border-strong bg-paper-2 p-4">
- <h4 className="mb-2 text-sm font-medium text-ink-700 ">
+ <div className="mb-4 rounded-lg border border-border-strong bg-surface p-4">
+ <h4 className="mb-2 text-sm font-medium text-text ">
  {t("admin.groups.selectCourseToEnroll")}
  </h4>
  <select
@@ -475,14 +475,14 @@ export default function GroupsPage() {
  {members[g.id].map((m) => (
  <div
  key={m.id}
- className="flex items-center justify-between rounded-lg bg-paper-2 px-3 py-2"
+ className="flex items-center justify-between rounded-lg bg-surface px-3 py-2"
  >
  <div className="flex items-center gap-2">
  <div className="flex h-7 w-7 items-center justify-center rounded-pill bg-primary-soft text-xs font-bold text-primary">
  {m.full_name.charAt(0).toUpperCase()}
  </div>
  <div>
- <p className="text-sm font-medium text-ink-700 ">
+ <p className="text-sm font-medium text-text ">
  {m.full_name}
  </p>
  <p className="text-xs text-text-subtle">

@@ -215,7 +215,7 @@ export default function AdminTeamProjectsPage() {
             <Card key={p.id}>
               <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-ink-700">{p.title}</h3>
+                  <h3 className="text-sm font-semibold text-text">{p.title}</h3>
                   <p className="mt-1 text-xs text-text-muted">
                     {t("teamProjects.members")}: {p.member_count}/{p.max_team_size}
                   </p>
@@ -223,7 +223,7 @@ export default function AdminTeamProjectsPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setSelectedId(selectedId === p.id ? null : p.id)}
-                    className="flex items-center gap-1.5 rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
+                    className="flex items-center gap-1.5 rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
                   >
                     <Users className="h-3.5 w-3.5" /> {t("teamProjects.viewTeam")}
                   </button>
@@ -245,7 +245,7 @@ export default function AdminTeamProjectsPage() {
         <Card>
           <CardContent className="space-y-4 p-4">
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-ink-700">
+              <h3 className="mb-2 text-sm font-semibold text-text">
                 {t("teamProjects.teamMembers")}
               </h3>
               {membersQuery.isLoading ? (
@@ -278,7 +278,7 @@ export default function AdminTeamProjectsPage() {
             </div>
 
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-ink-700">
+              <h3 className="mb-2 text-sm font-semibold text-text">
                 {t("teamProjects.submissions")}
               </h3>
               {submissionsQuery.isLoading ? (

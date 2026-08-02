@@ -79,7 +79,7 @@ export default function AssignmentReviewPage() {
  case "late":
  return <span className="rounded-pill bg-clay-300 px-2.5 py-0.5 text-xs font-medium text-clay-700 ">{t("admin.assignmentReview.statusLate")}</span>;
  default:
- return <span className="rounded-pill bg-ink-100 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{status}</span>;
+ return <span className="rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-text-muted ">{status}</span>;
  }
  };
 
@@ -90,7 +90,7 @@ export default function AssignmentReviewPage() {
 
  <Link
  href="/admin/assignments"
- className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-ink-700 "
+ className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-text "
  >
  <ArrowLeft className="h-4 w-4" /> {t("admin.assignmentReview.backToAssignments")}
  </Link>
@@ -174,7 +174,7 @@ export default function AssignmentReviewPage() {
  {sub.content && (
  <div className="mb-4">
  <p className="mb-1 text-xs font-medium text-text-muted ">{t("admin.assignmentReview.answerLabel")}</p>
- <div className="whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm text-ink-700 ">
+ <div className="whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm text-text ">
  {sub.content}
  </div>
  </div>
@@ -184,7 +184,7 @@ export default function AssignmentReviewPage() {
  <p className="mb-1 text-xs font-medium text-text-muted ">{t("admin.assignmentReview.attachedFile")}</p>
  <a
  href={`${process.env.NEXT_PUBLIC_API_URL || ""}/api/v1/assignments/${assignmentId}/submissions/${sub.id}/file`}
- className="inline-flex items-center gap-1.5 rounded-lg bg-surface-2 px-3 py-2 text-sm text-primary hover:bg-ink-100 "
+ className="inline-flex items-center gap-1.5 rounded-lg bg-surface-2 px-3 py-2 text-sm text-primary hover:bg-surface-2 "
  target="_blank"
  rel="noopener noreferrer"
  >
@@ -212,7 +212,7 @@ export default function AssignmentReviewPage() {
  onChange={(e) =>
  setGrading({ ...grading, [sub.id]: { ...g, score: e.target.value } })
  }
- className="w-24 rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-24 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
  </div>
  <div className="flex-1">
@@ -224,7 +224,7 @@ export default function AssignmentReviewPage() {
  setGrading({ ...grading, [sub.id]: { ...g, feedback: e.target.value } })
  }
  placeholder={t("admin.assignmentReview.feedbackPlaceholder")}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
  </div>
  <Button

@@ -137,7 +137,7 @@ export default function AdminAssignmentsPage() {
  placeholder={t("admin.assignments.assignmentTitlePlaceholder")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  autoFocus
  />
@@ -145,7 +145,7 @@ export default function AdminAssignmentsPage() {
  placeholder={t("admin.assignments.descriptionPlaceholder")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  rows={3}
  />
  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -154,7 +154,7 @@ export default function AdminAssignmentsPage() {
  <select
  value={form.course_id}
  onChange={(e) => setForm({ ...form, course_id: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  >
  <option value="">{t("admin.assignments.selectCourse")}</option>
@@ -168,7 +168,7 @@ export default function AdminAssignmentsPage() {
  <select
  value={form.group_id}
  onChange={(e) => setForm({ ...form, group_id: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  >
  <option value="">{t("admin.assignments.allStudents")}</option>
  {groups.map((g) => (
@@ -184,7 +184,7 @@ export default function AdminAssignmentsPage() {
  type="datetime-local"
  value={form.due_date}
  onChange={(e) => setForm({ ...form, due_date: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  />
  </div>
@@ -195,7 +195,7 @@ export default function AdminAssignmentsPage() {
  min={1}
  value={form.max_score}
  onChange={(e) => setForm({ ...form, max_score: parseInt(e.target.value) || 100 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  />
  </div>
  <div className="flex items-end">
@@ -204,7 +204,7 @@ export default function AdminAssignmentsPage() {
  type="checkbox"
  checked={form.allow_late}
  onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
- className="rounded border-ink-300 text-primary focus:ring-green-500"
+ className="rounded border-border-strong text-primary focus:ring-green-500"
  />
  {t("admin.assignments.allowLate")}
  </label>
@@ -221,7 +221,7 @@ export default function AdminAssignmentsPage() {
  {assignments.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <ClipboardList className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
@@ -243,7 +243,7 @@ export default function AdminAssignmentsPage() {
  >
  <CardContent className="flex items-center gap-4">
  <div className="hidden shrink-0 sm:block">
- <div className={`rounded-lg p-3 ${isPast(a.due_date) ? "bg-ink-100 " : "bg-primary-soft "}`}>
+ <div className={`rounded-lg p-3 ${isPast(a.due_date) ? "bg-surface-2 " : "bg-primary-soft "}`}>
  <ClipboardList className={`h-5 w-5 ${isPast(a.due_date) ? "text-text-subtle" : "text-primary "}`} />
  </div>
  </div>

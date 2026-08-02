@@ -95,7 +95,7 @@ export default function ReviewQueuePage() {
  {items.length === 0 && !selected ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <InboxIcon className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
@@ -117,7 +117,7 @@ export default function ReviewQueuePage() {
  className={`w-full text-left rounded-lg border p-4 transition ${
  selected?.id === item.id
  ? "border-primary bg-success-soft shadow-sm "
- : "border-border-strong bg-paper-2 hover:border-ink-300 hover:shadow-sm "
+ : "border-border-strong bg-surface hover:border-border-strong hover:shadow-sm "
  }`}
  >
  <div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ export default function ReviewQueuePage() {
  )}
  </div>
  </div>
- <ChevronRight className="h-4 w-4 text-ink-300 " />
+ <ChevronRight className="h-4 w-4 text-text-subtle " />
  </div>
  </button>
  ))}
@@ -175,7 +175,7 @@ export default function ReviewQueuePage() {
  <label className="mb-1 block text-xs font-medium text-text-muted ">
  {t("admin.review.studentAnswer")}
  </label>
- <div className="max-h-64 overflow-y-auto rounded-lg border border-border-strong bg-surface-2 p-3 text-sm whitespace-pre-wrap text-ink-700 ">
+ <div className="max-h-64 overflow-y-auto rounded-lg border border-border-strong bg-surface-2 p-3 text-sm whitespace-pre-wrap text-text ">
  {selected.content}
  </div>
  </div>
@@ -205,7 +205,7 @@ export default function ReviewQueuePage() {
 
  {/* Grade form */}
  <div className="border-t border-border-strong pt-4 ">
- <h4 className="mb-3 text-sm font-semibold text-ink-700 ">
+ <h4 className="mb-3 text-sm font-semibold text-text ">
  {t("admin.review.gradeSubmission")}
  </h4>
  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -219,7 +219,7 @@ export default function ReviewQueuePage() {
  max={selected.max_score}
  value={score}
  onChange={(e) => setScore(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  placeholder={t("admin.review.scorePlaceholder")}
  />
  </div>
@@ -232,7 +232,7 @@ export default function ReviewQueuePage() {
  value={feedback}
  onChange={(e) => setFeedback(e.target.value)}
  rows={3}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  placeholder={t("admin.review.feedbackPlaceholder")}
  />
  </div>

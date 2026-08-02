@@ -194,7 +194,7 @@ export default function StudentProfilePage() {
               {gamification.badges.map((b) => (
                 <div
                   key={b.badge_id}
-                  className="flex items-center gap-2 rounded-pill bg-paper-2 px-3 py-1.5 text-sm text-text"
+                  className="flex items-center gap-2 rounded-pill bg-surface px-3 py-1.5 text-sm text-text"
                   title={fmtDate(b.earned_at)}
                 >
                   <span aria-hidden>{b.icon || "⭐"}</span>
@@ -229,7 +229,7 @@ export default function StudentProfilePage() {
                           : `${pct}% · ${t("admin.studentProfile.inProgress")}`}
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-pill bg-ink-100">
+                    <div className="h-2 w-full overflow-hidden rounded-pill bg-surface-2">
                       <div
                         className={`h-full rounded-pill ${e.completed_at ? "bg-green-500" : "bg-primary"}`}
                         style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
@@ -399,7 +399,7 @@ export default function StudentProfilePage() {
               {certificates.map((c) => (
                 <li
                   key={c.course_id}
-                  className="flex items-center justify-between rounded-lg bg-paper-2 px-4 py-2.5 text-sm"
+                  className="flex items-center justify-between rounded-lg bg-surface px-4 py-2.5 text-sm"
                 >
                   <span className="font-medium text-text">{c.course_title}</span>
                   <span className="text-text-muted">

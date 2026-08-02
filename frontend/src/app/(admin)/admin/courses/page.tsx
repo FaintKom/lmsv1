@@ -184,10 +184,10 @@ export default function AdminCoursesPage() {
  const colors: Record<string, string> = {
  draft: "bg-sun-100 text-sun-700",
  published: "bg-green-100 text-green-800",
- archived: "bg-ink-50 text-ink-500",
+ archived: "bg-surface-2 text-text-muted",
  };
  return (
- <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors[status] || "bg-ink-50 text-ink-500"}`}>
+ <span className={`rounded-pill px-2.5 py-0.5 text-xs font-bold shadow-sm ${colors[status] || "bg-surface-2 text-text-muted"}`}>
  {status}
  </span>
  );
@@ -239,7 +239,7 @@ export default function AdminCoursesPage() {
  )}
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
- <span className="rounded-pill bg-paper-2/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+ <span className="rounded-pill bg-surface/20 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
  {t("admin.courses.fromTemplate")}
  </span>
  )}
@@ -367,7 +367,7 @@ export default function AdminCoursesPage() {
  placeholder={t("admin.courses.courseTitle")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
  required
  autoFocus
  />
@@ -375,7 +375,7 @@ export default function AdminCoursesPage() {
  placeholder={t("common.description")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
  rows={3}
  />
  <input
@@ -383,7 +383,7 @@ export default function AdminCoursesPage() {
  placeholder={t("admin.courses.categoryPlaceholder")}
  value={form.category}
  onChange={(e) => setForm({ ...form, category: e.target.value })}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-info focus:outline-none"
  />
  {canCreateTemplate && (
  <label className="flex items-center gap-2 text-sm text-text-muted ">
@@ -439,7 +439,7 @@ export default function AdminCoursesPage() {
  {courses.filter((c) => !c.is_template).length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <BookOpen className="h-8 w-8 text-text-subtle" />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">{t("admin.courses.noCoursesYet")}</h3>

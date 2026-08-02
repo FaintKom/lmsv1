@@ -190,7 +190,7 @@ export default function AdminPeerReviewPage() {
               <Card key={a.id}>
                 <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
                   <div>
-                    <h3 className="text-sm font-semibold text-ink-700">{a.title}</h3>
+                    <h3 className="text-sm font-semibold text-text">{a.title}</h3>
                     <p className="mt-1 text-xs text-text-muted">
                       {t("peerReview.minReviews")}: {a.min_reviews} &middot;{" "}
                       {t("peerReview.completed")}: {a.completed_reviews}/{a.total_reviews}
@@ -201,7 +201,7 @@ export default function AdminPeerReviewPage() {
                       onClick={() =>
                         setSelectedId(selectedId === a.id ? null : a.id)
                       }
-                      className="flex items-center gap-1.5 rounded-lg bg-ink-100 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
+                      className="flex items-center gap-1.5 rounded-lg bg-surface-2 px-3 py-1.5 text-sm font-medium text-text-muted hover:bg-ink-200"
                     >
                       <Users className="h-3.5 w-3.5" /> {t("peerReview.viewProgress")}
                     </button>
@@ -223,7 +223,7 @@ export default function AdminPeerReviewPage() {
       {selectedId && detailQuery.data && (
         <Card>
           <CardContent className="p-4">
-            <h3 className="mb-3 text-sm font-semibold text-ink-700">
+            <h3 className="mb-3 text-sm font-semibold text-text">
               {t("peerReview.progressTitle")}
             </h3>
             {detailQuery.data.reviews.length === 0 ? (
