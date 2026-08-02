@@ -323,7 +323,7 @@ export default function TeacherLivePage() {
       className={`flex h-14 w-16 flex-col items-center justify-center gap-1 rounded-md transition-colors ${
         rail === key
           ? "bg-primary text-white"
-          : "text-ink-500 hover:bg-surface-2 hover:text-text"
+          : "text-text-muted hover:bg-surface-2 hover:text-text"
       }`}
     >
       <Icon size={17} strokeWidth={2} />
@@ -336,7 +336,7 @@ export default function TeacherLivePage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* top bar */}
-      <div className="flex h-14 items-center gap-3 border-b border-border bg-paper-2 px-5">
+      <div className="flex h-14 items-center gap-3 border-b border-border bg-surface px-5">
         <span className="flex items-center gap-2 font-extrabold text-text">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-clay-500" />
           {t("live.lesson")}
@@ -346,7 +346,7 @@ export default function TeacherLivePage() {
           <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
           {onlineCount} {t("live.online")}
         </span>
-        <span className="rounded-pill bg-ink-100 px-2.5 py-1 font-mono text-[11px] font-bold text-ink-700">
+        <span className="rounded-pill bg-surface-2 px-2.5 py-1 font-mono text-[11px] font-bold text-text">
           {t("live.nowShowing")}: {t(`live.scene.${currentScene?.type ?? "blank"}` as never)}
         </span>
         {!lesson.course_id && (
@@ -361,11 +361,11 @@ export default function TeacherLivePage() {
               disabled={!canPrev}
               aria-label={t("live.prevStep")}
               title={t("live.prevStep")}
-              className="flex h-7 w-7 items-center justify-center rounded-pill text-ink-700 transition-colors hover:bg-ink-100 disabled:opacity-30"
+              className="flex h-7 w-7 items-center justify-center rounded-pill text-text transition-colors hover:bg-surface-2 disabled:opacity-30"
             >
               <ChevronLeft size={15} strokeWidth={2.5} />
             </button>
-            <span className="min-w-9 text-center font-mono text-[11px] font-bold tabular-nums text-ink-700">
+            <span className="min-w-9 text-center font-mono text-[11px] font-bold tabular-nums text-text">
               {stepBase + 1}/{steps.length}
             </span>
             <button
@@ -373,7 +373,7 @@ export default function TeacherLivePage() {
               disabled={!canNext}
               aria-label={t("live.nextStep")}
               title={t("live.nextStep")}
-              className="flex h-7 w-7 items-center justify-center rounded-pill text-ink-700 transition-colors hover:bg-ink-100 disabled:opacity-30"
+              className="flex h-7 w-7 items-center justify-center rounded-pill text-text transition-colors hover:bg-surface-2 disabled:opacity-30"
             >
               <ChevronRight size={15} strokeWidth={2.5} />
             </button>
@@ -383,7 +383,7 @@ export default function TeacherLivePage() {
               title={t("live.programme")}
               aria-expanded={editingProgramme}
               className={`flex h-7 w-7 items-center justify-center rounded-pill transition-colors ${
-                editingProgramme ? "bg-ink-100 text-text" : "text-ink-700 hover:bg-ink-100"
+                editingProgramme ? "bg-surface-2 text-text" : "text-text hover:bg-surface-2"
               }`}
             >
               <ListOrdered size={15} strokeWidth={2.5} />
@@ -418,7 +418,7 @@ export default function TeacherLivePage() {
                       onClick={() => moveStep(i, -1)}
                       disabled={i === 0}
                       aria-label={t("live.prevStep")}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100 disabled:opacity-30"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-text hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ChevronUp size={14} strokeWidth={2.5} />
                     </button>
@@ -426,7 +426,7 @@ export default function TeacherLivePage() {
                       onClick={() => moveStep(i, 1)}
                       disabled={i === fullSteps.length - 1}
                       aria-label={t("live.nextStep")}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100 disabled:opacity-30"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-text hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ChevronDown size={14} strokeWidth={2.5} />
                     </button>
@@ -434,7 +434,7 @@ export default function TeacherLivePage() {
                       onClick={() => toggleStep(i)}
                       aria-label={t("live.stepHidden")}
                       aria-pressed={!!s.hidden}
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-ink-700 hover:bg-ink-100"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-text hover:bg-surface-2"
                     >
                       {s.hidden ? <EyeOff size={14} strokeWidth={2.5} /> : <Eye size={14} strokeWidth={2.5} />}
                     </button>
@@ -467,7 +467,7 @@ export default function TeacherLivePage() {
                 lesson.follow_mode === "free" ? "strict" : "free",
               ).then(() => qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] }))
             }
-            className="btn-pop btn-pop--secondary rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+            className="btn-pop btn-pop--secondary rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
           >
             {lesson.follow_mode === "strict"
               ? t("live.followMode.strict")
@@ -478,7 +478,7 @@ export default function TeacherLivePage() {
               window.open(`/admin/live/${lessonId}/screen`, "_blank", "noopener,noreferrer")
             }
             title={t("live.projectorHint")}
-            className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+            className="btn-pop btn-pop--secondary inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
           >
             <MonitorPlay size={14} /> {t("live.projector")}
           </button>
@@ -493,7 +493,7 @@ export default function TeacherLivePage() {
 
       <div className="flex min-h-0 flex-1">
         {/* scene rail */}
-        <div className="flex flex-col gap-1.5 border-r border-border bg-paper-2 p-2">
+        <div className="flex flex-col gap-1.5 border-r border-border bg-surface p-2">
           {railBtn("blank", Square, t("live.scene.blank"), () => {
             setRail("blank");
             void setSceneMut.mutateAsync({ type: "blank", payload: {} });
@@ -527,7 +527,7 @@ export default function TeacherLivePage() {
                 />
                 <button
                   onClick={() => setPickingMaterial(true)}
-                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
                 >
                   <BookOpen size={14} /> {t("live.pickMaterial")}
                 </button>
@@ -560,7 +560,7 @@ export default function TeacherLivePage() {
                 <div className="absolute inset-0 z-10" />
                 <button
                   onClick={() => setPickingTask(true)}
-                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-sm border border-border bg-paper-2 px-3.5 py-1.5 text-xs font-bold text-text"
+                  className="btn-pop btn-pop--secondary absolute right-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-text"
                 >
                   <Puzzle size={14} /> {t("live.pickExercise")}
                 </button>
@@ -603,7 +603,7 @@ export default function TeacherLivePage() {
         </div>
 
         {/* right panel */}
-        <div className="flex w-80 flex-col border-l border-border bg-paper-2">
+        <div className="flex w-80 flex-col border-l border-border bg-surface">
           <div className="flex border-b border-border">
             {(["group", "task", "poll"] as const).map((k) => {
               const signalCount =
@@ -663,7 +663,7 @@ export default function TeacherLivePage() {
                 <div className="mt-3 border-t border-border pt-3">
                   <label
                     htmlFor="class-msg"
-                    className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wide text-ink-700"
+                    className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wide text-text"
                   >
                     {t("live.messageAll")}
                   </label>
@@ -672,7 +672,7 @@ export default function TeacherLivePage() {
                     rows={2}
                     value={classMsg}
                     onChange={(e) => setClassMsg(e.target.value)}
-                    className="w-full rounded-md border-2 border-border bg-paper-2 px-3 py-2 text-sm transition-colors placeholder:text-ink-300 focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
+                    className="w-full rounded-md border-2 border-border bg-surface px-3 py-2 text-sm transition-colors placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
                   />
                   <button
                     disabled={!classMsg.trim()}
@@ -711,12 +711,12 @@ export default function TeacherLivePage() {
 
       {confirmEnd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 backdrop-blur-[2px]">
-          <div className="w-full max-w-[420px] rounded-xl bg-paper-2 p-8 shadow-lg">
+          <div className="w-full max-w-[420px] rounded-xl bg-surface p-8 shadow-lg">
             <h3 className="mb-6 text-lg font-bold text-text">{t("live.endConfirm")}</h3>
             <div className="flex justify-end gap-2.5">
               <button
                 onClick={() => setConfirmEnd(false)}
-                className="btn-pop btn-pop--secondary rounded-md border border-border bg-paper-2 px-4 py-2 text-sm font-bold text-text"
+                className="btn-pop btn-pop--secondary rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text"
               >
                 {t("common.cancel")}
               </button>

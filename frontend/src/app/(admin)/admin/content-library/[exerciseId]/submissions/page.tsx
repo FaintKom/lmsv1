@@ -209,7 +209,7 @@ function SubmissionRow({
 
  <div className="flex items-center gap-2">
  <User className="h-4 w-4 text-text-subtle" />
- <span className="text-sm font-medium text-ink-700 ">
+ <span className="text-sm font-medium text-text ">
  {studentName}
  </span>
  </div>
@@ -217,7 +217,7 @@ function SubmissionRow({
  <div className="flex items-center gap-1.5">{passedIcon}</div>
 
  {sub.score !== null && (
- <span className="rounded bg-ink-100 px-2 py-0.5 text-xs font-medium text-text-muted ">
+ <span className="rounded bg-surface-2 px-2 py-0.5 text-xs font-medium text-text-muted ">
  {typeof sub.score === "number" ? sub.score.toFixed(1) : sub.score}%
  </span>
  )}
@@ -228,7 +228,7 @@ function SubmissionRow({
  ? "bg-primary-soft text-success-fg "
  : sub.status === "failed"
  ? "bg-danger-soft text-danger-fg "
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}>
  {sub.status}
  </span>
@@ -275,7 +275,7 @@ function SubmissionRow({
  {!["quiz", "code_challenge", "file_upload"].includes(exerciseType) && sub.answers && (
  <div>
  <p className="mb-2 text-xs font-medium uppercase text-text-subtle">Student Answers</p>
- <pre className="rounded-lg bg-ink-100 p-3 font-mono text-xs text-ink-700 ">
+ <pre className="rounded-lg bg-surface-2 p-3 font-mono text-xs text-text ">
  {JSON.stringify(sub.answers, null, 2)}
  </pre>
  </div>
@@ -293,7 +293,7 @@ function QuizAnswersDetail({ answers }: { answers: Record<string, unknown> }) {
 
  if (!Array.isArray(quizAnswers)) {
  return (
- <pre className="rounded-lg bg-ink-100 p-3 font-mono text-xs text-ink-700 ">
+ <pre className="rounded-lg bg-surface-2 p-3 font-mono text-xs text-text ">
  {JSON.stringify(answers, null, 2)}
  </pre>
  );
@@ -373,7 +373,7 @@ function FileSubmissionDetail({ submission }: { submission: ExerciseSubmission }
  <div className="flex items-center gap-4">
  <FileText className="h-8 w-8 text-text-subtle" />
  <div>
- <p className="text-sm font-medium text-ink-700 ">
+ <p className="text-sm font-medium text-text ">
  {submission.original_filename}
  </p>
  <p className="text-xs text-text-muted">

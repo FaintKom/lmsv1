@@ -332,13 +332,13 @@ export default function LessonEditorPage() {
   const backHref = courseId ? `/admin/courses/${courseId}/edit` : "/admin/courses";
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper">
+    <div className="flex min-h-screen flex-col bg-bg">
       {/* Top bar */}
-      <div className="sticky top-0 z-30 border-b border-border bg-paper/95 backdrop-blur">
+      <div className="sticky top-0 z-30 border-b border-border bg-bg/95 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-3">
           <button
             onClick={() => router.push(backHref)}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-text-muted hover:bg-ink-100 hover:text-text"
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-text-muted hover:bg-surface-2 hover:text-text"
           >
             <ArrowLeft className="h-4 w-4" />
             {courseTitle ? courseTitle : t("admin.lessonEditor.backToCourse")}
@@ -350,7 +350,7 @@ export default function LessonEditorPage() {
               className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${
                 previewMode
                   ? "border-primary bg-primary-soft text-primary"
-                  : "border-border-strong text-text-muted hover:border-ink-300"
+                  : "border-border-strong text-text-muted hover:border-border-strong"
               }`}
             >
               {previewMode ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
@@ -371,7 +371,7 @@ export default function LessonEditorPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("admin.lessonEditor.untitled")}
               disabled={previewMode}
-              className="w-full border-none bg-transparent text-3xl font-bold text-text outline-none placeholder:text-ink-300 disabled:cursor-default"
+              className="w-full border-none bg-transparent text-3xl font-bold text-text outline-none placeholder:text-text-subtle disabled:cursor-default"
             />
             {!previewMode && (
               <div className="flex items-center gap-2 text-sm text-text-subtle">
@@ -462,15 +462,15 @@ function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="group relative my-1 flex h-6 items-center justify-center">
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-transparent group-hover:border-ink-200" />
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-transparent group-hover:border-border-strong" />
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative rounded-full bg-paper px-2 py-0.5 text-[11px] font-medium text-ink-300 opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
+        className="relative rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-text-subtle opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
       >
         <Plus className="inline h-3 w-3" /> add block
       </button>
       {open && (
-        <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 gap-1 rounded-lg border border-border-strong bg-paper p-1 shadow-lg">
+        <div className="absolute left-1/2 top-full z-20 mt-1 flex -translate-x-1/2 gap-1 rounded-lg border border-border-strong bg-bg p-1 shadow-lg">
           <BlockTypeChip icon={<FileText className="h-3 w-3" />} label="Text" onClick={() => { onAdd("text"); setOpen(false); }} />
           <BlockTypeChip icon={<Code className="h-3 w-3" />} label="HTML" onClick={() => { onAdd("html"); setOpen(false); }} />
           <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label="Video" onClick={() => { onAdd("video"); setOpen(false); }} />
@@ -493,7 +493,7 @@ function BlockTypeChip({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-muted hover:bg-ink-100 hover:text-text"
+      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-2 hover:text-text"
     >
       {icon}
       {label}
@@ -534,7 +534,7 @@ function SortableBlock({
           <button
             {...attributes}
             {...listeners}
-            className="cursor-grab rounded p-1 text-ink-300 hover:bg-ink-100 hover:text-text active:cursor-grabbing"
+            className="cursor-grab rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text active:cursor-grabbing"
             title="Drag to reorder"
           >
             <GripVertical className="h-4 w-4" />
@@ -618,7 +618,7 @@ function TextBlockBody({
     );
   }
   return (
-    <div className="rounded-lg border border-transparent transition-colors hover:border-ink-200">
+    <div className="rounded-lg border border-transparent transition-colors hover:border-border-strong">
       <BlockEditor
         content={typeof block.body === "object" ? (block.body as never) : null}
         onChange={(json) => onUpdate({ body: json as never, format: "tiptap" })}
@@ -699,7 +699,7 @@ function ExerciseBlockBody({
   if (previewMode) {
     if (!exercise) {
       return (
-        <div className="rounded-lg border border-dashed border-ink-300 bg-surface-2 p-4 text-center text-sm text-text-subtle">
+        <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-4 text-center text-sm text-text-subtle">
           Empty exercise block
         </div>
       );
@@ -728,7 +728,7 @@ function ExerciseBlockBody({
               <button
                 key={t.value}
                 onClick={() => onPickExerciseType(t.value)}
-                className="flex flex-col items-center gap-1.5 rounded-lg bg-paper px-2 py-2.5 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+                className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
                 title={t.label}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -747,7 +747,7 @@ function ExerciseBlockBody({
     <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
       <div className="mb-3 flex items-center gap-2">
         <TypeIcon className="h-5 w-5 text-text-muted" strokeWidth={1.75} />
-        <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+        <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
           {EXERCISE_TYPE_LABELS[exercise.exercise_type as ExerciseType] || exercise.exercise_type}
         </span>
       </div>

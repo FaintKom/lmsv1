@@ -129,13 +129,13 @@ export default function ContentLibraryPage() {
  </div>
 
  {/* Tabs */}
- <div className="flex gap-1 rounded-lg bg-ink-100 p-1 ">
+ <div className="flex gap-1 rounded-lg bg-surface-2 p-1 ">
  <button
  onClick={() => setActiveTab("templates")}
  className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
  activeTab === "templates"
- ? "bg-paper-2 text-text shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm "
+ : "text-text-muted hover:text-text "
  }`}
  >
  <FileStack className="h-4 w-4" />
@@ -145,8 +145,8 @@ export default function ContentLibraryPage() {
  onClick={() => setActiveTab("exercises")}
  className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
  activeTab === "exercises"
- ? "bg-paper-2 text-text shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm "
+ : "text-text-muted hover:text-text "
  }`}
  >
  <ClipboardList className="h-4 w-4" />
@@ -156,8 +156,8 @@ export default function ContentLibraryPage() {
  onClick={() => setActiveTab("assignments")}
  className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
  activeTab === "assignments"
- ? "bg-paper-2 text-text shadow-sm "
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm "
+ : "text-text-muted hover:text-text "
  }`}
  >
  <ClipboardList className="h-4 w-4" />
@@ -320,7 +320,7 @@ function TemplatesTab() {
  className={`rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase ${
  course.status === "published"
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}
  >
  {course.status}
@@ -340,7 +340,7 @@ function TemplatesTab() {
 
  <div className="mb-3 flex items-center gap-3 text-xs text-text-subtle">
  {course.category && (
- <span className="rounded bg-ink-100 px-1.5 py-0.5 ">
+ <span className="rounded bg-surface-2 px-1.5 py-0.5 ">
  {course.category}
  </span>
  )}
@@ -395,14 +395,14 @@ function TemplatesTab() {
  {/* Copy Modal */}
  {copyModal && (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/40">
- <div className="mx-4 w-full max-w-md rounded-lg bg-paper-2 p-6 shadow-xl ">
+ <div className="mx-4 w-full max-w-md rounded-lg bg-surface p-6 shadow-xl ">
  <div className="mb-4 flex items-center justify-between">
  <h2 className="text-lg font-semibold text-text ">
  {t("admin.contentLibrary.useTemplate")}
  </h2>
  <button
  onClick={() => setCopyModal(null)}
- className="rounded-md p-1 text-text-subtle hover:bg-ink-100 "
+ className="rounded-md p-1 text-text-subtle hover:bg-surface-2 "
  >
  <X className="h-4 w-4" />
  </button>
@@ -437,7 +437,7 @@ function TemplatesTab() {
  className={`flex h-5 w-5 items-center justify-center rounded border ${
  selectedGroups.includes(group.id)
  ? "border-primary bg-primary"
- : "border-ink-300 "
+ : "border-border-strong "
  }`}
  >
  {selectedGroups.includes(group.id) && (
@@ -445,7 +445,7 @@ function TemplatesTab() {
  )}
  </div>
  <div className="flex-1">
- <p className="text-sm font-medium text-ink-700 ">
+ <p className="text-sm font-medium text-text ">
  {group.name}
  </p>
  {group.member_count != null && (
@@ -556,7 +556,7 @@ function ExercisesTab() {
  placeholder={t("admin.contentLibrary.searchByTitleOrId")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-surface py-2 pl-10 pr-4 text-sm text-text placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  </div>
@@ -567,7 +567,7 @@ function ExercisesTab() {
  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
  activeType === "all"
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted hover:bg-ink-200 "
+ : "bg-surface-2 text-text-muted hover:bg-ink-200 "
  }`}
  >
  {t("admin.contentLibrary.allLabel")} ({total})
@@ -581,7 +581,7 @@ function ExercisesTab() {
  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
  activeType === type
  ? EXERCISE_TYPE_COLORS[type]
- : "bg-ink-100 text-text-muted hover:bg-ink-200 "
+ : "bg-surface-2 text-text-muted hover:bg-ink-200 "
  }`}
  >
  <Icon className="h-3.5 w-3.5" />
@@ -630,11 +630,11 @@ function ExercisesTab() {
  onClick={() => router.push(`/admin/content-library/${ex.id}`)}
  >
  <td className="px-2.5 py-0">
- <span className="rounded bg-ink-100 px-2 py-0.5 font-mono text-xs font-medium text-text-muted ">
+ <span className="rounded bg-surface-2 px-2 py-0.5 font-mono text-xs font-medium text-text-muted ">
  {ex.display_id}
  </span>
  </td>
- <td className="px-2.5 py-0 font-medium text-ink-700 ">
+ <td className="px-2.5 py-0 font-medium text-text ">
  {ex.title}
  </td>
  <td className="px-2.5 py-0">
@@ -819,7 +819,7 @@ function AssignmentsTab() {
  );
 
  const inputClass =
- "w-full rounded-lg border border-border-strong bg-paper-2 py-2 px-3 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft ";
+ "w-full rounded-lg border border-border-strong bg-surface py-2 px-3 text-sm text-text placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft ";
 
  return (
  <>
@@ -834,7 +834,7 @@ function AssignmentsTab() {
  placeholder={t("admin.contentLibrary.searchAssignments")}
  value={search}
  onChange={(e) => setSearch(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 py-2 pl-10 pr-4 text-sm text-ink-700 placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
+ className="w-full rounded-lg border border-border-strong bg-surface py-2 pl-10 pr-4 text-sm text-text placeholder-ink-300 outline-none hover:border-primary focus:ring-2 focus:ring-primary-soft "
  />
  </div>
  <Button onClick={() => setShowForm((v) => !v)}>
@@ -942,12 +942,12 @@ function AssignmentsTab() {
  </div>
 
  {/* Allow Late */}
- <label className="flex items-center gap-2 text-sm text-ink-700 ">
+ <label className="flex items-center gap-2 text-sm text-text ">
  <input
  type="checkbox"
  checked={formAllowLate}
  onChange={(e) => setFormAllowLate(e.target.checked)}
- className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary "
+ className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary "
  />
  {t("admin.assignments.allowLate")}
  </label>
@@ -1003,7 +1003,7 @@ function AssignmentsTab() {
  key={a.id}
  className="transition-colors hover:bg-surface-2 "
  >
- <td className="px-2.5 py-0 font-medium text-ink-700 ">
+ <td className="px-2.5 py-0 font-medium text-text ">
  {a.title}
  </td>
  <td className="px-2.5 py-0 text-text-muted ">

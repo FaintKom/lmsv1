@@ -189,7 +189,7 @@ export default function GradebookPage() {
  <select
  value={courseId}
  onChange={(e) => selectCourse(e.target.value)}
- className="rounded-lg border border-border-strong bg-paper-2 px-4 py-2.5 text-sm text-text focus:border-primary focus:outline-none "
+ className="rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm text-text focus:border-primary focus:outline-none "
  >
  <option value="">{t("admin.gradebook.selectCoursePlaceholder")}</option>
  {courses.map((c) => (
@@ -201,7 +201,7 @@ export default function GradebookPage() {
  {!courseId && (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <Table2 className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
@@ -267,7 +267,7 @@ export default function GradebookPage() {
  return (
  <tr
  key={s.id}
- className={`h-8 ${idx % 2 === 0 ? "bg-paper-2" : "bg-surface-2"}`}
+ className={`h-8 ${idx % 2 === 0 ? "bg-surface" : "bg-surface-2"}`}
  >
  <td className="sticky left-0 z-10 bg-inherit px-2.5 py-0 font-medium text-text">
  <Link
@@ -306,7 +306,7 @@ export default function GradebookPage() {
  </span>
  )
  ) : (
- <span className="text-xs text-ink-300 ">&mdash;</span>
+ <span className="text-xs text-text-subtle ">&mdash;</span>
  )}
  </td>
  );
@@ -317,7 +317,7 @@ export default function GradebookPage() {
  {avg}%
  </span>
  ) : (
- <span className="text-xs text-ink-300 ">&mdash;</span>
+ <span className="text-xs text-text-subtle ">&mdash;</span>
  )}
  </td>
  </tr>
@@ -337,7 +337,7 @@ export default function GradebookPage() {
  {avg}{col.max_score !== 100 ? `/${col.max_score}` : "%"}
  </span>
  ) : (
- <span className="text-xs text-ink-300 ">&mdash;</span>
+ <span className="text-xs text-text-subtle ">&mdash;</span>
  )}
  </td>
  );

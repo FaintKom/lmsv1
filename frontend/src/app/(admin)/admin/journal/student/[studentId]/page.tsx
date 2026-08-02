@@ -42,8 +42,8 @@ const RES: Record<
 > = {
   done: {
     dot: "bg-ink-300",
-    badgeBg: "bg-ink-50",
-    badgeFg: "text-ink-500",
+    badgeBg: "bg-surface-2",
+    badgeFg: "text-text-muted",
     labelKey: "journal.activity.resDone",
   },
   correct: {
@@ -66,8 +66,8 @@ const RES: Record<
   },
   skipped: {
     dot: "bg-ink-200",
-    badgeBg: "bg-ink-50",
-    badgeFg: "text-ink-400",
+    badgeBg: "bg-surface-2",
+    badgeFg: "text-text-subtle",
     labelKey: "journal.activity.resSkipped",
   },
 };
@@ -113,7 +113,7 @@ function StudentActivityInner() {
     <div className="px-6 py-5 pb-7">
       <button
         onClick={() => router.back()}
-        className="mb-4 inline-flex items-center gap-1.5 rounded-[9px] border border-ink-100 bg-surface px-3 py-1.5 text-xs font-bold text-ink-500 hover:bg-ink-50"
+        className="mb-4 inline-flex items-center gap-1.5 rounded-[9px] border border-border bg-surface px-3 py-1.5 text-xs font-bold text-text-muted hover:bg-surface-2"
       >
         <ChevronLeft className="h-[15px] w-[15px]" />
         {t("journal.activity.back")}
@@ -160,8 +160,8 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       label: t("journal.activity.kpiExercises"),
       value: String(k.exercises_done),
       Icon: ClipboardList,
-      fg: "text-ink-700",
-      bg: "bg-ink-50",
+      fg: "text-text",
+      bg: "bg-surface-2",
     },
     {
       label: t("journal.activity.kpiCorrect"),
@@ -174,8 +174,8 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       label: t("journal.activity.kpiTime"),
       value: fmtMinutes(k.time_spent_sec, t("journal.activity.minutes")),
       Icon: Clock,
-      fg: "text-ink-700",
-      bg: "bg-ink-50",
+      fg: "text-text",
+      bg: "bg-surface-2",
     },
     {
       label: t("journal.activity.kpiXp"),
@@ -197,7 +197,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
           <h1 className="text-2xl font-extrabold tracking-tight text-text">
             {data.student.name}
           </h1>
-          <div className="mt-0.5 text-[13px] text-ink-500">
+          <div className="mt-0.5 text-[13px] text-text-muted">
             {subtitleParts.join(" · ")}
           </div>
         </div>
@@ -219,7 +219,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
                 >
                   {kpi.value}
                 </div>
-                <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wide text-ink-400">
+                <div className="mt-1 text-[10.5px] font-semibold uppercase tracking-wide text-text-subtle">
                   {kpi.label}
                 </div>
               </div>
@@ -255,13 +255,13 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
         <Card>
           <CardContent className="p-[18px]">
             <div className="mb-3.5 flex items-center gap-1.5">
-              <Clock className="h-[15px] w-[15px] text-ink-500" />
+              <Clock className="h-[15px] w-[15px] text-text-muted" />
               <span className="text-[13px] font-extrabold text-text">
                 {t("journal.activity.eventFeed")}
               </span>
             </div>
             <div className="relative pl-[18px]">
-              <div className="absolute bottom-1 left-1 top-1 w-0.5 bg-ink-100" />
+              <div className="absolute bottom-1 left-1 top-1 w-0.5 bg-surface-2" />
               {data.timeline.map((ev, i) => {
                 const dot =
                   ev.kind === "in"
@@ -272,10 +272,10 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
                     <span
                       className={`absolute -left-[18px] top-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface ${dot}`}
                     />
-                    <div className="font-mono text-[10.5px] font-semibold text-ink-400">
+                    <div className="font-mono text-[10.5px] font-semibold text-text-subtle">
                       {fmtClock(ev.at)}
                     </div>
-                    <div className="mt-px text-[12.5px] font-semibold text-ink-700">
+                    <div className="mt-px text-[12.5px] font-semibold text-text">
                       {ev.text}
                     </div>
                   </div>
@@ -299,13 +299,13 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
   return (
     <Card className="overflow-hidden p-0">
       <div
-        className={`flex items-center gap-3 bg-ink-50 px-[18px] py-3.5 ${
+        className={`flex items-center gap-3 bg-surface-2 px-[18px] py-3.5 ${
           lesson.attended ? "border-b border-ink-50" : ""
         }`}
       >
         <span className="h-[30px] w-2 shrink-0 rounded bg-green-600" />
         {lesson.time && (
-          <span className="font-mono text-xs font-bold text-ink-700">
+          <span className="font-mono text-xs font-bold text-text">
             {lesson.time}
           </span>
         )}
@@ -314,7 +314,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
             {lesson.course_title}
           </div>
           {lesson.topic && (
-            <div className="truncate text-xs text-ink-500">{lesson.topic}</div>
+            <div className="truncate text-xs text-text-muted">{lesson.topic}</div>
           )}
         </div>
         {!lesson.attended ? (
@@ -324,7 +324,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
           </span>
         ) : (
           <span className="flex items-center gap-2.5">
-            <span className="font-mono text-xs font-bold text-ink-500">
+            <span className="font-mono text-xs font-bold text-text-muted">
               {exCount} {t("journal.activity.exShort")}
             </span>
             {correctPct != null && (
@@ -350,11 +350,11 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
                 <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-text">
                   {ex.title}
                 </span>
-                <span className="font-mono text-[10.5px] font-semibold text-ink-400">
+                <span className="font-mono text-[10.5px] font-semibold text-text-subtle">
                   {ex.type}
                 </span>
                 {ex.items && (
-                  <span className="min-w-[30px] text-right font-mono text-[11.5px] font-bold text-ink-700">
+                  <span className="min-w-[30px] text-right font-mono text-[11.5px] font-bold text-text">
                     {ex.items}
                   </span>
                 )}
@@ -368,7 +368,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
           })}
         </div>
       ) : !lesson.attended ? (
-        <div className="px-[18px] py-4 text-[12.5px] text-ink-400">
+        <div className="px-[18px] py-4 text-[12.5px] text-text-subtle">
           {t("journal.activity.absentBody")}
         </div>
       ) : null}

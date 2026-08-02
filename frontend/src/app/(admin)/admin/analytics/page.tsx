@@ -231,7 +231,7 @@ function DashboardHeader({
 
         {switcherOpen ? (
           <div
-            className="absolute mt-12 w-72 bg-paper-2 border border-border rounded-md shadow-lg z-20"
+            className="absolute mt-12 w-72 bg-surface border border-border rounded-md shadow-lg z-20"
             onMouseLeave={() => setSwitcherOpen(false)}
           >
             <ul className="py-1 text-sm">
@@ -280,7 +280,7 @@ function DashboardHeader({
           </button>
           {moreOpen ? (
             <div
-              className="absolute left-0 mt-2 w-56 bg-paper-2 border border-border rounded-md shadow-lg z-20"
+              className="absolute left-0 mt-2 w-56 bg-surface border border-border rounded-md shadow-lg z-20"
               onMouseLeave={() => setMoreOpen(false)}
             >
               <ul className="py-1 text-sm">
@@ -342,7 +342,7 @@ function DashboardHeader({
         </Button>
         {addMenuOpen ? (
           <div
-            className="absolute right-0 mt-2 w-64 bg-paper-2 border border-border rounded-md shadow-lg z-10"
+            className="absolute right-0 mt-2 w-64 bg-surface border border-border rounded-md shadow-lg z-10"
             onMouseLeave={() => setAddMenuOpen(false)}
           >
             <ul className="py-1 text-sm">

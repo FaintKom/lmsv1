@@ -21,8 +21,8 @@ type EditorProps = {
 };
 
 const inputCls =
- "w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
-const labelCls = "mb-1 block text-sm font-medium text-ink-700";
+ "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
+const labelCls = "mb-1 block text-sm font-medium text-text";
 const hintCls = "mt-1 text-xs text-text-muted";
 
 // ─── True / False ────────────────────────────────────────────────────
@@ -198,8 +198,8 @@ export function OrderingConfigEditor({ config, onChange }: EditorProps) {
          <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-soft flex items-center justify-center text-xs font-bold text-primary">{i + 1}</span>
          <input type="text" value={item} onChange={(e) => updateItem(i, e.target.value)} placeholder={`Step ${i + 1}`} className={`flex-1 ${inputCls}`} />
          <div className="flex flex-col">
-           <button type="button" onClick={() => moveItem(i, i - 1)} disabled={i === 0} className="text-text-muted hover:text-ink-700 disabled:opacity-30 text-xs leading-none p-0.5">{"▲"}</button>
-           <button type="button" onClick={() => moveItem(i, i + 1)} disabled={i === items.length - 1} className="text-text-muted hover:text-ink-700 disabled:opacity-30 text-xs leading-none p-0.5">{"▼"}</button>
+           <button type="button" onClick={() => moveItem(i, i - 1)} disabled={i === 0} className="text-text-muted hover:text-text disabled:opacity-30 text-xs leading-none p-0.5">{"▲"}</button>
+           <button type="button" onClick={() => moveItem(i, i + 1)} disabled={i === items.length - 1} className="text-text-muted hover:text-text disabled:opacity-30 text-xs leading-none p-0.5">{"▼"}</button>
          </div>
          {items.length > 2 && (
            <Button variant="ghost" size="sm" onClick={() => removeItem(i)} className="text-danger-fg flex-shrink-0"><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -347,7 +347,7 @@ export function SentenceBuilderConfigEditor({ config, onChange }: EditorProps) {
      {correctOrder.length > 0 && (
        <div className="rounded-lg bg-surface-2 p-3">
          <p className="text-xs font-medium text-text-muted mb-1">Preview (correct sentence):</p>
-         <p className="text-sm text-ink-700 font-medium">{correctOrder.filter(Boolean).join(" ")}</p>
+         <p className="text-sm text-text font-medium">{correctOrder.filter(Boolean).join(" ")}</p>
        </div>
      )}
      <div>
@@ -714,7 +714,7 @@ export function SRSFlashcardConfigEditor({ config, onChange }: EditorProps) {
            onChange={(e) => onChange({ ...config, mastery_threshold: parseFloat(e.target.value) })}
            className="flex-1"
          />
-         <span className="text-sm font-medium text-ink-700 w-12 text-right">{Math.round(mastery * 100)}%</span>
+         <span className="text-sm font-medium text-text w-12 text-right">{Math.round(mastery * 100)}%</span>
        </div>
        <p className={hintCls}>Student must rate this % of cards as &quot;good&quot; or &quot;easy&quot; to pass.</p>
      </div>
@@ -844,7 +844,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
          )}
        </div>
        <div
-         className="inline-grid border border-border-strong bg-paper"
+         className="inline-grid border border-border-strong bg-bg"
          style={{
            gridTemplateColumns: `repeat(${gridSize}, 28px)`,
            gridTemplateRows: `repeat(${gridSize}, 28px)`,
@@ -869,12 +869,12 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    : inActive
                    ? "bg-primary-soft text-primary"
                    : !isEmpty
-                   ? "bg-paper-2 text-ink-700"
+                   ? "bg-surface text-text"
                    : placingIdx !== null && canDrop
-                   ? "cursor-pointer bg-paper hover:bg-primary-soft"
+                   ? "cursor-pointer bg-bg hover:bg-primary-soft"
                    : placingIdx !== null
-                   ? "cursor-not-allowed bg-ink-100/40 text-text-subtle"
-                   : "bg-paper text-text-subtle"
+                   ? "cursor-not-allowed bg-surface-2/40 text-text-subtle"
+                   : "bg-bg text-text-subtle"
                }`}
                title={hasConflict ? "Letter conflict with another word" : ""}
              >
@@ -1165,7 +1165,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-white" : "bg-ink-700 text-white"}`}>
                    {pin.label || i + 1}
                  </span>
-                 <svg className={`h-5 w-4 ${i === activePinIndex ? "text-primary" : "text-ink-700"}`} viewBox="0 0 20 24" fill="currentColor">
+                 <svg className={`h-5 w-4 ${i === activePinIndex ? "text-primary" : "text-text"}`} viewBox="0 0 20 24" fill="currentColor">
                    <path d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 14 10 14s10-6.5 10-14C20 4.5 15.5 0 10 0zm0 13c-1.7 0-3-1.3-3-3s1.3-3 3-3 3 1.3 3 3-1.3 3-3 3z" />
                  </svg>
                </div>
@@ -1292,7 +1292,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
                    value={q.question_text || ""}
                    onChange={(e) => updateQuestion(i, { question_text: e.target.value })}
                    placeholder="Question text (optional)"
-                   className="w-full rounded border border-border-strong bg-paper-2 px-2 py-1 text-xs"
+                   className="w-full rounded border border-border-strong bg-surface px-2 py-1 text-xs"
                  />
                  <div className="flex items-center gap-1.5">
                    {optionLabels.map((opt) => (
@@ -1303,7 +1303,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
                        className={`w-7 h-7 rounded-full text-xs font-bold transition ${
                          q.correct === opt
                            ? "bg-primary text-white ring-2 ring-primary-soft"
-                           : "bg-surface-2 text-text-muted hover:bg-ink-100"
+                           : "bg-surface-2 text-text-muted hover:bg-surface-2"
                        }`}
                      >{opt}</button>
                    ))}

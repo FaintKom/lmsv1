@@ -182,11 +182,11 @@ export default function ExerciseEditorPage() {
  </div>
  </div>
  <div className="flex items-center gap-2">
- <div className="flex rounded-lg bg-ink-100 p-1">
+ <div className="flex rounded-lg bg-surface-2 p-1">
    <button
      onClick={() => setViewMode("form")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-       viewMode === "form" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
+       viewMode === "form" ? "bg-white text-text shadow-sm" : "text-text-muted hover:text-text"
      }`}
    >
      {t("admin.exerciseEditor.formMode")}
@@ -194,7 +194,7 @@ export default function ExerciseEditorPage() {
    <button
      onClick={() => setViewMode("json")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-       viewMode === "json" ? "bg-white text-ink-900 shadow-sm" : "text-text-muted hover:text-ink-700"
+       viewMode === "json" ? "bg-white text-text shadow-sm" : "text-text-muted hover:text-text"
      }`}
    >
      {t("admin.exerciseEditor.jsonMode")}
@@ -222,12 +222,12 @@ export default function ExerciseEditorPage() {
  </CardHeader>
  <CardContent>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700">{t("common.title")}</label>
+ <label className="mb-1 block text-sm font-medium text-text">{t("common.title")}</label>
  <input
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-ink-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  </div>
  </CardContent>
@@ -389,22 +389,22 @@ function QuizConfigEditor({
  return (
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Passing Score (%)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Passing Score (%)</label>
  <input
  type="number"
  value={(config.passing_score as number) ?? 70}
  onChange={(e) => onChange({ ...config, passing_score: parseInt(e.target.value) || 70 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Time Limit (min)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Time Limit (min)</label>
  <input
  type="number"
  value={(config.time_limit_minutes as number) ?? ""}
  onChange={(e) => onChange({ ...config, time_limit_minutes: e.target.value ? parseInt(e.target.value) : null })}
  placeholder="No limit"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  </div>
@@ -424,11 +424,11 @@ function CodeConfigEditor({
  <div className="space-y-4">
  <div className="grid grid-cols-3 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Language</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Language</label>
  <select
  value={(config.language as string) || "python"}
  onChange={(e) => onChange({ ...config, language: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  >
  <option value="python">Python</option>
  <option value="javascript">JavaScript</option>
@@ -438,40 +438,40 @@ function CodeConfigEditor({
  </select>
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Time Limit (s)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Time Limit (s)</label>
  <input
  type="number"
  value={(config.time_limit_seconds as number) ?? 10}
  onChange={(e) => onChange({ ...config, time_limit_seconds: parseInt(e.target.value) || 10 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Memory (MB)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Memory (MB)</label>
  <input
  type="number"
  value={(config.memory_limit_mb as number) ?? 256}
  onChange={(e) => onChange({ ...config, memory_limit_mb: parseInt(e.target.value) || 256 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Starter Code</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Starter Code</label>
  <textarea
  value={(config.starter_code as string) || ""}
  onChange={(e) => onChange({ ...config, starter_code: e.target.value })}
  rows={6}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 font-mono text-xs "
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Solution Code</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Solution Code</label>
  <textarea
  value={(config.solution_code as string) || ""}
  onChange={(e) => onChange({ ...config, solution_code: e.target.value })}
  rows={6}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 font-mono text-xs "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 font-mono text-xs "
  />
  </div>
  </div>
@@ -491,7 +491,7 @@ function FileUploadConfigEditor({
  return (
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Allowed File Types</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Allowed File Types</label>
  <input
  type="text"
  value={allowedTypes.join(", ")}
@@ -499,16 +499,16 @@ function FileUploadConfigEditor({
  onChange({ ...config, allowed_types: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })
  }
  placeholder=".pdf, .png, .jpg"
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Max File Size (MB)</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Max File Size (MB)</label>
  <input
  type="number"
  value={(config.max_file_mb as number) ?? 50}
  onChange={(e) => onChange({ ...config, max_file_mb: parseInt(e.target.value) || 50 })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm "
  />
  </div>
  </div>
@@ -609,7 +609,7 @@ function QuizQuestionsEditor({
  >
  <div className="flex items-start justify-between">
  <div className="flex-1">
- <p className="text-sm font-medium text-ink-700 ">
+ <p className="text-sm font-medium text-text ">
  <span className="mr-2 text-text-subtle">#{idx + 1}</span>
  {q.question_text}
  </p>
@@ -814,13 +814,13 @@ function TestCasesEditor({
  <div className="grid grid-cols-2 gap-3">
  <div>
  <p className="text-[10px] uppercase text-text-subtle">Input</p>
- <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-ink-700 ">
+ <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.input || "(empty)"}
  </pre>
  </div>
  <div>
  <p className="text-[10px] uppercase text-text-subtle">Expected Output</p>
- <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-ink-700 ">
+ <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.expected_output}
  </pre>
  </div>

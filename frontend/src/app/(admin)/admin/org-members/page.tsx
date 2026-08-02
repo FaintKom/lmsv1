@@ -148,7 +148,7 @@ export default function OrgMembersPage() {
  placeholder={t("admin.orgMembers.emailPlaceholder")}
  value={email}
  onChange={(e) => setEmail(e.target.value)}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  disabled={submitting}
  />
  </div>
@@ -163,7 +163,7 @@ export default function OrgMembersPage() {
  id="member-role"
  value={role}
  onChange={(e) => setRole(e.target.value as Role)}
- className="w-full rounded-lg border border-ink-300 bg-paper-2 px-3 py-2 text-sm capitalize focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm capitalize focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-soft"
  disabled={submitting}
  >
  {ROLES.map((r) => (
@@ -204,7 +204,7 @@ export default function OrgMembersPage() {
  </p>
  <p className="truncate text-xs text-text-muted">{m.email}</p>
  </div>
- <span className="rounded-pill bg-ink-100 px-2 py-0.5 text-xs font-medium capitalize text-text-muted">
+ <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-xs font-medium capitalize text-text-muted">
  {m.role}
  </span>
  {!m.is_primary_org && (

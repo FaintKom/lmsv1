@@ -124,7 +124,7 @@ function SortableLessonItem({
  <div className="flex items-start">
  <button
  type="button"
- className="mt-2.5 cursor-grab touch-none p-1 text-ink-300 hover:text-text-muted active:cursor-grabbing"
+ className="mt-2.5 cursor-grab touch-none p-1 text-text-subtle hover:text-text-muted active:cursor-grabbing"
  {...listeners}
  >
  <GripVertical className="h-4 w-4" />
@@ -162,7 +162,7 @@ function SortableBlockItem({
  <div className="flex items-start gap-1">
  <button
  type="button"
- className="mt-2.5 cursor-grab touch-none p-1 text-ink-300 hover:text-text-muted active:cursor-grabbing"
+ className="mt-2.5 cursor-grab touch-none p-1 text-text-subtle hover:text-text-muted active:cursor-grabbing"
  {...listeners}
  >
  <GripVertical className="h-4 w-4" />
@@ -186,7 +186,7 @@ const BLOCK_TYPE_ICONS: Record<string, typeof FileText> = {
 };
 
 const BLOCK_TYPE_COLORS: Record<string, string> = {
- text: "bg-ink-100 text-text-muted ",
+ text: "bg-surface-2 text-text-muted ",
  html: "bg-sun-50 text-warning-fg ",
  video: "bg-danger-soft text-danger-fg ",
  exercise: "bg-success-soft text-primary ",
@@ -267,7 +267,7 @@ const CONTENT_TYPE_OPTIONS = [
 ];
 
 const TYPE_COLORS: Record<string, string> = {
- text: "bg-ink-100 text-text-muted border-border-strong ",
+ text: "bg-surface-2 text-text-muted border-border-strong ",
  video: "bg-danger-soft text-danger-fg border-danger ",
  quiz: "bg-success-soft text-primary border-primary-soft ",
  code_challenge: "bg-success-soft text-primary border-primary-soft ",
@@ -902,7 +902,7 @@ export default function CourseEditorPage() {
  <div className="mb-6 flex items-center justify-between">
  <button
  onClick={() => router.push("/admin/courses")}
- className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-ink-700 "
+ className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-text "
  >
  <ArrowLeft className="h-4 w-4" />
  Back to Courses
@@ -961,31 +961,31 @@ export default function CourseEditorPage() {
  </CardHeader>
  <CardContent className="space-y-4">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Title</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Title</label>
  <input
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Description</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Description</label>
  <textarea
  value={description}
  onChange={(e) => setDescription(e.target.value)}
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Category</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Category</label>
  <input
  type="text"
  value={category}
  onChange={(e) => setCategory(e.target.value)}
  placeholder="e.g., programming, math, languages"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <Button onClick={handleSaveMeta} disabled={saving}>
@@ -1007,7 +1007,7 @@ export default function CourseEditorPage() {
  className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-surface-2 "
  onClick={() => toggleModule(module.id)}
  >
- <GripVertical className="h-4 w-4 text-ink-300" />
+ <GripVertical className="h-4 w-4 text-text-subtle" />
  {expandedModules.has(module.id) ? (
  <ChevronDown className="h-4 w-4 text-text-subtle" />
  ) : (
@@ -1024,7 +1024,7 @@ export default function CourseEditorPage() {
  value={editingModuleTitle}
  onChange={(e) => setEditingModuleTitle(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleUpdateModule(module.id)}
- className="flex-1 rounded border border-ink-300 px-2 py-1 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded border border-border-strong px-2 py-1 text-sm focus:border-primary focus:outline-none"
  autoFocus
  />
  <Button size="sm" onClick={() => handleUpdateModule(module.id)}>
@@ -1036,7 +1036,7 @@ export default function CourseEditorPage() {
  </div>
  ) : (
  <>
- <span className="flex-1 text-sm font-medium text-ink-700 ">{module.title}</span>
+ <span className="flex-1 text-sm font-medium text-text ">{module.title}</span>
  <span className="text-xs text-text-subtle">{module.lessons?.length || 0} lessons</span>
  <button
  onClick={(e) => {
@@ -1044,7 +1044,7 @@ export default function CourseEditorPage() {
  setEditingModuleId(module.id);
  setEditingModuleTitle(module.title);
  }}
- className="rounded p-1 text-text-subtle hover:bg-ink-100 hover:text-text-muted "
+ className="rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
  >
  <Pencil className="h-3.5 w-3.5" />
  </button>
@@ -1087,7 +1087,7 @@ export default function CourseEditorPage() {
  className={`rounded-lg border transition ${
  isExpanded
  ? TYPE_EXPANDED_BG[lesson.content_type] || TYPE_EXPANDED_BG.text
- : "border-border-strong hover:border-ink-300 hover:bg-surface-2 "
+ : "border-border-strong hover:border-border-strong hover:bg-surface-2 "
  }`}
  >
  {/* Lesson header — always visible */}
@@ -1098,7 +1098,7 @@ export default function CourseEditorPage() {
  <Icon className="h-4 w-4 shrink-0 text-text-subtle" />
  <div className="min-w-0 flex-1">
  <div className="flex items-center gap-2">
- <span className="text-sm font-medium text-ink-700 ">{lesson.title}</span>
+ <span className="text-sm font-medium text-text ">{lesson.title}</span>
  {lesson.duration_minutes && (
  <span className="text-xs text-text-subtle">{lesson.duration_minutes} min</span>
  )}
@@ -1140,13 +1140,13 @@ export default function CourseEditorPage() {
  {isExpanded && (
  <div className="border-t px-4 py-4" onClick={(e) => e.stopPropagation()}>
  {/* Tabs */}
- <div className="mb-4 flex gap-1 rounded-lg bg-paper-2/80 p-1">
+ <div className="mb-4 flex gap-1 rounded-lg bg-surface/80 p-1">
  <button
  onClick={() => setLessonTab("content")}
  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
  lessonTab === "content"
- ? "bg-paper-2 text-ink-700 shadow-sm"
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm"
+ : "text-text-muted hover:text-text "
  }`}
  >
  <FileText className="h-3.5 w-3.5" />
@@ -1156,8 +1156,8 @@ export default function CourseEditorPage() {
  onClick={() => setLessonTab("settings")}
  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
  lessonTab === "settings"
- ? "bg-paper-2 text-ink-700 shadow-sm"
- : "text-text-muted hover:text-ink-700 "
+ ? "bg-surface text-text shadow-sm"
+ : "text-text-muted hover:text-text "
  }`}
  >
  <Settings2 className="h-3.5 w-3.5" />
@@ -1173,7 +1173,7 @@ export default function CourseEditorPage() {
  type="text"
  value={editLessonForm.title}
  onChange={(e) => setEditLessonForm({ ...editLessonForm, title: e.target.value })}
- className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
  <div>
@@ -1183,7 +1183,7 @@ export default function CourseEditorPage() {
  value={editLessonForm.duration_minutes}
  onChange={(e) => setEditLessonForm({ ...editLessonForm, duration_minutes: e.target.value })}
  placeholder="Optional"
- className="w-32 rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-32 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  </div>
  <Button size="sm" onClick={() => handleUpdateLesson(module.id, lesson.id)}>
@@ -1215,13 +1215,13 @@ export default function CourseEditorPage() {
  const isEditing = editingBlockId === block.id;
  return (
  <SortableBlockItem key={block.id} id={block.id}>
- <div className="rounded-lg border border-border-strong bg-paper-2 ">
+ <div className="rounded-lg border border-border-strong bg-surface ">
  {/* Block header */}
  <div className="flex items-center gap-2 px-3 py-2">
  <span className={`flex h-6 w-6 items-center justify-center rounded ${BLOCK_TYPE_COLORS[block.type] || ""}`}>
  <BlockIcon className="h-3.5 w-3.5" />
  </span>
- <span className="text-xs font-medium capitalize text-ink-700 ">
+ <span className="text-xs font-medium capitalize text-text ">
  {block.type} Block
  </span>
  {!isEditing && (
@@ -1247,7 +1247,7 @@ export default function CourseEditorPage() {
  </label>
  <button
  onClick={() => setEditingBlockId(isEditing ? null : block.id)}
- className="rounded p-1 text-text-subtle hover:bg-ink-100 hover:text-primary"
+ className="rounded p-1 text-text-subtle hover:bg-surface-2 hover:text-primary"
  title={isEditing ? "Collapse" : "Edit"}
  >
  {isEditing ? <ChevronDown className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
@@ -1308,7 +1308,7 @@ export default function CourseEditorPage() {
  {typeof block.body === "string" && block.body.trim() && (
  <div>
  <p className="mb-1 text-[10px] font-medium uppercase text-text-subtle">Preview</p>
- <div className="rounded-lg border border-border-strong bg-paper-2 p-4 overflow-auto max-h-[300px]">
+ <div className="rounded-lg border border-border-strong bg-surface p-4 overflow-auto max-h-[300px]">
  <ContentRenderer body={block.body} format="html" />
  </div>
  </div>
@@ -1329,10 +1329,10 @@ export default function CourseEditorPage() {
  handleUpdateBlock(lesson.id, block.id, { url: e.target.value })
  }
  placeholder="https://www.youtube.com/watch?v=..."
- className="w-full rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  {block.url && (
- <div className="mt-2 rounded-lg border border-border-strong bg-paper-2 p-2">
+ <div className="mt-2 rounded-lg border border-border-strong bg-surface p-2">
  <p className="mb-1 text-[10px] font-medium uppercase text-text-subtle">Preview</p>
  <a
  href={block.url}
@@ -1405,25 +1405,25 @@ export default function CourseEditorPage() {
  <div className="flex flex-wrap items-center gap-2">
  <button
  onClick={() => handleAddBlock(lesson.id, "text")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-border-strong px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
  >
  <Plus className="h-3 w-3" /> Text
  </button>
  <button
  onClick={() => handleAddBlock(lesson.id, "html")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-warning hover:text-warning-fg transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-border-strong px-3 py-1.5 text-xs font-medium text-text-muted hover:border-warning hover:text-warning-fg transition-colors"
  >
  <Plus className="h-3 w-3" /> HTML
  </button>
  <button
  onClick={() => handleAddBlock(lesson.id, "video")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-danger hover:text-danger-fg transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-border-strong px-3 py-1.5 text-xs font-medium text-text-muted hover:border-danger hover:text-danger-fg transition-colors"
  >
  <Plus className="h-3 w-3" /> Video
  </button>
  <button
  onClick={() => handleAddBlock(lesson.id, "exercise")}
- className="flex items-center gap-1 rounded-lg border border-dashed border-ink-300 px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
+ className="flex items-center gap-1 rounded-lg border border-dashed border-border-strong px-3 py-1.5 text-xs font-medium text-text-muted hover:border-primary hover:text-primary transition-colors"
  >
  <Plus className="h-3 w-3" /> Exercise
  </button>
@@ -1499,7 +1499,7 @@ export default function CourseEditorPage() {
 
  {/* Add lesson form */}
  {addingLessonToModule === module.id ? (
- <div className="mt-3 rounded-lg border border-dashed border-ink-300 p-4">
+ <div className="mt-3 rounded-lg border border-dashed border-border-strong p-4">
  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">New Lesson</p>
  <div className="space-y-3">
  <input
@@ -1507,7 +1507,7 @@ export default function CourseEditorPage() {
  value={lessonForm.title}
  onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
  placeholder="Lesson title"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
  autoFocus
  />
  <div>
@@ -1522,7 +1522,7 @@ export default function CourseEditorPage() {
  className={`flex flex-col items-center gap-1 rounded-lg border-2 px-2 py-2.5 text-xs font-medium transition ${
  selected
  ? `${TYPE_COLORS[opt.value]} border-current`
- : "border-transparent bg-surface-2 text-text-muted hover:bg-ink-100 "
+ : "border-transparent bg-surface-2 text-text-muted hover:bg-surface-2 "
  }`}
  >
  <opt.icon className="h-4 w-4" />
@@ -1548,7 +1548,7 @@ export default function CourseEditorPage() {
  className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
  (lessonForm.content.format || "markdown") === fmt
  ? "border-primary bg-success-soft text-success-fg "
- : "border-border-strong text-text-muted hover:border-ink-300 "
+ : "border-border-strong text-text-muted hover:border-border-strong "
  }`}
  >
  {fmt === "markdown" ? "Markdown" : "HTML"}
@@ -1566,13 +1566,13 @@ export default function CourseEditorPage() {
  }
  placeholder={lessonForm.content_type === "video" ? "Video URL (YouTube, Vimeo...)" : "Content (Markdown by default)..."}
  rows={6}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm font-mono focus:border-primary focus:outline-none"
  />
  </>
  )}
  {/* Info for complex types */}
  {!["text", "video"].includes(lessonForm.content_type) && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-3">
+ <div className="rounded-lg border border-border-strong bg-surface p-3">
  <p className="text-xs text-text-muted ">
  Create the lesson first, then click on it to configure the {lessonForm.content_type === "quiz" ? "quiz questions" : lessonForm.content_type === "code_challenge" ? "challenge & test cases" : lessonForm.content_type === "file_upload" ? "upload settings" : "exercise"}.
  </p>
@@ -1583,7 +1583,7 @@ export default function CourseEditorPage() {
  value={lessonForm.duration_minutes}
  onChange={(e) => setLessonForm({ ...lessonForm, duration_minutes: e.target.value })}
  placeholder="Duration (minutes, optional)"
- className="w-48 rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="w-48 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  />
  <div className="flex gap-2">
  <Button size="sm" onClick={() => handleAddLesson(module.id)}>
@@ -1605,7 +1605,7 @@ export default function CourseEditorPage() {
  ) : (
  <button
  onClick={() => setAddingLessonToModule(module.id)}
- className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
+ className="mt-2 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
  Add Lesson
@@ -1625,7 +1625,7 @@ export default function CourseEditorPage() {
  onChange={(e) => setNewModuleTitle(e.target.value)}
  onKeyDown={(e) => e.key === "Enter" && handleAddModule()}
  placeholder="New module title..."
- className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="flex-1 rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  <Button onClick={handleAddModule} disabled={addingModule || !newModuleTitle.trim()}>
  <Plus className="mr-1 h-4 w-4" />
@@ -1659,7 +1659,7 @@ export default function CourseEditorPage() {
  <select
  value={enrollingUser}
  onChange={(e) => setEnrollingUser(e.target.value)}
- className="flex-1 rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="flex-1 rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  >
  <option value="">Select a user to enroll...</option>
  {allUsers
@@ -1697,13 +1697,13 @@ export default function CourseEditorPage() {
  .toUpperCase()}
  </div>
  <div className="flex-1">
- <p className="text-sm font-medium text-ink-700 ">{student.full_name}</p>
+ <p className="text-sm font-medium text-text ">{student.full_name}</p>
  <p className="text-xs text-text-subtle">{student.email}</p>
  </div>
  <div className="flex items-center gap-3">
  <div className="text-right">
  <p className="text-xs font-medium text-text-muted ">{student.progress_percent}%</p>
- <div className="h-1.5 w-16 overflow-hidden rounded-pill bg-ink-100 ">
+ <div className="h-1.5 w-16 overflow-hidden rounded-pill bg-surface-2 ">
  <div
  className="h-full rounded-pill bg-primary transition-[width] duration-500"
  style={{ width: `${student.progress_percent}%` }}
@@ -1763,7 +1763,7 @@ export default function CourseEditorPage() {
  >
  <div className="flex items-start justify-between gap-3">
  <div className="min-w-0 flex-1">
- <h4 className="text-sm font-medium text-ink-700 ">
+ <h4 className="text-sm font-medium text-text ">
  {assignment.title}
  </h4>
  {assignment.description && (
@@ -1772,7 +1772,7 @@ export default function CourseEditorPage() {
  </p>
  )}
  <div className="mt-2 flex flex-wrap items-center gap-2">
- <span className="inline-flex items-center gap-1 rounded-pill bg-ink-100 px-2 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-text-muted ">
  <Clock className="h-3 w-3" />
  {new Date(assignment.due_date).toLocaleDateString(undefined, {
  year: "numeric",
@@ -1828,58 +1828,58 @@ export default function CourseEditorPage() {
 
  {/* Add Assignment toggle */}
  {showAddAssignment ? (
- <div className="rounded-lg border border-dashed border-ink-300 p-4">
+ <div className="rounded-lg border border-dashed border-border-strong p-4">
  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-subtle">New Assignment</p>
  <div className="space-y-3">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Title *</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Title *</label>
  <input
  type="text"
  value={assignmentForm.title}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
  placeholder="Assignment title"
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  autoFocus
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Description</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Description</label>
  <textarea
  value={assignmentForm.description}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
  placeholder="Optional description..."
  rows={3}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Due Date *</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Due Date *</label>
  <input
  type="datetime-local"
  value={assignmentForm.due_date}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, due_date: e.target.value })}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  <div>
- <label className="mb-1 block text-sm font-medium text-ink-700 ">Max Score</label>
+ <label className="mb-1 block text-sm font-medium text-text ">Max Score</label>
  <input
  type="number"
  value={assignmentForm.max_score}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, max_score: e.target.value })}
  placeholder="100"
  min={0}
- className="w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+ className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
  />
  </div>
  </div>
- <label className="flex items-center gap-2 text-sm text-ink-700 ">
+ <label className="flex items-center gap-2 text-sm text-text ">
  <input
  type="checkbox"
  checked={assignmentForm.allow_late}
  onChange={(e) => setAssignmentForm({ ...assignmentForm, allow_late: e.target.checked })}
- className="h-4 w-4 rounded border-ink-300 text-primary focus:ring-primary"
+ className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
  />
  Allow late submissions
  </label>
@@ -1904,7 +1904,7 @@ export default function CourseEditorPage() {
  ) : (
  <button
  onClick={() => setShowAddAssignment(true)}
- className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-ink-300 py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
+ className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border-strong py-2.5 text-xs font-medium text-text-subtle transition-colors hover:border-primary hover:text-primary"
  >
  <Plus className="h-3.5 w-3.5" />
  Add Assignment
@@ -1978,7 +1978,7 @@ function ExerciseBlockCreator({
  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
  selectedType === t.value
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted hover:bg-ink-200 "
+ : "bg-surface-2 text-text-muted hover:bg-ink-200 "
  }`}
  >
  <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -1993,7 +1993,7 @@ function ExerciseBlockCreator({
  value={title}
  onChange={(e) => setTitle(e.target.value)}
  placeholder="Exercise title..."
- className="flex-1 rounded-lg border border-ink-300 px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+ className="flex-1 rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
  onKeyDown={(e) => e.key === "Enter" && handleCreate()}
  />
  <Button size="sm" onClick={handleCreate} disabled={creating || !title.trim()}>
@@ -2119,10 +2119,10 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  <ul className="divide-y divide-border ">
  {exercises.map((ex) => (
  <li key={ex.id} className="group flex items-center gap-3 px-4 py-2.5">
- <span className="rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] font-medium text-text-muted ">
  {ex.display_id}
  </span>
- <span className="flex-1 text-xs font-medium text-ink-700 ">
+ <span className="flex-1 text-xs font-medium text-text ">
  {ex.title}
  </span>
  <span className="rounded-pill bg-success-soft px-2 py-0.5 text-[10px] font-medium text-primary ">

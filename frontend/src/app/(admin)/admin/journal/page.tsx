@@ -304,7 +304,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           <button
             onClick={() => setDate(shiftISO(date, -1))}
             aria-label={t("journal.prevDay")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -314,14 +314,14 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           <button
             onClick={() => setDate(shiftISO(date, 1))}
             aria-label={t("journal.nextDay")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           {date !== todayISO() && (
             <button
               onClick={() => setDate(todayISO())}
-              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-ink-50"
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-surface-2"
             >
               {t("journal.today")}
             </button>
@@ -365,7 +365,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
             key: "lessons",
             label: t("journal.metricLessons"),
             value: lessonsCount,
-            color: "text-ink-900",
+            color: "text-text",
           },
           {
             key: "marked",
@@ -382,7 +382,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
         ].map((m) => (
           <Card key={m.key} className="flex-1">
             <CardContent className="flex items-center justify-between px-3.5 py-3">
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-text-subtle">
                 {m.label}
               </span>
               <span className={`text-2xl font-extrabold tracking-tight ${m.color}`}>
@@ -418,7 +418,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           ))}
         </Card>
       )}
-      <p className="text-[11.5px] text-ink-400">{t("journal.agendaHint")}</p>
+      <p className="text-[11.5px] text-text-subtle">{t("journal.agendaHint")}</p>
 
       {openRow && (
         <SessionDetail
@@ -491,12 +491,12 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
           onOpen();
         }
       }}
-      className={`grid cursor-pointer grid-cols-[84px_minmax(150px,1.3fr)_116px_minmax(120px,1fr)_132px] items-center gap-3.5 px-5 py-[15px] transition-colors hover:bg-ink-50 ${
+      className={`grid cursor-pointer grid-cols-[84px_minmax(150px,1.3fr)_116px_minmax(120px,1fr)_132px] items-center gap-3.5 px-5 py-[15px] transition-colors hover:bg-surface-2 ${
         isFirst ? "" : "border-t border-ink-50"
       }`}
     >
       {/* Time */}
-      <span className="font-mono text-[12.5px] font-bold text-ink-700">
+      <span className="font-mono text-[12.5px] font-bold text-text">
         {row.start_time}–{row.end_time}
       </span>
 
@@ -511,7 +511,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
             {row.course_title}
           </div>
           {row.teacher_name ? (
-            <div className="truncate text-[11.5px] font-semibold text-ink-400">
+            <div className="truncate text-[11.5px] font-semibold text-text-subtle">
               {row.teacher_name}
             </div>
           ) : null}
@@ -521,7 +521,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
       {/* Room */}
       <span
         className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
-          row.is_online ? "text-info" : "text-ink-500"
+          row.is_online ? "text-info" : "text-text-muted"
         }`}
       >
         {row.is_online ? (
@@ -533,7 +533,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
             <MapPin className="h-3.5 w-3.5" /> {row.room_name}
           </>
         ) : (
-          <span className="text-ink-300">—</span>
+          <span className="text-text-subtle">—</span>
         )}
       </span>
 
@@ -547,21 +547,21 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
         onBlur={saveTopic}
         placeholder={t("journal.topicPlaceholder")}
         maxLength={500}
-        className="min-w-0 rounded-lg border border-ink-100 bg-surface px-2 py-1 text-[12.5px] text-ink-700"
+        className="min-w-0 rounded-lg border border-border bg-surface px-2 py-1 text-[12.5px] text-text"
       />
 
       {/* Status + chevron */}
       <div className="flex items-center justify-end gap-3">
         {saving ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-ink-400" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-text-subtle" />
         ) : marked ? (
           <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-green-700">
             <span className="h-2 w-2 rounded-full bg-green-600" />
             {row.attendance.present}/{row.attendance.total}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-ink-400">
-            <span className="h-2 w-2 rounded-full border-2 border-ink-300" />
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-text-subtle">
+            <span className="h-2 w-2 rounded-full border-2 border-border-strong" />
             {t("journal.notMarked")}
           </span>
         )}
@@ -576,7 +576,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
             {t("journal.join")}
           </button>
         ) : null}
-        <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />
+        <ChevronRight className="h-4 w-4 shrink-0 text-text-subtle" />
       </div>
     </div>
   );
@@ -766,7 +766,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
         <button
           onClick={handleExport}
           disabled={isExporting || !courseId || dates.length === 0}
-          className="flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-ink-50 disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-2 disabled:opacity-50"
         >
           {isExporting ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -799,7 +799,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
           <div className="flex min-w-0 flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <MatrixLegend />
-              <span className="text-[11.5px] text-ink-400">
+              <span className="text-[11.5px] text-text-subtle">
                 {t("journal.clickCycleHint")}
               </span>
             </div>
@@ -807,7 +807,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
               <table className="w-full border-separate border-spacing-0 tabular-nums">
                 <thead>
                   <tr>
-                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.student")}
                     </th>
                     {dates.map((d) => {
@@ -818,18 +818,18 @@ function RegisterTab({ courses }: RegisterTabProps) {
                       return (
                         <th
                           key={d}
-                          className="sticky top-0 z-20 min-w-[52px] border-b-[1.5px] border-ink-100 bg-surface px-1 py-2"
+                          className="sticky top-0 z-20 min-w-[52px] border-b-[1.5px] border-border bg-surface px-1 py-2"
                         >
-                          <div className="text-xs font-extrabold text-ink-900">
+                          <div className="text-xs font-extrabold text-text">
                             {d.slice(5)}
                           </div>
-                          <div className="font-mono text-[9px] font-semibold text-ink-400">
+                          <div className="font-mono text-[9px] font-semibold text-text-subtle">
                             {wd}
                           </div>
                         </th>
                       );
                     })}
-                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.attShort")}
                     </th>
                   </tr>
@@ -837,7 +837,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 <tbody>
                   {studentStats.map(({ stu, pct }) => (
                     <tr key={stu.student_id}>
-                      <td className="sticky left-0 z-10 h-8 whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-2.5 text-[13px] font-semibold text-ink-900">
+                      <td className="sticky left-0 z-10 h-8 whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-2.5 text-[13px] font-semibold text-text">
                         {stu.student_name}
                       </td>
                       {dates.map((d) => {
@@ -859,7 +859,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                               className={`h-[30px] w-full rounded-md font-mono text-xs font-extrabold transition-colors ${
                                 token
                                   ? token.cell
-                                  : "bg-surface text-ink-300 hover:bg-ink-50"
+                                  : "bg-surface text-text-subtle hover:bg-surface-2"
                               }`}
                             >
                               {token ? token.letter : "·"}
@@ -869,13 +869,13 @@ function RegisterTab({ courses }: RegisterTabProps) {
                       })}
                       <td className="sticky right-0 z-10 border-b border-l-[1.5px] border-ink-50 border-l-ink-100 bg-surface px-3">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="h-1.5 w-[42px] overflow-hidden rounded-full bg-ink-100">
+                          <div className="h-1.5 w-[42px] overflow-hidden rounded-full bg-surface-2">
                             <div
                               className={`h-full ${pctColor(pct)}`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="min-w-[30px] text-right text-xs font-extrabold text-ink-700">
+                          <span className="min-w-[30px] text-right text-xs font-extrabold text-text">
                             {pct}%
                           </span>
                         </div>
@@ -885,24 +885,24 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-ink-100 bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-ink-500">
+                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.presentFrom")} {students.length}
                     </td>
                     {colTotals.map((tot, i) => (
                       <td
                         key={dates[i]}
-                        className={`border-t-[1.5px] border-ink-100 bg-ink-50 px-1 py-2.5 text-center text-xs font-extrabold ${
+                        className={`border-t-[1.5px] border-border bg-surface-2 px-1 py-2.5 text-center text-xs font-extrabold ${
                           tot >= students.length - 1
                             ? "text-green-700"
                             : tot <= students.length - 3
                               ? "text-clay-700"
-                              : "text-ink-700"
+                              : "text-text"
                         }`}
                       >
                         {tot}
                       </td>
                     ))}
-                    <td className="sticky right-0 z-10 border-l-[1.5px] border-t-[1.5px] border-ink-100 bg-ink-50" />
+                    <td className="sticky right-0 z-10 border-l-[1.5px] border-t-[1.5px] border-border bg-surface-2" />
                   </tr>
                 </tfoot>
               </table>
@@ -913,7 +913,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
           <div className="flex flex-col gap-3">
             <Card>
               <CardContent className="px-4 py-4">
-                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-text-subtle">
                   {t("journal.avgAttendance")}
                 </div>
                 <div className="mt-1 flex items-baseline gap-1.5">
@@ -924,7 +924,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                   >
                     {avgPct}%
                   </span>
-                  <span className="text-xs font-bold text-ink-400">
+                  <span className="text-xs font-bold text-text-subtle">
                     {t("journal.forPeriod")}
                   </span>
                 </div>
@@ -937,12 +937,12 @@ function RegisterTab({ courses }: RegisterTabProps) {
                   <span className="text-[13px] font-extrabold text-text">
                     {t("journal.atRisk")}
                   </span>
-                  <span className="ml-auto font-mono text-[11px] font-bold text-ink-400">
+                  <span className="ml-auto font-mono text-[11px] font-bold text-text-subtle">
                     &lt; 85%
                   </span>
                 </div>
                 {atRisk.length === 0 ? (
-                  <p className="text-xs text-ink-400">{t("journal.noAtRisk")}</p>
+                  <p className="text-xs text-text-subtle">{t("journal.noAtRisk")}</p>
                 ) : (
                   <div className="flex flex-col gap-2.5">
                     {atRisk.map(({ stu, absent, late, pct }) => (
@@ -957,7 +957,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                           <div className="truncate text-[12.5px] font-bold text-text">
                             {stu.student_name}
                           </div>
-                          <div className="text-[10.5px] font-semibold text-ink-400">
+                          <div className="text-[10.5px] font-semibold text-text-subtle">
                             {absent} {t("journal.missesShort")}
                             {late ? ` · ${late} ${t("journal.latesShort")}` : ""}
                           </div>
@@ -989,7 +989,7 @@ function MatrixLegend() {
         return (
           <span
             key={s}
-            className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-ink-500"
+            className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-text-muted"
           >
             <span
               className={`grid h-4 w-4 place-items-center rounded font-mono text-[10px] font-extrabold ${token.cell}`}
@@ -1098,7 +1098,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           <button
             onClick={() => setWeekStart(shiftISO(weekStart, -7))}
             aria-label={t("schedule.prevWeek")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -1108,14 +1108,14 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           <button
             onClick={() => setWeekStart(shiftISO(weekStart, 7))}
             aria-label={t("schedule.nextWeek")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           {weekStart !== mondayOf(todayISO()) && (
             <button
               onClick={() => setWeekStart(mondayOf(todayISO()))}
-              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-ink-50"
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-surface-2"
             >
               {t("schedule.thisWeek")}
             </button>
@@ -1124,7 +1124,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
-            <Filter className="h-3.5 w-3.5 text-ink-400" />
+            <Filter className="h-3.5 w-3.5 text-text-subtle" />
             <select
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
@@ -1140,7 +1140,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           </span>
           {sites.length > 0 && (
             <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
-              <Building2 className="h-3.5 w-3.5 text-ink-400" />
+              <Building2 className="h-3.5 w-3.5 text-text-subtle" />
               <select
                 value={siteFilter}
                 onChange={(e) => setSiteFilter(e.target.value)}
@@ -1186,13 +1186,13 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
       {/* Color legend (course → group) */}
       {legendCourses.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-400">
+          <span className="mr-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] text-text-subtle">
             {t("schedule.groupsLegend")}
           </span>
           {legendCourses.map(([cid, title]) => (
             <span
               key={cid}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-ink-100 bg-surface-2 py-1 pl-2 pr-2.5 text-[11.5px] font-bold text-ink-700"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface-2 py-1 pl-2 pr-2.5 text-[11.5px] font-bold text-text"
             >
               <span
                 className="h-2.5 w-2.5 rounded"
@@ -1241,9 +1241,9 @@ function WeekGrid({
 
   return (
     <div className="overflow-auto">
-      <div className="grid min-w-[760px] grid-cols-[46px_repeat(6,1fr)] overflow-hidden rounded-2xl border border-ink-100 bg-surface-2">
+      <div className="grid min-w-[760px] grid-cols-[46px_repeat(6,1fr)] overflow-hidden rounded-2xl border border-border bg-surface-2">
         {/* Header row */}
-        <div className="border-b-[1.5px] border-ink-100 bg-ink-50" />
+        <div className="border-b-[1.5px] border-border bg-surface-2" />
         {WEEKDAY_KEYS.map((d) => {
           const dayIso = shiftISO(weekStart, d);
           const wd = new Date(dayIso + "T00:00:00").toLocaleDateString(
@@ -1253,12 +1253,12 @@ function WeekGrid({
           return (
             <div
               key={d}
-              className="border-b-[1.5px] border-l border-ink-100 border-l-ink-50 bg-ink-50 py-2.5 text-center"
+              className="border-b-[1.5px] border-l border-border border-l-ink-50 bg-surface-2 py-2.5 text-center"
             >
-              <div className="text-[12.5px] font-extrabold text-ink-900">
+              <div className="text-[12.5px] font-extrabold text-text">
                 {wd}
               </div>
-              <div className="font-mono text-[10px] font-semibold text-ink-400">
+              <div className="font-mono text-[10px] font-semibold text-text-subtle">
                 {dayIso.slice(8)}.{dayIso.slice(5, 7)}
               </div>
             </div>
@@ -1271,7 +1271,7 @@ function WeekGrid({
             <div
               key={h}
               style={{ height: SCHED_ROW_H }}
-              className="px-1.5 pt-1 text-right font-mono text-[10px] font-semibold text-ink-400"
+              className="px-1.5 pt-1 text-right font-mono text-[10px] font-semibold text-text-subtle"
             >
               {h}:00
             </div>
@@ -1300,7 +1300,7 @@ function WeekGrid({
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11.5px] text-ink-400">{t("schedule.gridHint")}</p>
+      <p className="mt-3 text-[11.5px] text-text-subtle">{t("schedule.gridHint")}</p>
     </div>
   );
 }
@@ -1340,13 +1340,13 @@ function SchedBlock({
         {clash && (
           <AlertTriangle className="h-[11px] w-[11px] shrink-0 text-clay-500" />
         )}
-        <span className="truncate text-[11px] font-extrabold text-ink-900">
+        <span className="truncate text-[11px] font-extrabold text-text">
           {slot.course_title}
         </span>
       </div>
       <div
         className={`mt-0.5 flex items-center gap-1 text-[9.5px] font-semibold ${
-          clash ? "text-clay-700" : "text-ink-400"
+          clash ? "text-clay-700" : "text-text-subtle"
         }`}
       >
         {slot.is_online ? (
@@ -1463,13 +1463,13 @@ function SchedSlotEditor({
           <button
             onClick={onClose}
             aria-label={t("common.close")}
-            className="rounded-lg p-1 text-ink-400 hover:bg-ink-50"
+            className="rounded-lg p-1 text-text-subtle hover:bg-surface-2"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <label className="block text-xs font-semibold text-ink-500">
+        <label className="block text-xs font-semibold text-text-muted">
           {t("journal.selectCourse")}
           <select
             value={form.course_id}
@@ -1487,7 +1487,7 @@ function SchedSlotEditor({
         </label>
 
         <div className="flex gap-2">
-          <label className="flex-1 text-xs font-semibold text-ink-500">
+          <label className="flex-1 text-xs font-semibold text-text-muted">
             {t("schedule.dayOfWeek")}
             <select
               value={form.day_of_week}
@@ -1501,7 +1501,7 @@ function SchedSlotEditor({
               ))}
             </select>
           </label>
-          <label className="w-24 text-xs font-semibold text-ink-500">
+          <label className="w-24 text-xs font-semibold text-text-muted">
             {t("schedule.startTime")}
             <input
               type="time"
@@ -1510,7 +1510,7 @@ function SchedSlotEditor({
               className="mt-1 w-full rounded-lg border border-border-strong px-2 py-2 text-sm"
             />
           </label>
-          <label className="w-24 text-xs font-semibold text-ink-500">
+          <label className="w-24 text-xs font-semibold text-text-muted">
             {t("schedule.endTime")}
             <input
               type="time"
@@ -1521,7 +1521,7 @@ function SchedSlotEditor({
           </label>
         </div>
 
-        <label className="block text-xs font-semibold text-ink-500">
+        <label className="block text-xs font-semibold text-text-muted">
           {t("journal.room")}
           <select
             value={form.room_id}
@@ -1537,7 +1537,7 @@ function SchedSlotEditor({
           </select>
         </label>
 
-        <label className="flex items-center gap-2 text-xs font-semibold text-ink-500">
+        <label className="flex items-center gap-2 text-xs font-semibold text-text-muted">
           <input
             type="checkbox"
             checked={form.is_online}
@@ -1588,7 +1588,7 @@ function SchedSlotEditor({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="rounded-lg bg-ink-100 px-3 py-2 text-xs font-semibold text-text-muted hover:bg-ink-200"
+              className="rounded-lg bg-surface-2 px-3 py-2 text-xs font-semibold text-text-muted hover:bg-ink-200"
             >
               {t("schedule.cancel")}
             </button>
@@ -1673,7 +1673,7 @@ function RoomsTab() {
           <button
             onClick={() => setDate(shiftISO(date, -1))}
             aria-label={t("journal.prevDay")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -1683,14 +1683,14 @@ function RoomsTab() {
           <button
             onClick={() => setDate(shiftISO(date, 1))}
             aria-label={t("journal.nextDay")}
-            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-ink-50"
+            className="flex h-8 w-8 items-center justify-center rounded-pill border border-border-strong bg-surface text-text hover:bg-surface-2"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           {date !== todayISO() && (
             <button
               onClick={() => setDate(todayISO())}
-              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-ink-50"
+              className="rounded-pill border border-border-strong bg-surface px-3 py-1 text-xs font-medium text-text hover:bg-surface-2"
             >
               {t("journal.today")}
             </button>
@@ -1707,7 +1707,7 @@ function RoomsTab() {
           {/* Site filter */}
           {sites.length > 0 && (
             <span className="inline-flex items-center gap-1.5 rounded-pill border border-border-strong bg-surface px-2 py-1.5 text-text">
-              <Building2 className="h-3.5 w-3.5 text-ink-400" />
+              <Building2 className="h-3.5 w-3.5 text-text-subtle" />
               <select
                 value={siteFilter}
                 onChange={(e) => setSiteFilter(e.target.value)}
@@ -1740,18 +1740,18 @@ function RoomsTab() {
           <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-0">
             <thead>
               <tr>
-                <th className="w-[150px] border-b-[1.5px] border-ink-100 p-3 text-left text-[11px] font-bold text-ink-500">
+                <th className="w-[150px] border-b-[1.5px] border-border p-3 text-left text-[11px] font-bold text-text-muted">
                   {t("journal.room")}
                 </th>
                 {BOARD_HOURS.map((h) => (
                   <th
                     key={h}
-                    className="border-b-[1.5px] border-l border-ink-100 border-l-ink-50 py-2.5 text-center font-mono text-[10.5px] font-bold text-ink-400"
+                    className="border-b-[1.5px] border-l border-border border-l-ink-50 py-2.5 text-center font-mono text-[10.5px] font-bold text-text-subtle"
                   >
                     {h}
                   </th>
                 ))}
-                <th className="w-16 border-b-[1.5px] border-l-[1.5px] border-ink-100 px-2.5 py-2.5 text-[11px] font-bold text-ink-500">
+                <th className="w-16 border-b-[1.5px] border-l-[1.5px] border-border px-2.5 py-2.5 text-[11px] font-bold text-text-muted">
                   {t("journal.utilization")}
                 </th>
               </tr>
@@ -1769,7 +1769,7 @@ function RoomsTab() {
         </Card>
       )}
 
-      <p className="text-[11.5px] text-ink-400">{t("journal.roomBoardHint")}</p>
+      <p className="text-[11.5px] text-text-subtle">{t("journal.roomBoardHint")}</p>
     </div>
   );
 }
@@ -1804,7 +1804,7 @@ function RoomBoardRow({
               {room.video && <Video className="h-3 w-3 shrink-0 text-info" />}
               <span className="truncate">{room.room_name}</span>
             </div>
-            <div className="truncate font-mono text-[9.5px] font-semibold text-ink-400">
+            <div className="truncate font-mono text-[9.5px] font-semibold text-text-subtle">
               {[room.site, room.capacity != null ? `${room.capacity}` : null]
                 .filter(Boolean)
                 .join(" · ")}
@@ -1856,7 +1856,7 @@ function RoomBoardRow({
       <td className="border-b border-l-[1.5px] border-ink-50 border-l-ink-100 text-center">
         <span
           className={`font-mono text-xs font-extrabold ${
-            utilPct > 40 ? "text-green-700" : "text-ink-400"
+            utilPct > 40 ? "text-green-700" : "text-text-subtle"
           }`}
         >
           {utilPct}%
@@ -1944,7 +1944,7 @@ function CurriculumPanel({ courses }: { courses: CourseOption[] }) {
           <h3 className="text-sm font-extrabold text-text">
             {t("curriculum.title")}
           </h3>
-          <p className="text-xs text-ink-400">{t("curriculum.subtitle")}</p>
+          <p className="text-xs text-text-subtle">{t("curriculum.subtitle")}</p>
         </div>
 
         <select
@@ -1961,14 +1961,14 @@ function CurriculumPanel({ courses }: { courses: CourseOption[] }) {
         </select>
 
         {!courseId ? (
-          <p className="py-6 text-center text-sm text-ink-400">
+          <p className="py-6 text-center text-sm text-text-subtle">
             {t("curriculum.pickCoursePrompt")}
           </p>
         ) : (
           <>
             <div className="divide-y divide-ink-50 rounded-lg border border-border">
               {topics.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-ink-400">
+                <p className="px-4 py-6 text-center text-sm text-text-subtle">
                   {t("curriculum.empty")}
                 </p>
               ) : (
@@ -1997,7 +1997,7 @@ function CurriculumPanel({ courses }: { courses: CourseOption[] }) {
 
             {/* Add topic */}
             <div className="flex flex-wrap items-end gap-2">
-              <label className="flex-1 min-w-[180px] text-xs font-semibold text-ink-500">
+              <label className="flex-1 min-w-[180px] text-xs font-semibold text-text-muted">
                 {t("curriculum.topicTitle")}
                 <input
                   value={newTitle}
@@ -2006,7 +2006,7 @@ function CurriculumPanel({ courses }: { courses: CourseOption[] }) {
                   className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-normal text-text"
                 />
               </label>
-              <label className="w-24 text-xs font-semibold text-ink-500">
+              <label className="w-24 text-xs font-semibold text-text-muted">
                 {t("curriculum.lessons")}
                 <input
                   type="number"
@@ -2065,7 +2065,7 @@ function CurriculumRow({
 
   return (
     <div className="flex items-center gap-2 px-3 py-2">
-      <span className="w-6 text-center font-mono text-[11px] font-bold text-ink-300">
+      <span className="w-6 text-center font-mono text-[11px] font-bold text-text-subtle">
         {String(topic.position).padStart(2, "0")}
       </span>
       <input
@@ -2074,7 +2074,7 @@ function CurriculumRow({
         onBlur={commitTitle}
         className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1.5 py-1 text-sm font-semibold text-text hover:border-border focus:border-border-focus focus:outline-none"
       />
-      <label className="flex items-center gap-1 text-[11px] text-ink-400">
+      <label className="flex items-center gap-1 text-[11px] text-text-subtle">
         <input
           type="number"
           min={1}
@@ -2091,7 +2091,7 @@ function CurriculumRow({
         onClick={onMoveUp}
         disabled={isFirst}
         aria-label={t("curriculum.moveUp")}
-        className="rounded p-1 text-ink-400 hover:bg-ink-50 disabled:opacity-30"
+        className="rounded p-1 text-text-subtle hover:bg-surface-2 disabled:opacity-30"
       >
         <ChevronUp className="h-4 w-4" />
       </button>
@@ -2100,7 +2100,7 @@ function CurriculumRow({
         onClick={onMoveDown}
         disabled={isLast}
         aria-label={t("curriculum.moveDown")}
-        className="rounded p-1 text-ink-400 hover:bg-ink-50 disabled:opacity-30"
+        className="rounded p-1 text-text-subtle hover:bg-surface-2 disabled:opacity-30"
       >
         <ChevronDown className="h-4 w-4" />
       </button>
@@ -2339,7 +2339,7 @@ function TimetablePanel({ courses }: { courses: CourseOption[] }) {
               <button
                 onClick={handleGenerate}
                 disabled={generate.isPending}
-                className="flex items-center gap-1 rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-ink-50 disabled:opacity-50"
+                className="flex items-center gap-1 rounded-pill border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-2 disabled:opacity-50"
               >
                 {generate.isPending ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2615,7 +2615,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
                   className={`flex flex-1 items-center justify-center gap-1 rounded-pill border px-2 py-1.5 font-semibold ${
                     form.kind === k
                       ? "border-primary bg-primary/10 text-primary"
-                      : "border-border-strong text-text-muted hover:bg-ink-50"
+                      : "border-border-strong text-text-muted hover:bg-surface-2"
                   }`}
                 >
                   {k === "online" ? (
@@ -2678,7 +2678,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
               </button>
               <button
                 onClick={resetForm}
-                className="rounded-pill bg-ink-100 px-3 py-1.5 font-medium text-text-muted hover:bg-ink-200"
+                className="rounded-pill bg-surface-2 px-3 py-1.5 font-medium text-text-muted hover:bg-ink-200"
               >
                 {t("schedule.cancel")}
               </button>
@@ -2826,7 +2826,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
             <h3 className="text-sm font-semibold text-text">
               {t("journal.sitesTitle")}
             </h3>
-            <p className="text-xs text-ink-400">{t("journal.sitesSubtitle")}</p>
+            <p className="text-xs text-text-subtle">{t("journal.sitesSubtitle")}</p>
           </div>
           {canManage && !showForm && (
             <button
@@ -2870,7 +2870,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
               </button>
               <button
                 onClick={resetForm}
-                className="rounded-pill bg-ink-100 px-3 py-1.5 font-medium text-text-muted hover:bg-ink-200"
+                className="rounded-pill bg-surface-2 px-3 py-1.5 font-medium text-text-muted hover:bg-ink-200"
               >
                 {t("schedule.cancel")}
               </button>
@@ -2894,7 +2894,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
                 className="flex items-center gap-2 border-b border-border pb-2"
               >
                 <span className="flex flex-1 items-center gap-1 font-semibold text-text">
-                  <Building2 className="h-3 w-3 shrink-0 text-ink-400" />
+                  <Building2 className="h-3 w-3 shrink-0 text-text-subtle" />
                   {site.name}
                 </span>
                 <span className="font-mono text-[10px] text-text-subtle">

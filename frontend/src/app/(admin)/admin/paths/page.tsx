@@ -147,7 +147,7 @@ export default function AdminPathsPage() {
  placeholder={t("admin.paths.pathTitlePlaceholder")}
  value={form.title}
  onChange={(e) => setForm({ ...form, title: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  required
  autoFocus
  />
@@ -155,7 +155,7 @@ export default function AdminPathsPage() {
  placeholder={t("common.description")}
  value={form.description}
  onChange={(e) => setForm({ ...form, description: e.target.value })}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  rows={2}
  />
  {/* Course selector */}
@@ -168,7 +168,7 @@ export default function AdminPathsPage() {
  if (e.target.value) addCourse(e.target.value);
  e.target.value = "";
  }}
- className="w-full rounded-lg border border-border-strong bg-paper-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none "
  >
  <option value="">{t("admin.paths.selectCourseToAdd")}</option>
  {courses
@@ -188,7 +188,7 @@ export default function AdminPathsPage() {
  key={s.course_id}
  className="flex items-center gap-3 rounded-lg border border-border-strong p-3 "
  >
- <GripVertical className="h-4 w-4 text-ink-300 " />
+ <GripVertical className="h-4 w-4 text-text-subtle " />
  <span className="text-xs font-bold text-text-subtle">{idx + 1}</span>
  <span className="flex-1 text-sm text-text ">
  {course?.title || t("admin.paths.unknownCourse")}
@@ -198,7 +198,7 @@ export default function AdminPathsPage() {
  type="checkbox"
  checked={s.is_required}
  onChange={() => toggleRequired(s.course_id)}
- className="rounded border-ink-300 text-primary focus:ring-green-500"
+ className="rounded border-border-strong text-primary focus:ring-green-500"
  />
  {t("admin.paths.required")}
  </label>
@@ -225,7 +225,7 @@ export default function AdminPathsPage() {
  {paths.length === 0 ? (
  <Card>
  <CardContent className="flex flex-col items-center justify-center p-12 text-center">
- <div className="mb-4 rounded-pill bg-ink-100 p-4 ">
+ <div className="mb-4 rounded-pill bg-surface-2 p-4 ">
  <Route className="h-8 w-8 text-text-subtle " />
  </div>
  <h3 className="mb-1 text-lg font-semibold text-text-muted ">
@@ -255,7 +255,7 @@ export default function AdminPathsPage() {
  <span className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
  p.is_published
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  }`}>
  {p.is_published ? t("common.published") : t("common.draft")}
  </span>
