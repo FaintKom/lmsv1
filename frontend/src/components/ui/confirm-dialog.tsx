@@ -119,11 +119,11 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  aria-modal="true"
  aria-labelledby={titleId}
  aria-describedby={descId}
- className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 rounded-lg bg-paper-2 p-6 shadow-2xl duration-200 "
+ className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 rounded-lg bg-surface p-6 shadow-2xl duration-200 "
  >
  <button
  onClick={() => handleClose(false)}
- className="absolute right-4 top-4 rounded-lg p-1 text-text-subtle hover:bg-ink-100 hover:text-text-muted"
+ className="absolute right-4 top-4 rounded-lg p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted"
  aria-label="Close dialog"
  >
  <X className="h-4 w-4" aria-hidden="true" />

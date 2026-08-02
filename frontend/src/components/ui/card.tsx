@@ -12,8 +12,8 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       className={cn(
         "rounded-lg transition duration-200",
         {
-          "bg-paper-2 border border-border shadow-sm": variant === "default",
-          "bg-paper-2 shadow-md": variant === "elevated",
+          "bg-surface border border-border shadow-sm": variant === "default",
+          "bg-surface shadow-md": variant === "elevated",
           "bg-surface-2": variant === "flat",
         },
         className

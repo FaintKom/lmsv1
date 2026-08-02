@@ -94,7 +94,7 @@ export function NotificationBell() {
  <div ref={ref} className="relative">
  <button
  onClick={handleOpen}
- className="relative rounded-lg p-2 text-text-subtle transition-colors hover:bg-ink-100 hover:text-text-muted"
+ className="relative rounded-lg p-2 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text-muted"
  aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
  aria-expanded={open}
  aria-haspopup="true"
@@ -108,9 +108,9 @@ export function NotificationBell() {
  </button>
 
  {open && (
- <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border-strong bg-paper-2 shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
+ <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border-strong bg-surface shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
  <div className="flex items-center justify-between border-b border-border px-4 py-3">
- <h3 className="text-sm font-semibold text-ink-700">Notifications</h3>
+ <h3 className="text-sm font-semibold text-text">Notifications</h3>
  {unread > 0 && (
  <button
  onClick={handleMarkAllRead}
@@ -144,7 +144,7 @@ export function NotificationBell() {
  )}
  </div>
  <div className="min-w-0 flex-1">
- <p className={`text-sm ${notif.is_read ? "text-text-muted" : "font-medium text-ink-700"}`}>
+ <p className={`text-sm ${notif.is_read ? "text-text-muted" : "font-medium text-text"}`}>
  {notif.title}
  </p>
  {notif.body && (

@@ -61,9 +61,16 @@ scrims white and make code blocks unreadable.
    - voxel palettes (`lib/avatar/voxels.ts`, `lib/room/voxels.ts`)
    - `text-white` on `bg-primary` / `bg-danger` / gradient covers
 
-3. **Slices** (one PR each, in this order — highest traffic first):
-   1. shared components: `components/ui/*`, `components/layout/*`,
-      `components/lesson/lesson-shell.tsx`
+3. **Slices** (one PR each, in this order — highest traffic first).
+   Remaining counts measured 2026-08-03 after slice 1:
+   `(auth)` 14 · `(dashboard)` 89 · `(admin)` 387 · `components/exercises` 126.
+   1. ~~shared components: `components/ui/*`, `components/layout/*`,
+      `components/lesson/*`~~ — **DONE** (28 substitutions; `components/lesson`
+      had none). Verified in the browser: inputs/buttons/cards flip with
+      `.dark`, while page shells (e.g. the login panel) stay light — that is
+      slice 1a/2 below, not a regression.
+   1a. **auth pages** (`app/(auth)/*`, 14 hits) — small and high-visibility:
+      the login panel currently renders near-white heading on cream in dark.
    2. student surface: `(dashboard)/dashboard`, `courses`, `lesson/*`,
       `assignments`, `achievements`
    3. teacher surface: `(admin)/admin/*` except journal/gradebook
