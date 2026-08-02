@@ -12,7 +12,7 @@
  * caller can pass `onSpeak` to wire TTS later.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Volume2, Lightbulb } from "lucide-react";
 import {
   LessonShell,
@@ -20,20 +20,27 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn, V2GradeResult } from "@/lib/exercises/v2-adapter";
 
 export interface TranslationV2Props {
   source: string;
   sourceLang: string;
   targetLang: string;
-  /** Normalized variants — comparison strips punctuation and lower-cases. */
-  accepted: string[];
-  /** Canonical correct answer shown when student fails. */
-  correct: string;
+  /** Normalized variants — required for local (preview) grading; omitted
+   * live, where the server grades via `onGrade`. */
+  accepted?: string[];
+  /** Canonical correct answer shown when student fails (preview only). */
+  correct?: string;
   hint?: string;
   eyebrow?: string;
   title?: string;
   maxAttemptsPerTask?: number;
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B);
+   * local `accepted`/`correct` are ignored. */
+  onGrade?: V2GradeFn;
+  /** Live-lesson draft capture. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onSpeak?: () => void;
   onQuit?: () => void;
   onFinish?: (r: {
@@ -83,13 +90,15 @@ export function TranslationV2({
   source,
   sourceLang,
   targetLang,
-  accepted,
+  accepted = [],
   correct,
   hint,
   eyebrow,
   title,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
+  onGrade,
+  onAnswersChange,
   onSpeak,
   onQuit,
   onFinish,
@@ -102,8 +111,15 @@ export function TranslationV2({
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
   const [showHint, setShowHint] = useState(false);
+  const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const taRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // live-lesson draft capture
+  useEffect(() => {
+    if (text.trim()) onAnswersChange?.({ translation: text });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
 
   /** TR-04: textarea grows with content (capped). */
   const autosize = () => {
@@ -113,7 +129,55 @@ export function TranslationV2({
     ta.style.height = Math.min(160, ta.scrollHeight) + "px";
   };
 
-  const handleCheck = () => {
+  const applyFail = (remaining: number, revealed?: string) => {
+    setAttemptsLeft(remaining);
+    setUsedAttempts((u) => u + 1);
+    setLostHeart(true);
+    setTimeout(() => setLostHeart(false), 500);
+    if (remaining <= 0) {
+      setFeedback({
+        kind: "no",
+        msg: t("exercise.outOfAttempts"),
+        correct: revealed,
+        explain: hint,
+      });
+      setStreak(0);
+    } else {
+      setFeedback({
+        kind: "no",
+        msg: (remaining === 1 ? t("exercise.translation.closeAttemptLeft") : t("exercise.translation.closeAttemptsLeft")).replace("{n}", String(remaining)),
+        explain: hint,
+      });
+    }
+  };
+
+  const handleCheck = async () => {
+    if (checking) return;
+
+    // Server grading (integrity model B) — accepted variants never reach
+    // the client, so the near-miss/alternates coaching is preview-only.
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res: V2GradeResult = await onGrade({ translation: text });
+        if (res.correct) {
+          setFeedback({
+            kind: "ok",
+            msg: usedAttempts === 0 ? t("exercise.translation.excellent") : t("exercise.gotIt"),
+          });
+          setStreak((s) => s + 1);
+          fire();
+        } else {
+          applyFail(res.attemptsRemaining ?? attemptsLeft - 1, res.correctAnswer);
+        }
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+
     const got = normalize(text);
     const isOk = accepted.some((a) => normalize(a) === got);
     if (isOk) {
@@ -152,26 +216,7 @@ export function TranslationV2({
       });
       return;
     }
-    const remaining = attemptsLeft - 1;
-    setAttemptsLeft(remaining);
-    setUsedAttempts((u) => u + 1);
-    setLostHeart(true);
-    setTimeout(() => setLostHeart(false), 500);
-    if (remaining <= 0) {
-      setFeedback({
-        kind: "no",
-        msg: t("exercise.outOfAttempts"),
-        correct,
-        explain: hint,
-      });
-      setStreak(0);
-    } else {
-      setFeedback({
-        kind: "no",
-        msg: (remaining === 1 ? t("exercise.translation.closeAttemptLeft") : t("exercise.translation.closeAttemptsLeft")).replace("{n}", String(remaining)),
-        explain: hint,
-      });
-    }
+    applyFail(attemptsLeft - 1, correct);
   };
 
   const handleRetry = () => {
@@ -201,7 +246,7 @@ export function TranslationV2({
         eyebrow={eyebrow}
         title={title ?? t("exercise.translation.title")}
         feedback={feedback}
-        canCheck={normalize(text).length > 0}
+        canCheck={normalize(text).length > 0 && !checking}
         checkHint={t("exercise.translation.writeFirst")}
         onCheck={handleCheck}
         onContinue={handleContinue}

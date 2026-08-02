@@ -7,9 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
+from app.common.rate_limit import limiter
 from app.db.session import get_db
 from app.exercises.models import ExerciseType
 from app.exercises.schemas import (
+    CheckExerciseRequest,
+    CheckExerciseResponse,
     ExerciseCreate,
     ExerciseListResponse,
     ExerciseResponse,
@@ -260,6 +263,30 @@ async def get_attempts_endpoint(
     return await get_attempt_status(db, exercise_id, user)
 
 
+@router.post("/{exercise_id}/check", response_model=CheckExerciseResponse)
+@limiter.limit("30/minute")
+async def check_exercise_endpoint(
+    request: Request,
+    response: Response,
+    exercise_id: uuid.UUID,
+    data: CheckExerciseRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Non-persisting grade check for deferred-feedback UIs (integrity
+    model B). Returns per-item booleans only — never the expected answer —
+    and does not create a submission or consume an attempt. Rate-limited to
+    blunt oracle-style brute force; the signal it exposes is the same one
+    the deferred-check UX shows on screen."""
+    from app.submissions.service import grade_interactive_detail
+
+    exercise = await get_exercise(db, exercise_id, user)
+    score, passed, per_item = grade_interactive_detail(
+        exercise.config or {}, exercise.exercise_type.value, data.interactive_answers
+    )
+    return CheckExerciseResponse(score=round(score, 4), passed=passed, per_item=per_item)
+
+
 @router.post("/{exercise_id}/submit", response_model=ExerciseSubmissionResponse)
 async def submit_exercise_endpoint(
     exercise_id: uuid.UUID,
@@ -290,6 +317,9 @@ async def submit_exercise_endpoint(
         pass
 
     resp = ExerciseSubmissionResponse.model_validate(submission)
+
+    if hasattr(submission, "_per_item"):
+        resp.per_item = submission._per_item  # type: ignore[attr-defined]
 
     # Attach attempt tracking info
     if hasattr(submission, "_attempt_number"):
@@ -456,7 +486,19 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
         resp.config = {
             k: v
             for k, v in resp.config.items()
-            if k not in ("solution_code", "correct_order", "blanks", "correct_answer")
+            # `words` (sentence_builder) duplicates correct_order verbatim;
+            # `distractors` alone lets word_bank − distractors recover the
+            # correct word set. Both fold into the shuffled word_bank below.
+            if k
+            not in (
+                "solution_code",
+                "correct_order",
+                "blanks",
+                "correct_answer",
+                "accepted_answers",  # translation
+                "words",
+                "distractors",
+            )
         }
         if blanks:
             shuffled = list(blanks)
@@ -469,4 +511,23 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
             pool = list(correct_order) + list(distractors)
             random.shuffle(pool)
             resp.config["word_bank"] = pool
+        # Per-type answer keys inside nested structures (integrity model B):
+        # keep display data, drop the key — the server is the sole grader.
+        if isinstance(resp.config.get("table"), list):  # conjugation
+            resp.config["table"] = [
+                {k: v for k, v in row.items() if k != "correct"} if isinstance(row, dict) else row
+                for row in resp.config["table"]
+            ]
+        if isinstance(resp.config.get("questions"), list):  # bubble_sheet
+            resp.config["questions"] = [
+                {k: v for k, v in q.items() if k != "correct"} if isinstance(q, dict) else q
+                for q in resp.config["questions"]
+            ]
+        if isinstance(resp.config.get("pins"), list):  # map_pin_drop
+            resp.config["pins"] = [
+                {k: v for k, v in p.items() if k not in ("x", "y", "tolerance")}
+                if isinstance(p, dict)
+                else p
+                for p in resp.config["pins"]
+            ]
     return resp

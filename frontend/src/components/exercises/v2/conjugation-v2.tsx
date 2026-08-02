@@ -12,7 +12,7 @@
  * fixes only the wrong rows.
  */
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
 import {
   LessonShell,
@@ -20,10 +20,13 @@ import {
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
 import { useTranslation } from "@/lib/i18n/context";
+import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
 
 export interface ConjugationRow {
   pronoun: string;
-  correct: string;
+  /** Correct form. Required for local (preview) grading; omitted live —
+   * the server grades via `onGrade` and returns per-row verdicts. */
+  correct?: string;
 }
 
 export interface ConjugationV2Props {
@@ -40,6 +43,10 @@ export interface ConjugationV2Props {
   accentForgiving?: boolean;
   maxAttemptsPerTask?: number;
   streak?: number;
+  /** When provided, grading is deferred to the server (integrity model B). */
+  onGrade?: V2GradeFn;
+  /** Live-lesson draft capture. */
+  onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
   onFinish?: (r: {
     correct: boolean;
@@ -61,6 +68,8 @@ export function ConjugationV2({
   accentForgiving = true,
   maxAttemptsPerTask = 3,
   streak: initialStreak = 0,
+  onGrade,
+  onAnswersChange,
   onQuit,
   onFinish,
 }: ConjugationV2Props) {
@@ -68,11 +77,14 @@ export function ConjugationV2({
   const [vals, setVals] = useState<Record<string, string>>({});
   /** CJ-02: rows graded correct lock green across retries (by row index). */
   const [lockedOk, setLockedOk] = useState<boolean[]>(() => rows.map(() => false));
+  /** Server mode: per-row verdicts from the last graded attempt. */
+  const [serverFlags, setServerFlags] = useState<boolean[] | null>(null);
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   const [usedAttempts, setUsedAttempts] = useState(0);
   const [lostHeart, setLostHeart] = useState(false);
   const [streak, setStreak] = useState(initialStreak);
+  const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -82,18 +94,29 @@ export function ConjugationV2({
     exactMatch(got, expected) ||
     (accentForgiving && stripAccents(norm(got)) === stripAccents(norm(expected)));
 
+  /** Row verdict — server flags when grading remotely, local compare otherwise. */
+  const rowFlags = (): boolean[] =>
+    onGrade
+      ? (serverFlags ?? rows.map(() => false))
+      : rows.map((r) => matches(vals[r.pronoun] || "", r.correct ?? ""));
+
   const allFilled = rows.every((r) => (vals[r.pronoun] || "").trim().length > 0);
 
-  const handleCheck = () => {
-    const flags = rows.map((r) => matches(vals[r.pronoun] || "", r.correct));
+  // live-lesson draft capture
+  useEffect(() => {
+    if (Object.keys(vals).length > 0) onAnswersChange?.({ conjugations: vals });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vals]);
+
+  const applyFlags = (flags: boolean[], serverRemaining?: number) => {
     if (flags.every(Boolean)) {
-      // CJ-03: full win — if some rows only missed accents, coach + show the
-      // accented forms filled in green (free, per playground ref).
-      const accentSlips = rows.filter(
-        (r) => !exactMatch(vals[r.pronoun] || "", r.correct)
-      ).length;
+      // CJ-03 (preview only): if some rows only missed accents, coach + show
+      // the accented forms filled in green.
+      const accentSlips = onGrade
+        ? 0
+        : rows.filter((r) => !exactMatch(vals[r.pronoun] || "", r.correct ?? "")).length;
       if (accentSlips > 0) {
-        setVals(Object.fromEntries(rows.map((r) => [r.pronoun, r.correct])));
+        setVals(Object.fromEntries(rows.map((r) => [r.pronoun, r.correct ?? ""])));
       }
       setLockedOk(rows.map(() => true));
       setFeedback({
@@ -110,7 +133,7 @@ export function ConjugationV2({
     }
     const wrong = flags.filter((f) => !f).length;
     const okCount = rows.length - wrong;
-    const remaining = attemptsLeft - 1;
+    const remaining = serverRemaining ?? attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
     setLostHeart(true);
@@ -119,7 +142,10 @@ export function ConjugationV2({
       setFeedback({
         kind: "no",
         msg: (wrong === 1 ? t("exercise.conjugation.formOff") : t("exercise.conjugation.formsOff")).replace("{n}", String(wrong)),
-        correctList: rows.map((r): [string, string] => [r.pronoun, r.correct]),
+        // the stripped config has no correct forms to reveal in server mode
+        correctList: onGrade
+          ? undefined
+          : rows.map((r): [string, string] => [r.pronoun, r.correct ?? ""]),
       });
       setStreak(0);
     } else {
@@ -137,9 +163,33 @@ export function ConjugationV2({
     }
   };
 
+  const handleCheck = async () => {
+    if (checking) return;
+    if (onGrade) {
+      setChecking(true);
+      try {
+        const res = await onGrade({ conjugations: vals });
+        const pi = res.perItem;
+        const flags = res.correct
+          ? rows.map(() => true)
+          : rows.map((r) =>
+              pi && !Array.isArray(pi) ? (pi[r.pronoun] ?? false) : false,
+            );
+        setServerFlags(flags);
+        applyFlags(flags, res.attemptsRemaining);
+      } catch {
+        setFeedback({ kind: "no", msg: t("exercise.submitFailed") });
+      } finally {
+        setChecking(false);
+      }
+      return;
+    }
+    applyFlags(rowFlags());
+  };
+
   const handleRetry = () => {
     // CJ-02: lock the rows that were right; focus the first wrong one.
-    const flags = rows.map((r) => matches(vals[r.pronoun] || "", r.correct));
+    const flags = rowFlags();
     setLockedOk(flags);
     setFeedback(null);
     const firstBad = flags.findIndex((f) => !f);
@@ -184,7 +234,7 @@ export function ConjugationV2({
           </>
         }
         feedback={feedback}
-        canCheck={allFilled}
+        canCheck={allFilled && !checking}
         checkHint={t("exercise.conjugation.fillEveryRow")}
         onCheck={handleCheck}
         onContinue={handleContinue}
@@ -203,9 +253,10 @@ export function ConjugationV2({
         >
           {rows.map((r, i) => {
             const v = vals[r.pronoun] || "";
+            const flags = rowFlags();
             // CJ-02: locked rows stay green between attempts.
-            const isOk = feedback ? matches(v, r.correct) : lockedOk[i];
-            const isWrong = !!feedback && !matches(v, r.correct);
+            const isOk = feedback ? flags[i] : lockedOk[i];
+            const isWrong = !!feedback && !flags[i];
             const inputId = `cj-row-${i}`;
             return (
               <div

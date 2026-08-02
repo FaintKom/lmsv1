@@ -68,9 +68,7 @@ async def upload_file(
     await db.flush()
 
     # Reload to get created_at
-    result = await db.execute(
-        select(FileSubmission).where(FileSubmission.id == submission.id)
-    )
+    result = await db.execute(select(FileSubmission).where(FileSubmission.id == submission.id))
     return result.scalar_one()
 
 
@@ -90,9 +88,7 @@ async def get_file_submissions(
 async def get_file_submission(
     db: AsyncSession, submission_id: uuid.UUID, user: User
 ) -> FileSubmission:
-    result = await db.execute(
-        select(FileSubmission).where(FileSubmission.id == submission_id)
-    )
+    result = await db.execute(select(FileSubmission).where(FileSubmission.id == submission_id))
     submission = result.scalar_one_or_none()
     if not submission:
         raise NotFoundError("File submission not found")
@@ -106,6 +102,32 @@ async def get_file_submission(
 
 
 # ─── Interactive grading ────────────────────────────────────────────
+
+# per_item is a per-slot verdict map/list (booleans only — never the expected
+# answer, so the /check endpoint can't be used as an answer oracle beyond
+# what the deferred-check UX already reveals).
+PerItem = dict[str, bool] | list[bool] | None
+
+
+def grade_interactive_detail(
+    content: dict, exercise_type: str, answers: dict
+) -> tuple[float, bool, PerItem]:
+    """Like grade_interactive, but with per-item verdicts where the type
+    supports them (integrity model B deferred feedback)."""
+    if exercise_type == "translation":
+        score, passed = _grade_translation(content, answers)
+        return score, passed, None
+    if exercise_type == "conjugation":
+        return _grade_conjugation_detail(content, answers)
+    if exercise_type == "bubble_sheet":
+        return _grade_bubble_sheet_detail(content, answers)
+    if exercise_type == "map_pin_drop":
+        return _grade_map_pin_drop_detail(content, answers)
+    if exercise_type == "sentence_builder":
+        return _grade_sentence_builder_detail(content, answers)
+    score, passed = grade_interactive(content, exercise_type, answers)
+    return score, passed, None
+
 
 def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple[float, bool]:
     """Grade interactive exercise. Returns (score 0.0-1.0, passed)."""
@@ -240,16 +262,21 @@ def _grade_translation(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_sentence_builder(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade sentence builder — compare word order."""
+    score, passed, _ = _grade_sentence_builder_detail(content, answers)
+    return score, passed
+
+
+def _grade_sentence_builder_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade sentence builder — compare word order. per_item = verdict per position."""
     correct = content.get("correct_order", [])
     student = answers.get("word_order", [])
     if not correct:
-        return 1.0, True
+        return 1.0, True, None
     if len(student) != len(correct):
-        return 0.0, False
-    matches = sum(1 for a, b in zip(student, correct) if a == b)
-    score = matches / len(correct)
-    return score, score >= 0.7
+        return 0.0, False, [False] * len(correct)
+    per_item = [a == b for a, b in zip(student, correct)]
+    score = sum(per_item) / len(correct)
+    return score, score >= 0.7, per_item
 
 
 def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
@@ -289,20 +316,38 @@ def _grade_dialogue(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_conjugation(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade conjugation table — compare each row."""
+    score, passed, _ = _grade_conjugation_detail(content, answers)
+    return score, passed
+
+
+def _grade_conjugation_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade conjugation table — compare each row. per_item = {pronoun: verdict}.
+
+    accent_forgiving (default True, mirrors the V2 component): answers that
+    differ from the correct form only by accents still count.
+    """
+    import unicodedata
+
+    forgiving = content.get("accent_forgiving", True)
+
+    def _norm(s: str) -> str:
+        s = " ".join(s.strip().lower().split())
+        if forgiving:
+            s = "".join(c for c in unicodedata.normalize("NFD", s) if not unicodedata.combining(c))
+        return s
+
     table = content.get("table", [])
     student_answers = answers.get("conjugations", {})  # {pronoun: answer}
     if not table:
-        return 1.0, True
-    correct = 0
+        return 1.0, True, None
+    per_item: dict[str, bool] = {}
     for row in table:
         pronoun = row.get("pronoun", "")
-        expected = (row.get("correct") or "").strip().lower()
-        given = (student_answers.get(pronoun) or "").strip().lower()
-        if given == expected:
-            correct += 1
-    score = correct / len(table)
-    return score, score >= 0.7
+        per_item[pronoun] = _norm(student_answers.get(pronoun) or "") == _norm(
+            row.get("correct") or ""
+        )
+    score = sum(per_item.values()) / len(table)
+    return score, score >= 0.7, per_item
 
 
 def _grade_reading(content: dict, answers: dict) -> tuple[float, bool]:
@@ -392,41 +437,50 @@ def _grade_word_search(content: dict, answers: dict) -> tuple[float, bool]:
 
 
 def _grade_map_pin_drop(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade map pin drop — check if pins are within tolerance of correct positions."""
+    score, passed, _ = _grade_map_pin_drop_detail(content, answers)
+    return score, passed
+
+
+def _grade_map_pin_drop_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade map pin drop — pins within tolerance. per_item = verdict per pin."""
     pins = content.get("pins", [])
     student_pins = answers.get("pins", [])
     if not pins:
-        return 1.0, True
-    correct = 0
+        return 1.0, True, None
+    per_item: list[bool] = []
     for i, pin in enumerate(pins):
         if i >= len(student_pins):
+            per_item.append(False)
             continue
         sp = student_pins[i]
-        dx = (sp.get("x", 0) - pin.get("x", 0))
-        dy = (sp.get("y", 0) - pin.get("y", 0))
-        dist = (dx ** 2 + dy ** 2) ** 0.5
+        dx = sp.get("x", 0) - pin.get("x", 0)
+        dy = sp.get("y", 0) - pin.get("y", 0)
+        dist = (dx**2 + dy**2) ** 0.5
         tolerance = pin.get("tolerance", 30)
-        if dist <= tolerance:
-            correct += 1
-    score = correct / len(pins)
-    return score, score >= 0.7
+        per_item.append(dist <= tolerance)
+    score = sum(per_item) / len(pins)
+    return score, score >= 0.7, per_item
 
 
 def _grade_bubble_sheet(content: dict, answers: dict) -> tuple[float, bool]:
-    """Grade bubble sheet — standard MC answer sheet."""
+    score, passed, _ = _grade_bubble_sheet_detail(content, answers)
+    return score, passed
+
+
+def _grade_bubble_sheet_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
+    """Grade bubble sheet — standard MC answer sheet. per_item = {index: verdict}."""
     questions = content.get("questions", [])
     student_answers = answers.get("answers", {})
     if not questions:
-        return 1.0, True
-    correct = 0
+        return 1.0, True, None
+    per_item: dict[str, bool] = {}
     for i, q in enumerate(questions):
         expected = q.get("correct", "").strip().upper()
         given = (student_answers.get(str(i)) or "").strip().upper()
-        if given == expected:
-            correct += 1
-    score = correct / len(questions)
+        per_item[str(i)] = given == expected
+    score = sum(per_item.values()) / len(questions)
     passing = content.get("passing_score", 70) / 100
-    return score, score >= passing
+    return score, score >= passing, per_item
 
 
 async def submit_interactive(
@@ -459,10 +513,7 @@ async def get_interactive_submissions(
     db: AsyncSession, lesson_id: uuid.UUID, user: User
 ) -> list[InteractiveSubmission]:
     await lesson_in_user_org(db, lesson_id, user)
-    query = (
-        select(InteractiveSubmission)
-        .where(InteractiveSubmission.lesson_id == lesson_id)
-    )
+    query = select(InteractiveSubmission).where(InteractiveSubmission.lesson_id == lesson_id)
     if user.role == UserRole.student:
         query = query.where(InteractiveSubmission.student_id == user.id)
     query = query.order_by(InteractiveSubmission.created_at.desc())

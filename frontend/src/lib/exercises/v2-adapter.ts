@@ -9,15 +9,18 @@
  * to an injected `onGrade` callback that POSTs the raw answer to
  * `/exercises/:id/submit` and renders feedback from the server response.
  *
- * Tier-A scope (zero backend change): types whose answer is already
- * stripped AND whose UX is a single Check button → one submit = one task.
- *   - true_false  (config.statement; answer config.correct_answer stripped)
- *   - fill_blanks (config.text + word_bank; config.blanks stripped)
- *   - ordering    (word_bank; config.correct_order stripped)
+ * Scope: single-submit types whose answers `_strip_answers` removes from
+ * the student payload:
+ *   - true_false / fill_blanks / ordering (Tier A)
+ *   - translation / sentence_builder / conjugation / bubble_sheet (PR-1);
+ *     multi-slot types get per-item verdicts via `per_item` in the submit
+ *     response (and the non-persisting POST /exercises/{id}/check).
  *
- * matching/categorize/bubble_sheet/quiz are NOT here — they either leak
- * answers (pairs/categories/correct not stripped) or grade per-interaction
- * and need a non-persisting /check endpoint. See tasks/todo.md.
+ * matching/categorize/quiz/reading/dialogue/crossword are NOT here — they
+ * grade per-interaction and are the deferred-check follow-ups. map_pin_drop
+ * is stripped server-side but its V2 component is single-target while the
+ * config is multi-pin — wiring lands with the deferred batch. See
+ * tasks/todo.md.
  */
 
 /** Result the V2 component needs to render feedback, derived from the
@@ -31,6 +34,9 @@ export interface V2GradeResult {
   attemptsRemaining?: number;
   /** Server signalled the task is over (no more attempts). */
   maxReached?: boolean;
+  /** Per-item verdicts (booleans only) for multi-slot types — keyed per
+   * slot ({pronoun: bool}, {"0": bool}) or positional. */
+  perItem?: Record<string, boolean> | boolean[];
 }
 
 /** Injected into a V2 component to defer grading to the server. The
@@ -38,7 +44,15 @@ export interface V2GradeResult {
  * `{ blanks }`, `{ order }`). */
 export type V2GradeFn = (answers: Record<string, unknown>) => Promise<V2GradeResult>;
 
-export const V2_LIVE_TYPES = ["true_false", "fill_blanks", "ordering"] as const;
+export const V2_LIVE_TYPES = [
+  "true_false",
+  "fill_blanks",
+  "ordering",
+  "translation",
+  "sentence_builder",
+  "conjugation",
+  "bubble_sheet",
+] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 
 export function isV2LiveType(t: string | undefined | null): t is V2LiveType {
