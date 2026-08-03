@@ -87,16 +87,26 @@ const AUDIT = `(() => {
     return el.tagName.toLowerCase() + (cls ? "." + cls : "");
   };
 
-  /** Effective background: walk up compositing translucent layers. */
+  /**
+   * Effective background: walk up compositing translucent layers.
+   * Returns the chain too — a composited result on its own cannot tell you
+   * whether a surprising colour came from a real solid layer or from a
+   * mis-composite in here, and guessing wrong means "fixing" healthy screens.
+   */
   const bgOf = (el) => {
     let acc = null, n = el;
+    const chain = [];
     while (n) {
-      const c = parse(getComputedStyle(n).backgroundColor);
-      if (c && c.a > 0) acc = acc ? over(acc, c) : c;
-      if (acc && acc.a >= 1) return acc;
+      const raw = getComputedStyle(n).backgroundColor;
+      const c = parse(raw);
+      if (c && c.a > 0) {
+        chain.push(label(n).slice(0, 28) + " " + raw);
+        acc = acc ? over(acc, c) : c;
+      }
+      if (acc && acc.a >= 1) return { c: acc, chain };
       n = n.parentElement;
     }
-    return acc || { r: 255, g: 255, b: 255, a: 1 };
+    return { c: acc || { r: 255, g: 255, b: 255, a: 1 }, chain };
   };
 
   const out = [];
@@ -129,7 +139,8 @@ const AUDIT = `(() => {
     if (!own) continue;
     const fg = parse(s.color);
     if (!fg || fg.a === 0) continue;
-    const bg = bgOf(el);
+    const bgInfo = bgOf(el);
+    const bg = bgInfo.c;
     const r = ratio(fg.a < 1 ? over(fg, bg) : fg, bg);
     const size = parseFloat(s.fontSize);
     const bold = Number(s.fontWeight) >= 700;
@@ -140,7 +151,8 @@ const AUDIT = `(() => {
         where: label(el),
         detail: r.toFixed(2) + ":1 (needs " + floor + ") — " + s.color + " on rgb(" +
           [bg.r, bg.g, bg.b].map(Math.round).join(",") + ") — \\"" +
-          el.textContent.trim().slice(0, 40) + "\\"",
+          el.textContent.trim().slice(0, 40) + "\\"\\n      layers: " +
+          (bgInfo.chain.join(" < ") || "none"),
       });
     }
   }
