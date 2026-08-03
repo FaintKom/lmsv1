@@ -268,7 +268,7 @@ export function SessionDetail({
             <button
               onClick={markAllPresent}
               disabled={roster.length === 0}
-              className="flex items-center gap-1 rounded-lg bg-green-50 px-2.5 py-1.5 text-[11.5px] font-bold text-green-700 hover:bg-green-100 disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-success-soft px-2.5 py-1.5 text-[11.5px] font-bold text-green-700 hover:bg-success-soft disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" />
               {t("attendance.markAllPresent")}
@@ -356,7 +356,7 @@ export function SessionDetail({
                     }`}
                     className="flex items-center gap-2.5 rounded-sm border border-border bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
                   >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-green-50 text-[11px] font-extrabold text-green-800">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-success-soft text-[11px] font-extrabold text-green-800">
                       {row.student_name.charAt(0)}
                     </span>
                     <span className="min-w-0 flex-1 truncate text-sm font-bold text-text">

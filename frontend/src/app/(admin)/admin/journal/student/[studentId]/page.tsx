@@ -48,19 +48,19 @@ const RES: Record<
   },
   correct: {
     dot: "bg-green-600",
-    badgeBg: "bg-green-50",
+    badgeBg: "bg-success-soft",
     badgeFg: "text-green-800",
     labelKey: "journal.activity.resCorrect",
   },
   partial: {
     dot: "bg-sun-500",
-    badgeBg: "bg-sun-50",
+    badgeBg: "bg-warning-soft",
     badgeFg: "text-sun-700",
     labelKey: "journal.activity.resPartial",
   },
   wrong: {
     dot: "bg-clay-500",
-    badgeBg: "bg-clay-50",
+    badgeBg: "bg-danger-soft",
     badgeFg: "text-clay-700",
     labelKey: "journal.activity.resWrong",
   },
@@ -154,7 +154,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       value: String(k.lessons_attended),
       Icon: CheckCircle2,
       fg: "text-green-700",
-      bg: "bg-green-50",
+      bg: "bg-success-soft",
     },
     {
       label: t("journal.activity.kpiExercises"),
@@ -168,7 +168,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       value: `${k.correct_pct}%`,
       Icon: Target,
       fg: "text-green-700",
-      bg: "bg-green-50",
+      bg: "bg-success-soft",
     },
     {
       label: t("journal.activity.kpiTime"),
@@ -182,7 +182,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       value: String(k.xp_earned),
       Icon: Zap,
       fg: "text-sun-700",
-      bg: "bg-sun-100",
+      bg: "bg-warning-soft",
     },
   ];
 
@@ -318,7 +318,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
           )}
         </div>
         {!lesson.attended ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-clay-50 px-2.5 py-1 text-[11px] font-bold text-clay-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-danger-soft px-2.5 py-1 text-[11px] font-bold text-clay-700">
             <span className="h-1.5 w-1.5 rounded-full bg-clay-500" />
             {t("journal.activity.absent")}
           </span>
@@ -328,7 +328,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
               {exCount} {t("journal.activity.exShort")}
             </span>
             {correctPct != null && (
-              <span className="rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-bold text-green-800">
+              <span className="rounded-full bg-success-soft px-2.5 py-1 text-[11px] font-bold text-green-800">
                 {correctPct}% {t("journal.activity.correctShort")}
               </span>
             )}

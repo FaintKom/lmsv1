@@ -26,7 +26,7 @@ export function DirectCrypto() {
   return (
     <section className="rounded-lg border border-border bg-surface p-6">
       <h2 className="mb-3 text-lg font-bold text-text">{t("support.cryptoSectionTitle")}</h2>
-      <div className="mb-4 flex items-start gap-2 rounded-md border border-warning bg-sun-50 p-3 text-xs text-ink-700">
+      <div className="mb-4 flex items-start gap-2 rounded-md border border-warning bg-warning-soft p-3 text-xs text-ink-700">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-fg" aria-hidden />
         <p>{t("support.cryptoDisclaimer")}</p>
       </div>

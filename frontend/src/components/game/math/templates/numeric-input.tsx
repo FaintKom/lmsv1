@@ -136,7 +136,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
 
  {/* Hint */}
  {showHint && !submitted && cfg.hint && (
- <div className="w-full max-w-lg rounded-lg bg-sun-50 p-3 text-xs text-warning-fg ">
+ <div className="w-full max-w-lg rounded-lg bg-warning-soft p-3 text-xs text-warning-fg ">
  {cfg.hint}
  </div>
  )}

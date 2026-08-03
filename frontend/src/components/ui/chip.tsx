@@ -18,8 +18,8 @@ interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
 
 const VARIANT_CLASSES: Record<ChipVariant, string> = {
   green: "bg-primary-soft text-success-fg",
-  sun: "bg-sun-100 text-sun-700",
-  clay: "bg-clay-50 text-clay-700",
+  sun: "bg-warning-soft text-warning-fg",
+  clay: "bg-danger-soft text-danger-fg",
   ink: "bg-surface-2 text-text-muted",
   "solid-green": "bg-primary text-primary-fg",
   "solid-ink": "bg-ink-900 text-white",

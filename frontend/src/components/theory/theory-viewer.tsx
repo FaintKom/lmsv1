@@ -29,7 +29,7 @@ import {
 
 const BADGE_CLASS: Record<TheorySourceKind, string> = {
   pdf: "bg-danger-soft text-danger-fg",
-  pptx: "bg-sun-50 text-warning-fg",
+  pptx: "bg-warning-soft text-warning-fg",
   gslides: "bg-success-soft text-primary",
 };
 
@@ -105,7 +105,7 @@ export function TheoryViewer({
 
       {/* notes */}
       {showNotes && notes.length > 0 && (
-        <div className="mt-3 rounded-[12px] border-2 border-warning bg-sun-50 p-3 text-sm leading-relaxed text-text">
+        <div className="mt-3 rounded-[12px] border-2 border-warning bg-warning-soft p-3 text-sm leading-relaxed text-text">
           <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-warning-fg">
             <StickyNote className="h-3 w-3" />
             {t("theory.speakerNotes")}

@@ -32,9 +32,9 @@ interface LeaderboardEntry {
 }
 
 const LEAGUE_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
- bronze: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
+ bronze: { bg: "bg-warning-soft ", text: "text-warning-fg ", border: "border-warning " },
  silver: { bg: "bg-surface-2 ", text: "text-text-muted ", border: "border-border-strong " },
- gold: { bg: "bg-sun-100 ", text: "text-warning-fg ", border: "border-warning " },
+ gold: { bg: "bg-warning-soft ", text: "text-warning-fg ", border: "border-warning " },
  platinum: { bg: "bg-info-soft ", text: "text-info-fg ", border: "border-info " },
  diamond: { bg: " ", text: "text-text ", border: "border-border " },
 };

@@ -1454,7 +1454,7 @@ function TwoWayTableConfig({
  value={displayValue}
  onChange={(e) => setCell(r, c, isBlank, parseInt(e.target.value) || 0)}
  className={`w-16 rounded border px-1.5 py-0.5 text-center text-xs ${
- isBlank ? "border-warning bg-sun-50" : "border-border-strong bg-surface"
+ isBlank ? "border-warning bg-warning-soft" : "border-border-strong bg-surface"
  }`}
  title={isBlank ? "Expected answer" : "Shown value"}
  />
@@ -1764,7 +1764,7 @@ function TablePatternConfig({
  type="number"
  value={r.y}
  onChange={(e) => updateRow(i, { y: parseFloat(e.target.value) || 0 })}
- className={`${numCls} ${r.blank ? "bg-sun-50 border-warning" : ""}`}
+ className={`${numCls} ${r.blank ? "bg-warning-soft border-warning" : ""}`}
  title={r.blank ? "Expected answer (student fills)" : "Shown to student"}
  />
  </label>

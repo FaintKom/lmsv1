@@ -54,12 +54,12 @@ const CONTENT_ICONS: Record<string, LucideIcon> = {
 };
 
 const ICON_COLORS: Record<string, string> = {
-  text:           "bg-green-100 text-green-700",
-  video:          "bg-clay-100 text-clay-700",
-  quiz:           "bg-sun-100 text-sun-700",
+  text:           "bg-success-soft text-success-fg",
+  video:          "bg-danger-soft text-danger-fg",
+  quiz:           "bg-warning-soft text-warning-fg",
   code_challenge: "bg-surface-2 text-text",
-  robot_2d:       "bg-green-100 text-green-700",
-  math_interactive: "bg-sun-100 text-sun-700",
+  robot_2d:       "bg-success-soft text-success-fg",
+  math_interactive: "bg-warning-soft text-warning-fg",
   world_3d:       "bg-surface-2 text-text",
 };
 
@@ -232,7 +232,7 @@ export default function CourseDetailPage() {
           >
             {/* module header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] bg-green-100 font-mono text-xs font-extrabold text-green-800">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] bg-success-soft font-mono text-xs font-extrabold text-green-800">
                 {mi + 1}
               </span>
               <h2 className="flex-1 text-[14px] font-extrabold text-text">

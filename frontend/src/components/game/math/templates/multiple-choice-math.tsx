@@ -124,7 +124,7 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  <div className={`rounded-lg border p-4 ${
  isCorrect
  ? "border-primary-soft bg-success-soft "
- : "border-warning bg-sun-50 "
+ : "border-warning bg-warning-soft "
  }`}>
  <p className={`text-xs font-semibold mb-1 ${isCorrect ? "text-primary " : "text-warning-fg "}`}>
  {isCorrect ? "Correct!" : "Not quite"}

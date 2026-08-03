@@ -64,7 +64,7 @@ export function LessonReview({
                     </span>
                     <span
                       className={`rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold ${
-                        s.passed ? "bg-green-100 text-green-800" : "bg-clay-50 text-clay-700"
+                        s.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                       }`}
                     >
                       {s.score != null ? `${Math.round(s.score)}%` : s.passed ? "✓" : "✗"}
@@ -91,7 +91,7 @@ export function LessonReview({
                   </span>
                   <span
                     className={`rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold ${
-                      mine.passed ? "bg-green-100 text-green-800" : "bg-clay-50 text-clay-700"
+                      mine.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                     }`}
                   >
                     {mine.score != null ? `${Math.round(mine.score)}%` : mine.passed ? "✓" : "✗"}

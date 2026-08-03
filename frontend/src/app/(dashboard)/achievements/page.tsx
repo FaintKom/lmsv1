@@ -352,7 +352,7 @@ function AchievementsTab({
  <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-4">
  <Card className="border-l-4 border-l-yellow-400 hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-sun-100 p-3 ">
+ <div className="rounded-lg bg-warning-soft p-3 ">
  <Zap className="h-5 w-5 text-warning-fg" />
  </div>
  <div>
@@ -376,7 +376,7 @@ function AchievementsTab({
 
  <Card className="border-l-4 border-l-amber-400 hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-6">
- <div className="rounded-lg bg-sun-100 p-3 ">
+ <div className="rounded-lg bg-warning-soft p-3 ">
  <Trophy className="h-5 w-5 text-warning-fg" />
  </div>
  <div>
@@ -446,7 +446,7 @@ function AchievementsTab({
  {leaderboard.map((entry, i) => (
  <div key={entry.user_id} className="flex items-center gap-3 rounded-lg bg-surface-2 px-3 py-2 ">
  <span className={`flex h-6 w-6 items-center justify-center rounded-pill text-xs font-bold ${
- i === 0 ? "bg-sun-100 text-warning-fg "
+ i === 0 ? "bg-warning-soft text-warning-fg "
  : i === 1 ? "bg-ink-200 text-text-muted "
  : i === 2 ? "bg-clay-300 text-clay-700 "
  : "bg-surface-2 text-text-subtle "
@@ -505,7 +505,7 @@ function AchievementsTab({
  <p className="text-2xl font-bold text-primary">+50</p>
  <p className="mt-1 text-xs text-primary">Pass a code challenge</p>
  </div>
- <div className="rounded-lg bg-clay-50 p-4 text-center ">
+ <div className="rounded-lg bg-danger-soft p-4 text-center ">
  <p className="text-2xl font-bold text-clay-700">+5</p>
  <p className="mt-1 text-xs text-clay-700">Daily streak bonus</p>
  </div>

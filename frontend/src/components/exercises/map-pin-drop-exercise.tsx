@@ -177,7 +177,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
       ) : (
         <div
           className={`rounded-lg px-5 py-3 text-sm font-semibold ${
-            correctCount === pins.length ? "bg-success-soft text-success-fg" : "bg-sun-50 text-warning-fg"
+            correctCount === pins.length ? "bg-success-soft text-success-fg" : "bg-warning-soft text-warning-fg"
           }`}
         >
           {correctCount === pins.length

@@ -150,3 +150,42 @@ now `#0d150d` instead of `#232b22`.
 **Known, NOT fixed here** (needs a design decision, not a sweep): the primary
 button in dark is `text-white` on `#35d07f` — 2.0:1. Same failure mode as
 white-on-sun, but changing it repaints every primary button in dark mode.
+
+
+---
+
+## Slice 8 (2026-08-03) — tinted surfaces, and a flaw in how I verified
+
+The owner photographed the teacher dashboard: the onboarding card rendered as a
+light mint panel with near-white text. Cause is a THIRD class that slices 1-7
+never touched — raw tinted surfaces:
+
+    bg-gradient-to-br from-green-50 to-emerald-50   +   text-text inside
+
+The tint does not flip; the text does. Measured across the app: ~207 raw tints
+(`bg-green-50/100` 69, `bg-sun-50/100` 74, `bg-clay-50/100` 43) plus 21 light
+gradients, in 63 files.
+
+The fix is mechanical because the semantic pairs already exist and already flip
+(light: solid `--green-50`; dark: `rgba(53,208,127,0.14)`):
+
+| raw | semantic |
+|---|---|
+| `bg-green-50/100` (+ `text-green-700/800`) | `bg-success-soft` (+ `text-success-fg`) |
+| `bg-sun-50/100` (+ `text-sun-700`) | `bg-warning-soft` (+ `text-warning-fg`) |
+| `bg-clay-50/100` (+ `text-clay-700`) | `bg-danger-soft` (+ `text-danger-fg`) |
+| `from-green-50 to-emerald-50` | `bg-success-soft` |
+
+145 replacements in 50 files. Saturated brand gradients (`from-green-500`,
+avatar circles) are NOT tints and stay.
+
+### The verification flaw — worth remembering
+
+In slice 7 I reported `/demo` as clean in dark. It was not: the entire page sits
+on `bg-gradient-to-br from-green-50 via-white to-emerald-50`. My detector read
+`backgroundColor` only, and a gradient lives in `backgroundImage`, so the check
+could not see it and returned zero.
+
+A surface audit must read BOTH properties, and must composite translucent
+colours against what is behind them before computing contrast. The corrected
+detector is in the slice-8 PR description.

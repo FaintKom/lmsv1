@@ -12,7 +12,7 @@ interface Point {
 
 const POINT_COLORS = [
  { fill: "#6366f1", label: "#4f46e5", name: "A", bg: "bg-primary-soft text-success-fg" },
- { fill: "#f59e0b", label: "#d97706", name: "B", bg: "bg-sun-100 text-warning-fg" },
+ { fill: "#f59e0b", label: "#d97706", name: "B", bg: "bg-warning-soft text-warning-fg" },
  { fill: "#ec4899", label: "#db2777", name: "C", bg: " text-text" },
  { fill: "#22c55e", label: "#16a34a", name: "D", bg: "bg-primary-soft text-success-fg" },
  { fill: "#8b5cf6", label: "#7c3aed", name: "E", bg: "bg-primary-soft text-success-fg" },

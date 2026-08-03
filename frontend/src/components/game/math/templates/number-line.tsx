@@ -77,7 +77,7 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
 
  const MARKER_STYLES = [
  { fill: "#6366f1", name: "A", bg: "bg-primary-soft text-success-fg" },
- { fill: "#f59e0b", name: "B", bg: "bg-sun-100 text-warning-fg" },
+ { fill: "#f59e0b", name: "B", bg: "bg-warning-soft text-warning-fg" },
  { fill: "#ec4899", name: "C", bg: " text-text" },
  { fill: "#22c55e", name: "D", bg: "bg-primary-soft text-success-fg" },
  ];

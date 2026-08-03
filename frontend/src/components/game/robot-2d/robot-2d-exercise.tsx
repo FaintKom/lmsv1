@@ -353,7 +353,7 @@ export default function Robot2DExercise({
  <div>
  {hints.length > 0 && !completed && (
  <button onClick={() => setShowHint(!showHint)}
- className="flex items-center gap-1 rounded-lg bg-sun-50 px-2.5 py-1.5 text-xs font-semibold text-warning-fg transition-colors hover:bg-sun-100 ">
+ className="flex items-center gap-1 rounded-lg bg-warning-soft px-2.5 py-1.5 text-xs font-semibold text-warning-fg transition-colors hover:bg-warning-soft ">
  <Lightbulb className="h-3.5 w-3.5" />
  {t("game.hint")}
  </button>
@@ -387,7 +387,7 @@ export default function Robot2DExercise({
  </div>
  )}
  {showHint && hints.length > 0 && !completed && (
- <div className="mt-2 rounded-lg bg-sun-50 p-2.5 text-xs text-warning-fg ">
+ <div className="mt-2 rounded-lg bg-warning-soft p-2.5 text-xs text-warning-fg ">
  <p>{hints[hintIndex]}</p>
  {hintIndex < hints.length - 1 && (
  <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-warning-fg underline ">{t("game.nextHint")}</button>

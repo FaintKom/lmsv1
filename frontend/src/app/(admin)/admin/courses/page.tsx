@@ -182,8 +182,8 @@ export default function AdminCoursesPage() {
  // an image never passes a squint test.
  const statusBadge = (status: string) => {
  const colors: Record<string, string> = {
- draft: "bg-sun-100 text-sun-700",
- published: "bg-green-100 text-green-800",
+ draft: "bg-warning-soft text-warning-fg",
+ published: "bg-success-soft text-success-fg",
  archived: "bg-surface-2 text-text-muted",
  };
  return (

@@ -152,7 +152,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  className={`rounded-lg px-5 py-3 text-sm font-semibold ${
  correctCount === pronouns.length
  ? "bg-success-soft text-success-fg "
- : "bg-sun-50 text-warning-fg "
+ : "bg-warning-soft text-warning-fg "
  }`}
  >
  {correctCount === pronouns.length

@@ -278,7 +278,7 @@ export default function World3DExercise({
  )}
 
  {showHint && hints.length > 0 && (
- <div className="mt-2 rounded-lg bg-sun-50 p-2.5 text-xs text-warning-fg ">
+ <div className="mt-2 rounded-lg bg-warning-soft p-2.5 text-xs text-warning-fg ">
  <p>{hints[hintIndex]}</p>
  {hintIndex < hints.length - 1 && (
  <button onClick={() => setHintIndex(hintIndex + 1)} className="mt-1 text-warning-fg underline ">Next hint</button>

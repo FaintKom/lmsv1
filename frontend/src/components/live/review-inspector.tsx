@@ -90,7 +90,7 @@ export function ReviewInspector({
             {exercise.exercise_type}
           </span>
         )}
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-pill bg-sun-100 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
+        <span className="ml-auto inline-flex items-center gap-1.5 rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
           <Eye size={11} /> {t("live.teacherOnly")}
         </span>
       </div>
@@ -114,9 +114,9 @@ export function ReviewInspector({
                   <span
                     className={`ml-auto rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
                       row.passed
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-success-soft text-success-fg"
                         : row.submitted
-                          ? "bg-clay-50 text-clay-700"
+                          ? "bg-danger-soft text-danger-fg"
                           : "bg-surface-2 text-text"
                     }`}
                   >

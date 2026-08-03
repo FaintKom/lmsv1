@@ -43,9 +43,9 @@ interface GradebookData {
 function scoreColor(score: number | null | undefined, max: number) {
  if (score == null) return "";
  const pct = max > 0 ? (score / max) * 100 : 0;
- if (pct >= 85) return "bg-green-50 text-green-800";
+ if (pct >= 85) return "bg-success-soft text-success-fg";
  if (pct >= 60) return "text-text";
- return "bg-clay-50 text-clay-700";
+ return "bg-danger-soft text-danger-fg";
 }
 
 export default function GradebookPage() {

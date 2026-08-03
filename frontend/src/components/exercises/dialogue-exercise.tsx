@@ -123,7 +123,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  <div className="space-y-4">
  {/* Context */}
  {config.context && (
- <div className="rounded-lg bg-sun-50 border border-warning px-5 py-3">
+ <div className="rounded-lg bg-warning-soft border border-warning px-5 py-3">
  <p className="text-sm text-warning-fg font-medium">
  {"\uD83C\uDFAD"} {config.context}
  </p>
@@ -254,7 +254,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  className={`rounded-lg px-5 py-3 text-sm font-semibold ${
  correctCount === totalChoices
  ? "bg-success-soft text-success-fg "
- : "bg-sun-50 text-warning-fg "
+ : "bg-warning-soft text-warning-fg "
  }`}
  >
  {correctCount === totalChoices
