@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { LoginPage } from "./poms/LoginPage";
+
 /**
  * Dark-theme surface audit.
  *
@@ -174,23 +176,50 @@ for (const route of PUBLIC_ROUTES) {
 }
 
 /**
- * The dashboard is where the tinted-card bug actually surfaced, but it needs a
- * session. Runs only when E2E_STUDENT_PASSWORD is set (CI secret / .env.local)
- * and skips rather than fails when it is not — a missing credential is not a
- * design regression.
+ * Authenticated surfaces — where all three shipped bugs actually lived. The
+ * public sweep never saw them, which is why they kept being found by
+ * screenshot instead of by a check.
+ *
+ * One login per role, then every route in the same context: /auth/login is
+ * rate-limited 5/min/IP, so logging in per route would throttle itself.
  */
-test("dark theme: student dashboard has no light surfaces", async ({ page }) => {
-  const password = process.env.E2E_STUDENT_PASSWORD;
-  test.skip(!password, "E2E_STUDENT_PASSWORD not set");
+const ROLE_ROUTES: Record<"student" | "teacher", string[]> = {
+  student: [
+    "/dashboard",
+    "/courses",
+    "/assignments",
+    "/progress",
+    "/achievements",
+    "/leaderboard",
+    "/profile",
+  ],
+  teacher: [
+    "/admin",
+    "/admin/courses",
+    "/admin/journal",
+    "/admin/gradebook",
+    "/admin/users",
+    "/admin/analytics",
+    "/admin/content-library",
+  ],
+};
 
-  await page.addInitScript(() => window.localStorage.setItem("lms.theme", "dark"));
-  await page.goto("/login");
-  await page.getByLabel(/email/i).fill(process.env.E2E_STUDENT_EMAIL || "student@grasslms.online");
-  await page.getByLabel(/password/i).fill(password!);
-  await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
-  await page.waitForLoadState("networkidle");
+for (const role of ["student", "teacher"] as const) {
+  test(`dark theme: ${role} surfaces have no light surfaces or low-contrast text`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() => window.localStorage.setItem("lms.theme", "dark"));
+    await new LoginPage(page).loginViaUi(role);
 
-  const violations = (await page.evaluate(AUDIT)) as Violation[];
-  expect(violations, report("/dashboard", violations)).toEqual([]);
-});
+    const failures: string[] = [];
+    for (const route of ROLE_ROUTES[role]) {
+      await page.goto(route, { waitUntil: "networkidle" });
+      await expect(page.locator("html")).toHaveClass(/dark/);
+      const violations = (await page.evaluate(AUDIT)) as Violation[];
+      if (violations.length) failures.push(report(route, violations));
+    }
+    // Report every bad route in one go — finding them one failure per run is
+    // how a three-class bug takes three days to surface.
+    expect(failures.join("\n\n"), `${role}: ${failures.length} route(s) with violations`).toBe("");
+  });
+}

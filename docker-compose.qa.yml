@@ -101,6 +101,10 @@ services:
       dockerfile: frontend/Dockerfile.qa
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8000
+        # Build-time, not runtime — see the comment in frontend/Dockerfile.qa.
+        # Without it the /api/:path* rewrite never reaches routes-manifest.json
+        # and the whole authenticated app 404s inside the QA stack.
+        BACKEND_URL: http://backend:8000
     env_file: .env.qa
     depends_on:
       backend:

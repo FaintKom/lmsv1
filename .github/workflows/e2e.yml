@@ -64,7 +64,13 @@ jobs:
         run: docker compose -f docker-compose.qa.yml exec -T backend python -m alembic upgrade head
 
       - name: Seed deterministic QA data
-        run: docker compose -f docker-compose.qa.yml exec -T backend python scripts/seed_qa.py
+        run: |
+          # seed_qa.py prints QA_ORG_ID / QA_COURSE_ID / QA_LESSON_ID /
+          # QA_EXERCISE_COUNT. all-content-types.spec.ts reads QA_LESSON_ID and
+          # fails immediately without it, so forward them to later steps.
+          docker compose -f docker-compose.qa.yml exec -T backend \
+            python scripts/seed_qa.py | tee seed-output.txt
+          grep -E '^QA_[A-Z_]+=' seed-output.txt >> "$GITHUB_ENV"
 
       - name: Wait for backend /health/ready
         run: |
