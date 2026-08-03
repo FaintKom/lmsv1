@@ -1,6 +1,6 @@
 # 009 — btn-pop shadow must follow org branding
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03)
 - **Commit**: a01d106
 - **Severity**: MEDIUM
 - **Category**: design-system (org theming)

@@ -1,6 +1,11 @@
 # 015 — Live lesson review: student sees their own results (S7)
 
-- **Status**: TODO
+- **Status**: DONE (verified 2026-08-03) — shipped with the live-review work
+  before this plan was written up. `lesson-review.tsx` renders the "My results"
+  card for `!teacherView`, and the backend goes further than the plan asked:
+  `_own_results_only()` in `live_lessons/router.py` strips other students' rows
+  and class attendance server-side, so the payload itself never carries them.
+  All three i18n keys exist in the six locales.
 - **Commit**: a01d106
 - **Severity**: MEDIUM (UX gap from the 2026-08-02 audit)
 - **Category**: live lessons
