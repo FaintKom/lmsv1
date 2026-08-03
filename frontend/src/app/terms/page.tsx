@@ -22,7 +22,7 @@ export default function TermsOfServicePage() {
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
  {/* 1. Acceptance of Terms */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  1. Acceptance of Terms
  </h2>
  <p>
@@ -40,7 +40,7 @@ export default function TermsOfServicePage() {
 
  {/* 2. Description of Service */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  2. Description of Service
  </h2>
  <p>
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
 
  {/* 3. User Accounts & Roles */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  3. User Accounts &amp; Roles
  </h2>
  <p>GrassLMS supports four user roles:</p>
@@ -112,7 +112,7 @@ export default function TermsOfServicePage() {
 
  {/* 4. Subscription & Payment */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  4. Subscription &amp; Payment
  </h2>
  <p>GrassLMS offers the following subscription plans:</p>
@@ -154,7 +154,7 @@ export default function TermsOfServicePage() {
 
  {/* 5. User Content */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  5. User Content
  </h2>
  <p>
@@ -179,7 +179,7 @@ export default function TermsOfServicePage() {
 
  {/* 6. Intellectual Property */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  6. Intellectual Property
  </h2>
  <p>
@@ -197,7 +197,7 @@ export default function TermsOfServicePage() {
 
  {/* 7. Code Execution */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  7. Code Execution
  </h2>
  <p>
@@ -228,7 +228,7 @@ export default function TermsOfServicePage() {
 
  {/* 8. AI Tutor */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  8. AI Tutor
  </h2>
  <p>
@@ -258,7 +258,7 @@ export default function TermsOfServicePage() {
 
  {/* 9. Acceptable Use */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  9. Acceptable Use
  </h2>
  <p>
@@ -282,7 +282,7 @@ export default function TermsOfServicePage() {
 
  {/* 10. Privacy */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  10. Privacy
  </h2>
  <p>
@@ -300,11 +300,11 @@ export default function TermsOfServicePage() {
 
  {/* 11. Children & Student Data */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  11. Children &amp; Student Data
  </h2>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  COPPA Compliance
  </h3>
  <p>
@@ -315,7 +315,7 @@ export default function TermsOfServicePage() {
  educational purposes within the scope of the school&rsquo;s subscription.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  FERPA Compliance
  </h3>
  <p>
@@ -326,7 +326,7 @@ export default function TermsOfServicePage() {
  educational services described in these Terms.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Minimum Data Collection
  </h3>
  <p>
@@ -339,7 +339,7 @@ export default function TermsOfServicePage() {
 
  {/* 12. Termination */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  12. Termination
  </h2>
  <p>
@@ -390,7 +390,7 @@ export default function TermsOfServicePage() {
 
  {/* 13. Disclaimers */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  13. Disclaimers
  </h2>
  <p>
@@ -409,7 +409,7 @@ export default function TermsOfServicePage() {
 
  {/* 14. Limitation of Liability */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  14. Limitation of Liability
  </h2>
  <p>
@@ -433,7 +433,7 @@ export default function TermsOfServicePage() {
 
  {/* 15. Governing Law */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  15. Governing Law
  </h2>
  <p>
@@ -458,7 +458,7 @@ export default function TermsOfServicePage() {
 
  {/* 16. Changes to Terms */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  16. Changes to Terms
  </h2>
  <p>
@@ -476,7 +476,7 @@ export default function TermsOfServicePage() {
 
  {/* 17. Contact */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  17. Contact Us
  </h2>
  <p>
@@ -484,7 +484,7 @@ export default function TermsOfServicePage() {
  please contact us:
  </p>
  <div className="mt-2 rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <p className="font-medium text-ink-700 ">
+ <p className="font-medium text-text ">
  GrassLMS Support Team
  </p>
  <p className="mt-1">

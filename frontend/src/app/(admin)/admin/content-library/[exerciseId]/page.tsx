@@ -186,7 +186,7 @@ export default function ExerciseEditorPage() {
    <button
      onClick={() => setViewMode("form")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-       viewMode === "form" ? "bg-white text-text shadow-sm" : "text-text-muted hover:text-text"
+       viewMode === "form" ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
      }`}
    >
      {t("admin.exerciseEditor.formMode")}
@@ -194,7 +194,7 @@ export default function ExerciseEditorPage() {
    <button
      onClick={() => setViewMode("json")}
      className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-       viewMode === "json" ? "bg-white text-text shadow-sm" : "text-text-muted hover:text-text"
+       viewMode === "json" ? "bg-surface text-text shadow-sm" : "text-text-muted hover:text-text"
      }`}
    >
      {t("admin.exerciseEditor.jsonMode")}

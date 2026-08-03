@@ -22,7 +22,7 @@ export default function CopyrightPolicyPage() {
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
  {/* 1. Intellectual Property Overview */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  1. Intellectual Property Overview
  </h2>
  <p>
@@ -31,7 +31,7 @@ export default function CopyrightPolicyPage() {
  Copyright Act (DMCA).
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Platform Content
  </h3>
  <p>
@@ -40,7 +40,7 @@ export default function CopyrightPolicyPage() {
  property laws.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Course Content
  </h3>
  <p>
@@ -49,7 +49,7 @@ export default function CopyrightPolicyPage() {
  by their agreement with each other. GrassLMS does not claim ownership of course content.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Student Content
  </h3>
  <p>
@@ -57,7 +57,7 @@ export default function CopyrightPolicyPage() {
  are owned by the student. GrassLMS does not claim ownership of student content.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  License to GrassLMS
  </h3>
  <p>
@@ -70,7 +70,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 2. DMCA Takedown Process */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  2. DMCA Takedown Process
  </h2>
  <p>
@@ -111,7 +111,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 3. Counter-Notification */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  3. Counter-Notification
  </h2>
  <p>
@@ -148,7 +148,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 4. Repeat Infringers */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  4. Repeat Infringers
  </h2>
  <p>
@@ -175,7 +175,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 5. Fair Use */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  5. Fair Use
  </h2>
  <p>
@@ -197,7 +197,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 6. Open Source */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  6. Open Source
  </h2>
  <p>
@@ -216,7 +216,7 @@ export default function CopyrightPolicyPage() {
 
  {/* 7. Contact */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  7. Contact Us
  </h2>
  <p>
@@ -224,7 +224,7 @@ export default function CopyrightPolicyPage() {
  us:
  </p>
  <div className="mt-2 rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <p className="font-medium text-ink-700 ">
+ <p className="font-medium text-text ">
  GrassLMS Copyright Agent
  </p>
  <p className="mt-1">

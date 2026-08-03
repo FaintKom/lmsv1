@@ -541,7 +541,7 @@ function SortableBlock({
           </button>
           <button
             onClick={onDelete}
-            className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+            className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
             title="Delete block"
           >
             <Trash2 className="h-4 w-4" />

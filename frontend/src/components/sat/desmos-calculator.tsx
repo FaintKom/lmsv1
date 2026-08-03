@@ -31,7 +31,7 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
 
  return (
  <div
- className={`fixed z-50 flex flex-col border border-border-strong bg-paper-2 shadow-2xl transition duration-200 ${
+ className={`fixed z-50 flex flex-col border border-border-strong bg-surface shadow-2xl transition duration-200 ${
  expanded
  ? "inset-4 rounded-lg"
  : "bottom-0 right-0 h-[70vh] sm:h-[480px] w-full sm:w-[380px] rounded-tl-2xl border-l border-t"
@@ -41,14 +41,14 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
  <div className="flex items-center gap-2">
  <Calculator className="h-4 w-4 text-text-muted" />
  {/* Mode toggle */}
- <div className="flex rounded-lg bg-ink-100 p-0.5 ">
+ <div className="flex rounded-lg bg-surface-2 p-0.5 ">
  {CALC_MODES.map((m, i) => (
  <button
  key={m.key}
  onClick={() => setMode(i)}
  className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
  mode === i
- ? "bg-paper-2 text-ink-700 shadow-sm "
+ ? "bg-surface text-text shadow-sm "
  : "text-text-subtle hover:text-text-muted "
  }`}
  >
@@ -60,14 +60,14 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
  <div className="flex items-center gap-1">
  <button
  onClick={() => setExpanded(!expanded)}
- className="rounded-lg p-1 text-text-subtle hover:bg-ink-100 hover:text-text-muted "
+ className="rounded-lg p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
  title={expanded ? "Minimize" : "Fullscreen"}
  >
  {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
  </button>
  <button
  onClick={() => { setExpanded(false); onToggle(); }}
- className="rounded-lg p-1 text-text-subtle hover:bg-ink-100 hover:text-text-muted "
+ className="rounded-lg p-1 text-text-subtle hover:bg-surface-2 hover:text-text-muted "
  title="Close"
  >
  <X className="h-4 w-4" />

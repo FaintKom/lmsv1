@@ -194,7 +194,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  {timeLeft !== null && (
  <div
  className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-mono font-bold ${
- timeLeft < 60 ? "bg-danger-soft text-danger-fg" : "bg-paper-2 text-ink-700"
+ timeLeft < 60 ? "bg-danger-soft text-danger-fg" : "bg-surface text-text"
  }`}
  >
  <Clock className="h-4 w-4" />

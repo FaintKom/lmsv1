@@ -328,7 +328,7 @@ export default function AdminUsersPage() {
  </button>
  <button
  onClick={() => handleDelete(u.id)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title={t("admin.users.deleteUserTitle")}
  >
  <Trash2 className="h-4 w-4" />

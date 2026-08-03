@@ -378,7 +378,7 @@ export default function LessonViewerPage() {
          onClick={() => toggleModule(module.id)}
          className={cn(
           "flex w-full items-center gap-2.5 rounded-sm px-2 py-2 text-sm font-bold transition-colors",
-          isCurrentModule ? "bg-green-50" : "hover:bg-ink-50"
+          isCurrentModule ? "bg-green-50" : "hover:bg-surface-2"
          )}
         >
          <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] bg-green-100 font-mono text-[11px] font-extrabold text-green-800">

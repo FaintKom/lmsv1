@@ -426,7 +426,7 @@ function EquationBalanceConfig({
  <button
  type="button"
  onClick={() => removeTerm(i)}
- className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete term"
  >
  ×
@@ -656,7 +656,7 @@ function ArithmeticPuzzleConfig({
  <button
  type="button"
  onClick={() => removeRow(i)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete row"
  >
  ×
@@ -948,7 +948,7 @@ function EquationSolverConfig({
  <button
  type="button"
  onClick={() => removeStep(i)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete step"
  >
  ×
@@ -1074,7 +1074,7 @@ function MCMathConfig({
  <button
  type="button"
  onClick={() => removeChoice(i)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete choice"
  >
  ×
@@ -1236,7 +1236,7 @@ function ScatterPlotConfig({
  <button
  type="button"
  onClick={() => removePoint(i)}
- className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete point"
  >
  ×
@@ -1454,7 +1454,7 @@ function TwoWayTableConfig({
  value={displayValue}
  onChange={(e) => setCell(r, c, isBlank, parseInt(e.target.value) || 0)}
  className={`w-16 rounded border px-1.5 py-0.5 text-center text-xs ${
- isBlank ? "border-warning bg-sun-50" : "border-border-strong bg-paper"
+ isBlank ? "border-warning bg-sun-50" : "border-border-strong bg-surface"
  }`}
  title={isBlank ? "Expected answer" : "Shown value"}
  />
@@ -1592,7 +1592,7 @@ function CardSortConfig({
  <button
  type="button"
  onClick={() => removeCategory(i)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete category"
  >
  ×
@@ -1643,7 +1643,7 @@ function CardSortConfig({
  <button
  type="button"
  onClick={() => removeCard(i)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete card"
  >
  ×
@@ -1780,7 +1780,7 @@ function TablePatternConfig({
  <button
  type="button"
  onClick={() => removeRow(i)}
- className="ml-auto rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg"
+ className="ml-auto rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg"
  title="Delete row"
  >
  ×

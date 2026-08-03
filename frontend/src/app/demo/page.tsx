@@ -66,7 +66,7 @@ function DemoRunner() {
  return (
  <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 ">
  {/* Minimal header */}
- <header className="border-b border-border bg-paper-2/60 backdrop-blur ">
+ <header className="border-b border-border bg-surface/60 backdrop-blur ">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <Link href="/" className="flex items-center gap-2.5">
  <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
@@ -110,7 +110,7 @@ function DemoRunner() {
  type="button"
  onClick={() => enterDemo("student")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-surface p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
  >
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
  <Users className="h-7 w-7 text-primary " />
@@ -138,7 +138,7 @@ function DemoRunner() {
  type="button"
  onClick={() => enterDemo("teacher")}
  disabled={loading !== null}
- className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-paper-2 p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
+ className="flex flex-col items-center gap-4 rounded-lg border border-border-strong bg-surface p-8 text-left shadow-sm transition hover:border-primary hover:shadow-md disabled:opacity-50 "
  >
  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-soft ">
  <BookOpen className="h-7 w-7 text-primary " />

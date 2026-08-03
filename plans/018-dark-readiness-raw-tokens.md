@@ -1,6 +1,6 @@
 # 018 — Dark readiness: raw scale utilities → semantic (unblocks theme = system)
 
-- **Status**: DONE (2026-08-03) — six slices, ~1500 substitutions; theme
+- **Status**: DONE (2026-08-03) — seven slices, ~1500 substitutions; theme
   default flipped back to `system`. Slices 5 and 6 were not in the original
   list: the prod check found white course cards (component folders outside
   ui/layout/lesson/exercises) and a white exercise shell (the `.lf-*`/`.gp-*`
@@ -109,3 +109,44 @@ scrims white and make code blocks unreadable.
 - **Done when**: the slice shows no light-mode leftovers in dark, and the
   light theme is pixel-identical to before (the substitutions are
   value-identical in light).
+
+
+---
+
+## Slice 7 (2026-08-03) — the surfaces the first six slices never covered
+
+The owner photographed the public landing rendering white in dark mode. Root
+cause: `app/page.tsx` was skipped by every earlier slice because it carries
+uncommitted work, and flipping the default to `system` made that the front
+page for every dark-OS visitor. Sweeping the rest of the app afterwards found
+the same class elsewhere:
+
+| surface | hits | note |
+|---|---|---|
+| legal pages (privacy, terms, refund, cookies, acceptable-use, copyright) | 98 | every `h2`/`h3` was `text-ink-700` — 1.29:1 on the dark background, i.e. invisible |
+| SAT components (runner, results, desmos, review) | 41 | retired from the student surface but still in the repo |
+| admin/game/misc icon buttons, demo, offline, quiz-taker, badge-card | 26 | `text-ink-300`, `bg-paper-2`, `bg-white` on token surfaces |
+| room editor toolbar + HUD hint pill | 3 | see below |
+
+**Intentional, left raw and now commented in place** — a future sweep must not
+"fix" these:
+- `(print)/*` — printing is light by definition;
+- the room HUD (`bg-white/90` glass over the 3D scene) and its buttons, which
+  must keep raw ink text; the hint pill next to it was the opposite bug — it
+  used semantic `text-text` on that same always-light glass, so it would have
+  turned near-white on white;
+- the QR code's white backing in `direct-crypto.tsx` — scanners need the quiet
+  zone in both themes;
+- translucent `bg-white/15…/[0.12]` on dark gradients and the sidebar rail;
+- `text-ink-900` on sun surfaces (the no-white-on-yellow rule);
+- item/avatar preview stages (`bg-white`) and the code block
+  (`bg-ink-900 text-ink-100`).
+
+Verified in the browser, per page rather than by grep: `/terms` went from 21
+sub-4.5:1 texts to 0, `/privacy` and `/demo` show 0 low-contrast text and 0
+white surfaces in dark. Light mode is unchanged except that legal headings are
+now `#0d150d` instead of `#232b22`.
+
+**Known, NOT fixed here** (needs a design decision, not a sweep): the primary
+button in dark is `text-white` on `#35d07f` — 2.0:1. Same failure mode as
+white-on-sun, but changing it repaints every primary button in dark mode.
