@@ -40,12 +40,14 @@ notes in the root CLAUDE.md before merging, and poll the deploy run after.
 | 011 | Dense mode for data screens | P2 | M-L | — | TODO |
 | 015 | Live review: student "My results" (S7) | P2 | S | — | DONE (2026-08-03) |
 | 016 | Conductor v2: programme editor | P3 | M | — | TODO |
-| 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | DONE (2026-08-03, PR #239) |
+| 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | PARTIAL (PR #239; follow-up listed in the plan — motion utilities have zero adoption) |
 | 018 | Dark readiness: raw utilities → semantic (unblocks theme=system) | P2 | L (sliced) | 008 | DONE (2026-08-03, 82bad96) |
 | 019 | Integrity: crossword server-graded (grid without answers) | P1 | M | 014 | DONE (2026-08-03) |
+| 020 | Motion adoption slice 1: buttons + cards | P2 | S | 017 | TODO |
+| 021 | Exercise motion vocabulary into the design system | P2 | S-M | — | TODO |
 
-Remaining, in order: 010 → 011 → 016. Everything else on this list shipped
-between 2026-08-02 and 2026-08-03.
+Remaining, in order: 020 → 021 → 010 → 011 → 016. Everything else on this
+list shipped between 2026-08-02 and 2026-08-03.
 
 **Dark-theme note (updated 2026-08-03):** 008 originally shipped the toggle
 with the default pinned to `light`, because ~1500 component usages still held
