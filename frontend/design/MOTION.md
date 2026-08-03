@@ -117,10 +117,24 @@ shorter than the enter.
 | Class | What it does |
 |---|---|
 | `.btn-pop` (+ `--sun/--clay/--ink/--secondary`) | signature press physics: translateY 2/4px + shadow collapse, 120ms |
-| `.press-scale` | flat-control press feedback, `scale(0.96)` @ 120ms |
+| `.press-scale` | flat-control press feedback, `scale(0.96)` @ 120ms; also carries the colour transitions, see the layering note below |
 | `.enter-fade-rise` | one-shot enter: opacity 0→1 + translateY(8px)→0, 200ms ease-out |
 | `.stagger-children > *` | staggered `.enter-fade-rise` for up to 6 children, 60ms step |
 | `.skeleton` / `.lms-skeleton` | 1.5s linear shimmer; show after 200ms, never a full-page spinner |
+
+### Two traps in these utilities
+
+**They do not stack on `transform`.** `.btn-pop:active` sets
+`translateY(4px)`, `.press-scale:active` sets `scale(0.96)`. Same property,
+same element — one silently wins. A control gets `.btn-pop` **or**
+`.press-scale`, never both.
+
+**`globals.css` declares no `@layer`,** so everything in it is unlayered and
+beats Tailwind's layered utilities regardless of source order. A utility that
+sets `transition-property` there will override `transition-colors` on the same
+element and make hover snap. Any new motion utility must therefore list every
+property it should not break — that is why `.press-scale` transitions colours
+as well as transform.
 
 ## Review checklist
 
