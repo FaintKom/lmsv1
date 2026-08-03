@@ -119,7 +119,7 @@ export default function DashboardPage() {
  {streak}<small className="ml-1 text-md font-bold tracking-normal text-clay-700">days</small>
  </p>
  </div>
- <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-white shadow-pop-clay">
+ <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900 shadow-pop-clay">
  <Flame className="h-5 w-5" />
  </div>
  </div>

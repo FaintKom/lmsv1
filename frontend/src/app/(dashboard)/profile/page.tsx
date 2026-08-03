@@ -612,7 +612,7 @@ export default function ProfilePage() {
  <Button
  type="submit"
  disabled={deleting || !deletePassword}
- className="bg-danger text-white hover:bg-danger-fg"
+ className="bg-danger text-ink-900 hover:bg-danger-fg"
  >
  <Trash2 className="mr-1.5 h-4 w-4" />
  {deleting ? "Deleting..." : "Permanently Delete"}

@@ -134,7 +134,7 @@ export default function CategorizeExercise({
  <button
  onClick={handleSubmit}
  disabled={totalAssigned < allItems.length}
- className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
+ className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Answer
  </button>

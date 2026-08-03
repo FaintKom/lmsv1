@@ -101,7 +101,7 @@ export default function SATReviewScreen({
  className={`flex h-11 w-11 items-center justify-center rounded-pill text-sm font-semibold transition-colors
  ${
  isAnswered
- ? "bg-primary text-white hover:bg-primary-hover "
+ ? "bg-primary text-primary-fg hover:bg-primary-hover "
  : "border-2 border-danger text-danger-fg hover:bg-danger-soft "
  }
  ${

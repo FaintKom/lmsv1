@@ -232,7 +232,7 @@ export default function AssignmentDetailPage() {
  <button
  onClick={handleSubmit}
  disabled={submitting}
- className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover disabled:opacity-50"
+ className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-fg shadow-sm transition-colors hover:bg-primary-hover disabled:opacity-50"
  >
  {submitting ? t("assignment.submitting") : submission ? t("assignment.resubmit") : t("assignment.submit")}
  </button>

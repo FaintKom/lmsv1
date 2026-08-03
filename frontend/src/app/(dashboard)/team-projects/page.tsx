@@ -86,7 +86,7 @@ function TeamPanel({ projectId }: { projectId: string }) {
           <button
             type="submit"
             disabled={submitMutation.isPending}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
           >
             {submitMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -211,7 +211,7 @@ export default function StudentTeamProjectsPage() {
                         <button
                           onClick={() => joinMutation.mutate(p.id)}
                           disabled={full || joinMutation.isPending}
-                          className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                          className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
                         >
                           <LogIn className="h-3.5 w-3.5" />
                           {full ? t("teamProjects.full") : t("teamProjects.join")}

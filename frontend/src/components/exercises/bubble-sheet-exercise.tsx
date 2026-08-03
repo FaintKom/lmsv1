@@ -86,11 +86,11 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
                       disabled={submitted}
                       className={`flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold transition duration-150 ${
                         submitted && isCorrectOption
-                          ? "border-primary bg-primary text-white"
+                          ? "border-primary bg-primary text-primary-fg"
                           : submitted && isSelected && !isCorrectOption
-                          ? "border-danger bg-danger text-white"
+                          ? "border-danger bg-danger text-ink-900"
                           : isSelected
-                          ? "border-primary bg-primary text-white scale-110"
+                          ? "border-primary bg-primary text-primary-fg scale-110"
                           : "border-border-strong bg-surface text-text-muted hover:border-border-strong hover:bg-surface-2"
                       } disabled:cursor-not-allowed`}
                     >
@@ -113,7 +113,7 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleSubmit}
           disabled={!allAnswered}
-          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-fg shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Submit Answers
         </button>

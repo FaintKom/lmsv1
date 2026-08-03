@@ -58,7 +58,7 @@ export function PollPanel({
             setResult(await closePoll(lessonId));
             setRunning(false);
           }}
-          className="btn-pop btn-pop--clay mt-3 w-full rounded-md bg-danger p-2.5 text-sm font-bold text-white"
+          className="btn-pop btn-pop--clay mt-3 w-full rounded-md bg-danger p-2.5 text-sm font-bold text-ink-900"
         >
           {t("live.poll.close")}
         </button>
@@ -90,7 +90,7 @@ export function PollPanel({
             setQuestion("");
             setOptionsText("");
           }}
-          className="btn-pop w-full rounded-md bg-primary p-2.5 text-sm font-bold text-white"
+          className="btn-pop w-full rounded-md bg-primary p-2.5 text-sm font-bold text-primary-fg"
         >
           {t("live.newPoll")}
         </button>
@@ -125,7 +125,7 @@ export function PollPanel({
           setResult(null);
           setRunning(true);
         }}
-        className="btn-pop mt-3 w-full rounded-md bg-primary p-2.5 text-sm font-bold text-white"
+        className="btn-pop mt-3 w-full rounded-md bg-primary p-2.5 text-sm font-bold text-primary-fg"
       >
         {t("live.poll.start")}
       </button>

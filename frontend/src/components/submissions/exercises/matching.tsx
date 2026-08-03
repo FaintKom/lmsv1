@@ -92,7 +92,7 @@ export default function MatchingExercise({ pairs, onSubmit }: MatchingExercisePr
  <button
  onClick={handleSubmit}
  disabled={Object.keys(selected).length < pairs.length}
- className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
+ className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Answer
  </button>

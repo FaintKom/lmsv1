@@ -21,7 +21,7 @@ export function LiveLessonBanner() {
 
   if (!lessonId || pathname.startsWith("/lesson/")) return null;
   return (
-    <div className="mb-4 flex items-center justify-between gap-3 rounded-md bg-primary px-4 py-2.5 text-sm text-white shadow-pop">
+    <div className="mb-4 flex items-center justify-between gap-3 rounded-md bg-primary px-4 py-2.5 text-sm text-primary-fg shadow-pop">
       <span className="flex items-center gap-2 font-semibold">
         <span className="h-2 w-2 animate-pulse rounded-pill bg-sun-300" />
         {t("live.joinBanner")}

@@ -163,7 +163,7 @@ function AvatarCard({
 
       {isEquipped && (
         <span
-          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-primary text-white shadow"
+          className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 bg-primary text-primary-fg shadow"
           style={{ borderColor: "#fdfcf7" }}
         >
           <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -175,7 +175,7 @@ function AvatarCard({
 
 function StatusPill({ status, t }: { status: Status; t: (k: string) => string }) {
   const styles: Record<Status, string> = {
-    equipped: "bg-primary text-white",
+    equipped: "bg-primary text-primary-fg",
     owned: "bg-green-50 text-green-800",
     free: "bg-green-50 text-green-800",
     locked: "bg-surface-2 text-text-muted",

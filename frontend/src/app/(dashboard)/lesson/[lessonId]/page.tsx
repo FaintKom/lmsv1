@@ -142,7 +142,7 @@ export default function StudentLessonPage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
         <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
+          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
           onClick={() => router.push("/dashboard")}
         >
           {t("live.toDashboard")}

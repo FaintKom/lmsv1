@@ -145,7 +145,7 @@ export function CalendarView({ canCreate = false }: Props) {
  {canCreate && (
  <button
  onClick={() => { setShowForm(!showForm); setSelectedEvent(null); }}
- className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover"
+ className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover"
  >
  <Plus className="h-4 w-4" /> New Event
  </button>
@@ -204,7 +204,7 @@ export function CalendarView({ canCreate = false }: Props) {
  <button
  type="submit"
  disabled={submitting}
- className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+ className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
  >
  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
  Create Event
@@ -252,7 +252,7 @@ export function CalendarView({ canCreate = false }: Props) {
  )}
 
  {/* Calendar */}
- <div className="rounded-lg border border-border-strong bg-surface p-2 shadow-sm [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-white [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]: [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-text [&_.fc-toolbar-title]:">
+ <div className="rounded-lg border border-border-strong bg-surface p-2 shadow-sm [&_.fc]:text-sm [&_.fc-button]:!rounded-lg [&_.fc-button]:!border-0 [&_.fc-button]:!bg-primary [&_.fc-button]:!text-primary-fg [&_.fc-button]:!shadow-none [&_.fc-button-active]:!bg-primary-hover [&_.fc-button:hover]:!bg-primary-hover [&_.fc-daygrid-day]: [&_.fc-day-today]:!bg-success-soft [&_.fc-day-today]: [&_.fc-theme-standard_td]:!border-border [&_.fc-theme-standard_td]: [&_.fc-theme-standard_th]:!border-border [&_.fc-theme-standard_th]: [&_.fc-col-header-cell-cushion]:!text-text-muted [&_.fc-col-header-cell-cushion]: [&_.fc-daygrid-day-number]:!text-text-muted [&_.fc-daygrid-day-number]: [&_.fc-toolbar-title]:!text-lg [&_.fc-toolbar-title]:!font-semibold [&_.fc-toolbar-title]:!text-text [&_.fc-toolbar-title]:">
  <FullCalendar
  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
  initialView="dayGridMonth"

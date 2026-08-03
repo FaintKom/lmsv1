@@ -50,7 +50,7 @@ export default function TrueFalseExercise({
  <button
  onClick={() => selected !== null && onSubmit({ answer: selected })}
  disabled={selected === null}
- className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
+ className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Answer
  </button>

@@ -23,8 +23,16 @@ Rules that apply everywhere:
 | secondary | `--color-surface` | `--color-text` | none, `1px --color-border-strong` | alternative action |
 | ghost | transparent | `--color-primary` | none | tertiary, inline |
 | reward | `--color-reward` | `--ink-900` | `--shadow-pop-sun` | claim XP, hero CTA on green only |
-| danger | `--color-danger` | `#fff` | `--shadow-pop-clay` | destructive, always with confirm |
+| danger | `--color-danger` | `--ink-900` | `--shadow-pop-clay` | destructive, always with confirm |
 | admin | `--ink-700` | `#fff` | `--shadow-pop-ink` | admin bulk actions |
+
+**Never hardcode `text-white` on a brand surface.** Use the row's token. The
+foreground is theme-dependent and white fails §14 on both brand colours
+(measured 2026-08-03): white on `--color-primary` is 4.56:1 light but **2.00:1
+dark**; white on `--color-danger` is **3.77:1 light and 2.57:1 dark**. The
+tokens pass: `--color-primary-fg` gives 4.56 / 9.31, `--ink-900` on danger
+gives 4.93 / 7.22. Same reasoning as the long-standing ink-on-sun rule — a
+bright surface takes dark text, whatever the hue.
 
 Sizes: sm 36px / `--t-sm` / padding 8×14 / radius `--radius-sm`;
 md 44px / `--t-base` / 12×20 / `--radius-md`; lg 52px / `--t-md` / 15×26 / `--radius-md`.

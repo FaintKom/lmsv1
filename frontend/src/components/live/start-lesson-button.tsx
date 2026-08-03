@@ -36,7 +36,7 @@ export function StartLessonButton({ groupId }: { groupId: string }) {
           }
         }
       }}
-      className="btn-pop inline-flex items-center gap-1.5 rounded-sm bg-primary px-3.5 py-1.5 text-xs font-bold text-white"
+      className="btn-pop inline-flex items-center gap-1.5 rounded-sm bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-fg"
     >
       <Play size={12} strokeWidth={3} /> {t("live.start")}
     </button>

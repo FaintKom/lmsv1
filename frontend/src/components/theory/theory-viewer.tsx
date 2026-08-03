@@ -148,7 +148,7 @@ export function TheoryViewer({
         {onContinue && (
           <button
             onClick={onContinue}
-            className="ml-auto rounded-xl bg-primary px-7 py-2.5 text-sm font-bold text-white hover:opacity-90"
+            className="ml-auto rounded-xl bg-primary px-7 py-2.5 text-sm font-bold text-primary-fg hover:opacity-90"
           >
             {t("common.continue")}
           </button>

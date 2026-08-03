@@ -57,7 +57,7 @@ export default function MeetingsPage() {
  href={buildJoinUrl(m.room_url, { displayName: user?.full_name, isHost: isHostOf(m) })}
  target="_blank"
  rel="noopener noreferrer"
- className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+ className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover"
  >
  <Video className="h-4 w-4" /> {isHostOf(m) ? t("meet.startAsHost") : t("meet.joinLesson")}
  </a>

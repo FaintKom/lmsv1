@@ -35,7 +35,7 @@ export function SignalBar({
       onClick={() => void toggle(type)}
       className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
-          ? "btn-pop bg-primary text-white"
+          ? "btn-pop bg-primary text-primary-fg"
           : "border-2 border-border bg-surface text-text hover:border-green-300"
       }`}
     >
@@ -86,7 +86,7 @@ export function SignalBar({
                   setAsking(false);
                   toast.success(t("live.askSent"));
                 }}
-                className="btn-pop rounded-md bg-primary px-4 py-2 text-sm font-bold text-white"
+                className="btn-pop rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-fg"
               >
                 {t("live.ask")}
               </button>

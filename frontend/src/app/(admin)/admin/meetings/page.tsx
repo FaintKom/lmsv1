@@ -74,7 +74,7 @@ export default function AdminMeetingsPage() {
  </div>
  <button
  onClick={() => setShowForm(!showForm)}
- className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+ className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover"
  >
  <Plus className="h-4 w-4" /> {t("meet.startLesson")}
  </button>
@@ -115,7 +115,7 @@ export default function AdminMeetingsPage() {
  </div>
  <div className="flex justify-end">
  <button type="submit" disabled={submitting}
- className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50">
+ className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50">
  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
  Start Meeting
  </button>
@@ -153,7 +153,7 @@ export default function AdminMeetingsPage() {
  href={buildJoinUrl(m.room_url, { displayName: user?.full_name, isHost: isHostOf(m) })}
  target="_blank"
  rel="noopener noreferrer"
- className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover"
+ className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover"
  >
  <ExternalLink className="h-3.5 w-3.5" /> {isHostOf(m) ? t("meet.startAsHost") : t("meet.join")}
  </a>

@@ -98,7 +98,7 @@ export function WidgetSettings({ meta, currentProps, onSave, onClose }: Props) {
           </button>
           <button
             type="submit"
-            className="px-3 py-1.5 text-sm bg-primary text-white rounded hover:bg-primary/90"
+            className="px-3 py-1.5 text-sm bg-primary text-primary-fg rounded hover:bg-primary/90"
           >
             Save
           </button>

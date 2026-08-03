@@ -768,7 +768,7 @@ function QuizExercise({
  <button
  onClick={handleSubmit}
  disabled={!allAnswered}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Submit Quiz
  </button>
@@ -1143,7 +1143,7 @@ function FileUploadExercise({
  <button
  onClick={() => file && onUpload(file)}
  disabled={!file}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50 "
  >
  Upload File
  </button>

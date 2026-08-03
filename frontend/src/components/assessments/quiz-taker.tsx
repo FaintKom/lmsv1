@@ -232,7 +232,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  <span
  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 text-[10px] font-bold ${
  answers[q.id] === opt.id
- ? "border-primary bg-primary text-white"
+ ? "border-primary bg-primary text-primary-fg"
  : "border-border-strong text-text-subtle"
  }`}
  >

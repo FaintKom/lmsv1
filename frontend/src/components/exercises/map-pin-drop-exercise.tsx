@@ -93,7 +93,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
                 onClick={() => setCurrentPinIndex(i)}
                 className={`rounded-pill border-2 px-3 py-1.5 text-xs font-medium transition ${
                   isCurrent
-                    ? "border-primary bg-primary text-white"
+                    ? "border-primary bg-primary text-primary-fg"
                     : isPlaced
                     ? "border-primary bg-success-soft text-success-fg"
                     : "border-border-strong bg-surface text-text-muted"
@@ -132,7 +132,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
               <div className="flex flex-col items-center">
                 <span
                   className={`rounded-pill px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
-                    isCorrect === true ? "bg-primary text-white" : isCorrect === false ? "bg-danger text-white" : "bg-ink-700 text-white"
+                    isCorrect === true ? "bg-primary text-primary-fg" : isCorrect === false ? "bg-danger text-primary-fg" : "bg-ink-700 text-primary-fg"
                   }`}
                 >
                   {pins[i].label}
@@ -170,7 +170,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleSubmit}
           disabled={!allPlaced}
-          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-fg shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Check Pins
         </button>

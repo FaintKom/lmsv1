@@ -223,7 +223,7 @@ export default function AdminCoursesPage() {
  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
  <div className="absolute right-2 top-2 flex items-center gap-1.5">
  {isTemplate && (
- <span className="rounded-pill bg-primary/90 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+ <span className="rounded-pill bg-primary/90 px-2 py-0.5 text-xs font-medium text-primary-fg backdrop-blur-sm">
  {t("admin.courses.fromTemplate")}
  </span>
  )}
