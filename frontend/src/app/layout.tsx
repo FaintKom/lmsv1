@@ -51,16 +51,11 @@ export default function RootLayout({
  {/* Theme contract (frontend/design/README.md): `.dark` on <html>,
      choice persisted in localStorage["lms.theme"]. This runs before
      paint so the first frame is already in the right theme.
-     suppressHydrationWarning above: the class is set pre-hydration.
-
-     Default is 'light', NOT 'system': ~1500 component usages still hold
-     raw scale utilities (bg-paper-2, text-ink-700) which do not flip with
-     `.dark`, so following the OS would drop users into a half-dark UI.
-     Switch the default to 'system' once plan 018 (dark readiness) lands. */}
+     suppressHydrationWarning above: the class is set pre-hydration. */}
  <script
  dangerouslySetInnerHTML={{
  __html: `(function () {
-  var t = localStorage.getItem('lms.theme') || 'light';
+  var t = localStorage.getItem('lms.theme') || 'system';
   var dark = t === 'dark' || (t === 'system' &&
     window.matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.classList.toggle('dark', dark);

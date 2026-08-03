@@ -1,6 +1,10 @@
 # 018 — Dark readiness: raw scale utilities → semantic (unblocks theme = system)
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03) — six slices, ~1500 substitutions; theme
+  default flipped back to `system`. Slices 5 and 6 were not in the original
+  list: the prod check found white course cards (component folders outside
+  ui/layout/lesson/exercises) and a white exercise shell (the `.lf-*`/`.gp-*`
+  classes in globals.css). Mechanical gates could not have caught either.
 - **Commit**: 82bad96
 - **Severity**: HIGH (blocks the dark theme from being usable)
 - **Category**: design-system v2 compliance
