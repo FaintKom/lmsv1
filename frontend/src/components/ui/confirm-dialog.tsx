@@ -88,7 +88,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  button: "bg-danger hover:bg-danger text-ink-900",
  },
  warning: {
- icon: "bg-sun-100 text-warning-fg",
+ icon: "bg-warning-soft text-warning-fg",
  button: "bg-warning hover:bg-warning-fg text-white",
  },
  default: {

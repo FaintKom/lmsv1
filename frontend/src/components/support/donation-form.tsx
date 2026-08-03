@@ -229,7 +229,7 @@ export function DonationForm() {
       <p className="text-center text-xs text-text-subtle">{t("support.handledBy")}</p>
 
       {showFallback && (
-        <div className="rounded-md border border-warning bg-sun-50 p-3 text-sm">
+        <div className="rounded-md border border-warning bg-warning-soft p-3 text-sm">
           {showFallback === t("support.didPaymentGoThrough") ? (
             <p className="font-semibold">{t("support.didPaymentGoThrough")}</p>
           ) : (

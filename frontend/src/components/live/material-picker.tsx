@@ -147,7 +147,7 @@ export function MaterialPicker({
                       </span>
                     )}
                     {c.status && c.status !== "published" && (
-                      <span className="rounded-pill bg-sun-100 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-sun-700">
+                      <span className="rounded-pill bg-warning-soft px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-sun-700">
                         {c.status}
                       </span>
                     )}
@@ -238,7 +238,7 @@ export function MaterialPicker({
       ))}
       {course && course.modules.every((m) => (m.lessons ?? []).length === 0) && (
         <div className="flex flex-col items-center gap-3 pt-10">
-          <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+          <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-warning-soft text-warning-fg">
             <BookOpen size={28} />
           </span>
           <span className="text-sm text-text-muted">—</span>

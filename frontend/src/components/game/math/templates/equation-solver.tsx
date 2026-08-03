@@ -166,7 +166,7 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
 
  {/* Final answer */}
  {completed && (
- <div className="rounded-lg border-2 border-warning bg-sun-50 px-6 py-4 text-center ">
+ <div className="rounded-lg border-2 border-warning bg-warning-soft px-6 py-4 text-center ">
  <p className="text-xs font-medium text-warning-fg mb-1">Answer</p>
  <span className="font-mono text-2xl font-bold text-warning-fg ">
  {cfg.final_answer}

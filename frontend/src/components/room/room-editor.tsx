@@ -229,7 +229,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
                 type="button"
                 onClick={remove}
                 aria-label="Delete"
-                className="rounded-lg p-1.5 text-clay-700 hover:bg-clay-50"
+                className="rounded-lg p-1.5 text-clay-700 hover:bg-danger-soft"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -330,7 +330,7 @@ function PadBtn({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-border bg-surface text-text transition-colors hover:border-green-400 hover:bg-green-50 hover:text-green-800"
+      className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-border bg-surface text-text transition-colors hover:border-green-400 hover:bg-success-soft hover:text-green-800"
     >
       {children}
     </button>

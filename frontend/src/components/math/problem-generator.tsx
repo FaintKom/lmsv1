@@ -27,7 +27,7 @@ const PROBLEM_TYPES = [
 
 const DIFFICULTIES = [
  { value: "easy", label: "Easy", color: "text-primary bg-success-soft" },
- { value: "medium", label: "Medium", color: "text-warning-fg bg-sun-50" },
+ { value: "medium", label: "Medium", color: "text-warning-fg bg-warning-soft" },
  { value: "hard", label: "Hard", color: "text-danger-fg bg-danger-soft" },
 ];
 

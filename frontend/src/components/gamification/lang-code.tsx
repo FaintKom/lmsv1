@@ -15,7 +15,7 @@ export function LangCode({ code, label, active = false, onClick }: LangCodeProps
       className={cn(
         "flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition",
         active
-          ? "border-2 border-green-500 bg-green-50 text-green-800"
+          ? "border-2 border-green-500 bg-success-soft text-success-fg"
           : "border border-border bg-surface text-text hover:border-border-strong hover:bg-surface-2",
       )}
     >

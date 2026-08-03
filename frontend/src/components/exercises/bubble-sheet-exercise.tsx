@@ -122,7 +122,7 @@ export default function BubbleSheetExercise({ config, onSubmit }: Props) {
           className={`rounded-lg px-5 py-3 text-sm font-semibold ${
             (correctCount / questions.length) * 100 >= passingScore
               ? "bg-success-soft text-success-fg"
-              : "bg-sun-50 text-warning-fg"
+              : "bg-warning-soft text-warning-fg"
           }`}
         >
           {correctCount} of {questions.length} correct ({Math.round((correctCount / questions.length) * 100)}%)

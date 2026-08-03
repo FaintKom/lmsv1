@@ -244,7 +244,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  className={`rounded-lg px-5 py-3 text-sm font-semibold ${
  correctCount === totalQuestions
  ? "bg-success-soft text-success-fg "
- : "bg-sun-50 text-warning-fg "
+ : "bg-warning-soft text-warning-fg "
  }`}
  >
  {correctCount === totalQuestions

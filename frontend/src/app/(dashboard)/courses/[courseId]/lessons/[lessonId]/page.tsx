@@ -378,10 +378,10 @@ export default function LessonViewerPage() {
          onClick={() => toggleModule(module.id)}
          className={cn(
           "flex w-full items-center gap-2.5 rounded-sm px-2 py-2 text-sm font-bold transition-colors",
-          isCurrentModule ? "bg-green-50" : "hover:bg-surface-2"
+          isCurrentModule ? "bg-success-soft" : "hover:bg-surface-2"
          )}
         >
-         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] bg-green-100 font-mono text-[11px] font-extrabold text-green-800">
+         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] bg-success-soft font-mono text-[11px] font-extrabold text-green-800">
           {mi + 1}
          </span>
          <span
@@ -425,7 +425,7 @@ export default function LessonViewerPage() {
               className={cn(
                "flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-semibold transition-colors",
                isActive
-                ? "bg-green-100 font-bold text-green-800"
+                ? "bg-success-soft font-bold text-green-800"
                 : isDone
                   ? "text-text-subtle"
                   : "text-text-muted hover:bg-surface-2 hover:text-text"
@@ -508,7 +508,7 @@ export default function LessonViewerPage() {
       </div>
      )}
      {isCompleted && (
-      <span className="inline-flex items-center gap-1.5 rounded-pill bg-green-100 px-3 py-1 text-[11px] font-bold text-green-800">
+      <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-[11px] font-bold text-green-800">
        <CheckCircle className="h-3 w-3" /> {t("lesson.done")}
       </span>
      )}
@@ -519,7 +519,7 @@ export default function LessonViewerPage() {
      <div className="mx-auto max-w-[720px]">
       {/* Hero pills */}
       <div className="mb-3.5 flex flex-wrap items-center gap-2">
-       <span className="inline-flex items-center gap-1.5 rounded-pill bg-green-100 px-3 py-[5px] text-xs font-bold capitalize text-green-800">
+       <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-[5px] text-xs font-bold capitalize text-green-800">
         <span className="h-1.5 w-1.5 rounded-full bg-current" />
         {lesson.content_type.replace("_", " ")}
        </span>

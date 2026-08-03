@@ -176,8 +176,8 @@ function AvatarCard({
 function StatusPill({ status, t }: { status: Status; t: (k: string) => string }) {
   const styles: Record<Status, string> = {
     equipped: "bg-primary text-primary-fg",
-    owned: "bg-green-50 text-green-800",
-    free: "bg-green-50 text-green-800",
+    owned: "bg-success-soft text-success-fg",
+    free: "bg-success-soft text-success-fg",
     locked: "bg-surface-2 text-text-muted",
   };
   return (

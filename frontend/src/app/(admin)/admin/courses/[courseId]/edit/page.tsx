@@ -187,7 +187,7 @@ const BLOCK_TYPE_ICONS: Record<string, typeof FileText> = {
 
 const BLOCK_TYPE_COLORS: Record<string, string> = {
  text: "bg-surface-2 text-text-muted ",
- html: "bg-sun-50 text-warning-fg ",
+ html: "bg-warning-soft text-warning-fg ",
  video: "bg-danger-soft text-danger-fg ",
  exercise: "bg-success-soft text-primary ",
 };
@@ -271,7 +271,7 @@ const TYPE_COLORS: Record<string, string> = {
  video: "bg-danger-soft text-danger-fg border-danger ",
  quiz: "bg-success-soft text-primary border-primary-soft ",
  code_challenge: "bg-success-soft text-primary border-primary-soft ",
- file_upload: "bg-sun-50 text-warning-fg border-warning ",
+ file_upload: "bg-warning-soft text-warning-fg border-warning ",
  interactive: "bg-success-soft text-primary border-primary-soft ",
  theory: "bg-info-soft text-info-fg border-info ",
 };
@@ -281,7 +281,7 @@ const TYPE_EXPANDED_BG: Record<string, string> = {
  video: "border-danger bg-danger-soft/30 ",
  quiz: "border-primary-soft bg-success-soft/30 ",
  code_challenge: "border-primary-soft bg-success-soft/30 ",
- file_upload: "border-warning bg-sun-50/30 ",
+ file_upload: "border-warning bg-warning-soft/30 ",
  interactive: "border-primary-soft bg-success-soft/30 ",
  theory: "border-info bg-info-soft/30 ",
 };
@@ -1786,7 +1786,7 @@ export default function CourseEditorPage() {
  Max: {assignment.max_score} pts
  </span>
  {assignment.allow_late && (
- <span className="rounded-pill bg-sun-50 px-2 py-0.5 text-[10px] font-medium text-warning-fg ">
+ <span className="rounded-pill bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning-fg ">
  Late OK
  </span>
  )}

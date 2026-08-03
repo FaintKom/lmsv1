@@ -64,7 +64,7 @@ function DemoRunner() {
  }, []);
 
  return (
- <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 ">
+ <div className="min-h-screen bg-gradient-to-br from-success-soft via-bg to-success-soft ">
  {/* Minimal header */}
  <header className="border-b border-border bg-surface/60 backdrop-blur ">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">

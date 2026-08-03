@@ -950,7 +950,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                         key={stu.student_id}
                         className="flex items-center gap-2.5"
                       >
-                        <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-clay-50 text-xs font-extrabold text-clay-700">
+                        <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-danger-soft text-xs font-extrabold text-clay-700">
                           {stu.student_name.charAt(0)}
                         </span>
                         <div className="min-w-0 flex-1">
@@ -1169,7 +1169,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
 
       {/* Clash banner */}
       {week.clashCount > 0 && (
-        <div className="flex items-center gap-2.5 rounded-xl border border-clay-300 bg-clay-50 px-3.5 py-2.5">
+        <div className="flex items-center gap-2.5 rounded-xl border border-clay-300 bg-danger-soft px-3.5 py-2.5">
           <AlertTriangle className="h-4 w-4 shrink-0 text-clay-500" />
           <span className="text-[12.5px] font-bold text-clay-700">
             {t("schedule.clashesFound").replace(
@@ -1550,7 +1550,7 @@ function SchedSlotEditor({
 
         {/* Conflict lists (room + teacher) with Save anyway */}
         {hasConflict && (
-          <div className="space-y-1.5 rounded-lg border border-clay-300 bg-clay-50 p-3 text-[11.5px] text-clay-700">
+          <div className="space-y-1.5 rounded-lg border border-clay-300 bg-danger-soft p-3 text-[11.5px] text-clay-700">
             {roomConflicts.length > 0 && (
               <div>
                 <span className="font-bold">{t("journal.roomClashWarning")}</span>{" "}
@@ -1577,7 +1577,7 @@ function SchedSlotEditor({
             <button
               onClick={remove}
               disabled={saving}
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold text-clay-700 hover:bg-clay-50 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-xs font-semibold text-clay-700 hover:bg-danger-soft disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
               {t("schedule.delete")}
@@ -1596,7 +1596,7 @@ function SchedSlotEditor({
               <button
                 onClick={() => save(true)}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-clay-500 bg-surface px-3 py-2 text-xs font-bold text-clay-700 hover:bg-clay-50 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-clay-500 bg-surface px-3 py-2 text-xs font-bold text-clay-700 hover:bg-danger-soft disabled:opacity-50"
               >
                 {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {t("journal.saveAnyway")}
@@ -1699,7 +1699,7 @@ function RoomsTab() {
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Clash badge */}
           {conflicts.length > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-pill bg-clay-50 px-2.5 py-1 font-bold text-clay-700">
+            <span className="inline-flex items-center gap-1.5 rounded-pill bg-danger-soft px-2.5 py-1 font-bold text-clay-700">
               <AlertTriangle className="h-3 w-3" />
               {t("journal.legendClash")}
             </span>
@@ -1831,8 +1831,8 @@ function RoomBoardRow({
             <div
               className={`flex h-[34px] items-center justify-center gap-1 overflow-hidden rounded-md px-1 ${
                 isClash
-                  ? "bg-clay-50 outline outline-[1.5px] outline-clay-500"
-                  : "bg-green-50"
+                  ? "bg-danger-soft outline outline-[1.5px] outline-clay-500"
+                  : "bg-success-soft"
               }`}
             >
               {startsHere.length > 0 && (
@@ -2108,7 +2108,7 @@ function CurriculumRow({
         type="button"
         onClick={onDelete}
         aria-label={t("curriculum.deleteTopic")}
-        className="rounded p-1 text-clay-500 hover:bg-clay-50"
+        className="rounded p-1 text-clay-500 hover:bg-danger-soft"
       >
         <Trash2 className="h-4 w-4" />
       </button>

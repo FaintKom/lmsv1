@@ -93,7 +93,7 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQui
   } else {
     body = (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <span className="flex items-center gap-2 rounded-pill bg-clay-50 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-clay-700">
+        <span className="flex items-center gap-2 rounded-pill bg-danger-soft px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-clay-700">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-clay-500" />
           {t("live.lesson")}
         </span>
@@ -179,7 +179,7 @@ export function MaterialPane({ payload }: { payload: Record<string, unknown> }) 
     // not a blank stage
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+        <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-warning-soft text-warning-fg">
           <BookOpen size={28} />
         </span>
         <span className="text-xl font-extrabold text-text">{title}</span>
@@ -343,7 +343,7 @@ function TaskPane({
       <div className="flex h-full flex-col items-center justify-center gap-4">
         <span
           className={`flex h-16 w-16 items-center justify-center rounded-lg ${
-            done === "solved" ? "bg-green-100 text-green-700" : "bg-surface-2 text-text-subtle"
+            done === "solved" ? "bg-success-soft text-success-fg" : "bg-surface-2 text-text-subtle"
           }`}
         >
           <Check size={28} strokeWidth={2.5} />

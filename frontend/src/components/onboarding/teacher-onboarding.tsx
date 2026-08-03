@@ -109,7 +109,7 @@ export function TeacherOnboarding() {
  const allDone = completedCount === steps.length;
 
  return (
- <div className="rounded-lg border border-primary-soft bg-gradient-to-br from-green-50 to-emerald-50 p-6 ">
+ <div className="rounded-lg border border-primary-soft bg-success-soft p-6 ">
  <div className="flex items-start justify-between mb-4">
  <div className="flex items-center gap-3">
  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft ">

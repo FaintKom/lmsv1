@@ -16,11 +16,11 @@ const EXTRA_STATS = [
 ];
 
 const colorMap: Record<string, { bg: string; iconBg: string; text: string; border: string; gradient: string; ring: string }> = {
- indigo: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
- emerald: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
- violet: { bg: "bg-green-50", iconBg: "bg-green-100", text: "text-green-600", border: "border-green-400", gradient: "from-green-50/80 to-white", ring: "ring-green-200" },
- amber: { bg: "bg-sun-50", iconBg: "bg-sun-100", text: "text-sun-600", border: "border-sun-400", gradient: "from-sun-50/80 to-white", ring: "ring-sun-200" },
- orange: { bg: "bg-clay-50", iconBg: "bg-clay-100", text: "text-clay-600", border: "border-clay-400", gradient: "from-clay-50/80 to-white", ring: "ring-clay-200" },
+ indigo: { bg: "bg-success-soft", iconBg: "bg-success-soft", text: "text-green-600", border: "border-green-400", gradient: "from-success-soft to-surface", ring: "ring-green-200" },
+ emerald: { bg: "bg-success-soft", iconBg: "bg-success-soft", text: "text-green-600", border: "border-green-400", gradient: "from-success-soft to-surface", ring: "ring-green-200" },
+ violet: { bg: "bg-success-soft", iconBg: "bg-success-soft", text: "text-green-600", border: "border-green-400", gradient: "from-success-soft to-surface", ring: "ring-green-200" },
+ amber: { bg: "bg-warning-soft", iconBg: "bg-warning-soft", text: "text-sun-600", border: "border-sun-400", gradient: "from-warning-soft to-surface", ring: "ring-sun-200" },
+ orange: { bg: "bg-danger-soft", iconBg: "bg-danger-soft", text: "text-clay-600", border: "border-clay-400", gradient: "from-danger-soft to-surface", ring: "ring-clay-200" },
 };
 
 const STYLES = [

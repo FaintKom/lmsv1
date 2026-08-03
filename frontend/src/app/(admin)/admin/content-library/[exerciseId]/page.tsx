@@ -806,7 +806,7 @@ function TestCasesEditor({
  <div className="flex items-center gap-2">
  <span className="text-xs font-medium text-text-muted">#{idx + 1}</span>
  {tc.is_hidden && (
- <span className="rounded bg-sun-100 px-1.5 py-0.5 text-[10px] font-medium text-warning-fg ">
+ <span className="rounded bg-warning-soft px-1.5 py-0.5 text-[10px] font-medium text-warning-fg ">
  Hidden
  </span>
  )}

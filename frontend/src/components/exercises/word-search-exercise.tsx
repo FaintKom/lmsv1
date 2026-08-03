@@ -217,7 +217,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
       ) : (
         <div
           className={`rounded-lg px-5 py-3 text-sm font-semibold ${
-            allFound ? "bg-success-soft text-success-fg" : "bg-sun-50 text-warning-fg"
+            allFound ? "bg-success-soft text-success-fg" : "bg-warning-soft text-warning-fg"
           }`}
         >
           {allFound

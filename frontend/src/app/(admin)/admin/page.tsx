@@ -69,9 +69,9 @@ function KpiCard({
   color: "green" | "sun" | "clay" | "ink";
 }) {
   const iconStyles: Record<string, string> = {
-    green: "bg-green-100 text-green-700",
-    sun: "bg-sun-100 text-sun-700",
-    clay: "bg-clay-50 text-clay-700",
+    green: "bg-success-soft text-success-fg",
+    sun: "bg-warning-soft text-warning-fg",
+    clay: "bg-danger-soft text-danger-fg",
     ink: "bg-surface-2 text-text",
   };
 
@@ -233,7 +233,7 @@ export default function AdminDashboardPage() {
             </div>
             <div className="space-y-2.5 p-5">
               {teacherStats.to_review > 0 && (
-                <div className="flex items-start gap-3 rounded-sm bg-clay-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-danger-soft p-3">
                   <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-clay-700" />
                   <p className="text-sm text-text">
                     <span className="font-bold">{teacherStats.to_review}</span>{" "}
@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
                 </div>
               )}
               {teacherStats.my_students > 0 && teacherStats.avg_score > 0 && (
-                <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
                   <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                   <p className="text-sm text-text">
                     {t("admin.dashboard.avgScoreLine")}{" "}
@@ -265,7 +265,7 @@ export default function AdminDashboardPage() {
                 </div>
               )}
               {teacherStats.my_courses === 0 && (
-                <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
                   <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                   <p className="text-sm text-text">
                     {t("admin.dashboard.noCoursesYet")}{" "}
@@ -289,7 +289,7 @@ export default function AdminDashboardPage() {
                 )}
               {teacherStats.to_review === 0 &&
                 teacherStats.my_students > 0 && (
-                  <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
+                  <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
                     <p className="text-sm text-text">
                       {t("admin.dashboard.allCaughtUp")}
@@ -336,9 +336,9 @@ export default function AdminDashboardPage() {
                       className={cn(
                         "flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]",
                         sub.status === "graded"
-                          ? "bg-green-100 text-green-700"
+                          ? "bg-success-soft text-success-fg"
                           : sub.status === "late"
-                            ? "bg-clay-50 text-clay-700"
+                            ? "bg-danger-soft text-danger-fg"
                             : "bg-surface-2 text-text",
                       )}
                     >
@@ -354,7 +354,7 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                     {sub.score != null ? (
-                      <span className="rounded-pill bg-green-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-green-800">
+                      <span className="rounded-pill bg-success-soft px-2.5 py-0.5 font-mono text-[11px] font-bold text-green-800">
                         {sub.score}
                       </span>
                     ) : (
@@ -374,25 +374,25 @@ export default function AdminDashboardPage() {
             href="/admin/content-library"
             icon={Library}
             label={t("admin.dashboard.browseTemplates")}
-            iconColor="bg-green-100 text-green-700"
+            iconColor="bg-success-soft text-success-fg"
           />
           <QuickLink
             href="/admin/courses"
             icon={BookOpen}
             label={t("admin.dashboard.myCourses")}
-            iconColor="bg-green-100 text-green-700"
+            iconColor="bg-success-soft text-success-fg"
           />
           <QuickLink
             href="/admin/assignments"
             icon={ClipboardList}
             label={t("admin.dashboard.assignmentsLink")}
-            iconColor="bg-sun-100 text-sun-700"
+            iconColor="bg-warning-soft text-warning-fg"
           />
           <QuickLink
             href="/admin/review"
             icon={Inbox}
             label={t("admin.dashboard.reviewQueueLink")}
-            iconColor="bg-clay-50 text-clay-700"
+            iconColor="bg-danger-soft text-danger-fg"
           />
         </div>
       </div>
@@ -449,7 +449,7 @@ export default function AdminDashboardPage() {
       {!onboardingDismissed &&
         stats &&
         (stats.total_courses === 0 || stats.total_users === 0) && (
-          <div className="mb-6 rounded-md border border-green-200 bg-green-50">
+          <div className="mb-6 rounded-md border border-green-200 bg-success-soft">
             <div className="flex items-center justify-between border-b border-green-200 px-5 py-3.5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-600" />
@@ -462,7 +462,7 @@ export default function AdminDashboardPage() {
                   setOnboardingDismissed(true);
                   localStorage.setItem("admin-onboarding-dismissed", "true");
                 }}
-                className="flex h-6 w-6 items-center justify-center rounded-[7px] text-text-subtle transition-colors hover:bg-green-100 hover:text-text"
+                className="flex h-6 w-6 items-center justify-center rounded-[7px] text-text-subtle transition-colors hover:bg-success-soft hover:text-text"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -470,21 +470,21 @@ export default function AdminDashboardPage() {
             <div className="flex flex-col gap-1 p-4">
               <Link
                 href="/admin/courses"
-                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-success-soft/60"
               >
                 <PlusCircle className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.createFirstCourse")}
               </Link>
               <Link
                 href="/admin/users"
-                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-success-soft/60"
               >
                 <UserPlus className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.inviteStudents")}
               </Link>
               <Link
                 href="/admin/analytics"
-                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-success-soft/60"
               >
                 <BarChart3 className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.viewAnalytics")}
@@ -522,9 +522,9 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ── Invite students ───────────────────────────────────── */}
-      <div className="mb-6 flex flex-col gap-3 rounded-md border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 rounded-md border border-green-200 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-green-100">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-success-soft">
             <LinkIcon className="h-4 w-4 text-green-700" />
           </div>
           <div>
@@ -542,7 +542,7 @@ export default function AdminDashboardPage() {
           </code>
           <button
             onClick={copyInviteLink}
-            className="flex h-8 items-center gap-1.5 rounded-[9px] border border-green-300 bg-surface px-3 text-xs font-bold text-text transition-colors hover:bg-green-100"
+            className="flex h-8 items-center gap-1.5 rounded-[9px] border border-green-300 bg-surface px-3 text-xs font-bold text-text transition-colors hover:bg-success-soft"
           >
             {copied ? (
               <>
@@ -563,19 +563,19 @@ export default function AdminDashboardPage() {
           href="/admin/users"
           icon={Users}
           label={t("admin.dashboard.manageUsers")}
-          iconColor="bg-green-100 text-green-700"
+          iconColor="bg-success-soft text-success-fg"
         />
         <QuickLink
           href="/admin/courses"
           icon={BookOpen}
           label={t("admin.dashboard.manageCourses")}
-          iconColor="bg-green-100 text-green-700"
+          iconColor="bg-success-soft text-success-fg"
         />
         <QuickLink
           href="/admin/analytics"
           icon={BarChart3}
           label={t("admin.dashboard.viewAnalyticsBtn")}
-          iconColor="bg-sun-100 text-sun-700"
+          iconColor="bg-warning-soft text-warning-fg"
         />
       </div>
     </div>

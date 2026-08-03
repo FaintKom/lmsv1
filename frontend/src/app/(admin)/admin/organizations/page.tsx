@@ -207,7 +207,7 @@ export default function OrganizationsPage() {
  onClick={() => toggleActive(org)}
  className={`rounded-lg p-2 text-sm font-medium ${
  org.is_active
- ? "text-warning-fg hover:bg-sun-50 "
+ ? "text-warning-fg hover:bg-warning-soft "
  : "text-primary hover:bg-success-soft "
  }`}
  title={org.is_active ? t("admin.organizations.deactivateTitle") : t("admin.organizations.activateTitle")}

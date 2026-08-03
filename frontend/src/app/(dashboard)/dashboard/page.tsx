@@ -172,10 +172,10 @@ export default function DashboardPage() {
  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
  {recommendations.slice(0, 4).map((rec, i) => {
  const chipColors = {
- review: "bg-clay-50 text-clay-700",
+ review: "bg-danger-soft text-danger-fg",
  continue: "bg-info-soft text-info-fg",
  new: "bg-success-soft text-success-fg",
- almost_done: "bg-sun-100 text-sun-700",
+ almost_done: "bg-warning-soft text-warning-fg",
  };
  return (
  <Link key={i} href={rec.link}>

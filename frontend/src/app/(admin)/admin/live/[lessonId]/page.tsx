@@ -342,7 +342,7 @@ export default function TeacherLivePage() {
           {t("live.lesson")}
         </span>
         <LessonTimer startedAt={lesson.created_at} />
-        <span className="flex items-center gap-1.5 rounded-pill bg-green-100 px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums text-green-800">
+        <span className="flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums text-green-800">
           <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
           {onlineCount} {t("live.online")}
         </span>
@@ -350,7 +350,7 @@ export default function TeacherLivePage() {
           {t("live.nowShowing")}: {t(`live.scene.${currentScene?.type ?? "blank"}` as never)}
         </span>
         {!lesson.course_id && (
-          <span className="rounded-pill bg-sun-100 px-2.5 py-1 font-mono text-[11px] font-bold text-sun-700">
+          <span className="rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-[11px] font-bold text-sun-700">
             {t("live.noAttendance")}
           </span>
         )}
@@ -634,7 +634,7 @@ export default function TeacherLivePage() {
             {tab === "group" && (
               <div className="flex h-full flex-col">
                 {questions.length > 0 && (
-                  <div className="mb-3 rounded-md bg-sun-50 p-3">
+                  <div className="mb-3 rounded-md bg-warning-soft p-3">
                     <div className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
                       {t("live.questionsTitle")}
                     </div>
@@ -649,7 +649,7 @@ export default function TeacherLivePage() {
                             setQuestions((qs) => qs.filter((_, idx) => idx !== i))
                           }
                           aria-label={t("common.close")}
-                          className="-my-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-sun-100"
+                          className="-my-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-subtle transition-colors hover:bg-warning-soft"
                         >
                           ✕
                         </button>
@@ -759,7 +759,7 @@ function LessonTimer({ startedAt }: { startedAt: string }) {
 function EmptyHint({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
-      <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-sun-100 text-sun-700">
+      <span className="flex h-16 w-16 items-center justify-center rounded-lg bg-warning-soft text-warning-fg">
         <Icon size={28} />
       </span>
       <span className="max-w-[280px] text-center text-sm text-text-muted">{text}</span>

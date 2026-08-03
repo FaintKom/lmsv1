@@ -40,21 +40,21 @@ const STATUS_META: Record<
   { bg: string; fg: string; dot: string; bar: string; labelKey: string }
 > = {
   ontrack: {
-    bg: "bg-green-50",
+    bg: "bg-success-soft",
     fg: "text-green-800",
     dot: "bg-green-600",
     bar: "bg-green-600",
     labelKey: "pacing.status.ontrack",
   },
   behind: {
-    bg: "bg-clay-50",
+    bg: "bg-danger-soft",
     fg: "text-clay-700",
     dot: "bg-clay-500",
     bar: "bg-clay-500",
     labelKey: "pacing.status.behind",
   },
   ahead: {
-    bg: "bg-sun-50",
+    bg: "bg-warning-soft",
     fg: "text-sun-700",
     dot: "bg-sun-500",
     bar: "bg-sun-500",
@@ -333,9 +333,9 @@ function PacingTimeline({
         : CheckCircle2;
   const noteBox =
     data.badge === "behind"
-      ? "bg-clay-50 border-clay-300 text-clay-700"
+      ? "bg-danger-soft border-clay-300 text-clay-700"
       : data.badge === "ahead"
-        ? "bg-sun-50 border-sun-300 text-sun-700"
+        ? "bg-warning-soft border-sun-300 text-sun-700"
         : "bg-green-25 border-green-100 text-green-800";
   const noteIconColor =
     data.badge === "behind"
