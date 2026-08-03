@@ -26,7 +26,7 @@ export function StreakWidget() {
  return (
  <div className="flex items-center gap-3">
  <div className={`rounded-lg p-3 ${streak > 0 ? "bg-danger-soft " : "bg-surface-2 "}`}>
- <Flame className={`h-5 w-5 ${streak > 0 ? "text-clay-700" : "text-text-subtle"}`} />
+ <Flame className={`h-5 w-5 ${streak > 0 ? "text-danger-fg" : "text-text-subtle"}`} />
  </div>
  <div className="flex-1">
  <p className="text-xs font-medium text-text-muted ">Streak</p>

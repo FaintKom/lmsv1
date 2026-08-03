@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-7">
-          <p className="mb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-green-700">
+          <p className="mb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-success-fg">
             {t("admin.dashboard.teacherCrumb")}
           </p>
           <h1 className="text-[28px] font-extrabold tracking-tight text-text">
@@ -234,7 +234,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-2.5 p-5">
               {teacherStats.to_review > 0 && (
                 <div className="flex items-start gap-3 rounded-sm bg-danger-soft p-3">
-                  <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-clay-700" />
+                  <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-danger-fg" />
                   <p className="text-sm text-text">
                     <span className="font-bold">{teacherStats.to_review}</span>{" "}
                     {teacherStats.to_review !== 1
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
                       : t("admin.dashboard.submissionWaiting")}{" "}
                     <Link
                       href="/admin/review"
-                      className="font-bold text-clay-700 hover:underline"
+                      className="font-bold text-danger-fg hover:underline"
                     >
                       {t("admin.dashboard.reviewNow")} →
                     </Link>
@@ -251,7 +251,7 @@ export default function AdminDashboardPage() {
               )}
               {teacherStats.my_students > 0 && teacherStats.avg_score > 0 && (
                 <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
-                  <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
+                  <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-success-fg" />
                   <p className="text-sm text-text">
                     {t("admin.dashboard.avgScoreLine")}{" "}
                     <span className="font-bold">{teacherStats.avg_score}%</span>
@@ -266,12 +266,12 @@ export default function AdminDashboardPage() {
               )}
               {teacherStats.my_courses === 0 && (
                 <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
-                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
+                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-success-fg" />
                   <p className="text-sm text-text">
                     {t("admin.dashboard.noCoursesYet")}{" "}
                     <Link
                       href="/admin/courses"
-                      className="font-bold text-green-700 hover:underline"
+                      className="font-bold text-success-fg hover:underline"
                     >
                       {t("admin.dashboard.createFirstCourse")} →
                     </Link>
@@ -290,7 +290,7 @@ export default function AdminDashboardPage() {
               {teacherStats.to_review === 0 &&
                 teacherStats.my_students > 0 && (
                   <div className="flex items-start gap-3 rounded-sm bg-success-soft p-3">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success-fg" />
                     <p className="text-sm text-text">
                       {t("admin.dashboard.allCaughtUp")}
                     </p>
@@ -354,7 +354,7 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                     {sub.score != null ? (
-                      <span className="rounded-pill bg-success-soft px-2.5 py-0.5 font-mono text-[11px] font-bold text-green-800">
+                      <span className="rounded-pill bg-success-soft px-2.5 py-0.5 font-mono text-[11px] font-bold text-success-fg">
                         {sub.score}
                       </span>
                     ) : (
@@ -409,7 +409,7 @@ export default function AdminDashboardPage() {
       {/* ── Page header ───────────────────────────────────────── */}
       <div className="mb-7 flex items-start justify-between border-b border-border pb-5">
         <div>
-          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-green-700">
+          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-success-fg">
             {t("admin.dashboard.adminCrumb")}
           </p>
           <h1 className="mb-2 text-[28px] font-extrabold tracking-tight text-text">
@@ -525,7 +525,7 @@ export default function AdminDashboardPage() {
       <div className="mb-6 flex flex-col gap-3 rounded-md border border-green-200 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-success-soft">
-            <LinkIcon className="h-4 w-4 text-green-700" />
+            <LinkIcon className="h-4 w-4 text-success-fg" />
           </div>
           <div>
             <p className="text-sm font-bold text-text">{t("admin.dashboard.inviteStudentsTitle")}</p>

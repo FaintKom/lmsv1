@@ -533,7 +533,9 @@ button { font-family: inherit; }
 /* Sun marker — typographic accent on hero headings */
 .sun-mark {
   background: var(--sun-300);
-  color: var(--color-text);
+  /* Background is always sun, so the text must always be ink. The flipping
+     token turned this into white-on-yellow (1.12:1) in dark. */
+  color: var(--ink-900);
   padding: 0 8px;
   border-radius: var(--radius-xs);
   display: inline-block;
