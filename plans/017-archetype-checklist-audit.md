@@ -75,3 +75,50 @@ pages (emoji + long animations allowed).
   one accent per card, no tinted headings, visible focus ring on Tab.
 - **Done when**: the Findings table covers all 7 archetypes and the sweeps
   are clean.
+
+---
+
+## Findings — 2026-08-03
+
+Ran the four sweeps from the plan across `frontend/src`.
+
+| Check | Result | Verdict |
+|---|---|---|
+| Raw Tailwind palette (`amber/emerald/orange/…`) | 6 hits | **FIXED** (4) / LOGGED (2) |
+| Emoji in product UI | 10 hits | **FIXED** (6) / allowed (4) |
+| Arbitrary `rounded-[…]` / `text-[…]` | 421 hits | **FIXED** (112 exact-token matches) / allowed (~300) |
+| Raw hex outside globals | 761 hits | allowed — canvas/3D palettes |
+
+### Fixed
+- `achievements`, `certificates`, `leaderboard`, `badge-card`: amber/orange
+  gradients → `sun-*` / `clay-*` tokens.
+- Emoji removed from chrome: "✨ Edit" (course editor), "🎉" (review-queue
+  widget), "⭐" badge fallback → `•`, "📚" course glyph → `≡`, "🚀"
+  (onboarding tour), and the flashcard celebration "🎉" → a Lucide
+  `PartyPopper` icon.
+- 112 arbitrary values whose pixel value matches a token exactly
+  (`text-[13px]`→`text-sm`, `[12px]`→`text-xs`, `[15px]`→`text-base`,
+  `rounded-[10px]`→`rounded-sm`, `[14px]`→`rounded-md`, `[18px]`→`rounded-lg`,
+  `[24px]`→`rounded-xl`, `[6px]`→`rounded-xs`). Zero visual change by
+  construction.
+
+### Logged, not fixed (with reasons)
+- **`app/page.tsx` (landing)** — two `amber/emerald` gradients. Marketing
+  surface, and the file carries the owner's uncommitted work; not touched.
+- **`components/landing/role-showcase.tsx`** — owner's untracked WIP.
+- **Game sprites** (`robot-2d` ⭐ on the canvas) — content, not chrome.
+- **`text-[10px]` (133) and `text-[11px]` (94)** — the spec itself uses 10px
+  mono meta (§8 table headers) and 11px mono breadcrumbs (§7); these are the
+  design, not debt.
+- **`text-[9px]/[14px]/[28px]`, `rounded-[7px]/[8px]/[11px]/[12px]`** (~40) —
+  no exact token; changing them alters the pixel result, so each needs a
+  design decision rather than a sweep.
+- **761 raw hex** — concentrated in `components/game/*`, `room`, `avatar`,
+  `exercises/v2` math widgets: three.js materials, canvas fills and SVG
+  strokes, which cannot read CSS custom properties. Same category as the
+  voxel palettes the plan already exempts.
+
+### Deferred item checked
+Average-grade KPI (the dashboard shows XP instead): still no aggregate
+endpoint — `grep -rn "avg\|average" backend/app/analytics backend/app/gamification`
+returns only per-course helpers, nothing class-wide. Remains a follow-up.

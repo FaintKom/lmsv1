@@ -62,7 +62,7 @@ export function TheoryViewer({
   const source = content.source;
   if (!source?.url) {
     return (
-      <div className="rounded-[14px] border border-border bg-surface-2 p-6 text-center text-sm text-text-muted">
+      <div className="rounded-md border border-border bg-surface-2 p-6 text-center text-sm text-text-muted">
         {t("theory.noSource")}
       </div>
     );
@@ -89,11 +89,11 @@ export function TheoryViewer({
         <h2 className="text-lg font-extrabold text-text">{content.title}</h2>
       )}
       {content.subtitle && (
-        <div className="mb-3 text-[13px] text-text-muted">{content.subtitle}</div>
+        <div className="mb-3 text-sm text-text-muted">{content.subtitle}</div>
       )}
 
       {/* stage */}
-      <div className="relative mt-1 overflow-hidden rounded-[14px] border border-border bg-ink-900">
+      <div className="relative mt-1 overflow-hidden rounded-md border border-border bg-ink-900">
         <iframe
           src={src}
           title={content.title || t("theory.badge")}
@@ -105,7 +105,7 @@ export function TheoryViewer({
 
       {/* notes */}
       {showNotes && notes.length > 0 && (
-        <div className="mt-3 rounded-[12px] border-2 border-warning bg-sun-50 p-3 text-[13px] leading-relaxed text-text">
+        <div className="mt-3 rounded-[12px] border-2 border-warning bg-sun-50 p-3 text-sm leading-relaxed text-text">
           <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-warning-fg">
             <StickyNote className="h-3 w-3" />
             {t("theory.speakerNotes")}
@@ -247,7 +247,7 @@ function TheoryFullscreen({
             <iframe
               src={src}
               title={title || t("theory.badge")}
-              className="aspect-video w-full rounded-[14px] bg-black"
+              className="aspect-video w-full rounded-md bg-black"
               allowFullScreen
             />
             {subtitle && (

@@ -76,7 +76,7 @@ function KpiCard({
   };
 
   return (
-    <div className="rounded-[14px] border border-border bg-surface p-4">
+    <div className="rounded-md border border-border bg-surface p-4">
       <div className="mb-2 flex items-center justify-between">
         <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-text-subtle">
           {label}
@@ -93,7 +93,7 @@ function KpiCard({
       <div className="text-[28px] font-extrabold leading-none tracking-tight text-text">
         {value}
         {suffix && (
-          <small className="ml-1 font-mono text-[13px] font-semibold text-text-subtle">
+          <small className="ml-1 font-mono text-sm font-semibold text-text-subtle">
             {suffix}
           </small>
         )}
@@ -117,7 +117,7 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-[14px] border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-sm"
+      className="flex items-center justify-between rounded-md border border-border bg-surface p-4 transition hover:-translate-y-0.5 hover:border-green-300 hover:shadow-sm"
     >
       <div className="flex items-center gap-3">
         <div
@@ -128,7 +128,7 @@ function QuickLink({
         >
           <Icon className="h-4 w-4" />
         </div>
-        <span className="text-[13px] font-bold text-text">{label}</span>
+        <span className="text-sm font-bold text-text">{label}</span>
       </div>
       <ArrowRight className="h-4 w-4 text-text-subtle" />
     </Link>
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
 
         {/* Quick Insights */}
         {teacherStats && (
-          <div className="mb-6 rounded-[14px] border border-border bg-surface">
+          <div className="mb-6 rounded-md border border-border bg-surface">
             <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
               <Sparkles className="h-4 w-4 text-green-600" />
               <h3 className="text-[14px] font-extrabold text-text">
@@ -233,9 +233,9 @@ export default function AdminDashboardPage() {
             </div>
             <div className="space-y-2.5 p-5">
               {teacherStats.to_review > 0 && (
-                <div className="flex items-start gap-3 rounded-[10px] bg-clay-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-clay-50 p-3">
                   <Inbox className="mt-0.5 h-4 w-4 shrink-0 text-clay-700" />
-                  <p className="text-[13px] text-text">
+                  <p className="text-sm text-text">
                     <span className="font-bold">{teacherStats.to_review}</span>{" "}
                     {teacherStats.to_review !== 1
                       ? t("admin.dashboard.submissionsWaiting")
@@ -250,9 +250,9 @@ export default function AdminDashboardPage() {
                 </div>
               )}
               {teacherStats.my_students > 0 && teacherStats.avg_score > 0 && (
-                <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
                   <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
-                  <p className="text-[13px] text-text">
+                  <p className="text-sm text-text">
                     {t("admin.dashboard.avgScoreLine")}{" "}
                     <span className="font-bold">{teacherStats.avg_score}%</span>
                     .
@@ -265,9 +265,9 @@ export default function AdminDashboardPage() {
                 </div>
               )}
               {teacherStats.my_courses === 0 && (
-                <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
+                <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
                   <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
-                  <p className="text-[13px] text-text">
+                  <p className="text-sm text-text">
                     {t("admin.dashboard.noCoursesYet")}{" "}
                     <Link
                       href="/admin/courses"
@@ -280,27 +280,27 @@ export default function AdminDashboardPage() {
               )}
               {teacherStats.my_students === 0 &&
                 teacherStats.my_courses > 0 && (
-                  <div className="flex items-start gap-3 rounded-[10px] bg-surface-2 p-3">
+                  <div className="flex items-start gap-3 rounded-sm bg-surface-2 p-3">
                     <Users className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" />
-                    <p className="text-[13px] text-text">
+                    <p className="text-sm text-text">
                       {t("admin.dashboard.noStudentsYet")}
                     </p>
                   </div>
                 )}
               {teacherStats.to_review === 0 &&
                 teacherStats.my_students > 0 && (
-                  <div className="flex items-start gap-3 rounded-[10px] bg-green-50 p-3">
+                  <div className="flex items-start gap-3 rounded-sm bg-green-50 p-3">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-700" />
-                    <p className="text-[13px] text-text">
+                    <p className="text-sm text-text">
                       {t("admin.dashboard.allCaughtUp")}
                     </p>
                   </div>
                 )}
               {teacherStats.recent_submissions &&
                 teacherStats.recent_submissions.length > 0 && (
-                  <div className="flex items-start gap-3 rounded-[10px] bg-surface-2 p-3">
+                  <div className="flex items-start gap-3 rounded-sm bg-surface-2 p-3">
                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-text-muted" />
-                    <p className="text-[13px] text-text">
+                    <p className="text-sm text-text">
                       {t("admin.dashboard.lastSubmissionFrom")}{" "}
                       <span className="font-bold">
                         {teacherStats.recent_submissions[0].student_name}
@@ -320,7 +320,7 @@ export default function AdminDashboardPage() {
         {/* Recent Submissions */}
         {teacherStats?.recent_submissions &&
           teacherStats.recent_submissions.length > 0 && (
-            <div className="mb-6 rounded-[14px] border border-border bg-surface">
+            <div className="mb-6 rounded-md border border-border bg-surface">
               <div className="border-b border-border px-5 py-3.5">
                 <h3 className="text-[14px] font-extrabold text-text">
                   {t("admin.dashboard.recentSubmissions")}
@@ -345,7 +345,7 @@ export default function AdminDashboardPage() {
                       <ClipboardList className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-bold text-text">
+                      <p className="truncate text-sm font-bold text-text">
                         {sub.assignment_title}
                       </p>
                       <p className="font-mono text-[10px] text-text-subtle">
@@ -423,21 +423,21 @@ export default function AdminDashboardPage() {
           <button
             onClick={startOnboardingTour}
             title={t("admin.dashboard.tourTitle")}
-            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-[12px] font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
+            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <HelpCircle className="h-3.5 w-3.5" />
             {t("admin.dashboard.tour")}
           </button>
           <Link
             href="/admin/users"
-            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-[12px] font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
+            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <UserPlus className="h-3.5 w-3.5" />
             {t("admin.dashboard.addUser")}
           </Link>
           <Link
             href="/admin/courses"
-            className="btn-pop flex h-9 items-center gap-1.5 rounded-[11px] bg-primary px-4 text-[12px] font-bold text-white"
+            className="btn-pop flex h-9 items-center gap-1.5 rounded-[11px] bg-primary px-4 text-xs font-bold text-white"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("admin.dashboard.newCourse")}
@@ -449,7 +449,7 @@ export default function AdminDashboardPage() {
       {!onboardingDismissed &&
         stats &&
         (stats.total_courses === 0 || stats.total_users === 0) && (
-          <div className="mb-6 rounded-[14px] border border-green-200 bg-green-50">
+          <div className="mb-6 rounded-md border border-green-200 bg-green-50">
             <div className="flex items-center justify-between border-b border-green-200 px-5 py-3.5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-600" />
@@ -470,21 +470,21 @@ export default function AdminDashboardPage() {
             <div className="flex flex-col gap-1 p-4">
               <Link
                 href="/admin/courses"
-                className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
               >
                 <PlusCircle className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.createFirstCourse")}
               </Link>
               <Link
                 href="/admin/users"
-                className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
               >
                 <UserPlus className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.inviteStudents")}
               </Link>
               <Link
                 href="/admin/analytics"
-                className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[13px] font-semibold text-text transition-colors hover:bg-green-100/60"
+                className="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-green-100/60"
               >
                 <BarChart3 className="h-4 w-4 text-green-600" />
                 {t("admin.dashboard.viewAnalytics")}
@@ -522,13 +522,13 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ── Invite students ───────────────────────────────────── */}
-      <div className="mb-6 flex flex-col gap-3 rounded-[14px] border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 rounded-md border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-green-100">
             <LinkIcon className="h-4 w-4 text-green-700" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-text">{t("admin.dashboard.inviteStudentsTitle")}</p>
+            <p className="text-sm font-bold text-text">{t("admin.dashboard.inviteStudentsTitle")}</p>
             <p className="font-mono text-[10px] text-text-muted">
               {t("admin.dashboard.inviteStudentsHint")}
             </p>
@@ -542,7 +542,7 @@ export default function AdminDashboardPage() {
           </code>
           <button
             onClick={copyInviteLink}
-            className="flex h-8 items-center gap-1.5 rounded-[9px] border border-green-300 bg-surface px-3 text-[12px] font-bold text-text transition-colors hover:bg-green-100"
+            className="flex h-8 items-center gap-1.5 rounded-[9px] border border-green-300 bg-surface px-3 text-xs font-bold text-text transition-colors hover:bg-green-100"
           >
             {copied ? (
               <>

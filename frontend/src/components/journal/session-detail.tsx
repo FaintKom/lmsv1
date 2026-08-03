@@ -225,7 +225,7 @@ export function SessionDetail({
               onChange={(e) => setTopic(e.target.value)}
               placeholder={t("journal.topicPlaceholder")}
               maxLength={500}
-              className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3 py-2.5 text-sm text-text"
+              className="w-full rounded-sm border-[1.5px] border-border bg-surface px-3 py-2.5 text-sm text-text"
             />
           </div>
 
@@ -238,7 +238,7 @@ export function SessionDetail({
               <select
                 value={actualTopicId}
                 onChange={(e) => setActualTopicId(e.target.value)}
-                className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3 py-2.5 text-sm text-text"
+                className="w-full rounded-sm border-[1.5px] border-border bg-surface px-3 py-2.5 text-sm text-text"
               >
                 <option value="">{t("journal.actualTopicNone")}</option>
                 {topics.map((tp) => (
@@ -280,7 +280,7 @@ export function SessionDetail({
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
             </div>
           ) : roster.length === 0 ? (
-            <p className="mb-5 rounded-[10px] bg-surface-2 py-4 text-center text-xs text-text-subtle">
+            <p className="mb-5 rounded-sm bg-surface-2 py-4 text-center text-xs text-text-subtle">
               {t("attendance.noStudents")}
             </p>
           ) : (
@@ -292,7 +292,7 @@ export function SessionDetail({
                     key={row.student_id}
                     className="flex items-center gap-2 py-1"
                   >
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-text">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text">
                       {row.student_name}
                     </span>
                     {ATT_ORDER.map((s) => {
@@ -330,7 +330,7 @@ export function SessionDetail({
             </span>
           </div>
           {!held ? (
-            <div className="rounded-[10px] bg-surface-2 p-4 text-center text-xs text-text-subtle">
+            <div className="rounded-sm bg-surface-2 p-4 text-center text-xs text-text-subtle">
               {t("journal.activityNeedsHeld")}
             </div>
           ) : dayQuery.isLoading ? (
@@ -354,12 +354,12 @@ export function SessionDetail({
                     href={`/admin/journal/student/${row.student_id}?date=${date}${
                       groupId ? `&group=${groupId}` : ""
                     }`}
-                    className="flex items-center gap-2.5 rounded-[10px] border border-border bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
+                    className="flex items-center gap-2.5 rounded-sm border border-border bg-surface px-2.5 py-2.5 transition-colors hover:border-primary"
                   >
                     <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-green-50 text-[11px] font-extrabold text-green-800">
                       {row.student_name.charAt(0)}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-text">
+                    <span className="min-w-0 flex-1 truncate text-sm font-bold text-text">
                       {row.student_name}
                     </span>
                     <span className="font-mono text-[11px] font-semibold text-text-subtle">
@@ -380,14 +380,14 @@ export function SessionDetail({
         <div className="flex justify-end gap-2.5 border-t border-border px-[22px] py-3.5">
           <button
             onClick={onClose}
-            className="rounded-[11px] border border-border bg-surface px-[18px] py-2.5 text-[13px] font-bold text-text hover:bg-surface-2"
+            className="rounded-[11px] border border-border bg-surface px-[18px] py-2.5 text-sm font-bold text-text hover:bg-surface-2"
           >
             {t("journal.cancel")}
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 rounded-[11px] bg-green-600 px-[22px] py-2.5 text-[13px] font-bold text-white shadow-[0_4px_0_0_var(--green-700)] transition-transform hover:bg-green-700 active:translate-y-[2px] active:shadow-[0_2px_0_0_var(--green-700)] disabled:opacity-60"
+            className="flex items-center gap-2 rounded-[11px] bg-green-600 px-[22px] py-2.5 text-sm font-bold text-white shadow-[0_4px_0_0_var(--green-700)] transition-transform hover:bg-green-700 active:translate-y-[2px] active:shadow-[0_2px_0_0_var(--green-700)] disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("journal.saveSession")}

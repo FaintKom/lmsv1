@@ -139,7 +139,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
               type="button"
               onClick={() => setTab(tb.id)}
               className={cn(
-                "relative flex-1 py-2 text-[12px] font-semibold transition-colors",
+                "relative flex-1 py-2 text-xs font-semibold transition-colors",
                 tab === tb.id ? "text-green-700" : "text-text-muted hover:text-text",
               )}
             >
@@ -170,7 +170,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
                         disabled={locked}
                         onClick={() => void place(item)}
                         className={cn(
-                          "flex flex-col gap-1 rounded-[10px] border p-1.5 text-left transition",
+                          "flex flex-col gap-1 rounded-sm border p-1.5 text-left transition",
                           locked
                             ? "cursor-not-allowed border-border bg-surface-2 opacity-60"
                             : placed
@@ -222,7 +222,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
         {sel ? (
           <div className="mt-auto rounded-[12px] border border-green-300 bg-bg p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="truncate text-[13px] font-semibold text-text">
+              <span className="truncate text-sm font-semibold text-text">
                 {selItem ? label(selItem) : sel.item_id}
               </span>
               <button
@@ -265,7 +265,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
             </div>
           </div>
         ) : (
-          <p className="mt-auto rounded-[12px] bg-surface-2 p-3 text-[12px] text-text-muted">
+          <p className="mt-auto rounded-[12px] bg-surface-2 p-3 text-xs text-text-muted">
             {t("room.editor.hint") ||
               "Click an item to add it, then move/rotate/resize it with the buttons. Tap an item in the room to edit it."}
           </p>
@@ -294,7 +294,7 @@ function SettingGrid({
           type="button"
           onClick={() => onPick(item.id)}
           className={cn(
-            "flex items-center gap-2 rounded-[10px] border px-2.5 py-2 text-left text-[12px] font-medium transition",
+            "flex items-center gap-2 rounded-sm border px-2.5 py-2 text-left text-xs font-medium transition",
             currentId === item.id
               ? "border-green-400 bg-success-soft text-success-fg"
               : "border-border bg-bg hover:border-green-300",

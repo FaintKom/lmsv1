@@ -66,7 +66,7 @@ export function LandingHeader() {
  <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-lg">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
  <div className="flex items-center gap-2.5">
- <div className="relative flex h-9 w-9 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">
+ <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>

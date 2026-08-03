@@ -18,7 +18,7 @@ export function BadgeCard({ name, description, criteriaKey, earned, earnedAt }: 
  className={cn(
  "rounded-lg border p-4 text-center transition",
  earned
- ? "border-warning bg-gradient-to-b from-amber-50 to-white shadow-sm"
+ ? "border-warning bg-gradient-to-b from-sun-50 to-surface shadow-sm"
  : "border-border-strong bg-surface-2 opacity-60",
  )}
  >

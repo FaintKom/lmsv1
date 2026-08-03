@@ -12,14 +12,14 @@ export function WalletPill({ wallet }: WalletPillProps) {
   const { t } = useTranslation();
   return (
     <div
-      className="flex items-center gap-3 rounded-[14px] border px-3 py-2.5"
+      className="flex items-center gap-3 rounded-md border px-3 py-2.5"
       style={{
         background: "linear-gradient(135deg, #fff7d4, #ffe9a3)",
         borderColor: "#ffe9a3",
       }}
     >
       <div
-        className="grid h-9 w-9 place-items-center rounded-[10px]"
+        className="grid h-9 w-9 place-items-center rounded-sm"
         style={{
           background: "#ffd84d",
           boxShadow: "0 3px 0 0 #f5b800",

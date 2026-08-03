@@ -614,7 +614,7 @@ export default function TeacherLivePage() {
                 <button
                   key={k}
                   onClick={() => setTab(k)}
-                  className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-[13px] font-bold transition-colors ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-3 text-sm font-bold transition-colors ${
                     tab === k
                       ? "border-primary text-text"
                       : "border-transparent text-text-muted hover:text-text"

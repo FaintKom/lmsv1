@@ -230,7 +230,7 @@ export default function LessonViewerPage() {
      <div className="flex-1 px-3 py-4">
       <div className="space-y-2">
        {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="lms-skeleton h-9 w-full rounded-[10px]" />
+        <div key={i} className="lms-skeleton h-9 w-full rounded-sm" />
        ))}
       </div>
      </div>
@@ -377,7 +377,7 @@ export default function LessonViewerPage() {
         <button
          onClick={() => toggleModule(module.id)}
          className={cn(
-          "flex w-full items-center gap-2.5 rounded-[10px] px-2 py-2 text-[13px] font-bold transition-colors",
+          "flex w-full items-center gap-2.5 rounded-sm px-2 py-2 text-sm font-bold transition-colors",
           isCurrentModule ? "bg-green-50" : "hover:bg-ink-50"
          )}
         >
@@ -468,7 +468,7 @@ export default function LessonViewerPage() {
     {!sidebarOpen && (
      <button
       onClick={() => setSidebarOpen(true)}
-      className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-[10px] border border-border bg-surface shadow-md text-text-muted hover:text-text md:hidden"
+      className="fixed left-2 top-2 z-30 flex h-10 w-10 items-center justify-center rounded-sm border border-border bg-surface shadow-md text-text-muted hover:text-text md:hidden"
      >
       <ArrowRight className="h-4 w-4" />
      </button>
@@ -598,7 +598,7 @@ export default function LessonViewerPage() {
         <button
          onClick={handleComplete}
          disabled={completing}
-         className="btn-pop flex w-full items-center justify-center gap-2 rounded-[14px] bg-primary px-6 py-3.5 text-[13px] font-bold text-white disabled:opacity-50"
+         className="btn-pop flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-white disabled:opacity-50"
          style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
         >
          <CheckCircle className="h-4 w-4" />
@@ -628,7 +628,7 @@ export default function LessonViewerPage() {
      {prevLesson && (
       <Link
        href={`/courses/${courseId}/lessons/${prevLesson.lesson.id}`}
-       className="hidden items-center gap-2.5 rounded-xl bg-surface-2 px-3.5 py-2 text-[13px] font-bold text-text transition hover:-translate-y-0.5 sm:flex"
+       className="hidden items-center gap-2.5 rounded-xl bg-surface-2 px-3.5 py-2 text-sm font-bold text-text transition hover:-translate-y-0.5 sm:flex"
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
@@ -643,7 +643,7 @@ export default function LessonViewerPage() {
      {nextLesson ? (
       <Link
        href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-[13px] font-bold text-white"
+       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-white"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
@@ -657,7 +657,7 @@ export default function LessonViewerPage() {
      ) : (
       <Link
        href={`/courses/${courseId}`}
-       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-[13px] font-bold text-white"
+       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-white"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <CheckCircle className="h-3.5 w-3.5" />
@@ -887,7 +887,7 @@ function LegacyContent({
      (lesson.content.url ? (
       <VideoPlayer url={lesson.content.url as string} lessonId={lessonId} />
      ) : (
-      <div className="flex aspect-video items-center justify-center rounded-[14px] bg-ink-900 text-white">
+      <div className="flex aspect-video items-center justify-center rounded-md bg-ink-900 text-white">
        {t("lesson.noVideo")}
       </div>
      ))}
@@ -895,14 +895,14 @@ function LegacyContent({
     {lesson.content_type === "code_challenge" && challenge && (
      <div>
       {challenge.description && (
-       <div className="mb-4 rounded-[14px] border border-border bg-surface p-5">
+       <div className="mb-4 rounded-md border border-border bg-surface p-5">
         <h3 className="mb-2 text-sm font-bold text-text">{challenge.title}</h3>
         <div className="prose prose-sm prose-slate max-w-none text-text-muted">
          <p>{challenge.description}</p>
         </div>
        </div>
       )}
-      <div className="h-[500px] overflow-hidden rounded-[14px] border border-border">
+      <div className="h-[500px] overflow-hidden rounded-md border border-border">
        <EditorLayout
         challengeId={challenge.id}
         language={challenge.language}
@@ -914,7 +914,7 @@ function LegacyContent({
     )}
 
     {lesson.content_type === "code_challenge" && !challenge && (
-     <div className="rounded-[14px] border border-border bg-surface-2 p-6 text-center">
+     <div className="rounded-md border border-border bg-surface-2 p-6 text-center">
       <Code className="mx-auto mb-2 h-10 w-10 text-text-subtle" />
       <p className="text-sm text-text-muted">
        {t("lesson.noChallenge")}

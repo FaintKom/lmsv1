@@ -124,7 +124,7 @@ export default function TranslationExercise({ config, onSubmit }: Props) {
  placeholder={`Type your ${getLangLabel(config.target_language)} translation...`}
  rows={3}
  disabled={submitted}
- className={`w-full rounded-lg border-2 px-5 py-4 text-[15px] font-medium transition duration-200 outline-none resize-none
+ className={`w-full rounded-lg border-2 px-5 py-4 text-base font-medium transition duration-200 outline-none resize-none
  ${
  submitted && isCorrect === true
  ? "border-primary bg-success-soft text-success-fg "
