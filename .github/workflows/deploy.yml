@@ -287,6 +287,25 @@ jobs:
                journalctl --vacuum-size=200M >/dev/null 2>&1 || true; \
                df -h / | tail -1"
 
+      # Safety net for the failure mode that hid behind green PRs on
+      # 2026-08-02: if anything keeps a commit from deploying (a cancelled
+      # CI run, a skipped gate, a failed step), the box quietly serves an
+      # older sha. Compare what it runs against origin/main and shout.
+      - name: Detect deploy drift
+        if: always()
+        run: |
+          DEPLOYED=$(ssh -i ~/.ssh/id_ed25519 \
+                         ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} \
+                         "cat /opt/lms/.github/.last-deployed-sha 2>/dev/null" | tr -d '[:space:]')
+          HEAD_SHA=$(git ls-remote https://github.com/${{ github.repository }} refs/heads/main | cut -f1)
+          echo "prod: ${DEPLOYED:-unknown}"
+          echo "main: ${HEAD_SHA}"
+          if [ -n "$DEPLOYED" ] && [ "$DEPLOYED" != "$HEAD_SHA" ]; then
+            echo "::error::Prod is on ${DEPLOYED:0:7} but main is ${HEAD_SHA:0:7}. Re-run: gh workflow run deploy.yml -f sha=${HEAD_SHA:0:7}"
+            exit 1
+          fi
+          echo "✓ prod matches main"
+
       - name: Warn when the disk is filling up
         if: always()
         run: |
