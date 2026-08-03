@@ -22,7 +22,7 @@ export default function CookiePolicyPage() {
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
  {/* 1. What Are Cookies */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  1. What Are Cookies
  </h2>
  <p>
@@ -39,11 +39,11 @@ export default function CookiePolicyPage() {
 
  {/* 2. Cookies We Use */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  2. Cookies We Use
  </h2>
 
- <h3 className="mb-2 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-2 mt-4 font-semibold text-text ">
  2.1 Essential Cookies (Required)
  </h3>
  <p>
@@ -54,13 +54,13 @@ export default function CookiePolicyPage() {
  <table className="w-full text-left">
  <thead>
  <tr className="border-b border-border-strong ">
- <th className="pb-2 pr-4 font-semibold text-ink-700 ">
+ <th className="pb-2 pr-4 font-semibold text-text ">
  Cookie
  </th>
- <th className="pb-2 pr-4 font-semibold text-ink-700 ">
+ <th className="pb-2 pr-4 font-semibold text-text ">
  Purpose
  </th>
- <th className="pb-2 font-semibold text-ink-700 ">
+ <th className="pb-2 font-semibold text-text ">
  Duration
  </th>
  </tr>
@@ -91,7 +91,7 @@ export default function CookiePolicyPage() {
  </table>
  </div>
 
- <h3 className="mb-2 mt-6 font-semibold text-ink-700 ">
+ <h3 className="mb-2 mt-6 font-semibold text-text ">
  2.2 Functional Cookies (Preferences)
  </h3>
  <p>
@@ -103,13 +103,13 @@ export default function CookiePolicyPage() {
  <table className="w-full text-left">
  <thead>
  <tr className="border-b border-border-strong ">
- <th className="pb-2 pr-4 font-semibold text-ink-700 ">
+ <th className="pb-2 pr-4 font-semibold text-text ">
  Item
  </th>
- <th className="pb-2 pr-4 font-semibold text-ink-700 ">
+ <th className="pb-2 pr-4 font-semibold text-text ">
  Purpose
  </th>
- <th className="pb-2 font-semibold text-ink-700 ">
+ <th className="pb-2 font-semibold text-text ">
  Storage
  </th>
  </tr>
@@ -140,7 +140,7 @@ export default function CookiePolicyPage() {
  </table>
  </div>
 
- <h3 className="mb-2 mt-6 font-semibold text-ink-700 ">
+ <h3 className="mb-2 mt-6 font-semibold text-text ">
  2.3 What We Do Not Use
  </h3>
  <p>GrassLMS does not use:</p>
@@ -162,7 +162,7 @@ export default function CookiePolicyPage() {
 
  {/* 3. How to Manage Cookies */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  3. How to Manage Cookies
  </h2>
  <p>
@@ -195,7 +195,7 @@ export default function CookiePolicyPage() {
 
  {/* 4. Changes */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  4. Changes to This Policy
  </h2>
  <p>
@@ -207,7 +207,7 @@ export default function CookiePolicyPage() {
 
  {/* 5. Contact */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  5. Contact Us
  </h2>
  <p>

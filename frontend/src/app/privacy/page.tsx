@@ -22,7 +22,7 @@ export default function PrivacyPolicyPage() {
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
  {/* 1. Introduction */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  1. Introduction
  </h2>
  <p>
@@ -53,11 +53,11 @@ export default function PrivacyPolicyPage() {
 
  {/* 2. Data We Collect */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  2. Data We Collect
  </h2>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  2.1 Account Data
  </h3>
  <p>
@@ -66,7 +66,7 @@ export default function PrivacyPolicyPage() {
  organization you belong to.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  2.2 Learning Data
  </h3>
  <p>
@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
  results.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  2.3 Communication Data
  </h3>
  <p>
@@ -84,7 +84,7 @@ export default function PrivacyPolicyPage() {
  you send to our support team.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  2.4 Technical Data
  </h3>
  <p>
@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
  for details.
  </p>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  2.5 Payment Data
  </h3>
  <p>
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 3. How We Use Data */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  3. How We Use Your Data
  </h2>
  <p>We use the data we collect for the following purposes:</p>
@@ -148,7 +148,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 4. Legal Basis */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  4. Legal Basis for Processing (GDPR)
  </h2>
  <p>Under the General Data Protection Regulation, we process your data based on:</p>
@@ -176,7 +176,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 5. Data Sharing */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  5. Who We Share Data With
  </h2>
  <p>We share personal data only in the following limited circumstances:</p>
@@ -199,7 +199,7 @@ export default function PrivacyPolicyPage() {
  child&rsquo;s learning progress and activity.
  </li>
  </ul>
- <p className="mt-3 font-medium text-ink-700 ">
+ <p className="mt-3 font-medium text-text ">
  We do not sell personal data. We do not share data with advertisers. We do not use
  third-party analytics services such as Google Analytics. We do not share data with any
  other third parties except as described above or as required by law.
@@ -208,7 +208,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 6. AI Tutor */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  6. AI Tutor and Your Data
  </h2>
  <p>
@@ -225,7 +225,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 7. Children's Privacy */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  7. Children&rsquo;s Privacy (COPPA Compliance)
  </h2>
  <p>
@@ -268,7 +268,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 8. Data Retention */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  8. Data Retention
  </h2>
  <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -301,7 +301,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 9. Data Security */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  9. Data Security
  </h2>
  <p>
@@ -340,7 +340,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 10. International Transfers */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  10. International Data Transfers
  </h2>
  <p>
@@ -359,11 +359,11 @@ export default function PrivacyPolicyPage() {
 
  {/* 11. Your Rights */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  11. Your Rights
  </h2>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Under the GDPR (EU/EEA Residents)
  </h3>
  <p>You have the right to:</p>
@@ -395,7 +395,7 @@ export default function PrivacyPolicyPage() {
  </li>
  </ul>
 
- <h3 className="mb-1 mt-4 font-semibold text-ink-700 ">
+ <h3 className="mb-1 mt-4 font-semibold text-text ">
  Under the CCPA (California Residents)
  </h3>
  <p>You have the right to:</p>
@@ -435,7 +435,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 12. Cookie Policy */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  12. Cookies
  </h2>
  <p>
@@ -454,7 +454,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 13. Changes */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  13. Changes to This Policy
  </h2>
  <p>
@@ -468,7 +468,7 @@ export default function PrivacyPolicyPage() {
 
  {/* 14. Contact */}
  <section>
- <h2 className="mb-3 text-lg font-semibold text-ink-700 ">
+ <h2 className="mb-3 text-lg font-semibold text-text ">
  14. Contact Us
  </h2>
  <p>
@@ -476,7 +476,7 @@ export default function PrivacyPolicyPage() {
  data practices, please contact us:
  </p>
  <div className="mt-2 rounded-lg border border-border-strong bg-surface-2 p-4 ">
- <p className="font-medium text-ink-700 ">
+ <p className="font-medium text-text ">
  GrassLMS Privacy Team
  </p>
  <p className="mt-1">

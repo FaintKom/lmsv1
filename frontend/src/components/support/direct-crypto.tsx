@@ -32,6 +32,7 @@ export function DirectCrypto() {
       </div>
 
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        {/* QR needs a white quiet zone in both themes — scanners require it. */}
         <div className="rounded-md bg-white p-3">
           <QRCodeSVG value={address} size={140} />
         </div>

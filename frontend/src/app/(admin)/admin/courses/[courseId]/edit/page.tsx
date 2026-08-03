@@ -2139,7 +2139,7 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  </a>
  <button
  onClick={() => handleDelete(ex.id, ex.title)}
- className="rounded p-1 text-ink-300 hover:bg-danger-soft hover:text-danger-fg "
+ className="rounded p-1 text-text-subtle hover:bg-danger-soft hover:text-danger-fg "
  title="Delete exercise"
  >
  <Trash2 className="h-3.5 w-3.5" />

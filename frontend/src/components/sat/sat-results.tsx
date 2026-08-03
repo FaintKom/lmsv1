@@ -123,15 +123,15 @@ export default function SATResults({
 
  {/* Module breakdown (adaptive tests only) */}
  {isAdaptive && (
- <div className="rounded-lg border border-border-strong bg-paper-2 p-5 ">
- <h3 className="mb-4 text-sm font-semibold text-ink-700 flex items-center gap-2">
+ <div className="rounded-lg border border-border-strong bg-surface p-5 ">
+ <h3 className="mb-4 text-sm font-semibold text-text flex items-center gap-2">
  <TrendingUp className="h-4 w-4 text-primary" />
  Adaptive Module Breakdown
  </h3>
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
  <div className="rounded-lg bg-surface-2 p-4 text-center ">
  <p className="text-xs text-text-subtle ">Module 1</p>
- <p className="mt-1 text-2xl font-bold text-ink-700 ">
+ <p className="mt-1 text-2xl font-bold text-text ">
  {m1Correct}/{m1Results.length}
  </p>
  <p className="text-xs text-text-subtle">
@@ -141,7 +141,7 @@ export default function SATResults({
 
  <div className="flex items-center justify-center">
  <div className="text-center">
- <ArrowRight className="mx-auto h-5 w-5 text-ink-300 " />
+ <ArrowRight className="mx-auto h-5 w-5 text-text-subtle " />
  <p className={`mt-1 text-xs font-bold ${
  module2Difficulty === "hard"
  ? "text-danger-fg"
@@ -163,7 +163,7 @@ export default function SATResults({
  {module2Difficulty === "hard" ? "HARD" : "STD"}
  </span>
  </p>
- <p className="mt-1 text-2xl font-bold text-ink-700 ">
+ <p className="mt-1 text-2xl font-bold text-text ">
  {m2Correct}/{m2Results.length}
  </p>
  <p className="text-xs text-text-subtle">
@@ -175,8 +175,8 @@ export default function SATResults({
  )}
 
  {/* Domain breakdown */}
- <div className="rounded-lg border border-border-strong bg-paper-2 p-5 ">
- <h3 className="mb-4 text-sm font-semibold text-ink-700 ">Score by Domain</h3>
+ <div className="rounded-lg border border-border-strong bg-surface p-5 ">
+ <h3 className="mb-4 text-sm font-semibold text-text ">Score by Domain</h3>
  <div className="space-y-3">
  {(Object.keys(domainStats) as SATDomain[]).map((domain) => {
  const { correct, total } = domainStats[domain];
@@ -190,7 +190,7 @@ export default function SATResults({
  {correct}/{total} ({pct}%)
  </span>
  </div>
- <div className="h-2.5 overflow-hidden rounded-pill bg-ink-100 ">
+ <div className="h-2.5 overflow-hidden rounded-pill bg-surface-2 ">
  <div
  className="h-full rounded-pill transition-[width] duration-700"
  style={{ width: `${pct}%`, backgroundColor: DOMAIN_COLORS[domain] }}
@@ -203,8 +203,8 @@ export default function SATResults({
  </div>
 
  {/* Question review */}
- <div className="rounded-lg border border-border-strong bg-paper-2 p-5 ">
- <h3 className="mb-4 text-sm font-semibold text-ink-700 ">Question Review</h3>
+ <div className="rounded-lg border border-border-strong bg-surface p-5 ">
+ <h3 className="mb-4 text-sm font-semibold text-text ">Question Review</h3>
  <div className="space-y-2">
  {results.map((r, i) => (
  <details key={r.question.id + "-" + i} className="group">
@@ -223,7 +223,7 @@ export default function SATResults({
  M{r.module}
  </span>
  )}
- <span className="flex-1 text-sm font-medium text-ink-700 truncate">
+ <span className="flex-1 text-sm font-medium text-text truncate">
  {(r.question.config.question as string)?.slice(0, 60)}...
  </span>
  <span className="text-xs text-text-subtle shrink-0">{Math.round(r.timeSeconds)}s</span>
@@ -231,7 +231,7 @@ export default function SATResults({
  <ChevronDown className="h-3 w-3 text-text-subtle transition-transform group-open:rotate-180 shrink-0" />
  </summary>
  <div className="mt-2 rounded-lg bg-surface-2 p-4 text-sm ">
- <p className="font-medium text-ink-700 ">{r.question.config.question as string}</p>
+ <p className="font-medium text-text ">{r.question.config.question as string}</p>
  {r.question.config.explanation ? (
  <p className={`mt-2 text-xs ${r.correct ? "text-text-muted" : "text-primary "}`}>
  <span className="font-semibold">Explanation:</span> {String(r.question.config.explanation)}

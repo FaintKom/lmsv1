@@ -330,7 +330,7 @@ function PadBtn({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-ink-100 bg-paper-2 text-ink-700 transition-colors hover:border-green-400 hover:bg-green-50 hover:text-green-800"
+      className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-border bg-surface text-text transition-colors hover:border-green-400 hover:bg-green-50 hover:text-green-800"
     >
       {children}
     </button>

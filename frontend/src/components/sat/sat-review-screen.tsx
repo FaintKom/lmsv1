@@ -43,7 +43,7 @@ export default function SATReviewScreen({
  };
 
  return (
- <div className="fixed inset-0 z-[101] flex flex-col bg-paper-2 ">
+ <div className="fixed inset-0 z-[101] flex flex-col bg-surface ">
  {/* Header */}
  <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
  <h1 className="text-lg font-semibold text-white">
@@ -131,7 +131,7 @@ export default function SATReviewScreen({
  <div className="flex items-center justify-between border-t border-border-strong px-6 py-4 ">
  <button
  onClick={onCancel}
- className="rounded-lg border border-ink-300 px-5 py-2.5 text-sm font-medium text-ink-700 hover:bg-surface-2 "
+ className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-medium text-text hover:bg-surface-2 "
  >
  Return to Questions
  </button>

@@ -32,7 +32,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  return (
  <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
  <div className="rounded-lg bg-surface-2 px-4 py-4 sm:px-6 sm:py-5 ">
- <MathText text={question} className="text-base sm:text-lg font-medium text-ink-700 " />
+ <MathText text={question} className="text-base sm:text-lg font-medium text-text " />
  {false && standard && (
  <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
  {standard}
@@ -45,7 +45,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  return (
  <button key={i} onClick={() => onEliminate(i)}
  className="flex w-full items-center gap-4 rounded-lg border-2 border-border-strong px-5 py-4 text-left opacity-40 line-through ">
- <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-ink-100 text-sm font-bold text-text-subtle ">{labels[i]}</span>
+ <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-sm font-bold text-text-subtle ">{labels[i]}</span>
  <MathText text={choice.text} className="text-sm text-text-subtle" />
  </button>
  );
@@ -57,12 +57,12 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  className={`flex w-full items-center gap-4 rounded-lg border-2 px-5 py-4 text-left transition duration-200 ${
  isSelected
  ? "border-primary bg-success-soft shadow-md "
- : "border-border-strong bg-paper-2 hover:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
+ : "border-border-strong bg-surface hover:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
  }`}>
  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
- isSelected ? "bg-primary text-white" : "bg-ink-100 text-text-muted "
+ isSelected ? "bg-primary text-white" : "bg-surface-2 text-text-muted "
  }`}>{labels[i]}</span>
- <MathText text={choice.text} className="text-sm font-medium text-ink-700 " />
+ <MathText text={choice.text} className="text-sm font-medium text-text " />
  </button>
  );
  })}
@@ -83,7 +83,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
  return (
  <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6 px-4 sm:px-0">
  <div className="rounded-lg bg-surface-2 px-4 py-4 sm:px-6 sm:py-5 ">
- <MathText text={question} className="text-base sm:text-lg font-medium text-ink-700 " />
+ <MathText text={question} className="text-base sm:text-lg font-medium text-text " />
  {false && standard && (
  <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
  {standard}
@@ -97,7 +97,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
  value={answer || ""}
  onChange={(e) => onAnswer(e.target.value)}
  placeholder="e.g. 7 or 3/4"
- className="w-44 rounded-lg border-2 border-primary bg-paper-2 px-4 py-3 text-center text-xl font-bold text-success-fg outline-none focus:border-primary "
+ className="w-44 rounded-lg border-2 border-primary bg-surface px-4 py-3 text-center text-xl font-bold text-success-fg outline-none focus:border-primary "
  autoFocus
  />
  </div>
@@ -448,11 +448,11 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface-2 ">
  <div className="text-center space-y-6 max-w-md mx-auto px-4">
  <div className="text-6xl">&#9749;</div>
- <h2 className="text-2xl font-bold text-ink-700 ">Break Time</h2>
+ <h2 className="text-2xl font-bold text-text ">Break Time</h2>
  <p className="text-text-muted ">Take a moment to rest before Module 2</p>
 
  {/* Module 1 result indicator */}
- <div className="rounded-lg bg-paper-2 border border-border-strong p-4 ">
+ <div className="rounded-lg bg-surface border border-border-strong p-4 ">
  <p className="text-sm text-text-muted ">Module 2 Difficulty</p>
  <p className={`text-lg font-bold ${module2Difficulty === "hard" ? "text-danger-fg" : "text-info-fg"}`}>
  {module2Difficulty === "hard" ? "Hard" : "Standard"}
@@ -460,7 +460,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <p className="text-xs text-text-subtle mt-1">Based on your Module 1 performance</p>
  </div>
 
- <div className="text-4xl font-mono font-bold text-ink-700 ">
+ <div className="text-4xl font-mono font-bold text-text ">
  {formatTime(breakTimeLeft)}
  </div>
 
@@ -478,11 +478,11 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  const answeredCount = Object.values(currentAnswers).filter(Boolean).length;
 
  return (
- <div className="fixed inset-0 z-[100] flex flex-col bg-paper-2 ">
+ <div className="fixed inset-0 z-[100] flex flex-col bg-surface ">
  {/* Top bar */}
  <div className="flex h-auto min-h-[48px] shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border-strong bg-surface-2 px-3 py-2 sm:px-4 ">
  <div className="flex items-center gap-2 sm:gap-3">
- <span className="text-xs sm:text-sm font-bold text-ink-700 ">
+ <span className="text-xs sm:text-sm font-bold text-text ">
  Module {moduleNumber} of {totalModules}
  </span>
  <span className="rounded bg-primary-soft px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary ">
@@ -496,7 +496,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  {showTimer ? <Eye className="h-3.5 w-3.5 text-text-subtle" /> : <EyeOff className="h-3.5 w-3.5 text-text-subtle" />}
  </button>
  {showTimer && (
- <span className={`font-mono text-lg font-bold ${isLowTime ? "text-danger-fg animate-pulse" : "text-ink-700 "}`}>
+ <span className={`font-mono text-lg font-bold ${isLowTime ? "text-danger-fg animate-pulse" : "text-text "}`}>
  <Clock className="mr-1 inline h-4 w-4" />
  {timeStr}
  </span>
@@ -505,7 +505,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  {/* Reference sheet */}
  <button onClick={() => setShowFormulas(!showFormulas)}
  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
- showFormulas ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-ink-700 "
+ showFormulas ? "bg-primary-soft text-success-fg " : "text-text-muted hover:text-text "
  }`}>
  <BookOpen className="h-3.5 w-3.5" /> Reference
  </button>
@@ -585,7 +585,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  ? "bg-primary text-white ring-2 ring-primary"
  : isAnswered
  ? "bg-primary-soft text-success-fg "
- : "bg-ink-100 text-text-muted "
+ : "bg-surface-2 text-text-muted "
  } ${isFlagged ? "ring-2 ring-warning" : ""}`}
  >
  {i + 1}
@@ -598,20 +598,20 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
 
  {/* Formula reference sheet */}
  {showFormulas && (
- <div className="fixed top-12 right-2 sm:right-4 z-50 w-[calc(100%-16px)] sm:w-80 max-h-[70vh] overflow-auto rounded-lg border border-border-strong bg-paper-2 p-4 sm:p-5 shadow-2xl ">
+ <div className="fixed top-12 right-2 sm:right-4 z-50 w-[calc(100%-16px)] sm:w-80 max-h-[70vh] overflow-auto rounded-lg border border-border-strong bg-surface p-4 sm:p-5 shadow-2xl ">
  <div className="flex items-center justify-between mb-3">
- <h3 className="text-sm font-bold text-ink-700 ">Reference Sheet</h3>
+ <h3 className="text-sm font-bold text-text ">Reference Sheet</h3>
  <button onClick={() => setShowFormulas(false)} className="text-text-subtle hover:text-text-muted"><X className="h-4 w-4" /></button>
  </div>
  <div className="space-y-3 text-xs text-text-muted ">
  <div>
- <p className="font-bold text-ink-700 mb-1">Area</p>
+ <p className="font-bold text-text mb-1">Area</p>
  <p>Circle: A = πr²</p>
  <p>Rectangle: A = lw</p>
  <p>Triangle: A = ½bh</p>
  </div>
  <div>
- <p className="font-bold text-ink-700 mb-1">Volume</p>
+ <p className="font-bold text-text mb-1">Volume</p>
  <p>Rectangular Prism: V = lwh</p>
  <p>Cylinder: V = πr²h</p>
  <p>Sphere: V = (4/3)πr³</p>
@@ -619,16 +619,16 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <p>Pyramid: V = (1/3)Bh</p>
  </div>
  <div>
- <p className="font-bold text-ink-700 mb-1">Pythagorean Theorem</p>
+ <p className="font-bold text-text mb-1">Pythagorean Theorem</p>
  <p>a² + b² = c²</p>
  </div>
  <div>
- <p className="font-bold text-ink-700 mb-1">Special Right Triangles</p>
+ <p className="font-bold text-text mb-1">Special Right Triangles</p>
  <p>30-60-90: x, x√3, 2x</p>
  <p>45-45-90: x, x, x√2</p>
  </div>
  <div>
- <p className="font-bold text-ink-700 mb-1">Circle</p>
+ <p className="font-bold text-text mb-1">Circle</p>
  <p>Circumference: C = 2πr</p>
  <p>360° = 2π radians</p>
  </div>

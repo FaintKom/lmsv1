@@ -26,7 +26,7 @@ export function BadgeCard({ name, description, criteriaKey, earned, earnedAt }: 
  <span
  className={cn(
  "grid h-12 w-12 place-items-center rounded-full",
- earned ? "border-2 border-sun-300 bg-white" : "bg-surface-2",
+ earned ? "border-2 border-sun-300 bg-surface" : "bg-surface-2",
  )}
  >
  <BadgeIcon criteriaKey={criteriaKey} size={28} className={earned ? undefined : "opacity-50"} />
