@@ -362,6 +362,13 @@
  ================================================================= */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+/* Paint the canvas on <html> too: body's background only propagates once body
+   paints, so without this the browser shows a white canvas first. */
+html { background: var(--color-bg); }
+/* Tell the UA which palette it is in — scrollbars, form controls and the
+   pre-paint canvas follow this, not our tokens. */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
 
 body {
  font-family: var(--font-sans);
