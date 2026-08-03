@@ -37,8 +37,8 @@ export function ThemeToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   // Server render and first client render must agree — read storage in an
   // effect, not during render. Default matches the no-FOUC script in the
-  // root layout: 'light' until the dark-readiness pass (plan 018) lands.
-  const [choice, setChoice] = useState<ThemeChoice>("light");
+  // root layout.
+  const [choice, setChoice] = useState<ThemeChoice>("system");
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as ThemeChoice | null;
