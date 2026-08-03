@@ -1123,7 +1123,7 @@ export default function CourseEditorPage() {
  className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary-soft"
  title="Open in new WYSIWYG editor (prototype)"
  >
- ✨ Edit
+ Edit
  </a>
  <button
  onClick={(e) => {

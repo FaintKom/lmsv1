@@ -153,16 +153,16 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  <img
  src={branding.logo_url}
  alt={branding.display_name}
- className="h-8 w-8 rounded-[10px] object-cover"
+ className="h-8 w-8 rounded-sm object-cover"
  />
  ) : (
- <div className="relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">
+ <div className="relative flex h-8 w-8 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
  )}
  <div>
- <span className="text-[15px] font-extrabold tracking-tight text-white">
+ <span className="text-base font-extrabold tracking-tight text-white">
  {branding.display_name}
  </span>
  <span className="block font-mono text-[9px] font-medium uppercase tracking-widest text-white/50">
@@ -247,13 +247,13 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </div>
  <Link
  href="/profile"
- className="mb-1 flex items-center gap-[10px] rounded-[10px] px-2.5 py-2 transition-colors hover:bg-white/[0.05]"
+ className="mb-1 flex items-center gap-[10px] rounded-sm px-2.5 py-2 transition-colors hover:bg-white/[0.05]"
  >
- <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-[13px] font-extrabold text-green-900">
+ <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-green-900">
  {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
  <div className="min-w-0 flex-1">
- <p className="truncate text-[13px] font-bold text-white">
+ <p className="truncate text-sm font-bold text-white">
  {user?.full_name}
  </p>
  <p className="truncate font-mono text-[10px] tracking-wide text-white/50">
@@ -263,7 +263,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </Link>
  <button
  onClick={handleLogout}
- className="flex w-full cursor-pointer items-center gap-[11px] rounded-[10px] px-[10px] py-[9px] text-[13px] font-semibold text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/70"
+ className="flex w-full cursor-pointer items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/70"
  >
  <LogOut className="h-[18px] w-[18px]" />
  {t("nav.signOut")}

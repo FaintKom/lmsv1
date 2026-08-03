@@ -24,14 +24,14 @@ export default function AuthLayout({
       >
         <div className="max-w-md px-8 text-center">
           {/* "g" logo mark */}
-          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[14px] bg-green-500 text-[32px] font-extrabold text-white">
+          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-green-500 text-[32px] font-extrabold text-white">
             g
             <span className="absolute bottom-[6px] right-[8px] h-[8px] w-[8px] rounded-full bg-sun-400" />
           </div>
           <h2 className="mb-3 text-[28px] font-extrabold tracking-tight text-white">
             GrassLMS
           </h2>
-          <p className="text-[15px] leading-relaxed text-white/70">
+          <p className="text-base leading-relaxed text-white/70">
             The modern learning platform for schools and online courses.
             Programming, languages, and mathematics.
           </p>
@@ -46,7 +46,7 @@ export default function AuthLayout({
             href="/"
             className="mb-8 flex items-center justify-center gap-2.5 lg:hidden"
           >
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-[10px] bg-green-500 text-lg font-extrabold text-white">
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
               g
               <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
             </div>

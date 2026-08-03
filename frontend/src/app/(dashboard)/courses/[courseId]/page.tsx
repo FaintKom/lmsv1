@@ -40,7 +40,7 @@ const SUBJECT_THEMES: Record<string, { gradient: string; glyph: string }> = {
 };
 const DEFAULT_THEME = {
   gradient: "radial-gradient(circle at 75% 25%, var(--green-500), var(--green-800))",
-  glyph: "📚",
+  glyph: "≡",
 };
 
 const CONTENT_ICONS: Record<string, LucideIcon> = {
@@ -120,10 +120,10 @@ export default function CourseDetailPage() {
     return (
       <div className="mx-auto max-w-3xl space-y-6 p-6">
         <div className="lms-skeleton h-5 w-32 rounded-[7px]" />
-        <div className="lms-skeleton h-52 w-full rounded-[18px]" />
+        <div className="lms-skeleton h-52 w-full rounded-lg" />
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="lms-skeleton h-28 w-full rounded-[18px]" />
+            <div key={i} className="lms-skeleton h-28 w-full rounded-lg" />
           ))}
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function CourseDetailPage() {
       {/* ── back link ─────────────────────────────────────────── */}
       <Link
         href="/courses"
-        className="mb-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-text-muted transition-colors hover:text-text"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-text-muted transition-colors hover:text-text"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         {t("course.allCourses")}
@@ -150,7 +150,7 @@ export default function CourseDetailPage() {
 
       {/* ── hero ──────────────────────────────────────────────── */}
       <div
-        className="relative mb-8 overflow-hidden rounded-[18px] p-8 text-white"
+        className="relative mb-8 overflow-hidden rounded-lg p-8 text-white"
         style={{ background: theme.gradient }}
       >
         {/* mono glyph watermark */}
@@ -195,14 +195,14 @@ export default function CourseDetailPage() {
 
             {enrolled ? (
               <>
-                <span className="inline-flex items-center gap-1.5 rounded-pill bg-white/20 px-4 py-2 text-[13px] font-bold text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-pill bg-white/20 px-4 py-2 text-sm font-bold text-white">
                   <CheckCircle className="h-4 w-4" />
                   {t("courses.enrolled")}
                 </span>
                 {firstLessonId && (
                   <Link
                     href={`/courses/${params.courseId}/lessons/${firstLessonId}${lessonPreviewSuffix}`}
-                    className="btn-pop inline-flex items-center gap-2 rounded-[14px] bg-white px-5 py-2.5 text-[13px] font-bold text-text"
+                    className="btn-pop inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-bold text-text"
                     style={{ "--pop": "rgba(0,0,0,0.15)" } as React.CSSProperties}
                   >
                     {t("course.startLearning")}
@@ -214,7 +214,7 @@ export default function CourseDetailPage() {
               <button
                 onClick={handleEnroll}
                 disabled={enrolling}
-                className="btn-pop btn-pop--sun rounded-[14px] bg-sun-400 px-6 py-2.5 text-[13px] font-bold text-ink-900"
+                className="btn-pop btn-pop--sun rounded-md bg-sun-400 px-6 py-2.5 text-sm font-bold text-ink-900"
               >
                 {enrolling ? t("course.enrolling") : t("course.enrollInCourse")}
               </button>
@@ -228,11 +228,11 @@ export default function CourseDetailPage() {
         {course.modules?.map((module, mi) => (
           <div
             key={module.id}
-            className="overflow-hidden rounded-[18px] border border-border bg-surface"
+            className="overflow-hidden rounded-lg border border-border bg-surface"
           >
             {/* module header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] bg-green-100 font-mono text-[12px] font-extrabold text-green-800">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] bg-green-100 font-mono text-xs font-extrabold text-green-800">
                 {mi + 1}
               </span>
               <h2 className="flex-1 text-[14px] font-extrabold text-text">
@@ -265,7 +265,7 @@ export default function CourseDetailPage() {
                         >
                           <Icon className="h-4 w-4" />
                         </div>
-                        <span className="flex-1 text-[13px] font-semibold text-text">
+                        <span className="flex-1 text-sm font-semibold text-text">
                           {lesson.title}
                         </span>
                         {lesson.duration_minutes && (
@@ -292,7 +292,7 @@ export default function CourseDetailPage() {
                       >
                         <Icon className="h-4 w-4" />
                       </div>
-                      <span className="flex-1 text-[13px] font-semibold text-text-muted">
+                      <span className="flex-1 text-sm font-semibold text-text-muted">
                         {lesson.title}
                       </span>
                       {lesson.duration_minutes && (

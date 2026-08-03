@@ -23,7 +23,7 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
         <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">
           {t("room.welcomePrefix")}{" "}
           <span
-            className="inline-block rounded-[6px] px-2 py-0 text-text"
+            className="inline-block rounded-xs px-2 py-0 text-text"
             style={{
               background: "#ffe9a3",
               transform: "rotate(-1.5deg)",

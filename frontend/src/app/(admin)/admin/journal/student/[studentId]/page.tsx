@@ -197,7 +197,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
           <h1 className="text-2xl font-extrabold tracking-tight text-text">
             {data.student.name}
           </h1>
-          <div className="mt-0.5 text-[13px] text-text-muted">
+          <div className="mt-0.5 text-sm text-text-muted">
             {subtitleParts.join(" · ")}
           </div>
         </div>
@@ -232,7 +232,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
       <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* Left — lessons today */}
         <div className="flex min-w-0 flex-col gap-3.5">
-          <div className="text-[13px] font-extrabold text-text">
+          <div className="text-sm font-extrabold text-text">
             {t("journal.activity.lessonsToday")}
           </div>
           {data.lessons.length === 0 ? (
@@ -256,7 +256,7 @@ function ActivityBody({ data }: { data: StudentActivityResponse }) {
           <CardContent className="p-[18px]">
             <div className="mb-3.5 flex items-center gap-1.5">
               <Clock className="h-[15px] w-[15px] text-text-muted" />
-              <span className="text-[13px] font-extrabold text-text">
+              <span className="text-sm font-extrabold text-text">
                 {t("journal.activity.eventFeed")}
               </span>
             </div>
@@ -347,7 +347,7 @@ function LessonCard({ lesson }: { lesson: ActivityLesson }) {
                 }`}
               >
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${res.dot}`} />
-                <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-text">
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text">
                   {ex.title}
                 </span>
                 <span className="font-mono text-[10.5px] font-semibold text-text-subtle">

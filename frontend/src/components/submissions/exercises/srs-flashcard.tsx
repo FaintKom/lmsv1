@@ -1,5 +1,6 @@
 "use client";
 
+import { PartyPopper } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 
 interface Card {
@@ -135,7 +136,7 @@ export default function SrsFlashcardExercise({
   if (!current) {
     return (
       <div className="gl-mobile-card text-center">
-        <div className="text-3xl mb-3">🎉</div>
+        <PartyPopper className="mx-auto mb-3 h-8 w-8 text-primary" />
         <h2 className="text-2xl font-bold text-text mb-2">All done for today!</h2>
         <p className="text-text-muted">
           {reviewedToday > 0

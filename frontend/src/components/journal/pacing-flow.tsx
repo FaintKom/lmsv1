@@ -372,7 +372,7 @@ function PacingTimeline({
             </div>
             <div
               className={`mt-1 font-extrabold leading-tight ${
-                x.small ? "text-[15px]" : "text-2xl"
+                x.small ? "text-base" : "text-2xl"
               } ${x.tone ? STATUS_META[x.tone as PacingBadge].fg : "text-text"}`}
             >
               {x.v}
@@ -461,7 +461,7 @@ function TimelineSegment({
   return (
     <div className="min-w-0" style={{ width: `${widthPct}%` }}>
       <div
-        className={`relative flex h-[54px] flex-col justify-between overflow-hidden rounded-[10px] px-2.5 py-2 ${box}`}
+        className={`relative flex h-[54px] flex-col justify-between overflow-hidden rounded-sm px-2.5 py-2 ${box}`}
       >
         <span className="font-mono text-[10px] font-bold opacity-85">
           {String(topic.position).padStart(2, "0")}

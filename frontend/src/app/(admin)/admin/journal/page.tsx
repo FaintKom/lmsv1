@@ -837,7 +837,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 <tbody>
                   {studentStats.map(({ stu, pct }) => (
                     <tr key={stu.student_id}>
-                      <td className="sticky left-0 z-10 h-8 whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-2.5 text-[13px] font-semibold text-text">
+                      <td className="sticky left-0 z-10 h-8 whitespace-nowrap border-b border-r-[1.5px] border-ink-50 border-r-ink-100 bg-surface px-2.5 text-sm font-semibold text-text">
                         {stu.student_name}
                       </td>
                       {dates.map((d) => {
@@ -934,7 +934,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
               <CardContent className="px-4 py-4">
                 <div className="mb-3 flex items-center gap-1.5">
                   <AlertTriangle className="h-3.5 w-3.5 text-clay-500" />
-                  <span className="text-[13px] font-extrabold text-text">
+                  <span className="text-sm font-extrabold text-text">
                     {t("journal.atRisk")}
                   </span>
                   <span className="ml-auto font-mono text-[11px] font-bold text-text-subtle">
@@ -962,7 +962,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                             {late ? ` · ${late} ${t("journal.latesShort")}` : ""}
                           </div>
                         </div>
-                        <span className="text-[13px] font-extrabold text-clay-700">
+                        <span className="text-sm font-extrabold text-clay-700">
                           {pct}%
                         </span>
                       </div>

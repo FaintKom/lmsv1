@@ -61,7 +61,7 @@ export default function CertificatesPage() {
  {certificates.map((cert) => (
  <Card key={cert.id} className="hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-5">
- <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-amber-100 to-amber-50">
+ <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-sun-100 to-sun-50">
  <Award className="h-6 w-6 text-warning-fg" />
  </div>
  <div className="min-w-0 flex-1">

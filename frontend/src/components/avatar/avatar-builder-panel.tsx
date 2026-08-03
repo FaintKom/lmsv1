@@ -82,7 +82,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
             type="button"
             onClick={() => setTab(tabDef.id)}
             className={cn(
-              "relative shrink-0 px-3 py-2 text-[12px] font-semibold transition-colors",
+              "relative shrink-0 px-3 py-2 text-xs font-semibold transition-colors",
               tab === tabDef.id ? "text-green-700" : "text-text-muted hover:text-text",
             )}
           >
@@ -134,14 +134,14 @@ function AvatarCard({
       onClick={onClick}
       disabled={isLocked}
       className={cn(
-        "group relative flex w-full flex-col gap-2 rounded-[14px] border bg-surface p-2.5 text-left transition",
+        "group relative flex w-full flex-col gap-2 rounded-md border bg-surface p-2.5 text-left transition",
         "border-border hover:-translate-y-px hover:border-green-300 hover:shadow-sm",
         isEquipped &&
           "border-green-500 shadow-[0_0_0_2px_var(--green-100,#d4f0db),0_1px_2px_rgba(20,30,15,0.06)]",
         isLocked && "cursor-not-allowed opacity-85",
       )}
     >
-      <div className="relative aspect-[10/7] w-full overflow-hidden rounded-[10px] bg-white">
+      <div className="relative aspect-[10/7] w-full overflow-hidden rounded-sm bg-white">
         <div className="absolute inset-0 grid place-items-center p-3">
           <AvatarItemPreview id={item.id} />
         </div>

@@ -84,7 +84,7 @@ const STEPS = [
  },
  {
  popover: {
- title: "You're ready 🚀",
+ title: "You're ready",
  description:
  "That's the tour. Questions? Every page has inline help. Your first SAT Math course is already seeded — open Courses to preview it, or start building your own.",
  },

@@ -197,7 +197,7 @@ export default function StudentProfilePage() {
                   className="flex items-center gap-2 rounded-pill bg-surface px-3 py-1.5 text-sm text-text"
                   title={fmtDate(b.earned_at)}
                 >
-                  <span aria-hidden>{b.icon || "⭐"}</span>
+                  <span aria-hidden>{b.icon || "•"}</span>
                   <span>{b.name}</span>
                 </div>
               ))}

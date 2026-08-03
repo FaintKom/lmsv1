@@ -86,7 +86,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  </span>
  </div>
  <div className="p-5 max-h-[320px] overflow-y-auto">
- <div className="text-[15px] leading-[1.8] text-text whitespace-pre-wrap font-[Georgia,serif]">
+ <div className="text-base leading-[1.8] text-text whitespace-pre-wrap font-[Georgia,serif]">
  {config.passage || "No passage provided."}
  </div>
  </div>
@@ -132,7 +132,7 @@ export default function ReadingExercise({ config, onSubmit }: Props) {
  <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-pill bg-primary-soft text-sm font-bold text-primary ">
  {qi + 1}
  </span>
- <p className="text-[15px] font-medium text-text pt-1">
+ <p className="text-base font-medium text-text pt-1">
  {q.question || q.text}
  </p>
  </div>

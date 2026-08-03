@@ -51,7 +51,7 @@ export function ReviewQueueWidget({ props }: WidgetProps) {
         Awaiting grading
       </div>
       {shown.length === 0 ? (
-        <div className="text-xs text-text-muted">Nothing to grade. 🎉</div>
+        <div className="text-xs text-text-muted">Nothing to grade.</div>
       ) : (
         <ul className="text-sm divide-y divide-border">
           {shown.map((item) => (
