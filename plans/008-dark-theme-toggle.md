@@ -1,6 +1,6 @@
 # 008 — Ship the dark theme: no-FOUC script + Light/Dark/System toggle
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03) — toggle + no-FOUC script shipped; default flipped to `system` in PR #238 once plan 018 landed.
 - **Commit**: a01d106
 - **Severity**: MEDIUM
 - **Category**: design-system v2 (theme contract)

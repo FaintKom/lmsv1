@@ -1,6 +1,6 @@
 # 012 — Retire SAT Practice from the product surface (keep code in repo)
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03) — route deleted from the student surface; code kept in the repo, unused.
 - **Commit**: a01d106
 - **Severity**: HIGH (owner decision 2026-08-02: "не должно быть нигде")
 - **Category**: product scope

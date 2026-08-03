@@ -31,26 +31,30 @@ notes in the root CLAUDE.md before merging, and poll the deploy run after.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 012 | Retire SAT Practice from the product surface | P1 (owner ask) | S | — | TODO |
-| 009 | btn-pop shadow follows org branding | P1 | XS | — | TODO |
-| 013 | Integrity PR-2: matching + categorize + multi-pin map | P1 | L | — | TODO |
-| 014 | Integrity PR-3: quiz/reading/dialogue/crossword steppers | P1 | L | 013 (onCheck plumbing) | TODO |
-| 008 | Dark theme: no-FOUC + Light/Dark/System toggle | P2 | M | — | TODO |
+| 012 | Retire SAT Practice from the product surface | P1 (owner ask) | S | — | DONE (2026-08-03) |
+| 009 | btn-pop shadow follows org branding | P1 | XS | — | DONE (2026-08-03) |
+| 013 | Integrity PR-2: matching + categorize + multi-pin map | P1 | L | — | DONE (2026-08-03) |
+| 014 | Integrity PR-3: quiz/reading/dialogue/crossword steppers | P1 | L | 013 (onCheck plumbing) | DONE (2026-08-03) |
+| 008 | Dark theme: no-FOUC + Light/Dark/System toggle | P2 | M | — | DONE (2026-08-03) |
 | 010 | Catalog pages Lively pass (student + admin courses) | P2 | M | — | TODO |
 | 011 | Dense mode for data screens | P2 | M-L | — | TODO |
-| 015 | Live review: student "My results" (S7) | P2 | S | — | TODO |
+| 015 | Live review: student "My results" (S7) | P2 | S | — | DONE (2026-08-03) |
 | 016 | Conductor v2: programme editor | P3 | M | — | TODO |
 | 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | DONE (2026-08-03, PR #239) |
 | 018 | Dark readiness: raw utilities → semantic (unblocks theme=system) | P2 | L (sliced) | 008 | DONE (2026-08-03, 82bad96) |
+| 019 | Integrity: crossword server-graded (grid without answers) | P1 | M | 014 | DONE (2026-08-03) |
 
-Recommended order: 012 → 009 → 015 → 008 → 013 → 014 → 010 → 011 → 018 → 016 → 017.
+Remaining, in order: 010 → 011 → 016. Everything else on this list shipped
+between 2026-08-02 and 2026-08-03.
 
 **Dark-theme note (updated 2026-08-03):** 008 originally shipped the toggle
 with the default pinned to `light`, because ~1500 component usages still held
 raw scale utilities that do not flip in `.dark`. 018 converted them across six
 slices, so the default is now `system` (PR #238).
-012/009 are quick wins; 013/014 close the answer-leak security gap; 017 runs
-last as the compliance sweep over everything.
+Integrity model B is closed: 013/014/019 moved every remaining exercise type
+to server-side grading, so answer keys no longer reach the browser. The design
+programme is closed too (008/018/017). What is left is product work — the
+catalog pass, dense data screens, and the conductor programme editor.
 
 ## Dependency notes
 

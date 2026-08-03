@@ -1,6 +1,6 @@
 # 013 — Integrity model B, PR-2: matching + categorize deferred check, multi-pin map
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03)
 - **Commit**: a01d106
 - **Severity**: HIGH (answer leak: pairs/categories readable in DevTools)
 - **Category**: integrity model B (server-graded exercises)

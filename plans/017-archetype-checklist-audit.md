@@ -1,6 +1,6 @@
 # 017 — Per-archetype v2 checklist walkthrough (migration-map §5)
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03, PR #239) — findings table at the end of this file.
 - **Commit**: a01d106
 - **Severity**: LOW (final compliance pass)
 - **Category**: design-system v2

@@ -1,6 +1,6 @@
 # 019 — Crossword goes server-graded (last integrity leak)
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03)
 - **Commit**: 2978465
 - **Severity**: MEDIUM (real leak, but **zero prod content** — see Facts)
 - **Category**: integrity model B
