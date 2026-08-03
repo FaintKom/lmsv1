@@ -34,7 +34,7 @@ import { useTranslation } from "@/lib/i18n/context";
 export default function Home() {
  const { t } = useTranslation();
  return (
- <div className="min-h-screen bg-paper-2">
+ <div className="min-h-screen bg-surface">
  {/* Header */}
  <LandingHeader />
 
@@ -85,7 +85,7 @@ export default function Home() {
  </p>
  </div>
  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Code className="h-6 w-6 text-primary" />
  </div>
@@ -97,7 +97,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Calculator className="h-6 w-6 text-primary" />
  </div>
@@ -109,7 +109,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-primary-soft hover:shadow-lg hover:shadow-success-soft">
  <div className="mb-5 inline-flex rounded-lg bg-success-soft p-3.5">
  <Brain className="h-6 w-6 text-primary" />
  </div>
@@ -121,7 +121,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-warning hover:shadow-lg hover:shadow-sun-50">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-warning hover:shadow-lg hover:shadow-sun-50">
  <div className="mb-5 inline-flex rounded-lg bg-sun-50 p-3.5">
  <Gamepad2 className="h-6 w-6 text-warning-fg" />
  </div>
@@ -133,7 +133,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-danger hover:shadow-lg hover:shadow-danger-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-danger hover:shadow-lg hover:shadow-danger-soft">
  <div className="mb-5 inline-flex rounded-lg bg-danger-soft p-3.5">
  <Trophy className="h-6 w-6 text-danger-fg" />
  </div>
@@ -145,7 +145,7 @@ export default function Home() {
  </p>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:border-info hover:shadow-lg hover:shadow-info-soft">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-info hover:shadow-lg hover:shadow-info-soft">
  <div className="mb-5 inline-flex rounded-lg bg-info-soft p-3.5">
  <BookOpen className="h-6 w-6 text-info-fg" />
  </div>
@@ -205,7 +205,7 @@ export default function Home() {
  </section>
 
  {/* Metrics / Social Proof */}
- <section className="border-t border-border bg-paper-2 py-16">
+ <section className="border-t border-border bg-surface py-16">
  <div className="mx-auto max-w-6xl px-6">
  <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
  {[
@@ -216,7 +216,7 @@ export default function Home() {
  ].map((m) => (
  <div key={m.label} className="text-center">
  <p className="text-4xl font-extrabold text-primary md:text-5xl">{m.value}</p>
- <p className="mt-2 text-sm font-semibold text-ink-700">{m.label}</p>
+ <p className="mt-2 text-sm font-semibold text-text-muted">{m.label}</p>
  <p className="mt-1 text-xs text-text-subtle">{m.sub}</p>
  </div>
  ))}
@@ -232,7 +232,7 @@ export default function Home() {
  <p className="text-text-muted">{t("landing.showcaseSubtitle")}</p>
  </div>
  <div className="grid gap-6 md:grid-cols-2">
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Monitor className="h-6 w-6 text-primary" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseStudentDash")}</h3>
@@ -249,7 +249,7 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-success-soft p-3"><Layout className="h-6 w-6 text-primary" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseTeacher")}</h3>
@@ -266,7 +266,7 @@ export default function Home() {
  </div>
  </div>
 
- <div className="group rounded-lg border border-border-strong/60 bg-paper-2 p-8 transition hover:shadow-lg">
+ <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
  <div className="rounded-lg bg-sun-50 p-3"><Code className="h-6 w-6 text-warning-fg" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSandbox")}</h3>
@@ -362,8 +362,8 @@ export default function Home() {
  { q: t("landing.faq5Q"), a: t("landing.faq5A") },
  { q: t("landing.faq6Q"), a: t("landing.faq6A") },
  ].map((item) => (
- <details key={item.q} className="group rounded-lg border border-border-strong bg-paper-2">
- <summary className="flex cursor-pointer items-center justify-between px-6 py-4 text-sm font-semibold text-ink-700 [&::-webkit-details-marker]:hidden">
+ <details key={item.q} className="group rounded-lg border border-border-strong bg-surface">
+ <summary className="flex cursor-pointer items-center justify-between px-6 py-4 text-sm font-semibold text-text [&::-webkit-details-marker]:hidden">
  {item.q}
  <ChevronDown className="h-4 w-4 text-text-subtle transition-transform group-open:rotate-180" />
  </summary>
