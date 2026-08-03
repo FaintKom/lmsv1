@@ -122,3 +122,54 @@ Ran the four sweeps from the plan across `frontend/src`.
 Average-grade KPI (the dashboard shows XP instead): still no aggregate
 endpoint — `grep -rn "avg\|average" backend/app/analytics backend/app/gamification`
 returns only per-course helpers, nothing class-wide. Remains a follow-up.
+
+---
+
+## Follow-up work still needed (2026-08-03)
+
+The sweep closed colour, radius, type and emoji compliance. Four gaps remain;
+none block anything shipped, but 017 is NOT fully done until they are decided.
+
+### 1. The motion layer is documented but unused — biggest gap
+
+`frontend/design/MOTION.md` defines the contract and `globals.css` exports the
+utilities, yet **adoption is zero**:
+
+| utility | components using it |
+|---|---|
+| `.press-scale` | 0 |
+| `.enter-fade-rise` | 0 |
+| `.stagger-children` | 0 |
+| `.btn-pop` (pre-existing) | 13 |
+
+So the app's motion still comes from ad-hoc `transition-*` classes in 105 tsx
+files plus the exercise-widget system (`.fb-*` / `.gp-*` / `.lf-*`). The rules
+were written; nothing was migrated onto them. Needs a slice-by-slice adoption
+pass like 018 had — starting with press feedback on primary buttons, then
+entrance on dashboard/course cards.
+
+### 2. ~40 arbitrary values with no exact token
+
+`text-[9px]` (10), `text-[14px]` (7), `rounded-[7px]/[8px]/[11px]/[12px]` (~20).
+Each changes pixels if converted, so each needs a design call: round to the
+nearest token, or add the value to the scale. Do not sweep blindly.
+
+### 3. `text-[10px]` / `text-[11px]` should be named
+
+227 occurrences of the spec's own dense mono meta and breadcrumb sizes, written
+as arbitrary values every time. Two named utilities (`.text-meta`,
+`.text-crumb`) would make the intent legible and let the size change in one
+place. Currently allowed by the exception list, but that list is hiding a
+missing token.
+
+### 4. Two surfaces were never audited
+
+`app/page.tsx` and `components/landing/role-showcase.tsx` carry the owner's
+uncommitted work; the audit skipped them to avoid touching it. They hold the
+last two raw `amber`/`emerald` gradients and a `🔥` emoji. Re-run the four
+sweeps over the landing surface once that work lands.
+
+### 5. Known backend gap (unchanged)
+
+The dashboard KPI shows XP because no class-wide average-grade endpoint exists
+(`backend/app/analytics`, `gamification` have only per-course helpers).

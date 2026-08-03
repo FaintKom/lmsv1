@@ -40,7 +40,7 @@ notes in the root CLAUDE.md before merging, and poll the deploy run after.
 | 011 | Dense mode for data screens | P2 | M-L | — | TODO |
 | 015 | Live review: student "My results" (S7) | P2 | S | — | DONE (2026-08-03) |
 | 016 | Conductor v2: programme editor | P3 | M | — | TODO |
-| 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | DONE (2026-08-03, PR #239) |
+| 017 | Per-archetype v2 checklist walkthrough | P3 | M | 008, 010, 011, 012 | PARTIAL (PR #239; follow-up listed in the plan — motion utilities have zero adoption) |
 | 018 | Dark readiness: raw utilities → semantic (unblocks theme=system) | P2 | L (sliced) | 008 | DONE (2026-08-03, 82bad96) |
 | 019 | Integrity: crossword server-graded (grid without answers) | P1 | M | 014 | DONE (2026-08-03) |
 
