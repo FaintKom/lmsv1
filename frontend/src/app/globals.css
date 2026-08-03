@@ -483,9 +483,11 @@ button { font-family: inherit; }
 /* =================================================================
    Motion utilities — MOTION.md contract.
    ================================================================= */
-/* Flat-control press feedback (buttons WITHOUT a pop shadow). */
+/* Flat-control press feedback (buttons WITHOUT a pop shadow).
+   Colours ride along: this rule is unlayered, so it would otherwise beat
+   Tailwind's layered `transition-colors` and make hover snap instantly. */
 .press-scale {
-  transition-property: transform;
+  transition-property: transform, background-color, border-color, color;
   transition-duration: var(--motion-fast);
   transition-timing-function: var(--motion-ease);
 }

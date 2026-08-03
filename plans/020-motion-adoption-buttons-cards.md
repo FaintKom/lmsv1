@@ -1,6 +1,6 @@
 # 020 — Motion adoption, slice 1: buttons and cards
 
-- **Status**: TODO
+- **Status**: DONE (2026-08-03) — see Deviations below
 - **Commit**: 8aababd
 - **Severity**: MEDIUM (the design system's motion layer is currently dead code)
 - **Category**: design-system v2 · motion
@@ -117,3 +117,41 @@ in the PR rather than reaching for a keyed remount hack.
     press still gives colour feedback.
 - **Done when**: the three utilities have non-zero adoption, the bare
   `transition` in card.tsx is gone, and none of the above feel checks regress.
+
+
+---
+
+## Deviations from this plan, found while executing (2026-08-03)
+
+1. **`press-scale` does NOT compose with `btn-pop`.** The plan said to add it to
+   the shared class string on every variant. Wrong: `.btn-pop:active` sets
+   `transform: translateY(4px)` and `.press-scale:active` sets `scale(0.96)` —
+   same property, same element. `.press-scale` is defined later in
+   `globals.css` (489 vs 409), so it would have won and silently replaced the
+   signature press on every primary button. Applied to `outline` and `ghost`
+   only, which is what the utility's own comment already said.
+
+2. **`.press-scale` had to learn colours.** `globals.css` uses no `@layer`, so
+   its rules are unlayered and beat Tailwind's layered utilities. With
+   `transition-property: transform` alone it overrode `transition-colors` on
+   those two variants and hover became instant. Verified in the browser before
+   and after: `transitionProperty` read `transform`, now reads
+   `transform, background-color, border-color, color`. The utility now carries
+   both.
+
+3. **Containers get `stagger-children` only**, not `enter-fade-rise` as well —
+   `.stagger-children > *` already applies that animation to the children, so
+   adding both would animate the grid and its cards.
+
+4. **The search-replay risk did not materialise.** The student catalog holds no
+   filter state (`useState` only for `courses`, `progressMap`, `loading`), so
+   the grid mounts once. Nothing to guard against there; it stays a live risk
+   for the admin catalog, which does filter.
+
+### Tooling note
+
+Turbopack dev served the OLD css under an unchanged chunk name
+(`[root-of-the-server]__1u_kw8y._.css`) across a server restart AND a
+`.next/cache` wipe. Only deleting the whole `.next` directory picked up the
+edit. If a CSS change appears not to apply, verify what the server actually
+serves (`fetch(cssHref, {cache:'reload'})`) before assuming the edit is wrong.

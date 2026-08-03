@@ -134,7 +134,7 @@ export default function DashboardPage() {
 
  {/* KPI strip — v2: text only, no icon tiles; streak lives in the hero,
      so the 4th KPI is XP (average grade needs a new endpoint — todo) */}
- <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+ <div className="stagger-children mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
  <div className="rounded-lg border border-border bg-surface p-5 shadow-sm">
  <p className="eyebrow mb-1">Enrolled</p>
  <p className="text-xl font-extrabold leading-tight tracking-tight text-text tabular-nums">{loading ? "…" : enrolledCount}</p>
