@@ -25,9 +25,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "default",
             "btn-pop btn-pop--secondary bg-surface text-text border border-border":
               variant === "secondary",
-            "border border-border-strong bg-surface text-text hover:bg-surface-2 hover:border-border-strong transition-colors":
+            // press-scale only on the flat variants: .btn-pop already owns
+            // `transform` on :active, so the two would overwrite each other
+            "press-scale border border-border-strong bg-surface text-text hover:bg-surface-2 hover:border-border-strong transition-colors":
               variant === "outline",
-            "bg-transparent text-text hover:bg-surface-2 transition-colors":
+            "press-scale bg-transparent text-text hover:bg-surface-2 transition-colors":
               variant === "ghost",
             "btn-pop btn-pop--clay bg-danger text-white hover:bg-danger":
               variant === "destructive",

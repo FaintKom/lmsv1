@@ -10,7 +10,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-lg transition duration-200",
+        // MOTION.md §5: never `transition: all` — a bare `transition` animates
+        // layout properties too, so any width change slides the card
+        "rounded-lg transition-[box-shadow,border-color,background-color] duration-[var(--motion-base)] ease-[var(--motion-ease)]",
         {
           "bg-surface border border-border shadow-sm": variant === "default",
           "bg-surface shadow-md": variant === "elevated",
