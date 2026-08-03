@@ -86,7 +86,7 @@ export default function StudentSchedulePage() {
                         })}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-hover"
+                        className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-fg hover:bg-primary-hover"
                       >
                         <Video className="h-3.5 w-3.5" />
                         {t("schedule.joinOnline")}

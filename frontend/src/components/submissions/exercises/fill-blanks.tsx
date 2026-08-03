@@ -200,7 +200,7 @@ export default function FillBlanksExercise({
  <button
  onClick={() => onSubmit({ blanks: placements.map((p) => p || "") })}
  disabled={!allFilled}
- className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 "
+ className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-fg transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 "
  >
  Submit Answer
  </button>

@@ -21,7 +21,7 @@ const VARIANT_CLASSES: Record<ChipVariant, string> = {
   sun: "bg-sun-100 text-sun-700",
   clay: "bg-clay-50 text-clay-700",
   ink: "bg-surface-2 text-text-muted",
-  "solid-green": "bg-primary text-white",
+  "solid-green": "bg-primary text-primary-fg",
   "solid-ink": "bg-ink-900 text-white",
   "solid-clay": "bg-clay-500 text-white",
 };

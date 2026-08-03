@@ -60,7 +60,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  : "border-border-strong bg-surface hover:border-primary hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 "
  }`}>
  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
- isSelected ? "bg-primary text-white" : "bg-surface-2 text-text-muted "
+ isSelected ? "bg-primary text-primary-fg" : "bg-surface-2 text-text-muted "
  }`}>{labels[i]}</span>
  <MathText text={choice.text} className="text-sm font-medium text-text " />
  </button>
@@ -464,7 +464,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  {formatTime(breakTimeLeft)}
  </div>
 
- <Button onClick={startModule2} className="bg-primary hover:bg-primary-hover text-white">
+ <Button onClick={startModule2} className="bg-primary hover:bg-primary-hover text-primary-fg">
  Skip Break &rarr; Start Module 2
  </Button>
  </div>
@@ -582,7 +582,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  onClick={() => goTo(i)}
  className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition ${
  isCurrent
- ? "bg-primary text-white ring-2 ring-primary"
+ ? "bg-primary text-primary-fg ring-2 ring-primary"
  : isAnswered
  ? "bg-primary-soft text-success-fg "
  : "bg-surface-2 text-text-muted "

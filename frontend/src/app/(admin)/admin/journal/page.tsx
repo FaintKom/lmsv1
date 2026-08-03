@@ -1158,7 +1158,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           {isManager && (
             <button
               onClick={openAdd}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-fg shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
             >
               <Plus className="h-3.5 w-3.5" />
               {t("schedule.addLesson")}
@@ -1605,7 +1605,7 @@ function SchedSlotEditor({
               <button
                 onClick={() => save(false)}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-white shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-fg shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
               >
                 {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {t("schedule.save")}
@@ -2302,7 +2302,7 @@ function TimetablePanel({ courses }: { courses: CourseOption[] }) {
                     is_online: false,
                   })
                 }
-                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
+                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-fg hover:bg-primary-hover"
               >
                 <Plus className="h-3.5 w-3.5" />
                 {t("schedule.addSlot")}
@@ -2439,7 +2439,7 @@ function SlotRow({ initial, rooms, isNew, onSave, onDelete }: SlotRowProps) {
         <button
           onClick={() => save(false)}
           disabled={saving}
-          className="rounded-pill bg-primary px-2 py-1 text-[11px] font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+          className="rounded-pill bg-primary px-2 py-1 text-[11px] font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
           title={isNew ? t("schedule.addSlot") : t("schedule.save")}
         >
           {saving ? (
@@ -2588,7 +2588,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
                 setEditingId(null);
                 setForm(EMPTY_ROOM_FORM);
               }}
-              className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
+              className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-fg hover:bg-primary-hover"
             >
               <Plus className="h-3.5 w-3.5" />
               {t("journal.addRoom")}
@@ -2671,7 +2671,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
               <button
                 onClick={submit}
                 disabled={saving || !form.name.trim()}
-                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 {t("schedule.save")}
@@ -2835,7 +2835,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
                 setEditingId(null);
                 setForm(EMPTY_SITE_FORM);
               }}
-              className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-hover"
+              className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-fg hover:bg-primary-hover"
             >
               <Plus className="h-3.5 w-3.5" />
               {t("journal.addSite")}
@@ -2863,7 +2863,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
               <button
                 onClick={submit}
                 disabled={saving || !form.name.trim()}
-                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+                className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 {t("schedule.save")}

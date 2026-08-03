@@ -436,7 +436,7 @@ export default function LessonViewerPage() {
                className={cn(
                 "flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-[9px] font-extrabold",
                 isActive
-                 ? "bg-primary text-white shadow-[0_0_0_3px_var(--green-100)]"
+                 ? "bg-primary text-primary-fg shadow-[0_0_0_3px_var(--green-100)]"
                  : isDone
                    ? "bg-green-500 text-white"
                    : "border-[1.5px] border-border-strong bg-transparent"
@@ -598,7 +598,7 @@ export default function LessonViewerPage() {
         <button
          onClick={handleComplete}
          disabled={completing}
-         className="btn-pop flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-white disabled:opacity-50"
+         className="btn-pop flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-bold text-primary-fg disabled:opacity-50"
          style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
         >
          <CheckCircle className="h-4 w-4" />
@@ -643,7 +643,7 @@ export default function LessonViewerPage() {
      {nextLesson ? (
       <Link
        href={`/courses/${courseId}/lessons/${nextLesson.lesson.id}`}
-       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-white"
+       className="btn-pop flex items-center gap-2.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
@@ -657,7 +657,7 @@ export default function LessonViewerPage() {
      ) : (
       <Link
        href={`/courses/${courseId}`}
-       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-white"
+       className="btn-pop flex items-center gap-2 rounded-xl bg-primary px-3.5 py-2 text-sm font-bold text-primary-fg"
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <CheckCircle className="h-3.5 w-3.5" />
@@ -827,7 +827,7 @@ function PageNav({
       onClick={() => setCurrentPage(p)}
       className={cn(
        "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors",
-       p === currentPage ? "bg-primary text-white" : "text-text-muted hover:bg-surface-2"
+       p === currentPage ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2"
       )}
      >
       {p}

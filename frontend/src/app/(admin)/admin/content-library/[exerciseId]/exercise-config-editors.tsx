@@ -1162,7 +1162,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                title="Drag to reposition"
              >
                <div className="flex flex-col items-center pointer-events-none">
-                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-white" : "bg-ink-700 text-white"}`}>
+                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-primary-fg" : "bg-ink-700 text-primary-fg"}`}>
                    {pin.label || i + 1}
                  </span>
                  <svg className={`h-5 w-4 ${i === activePinIndex ? "text-primary" : "text-text"}`} viewBox="0 0 20 24" fill="currentColor">
@@ -1189,7 +1189,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                onClick={() => setActivePinIndex(activePinIndex === i ? null : i)}
                title={activePinIndex === i ? "Deselect pin" : "Click to place on image"}
                className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                 i === activePinIndex ? "bg-primary text-white" : "bg-clay-300 text-clay-700 hover:bg-primary hover:text-white"
+                 i === activePinIndex ? "bg-primary text-primary-fg" : "bg-clay-300 text-clay-700 hover:bg-primary hover:text-primary-fg"
                }`}
              >
                {i === activePinIndex ? <MapPinIcon className="h-3.5 w-3.5" /> : i + 1}
@@ -1302,7 +1302,7 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
                        onClick={() => updateQuestion(i, { correct: opt })}
                        className={`w-7 h-7 rounded-full text-xs font-bold transition ${
                          q.correct === opt
-                           ? "bg-primary text-white ring-2 ring-primary-soft"
+                           ? "bg-primary text-primary-fg ring-2 ring-primary-soft"
                            : "bg-surface-2 text-text-muted hover:bg-surface-2"
                        }`}
                      >{opt}</button>

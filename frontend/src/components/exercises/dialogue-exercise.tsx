@@ -205,10 +205,10 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  className={`rounded-lg px-4 py-3 text-sm leading-relaxed shadow-sm ${
  isUser
  ? choiceResult === true
- ? "bg-primary text-white"
+ ? "bg-primary text-primary-fg"
  : choiceResult === false
- ? "bg-danger text-white"
- : "bg-primary text-white"
+ ? "bg-danger text-ink-900"
+ : "bg-primary text-primary-fg"
  : "bg-surface border border-border text-text "
  }`}
  >
@@ -267,7 +267,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  {isFinished && !submitted && (
  <button
  onClick={handleSubmit}
- className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98]"
+ className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-fg shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98]"
  >
  Complete Dialogue
  </button>

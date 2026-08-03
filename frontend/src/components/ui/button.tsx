@@ -21,7 +21,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 font-bold focus-visible:outline-none",
           {
-            "btn-pop bg-primary text-white hover:bg-primary-hover":
+            "btn-pop bg-primary text-primary-fg hover:bg-primary-hover":
               variant === "default",
             "btn-pop btn-pop--secondary bg-surface text-text border border-border":
               variant === "secondary",
@@ -31,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "outline",
             "press-scale bg-transparent text-text hover:bg-surface-2 transition-colors":
               variant === "ghost",
-            "btn-pop btn-pop--clay bg-danger text-white hover:bg-danger":
+            "btn-pop btn-pop--clay bg-danger text-ink-900 hover:bg-danger":
               variant === "destructive",
             "btn-pop btn-pop--ink bg-ink-900 text-white hover:bg-ink-700":
               variant === "dark",

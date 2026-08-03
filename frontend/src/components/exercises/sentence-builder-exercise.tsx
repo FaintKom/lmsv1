@@ -121,8 +121,8 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition duration-200 shadow-sm
  ${
  submitted
- ? "bg-primary text-white cursor-default"
- : "bg-primary text-white hover:bg-primary-hover hover:shadow-md active:scale-95"
+ ? "bg-primary text-primary-fg cursor-default"
+ : "bg-primary text-primary-fg hover:bg-primary-hover hover:shadow-md active:scale-95"
  }
  `}
  >
@@ -172,7 +172,7 @@ export default function SentenceBuilderExercise({ config, onSubmit }: Props) {
  <button
  onClick={handleSubmit}
  disabled={sentence.length === 0}
- className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+ className="flex-1 rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-fg shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
  >
  Check Sentence
  </button>

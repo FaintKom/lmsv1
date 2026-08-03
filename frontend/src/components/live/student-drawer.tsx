@@ -82,7 +82,7 @@ export function StudentDrawer({
             setHint("");
             toast.success(t("live.hint.send"));
           }}
-          className="btn-pop mt-2 w-full rounded-md bg-primary p-2.5 text-sm font-bold text-white"
+          className="btn-pop mt-2 w-full rounded-md bg-primary p-2.5 text-sm font-bold text-primary-fg"
         >
           {t("live.hint.send")}
         </button>

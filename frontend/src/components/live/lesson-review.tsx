@@ -110,7 +110,7 @@ export function LessonReview({
               onClick={() => setOpenBoard(id)}
               className={`rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors ${
                 openBoard === id
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-primary-fg"
                   : "border-2 border-border bg-surface text-text hover:border-green-300"
               }`}
             >

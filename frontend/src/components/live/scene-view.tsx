@@ -197,7 +197,7 @@ export function MaterialPane({ payload }: { payload: Record<string, unknown> }) 
             onClick={() => setPage(p)}
             className={`flex h-8 w-8 items-center justify-center rounded-md font-mono text-[11px] font-bold transition-colors ${
               p === page
-                ? "bg-primary text-white"
+                ? "bg-primary text-primary-fg"
                 : "bg-surface-2 text-text hover:bg-surface-2"
             }`}
           >

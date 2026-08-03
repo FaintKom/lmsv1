@@ -191,9 +191,9 @@ function SATDemo() {
  >
  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
  showResult && isCorrect
- ? "bg-primary text-white"
+ ? "bg-primary text-primary-fg"
  : showResult && isSelected
- ? "bg-danger text-white"
+ ? "bg-danger text-ink-900"
  : "bg-surface-2 text-text-muted "
  }`}>
  {showResult && isCorrect ? "\u2713" : showResult && isSelected ? "\u2717" : c.label}

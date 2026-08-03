@@ -130,7 +130,7 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  <button key={op} onClick={() => { setUserOperator(op); setChecked(false); }}
  className={`px-4 py-2 text-sm font-bold transition-colors ${
  userOperator === op
- ? "bg-primary text-white"
+ ? "bg-primary text-primary-fg"
  : "bg-surface text-text-muted hover:bg-surface-2 "
  }`}>
  {op.replace(">=", "\u2265").replace("<=", "\u2264")}

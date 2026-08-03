@@ -85,7 +85,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  const variantStyles = {
  danger: {
  icon: "bg-danger-soft text-danger-fg",
- button: "bg-danger hover:bg-danger text-white",
+ button: "bg-danger hover:bg-danger text-ink-900",
  },
  warning: {
  icon: "bg-sun-100 text-warning-fg",
@@ -93,7 +93,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
  },
  default: {
  icon: "bg-primary-soft text-primary",
- button: "bg-primary hover:bg-primary-hover text-white",
+ button: "bg-primary hover:bg-primary-hover text-primary-fg",
  },
  };
 

@@ -37,7 +37,7 @@ export function PollModal({
             >
               {opt}
               {selected === i && (
-                <span className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-pill bg-primary text-white">
+                <span className="absolute right-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-pill bg-primary text-primary-fg">
                   <Check size={12} strokeWidth={3} />
                 </span>
               )}
@@ -52,7 +52,7 @@ export function PollModal({
             await votePoll(lessonId, selected);
             onDone();
           }}
-          className="btn-pop mt-6 w-full rounded-md bg-primary p-3 text-sm font-bold text-white"
+          className="btn-pop mt-6 w-full rounded-md bg-primary p-3 text-sm font-bold text-primary-fg"
         >
           {t("live.poll.vote")}
         </button>

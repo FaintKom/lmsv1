@@ -292,7 +292,7 @@ export default function TeacherLivePage() {
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5">
         <div className="text-xl font-extrabold text-text">{t("live.endedTitle")}</div>
         <button
-          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white"
+          className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg"
           onClick={() => router.push("/admin/groups")}
         >
           {t("common.back")}
@@ -322,7 +322,7 @@ export default function TeacherLivePage() {
       onClick={onClick ?? (() => setRail(key))}
       className={`flex h-14 w-16 flex-col items-center justify-center gap-1 rounded-md transition-colors ${
         rail === key
-          ? "bg-primary text-white"
+          ? "bg-primary text-primary-fg"
           : "text-text-muted hover:bg-surface-2 hover:text-text"
       }`}
     >
@@ -484,7 +484,7 @@ export default function TeacherLivePage() {
           </button>
           <button
             onClick={() => setConfirmEnd(true)}
-            className="btn-pop btn-pop--clay rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-white"
+            className="btn-pop btn-pop--clay rounded-sm bg-danger px-3.5 py-1.5 text-xs font-bold text-ink-900"
           >
             {t("live.end")}
           </button>
@@ -680,7 +680,7 @@ export default function TeacherLivePage() {
                       await sendClassMessage(lessonId, classMsg.trim());
                       setClassMsg("");
                     }}
-                    className="btn-pop mt-2 w-full rounded-md bg-primary p-2 text-xs font-bold text-white"
+                    className="btn-pop mt-2 w-full rounded-md bg-primary p-2 text-xs font-bold text-primary-fg"
                   >
                     {t("live.messageAll")}
                   </button>
@@ -728,7 +728,7 @@ export default function TeacherLivePage() {
                   // "ended" and renders the lesson review in place
                   await qc.invalidateQueries({ queryKey: ["live", lessonId, "state"] });
                 }}
-                className="btn-pop btn-pop--clay rounded-md bg-danger px-4 py-2 text-sm font-bold text-white"
+                className="btn-pop btn-pop--clay rounded-md bg-danger px-4 py-2 text-sm font-bold text-ink-900"
               >
                 {t("live.end")}
               </button>

@@ -192,7 +192,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
                   onPointerEnter={() => handlePointerMove(ri, ci)}
                   className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center text-xs sm:text-sm font-bold cursor-pointer transition-colors ${
                     isHighlighted
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-fg"
                       : isSelecting
                       ? "bg-info-soft text-info-fg"
                       : "bg-surface text-text hover:bg-surface-2"
@@ -210,7 +210,7 @@ export default function WordSearchExercise({ config, onSubmit }: Props) {
         <button
           onClick={handleSubmit}
           disabled={foundWords.size === 0}
-          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-primary-fg shadow-md transition duration-200 hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {allFound ? "Submit — All Found!" : `Submit (${foundWords.size}/${words.length})`}
         </button>

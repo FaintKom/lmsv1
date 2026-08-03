@@ -107,7 +107,7 @@ export default function AdminPeerReviewPage() {
         {courseId && (
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover"
           >
             <Plus className="h-4 w-4" /> {t("peerReview.newAssignment")}
           </button>
@@ -158,7 +158,7 @@ export default function AdminPeerReviewPage() {
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
                 >
                   {createMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -208,7 +208,7 @@ export default function AdminPeerReviewPage() {
                     <button
                       onClick={() => distributeMutation.mutate(a.id)}
                       disabled={distributeMutation.isPending}
-                      className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
                     >
                       <Send className="h-3.5 w-3.5" /> {t("peerReview.distribute")}
                     </button>

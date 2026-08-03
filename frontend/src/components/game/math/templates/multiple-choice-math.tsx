@@ -92,11 +92,11 @@ export default function MultipleChoiceMath({ config, onComplete }: MathTemplateP
  <span
  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
  submitted && choice.correct
- ? "bg-primary text-white"
+ ? "bg-primary text-primary-fg"
  : submitted && isThis && !choice.correct
- ? "bg-danger text-white"
+ ? "bg-danger text-ink-900"
  : isThis
- ? "bg-primary text-white"
+ ? "bg-primary text-primary-fg"
  : "bg-surface-2 text-text-muted "
  }`}
  >
