@@ -57,3 +57,7 @@ frontend/public/voxel-gallery/
 # Locally installed skill packages (own licences; keep out of the public repo)
 .claude/skills/
 .agents/skills/
+
+# Playwright run artefacts and local agent scratch state
+test-results/
+.superpowers/
