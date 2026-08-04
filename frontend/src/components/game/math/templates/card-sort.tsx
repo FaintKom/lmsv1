@@ -145,12 +145,20 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  className={`flex flex-col rounded-lg border-2 p-3 transition-colors min-h-[100px] ${
  tappedCard ? "cursor-pointer hover:opacity-80" : ""
  }`}
- style={{ borderColor: cat.color + "60", backgroundColor: cat.color + "08" }}
+ // color-mix, not string-concatenated hex alpha: cat.color is a var()
+ // reference now, and `var(--viz-1)60` is invalid CSS — it silently
+ // dropped the border to currentColor and the tint to transparent.
+ style={{
+ borderColor: `color-mix(in srgb, ${cat.color} 38%, transparent)`,
+ backgroundColor: `color-mix(in srgb, ${cat.color} 8%, transparent)`,
+ }}
  >
  {/* Category header */}
  <div className="mb-2 flex items-center gap-2">
  <div className="h-3 w-3 rounded-pill" style={{ backgroundColor: cat.color }} />
- <span className="text-sm font-bold" style={{ color: cat.color }}>{cat.label}</span>
+ {/* The dot above carries identity; the label wears a text token so it
+ stays legible in both themes (the series hue read 4.3:1 on dark). */}
+ <span className="text-sm font-bold text-text">{cat.label}</span>
  <span className="ml-auto text-3xs text-text-subtle">{(sorted[cat.id] || []).length}</span>
  </div>
 
