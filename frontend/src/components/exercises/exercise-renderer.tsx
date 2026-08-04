@@ -958,7 +958,7 @@ function CodeChallengeExercise({
  <select
  value={selectedLang}
  onChange={(e) => setSelectedLang(e.target.value)}
- className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-text hover:border-primary focus:outline-none "
+ className="appearance-none rounded-lg border border-border-strong bg-surface-2 py-1.5 pl-3 pr-8 text-sm font-medium text-text hover:border-primary "
  >
  {langs.map((l) => (
  <option key={l.key} value={l.key}>{l.name}</option>

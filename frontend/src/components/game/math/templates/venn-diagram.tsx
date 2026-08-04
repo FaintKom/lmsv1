@@ -117,7 +117,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  value={userValues[key] || ""}
  onChange={(e) => handleChange(key, e.target.value)}
  disabled={checked && results[key]}
- className={`w-14 rounded-lg border-2 px-2 py-1.5 text-center text-lg font-bold outline-none ${
+ className={`w-14 rounded-lg border-2 px-2 py-1.5 text-center text-lg font-bold ${
  checked
  ? results[key]
  ? "border-primary bg-success-soft text-success-fg "

@@ -425,7 +425,7 @@ export function BlockEditor({
 
  return (
  <div
- className={`block-editor rounded-lg border border-border-strong bg-surface overflow-hidden ${
+ className={`block-editor rounded-lg border border-border-strong bg-surface overflow-hidden focus-within:ring-2 focus-within:ring-border-focus ${
  editable ? "shadow-sm" : ""
  }`}
  >

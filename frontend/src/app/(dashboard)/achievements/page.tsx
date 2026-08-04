@@ -263,7 +263,7 @@ function AvatarTab() {
  <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
  <AvatarCanvas state={state} />
  <div className="pointer-events-none absolute left-6 top-6 max-w-md">
- <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-gray-500">
+ <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-subtle">
  {t("nav.achievements")} · {t("nav.myAvatar")}
  </p>
  <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">

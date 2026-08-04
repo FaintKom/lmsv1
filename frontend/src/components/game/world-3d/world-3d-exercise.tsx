@@ -201,7 +201,7 @@ export default function World3DExercise({
  <Gauge className="h-3.5 w-3.5 text-text-subtle" />
  <input type="range" min={50} max={800} step={50} value={850 - speed}
  onChange={(e) => setSpeed(850 - parseInt(e.target.value))}
- className="h-1.5 w-16 accent-emerald-500" title="Speed" />
+ className="h-1.5 w-16 accent-primary" title="Speed" />
 
  {isRunning ? (
  <Button size="sm" onClick={handlePause}>

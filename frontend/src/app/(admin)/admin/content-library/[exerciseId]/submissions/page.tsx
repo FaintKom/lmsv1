@@ -136,7 +136,7 @@ export default function SubmissionsViewerPage() {
  <p className="text-sm font-medium">{t("admin.submissionsViewer.noSubmissions")}</p>
  </div>
  ) : (
- <div className="divide-y divide-slate-50 ">
+ <div className="divide-y divide-border ">
  {submissions.map((sub) => (
  <SubmissionRow
  key={sub.id}

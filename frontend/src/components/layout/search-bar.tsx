@@ -135,7 +135,7 @@ export function SearchBar() {
  value={query}
  onChange={(e) => handleChange(e.target.value)}
  placeholder={t("search.placeholder") === "search.placeholder" ? "Search courses and lessons..." : t("search.placeholder")}
- className="flex-1 bg-transparent text-xs text-text outline-none placeholder:text-text-subtle"
+ className="flex-1 bg-transparent text-xs text-text placeholder:text-text-subtle"
  />
  {query && (
  <button

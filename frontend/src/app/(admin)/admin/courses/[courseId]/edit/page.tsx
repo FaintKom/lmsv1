@@ -1242,7 +1242,7 @@ export default function CourseEditorPage() {
  page: parseInt(e.target.value) || 1,
  })
  }
- className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-[10px] focus:outline-none hover:border-primary"
+ className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-[10px] hover:border-primary"
  />
  </label>
  <button

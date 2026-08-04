@@ -1462,7 +1462,7 @@ function TwoWayTableConfig({
  type="checkbox"
  checked={isBlank}
  onChange={(e) => setCell(r, c, e.target.checked, displayValue)}
- className="h-3 w-3 accent-amber-500"
+ className="h-3 w-3 accent-sun-500"
  title="Blank for student"
  />
  </div>
@@ -1773,7 +1773,7 @@ function TablePatternConfig({
  type="checkbox"
  checked={r.blank}
  onChange={(e) => updateRow(i, { blank: e.target.checked })}
- className="h-3 w-3 accent-amber-500"
+ className="h-3 w-3 accent-sun-500"
  />
  Blank
  </label>

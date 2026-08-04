@@ -30,12 +30,12 @@ const MAP: Record<string, Entry> = {
   lessons_100: { Icon: GraduationCap, color: "text-success-fg" },
 
   quiz_first: { Icon: CheckCircle, color: "text-green-600" },
-  quiz_perfect: { Icon: Star, color: "text-yellow-500", filled: true },
-  quiz_master: { Icon: Award, color: "text-yellow-700" },
+  quiz_perfect: { Icon: Star, color: "text-reward", filled: true },
+  quiz_master: { Icon: Award, color: "text-reward-fg" },
 
-  code_first: { Icon: Code, color: "text-blue-600" },
-  code_5: { Icon: Code, color: "text-blue-600" },
-  code_master: { Icon: Code, color: "text-gray-900" },
+  code_first: { Icon: Code, color: "text-info" },
+  code_5: { Icon: Code, color: "text-info" },
+  code_master: { Icon: Code, color: "text-text" },
 
   math_first: { Icon: Calculator, color: "text-green-600" },
   math_perfect: { Icon: Calculator, color: "text-success-fg" },
@@ -44,16 +44,16 @@ const MAP: Record<string, Entry> = {
   lang_master: { Icon: Languages, color: "text-danger-fg" },
 
   course_complete: { Icon: Award, color: "text-success-fg" },
-  course_5: { Icon: Trophy, color: "text-yellow-500" },
+  course_5: { Icon: Trophy, color: "text-reward" },
 
-  xp_500: { Icon: Zap, color: "text-yellow-500", filled: true },
-  xp_5000: { Icon: Zap, color: "text-yellow-700", filled: true },
+  xp_500: { Icon: Zap, color: "text-reward", filled: true },
+  xp_5000: { Icon: Zap, color: "text-reward-fg", filled: true },
 
-  early_bird: { Icon: Sparkles, color: "text-blue-600" },
-  night_owl: { Icon: Sparkles, color: "text-gray-700" },
+  early_bird: { Icon: Sparkles, color: "text-info" },
+  night_owl: { Icon: Sparkles, color: "text-text-muted" },
 };
 
-const FALLBACK: Entry = { Icon: Trophy, color: "text-yellow-700" };
+const FALLBACK: Entry = { Icon: Trophy, color: "text-reward-fg" };
 
 interface BadgeIconProps {
   criteriaKey: string;

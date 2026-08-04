@@ -65,7 +65,7 @@ export default function CookiePolicyPage() {
  </th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 ">
+ <tbody className="divide-y divide-border ">
  <tr>
  <td className="py-2 pr-4 font-mono text-xs">auth_token</td>
  <td className="py-2 pr-4">
@@ -114,7 +114,7 @@ export default function CookiePolicyPage() {
  </th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 ">
+ <tbody className="divide-y divide-border ">
  <tr>
  <td className="py-2 pr-4 font-mono text-xs">theme</td>
  <td className="py-2 pr-4">

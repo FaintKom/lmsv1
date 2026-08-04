@@ -154,7 +154,7 @@ function AvatarCard({
       <div className="mt-auto flex items-center justify-between gap-1">
         <StatusPill status={status} t={t} />
         {item.price > 0 && (
-          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tabular-nums text-yellow-800">
+          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tabular-nums text-reward-fg">
             <Zap className="h-2.5 w-2.5 fill-current" />
             {item.price}
           </span>

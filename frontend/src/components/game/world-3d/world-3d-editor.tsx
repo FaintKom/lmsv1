@@ -200,7 +200,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
 
  return (
  <button key={`${x}-${z}`} onClick={() => handleCellClick(x, z)}
- className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-border-strong text-[9px] font-bold transition-colors hover:ring-2 hover:ring-emerald-400 "
+ className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-border-strong text-[9px] font-bold transition-colors hover:ring-2 hover:ring-primary "
  style={{ backgroundColor: bgColor }}
  title={`(${x}, ${z})${topCell ? ` — ${topCell.type} y=${topCell.y}` : ""}${isPlayerStart ? " — PLAYER" : ""}`}
  >

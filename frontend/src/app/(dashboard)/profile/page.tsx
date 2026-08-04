@@ -274,7 +274,7 @@ export default function ProfilePage() {
  className="h-20 w-20 rounded-pill object-cover shadow-lg"
  />
  ) : (
- <div className="flex h-20 w-20 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-2xl font-bold text-white shadow-lg">
+ <div className="flex h-20 w-20 items-center justify-center rounded-pill bg-primary text-2xl font-bold text-primary-fg shadow-lg">
  {initials}
  </div>
  )}
