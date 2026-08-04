@@ -112,27 +112,27 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  {xTicks.map((v) => (
  <g key={`x${v}`}>
  <line x1={toSvgX(v)} y1={pad.top} x2={toSvgX(v)} y2={pad.top + plotH}
- stroke={v === 0 ? "#475569" : "#e2e8f0"} strokeWidth={v === 0 ? 1.5 : 0.5} className="" />
- <text x={toSvgX(v)} y={svgH - pad.bottom + 18} textAnchor="middle" fontSize={11} fill="#64748b">{v}</text>
+ stroke={v === 0 ? "var(--color-text-muted)" : "var(--color-border)"} strokeWidth={v === 0 ? 1.5 : 0.5} className="" />
+ <text x={toSvgX(v)} y={svgH - pad.bottom + 18} textAnchor="middle" fontSize={11} fill="var(--color-text-muted)">{v}</text>
  </g>
  ))}
  {yTicks.map((v) => (
  <g key={`y${v}`}>
  <line x1={pad.left} y1={toSvgY(v)} x2={pad.left + plotW} y2={toSvgY(v)}
- stroke={v === 0 ? "#475569" : "#e2e8f0"} strokeWidth={v === 0 ? 1.5 : 0.5} className="" />
- <text x={pad.left - 8} y={toSvgY(v) + 4} textAnchor="end" fontSize={11} fill="#64748b">{v}</text>
+ stroke={v === 0 ? "var(--color-text-muted)" : "var(--color-border)"} strokeWidth={v === 0 ? 1.5 : 0.5} className="" />
+ <text x={pad.left - 8} y={toSvgY(v) + 4} textAnchor="end" fontSize={11} fill="var(--color-text-muted)">{v}</text>
  </g>
  ))}
 
  {/* Axis labels */}
- <text x={pad.left + plotW / 2} y={svgH - 6} textAnchor="middle" fontSize={13} fill="#334155" fontWeight="600" className="">{xLabel}</text>
- <text x={14} y={pad.top + plotH / 2} textAnchor="middle" fontSize={13} fill="#334155" fontWeight="600" className=""
+ <text x={pad.left + plotW / 2} y={svgH - 6} textAnchor="middle" fontSize={13} fill="var(--color-text)" fontWeight="600" className="">{xLabel}</text>
+ <text x={14} y={pad.top + plotH / 2} textAnchor="middle" fontSize={13} fill="var(--color-text)" fontWeight="600" className=""
  transform={`rotate(-90, 14, ${pad.top + plotH / 2})`}>{yLabel}</text>
 
  {/* Data points */}
  {points.map((p, i) => (
  <circle key={i} cx={toSvgX(p.x)} cy={toSvgY(p.y)} r={5}
- fill="#6366f1" stroke="white" strokeWidth={1.5} />
+ fill="var(--viz-1)" stroke="var(--color-surface)" strokeWidth={1.5} />
  ))}
 
  {/* Best-fit line (user-drawn) */}
@@ -141,15 +141,15 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  <line
  x1={toSvgX(xRange[0])} y1={toSvgY(userIntercept + userSlope * xRange[0])}
  x2={toSvgX(xRange[1])} y2={toSvgY(userIntercept + userSlope * xRange[1])}
- stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#f59e0b"}
+ stroke={checked ? (isCorrect ? "var(--color-success)" : "var(--color-danger)") : "var(--viz-2)"}
  strokeWidth={2.5} strokeDasharray={checked ? "none" : "6 4"}
  />
  {/* Draggable endpoints */}
  <circle cx={toSvgX(lineStart.x)} cy={toSvgY(lineStart.y)} r={8}
- fill={checked ? "#94a3b8" : "#f59e0b"} stroke="white" strokeWidth={2}
+ fill={checked ? "var(--color-text-subtle)" : "var(--viz-2)"} stroke="var(--color-surface)" strokeWidth={2}
  style={{ cursor: "grab" }} onPointerDown={() => !checked && setDragging("start")} />
  <circle cx={toSvgX(lineEnd.x)} cy={toSvgY(lineEnd.y)} r={8}
- fill={checked ? "#94a3b8" : "#f59e0b"} stroke="white" strokeWidth={2}
+ fill={checked ? "var(--color-text-subtle)" : "var(--viz-2)"} stroke="var(--color-surface)" strokeWidth={2}
  style={{ cursor: "grab" }} onPointerDown={() => !checked && setDragging("end")} />
  </>
  )}
@@ -159,7 +159,7 @@ export default function ScatterPlot({ config, onComplete }: MathTemplateProps) {
  <line
  x1={toSvgX(xRange[0])} y1={toSvgY(targetIntercept + targetSlope * xRange[0])}
  x2={toSvgX(xRange[1])} y2={toSvgY(targetIntercept + targetSlope * xRange[1])}
- stroke="#22c55e" strokeWidth={2} strokeDasharray="8 4" opacity={0.7}
+ stroke="var(--color-success)" strokeWidth={2} strokeDasharray="8 4" opacity={0.7}
  />
  )}
  </svg>

@@ -70,9 +70,9 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  for (let i = -gridRange; i <= gridRange; i++) {
  lines.push(
  <line key={`v${i}`} x1={toX(i)} y1={pad} x2={toX(i)} y2={svgSize - pad}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
  <line key={`h${i}`} x1={pad} y1={toY(i)} x2={svgSize - pad} y2={toY(i)}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
  );
  }
  return lines;
@@ -88,7 +88,7 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  <span className="inline-block h-0.5 w-5 bg-ink-400" /> Parent: y = {fnLabel}
  </span>
  <span className="flex items-center gap-1.5">
- <span className="inline-block h-0.5 w-5 bg-primary" style={{ borderBottom: "2px dashed #22c55e" }} /> Target
+ <span className="inline-block h-0.5 w-5 bg-primary" style={{ borderBottom: "2px dashed var(--color-success)" }} /> Target
  </span>
  <span className="flex items-center gap-1.5">
  <span className="inline-block h-0.5 w-5 bg-primary" /> Your graph
@@ -100,14 +100,14 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  {gridLines}
 
  {/* Parent function (gray, thin) */}
- <polyline points={parentPath} fill="none" stroke="#94a3b8" strokeWidth={1.5} opacity={0.5} />
+ <polyline points={parentPath} fill="none" stroke="var(--color-text-subtle)" strokeWidth={1.5} opacity={0.5} />
 
  {/* Target function (green dashed) */}
- <polyline points={targetPath} fill="none" stroke="#22c55e" strokeWidth={2.5} strokeDasharray="8 4" opacity={0.7} />
+ <polyline points={targetPath} fill="none" stroke="var(--color-success)" strokeWidth={2.5} strokeDasharray="8 4" opacity={0.7} />
 
  {/* User function (indigo solid) */}
  <polyline points={userPath} fill="none"
- stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+ stroke={checked ? (isCorrect ? "var(--color-success)" : "var(--color-danger)") : "var(--viz-1)"}
  strokeWidth={2.5} />
  </svg>
 

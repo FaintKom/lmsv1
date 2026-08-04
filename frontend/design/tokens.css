@@ -1,5 +1,5 @@
 /* =================================================================
-   GrassLMS — Lively v2 · tokens.css · v2.1.0 · 2026-08-04
+   GrassLMS — Lively v2 · tokens.css · v2.2.0 · 2026-08-04
    GENERATED FROM tokens.json — DO NOT EDIT BY HAND.
 
    Drop-in replacement for the @theme block in
@@ -107,6 +107,17 @@
   --color-info-fg:       var(--lagoon-800);
 
   /* ---- ELEVATION --------------------------------------- */
+  /* ---- VIZ — categorical series for chart-like widgets ------
+     Deliberately outside the brand ramps. Lively is warm and muted; no
+     4-hue set drawn from green/sun/clay/lagoon clears CVD and normal-vision
+     separation on the dark surface. These five pass the full validator in
+     both modes. Status colours stay reserved for feedback — never a series. */
+  --viz-1: #6366f1;
+  --viz-2: #d97706;
+  --viz-3: #ec4899;
+  --viz-4: #16a34a;
+  --viz-5: #8b5cf6;
+
   --shadow-xs: 0 1px 2px rgba(13, 21, 13, 0.05);
   --shadow-sm: 0 2px 6px -1px rgba(13, 21, 13, 0.07);
   --shadow-md: 0 8px 24px -8px rgba(13, 21, 13, 0.14);
@@ -213,6 +224,12 @@
   --color-info:          #3aa0b5;
   --color-info-soft:     rgba(58, 160, 181, 0.14);
   --color-info-fg:       #9bd3df;
+
+  /* Series re-stepped for the dark surface — selected, not flipped.
+     1/3/5 already clear contrast on #111713 and stay put; 2 and 4 lift to
+     their brighter steps, which fail contrast on white but pass here. */
+  --viz-2: #f59e0b;
+  --viz-4: #22c55e;
 
   /* elevation by surface, not by shadow (dark-mode rule) */
   --shadow-xs: none;

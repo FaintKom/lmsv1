@@ -51,7 +51,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  {displayType === "pie" ? (
  <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}>
  {/* Background circle */}
- <circle cx={center} cy={center} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={2} className="" />
+ <circle cx={center} cy={center} r={radius} fill="none" stroke="var(--color-border)" strokeWidth={2} className="" />
 
  {/* Pie slices */}
  {Array.from({ length: targetDenominator }, (_, i) => {
@@ -64,9 +64,9 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  const largeArc = 1 / targetDenominator > 0.5 ? 1 : 0;
 
  const isSelected = selected.has(i);
- let fillColor = isSelected ? "#6366f1" : "#f8fafc";
+ let fillColor = isSelected ? "var(--viz-1)" : "var(--color-surface)";
  if (checked && isSelected) {
- fillColor = isCorrect ? "#22c55e" : "#ef4444";
+ fillColor = isCorrect ? "var(--color-success)" : "var(--color-danger)";
  }
 
  return (
@@ -74,7 +74,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  <path
  d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`}
  fill={fillColor}
- stroke="#cbd5e1"
+ stroke="var(--color-border-strong)"
  strokeWidth={1.5}
  className={`transition-colors ${!checked && !isSelected ? "hover:fill-green-100 " : ""}`}
  />
@@ -83,7 +83,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  })}
 
  {/* Center label */}
- <text x={center} y={center + 5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#334155" className="">
+ <text x={center} y={center + 5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="var(--color-text)" className="">
  {selected.size}/{targetDenominator}
  </text>
  </svg>
@@ -94,9 +94,9 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  const w = 360 / targetDenominator;
  const x = 20 + i * w;
  const isSelected = selected.has(i);
- let fillColor = isSelected ? "#6366f1" : "#f8fafc";
+ let fillColor = isSelected ? "var(--viz-1)" : "var(--color-surface)";
  if (checked && isSelected) {
- fillColor = isCorrect ? "#22c55e" : "#ef4444";
+ fillColor = isCorrect ? "var(--color-success)" : "var(--color-danger)";
  }
 
  return (
@@ -108,7 +108,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  height={50}
  rx={4}
  fill={fillColor}
- stroke="#cbd5e1"
+ stroke="var(--color-border-strong)"
  strokeWidth={1.5}
  onClick={() => togglePart(i)}
  style={{ cursor: checked ? "default" : "pointer" }}
@@ -116,7 +116,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  />
  );
  })}
- <text x={200} y={78} textAnchor="middle" fontSize={14} fill="#64748b">
+ <text x={200} y={78} textAnchor="middle" fontSize={14} fill="var(--color-text-muted)">
  {selected.size}/{targetDenominator}
  </text>
  </svg>

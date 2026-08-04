@@ -70,14 +70,14 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  for (let i = -gridRange; i <= gridRange; i++) {
  lines.push(
  <line key={`v${i}`} x1={toX(i)} y1={pad} x2={toX(i)} y2={svgSize - pad}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
  <line key={`h${i}`} x1={pad} y1={toY(i)} x2={svgSize - pad} y2={toY(i)}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
  );
  if (i !== 0 && i % 2 === 0) {
  lines.push(
- <text key={`xl${i}`} x={toX(i)} y={toY(0) + 14} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>,
- <text key={`yl${i}`} x={toX(0) - 10} y={toY(i) + 3} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+ <text key={`xl${i}`} x={toX(i)} y={toY(0) + 14} textAnchor="middle" fontSize={9} fill="var(--color-text-subtle)">{i}</text>,
+ <text key={`yl${i}`} x={toX(0) - 10} y={toY(i) + 3} textAnchor="middle" fontSize={9} fill="var(--color-text-subtle)">{i}</text>
  );
  }
  }
@@ -93,13 +93,13 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  {/* Shaded region */}
  {shadedSide && (
  <polygon points={shadingPath}
- fill={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+ fill={checked ? (isCorrect ? "var(--color-success)" : "var(--color-danger)") : "var(--viz-1)"}
  opacity={0.15} />
  )}
 
  {/* Boundary line */}
  <line x1={toX(-gridRange)} y1={toY(lineY1)} x2={toX(gridRange)} y2={toY(lineY2)}
- stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+ stroke={checked ? (isCorrect ? "var(--color-success)" : "var(--color-danger)") : "var(--viz-1)"}
  strokeWidth={2.5}
  strokeDasharray={isDashed ? "8 5" : "none"} />
 
@@ -116,8 +116,8 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  )}
 
  {/* Axis labels */}
- <text x={svgSize - pad + 8} y={toY(0) + 4} fontSize={12} fill="#64748b" fontWeight="bold">x</text>
- <text x={toX(0) + 6} y={pad - 6} fontSize={12} fill="#64748b" fontWeight="bold">y</text>
+ <text x={svgSize - pad + 8} y={toY(0) + 4} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">x</text>
+ <text x={toX(0) + 6} y={pad - 6} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">y</text>
  </svg>
 
  {/* Controls */}

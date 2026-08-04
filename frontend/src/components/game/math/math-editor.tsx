@@ -1500,8 +1500,8 @@ function CardSortConfig({
  const categories: Category[] =
  (config.categories as Category[]) ||
  [
- { id: "linear", label: "Linear", color: "#4C97FF" },
- { id: "quadratic", label: "Quadratic", color: "#FF8C1A" },
+ { id: "linear", label: "Linear", color: "var(--viz-1)" },
+ { id: "quadratic", label: "Quadratic", color: "var(--viz-2)" },
  ];
  const cards: Card[] =
  (config.cards as Card[]) ||
@@ -1513,7 +1513,7 @@ function CardSortConfig({
  const addCategory = () =>
  writeCategories([
  ...categories,
- { id: `cat_${categories.length + 1}`, label: `Category ${categories.length + 1}`, color: "#6366f1" },
+ { id: `cat_${categories.length + 1}`, label: `Category ${categories.length + 1}`, color: "var(--viz-1)" },
  ]);
  const updateCategory = (i: number, patch: Partial<Category>) => {
  const next = categories.map((c, j) => (j === i ? { ...c, ...patch } : c));
@@ -1576,7 +1576,7 @@ function CardSortConfig({
  >
  <input
  type="color"
- value={cat.color || "#6366f1"}
+ value={cat.color || "var(--viz-1)"}
  onChange={(e) => updateCategory(i, { color: e.target.value })}
  className="h-6 w-8 cursor-pointer rounded border border-border-strong"
  title="Category colour"

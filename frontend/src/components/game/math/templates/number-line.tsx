@@ -67,19 +67,20 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  ticks.push(
  <g key={v}>
  <line x1={x} y1={lineY - (isMain ? 10 : 5)} x2={x} y2={lineY + (isMain ? 10 : 5)}
- stroke="#94a3b8" strokeWidth={isMain ? 1.5 : 0.5} />
+ stroke="var(--color-text-subtle)" strokeWidth={isMain ? 1.5 : 0.5} />
  {isMain && (
- <text x={x} y={lineY + 26} textAnchor="middle" fontSize={11} fill="#64748b">{v}</text>
+ <text x={x} y={lineY + 26} textAnchor="middle" fontSize={11} fill="var(--color-text-muted)">{v}</text>
  )}
  </g>
  );
  }
 
+ // Fixed categorical order. The letter carries identity; colour is secondary.
  const MARKER_STYLES = [
- { fill: "#6366f1", name: "A", bg: "bg-primary-soft text-success-fg" },
- { fill: "#f59e0b", name: "B", bg: "bg-warning-soft text-warning-fg" },
- { fill: "#ec4899", name: "C", bg: " text-text" },
- { fill: "#22c55e", name: "D", bg: "bg-primary-soft text-success-fg" },
+ { fill: "var(--viz-1)", name: "A" },
+ { fill: "var(--viz-2)", name: "B" },
+ { fill: "var(--viz-3)", name: "C" },
+ { fill: "var(--viz-4)", name: "D" },
  ];
 
  return (
@@ -89,7 +90,8 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  {targets.map((t, i) => {
  const style = MARKER_STYLES[i % MARKER_STYLES.length];
  return (
- <span key={i} className={`inline-flex items-center gap-1 rounded-pill px-2.5 py-0.5 text-xs font-bold ${style.bg}`}>
+ <span key={i} className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-bold text-text">
+ <span className="h-2 w-2 shrink-0 rounded-pill" style={{ background: style.fill }} />
  {style.name} → {t}
  </span>
  );
@@ -107,23 +109,23 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  onPointerLeave={handlePointerUp}
  >
  {/* Main line */}
- <line x1={padding} y1={lineY} x2={width - padding} y2={lineY} stroke="#334155" strokeWidth={2} />
+ <line x1={padding} y1={lineY} x2={width - padding} y2={lineY} stroke="var(--color-text)" strokeWidth={2} />
  {/* Arrow tips */}
- <polygon points={`${padding - 6},${lineY} ${padding + 2},${lineY - 5} ${padding + 2},${lineY + 5}`} fill="#334155" />
- <polygon points={`${width - padding + 6},${lineY} ${width - padding - 2},${lineY - 5} ${width - padding - 2},${lineY + 5}`} fill="#334155" />
+ <polygon points={`${padding - 6},${lineY} ${padding + 2},${lineY - 5} ${padding + 2},${lineY + 5}`} fill="var(--color-text)" />
+ <polygon points={`${width - padding + 6},${lineY} ${width - padding - 2},${lineY - 5} ${width - padding - 2},${lineY + 5}`} fill="var(--color-text)" />
 
  {ticks}
 
  {/* Target indicators (shown after check) */}
  {checked && targets.map((t, i) => (
- <circle key={`t${i}`} cx={toX(t)} cy={lineY} r={5} fill="none" stroke="#22c55e" strokeWidth={2} strokeDasharray="3 2" />
+ <circle key={`t${i}`} cx={toX(t)} cy={lineY} r={5} fill="none" stroke="var(--color-success)" strokeWidth={2} strokeDasharray="3 2" />
  ))}
 
  {/* Draggable markers — each with distinct color and letter */}
  {markers.map((val, i) => {
  const x = toX(val);
  const style = MARKER_STYLES[i % MARKER_STYLES.length];
- const color = checked ? (results[i] ? "#22c55e" : "#ef4444") : style.fill;
+ const color = checked ? (results[i] ? "var(--color-success)" : "var(--color-danger)") : style.fill;
  return (
  <g key={i} onPointerDown={() => handlePointerDown(i)} style={{ cursor: "grab" }}>
  {/* Hit area */}
@@ -131,7 +133,7 @@ export default function NumberLine({ config, onComplete }: MathTemplateProps) {
  {/* Marker triangle */}
  <polygon
  points={`${x},${lineY - 4} ${x - 9},${lineY - 24} ${x + 9},${lineY - 24}`}
- fill={color} stroke="white" strokeWidth={1.5}
+ fill={color} stroke="var(--color-surface)" strokeWidth={1.5}
  />
  {/* Letter inside triangle */}
  <text x={x} y={lineY - 13} textAnchor="middle" dominantBaseline="central"

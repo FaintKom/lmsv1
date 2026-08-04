@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
 
 // One source of truth for circle colors so the legend can't drift.
-const COLOR_A = "#6366f1"; // indigo
-const COLOR_B = "#f59e0b"; // amber
-const COLOR_NEITHER = "#94a3b8"; // slate
+const COLOR_A = "var(--viz-1)";
+const COLOR_B = "var(--viz-2)";
+const COLOR_NEITHER = "var(--color-text-subtle)";
 
 interface VennConfig {
  set_a_label: string;
@@ -135,8 +135,8 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <svg viewBox="0 0 460 300" width="100%" style={{ maxWidth: 460 }}
  className="rounded-lg border border-border-strong bg-surface ">
  {/* Background rect representing "universe" */}
- <rect x={10} y={10} width={440} height={280} rx={12} fill="none" stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="6 3" />
- <text x={230} y={30} textAnchor="middle" fontSize={12} fill="#94a3b8">Total: {total}</text>
+ <rect x={10} y={10} width={440} height={280} rx={12} fill="none" stroke="var(--color-text-subtle)" strokeWidth={1.5} strokeDasharray="6 3" />
+ <text x={230} y={30} textAnchor="middle" fontSize={12} fill="var(--color-text-subtle)">Total: {total}</text>
 
  {/* Circle A */}
  <circle cx={cxA} cy={155} r={radius} fill={COLOR_A} opacity={0.12} stroke={COLOR_A} strokeWidth={2.5} />
@@ -167,7 +167,7 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  <foreignObject x={370} y={230} width={80} height={50}>
  <div className="flex h-full items-center justify-center">{renderValue("neither")}</div>
  </foreignObject>
- <text x={410} y={228} textAnchor="middle" fontSize={10} fill="#94a3b8">Neither</text>
+ <text x={410} y={228} textAnchor="middle" fontSize={10} fill="var(--color-text-subtle)">Neither</text>
  </svg>
 
  {/* Legend — inline backgrounds match the SVG circle colors exactly */}

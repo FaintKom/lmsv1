@@ -88,24 +88,24 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
  {/* Balance beam visualization */}
  <svg viewBox="0 0 400 180" width="100%" style={{ maxWidth: 400 }} className="overflow-visible">
  {/* Pivot */}
- <polygon points="200,170 190,145 210,145" fill="#64748b" />
+ <polygon points="200,170 190,145 210,145" fill="var(--color-text-muted)" />
 
  {/* Beam */}
  <g style={{ transform: `rotate(${tiltAngle}deg)`, transformOrigin: "200px 140px", transition: "transform 0.3s" }}>
  <rect x={40} y={136} width={320} height={8} rx={4}
- fill={checked ? (isBalanced ? "#22c55e" : "#ef4444") : "#94a3b8"} className="transition-colors" />
+ fill={checked ? (isBalanced ? "var(--color-success)" : "var(--color-danger)") : "var(--color-text-subtle)"} className="transition-colors" />
 
  {/* Left pan */}
  <rect x={50} y={105} width={120} height={30} rx={8}
- fill="#f1f5f9" stroke="#cbd5e1" strokeWidth={1.5} className=" " />
- <text x={110} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#334155" className="">
+ fill="var(--color-surface-2)" stroke="var(--color-border-strong)" strokeWidth={1.5} className=" " />
+ <text x={110} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="var(--color-text)" className="">
  {[...leftFixed, ...leftAdded.map((t) => t.value)].join(" + ") || "?"} = {leftSum}
  </text>
 
  {/* Right pan */}
  <rect x={230} y={105} width={120} height={30} rx={8}
- fill="#f1f5f9" stroke="#cbd5e1" strokeWidth={1.5} className=" " />
- <text x={290} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="#334155" className="">
+ fill="var(--color-surface-2)" stroke="var(--color-border-strong)" strokeWidth={1.5} className=" " />
+ <text x={290} y={125} textAnchor="middle" fontSize={16} fontWeight="bold" fill="var(--color-text)" className="">
  {[...rightFixed, ...rightAdded.map((t) => t.value)].join(" + ") || "?"} = {rightSum}
  </text>
  </g>

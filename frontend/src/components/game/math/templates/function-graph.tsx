@@ -133,18 +133,18 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  for (let i = -grid_range; i <= grid_range; i++) {
  lines.push(
  <line key={`v${i}`} x1={toSvgX(i)} y1={padding} x2={toSvgX(i)} y2={svgSize - padding}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} />
  );
  lines.push(
  <line key={`h${i}`} x1={padding} y1={toSvgY(i)} x2={svgSize - padding} y2={toSvgY(i)}
- stroke={i === 0 ? "#475569" : "#cbd5e1"} strokeWidth={i === 0 ? 2 : 0.5} />
+ stroke={i === 0 ? "var(--color-text-muted)" : "var(--color-border-strong)"} strokeWidth={i === 0 ? 2 : 0.5} />
  );
  if (i !== 0 && i % 2 === 0) {
  lines.push(
- <text key={`xl${i}`} x={toSvgX(i)} y={toSvgY(0) + 14} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+ <text key={`xl${i}`} x={toSvgX(i)} y={toSvgY(0) + 14} textAnchor="middle" fontSize={9} fill="var(--color-text-subtle)">{i}</text>
  );
  lines.push(
- <text key={`yl${i}`} x={toSvgX(0) - 10} y={toSvgY(i) + 3} textAnchor="middle" fontSize={9} fill="#94a3b8">{i}</text>
+ <text key={`yl${i}`} x={toSvgX(0) - 10} y={toSvgY(i) + 3} textAnchor="middle" fontSize={9} fill="var(--color-text-subtle)">{i}</text>
  );
  }
  }
@@ -166,18 +166,18 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
  {/* Target function (dashed) */}
  {show_target && (
- <polyline points={targetPath} fill="none" stroke="#22c55e" strokeWidth={2.5}
+ <polyline points={targetPath} fill="none" stroke="var(--color-success)" strokeWidth={2.5}
  strokeDasharray="8 4" opacity={0.7} />
  )}
 
  {/* User function (solid) */}
  <polyline points={userPath} fill="none"
- stroke={checked ? (isCorrect ? "#22c55e" : "#ef4444") : "#6366f1"}
+ stroke={checked ? (isCorrect ? "var(--color-success)" : "var(--color-danger)") : "var(--viz-1)"}
  strokeWidth={2.5} />
 
  {/* Labels */}
- <text x={svgSize - padding + 8} y={toSvgY(0) + 4} fontSize={12} fill="#64748b" fontWeight="bold">x</text>
- <text x={toSvgX(0) + 6} y={padding - 6} fontSize={12} fill="#64748b" fontWeight="bold">y</text>
+ <text x={svgSize - padding + 8} y={toSvgY(0) + 4} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">x</text>
+ <text x={toSvgX(0) + 6} y={padding - 6} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">y</text>
  </svg>
 
  {/* Current equation display */}
