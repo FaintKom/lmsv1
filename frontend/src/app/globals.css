@@ -411,6 +411,29 @@ button { font-family: inherit; }
  border-radius: var(--radius-xs);
 }
 
+/* Native selects default to the UA's own colours, and `color-scheme: dark`
+   only repaints the chrome — the popup list still takes its colours from the
+   control. 45 of the app's 67 selects never set `text-*`, and 15 set no
+   background either, so in dark mode their options rendered as dim grey on
+   whatever the UA picked. Must live in `@layer base`: in Tailwind 4 an
+   UNLAYERED rule beats everything inside `@layer utilities` no matter how low
+   its specificity, so a bare `select {}` here would override the handful that
+   deliberately use `bg-transparent` (the inline editors on /admin/users) or
+   `bg-surface-2`. Inside base, the utilities layer wins as intended. */
+@layer base {
+ select {
+ background-color: var(--color-surface);
+ color: var(--color-text);
+ }
+ select option {
+ background-color: var(--color-surface);
+ color: var(--color-text);
+ }
+ select option:disabled {
+ color: var(--color-text-subtle);
+ }
+}
+
 @media (prefers-reduced-motion: reduce) {
  *, *::before, *::after {
  animation-duration: 0.01ms !important;
