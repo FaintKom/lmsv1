@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { InteractiveDemo } from "@/components/landing/interactive-demo";
+import { RoleShowcase } from "@/components/landing/role-showcase";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -159,6 +160,9 @@ export default function Home() {
  </div>
  </div>
  </section>
+
+ {/* Student vs Teacher demonstration */}
+ <RoleShowcase />
 
  {/* Interactive Demo */}
  <InteractiveDemo />
