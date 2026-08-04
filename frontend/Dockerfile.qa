@@ -17,6 +17,15 @@ RUN npm ci --legacy-peer-deps
 ARG NEXT_PUBLIC_API_URL=""
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+# BACKEND_URL must exist at BUILD time, not only at runtime: Next.js evaluates
+# next.config `rewrites()` during `next build` and bakes the result into
+# routes-manifest.json. Supplying it later via env_file leaves the manifest
+# without the /api/:path* rule, so the browser's relative "/api/v1" calls hit
+# Next itself and get an HTML 404 — exactly why every authenticated E2E test
+# failed while the public ones passed (run 30847249367, 2026-08-03).
+ARG BACKEND_URL=""
+ENV BACKEND_URL=${BACKEND_URL}
+
 # Copy frontend source to /app and qa fixtures to /qa so the registry's
 # relative import (`../../../qa/exercise-fixtures.json` from
 # frontend/e2e/registry/) resolves the same way it does on the host.

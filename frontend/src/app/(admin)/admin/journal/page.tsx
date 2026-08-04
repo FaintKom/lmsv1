@@ -371,13 +371,13 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
             key: "marked",
             label: t("journal.metricMarked"),
             value: markedCount,
-            color: "text-green-700",
+            color: "text-success-fg",
           },
           {
             key: "awaiting",
             label: t("journal.metricAwaiting"),
             value: awaitingCount,
-            color: "text-clay-700",
+            color: "text-danger-fg",
           },
         ].map((m) => (
           <Card key={m.key} className="flex-1">

@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { InteractiveDemo } from "@/components/landing/interactive-demo";
+import { RoleShowcase } from "@/components/landing/role-showcase";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -122,7 +123,7 @@ export default function Home() {
  </div>
 
  <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:border-warning hover:shadow-lg hover:shadow-sun-50">
- <div className="mb-5 inline-flex rounded-lg bg-sun-50 p-3.5">
+ <div className="mb-5 inline-flex rounded-lg bg-warning-soft p-3.5">
  <Gamepad2 className="h-6 w-6 text-warning-fg" />
  </div>
  <h3 className="mb-2 text-lg font-semibold text-text">
@@ -160,6 +161,9 @@ export default function Home() {
  </div>
  </section>
 
+ {/* Student vs Teacher demonstration */}
+ <RoleShowcase />
+
  {/* Interactive Demo */}
  <InteractiveDemo />
 
@@ -168,7 +172,7 @@ export default function Home() {
  <div className="mx-auto max-w-6xl px-6">
  <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
  <div className="text-center">
- <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-pill bg-sun-50">
+ <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-pill bg-warning-soft">
  <Globe className="h-6 w-6 text-warning-fg" />
  </div>
  <h3 className="mb-1 font-semibold text-text">
@@ -268,7 +272,7 @@ export default function Home() {
 
  <div className="group rounded-lg border border-border-strong/60 bg-surface p-8 transition hover:shadow-lg">
  <div className="mb-4 flex items-center gap-3">
- <div className="rounded-lg bg-sun-50 p-3"><Code className="h-6 w-6 text-warning-fg" /></div>
+ <div className="rounded-lg bg-warning-soft p-3"><Code className="h-6 w-6 text-warning-fg" /></div>
  <h3 className="text-lg font-semibold text-text">{t("landing.showcaseSandbox")}</h3>
  </div>
  <p className="mb-4 text-sm leading-relaxed text-text-muted">
@@ -276,7 +280,7 @@ export default function Home() {
  </p>
  <div className="flex flex-wrap gap-2">
  {[t("landing.showcaseFeat37"), t("landing.showcaseFeatAutoGrade"), t("landing.showcaseFeatTestCases"), t("landing.showcaseFeatLivePreview"), t("landing.showcaseFeatHtmlCss")].map((f) => (
- <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-sun-50 px-3 py-1 text-xs font-medium text-warning-fg">
+ <span key={f} className="inline-flex items-center gap-1 rounded-pill bg-warning-soft px-3 py-1 text-xs font-medium text-warning-fg">
  <CheckCircle className="h-3 w-3" /> {f}
  </span>
  ))}
@@ -295,7 +299,7 @@ export default function Home() {
  <p className="text-text-muted">{t("landing.forWhoSubtitle")}</p>
  </div>
  <div className="grid gap-8 md:grid-cols-3">
- <div className="rounded-lg border border-primary-soft/60 bg-gradient-to-b from-green-50 to-white p-8">
+ <div className="rounded-lg border border-primary-soft/60 bg-gradient-to-b from-success-soft to-surface p-8">
  <div className="mb-5 inline-flex rounded-lg bg-primary-soft p-3.5">
  <School className="h-7 w-7 text-primary" />
  </div>
@@ -311,7 +315,7 @@ export default function Home() {
  </ul>
  </div>
 
- <div className="rounded-lg border border-primary-soft/60 bg-gradient-to-b from-emerald-50 to-white p-8">
+ <div className="rounded-lg border border-primary-soft/60 bg-gradient-to-b from-success-soft to-surface p-8">
  <div className="mb-5 inline-flex rounded-lg bg-primary-soft p-3.5">
  <Users className="h-7 w-7 text-primary" />
  </div>
@@ -327,8 +331,8 @@ export default function Home() {
  </ul>
  </div>
 
- <div className="rounded-lg border border-warning/60 bg-gradient-to-b from-amber-50 to-white p-8">
- <div className="mb-5 inline-flex rounded-lg bg-sun-100 p-3.5">
+ <div className="rounded-lg border border-warning/60 bg-gradient-to-b from-warning-soft to-surface p-8">
+ <div className="mb-5 inline-flex rounded-lg bg-warning-soft p-3.5">
  <UserCheck className="h-7 w-7 text-warning-fg" />
  </div>
  <h3 className="mb-2 text-lg font-bold text-text">{t("landing.audTutors")}</h3>
@@ -377,7 +381,7 @@ export default function Home() {
  </section>
 
  {/* CTA */}
- <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-paper-2 py-20">
+ <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-surface py-20">
  <div className="mx-auto max-w-2xl px-6 text-center">
  <h2 className="mb-4 text-3xl font-bold text-text">
  {t("landing.ctaReady")}

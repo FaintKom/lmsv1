@@ -162,7 +162,7 @@ export function TeacherOnboarding() {
  <p className={`text-sm font-semibold ${isDone ? "text-success-fg line-through " : "text-text "}`}>
  {step.title}
  </p>
- <p className="text-xs text-text-muted ">{step.description}</p>
+ <p className="text-xs text-text ">{step.description}</p>
  </div>
  {!isDone && (
  <Link href={step.href}>

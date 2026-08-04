@@ -23,7 +23,11 @@ on:
   workflow_dispatch:
     inputs:
       grep:
-        description: "Playwright -g filter (e.g. 'quiz|file_upload'). Empty = whole suite."
+        description: "Playwright -g filter (e.g. 'quiz|file_upload'). Empty = no filter."
+        required: false
+        default: ""
+      spec:
+        description: "Spec path(s) to run. Empty = every e2e spec, not just all-content-types."
         required: false
         default: ""
 
@@ -60,7 +64,13 @@ jobs:
         run: docker compose -f docker-compose.qa.yml exec -T backend python -m alembic upgrade head
 
       - name: Seed deterministic QA data
-        run: docker compose -f docker-compose.qa.yml exec -T backend python scripts/seed_qa.py
+        run: |
+          # seed_qa.py prints QA_ORG_ID / QA_COURSE_ID / QA_LESSON_ID /
+          # QA_EXERCISE_COUNT. all-content-types.spec.ts reads QA_LESSON_ID and
+          # fails immediately without it, so forward them to later steps.
+          docker compose -f docker-compose.qa.yml exec -T backend \
+            python scripts/seed_qa.py | tee seed-output.txt
+          grep -E '^QA_[A-Z_]+=' seed-output.txt >> "$GITHUB_ENV"
 
       - name: Wait for backend /health/ready
         run: |
@@ -89,10 +99,15 @@ jobs:
       - name: Run Playwright E2E
         working-directory: frontend
         run: |
+          # Default is now the whole e2e directory. Until 2026-08-03 this ran
+          # all-content-types.spec.ts alone, so roles/, rbac, exercises and
+          # live-lesson were written but never executed anywhere.
+          SPEC="${{ github.event.inputs.spec }}"
+          [ -n "$SPEC" ] || SPEC="e2e"
           if [ -n "${{ github.event.inputs.grep }}" ]; then
-            npx playwright test e2e/all-content-types.spec.ts -g "${{ github.event.inputs.grep }}" --workers=1
+            npx playwright test $SPEC -g "${{ github.event.inputs.grep }}" --workers=1
           else
-            npx playwright test e2e/all-content-types.spec.ts --workers=1
+            npx playwright test $SPEC --workers=1
           fi
 
       - name: Upload Playwright report

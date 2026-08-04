@@ -477,14 +477,20 @@ button { font-family: inherit; }
   border-radius: var(--radius-sm);
 }
 
-/* Mono caps label — section eyebrows, table headers, breadcrumbs */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: var(--t-xs);
-  font-weight: 500;
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--color-text-subtle);
+/* Mono caps label — section eyebrows, table headers, breadcrumbs.
+   Layered on purpose: unlayered, its `color` beats any Tailwind text-*
+   utility on the same element (see MOTION.md "two traps"), so
+   `class="eyebrow text-primary-fg"` silently rendered text-subtle on the
+   dashboard hero's green panel. In @layer components the callsite wins. */
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
 }
 
 /* =================================================================
@@ -533,7 +539,9 @@ button { font-family: inherit; }
 /* Sun marker — typographic accent on hero headings */
 .sun-mark {
   background: var(--sun-300);
-  color: var(--color-text);
+  /* Background is always sun, so the text must always be ink. The flipping
+     token turned this into white-on-yellow (1.12:1) in dark. */
+  color: var(--ink-900);
   padding: 0 8px;
   border-radius: var(--radius-xs);
   display: inline-block;

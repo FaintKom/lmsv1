@@ -21,13 +21,13 @@ const MAP: Record<string, Entry> = {
   streak_3: { Icon: Flame, color: "text-clay-500" },
   streak_7: { Icon: Flame, color: "text-clay-500" },
   streak_14: { Icon: Flame, color: "text-clay-500" },
-  streak_30: { Icon: Flame, color: "text-clay-700" },
-  streak_100: { Icon: Flame, color: "text-clay-700" },
+  streak_30: { Icon: Flame, color: "text-danger-fg" },
+  streak_100: { Icon: Flame, color: "text-danger-fg" },
 
   lessons_1: { Icon: BookOpen, color: "text-green-600" },
   lessons_10: { Icon: BookOpen, color: "text-green-600" },
-  lessons_50: { Icon: GraduationCap, color: "text-green-700" },
-  lessons_100: { Icon: GraduationCap, color: "text-green-800" },
+  lessons_50: { Icon: GraduationCap, color: "text-success-fg" },
+  lessons_100: { Icon: GraduationCap, color: "text-success-fg" },
 
   quiz_first: { Icon: CheckCircle, color: "text-green-600" },
   quiz_perfect: { Icon: Star, color: "text-yellow-500", filled: true },
@@ -38,12 +38,12 @@ const MAP: Record<string, Entry> = {
   code_master: { Icon: Code, color: "text-gray-900" },
 
   math_first: { Icon: Calculator, color: "text-green-600" },
-  math_perfect: { Icon: Calculator, color: "text-green-800" },
+  math_perfect: { Icon: Calculator, color: "text-success-fg" },
 
   lang_first: { Icon: Languages, color: "text-clay-500" },
-  lang_master: { Icon: Languages, color: "text-clay-700" },
+  lang_master: { Icon: Languages, color: "text-danger-fg" },
 
-  course_complete: { Icon: Award, color: "text-green-700" },
+  course_complete: { Icon: Award, color: "text-success-fg" },
   course_5: { Icon: Trophy, color: "text-yellow-500" },
 
   xp_500: { Icon: Zap, color: "text-yellow-500", filled: true },

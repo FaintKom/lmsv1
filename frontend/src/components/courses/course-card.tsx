@@ -44,7 +44,10 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  className="relative flex h-36 items-end overflow-hidden p-4"
  style={{ background: theme.gradient }}
  >
- <span className="absolute right-4 top-3 font-mono text-[32px] font-extrabold text-white/25">
+ <span
+ data-theme-exempt
+ className="absolute right-4 top-3 font-mono text-[32px] font-extrabold text-white/25"
+ >
  {theme.glyph}
  </span>
  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />

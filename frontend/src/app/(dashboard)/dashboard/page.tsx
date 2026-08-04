@@ -80,16 +80,16 @@ export default function DashboardPage() {
  {/* Hero greeting card */}
  {/* Flat hero — v2 rule: no gradients, they dirty the sun marker */}
  <div className="relative overflow-hidden rounded-xl bg-primary p-9">
- <p className="eyebrow relative mb-2.5 text-green-200">
+ <p className="eyebrow relative mb-2.5 text-primary-fg">
  {t("dash.welcomeBack") || "Welcome back"}
  </p>
- <h1 className="relative mb-3 text-2xl font-extrabold leading-[1.05] tracking-tight text-white">
+ <h1 className="relative mb-3 text-2xl font-extrabold leading-[1.05] tracking-tight text-primary-fg">
  {"Let's keep "}
  <em className="sun-mark">learning</em>
  {", "}
  {user?.full_name?.split(" ")[0] || "Student"}!
  </h1>
- <p className="relative mb-6 max-w-[380px] text-base leading-relaxed text-white/85">
+ <p className="relative mb-6 max-w-[380px] text-base leading-relaxed text-primary-fg/85">
  {t("dash.subtitle") || "Here's an overview of your learning progress"}
  </p>
  <div className="relative flex flex-wrap gap-2.5">
@@ -102,7 +102,7 @@ export default function DashboardPage() {
  </Link>
  <Link
  href="/progress"
- className="inline-flex items-center gap-2 rounded-md bg-white/[0.12] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-white/[0.18]"
+ className="inline-flex items-center gap-2 rounded-md bg-primary-fg/10 px-5 py-3 text-sm font-bold text-primary-fg transition-colors hover:bg-white/[0.18]"
  >
  <TrendingUp className="h-4 w-4" />
  My Progress
@@ -116,7 +116,7 @@ export default function DashboardPage() {
  <div>
  <p className="eyebrow mb-1">Current Streak</p>
  <p className="text-4xl font-extrabold leading-[0.9] tracking-tight text-clay-500 tabular-nums">
- {streak}<small className="ml-1 text-md font-bold tracking-normal text-clay-700">days</small>
+ {streak}<small className="ml-1 text-md font-bold tracking-normal text-danger-fg">days</small>
  </p>
  </div>
  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900 shadow-pop-clay">

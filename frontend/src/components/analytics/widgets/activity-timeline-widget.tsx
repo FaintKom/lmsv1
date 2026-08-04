@@ -52,7 +52,10 @@ export function ActivityTimelineWidget({ props }: WidgetProps) {
         <YAxis stroke="var(--color-text-muted)" fontSize={11} />
         <Tooltip
           contentStyle={{
-            background: "var(--color-paper-2)",
+            // --color-paper-2 is a raw palette token; `.dark` flips only the
+            // semantic aliases, so it stayed #ffffff and the tooltip rendered
+            // white-on-white in dark mode.
+            background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
             borderRadius: 6,
             fontSize: 12,
