@@ -180,7 +180,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 
  {/* Navigation */}
  <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-4 py-3">
- <p className="mb-1.5 px-2.5 font-mono text-[10px] font-medium uppercase tracking-widest text-white/40">
+ <p className="mb-1.5 px-2.5 font-mono text-[10px] font-medium uppercase tracking-widest text-white/50">
  {t("nav.menu")}
  </p>
  <ul className="space-y-[2px]" role="list">
@@ -249,7 +249,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  href="/profile"
  className="mb-1 flex items-center gap-[10px] rounded-sm px-2.5 py-2 transition-colors hover:bg-white/[0.05]"
  >
- <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-green-900">
+ <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-green-400 text-sm font-extrabold text-ink-900">
  {user?.full_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
  <div className="min-w-0 flex-1">
@@ -263,7 +263,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  </Link>
  <button
  onClick={handleLogout}
- className="flex w-full cursor-pointer items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/70"
+ className="flex w-full cursor-pointer items-center gap-[11px] rounded-sm px-[10px] py-[9px] text-sm font-semibold text-white/50 transition-colors hover:bg-white/[0.05] hover:text-white/80"
  >
  <LogOut className="h-[18px] w-[18px]" />
  {t("nav.signOut")}

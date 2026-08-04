@@ -116,7 +116,7 @@ export default function DashboardPage() {
  <div>
  <p className="eyebrow mb-1">Current Streak</p>
  <p className="text-4xl font-extrabold leading-[0.9] tracking-tight text-clay-500 tabular-nums">
- {streak}<small className="ml-1 text-md font-bold tracking-normal text-clay-700">days</small>
+ {streak}<small className="ml-1 text-md font-bold tracking-normal text-danger-fg">days</small>
  </p>
  </div>
  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-danger text-ink-900 shadow-pop-clay">

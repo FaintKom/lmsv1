@@ -63,12 +63,23 @@ const AUDIT = `(() => {
     return { r: d[0], g: d[1], b: d[2], a: d[3] / 255 };
   };
   const isLight = (c) => c && c.r > 225 && c.g > 225 && c.b > 225;
-  const over = (fg, bg) => ({
-    r: fg.r * fg.a + bg.r * (1 - fg.a),
-    g: fg.g * fg.a + bg.g * (1 - fg.a),
-    b: fg.b * fg.a + bg.b * (1 - fg.a),
-    a: 1,
-  });
+  // Source-over, alpha included. Returning a hardcoded a:1 was wrong for two
+  // translucent layers: compositing a 7% tint onto a 14% tint claimed the
+  // result was opaque, so bgOf stopped there and reported the near-raw stop
+  // colour (rgba(53,208,127,.14) read back as "solid rgb(50,206,128)"). That
+  // invented two contrast failures on the teacher onboarding card and would
+  // have had us paint near-black text onto a dark surface to "fix" them.
+  // When bg is already opaque this reduces to the old formula.
+  const over = (fg, bg) => {
+    const a = fg.a + bg.a * (1 - fg.a);
+    if (a === 0) return { r: 0, g: 0, b: 0, a: 0 };
+    return {
+      r: (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / a,
+      g: (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / a,
+      b: (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / a,
+      a,
+    };
+  };
   const lum = (c) => {
     const f = (v) => {
       v /= 255;

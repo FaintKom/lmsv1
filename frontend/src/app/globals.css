@@ -477,14 +477,20 @@ button { font-family: inherit; }
   border-radius: var(--radius-sm);
 }
 
-/* Mono caps label — section eyebrows, table headers, breadcrumbs */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: var(--t-xs);
-  font-weight: 500;
-  letter-spacing: var(--tracking-eyebrow);
-  text-transform: uppercase;
-  color: var(--color-text-subtle);
+/* Mono caps label — section eyebrows, table headers, breadcrumbs.
+   Layered on purpose: unlayered, its `color` beats any Tailwind text-*
+   utility on the same element (see MOTION.md "two traps"), so
+   `class="eyebrow text-primary-fg/75"` silently rendered text-subtle on the
+   dashboard hero's green panel. In @layer components the callsite wins. */
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--t-xs);
+    font-weight: 500;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
 }
 
 /* =================================================================
