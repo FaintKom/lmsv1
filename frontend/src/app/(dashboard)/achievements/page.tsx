@@ -506,8 +506,8 @@ function AchievementsTab({
  <p className="mt-1 text-xs text-primary">Pass a code challenge</p>
  </div>
  <div className="rounded-lg bg-danger-soft p-4 text-center ">
- <p className="text-2xl font-bold text-clay-700">+5</p>
- <p className="mt-1 text-xs text-clay-700">Daily streak bonus</p>
+ <p className="text-2xl font-bold text-danger-fg">+5</p>
+ <p className="mt-1 text-xs text-danger-fg">Daily streak bonus</p>
  </div>
  </div>
  </CardContent>

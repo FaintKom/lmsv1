@@ -79,7 +79,7 @@ function StudentMock() {
 
  {/* XP + streak row */}
  <div className="mt-3 grid grid-cols-2 gap-3">
- <div className="flex items-center gap-2 rounded-lg border border-sun-100 bg-sun-50 px-3 py-2.5">
+ <div className="flex items-center gap-2 rounded-lg border border-reward-soft bg-reward-soft/60 px-3 py-2.5">
  <Award className="h-5 w-5 text-warning-fg" />
  <div>
  <p className="text-sm font-bold text-warning-fg">1240 XP</p>

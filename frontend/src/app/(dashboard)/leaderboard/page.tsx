@@ -177,7 +177,7 @@ export default function LeaderboardPage() {
  <Zap className="h-3.5 w-3.5 text-warning-fg" />
  {entry.total_xp.toLocaleString()}
  </p>
- <p className="text-[10px] text-text-subtle">{t("leaderboard.xp")}</p>
+ <p className="text-[10px] text-text-muted">{t("leaderboard.xp")}</p>
  </div>
  </div>
  );
