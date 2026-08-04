@@ -80,7 +80,7 @@ export default function DashboardPage() {
  {/* Hero greeting card */}
  {/* Flat hero — v2 rule: no gradients, they dirty the sun marker */}
  <div className="relative overflow-hidden rounded-xl bg-primary p-9">
- <p className="eyebrow relative mb-2.5 text-primary-fg/75">
+ <p className="eyebrow relative mb-2.5 text-primary-fg">
  {t("dash.welcomeBack") || "Welcome back"}
  </p>
  <h1 className="relative mb-3 text-2xl font-extrabold leading-[1.05] tracking-tight text-primary-fg">

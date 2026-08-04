@@ -480,7 +480,7 @@ button { font-family: inherit; }
 /* Mono caps label — section eyebrows, table headers, breadcrumbs.
    Layered on purpose: unlayered, its `color` beats any Tailwind text-*
    utility on the same element (see MOTION.md "two traps"), so
-   `class="eyebrow text-primary-fg/75"` silently rendered text-subtle on the
+   `class="eyebrow text-primary-fg"` silently rendered text-subtle on the
    dashboard hero's green panel. In @layer components the callsite wins. */
 @layer components {
   .eyebrow {
