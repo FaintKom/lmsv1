@@ -11,6 +11,21 @@ export function leagueKindFromName(name: string | null | undefined): LeagueKind 
   return "bronze";
 }
 
+/**
+ * Tint per league, for surfaces that are NOT the medal artwork — card washes,
+ * progress bars. Keyed off the league kind, never off the `color` hex the API
+ * ships: that hex is a light-theme literal, it does not flip, and callers were
+ * string-concatenating alpha onto it (`${league.color}15`), which breaks the
+ * moment the value stops being a literal. See tasks/lessons.md 2026-08-04.
+ */
+export const LEAGUE_TINT: Record<LeagueKind, string> = {
+  bronze: "var(--clay-500)",
+  silver: "var(--ink-300)",
+  gold: "var(--sun-400)",
+  platinum: "var(--lagoon-400)",
+  diamond: "var(--lagoon-600)",
+};
+
 const RIBBON: Record<"bronze" | "silver" | "gold", { fill: string; stroke: string; accent: string }> = {
   bronze: { fill: "#e8a87c", stroke: "#7a3f1a", accent: "#c2643b" },
   silver: { fill: "#dde2e6", stroke: "#5b6770", accent: "#9aa3ab" },
