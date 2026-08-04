@@ -51,7 +51,7 @@ export default function Home() {
  <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-text md:text-6xl">
  {t("landing.heroTeachSmarter")}
  <br />
- <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+ <span className="bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
  {t("landing.heroInteractive")}
  </span>
  </h1>

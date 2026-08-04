@@ -46,8 +46,8 @@ function getLeagueStyle(league: LeagueInfo | null) {
 }
 
 function getRankStyle(rank: number) {
- if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-200/50 ";
- if (rank === 2) return "bg-gradient-to-r from-slate-300 to-slate-400 text-white shadow-lg shadow-ink-200/50 ";
+ if (rank === 1) return "bg-gradient-to-r from-sun-300 to-sun-500 text-ink-900 shadow-lg shadow-sun-100/50 ";
+ if (rank === 2) return "bg-gradient-to-r from-ink-200 to-ink-300 text-ink-900 shadow-lg shadow-ink-200/50 ";
  if (rank === 3) return "bg-gradient-to-r from-clay-500 to-clay-700 text-white shadow-lg ";
  return "bg-surface-2 text-text-muted ";
 }
@@ -139,7 +139,7 @@ export default function LeaderboardPage() {
  </div>
 
  {/* Avatar */}
- <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-sm font-semibold text-white shadow-sm">
+ <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-primary text-sm font-semibold text-primary-fg shadow-sm">
  {entry.user_name?.charAt(0)?.toUpperCase() || "?"}
  </div>
 
@@ -206,7 +206,7 @@ function PodiumCard({
  <div className={`flex flex-col items-center ${isFirst ? "mb-4" : ""}`}>
  <div className="relative mb-2">
  <div
- className={`flex items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-white font-bold shadow-lg ${
+ className={`flex items-center justify-center rounded-pill bg-primary text-primary-fg font-bold shadow-lg ${
  isFirst ? "h-16 w-16 text-xl" : "h-12 w-12 text-base"
  }`}
  >

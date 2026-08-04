@@ -192,7 +192,7 @@ export default function OrgMembersPage() {
  ) : members.length === 0 ? (
  <p className="text-sm text-text-muted">{t("admin.orgMembers.noMembers")}</p>
  ) : (
- <ul className="divide-y divide-slate-100">
+ <ul className="divide-y divide-border">
  {members.map((m) => (
  <li
  key={m.user_id}

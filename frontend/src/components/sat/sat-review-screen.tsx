@@ -45,8 +45,8 @@ export default function SATReviewScreen({
  return (
  <div className="fixed inset-0 z-[101] flex flex-col bg-surface ">
  {/* Header */}
- <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
- <h1 className="text-lg font-semibold text-white">
+ <div className="bg-primary px-6 py-4">
+ <h1 className="text-lg font-semibold text-primary-fg">
  Review &mdash; Module {moduleNumber} of {totalModules}
  </h1>
  </div>
@@ -106,7 +106,7 @@ export default function SATReviewScreen({
  }
  ${
  isFlagged
- ? "ring-2 ring-amber-400 ring-offset-2 "
+ ? "ring-2 ring-reward ring-offset-2 "
  : ""
  }
  `}

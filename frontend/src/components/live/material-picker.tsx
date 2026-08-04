@@ -111,7 +111,7 @@ export function MaterialPicker({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("common.search")}
-              className="w-full bg-transparent text-sm outline-none placeholder:text-text-subtle"
+              className="w-full bg-transparent text-sm placeholder:text-text-subtle"
             />
           </label>
         </div>

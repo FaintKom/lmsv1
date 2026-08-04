@@ -1128,7 +1128,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
             <select
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
-              className="bg-transparent text-text outline-none"
+              className="bg-transparent text-text"
             >
               <option value="">{t("journal.allCourses")}</option>
               {courses.map((c) => (
@@ -1144,7 +1144,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
               <select
                 value={siteFilter}
                 onChange={(e) => setSiteFilter(e.target.value)}
-                className="bg-transparent text-text outline-none"
+                className="bg-transparent text-text"
               >
                 <option value="">{t("schedule.allSites")}</option>
                 {sites.map((s) => (
@@ -1711,7 +1711,7 @@ function RoomsTab() {
               <select
                 value={siteFilter}
                 onChange={(e) => setSiteFilter(e.target.value)}
-                className="bg-transparent text-text outline-none"
+                className="bg-transparent text-text"
               >
                 <option value="">{t("schedule.allSites")}</option>
                 {sites.map((s) => (

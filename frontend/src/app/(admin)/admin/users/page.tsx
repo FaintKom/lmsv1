@@ -249,10 +249,10 @@ export default function AdminUsersPage() {
  </thead>
  <tbody>
  {users.map((u) => (
- <tr key={u.id} className="border-b border-slate-50 text-sm hover:bg-surface-2/50 ">
+ <tr key={u.id} className="border-b border-border text-sm hover:bg-surface-2/50 ">
  <td className="px-2.5 py-0">
  <div className="flex items-center gap-3">
- <div className="flex h-8 w-8 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-xs font-semibold text-white">
+ <div className="flex h-8 w-8 items-center justify-center rounded-pill bg-primary text-xs font-semibold text-primary-fg">
  {u.full_name.charAt(0).toUpperCase()}
  </div>
  <span className="font-medium text-text ">{u.full_name}</span>
@@ -263,7 +263,7 @@ export default function AdminUsersPage() {
  <select
  value={u.role}
  onChange={(e) => handleRoleChange(u.id, e.target.value)}
- className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary focus:outline-none"
+ className="rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary"
  >
  <option value="student">student</option>
  <option value="teacher">teacher</option>
@@ -292,7 +292,7 @@ export default function AdminUsersPage() {
  <select
  value={u.org_id}
  onChange={(e) => handleOrgChange(u.id, e.target.value)}
- className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary focus:outline-none"
+ className="max-w-[160px] truncate rounded border border-transparent bg-transparent py-0.5 text-xs font-medium hover:border-primary"
  >
  {orgs.map((o) => (
  <option key={o.id} value={o.id}>

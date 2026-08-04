@@ -72,7 +72,7 @@ function StudentMock() {
  <span className="text-sm font-bold text-primary">85%</span>
  </div>
  <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
- <div className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-500" style={{ width: "85%" }} />
+ <div className="h-full rounded-full bg-primary" style={{ width: "85%" }} />
  </div>
  <p className="mt-2 text-xs text-text-subtle">{t("landing.roles.mockProgress")}</p>
  </div>

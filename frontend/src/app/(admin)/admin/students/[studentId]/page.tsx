@@ -150,7 +150,7 @@ export default function StudentProfilePage() {
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-amber-500" />
+              <Star className="h-5 w-5 text-reward" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.total_xp}</div>
                 <div className="text-[11px] text-text-subtle">
@@ -159,7 +159,7 @@ export default function StudentProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Flame className="h-5 w-5 text-orange-500" />
+              <Flame className="h-5 w-5 text-danger" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.current_streak}</div>
                 <div className="text-[11px] text-text-subtle">
@@ -168,7 +168,7 @@ export default function StudentProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-600" />
+              <Trophy className="h-5 w-5 text-reward-fg" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.longest_streak}</div>
                 <div className="text-[11px] text-text-subtle">

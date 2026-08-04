@@ -98,7 +98,7 @@ export default function SATResults({
  return (
  <div className="mx-auto max-w-3xl space-y-6 p-6">
  {/* Hero score */}
- <div className="rounded-lg bg-gradient-to-br from-green-600 to-emerald-600 p-8 text-center text-white">
+ <div className="rounded-lg bg-primary p-8 text-center text-primary-fg">
  <p className="text-sm font-medium opacity-80">Estimated SAT Math Score</p>
  <p className="mt-2 text-6xl font-black">{scaledScore}</p>
  <p className="mt-1 text-sm opacity-70">out of 800</p>

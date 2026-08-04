@@ -230,7 +230,7 @@ export default function SettingsPage() {
  {t("admin.settings.menuVisibilityHint")}
  </p>
  </div>
- <div className="divide-y divide-slate-100 ">
+ <div className="divide-y divide-border ">
  {MENU_ITEM_KEYS.map((item) => (
  <label
  key={item.key}

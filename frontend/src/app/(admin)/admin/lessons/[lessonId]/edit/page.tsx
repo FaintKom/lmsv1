@@ -371,7 +371,7 @@ export default function LessonEditorPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("admin.lessonEditor.untitled")}
               disabled={previewMode}
-              className="w-full border-none bg-transparent text-3xl font-bold text-text outline-none placeholder:text-text-subtle disabled:cursor-default"
+              className="w-full border-none bg-transparent text-3xl font-bold text-text placeholder:text-text-subtle disabled:cursor-default"
             />
             {!previewMode && (
               <div className="flex items-center gap-2 text-sm text-text-subtle">

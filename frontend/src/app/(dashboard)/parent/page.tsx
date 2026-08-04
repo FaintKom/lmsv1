@@ -110,7 +110,7 @@ export default function ParentDashboard() {
  <Link key={child.id} href={`/parent/children/${child.id}`}>
  <Card className="border-l-4 border-l-green-400 transition-shadow hover:shadow-md">
  <CardContent className="flex items-center gap-4 p-4">
- <div className="flex h-12 w-12 items-center justify-center rounded-pill bg-gradient-to-br from-green-500 to-emerald-500 text-lg font-bold text-white">
+ <div className="flex h-12 w-12 items-center justify-center rounded-pill bg-primary text-lg font-bold text-primary-fg">
  {child.full_name.charAt(0).toUpperCase()}
  </div>
  <div className="flex-1">
