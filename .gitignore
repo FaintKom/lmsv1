@@ -53,3 +53,7 @@ docker-compose.override.yml
 
 # Local-only voxel asset gallery (downloaded models, not shipped)
 frontend/public/voxel-gallery/
+
+# Locally installed skill packages (own licences; keep out of the public repo)
+.claude/skills/
+.agents/skills/
