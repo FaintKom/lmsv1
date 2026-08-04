@@ -344,12 +344,12 @@ export default function ChallengeBuilder({
  </span>
  <div className="flex items-center gap-2">
  {tc.is_hidden ? (
- <span className="flex items-center gap-1 rounded bg-warning-soft px-1.5 py-0.5 text-[10px] font-medium text-warning-fg">
+ <span className="flex items-center gap-1 rounded bg-warning-soft px-1.5 py-0.5 text-3xs font-medium text-warning-fg">
  <EyeOff className="h-3 w-3" />
  Hidden
  </span>
  ) : (
- <span className="flex items-center gap-1 rounded bg-success-soft px-1.5 py-0.5 text-[10px] font-medium text-primary">
+ <span className="flex items-center gap-1 rounded bg-success-soft px-1.5 py-0.5 text-3xs font-medium text-primary">
  <Eye className="h-3 w-3" />
  Visible
  </span>

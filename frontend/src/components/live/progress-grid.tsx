@@ -46,7 +46,7 @@ export function ProgressGrid({ rows }: { rows: ProgressRow[] }) {
             className="flex items-center gap-2.5 rounded-md bg-surface-2 p-2 text-sm"
           >
             <span className="min-w-0 flex-1 truncate font-semibold text-text">{r.name}</span>
-            <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle">
+            <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
               {r.attempts} {t("live.attempts")}
             </span>
             <StatusTile row={r} />

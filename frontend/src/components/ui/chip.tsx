@@ -38,7 +38,7 @@ export function Chip({
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold",
-        mono && "font-mono uppercase tracking-[0.06em] text-[11px]",
+        mono && "font-mono uppercase tracking-[0.06em] text-2xs",
         VARIANT_CLASSES[variant],
         className
       )}

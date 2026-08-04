@@ -136,7 +136,7 @@ function PythonDemo() {
  </div>
  )}
  </div>
- <p className="mt-3 text-[10px] text-text-subtle">
+ <p className="mt-3 text-3xs text-text-subtle">
  Supports Python, JavaScript, Java, C++, Go, Rust, and 31 more languages
  </p>
  </div>
@@ -214,7 +214,7 @@ function SATDemo() {
  <span className="font-semibold">Explanation:</span> {SAT_QUESTION.explanation}
  </div>
  )}
- <p className="mt-3 text-[10px] text-text-subtle">
+ <p className="mt-3 text-3xs text-text-subtle">
  Full adaptive SAT simulator with 2 modules, Desmos calculator, and realistic scoring
  </p>
  </div>
@@ -297,7 +297,7 @@ function WebDemo() {
  />
  </div>
  </div>
- <p className="mt-3 text-[10px] text-text-subtle">
+ <p className="mt-3 text-3xs text-text-subtle">
  Build real projects from day one with our HTML/CSS/JS live editor
  </p>
  </div>

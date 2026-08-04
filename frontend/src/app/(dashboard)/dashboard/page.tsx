@@ -180,7 +180,7 @@ export default function DashboardPage() {
  return (
  <Link key={i} href={rec.link}>
  <div className="rounded-md border border-border bg-surface p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-green-300 hover:shadow-md">
- <span className={`mb-2 inline-block rounded-pill px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide ${chipColors[rec.type] || "bg-surface-2 text-text"}`}>
+ <span className={`mb-2 inline-block rounded-pill px-2.5 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide ${chipColors[rec.type] || "bg-surface-2 text-text"}`}>
  {rec.type.replace("_", " ")}
  </span>
  <p className="text-sm font-bold text-text">{rec.title}</p>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
  }} />
  <div className="min-w-0 flex-1">
  <p className="truncate text-sm font-semibold text-text">{ev.title}</p>
- <p className="font-mono text-[10px] text-text-subtle">{new Date(ev.start_time).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+ <p className="font-mono text-3xs text-text-subtle">{new Date(ev.start_time).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
  </div>
  </Link>
  ))}

@@ -1109,7 +1109,7 @@ export default function CourseEditorPage() {
  </p>
  )}
  </div>
- <span className={`shrink-0 rounded-pill border px-2 py-0.5 text-[10px] font-semibold ${typeBadgeClass}`}>
+ <span className={`shrink-0 rounded-pill border px-2 py-0.5 text-3xs font-semibold ${typeBadgeClass}`}>
  {typeOption?.label || lesson.content_type}
  </span>
  {isExpanded ? (
@@ -1120,7 +1120,7 @@ export default function CourseEditorPage() {
  <a
  href={`/admin/lessons/${lesson.id}/edit?courseId=${courseId}&moduleId=${module.id}`}
  onClick={(e) => e.stopPropagation()}
- className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary-soft"
+ className="shrink-0 rounded border border-primary-soft bg-primary-soft/40 px-2 py-0.5 text-3xs font-semibold text-primary hover:bg-primary-soft"
  title="Open in new WYSIWYG editor (prototype)"
  >
  Edit
@@ -1196,7 +1196,7 @@ export default function CourseEditorPage() {
  <div className="space-y-3">
  {/* ─── Block-based editor ───────────────── */}
  <div>
- <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-subtle">
+ <p className="mb-2 text-3xs font-semibold uppercase tracking-wider text-text-subtle">
  Blocks ({getBlocks(lesson.id).length})
  </p>
 
@@ -1231,7 +1231,7 @@ export default function CourseEditorPage() {
  )}
  {isEditing && <span className="flex-1" />}
  {/* Page number */}
- <label className="flex items-center gap-1 text-[10px] text-text-subtle">
+ <label className="flex items-center gap-1 text-3xs text-text-subtle">
  p.
  <input
  type="number"
@@ -1242,7 +1242,7 @@ export default function CourseEditorPage() {
  page: parseInt(e.target.value) || 1,
  })
  }
- className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-[10px] hover:border-primary"
+ className="w-10 rounded border border-border-strong bg-transparent px-1 py-0.5 text-center text-3xs hover:border-primary"
  />
  </label>
  <button
@@ -1290,7 +1290,7 @@ export default function CourseEditorPage() {
  <div className="space-y-2">
  <div className="flex items-center justify-between">
  <label className="text-xs font-medium text-text-muted ">Raw HTML</label>
- <span className="text-[10px] text-warning-fg">Supports scripts, iframes, SVG, inline styles</span>
+ <span className="text-3xs text-warning-fg">Supports scripts, iframes, SVG, inline styles</span>
  </div>
  <textarea
  value={typeof block.body === "string" ? block.body : ""}
@@ -1307,7 +1307,7 @@ export default function CourseEditorPage() {
  />
  {typeof block.body === "string" && block.body.trim() && (
  <div>
- <p className="mb-1 text-[10px] font-medium uppercase text-text-subtle">Preview</p>
+ <p className="mb-1 text-3xs font-medium uppercase text-text-subtle">Preview</p>
  <div className="rounded-lg border border-border-strong bg-surface p-4 overflow-auto max-h-[300px]">
  <ContentRenderer body={block.body} format="html" />
  </div>
@@ -1333,7 +1333,7 @@ export default function CourseEditorPage() {
  />
  {block.url && (
  <div className="mt-2 rounded-lg border border-border-strong bg-surface p-2">
- <p className="mb-1 text-[10px] font-medium uppercase text-text-subtle">Preview</p>
+ <p className="mb-1 text-3xs font-medium uppercase text-text-subtle">Preview</p>
  <a
  href={block.url}
  target="_blank"
@@ -1352,7 +1352,7 @@ export default function CourseEditorPage() {
  <div className="space-y-2">
  {block.exercise_id ? (
  <div className="flex items-center gap-2">
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {block.exercise_id.slice(0, 8)}...
  </span>
  <a
@@ -1772,7 +1772,7 @@ export default function CourseEditorPage() {
  </p>
  )}
  <div className="mt-2 flex flex-wrap items-center gap-2">
- <span className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2 py-0.5 text-3xs font-medium text-text-muted ">
  <Clock className="h-3 w-3" />
  {new Date(assignment.due_date).toLocaleDateString(undefined, {
  year: "numeric",
@@ -1782,16 +1782,16 @@ export default function CourseEditorPage() {
  minute: "2-digit",
  })}
  </span>
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  Max: {assignment.max_score} pts
  </span>
  {assignment.allow_late && (
- <span className="rounded-pill bg-warning-soft px-2 py-0.5 text-[10px] font-medium text-warning-fg ">
+ <span className="rounded-pill bg-warning-soft px-2 py-0.5 text-3xs font-medium text-warning-fg ">
  Late OK
  </span>
  )}
  {assignment.submission_count !== undefined && (
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {assignment.submission_count} submissions
  </span>
  )}
@@ -2119,13 +2119,13 @@ function LessonExercises({ lessonId }: { lessonId: string }) {
  <ul className="divide-y divide-border ">
  {exercises.map((ex) => (
  <li key={ex.id} className="group flex items-center gap-3 px-4 py-2.5">
- <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="rounded bg-surface-2 px-1.5 py-0.5 text-3xs font-medium text-text-muted ">
  {ex.display_id}
  </span>
  <span className="flex-1 text-xs font-medium text-text ">
  {ex.title}
  </span>
- <span className="rounded-pill bg-success-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="rounded-pill bg-success-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {EXERCISE_TYPE_LABELS[ex.exercise_type] || ex.exercise_type}
  </span>
  <a

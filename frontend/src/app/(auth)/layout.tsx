@@ -24,11 +24,11 @@ export default function AuthLayout({
       >
         <div className="max-w-md px-8 text-center">
           {/* "g" logo mark */}
-          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-green-500 text-[32px] font-extrabold text-white">
+          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-green-500 text-2xl font-extrabold text-white">
             g
             <span className="absolute bottom-[6px] right-[8px] h-[8px] w-[8px] rounded-full bg-sun-400" />
           </div>
-          <h2 className="mb-3 text-[28px] font-extrabold tracking-tight text-white">
+          <h2 className="mb-3 text-xl font-extrabold tracking-tight text-white">
             GrassLMS
           </h2>
           <p className="text-base leading-relaxed text-white/70">
@@ -50,7 +50,7 @@ export default function AuthLayout({
               g
               <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
             </div>
-            <span className="text-[18px] font-extrabold tracking-tight text-text">
+            <span className="text-md font-extrabold tracking-tight text-text">
               GrassLMS
             </span>
           </Link>

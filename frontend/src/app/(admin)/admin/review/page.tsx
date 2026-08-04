@@ -146,7 +146,7 @@ export default function ReviewQueuePage() {
  {new Date(item.submitted_at).toLocaleDateString()}
  </span>
  {item.status === "late" && (
- <span className="rounded-pill bg-clay-300 px-1.5 py-0.5 text-[10px] font-medium text-clay-700 ">
+ <span className="rounded-pill bg-clay-300 px-1.5 py-0.5 text-3xs font-medium text-clay-700 ">
  {t("admin.review.late")}
  </span>
  )}

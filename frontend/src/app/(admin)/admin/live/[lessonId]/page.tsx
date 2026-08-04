@@ -327,7 +327,7 @@ export default function TeacherLivePage() {
       }`}
     >
       <Icon size={17} strokeWidth={2} />
-      <span className="max-w-full truncate px-1 font-mono text-[9px] font-bold uppercase tracking-wide">
+      <span className="max-w-full truncate px-1 font-mono text-3xs font-bold uppercase tracking-wide">
         {label}
       </span>
     </button>
@@ -342,15 +342,15 @@ export default function TeacherLivePage() {
           {t("live.lesson")}
         </span>
         <LessonTimer startedAt={lesson.created_at} />
-        <span className="flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 font-mono text-[11px] font-bold tabular-nums text-green-800">
+        <span className="flex items-center gap-1.5 rounded-pill bg-success-soft px-2.5 py-1 font-mono text-2xs font-bold tabular-nums text-green-800">
           <span className="h-1.5 w-1.5 rounded-pill bg-green-600" />
           {onlineCount} {t("live.online")}
         </span>
-        <span className="rounded-pill bg-surface-2 px-2.5 py-1 font-mono text-[11px] font-bold text-text">
+        <span className="rounded-pill bg-surface-2 px-2.5 py-1 font-mono text-2xs font-bold text-text">
           {t("live.nowShowing")}: {t(`live.scene.${currentScene?.type ?? "blank"}` as never)}
         </span>
         {!lesson.course_id && (
-          <span className="rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-[11px] font-bold text-sun-700">
+          <span className="rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-2xs font-bold text-sun-700">
             {t("live.noAttendance")}
           </span>
         )}
@@ -365,7 +365,7 @@ export default function TeacherLivePage() {
             >
               <ChevronLeft size={15} strokeWidth={2.5} />
             </button>
-            <span className="min-w-9 text-center font-mono text-[11px] font-bold tabular-nums text-text">
+            <span className="min-w-9 text-center font-mono text-2xs font-bold tabular-nums text-text">
               {stepBase + 1}/{steps.length}
             </span>
             <button
@@ -622,7 +622,7 @@ export default function TeacherLivePage() {
                 >
                   {t(`live.tab.${k}`)}
                   {signalCount > 0 && (
-                    <span className="flex h-4 min-w-4 items-center justify-center rounded-pill bg-clay-500 px-1 font-mono text-[10px] font-bold text-white">
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-pill bg-clay-500 px-1 font-mono text-3xs font-bold text-white">
                       {signalCount}
                     </span>
                   )}
@@ -635,7 +635,7 @@ export default function TeacherLivePage() {
               <div className="flex h-full flex-col">
                 {questions.length > 0 && (
                   <div className="mb-3 rounded-md bg-warning-soft p-3">
-                    <div className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
+                    <div className="mb-1.5 font-mono text-3xs font-bold uppercase tracking-wide text-sun-700">
                       {t("live.questionsTitle")}
                     </div>
                     {questions.map((q, i) => (
@@ -663,7 +663,7 @@ export default function TeacherLivePage() {
                 <div className="mt-3 border-t border-border pt-3">
                   <label
                     htmlFor="class-msg"
-                    className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wide text-text"
+                    className="mb-1.5 block font-mono text-3xs font-bold uppercase tracking-wide text-text"
                   >
                     {t("live.messageAll")}
                   </label>

@@ -263,10 +263,10 @@ function AvatarTab() {
  <div className="relative h-[60vh] min-h-[400px] overflow-hidden lg:h-full">
  <AvatarCanvas state={state} />
  <div className="pointer-events-none absolute left-6 top-6 max-w-md">
- <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-subtle">
+ <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-subtle">
  {t("nav.achievements")} · {t("nav.myAvatar")}
  </p>
- <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">
+ <h1 className="mt-2 text-xl font-extrabold leading-tight text-text">
  {t("avatar.welcomePrefix")}{" "}
  <span
  className="inline-block rounded-xs px-2 py-0 text-text"
@@ -624,7 +624,7 @@ function SkillsTab({ skills, radarData }: { skills: UserSkill[]; radarData: Rada
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
  <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-surface-2 text-text-muted"}`}>
- {s.skill_icon || "⚡"}
+ {s.skill_icon || <Zap className="h-3.5 w-3.5" />}
  </span>
  <span className="font-medium text-text ">{s.skill_name}</span>
  </div>

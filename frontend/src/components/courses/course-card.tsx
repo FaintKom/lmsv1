@@ -46,13 +46,13 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  >
  <span
  data-theme-exempt
- className="absolute right-4 top-3 font-mono text-[32px] font-extrabold text-white/25"
+ className="absolute right-4 top-3 font-mono text-2xl font-extrabold text-white/25"
  >
  {theme.glyph}
  </span>
  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
  {course.category && (
- <span className="relative font-mono text-[10px] font-medium uppercase tracking-widest text-white/85">
+ <span className="relative font-mono text-3xs font-medium uppercase tracking-widest text-white/85">
  {course.category}
  </span>
  )}
@@ -61,7 +61,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
 
  {/* Body */}
  <div className="p-5">
- <h3 className="mb-1 text-[14px] font-extrabold leading-snug text-text">
+ <h3 className="mb-1 text-sm font-extrabold leading-snug text-text">
  {course.title}
  </h3>
  {course.description && (
@@ -72,7 +72,7 @@ export function CourseCard({ course, progress }: CourseCardProps) {
  {progress !== undefined && (
  <div>
  <div className="mb-1.5 flex justify-between">
- <span className="font-mono text-[11px] font-bold text-primary">
+ <span className="font-mono text-2xs font-bold text-primary">
  {Math.round(progress)}%
  </span>
  </div>

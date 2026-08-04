@@ -183,7 +183,7 @@ export function EditorLayout({
  Tests
  {results.length > 0 && (
  <span
- className={`ml-1.5 rounded-pill px-1.5 py-0.5 text-[10px] font-bold ${
+ className={`ml-1.5 rounded-pill px-1.5 py-0.5 text-3xs font-bold ${
  totalPassed === totalTests
  ? "bg-primary-soft text-success-fg"
  : "bg-danger-soft text-danger-fg"
@@ -236,7 +236,7 @@ export function EditorLayout({
  </div>
  {!result.passed && result.actual_output && (
  <div className="mt-2">
- <p className="text-[11px] font-medium uppercase text-text-subtle">
+ <p className="text-2xs font-medium uppercase text-text-subtle">
  Output:
  </p>
  <pre className="mt-1 rounded-lg bg-surface p-2 font-mono text-xs text-text">

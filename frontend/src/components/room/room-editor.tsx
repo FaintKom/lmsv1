@@ -145,7 +145,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
             >
               {tb.label}
               {tab === tb.id && (
-                <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-primary" />
+                <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-xs bg-primary" />
               )}
             </button>
           ))}
@@ -156,7 +156,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
           <div className="flex flex-col gap-3">
             {Object.entries(furnitureGroups).map(([group, items]) => (
               <div key={group}>
-                <h4 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+                <h4 className="mb-1.5 text-2xs font-semibold uppercase tracking-wide text-text-muted">
                   {group}
                 </h4>
                 <div className="grid grid-cols-3 gap-2">
@@ -181,16 +181,16 @@ export function RoomEditor({ state }: { state: RoomState }) {
                         <div className="relative aspect-[10/7] overflow-hidden rounded-md bg-white p-1">
                           <ItemPreview id={item.id} />
                           {placed && (
-                            <span className="absolute right-0.5 top-0.5 text-[11px] font-bold leading-none text-success-fg">
+                            <span className="absolute right-0.5 top-0.5 text-2xs font-bold leading-none text-success-fg">
                               ✓
                             </span>
                           )}
                         </div>
-                        <span className="truncate text-[11px] font-medium text-text">
+                        <span className="truncate text-2xs font-medium text-text">
                           {label(item)}
                         </span>
                         {!placed && item.price > 0 && (
-                          <span className="text-[10px] text-text-muted">{item.price}★</span>
+                          <span className="text-3xs text-text-muted">{item.price}★</span>
                         )}
                       </button>
                     );
@@ -220,7 +220,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
 
         {/* Selected-item controls */}
         {sel ? (
-          <div className="mt-auto rounded-[12px] border border-green-300 bg-bg p-3">
+          <div className="mt-auto rounded-sm border border-green-300 bg-bg p-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="truncate text-sm font-semibold text-text">
                 {selItem ? label(selItem) : sel.item_id}
@@ -265,7 +265,7 @@ export function RoomEditor({ state }: { state: RoomState }) {
             </div>
           </div>
         ) : (
-          <p className="mt-auto rounded-[12px] bg-surface-2 p-3 text-xs text-text-muted">
+          <p className="mt-auto rounded-sm bg-surface-2 p-3 text-xs text-text-muted">
             {t("room.editor.hint") ||
               "Click an item to add it, then move/rotate/resize it with the buttons. Tap an item in the room to edit it."}
           </p>

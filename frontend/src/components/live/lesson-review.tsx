@@ -59,11 +59,11 @@ export function LessonReview({
                     <span className="min-w-0 flex-1 truncate font-semibold text-text">
                       {s.name}
                     </span>
-                    <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle">
+                    <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
                       {s.attempts} {t("live.attempts")}
                     </span>
                     <span
-                      className={`rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold ${
+                      className={`rounded-pill px-2 py-0.5 font-mono text-3xs font-bold ${
                         s.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                       }`}
                     >
@@ -86,11 +86,11 @@ export function LessonReview({
               {myResults.map(({ ex, mine }) => (
                 <div key={ex.exercise_id} className="flex items-center gap-2 py-0.5 text-sm">
                   <span className="min-w-0 flex-1 truncate font-bold text-text">{ex.title}</span>
-                  <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle tabular-nums">
+                  <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle tabular-nums">
                     {t("live.attemptsN").replace("{n}", String(mine.attempts))}
                   </span>
                   <span
-                    className={`rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold ${
+                    className={`rounded-pill px-2 py-0.5 font-mono text-3xs font-bold ${
                       mine.passed ? "bg-success-soft text-success-fg" : "bg-danger-soft text-danger-fg"
                     }`}
                   >
@@ -127,7 +127,7 @@ export function LessonReview({
       <div className="mt-6 rounded-lg border border-border bg-surface p-5">
         {scenes.map((s, i) => (
           <div key={i} className="flex items-baseline gap-3 py-1 text-sm text-text-muted">
-            <span className="font-mono text-[11px] tabular-nums text-text-subtle">
+            <span className="font-mono text-2xs tabular-nums text-text-subtle">
               {new Date(s.at).toLocaleTimeString()}
             </span>
             <span className="font-semibold text-text">

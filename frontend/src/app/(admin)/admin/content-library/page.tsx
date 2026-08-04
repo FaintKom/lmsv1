@@ -317,7 +317,7 @@ function TemplatesTab() {
  <div className="flex items-center gap-2">
  <FileStack className="h-5 w-5 text-primary" />
  <span
- className={`rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase ${
+ className={`rounded-pill px-2 py-0.5 text-3xs font-semibold uppercase ${
  course.status === "published"
  ? "bg-primary-soft text-success-fg "
  : "bg-surface-2 text-text-muted "
@@ -326,7 +326,7 @@ function TemplatesTab() {
  {course.status}
  </span>
  </div>
- <span className="text-[10px] text-text-subtle">v{course.template_version}</span>
+ <span className="text-3xs text-text-subtle">v{course.template_version}</span>
  </div>
 
  <h3 className="mb-1 text-sm font-semibold text-text ">

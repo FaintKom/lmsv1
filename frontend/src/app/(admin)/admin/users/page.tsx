@@ -275,7 +275,7 @@ export default function AdminUsersPage() {
  {u.role === "teacher" ? (
  <button
  onClick={() => handleToggleMethodist(u.id, !!u.is_methodist)}
- className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
+ className={`rounded-pill px-2 py-0.5 text-3xs font-medium ${
  u.is_methodist
  ? "bg-success-soft text-primary"
  : "bg-surface-2 text-text-subtle"
@@ -305,7 +305,7 @@ export default function AdminUsersPage() {
  <td className="px-2.5 py-0">
  <button
  onClick={() => handleToggleActive(u.id, u.is_active)}
- className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
+ className={`rounded-pill px-2 py-0.5 text-3xs font-medium ${
  u.is_active
  ? "bg-success-soft text-primary"
  : "bg-danger-soft text-danger-fg"

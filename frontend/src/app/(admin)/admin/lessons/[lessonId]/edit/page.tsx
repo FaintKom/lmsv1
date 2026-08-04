@@ -465,7 +465,7 @@ function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
       <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-transparent group-hover:border-border-strong" />
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative rounded-full bg-bg px-2 py-0.5 text-[11px] font-medium text-text-subtle opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
+        className="relative rounded-full bg-bg px-2 py-0.5 text-2xs font-medium text-text-subtle opacity-0 transition-opacity group-hover:opacity-100 hover:text-primary"
       >
         <Plus className="inline h-3 w-3" /> add block
       </button>
@@ -728,7 +728,7 @@ function ExerciseBlockBody({
               <button
                 key={t.value}
                 onClick={() => onPickExerciseType(t.value)}
-                className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-[11px] text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+                className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
                 title={t.label}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -747,7 +747,7 @@ function ExerciseBlockBody({
     <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
       <div className="mb-3 flex items-center gap-2">
         <TypeIcon className="h-5 w-5 text-text-muted" strokeWidth={1.75} />
-        <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+        <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-3xs font-semibold uppercase tracking-wider text-text-muted">
           {EXERCISE_TYPE_LABELS[exercise.exercise_type as ExerciseType] || exercise.exercise_type}
         </span>
       </div>

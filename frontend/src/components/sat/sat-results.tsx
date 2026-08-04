@@ -116,7 +116,7 @@ export default function SATResults({
  ~{Math.round(avgTimePerQ)}s / question
  </span>
  </div>
- <p className="mt-3 text-[10px] opacity-50">
+ <p className="mt-3 text-3xs opacity-50">
  Score estimated using practice test conversion tables. Actual SAT scores may vary.
  </p>
  </div>
@@ -155,7 +155,7 @@ export default function SATResults({
  <div className="rounded-lg bg-surface-2 p-4 text-center ">
  <p className="text-xs text-text-subtle ">
  Module 2
- <span className={`ml-1 inline-block rounded px-1.5 py-0.5 text-[9px] font-bold ${
+ <span className={`ml-1 inline-block rounded px-1.5 py-0.5 text-3xs font-bold ${
  module2Difficulty === "hard"
  ? "bg-danger-soft text-danger-fg "
  : "bg-info-soft text-info-fg "
@@ -219,7 +219,7 @@ export default function SATResults({
  {i + 1}
  </span>
  {r.module && (
- <span className="rounded bg-ink-200 px-1.5 py-0.5 text-[9px] font-bold text-text-muted ">
+ <span className="rounded bg-ink-200 px-1.5 py-0.5 text-3xs font-bold text-text-muted ">
  M{r.module}
  </span>
  )}
@@ -238,10 +238,10 @@ export default function SATResults({
  </p>
  ) : null}
  <div className="mt-2 flex gap-2">
- <span className="rounded bg-ink-200 px-2 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="rounded bg-ink-200 px-2 py-0.5 text-3xs font-medium text-text-muted ">
  {DOMAIN_LABELS[r.question.domain]}
  </span>
- <span className="rounded bg-ink-200 px-2 py-0.5 text-[10px] font-medium text-text-muted ">
+ <span className="rounded bg-ink-200 px-2 py-0.5 text-3xs font-medium text-text-muted ">
  Difficulty {r.question.difficulty}/3
  </span>
  </div>

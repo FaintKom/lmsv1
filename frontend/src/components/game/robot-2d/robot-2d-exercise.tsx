@@ -300,11 +300,11 @@ export default function Robot2DExercise({
  <div className="flex items-center justify-between bg-surface border-t border-[#e5e0d5] px-3 py-2.5 ">
  {/* Stats badges */}
  <div className="flex items-center gap-2">
- <span className="rounded-md bg-surface-2 px-2 py-1 text-[11px] font-semibold text-text-muted ">
+ <span className="rounded-md bg-surface-2 px-2 py-1 text-2xs font-semibold text-text-muted ">
  {stepsUsed} {t("game.steps")}
  </span>
  {mode === "blocks" && (
- <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
+ <span className={`rounded-md px-2 py-1 text-2xs font-semibold ${
  maxBlocks && blockCount > maxBlocks
  ? "bg-danger-soft text-danger-fg "
  : "bg-surface-2 text-text-muted "

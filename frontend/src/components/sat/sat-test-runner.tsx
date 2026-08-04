@@ -34,7 +34,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  <div className="rounded-lg bg-surface-2 px-4 py-4 sm:px-6 sm:py-5 ">
  <MathText text={question} className="text-base sm:text-lg font-medium text-text " />
  {false && standard && (
- <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {standard}
  </span>
  )}
@@ -67,7 +67,7 @@ function MCQuestion({ config, answer, onAnswer, eliminatedChoices, onEliminate }
  );
  })}
  </div>
- <p className="text-center text-[10px] text-text-subtle">Right-click a choice to cross it out</p>
+ <p className="text-center text-3xs text-text-subtle">Right-click a choice to cross it out</p>
  </div>
  );
 }
@@ -85,7 +85,7 @@ function NumericQuestion({ config, answer, onAnswer }: {
  <div className="rounded-lg bg-surface-2 px-4 py-4 sm:px-6 sm:py-5 ">
  <MathText text={question} className="text-base sm:text-lg font-medium text-text " />
  {false && standard && (
- <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {standard}
  </span>
  )}
@@ -485,7 +485,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <span className="text-xs sm:text-sm font-bold text-text ">
  Module {moduleNumber} of {totalModules}
  </span>
- <span className="rounded bg-primary-soft px-2 py-0.5 text-[10px] sm:text-xs font-medium text-primary ">
+ <span className="rounded bg-primary-soft px-2 py-0.5 text-3xs sm:text-xs font-medium text-primary ">
  {currentQ + 1}/{currentQuestions.length}
  </span>
  </div>
@@ -580,7 +580,7 @@ export default function SATTestRunner({ questions, config, onFinish }: SATTestRu
  <button
  key={i}
  onClick={() => goTo(i)}
- className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-[10px] sm:text-xs font-bold transition ${
+ className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-3xs sm:text-xs font-bold transition ${
  isCurrent
  ? "bg-primary text-primary-fg ring-2 ring-primary"
  : isAnswered

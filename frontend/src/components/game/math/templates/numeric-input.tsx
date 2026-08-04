@@ -76,7 +76,7 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
  </div>
  {false && cfg.standard && (
- <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-[10px] font-medium text-primary ">
+ <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-3xs font-medium text-primary ">
  {cfg.standard}
  </span>
  )}

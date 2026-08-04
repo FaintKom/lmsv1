@@ -20,7 +20,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/app/(admin)/admin/billing/page.tsx",
   "src/app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors.tsx",
   "src/app/(admin)/admin/content-library/[exerciseId]/json-config-panel.tsx",
-  "src/app/(admin)/admin/style-preview/page.tsx",
   "src/app/(admin)/layout.tsx",
   "src/app/(auth)/layout.tsx",
   "src/app/(dashboard)/layout.tsx",

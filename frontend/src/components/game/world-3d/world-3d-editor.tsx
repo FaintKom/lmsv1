@@ -182,7 +182,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  {t.label}
  </button>
  ))}
- <p className="mt-2 max-w-[120px] text-[10px] text-text-subtle">
+ <p className="mt-2 max-w-[120px] text-3xs text-text-subtle">
  {CELL_TYPES.find((t) => t.type === activeTool)?.desc}
  </p>
  </div>
@@ -200,7 +200,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
 
  return (
  <button key={`${x}-${z}`} onClick={() => handleCellClick(x, z)}
- className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-border-strong text-[9px] font-bold transition-colors hover:ring-2 hover:ring-primary "
+ className="relative flex h-9 w-9 items-center justify-center rounded-sm border border-border-strong text-3xs font-bold transition-colors hover:ring-2 hover:ring-primary "
  style={{ backgroundColor: bgColor }}
  title={`(${x}, ${z})${topCell ? ` — ${topCell.type} y=${topCell.y}` : ""}${isPlayerStart ? " — PLAYER" : ""}`}
  >
@@ -220,7 +220,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  })
  )}
  </div>
- <div className="mt-2 flex gap-3 text-[10px] text-text-subtle">
+ <div className="mt-2 flex gap-3 text-3xs text-text-subtle">
  <span><span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#475569" }} /> Wall</span>
  <span><span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#64748b" }} /> Platform</span>
  <span><span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#f59e0b" }} /> Item</span>

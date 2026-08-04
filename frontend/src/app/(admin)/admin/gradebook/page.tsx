@@ -252,7 +252,7 @@ export default function GradebookPage() {
  className="min-w-[100px] px-2.5 py-0 text-center align-middle"
  >
  <div className="eyebrow">{typeLabel(col.type)}</div>
- <div className="truncate text-[11px] font-normal text-text-subtle" title={col.title}>
+ <div className="truncate text-2xs font-normal text-text-subtle" title={col.title}>
  {col.title}
  </div>
  </th>

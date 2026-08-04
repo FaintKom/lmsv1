@@ -15,7 +15,7 @@ function CountBar({ label, count, max }: { label: string; count: number; max: nu
     <div className="mb-2">
       <div className="mb-1 flex items-baseline justify-between gap-2 text-sm">
         <span className="min-w-0 truncate font-semibold text-text">{label}</span>
-        <span className="font-mono text-[11px] font-bold tabular-nums text-green-700">{count}</span>
+        <span className="font-mono text-2xs font-bold tabular-nums text-green-700">{count}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-pill bg-surface-2">
         <div

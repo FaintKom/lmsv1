@@ -34,7 +34,7 @@ export function RosterPanel({
           />
           <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text">{m.name}</span>
           {m.signal && <span className="text-base">{SIGNAL_EMOJI[m.signal]}</span>}
-          <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle">
+          <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
             {m.online ? (m.current_view ?? "") : t("live.notInLesson")}
           </span>
         </button>

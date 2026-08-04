@@ -85,7 +85,7 @@ export default function DashboardLayout({
  if (isLoading) {
  return (
  <div className="flex h-screen flex-col items-center justify-center gap-3 bg-surface-2 ">
- <div className="relative flex h-12 w-12 items-center justify-center rounded-[12px] bg-green-500 text-[24px] font-extrabold text-white">
+ <div className="relative flex h-12 w-12 items-center justify-center rounded-sm bg-green-500 text-xl font-extrabold text-white">
  g
  <span className="absolute bottom-[5px] right-[6px] h-[6px] w-[6px] rounded-full bg-sun-400" />
  </div>
@@ -131,7 +131,7 @@ export default function DashboardLayout({
  <Menu className="h-5 w-5" />
  </button>
  <div className="ml-3 flex items-center gap-2">
- <div className="relative flex h-7 w-7 items-center justify-center rounded-[8px] bg-green-500 text-sm font-extrabold text-white">
+ <div className="relative flex h-7 w-7 items-center justify-center rounded-xs bg-green-500 text-sm font-extrabold text-white">
  g
  <span className="absolute bottom-[3px] right-[3px] h-[4px] w-[4px] rounded-full bg-sun-400" />
  </div>

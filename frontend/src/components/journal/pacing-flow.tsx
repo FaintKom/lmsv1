@@ -141,7 +141,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
                 <div className="text-2xl font-extrabold leading-none text-text">
                   {x.v}
                 </div>
-                <div className="mt-1 text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
+                <div className="mt-1 text-2xs font-bold uppercase tracking-wider text-text-subtle">
                   {x.label}
                 </div>
               </div>
@@ -152,7 +152,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
 
       {/* Group table */}
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
-        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-border px-5 py-3 font-mono text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
+        <div className="grid grid-cols-[230px_1fr_150px_116px_28px] gap-0 border-b border-border px-5 py-3 font-mono text-2xs font-bold uppercase tracking-wider text-text-subtle">
           <span>{t("pacing.col.group")}</span>
           <span>{t("pacing.col.progress")}</span>
           <span>{t("pacing.col.nextTopic")}</span>
@@ -169,7 +169,7 @@ function PacingBoard({ onOpen }: { onOpen: (groupId: string) => void }) {
         ))}
       </div>
 
-      <div className="flex items-center gap-2 text-[11.5px] text-text-subtle">
+      <div className="flex items-center gap-2 text-xs text-text-subtle">
         <Route className="h-3.5 w-3.5" />
         {t("pacing.boardHint")}
       </div>
@@ -209,10 +209,10 @@ function PacingBoardRow({
           style={{ background: color }}
         />
         <span className="min-w-0">
-          <span className="block truncate text-[13.5px] font-extrabold text-text">
+          <span className="block truncate text-sm font-extrabold text-text">
             {g.group_name}
           </span>
-          <span className="block text-[11px] font-semibold text-text-subtle">
+          <span className="block text-2xs font-semibold text-text-subtle">
             {[g.teacher_name, g.default_room_name].filter(Boolean).join(" · ") ||
               g.course_title}
           </span>
@@ -235,16 +235,16 @@ function PacingBoardRow({
           </div>
         </div>
         <div className="mt-1.5 flex justify-between">
-          <span className="font-mono text-[11px] font-bold text-text-muted">
+          <span className="font-mono text-2xs font-bold text-text-muted">
             {g.covered} / {g.total} {t("pacing.topicsShort")}
           </span>
           {g.badge === "behind" && (
-            <span className="text-[11px] font-bold text-clay-700">
+            <span className="text-2xs font-bold text-clay-700">
               {t("pacing.behindBy")} {Math.abs(g.delta)}
             </span>
           )}
           {g.badge === "ahead" && (
-            <span className="text-[11px] font-bold text-sun-700">
+            <span className="text-2xs font-bold text-sun-700">
               {t("pacing.aheadBy")} {Math.abs(g.delta)}
             </span>
           )}
@@ -259,7 +259,7 @@ function PacingBoardRow({
       {/* Status badge */}
       <span className="flex justify-end">
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${m.bg} ${m.fg}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-bold ${m.bg} ${m.fg}`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} />
           {t(m.labelKey)}
@@ -349,7 +349,7 @@ function PacingTimeline({
       <div className="flex items-center justify-between">
         <BackButton onBack={onBack} label={t("pacing.allGroups")} />
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${m.bg} ${m.fg}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-bold ${m.bg} ${m.fg}`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} />
           {t(m.labelKey)}
@@ -367,7 +367,7 @@ function PacingTimeline({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {kpis.map((x, i) => (
           <div key={i} className="rounded-xl border border-border bg-surface p-4">
-            <div className="text-[10.5px] font-bold uppercase tracking-wider text-text-subtle">
+            <div className="text-2xs font-bold uppercase tracking-wider text-text-subtle">
               {x.l}
             </div>
             <div
@@ -387,7 +387,7 @@ function PacingTimeline({
           <span className="text-sm font-extrabold text-text">
             {t("pacing.bandTitle")}
           </span>
-          <div className="flex gap-3.5 text-[11px] font-semibold text-text-muted">
+          <div className="flex gap-3.5 text-2xs font-semibold text-text-muted">
             <LegendDot className="bg-green-500" label={t("pacing.legend.covered")} />
             <LegendDot className="bg-sun-400" label={t("pacing.legend.current")} />
             <LegendDot
@@ -420,7 +420,7 @@ function PacingTimeline({
                 style={{ left: `${data.today_fraction * 100}%` }}
               >
                 <span className="h-2 w-0.5 bg-ink-700" />
-                <span className="rounded-full bg-ink-900 px-2 py-0.5 text-[10px] font-bold text-white">
+                <span className="rounded-full bg-ink-900 px-2 py-0.5 text-3xs font-bold text-white">
                   {t("pacing.todayMarker")}
                 </span>
               </div>
@@ -434,7 +434,7 @@ function PacingTimeline({
         className={`flex items-center gap-3 rounded-xl border p-3.5 ${noteBox}`}
       >
         <NoteIcon className={`h-4.5 w-4.5 flex-shrink-0 ${noteIconColor}`} />
-        <span className="text-[12.5px] font-semibold">{noteText}</span>
+        <span className="text-sm font-semibold">{noteText}</span>
       </div>
     </div>
   );
@@ -463,15 +463,15 @@ function TimelineSegment({
       <div
         className={`relative flex h-[54px] flex-col justify-between overflow-hidden rounded-sm px-2.5 py-2 ${box}`}
       >
-        <span className="font-mono text-[10px] font-bold opacity-85">
+        <span className="font-mono text-3xs font-bold opacity-85">
           {String(topic.position).padStart(2, "0")}
         </span>
-        <span className="truncate text-[11px] font-bold leading-tight">
+        <span className="truncate text-2xs font-bold leading-tight">
           {topic.title}
         </span>
       </div>
       <div
-        className={`mt-1 text-center font-mono text-[9.5px] font-semibold ${dateColor}`}
+        className={`mt-1 text-center font-mono text-3xs font-semibold ${dateColor}`}
       >
         {topic.covered_date || "—"}
       </div>

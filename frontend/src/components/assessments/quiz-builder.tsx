@@ -419,12 +419,12 @@ export default function QuizBuilder({ lessonId, existingQuiz, onSaved }: QuizBui
  <Card className="border-border-strong group">
  <CardContent className="p-3">
  <div className="flex items-start gap-2">
- <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-pill bg-success-soft text-[10px] font-bold text-primary ">
+ <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-pill bg-success-soft text-3xs font-bold text-primary ">
  {i + 1}
  </span>
  <div className="flex-1 min-w-0">
  <p className="text-sm font-medium text-text ">{q.question_text}</p>
- <span className="text-[10px] uppercase text-text-subtle">
+ <span className="text-3xs uppercase text-text-subtle">
  {q.question_type.replace("_", " ")} · {q.points} pt
  </span>
  {q.question_type === "multiple_choice" && q.options && (

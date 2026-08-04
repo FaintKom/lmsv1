@@ -219,17 +219,17 @@ export default function IntegrationsPage() {
  {isConnected ? (
  <>
  <CheckCircle className="h-3 w-3 text-primary" />
- <span className="text-[10px] font-medium text-primary">{t("admin.integrations.connected")}</span>
+ <span className="text-3xs font-medium text-primary">{t("admin.integrations.connected")}</span>
  </>
  ) : isComingSoon ? (
  <>
  <Circle className="h-3 w-3 text-warning" />
- <span className="text-[10px] font-medium text-warning-fg">{t("admin.integrations.comingSoon")}</span>
+ <span className="text-3xs font-medium text-warning-fg">{t("admin.integrations.comingSoon")}</span>
  </>
  ) : (
  <>
  <Circle className="h-3 w-3 text-text-subtle" />
- <span className="text-[10px] font-medium text-text-subtle">{t("admin.integrations.notConnected")}</span>
+ <span className="text-3xs font-medium text-text-subtle">{t("admin.integrations.notConnected")}</span>
  </>
  )}
  </div>
@@ -247,7 +247,7 @@ export default function IntegrationsPage() {
  {intg.features.map((f) => (
  <span
  key={f}
- className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-text-muted "
+ className="rounded-pill bg-surface-2 px-2 py-0.5 text-3xs font-medium text-text-muted "
  >
  {f}
  </span>

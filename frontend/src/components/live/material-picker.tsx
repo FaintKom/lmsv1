@@ -142,12 +142,12 @@ export function MaterialPicker({
                   </span>
                   <span className="mt-1 flex items-center gap-2">
                     {c.category && (
-                      <span className="font-mono text-[10px] uppercase tracking-wide text-text-subtle">
+                      <span className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
                         {c.category}
                       </span>
                     )}
                     {c.status && c.status !== "published" && (
-                      <span className="rounded-pill bg-warning-soft px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-sun-700">
+                      <span className="rounded-pill bg-warning-soft px-2 py-0.5 font-mono text-3xs font-bold uppercase text-sun-700">
                         {c.status}
                       </span>
                     )}
@@ -171,12 +171,12 @@ export function MaterialPicker({
       <div className="mb-4 flex items-center gap-3">
         <button
           onClick={() => setCourseId(null)}
-          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text transition-colors hover:bg-surface-2"
+          className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-3 py-2.5 font-mono text-3xs font-bold uppercase tracking-wide text-text transition-colors hover:bg-surface-2"
         >
           <ChevronLeft size={11} strokeWidth={3} /> {t("common.back")}
         </button>
         <div className="min-w-0">
-          <div className="font-mono text-[10px] uppercase tracking-wide text-text-subtle">
+          <div className="font-mono text-3xs uppercase tracking-wide text-text-subtle">
             {t("live.pickMaterial")}
           </div>
           <div className="truncate text-sm font-extrabold text-text">
@@ -188,13 +188,13 @@ export function MaterialPicker({
       {course?.modules.map((m, mi) => (
         <div key={m.id} className="mb-5">
           <div className="mb-1.5 flex items-center gap-2">
-            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-sm bg-surface-2 font-mono text-[10px] font-bold text-text">
+            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-sm bg-surface-2 font-mono text-3xs font-bold text-text">
               {mi + 1}
             </span>
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wide text-text-subtle">
+            <span className="font-mono text-2xs font-semibold uppercase tracking-wide text-text-subtle">
               {m.title}
             </span>
-            <span className="font-mono text-[10px] text-text-subtle">
+            <span className="font-mono text-3xs text-text-subtle">
               {(m.lessons ?? []).length} {t("courses.lessons")}
             </span>
           </div>

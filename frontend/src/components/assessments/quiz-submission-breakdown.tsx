@@ -154,7 +154,7 @@ export default function QuizSubmissionBreakdown({
              <span className="mr-1 text-text-subtle">{i + 1}.</span>
              <MaybeMath text={q.question_text} />
             </p>
-            <span className="text-[10px] text-text-subtle">
+            <span className="text-3xs text-text-subtle">
              {q.points_earned}/{q.points} {t("admin.quizReview.points")}
             </span>
            </div>

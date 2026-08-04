@@ -93,7 +93,7 @@ export function SceneView({ lessonId, scene, boardHandleRef, interactive, canQui
   } else {
     body = (
       <div className="flex h-full flex-col items-center justify-center gap-4">
-        <span className="flex items-center gap-2 rounded-pill bg-danger-soft px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-clay-700">
+        <span className="flex items-center gap-2 rounded-pill bg-danger-soft px-3 py-1.5 font-mono text-2xs font-bold uppercase tracking-wide text-clay-700">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-clay-500" />
           {t("live.lesson")}
         </span>
@@ -195,7 +195,7 @@ export function MaterialPane({ payload }: { payload: Record<string, unknown> }) 
           <button
             key={p}
             onClick={() => setPage(p)}
-            className={`flex h-8 w-8 items-center justify-center rounded-md font-mono text-[11px] font-bold transition-colors ${
+            className={`flex h-8 w-8 items-center justify-center rounded-md font-mono text-2xs font-bold transition-colors ${
               p === page
                 ? "bg-primary text-primary-fg"
                 : "bg-surface-2 text-text hover:bg-surface-2"
@@ -426,7 +426,7 @@ export function AnswerList({ answers }: { answers: Record<string, unknown> }) {
     <div className="mt-4 flex flex-col gap-3">
       {Object.entries(answers).map(([key, value]) => (
         <div key={key}>
-          <div className="mb-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text-subtle">
+          <div className="mb-1.5 font-mono text-3xs font-bold uppercase tracking-wide text-text-subtle">
             {key.replace(/_/g, " ")}
           </div>
           {Array.isArray(value) ? (
@@ -436,7 +436,7 @@ export function AnswerList({ answers }: { answers: Record<string, unknown> }) {
                   key={i}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-sm font-semibold text-text"
                 >
-                  <span className="font-mono text-[10px] font-bold text-text-subtle">{i + 1}</span>
+                  <span className="font-mono text-3xs font-bold text-text-subtle">{i + 1}</span>
                   {typeof v === "object" ? JSON.stringify(v) : String(v)}
                 </span>
               ))}

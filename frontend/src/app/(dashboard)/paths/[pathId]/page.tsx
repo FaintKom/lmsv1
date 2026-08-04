@@ -159,7 +159,7 @@ export default function PathDetailPage() {
  {step.course_title}
  </h3>
  {!step.is_required && (
- <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-[10px] text-text-muted ">
+ <span className="rounded-pill bg-surface-2 px-2 py-0.5 text-3xs text-text-muted ">
  {t("common.optional")}
  </span>
  )}

@@ -536,7 +536,7 @@ export function ConjugationConfigEditor({ config, onChange }: EditorProps) {
            </Button>
          ))}
        </div>
-       <p className="mt-1 text-[11px] text-text-subtle">
+       <p className="mt-1 text-2xs text-text-subtle">
          Replaces the pronoun list with the 6 standard pronouns for the language. Existing correct forms for matching pronouns are kept.
        </p>
      </div>
@@ -828,7 +828,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
        <div className="mb-1 flex items-center gap-3">
          <label className={labelCls}>Grid preview</label>
          {placingIdx !== null && activeWord && (
-           <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-[11px] font-medium text-primary">
+           <span className="rounded-pill bg-primary-soft px-2 py-0.5 text-2xs font-medium text-primary">
              Click a cell to place "{activeWord.word || `word ${placingIdx + 1}`}" ({activeWord.direction})
            </span>
          )}
@@ -838,7 +838,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
            </Button>
          )}
          {conflicts.size > 0 && (
-           <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-[11px] font-medium text-danger-fg">
+           <span className="rounded-pill bg-danger-soft px-2 py-0.5 text-2xs font-medium text-danger-fg">
              {conflicts.size} conflict{conflicts.size === 1 ? "" : "s"}
            </span>
          )}
@@ -965,7 +965,7 @@ export function CrosswordConfigEditor({ config, onChange }: EditorProps) {
                    <option value="down">Down ↓</option>
                  </select>
                  {overflow && (
-                   <span className="text-[11px] text-danger-fg">
+                   <span className="text-2xs text-danger-fg">
                      ⚠ Word extends past grid edge
                    </span>
                  )}
@@ -1162,7 +1162,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
                title="Drag to reposition"
              >
                <div className="flex flex-col items-center pointer-events-none">
-                 <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-primary-fg" : "bg-ink-700 text-primary-fg"}`}>
+                 <span className={`rounded-full px-1.5 py-0.5 text-3xs font-bold whitespace-nowrap ${i === activePinIndex ? "bg-primary text-primary-fg" : "bg-ink-700 text-primary-fg"}`}>
                    {pin.label || i + 1}
                  </span>
                  <svg className={`h-5 w-4 ${i === activePinIndex ? "text-primary" : "text-text"}`} viewBox="0 0 20 24" fill="currentColor">
@@ -1172,7 +1172,7 @@ export function MapPinDropConfigEditor({ config, onChange }: EditorProps) {
              </div>
            ))}
          </div>
-         <p className="text-[11px] text-text-subtle">
+         <p className="text-2xs text-text-subtle">
            Drag pins on the image, or select a pin below and click on the image.
          </p>
        </div>

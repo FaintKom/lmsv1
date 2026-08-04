@@ -806,20 +806,20 @@ function TestCasesEditor({
  <div className="flex items-center gap-2">
  <span className="text-xs font-medium text-text-muted">#{idx + 1}</span>
  {tc.is_hidden && (
- <span className="rounded bg-warning-soft px-1.5 py-0.5 text-[10px] font-medium text-warning-fg ">
+ <span className="rounded bg-warning-soft px-1.5 py-0.5 text-3xs font-medium text-warning-fg ">
  Hidden
  </span>
  )}
  </div>
  <div className="grid grid-cols-2 gap-3">
  <div>
- <p className="text-[10px] uppercase text-text-subtle">Input</p>
+ <p className="text-3xs uppercase text-text-subtle">Input</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.input || "(empty)"}
  </pre>
  </div>
  <div>
- <p className="text-[10px] uppercase text-text-subtle">Expected Output</p>
+ <p className="text-3xs uppercase text-text-subtle">Expected Output</p>
  <pre className="mt-0.5 rounded bg-surface-2 p-2 font-mono text-xs text-text ">
  {tc.expected_output}
  </pre>
