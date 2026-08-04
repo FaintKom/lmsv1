@@ -36,7 +36,7 @@ const BADGE_CLASS: Record<TheorySourceKind, string> = {
 function SourceBadge({ kind }: { kind: TheorySourceKind }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] font-extrabold tracking-wider ${BADGE_CLASS[kind]}`}
+      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-3xs font-extrabold tracking-wider ${BADGE_CLASS[kind]}`}
     >
       {THEORY_SOURCE_LABEL[kind]}
     </span>
@@ -72,16 +72,16 @@ export function TheoryViewer({
   const notes = content.speaker_notes ?? [];
 
   return (
-    <div className="rounded-[16px] border border-border bg-surface p-5">
+    <div className="rounded-md border border-border bg-surface p-5">
       {/* header */}
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-info-soft px-2.5 py-1 font-mono text-[10px] font-extrabold tracking-wider text-info-fg">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-info-soft px-2.5 py-1 font-mono text-3xs font-extrabold tracking-wider text-info-fg">
           <Presentation className="h-3 w-3" />
           {t("theory.badge")}
         </span>
         <SourceBadge kind={source.kind} />
         {source.filename && (
-          <span className="font-mono text-[11px] text-text-subtle">· {source.filename}</span>
+          <span className="font-mono text-2xs text-text-subtle">· {source.filename}</span>
         )}
       </div>
 
@@ -105,8 +105,8 @@ export function TheoryViewer({
 
       {/* notes */}
       {showNotes && notes.length > 0 && (
-        <div className="mt-3 rounded-[12px] border-2 border-warning bg-warning-soft p-3 text-sm leading-relaxed text-text">
-          <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-warning-fg">
+        <div className="mt-3 rounded-sm border-2 border-warning bg-warning-soft p-3 text-sm leading-relaxed text-text">
+          <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-3xs font-extrabold uppercase tracking-wider text-warning-fg">
             <StickyNote className="h-3 w-3" />
             {t("theory.speakerNotes")}
           </div>
@@ -212,7 +212,7 @@ function TheoryFullscreen({
           <X className="h-4 w-4" />
         </button>
         <div className="min-w-0 flex-1">
-          <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-white/50">
+          <div className="font-mono text-3xs font-bold uppercase tracking-wider text-white/50">
             {t("theory.badge")}
           </div>
           {title && <div className="truncate text-sm font-bold">{title}</div>}
@@ -221,7 +221,7 @@ function TheoryFullscreen({
         {notes.length > 0 && (
           <button
             onClick={() => setShowNotes((s) => !s)}
-            className={`inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 font-mono text-[11px] font-bold ${
+            className={`inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 font-mono text-2xs font-bold ${
               showNotes ? "bg-sun-400 text-ink-900" : "text-white/70 hover:bg-white/10"
             }`}
           >
@@ -233,7 +233,7 @@ function TheoryFullscreen({
           href={src}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 font-mono text-[11px] font-bold text-white/70 hover:bg-white/10"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-1.5 font-mono text-2xs font-bold text-white/70 hover:bg-white/10"
         >
           <ExternalLink className="h-3 w-3" />
           {t("theory.openExternal")}
@@ -257,7 +257,7 @@ function TheoryFullscreen({
         </div>
         {showNotes && notes.length > 0 && (
           <div className="w-[300px] flex-shrink-0 overflow-y-auto border-l border-sun-400 bg-sun-400/10 p-4 text-white/85">
-            <div className="mb-2 inline-flex items-center gap-1.5 font-mono text-[10px] font-extrabold uppercase tracking-wider text-sun-400">
+            <div className="mb-2 inline-flex items-center gap-1.5 font-mono text-3xs font-extrabold uppercase tracking-wider text-sun-400">
               <StickyNote className="h-3 w-3" />
               {t("theory.speakerNotes")}
             </div>

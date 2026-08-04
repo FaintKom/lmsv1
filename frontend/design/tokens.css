@@ -1,5 +1,5 @@
 /* =================================================================
-   GrassLMS — Lively v2 · tokens.css · v2.0.0 · 2026-08-02
+   GrassLMS — Lively v2 · tokens.css · v2.1.0 · 2026-08-04
    GENERATED FROM tokens.json — DO NOT EDIT BY HAND.
 
    Drop-in replacement for the @theme block in
@@ -148,6 +148,9 @@
   --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 
+  /* 3xs/2xs exist for dense mode (rule 4.6, spacing x0.75) — journal,
+     gradebook, mono eyebrow labels. Never for body copy. */
+  --t-3xs: 10px; --t-2xs: 11px;
   --t-xs: 12px;  --t-sm: 13px;  --t-base: 15px; --t-md: 17px;
   --t-lg: 20px;  --t-xl: 24px;  --t-2xl: 32px;  --t-3xl: 44px;
   --t-4xl: 60px; --t-5xl: 80px;
@@ -329,6 +332,8 @@
   --shadow-pop-clay:  var(--shadow-pop-clay);
   --shadow-pop-ink:   var(--shadow-pop-ink);
 
+  --text-3xs:  var(--t-3xs);
+  --text-2xs:  var(--t-2xs);
   --text-xs:   var(--t-xs);
   --text-sm:   var(--t-sm);
   --text-base: var(--t-base);

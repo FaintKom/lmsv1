@@ -340,7 +340,7 @@ export default function LessonViewerPage() {
        <PanelLeftClose className="h-4 w-4" />
       </button>
      </div>
-     <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-green-700">
+     <p className="mb-1 font-mono text-3xs font-semibold uppercase tracking-widest text-green-700">
       {t("lesson.courseLabel")} · {course.modules?.length || 0} {t("courses.modules")} · {allLessons.length} {t("courses.lessons")}
      </p>
      <h3 className="mb-3 text-base font-extrabold leading-tight tracking-tight text-text">
@@ -356,7 +356,7 @@ export default function LessonViewerPage() {
         }}
        />
       </div>
-      <span className="font-mono text-[11px] font-bold text-green-700">
+      <span className="font-mono text-2xs font-bold text-green-700">
        {completedLessons.size}/{allLessons.length}
       </span>
      </div>
@@ -381,7 +381,7 @@ export default function LessonViewerPage() {
           isCurrentModule ? "bg-success-soft" : "hover:bg-surface-2"
          )}
         >
-         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[7px] bg-success-soft font-mono text-[11px] font-extrabold text-green-800">
+         <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-xs bg-success-soft font-mono text-2xs font-extrabold text-green-800">
           {mi + 1}
          </span>
          <span
@@ -394,7 +394,7 @@ export default function LessonViewerPage() {
          </span>
          <span
           className={cn(
-           "font-mono text-[10px] font-semibold tracking-wide",
+           "font-mono text-3xs font-semibold tracking-wide",
            isCurrentModule ? "text-green-700" : "text-text-subtle"
           )}
          >
@@ -423,7 +423,7 @@ export default function LessonViewerPage() {
                if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarOpen(false);
               }}
               className={cn(
-               "flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-[12.5px] font-semibold transition-colors",
+               "flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-sm font-semibold transition-colors",
                isActive
                 ? "bg-success-soft font-bold text-green-800"
                 : isDone
@@ -434,9 +434,9 @@ export default function LessonViewerPage() {
               {/* Check circle */}
               <span
                className={cn(
-                "flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-[9px] font-extrabold",
+                "flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full text-3xs font-extrabold",
                 isActive
-                 ? "bg-primary text-primary-fg shadow-[0_0_0_3px_var(--green-100)]"
+                 ? "bg-primary text-primary-fg ring-4 ring-primary-soft"
                  : isDone
                    ? "bg-green-500 text-white"
                    : "border-[1.5px] border-border-strong bg-transparent"
@@ -446,7 +446,7 @@ export default function LessonViewerPage() {
               </span>
               <span className="flex-1 truncate">{l.title}</span>
               {l.duration_minutes && (
-               <span className="font-mono text-[10px] font-semibold text-text-subtle">
+               <span className="font-mono text-3xs font-semibold text-text-subtle">
                 {l.duration_minutes}m
                </span>
               )}
@@ -492,7 +492,7 @@ export default function LessonViewerPage() {
         target="_blank"
         rel="noopener noreferrer"
         title={t("print.worksheetHint")}
-        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-surface-2 hover:text-text"
+        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-2xs font-bold text-text-muted hover:bg-surface-2 hover:text-text"
        >
         <Printer className="h-3 w-3" /> {t("print.worksheet")}
        </Link>
@@ -501,14 +501,14 @@ export default function LessonViewerPage() {
         target="_blank"
         rel="noopener noreferrer"
         title={t("print.answerKeyHint")}
-        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-[11px] font-bold text-text-muted hover:bg-surface-2 hover:text-text"
+        className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-3 py-1 text-2xs font-bold text-text-muted hover:bg-surface-2 hover:text-text"
        >
         <Printer className="h-3 w-3" /> {t("print.answerKey")}
        </Link>
       </div>
      )}
      {isCompleted && (
-      <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-[11px] font-bold text-green-800">
+      <span className="inline-flex items-center gap-1.5 rounded-pill bg-success-soft px-3 py-1 text-2xs font-bold text-green-800">
        <CheckCircle className="h-3 w-3" /> {t("lesson.done")}
       </span>
      )}
@@ -532,7 +532,7 @@ export default function LessonViewerPage() {
       </div>
 
       {/* Title */}
-      <h1 className="mb-4 text-[36px] font-extrabold leading-[1.1] tracking-tight text-text">
+      <h1 className="mb-4 text-2xl font-extrabold leading-[1.1] tracking-tight text-text">
        {lesson.title}
       </h1>
 
@@ -571,7 +571,7 @@ export default function LessonViewerPage() {
       if (orphaned.length === 0) return null;
       return (
        <div className="mb-8 space-y-6 px-2 sm:px-6">
-        <h2 className="mx-auto max-w-[720px] text-[21px] font-bold tracking-tight text-text">
+        <h2 className="mx-auto max-w-[720px] text-lg font-bold tracking-tight text-text">
          {t("lesson.exercises")}
         </h2>
         {orphaned.map((ex) =>
@@ -632,7 +632,7 @@ export default function LessonViewerPage() {
       >
        <ArrowLeft className="h-3.5 w-3.5 text-text-subtle" />
        <div>
-        <span className="block font-mono text-[9px] font-semibold uppercase tracking-widest text-text-subtle">
+        <span className="block font-mono text-3xs font-semibold uppercase tracking-widest text-text-subtle">
          {t("lesson.previous")}
         </span>
         <span className="block max-w-[160px] truncate">{prevLesson.lesson.title}</span>
@@ -647,7 +647,7 @@ export default function LessonViewerPage() {
        style={{ boxShadow: "0 4px 0 0 var(--green-700)" }}
       >
        <div className="text-right">
-        <span className="block font-mono text-[9px] font-semibold uppercase tracking-widest text-white/70">
+        <span className="block font-mono text-3xs font-semibold uppercase tracking-widest text-white/70">
          {t("lesson.upNext")}
         </span>
         <span className="block max-w-[160px] truncate">{nextLesson.lesson.title}</span>

@@ -10,7 +10,7 @@ export function StreakPill({ days, className }: StreakPillProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-clay-500 py-1.5 pl-1.5 pr-3.5 text-sm font-extrabold text-white shadow-[0_6px_18px_-8px_rgba(255,122,92,0.7)]",
+        "inline-flex items-center gap-2 rounded-full bg-clay-500 py-1.5 pl-1.5 pr-3.5 text-sm font-extrabold text-white shadow-md",
         className
       )}
     >

@@ -213,7 +213,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  </span>
  <div className="flex-1">
  <p className="text-sm font-medium text-text"><MaybeMath text={q.question_text} /></p>
- <span className="text-[10px] text-text-subtle">{q.points} point{q.points > 1 ? "s" : ""}</span>
+ <span className="text-3xs text-text-subtle">{q.points} point{q.points > 1 ? "s" : ""}</span>
  </div>
  </div>
 
@@ -230,7 +230,7 @@ export default function QuizTaker({ lessonId, onComplete }: QuizTakerProps) {
  }`}
  >
  <span
- className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 text-[10px] font-bold ${
+ className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-pill border-2 text-3xs font-bold ${
  answers[q.id] === opt.id
  ? "border-primary bg-primary text-primary-fg"
  : "border-border-strong text-text-subtle"

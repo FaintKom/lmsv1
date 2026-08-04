@@ -119,7 +119,7 @@ export default function CourseDetailPage() {
   if (loading || !course) {
     return (
       <div className="mx-auto max-w-3xl space-y-6 p-6">
-        <div className="lms-skeleton h-5 w-32 rounded-[7px]" />
+        <div className="lms-skeleton h-5 w-32 rounded-xs" />
         <div className="lms-skeleton h-52 w-full rounded-lg" />
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -154,32 +154,32 @@ export default function CourseDetailPage() {
         style={{ background: theme.gradient }}
       >
         {/* mono glyph watermark */}
-        <span className="pointer-events-none absolute right-6 top-4 font-mono text-[72px] font-extrabold leading-none text-white/10">
+        <span className="pointer-events-none absolute right-6 top-4 font-mono text-4xl font-extrabold leading-none text-white/10">
           {theme.glyph}
         </span>
 
         <div className="relative z-10">
           {course.category && (
-            <span className="mb-3 inline-block rounded-pill bg-white/15 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-white/90">
+            <span className="mb-3 inline-block rounded-pill bg-white/15 px-3 py-1 font-mono text-3xs font-semibold uppercase tracking-widest text-white/90">
               {course.category}
             </span>
           )}
-          <h1 className="mb-3 text-[28px] font-extrabold leading-tight">
+          <h1 className="mb-3 text-xl font-extrabold leading-tight">
             {course.title}
           </h1>
           {course.description && (
-            <p className="mb-5 max-w-xl text-[14px] leading-relaxed text-white/75">
+            <p className="mb-5 max-w-xl text-sm leading-relaxed text-white/75">
               {course.description}
             </p>
           )}
 
           {/* stats pills */}
           <div className="mb-6 flex items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-[11px] font-semibold text-white/90">
+            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
               <BookOpen className="h-3.5 w-3.5" />
               {course.modules?.length || 0} {t("courses.modules")}
             </span>
-            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-[11px] font-semibold text-white/90">
+            <span className="flex items-center gap-1.5 rounded-pill bg-white/15 px-3 py-1 font-mono text-2xs font-semibold text-white/90">
               <FileText className="h-3.5 w-3.5" />
               {totalLessons} {t("courses.lessons")}
             </span>
@@ -188,7 +188,7 @@ export default function CourseDetailPage() {
           {/* action row */}
           <div className="flex items-center gap-3">
             {canPreview && !enrolled && (
-              <span className="rounded-pill bg-white/15 px-3 py-1 text-[11px] font-bold text-white">
+              <span className="rounded-pill bg-white/15 px-3 py-1 text-2xs font-bold text-white">
                 {t("course.previewMode")}
               </span>
             )}
@@ -232,13 +232,13 @@ export default function CourseDetailPage() {
           >
             {/* module header */}
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] bg-success-soft font-mono text-xs font-extrabold text-green-800">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-success-soft font-mono text-xs font-extrabold text-green-800">
                 {mi + 1}
               </span>
-              <h2 className="flex-1 text-[14px] font-extrabold text-text">
+              <h2 className="flex-1 text-sm font-extrabold text-text">
                 {module.title}
               </h2>
-              <span className="font-mono text-[11px] text-text-muted">
+              <span className="font-mono text-2xs text-text-muted">
                 {module.lessons?.length || 0} {t("courses.lessons")}
               </span>
             </div>
@@ -259,7 +259,7 @@ export default function CourseDetailPage() {
                       >
                         <div
                           className={cn(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]",
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-xs",
                             iconColor,
                           )}
                         >
@@ -269,7 +269,7 @@ export default function CourseDetailPage() {
                           {lesson.title}
                         </span>
                         {lesson.duration_minutes && (
-                          <span className="flex items-center gap-1 font-mono text-[11px] text-text-subtle">
+                          <span className="flex items-center gap-1 font-mono text-2xs text-text-subtle">
                             <Clock className="h-3 w-3" />
                             {lesson.duration_minutes}m
                           </span>
@@ -286,7 +286,7 @@ export default function CourseDetailPage() {
                     <div className="flex items-center gap-3 px-5 py-3 opacity-60">
                       <div
                         className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]",
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-xs",
                           iconColor,
                         )}
                       >
@@ -296,7 +296,7 @@ export default function CourseDetailPage() {
                         {lesson.title}
                       </span>
                       {lesson.duration_minutes && (
-                        <span className="flex items-center gap-1 font-mono text-[11px] text-text-subtle">
+                        <span className="flex items-center gap-1 font-mono text-2xs text-text-subtle">
                           <Clock className="h-3 w-3" />
                           {lesson.duration_minutes}m
                         </span>

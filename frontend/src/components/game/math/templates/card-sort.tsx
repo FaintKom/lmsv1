@@ -151,7 +151,7 @@ export default function CardSort({ config, onComplete }: MathTemplateProps) {
  <div className="mb-2 flex items-center gap-2">
  <div className="h-3 w-3 rounded-pill" style={{ backgroundColor: cat.color }} />
  <span className="text-sm font-bold" style={{ color: cat.color }}>{cat.label}</span>
- <span className="ml-auto text-[10px] text-text-subtle">{(sorted[cat.id] || []).length}</span>
+ <span className="ml-auto text-3xs text-text-subtle">{(sorted[cat.id] || []).length}</span>
  </div>
 
  {/* Cards in this category */}

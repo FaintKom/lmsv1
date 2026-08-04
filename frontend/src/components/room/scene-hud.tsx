@@ -17,10 +17,10 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
     <>
       {/* Top-left: breadcrumb + title */}
       <div className="pointer-events-none absolute left-6 top-6 max-w-md">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-text-subtle">
+        <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-subtle">
           {t("nav.achievements")} · {t("room.breadcrumb")}
         </p>
-        <h1 className="mt-2 text-[26px] font-extrabold leading-tight text-text">
+        <h1 className="mt-2 text-xl font-extrabold leading-tight text-text">
           {t("room.welcomePrefix")}{" "}
           <span
             className="inline-block rounded-xs px-2 py-0 text-text"
@@ -44,7 +44,7 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
       {/* Bottom-right: camera control cluster.
           The HUD is deliberately always-light glass over the 3D scene, so its
           contents use raw ink tokens, NOT the flipping semantic ones. */}
-      <div className="absolute bottom-6 right-6 flex gap-1 rounded-[12px] bg-white/90 p-1.5 shadow-md backdrop-blur">
+      <div className="absolute bottom-6 right-6 flex gap-1 rounded-sm bg-white/90 p-1.5 shadow-md backdrop-blur">
         <CameraButton ariaLabel={t("room.camera.reset")} onClick={onReset}>
           <RotateCcw className="h-4 w-4" />
         </CameraButton>
@@ -61,8 +61,8 @@ export function SceneHud({ onReset, onZoomIn, onZoomOut }: SceneHudProps) {
 
 function HintPill({ kbd, label }: { kbd: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-medium text-ink-900 shadow-sm backdrop-blur">
-      <kbd className="rounded border border-ink-200 bg-ink-50 px-1.5 py-0.5 font-mono text-[10px] text-ink-900">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/85 px-2.5 py-1 text-2xs font-medium text-ink-900 shadow-sm backdrop-blur">
+      <kbd className="rounded border border-ink-200 bg-ink-50 px-1.5 py-0.5 font-mono text-3xs text-ink-900">
         {kbd}
       </kbd>
       {label}

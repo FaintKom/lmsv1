@@ -151,6 +151,10 @@
  /* MM-02: math expressions render in serif via token, not hardcoded font stacks */
  --font-math: 'Times New Roman', Georgia, serif;
 
+ /* 3xs/2xs exist for dense mode (rule 4.6, spacing x0.75) — journal,
+    gradebook, mono eyebrow labels. Never for body copy. */
+ --t-3xs: 10px;
+ --t-2xs: 11px;
  --t-xs: 12px;
  --t-sm: 13px;
  --t-base: 15px;
@@ -345,6 +349,8 @@
  --shadow-pop-sun: var(--shadow-pop-sun);
  --shadow-pop-ink: var(--shadow-pop-ink);
 
+ --text-3xs: var(--t-3xs);
+ --text-2xs: var(--t-2xs);
  --text-xs: var(--t-xs);
  --text-sm: var(--t-sm);
  --text-base: var(--t-base);

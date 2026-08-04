@@ -165,7 +165,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  <span className="text-base font-extrabold tracking-tight text-white">
  {branding.display_name}
  </span>
- <span className="block font-mono text-[9px] font-medium uppercase tracking-widest text-white/50">
+ <span className="block font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
  Learning Platform
  </span>
  </div>
@@ -180,7 +180,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
 
  {/* Navigation */}
  <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-4 py-3">
- <p className="mb-1.5 px-2.5 font-mono text-[10px] font-medium uppercase tracking-widest text-white/50">
+ <p className="mb-1.5 px-2.5 font-mono text-3xs font-medium uppercase tracking-widest text-white/50">
  {t("nav.menu")}
  </p>
  <ul className="space-y-[2px]" role="list">
@@ -227,7 +227,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
  {item.label}
  {item.badge ? (
- <span className="ml-auto rounded-pill bg-clay-500 px-1.5 py-0.5 font-mono text-[10px] font-extrabold leading-none text-white">
+ <span className="ml-auto rounded-pill bg-clay-500 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white">
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}
@@ -256,7 +256,7 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  <p className="truncate text-sm font-bold text-white">
  {user?.full_name}
  </p>
- <p className="truncate font-mono text-[10px] tracking-wide text-white/50">
+ <p className="truncate font-mono text-3xs tracking-wide text-white/50">
  {user?.email}
  </p>
  </div>

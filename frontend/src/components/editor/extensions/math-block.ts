@@ -116,7 +116,7 @@ export const MathBlock = Node.create({
  }
 
  const hint = document.createElement("p");
- hint.className = "text-[10px] text-text-subtle text-center";
+ hint.className = "text-3xs text-text-subtle text-center";
  hint.textContent = "Press Enter to save, Escape to cancel";
 
  dom.appendChild(textarea);

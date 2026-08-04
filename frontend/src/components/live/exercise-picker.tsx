@@ -65,7 +65,7 @@ export function ExercisePicker({
               {(isLive || isPicked) && <Check size={9} strokeWidth={4} className="text-white" />}
             </span>
             <span className="min-w-0 flex-1 truncate">{ex.title}</span>
-            <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text">
+            <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide text-text">
               {ex.exercise_type}
             </span>
             {isLive && (

@@ -78,19 +78,19 @@ function KpiCard({
   return (
     <div className="rounded-md border border-border bg-surface p-4">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-text-subtle">
+        <span className="font-mono text-3xs font-bold uppercase tracking-widest text-text-subtle">
           {label}
         </span>
         <div
           className={cn(
-            "flex h-[22px] w-[22px] items-center justify-center rounded-[7px]",
+            "flex h-[22px] w-[22px] items-center justify-center rounded-xs",
             iconStyles[color],
           )}
         >
           <Icon className="h-3 w-3" />
         </div>
       </div>
-      <div className="text-[28px] font-extrabold leading-none tracking-tight text-text">
+      <div className="text-xl font-extrabold leading-none tracking-tight text-text">
         {value}
         {suffix && (
           <small className="ml-1 font-mono text-sm font-semibold text-text-subtle">
@@ -122,7 +122,7 @@ function QuickLink({
       <div className="flex items-center gap-3">
         <div
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-[9px]",
+            "flex h-9 w-9 items-center justify-center rounded-sm",
             iconColor,
           )}
         >
@@ -181,10 +181,10 @@ export default function AdminDashboardPage() {
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-7">
-          <p className="mb-1 font-mono text-[11px] font-bold uppercase tracking-widest text-success-fg">
+          <p className="mb-1 font-mono text-2xs font-bold uppercase tracking-widest text-success-fg">
             {t("admin.dashboard.teacherCrumb")}
           </p>
-          <h1 className="text-[28px] font-extrabold tracking-tight text-text">
+          <h1 className="text-xl font-extrabold tracking-tight text-text">
             {t("admin.dashboard.welcomeBack")}, {user?.full_name}
           </h1>
         </div>
@@ -227,7 +227,7 @@ export default function AdminDashboardPage() {
           <div className="mb-6 rounded-md border border-border bg-surface">
             <div className="flex items-center gap-2 border-b border-border px-5 py-3.5">
               <Sparkles className="h-4 w-4 text-green-600" />
-              <h3 className="text-[14px] font-extrabold text-text">
+              <h3 className="text-sm font-extrabold text-text">
                 {t("admin.dashboard.quickInsights")}
               </h3>
             </div>
@@ -322,7 +322,7 @@ export default function AdminDashboardPage() {
           teacherStats.recent_submissions.length > 0 && (
             <div className="mb-6 rounded-md border border-border bg-surface">
               <div className="border-b border-border px-5 py-3.5">
-                <h3 className="text-[14px] font-extrabold text-text">
+                <h3 className="text-sm font-extrabold text-text">
                   {t("admin.dashboard.recentSubmissions")}
                 </h3>
               </div>
@@ -334,7 +334,7 @@ export default function AdminDashboardPage() {
                   >
                     <div
                       className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px]",
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-xs",
                         sub.status === "graded"
                           ? "bg-success-soft text-success-fg"
                           : sub.status === "late"
@@ -348,17 +348,17 @@ export default function AdminDashboardPage() {
                       <p className="truncate text-sm font-bold text-text">
                         {sub.assignment_title}
                       </p>
-                      <p className="font-mono text-[10px] text-text-subtle">
+                      <p className="font-mono text-3xs text-text-subtle">
                         {sub.student_name} ·{" "}
                         {new Date(sub.submitted_at).toLocaleDateString()}
                       </p>
                     </div>
                     {sub.score != null ? (
-                      <span className="rounded-pill bg-success-soft px-2.5 py-0.5 font-mono text-[11px] font-bold text-success-fg">
+                      <span className="rounded-pill bg-success-soft px-2.5 py-0.5 font-mono text-2xs font-bold text-success-fg">
                         {sub.score}
                       </span>
                     ) : (
-                      <span className="rounded-pill bg-surface-2 px-2.5 py-0.5 font-mono text-[11px] font-bold text-text">
+                      <span className="rounded-pill bg-surface-2 px-2.5 py-0.5 font-mono text-2xs font-bold text-text">
                         {sub.status}
                       </span>
                     )}
@@ -409,13 +409,13 @@ export default function AdminDashboardPage() {
       {/* ── Page header ───────────────────────────────────────── */}
       <div className="mb-7 flex items-start justify-between border-b border-border pb-5">
         <div>
-          <p className="mb-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-success-fg">
+          <p className="mb-1.5 font-mono text-2xs font-bold uppercase tracking-widest text-success-fg">
             {t("admin.dashboard.adminCrumb")}
           </p>
-          <h1 className="mb-2 text-[28px] font-extrabold tracking-tight text-text">
+          <h1 className="mb-2 text-xl font-extrabold tracking-tight text-text">
             {t("admin.dashboard.title")}
           </h1>
-          <p className="max-w-md text-[14px] text-text-muted">
+          <p className="max-w-md text-sm text-text-muted">
             {t("admin.dashboard.subtitle")}
           </p>
         </div>
@@ -423,21 +423,21 @@ export default function AdminDashboardPage() {
           <button
             onClick={startOnboardingTour}
             title={t("admin.dashboard.tourTitle")}
-            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
+            className="flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <HelpCircle className="h-3.5 w-3.5" />
             {t("admin.dashboard.tour")}
           </button>
           <Link
             href="/admin/users"
-            className="flex h-9 items-center gap-1.5 rounded-[11px] border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
+            className="flex h-9 items-center gap-1.5 rounded-sm border border-border bg-surface px-3 text-xs font-bold text-text-muted transition-colors hover:border-green-300 hover:text-text"
           >
             <UserPlus className="h-3.5 w-3.5" />
             {t("admin.dashboard.addUser")}
           </Link>
           <Link
             href="/admin/courses"
-            className="btn-pop flex h-9 items-center gap-1.5 rounded-[11px] bg-primary px-4 text-xs font-bold text-primary-fg"
+            className="btn-pop flex h-9 items-center gap-1.5 rounded-sm bg-primary px-4 text-xs font-bold text-primary-fg"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("admin.dashboard.newCourse")}
@@ -453,7 +453,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between border-b border-green-200 px-5 py-3.5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-green-600" />
-                <h3 className="text-[14px] font-extrabold text-text">
+                <h3 className="text-sm font-extrabold text-text">
                   {t("admin.dashboard.gettingStarted")}
                 </h3>
               </div>
@@ -462,7 +462,7 @@ export default function AdminDashboardPage() {
                   setOnboardingDismissed(true);
                   localStorage.setItem("admin-onboarding-dismissed", "true");
                 }}
-                className="flex h-6 w-6 items-center justify-center rounded-[7px] text-text-subtle transition-colors hover:bg-success-soft hover:text-text"
+                className="flex h-6 w-6 items-center justify-center rounded-xs text-text-subtle transition-colors hover:bg-success-soft hover:text-text"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -524,25 +524,25 @@ export default function AdminDashboardPage() {
       {/* ── Invite students ───────────────────────────────────── */}
       <div className="mb-6 flex flex-col gap-3 rounded-md border border-green-200 bg-success-soft p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-success-soft">
+          <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-success-soft">
             <LinkIcon className="h-4 w-4 text-success-fg" />
           </div>
           <div>
             <p className="text-sm font-bold text-text">{t("admin.dashboard.inviteStudentsTitle")}</p>
-            <p className="font-mono text-[10px] text-text-muted">
+            <p className="font-mono text-3xs text-text-muted">
               {t("admin.dashboard.inviteStudentsHint")}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <code className="hidden rounded-[8px] bg-surface px-3 py-1.5 font-mono text-[11px] text-text-muted shadow-sm sm:block">
+          <code className="hidden rounded-xs bg-surface px-3 py-1.5 font-mono text-2xs text-text-muted shadow-sm sm:block">
             {inviteLink.length > 50
               ? inviteLink.slice(0, 50) + "..."
               : inviteLink}
           </code>
           <button
             onClick={copyInviteLink}
-            className="flex h-8 items-center gap-1.5 rounded-[9px] border border-green-300 bg-surface px-3 text-xs font-bold text-text transition-colors hover:bg-success-soft"
+            className="flex h-8 items-center gap-1.5 rounded-sm border border-green-300 bg-surface px-3 text-xs font-bold text-text transition-colors hover:bg-success-soft"
           >
             {copied ? (
               <>

@@ -131,7 +131,7 @@ export default function MapPinDropExercise({ config, onSubmit }: Props) {
             >
               <div className="flex flex-col items-center">
                 <span
-                  className={`rounded-pill px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
+                  className={`rounded-pill px-2 py-0.5 text-3xs font-bold whitespace-nowrap ${
                     isCorrect === true ? "bg-primary text-primary-fg" : isCorrect === false ? "bg-danger text-primary-fg" : "bg-ink-700 text-primary-fg"
                   }`}
                 >

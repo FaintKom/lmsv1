@@ -147,7 +147,7 @@ export default function TheoryConfig({
               }`}
             >
               <div className="text-sm font-bold text-text">{s.label}</div>
-              <div className="mt-0.5 text-[11px] leading-tight text-text-muted">{t(s.subKey)}</div>
+              <div className="mt-0.5 text-2xs leading-tight text-text-muted">{t(s.subKey)}</div>
             </button>
           ))}
         </div>
@@ -173,7 +173,7 @@ export default function TheoryConfig({
                 <span className="text-sm font-medium">
                   {uploading ? t("theory.cfg.uploading") : `${t("theory.cfg.clickUpload")} ${kind.toUpperCase()}`}
                 </span>
-                <span className="text-[11px]">{t("theory.cfg.maxSize")}</span>
+                <span className="text-2xs">{t("theory.cfg.maxSize")}</span>
               </div>
             )}
             <input
@@ -202,7 +202,7 @@ export default function TheoryConfig({
           </div>
         )}
         {!isFileSource && url && (
-          <div className="mt-2 break-all rounded-lg bg-success-soft px-3 py-2 font-mono text-[11px] text-primary">
+          <div className="mt-2 break-all rounded-lg bg-success-soft px-3 py-2 font-mono text-2xs text-primary">
             {url}
           </div>
         )}

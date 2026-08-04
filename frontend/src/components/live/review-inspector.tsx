@@ -86,11 +86,11 @@ export function ReviewInspector({
       <div className="mb-1 flex items-center gap-3">
         <h2 className="text-xl font-extrabold text-text">{exercise?.title ?? ""}</h2>
         {exercise?.exercise_type && (
-          <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-text">
+          <span className="rounded-pill bg-surface-2 px-2 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide text-text">
             {exercise.exercise_type}
           </span>
         )}
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-sun-700">
+        <span className="ml-auto inline-flex items-center gap-1.5 rounded-pill bg-warning-soft px-2.5 py-1 font-mono text-3xs font-bold uppercase tracking-wide text-sun-700">
           <Eye size={11} /> {t("live.teacherOnly")}
         </span>
       </div>
@@ -112,7 +112,7 @@ export function ReviewInspector({
                 <span className="text-sm font-bold text-text">{m.name}</span>
                 {row && (
                   <span
-                    className={`ml-auto rounded-pill px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                    className={`ml-auto rounded-pill px-2 py-0.5 font-mono text-3xs font-bold uppercase ${
                       row.passed
                         ? "bg-success-soft text-success-fg"
                         : row.submitted

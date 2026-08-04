@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircleQuestion } from "lucide-react";
+import { Check, Hand, HelpCircle, MessageCircleQuestion, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { askQuestion, clearSignal, setSignal, type SignalType } from "@/lib/api/live";
@@ -29,29 +29,29 @@ export function SignalBar({
     }
   };
 
-  const btn = (type: SignalType, label: string, emoji: string) => (
+  const btn = (type: SignalType, label: string, Icon: LucideIcon) => (
     <button
       key={type}
       onClick={() => void toggle(type)}
-      className={`rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
+      className={`inline-flex items-center gap-1.5 rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
           ? "btn-pop bg-primary text-primary-fg"
           : "border-2 border-border bg-surface text-text hover:border-green-300"
       }`}
     >
-      {emoji} {label}
+      <Icon size={16} /> {label}
     </button>
   );
 
   return (
     <div className="flex flex-col items-center gap-1.5 border-t border-border bg-surface p-3 pt-2">
-      <div className="font-mono text-[10px] font-bold uppercase tracking-wide text-text-subtle">
+      <div className="font-mono text-3xs font-bold uppercase tracking-wide text-text-subtle">
         {t("live.signalHint")}
       </div>
       <div className="flex items-center justify-center gap-3">
-        {btn("hand", t("live.signal.hand"), "✋")}
-        {btn("confused", t("live.signal.confused"), "🤔")}
-        {btn("done", t("live.signal.done"), "✅")}
+        {btn("hand", t("live.signal.hand"), Hand)}
+        {btn("confused", t("live.signal.confused"), HelpCircle)}
+        {btn("done", t("live.signal.done"), Check)}
         <button
           onClick={() => setAsking(true)}
           className="inline-flex items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"

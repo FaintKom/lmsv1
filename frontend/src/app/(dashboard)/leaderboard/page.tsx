@@ -156,14 +156,14 @@ export default function LeaderboardPage() {
  <div className="flex items-center gap-2 mt-0.5">
  {entry.league && (
  <span
- className={`inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-[10px] font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
+ className={`inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-3xs font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
  >
  <LeagueMark kind={leagueKindFromName(entry.league.name)} size={12} className="inline-block" />
  {entry.league.name}
  </span>
  )}
  {entry.current_streak > 0 && (
- <span className="inline-flex items-center gap-0.5 text-[10px] text-clay-700">
+ <span className="inline-flex items-center gap-0.5 text-3xs text-clay-700">
  <Flame className="h-3 w-3" />
  {entry.current_streak}d
  </span>
@@ -177,7 +177,7 @@ export default function LeaderboardPage() {
  <Zap className="h-3.5 w-3.5 text-warning-fg" />
  {entry.total_xp.toLocaleString()}
  </p>
- <p className="text-[10px] text-text-muted">{t("leaderboard.xp")}</p>
+ <p className="text-3xs text-text-muted">{t("leaderboard.xp")}</p>
  </div>
  </div>
  );
@@ -221,7 +221,7 @@ function PodiumCard({
  </p>
  {entry.league && (
  <span
- className={`mt-1 inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-[9px] font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
+ className={`mt-1 inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-3xs font-semibold ${leagueStyle.bg} ${leagueStyle.text} ${leagueStyle.border}`}
  >
  <LeagueMark kind={leagueKindFromName(entry.league.name)} size={11} className="inline-block" />
  {entry.league.name}

@@ -382,7 +382,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
         ].map((m) => (
           <Card key={m.key} className="flex-1">
             <CardContent className="flex items-center justify-between px-3.5 py-3">
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-text-subtle">
+              <span className="font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
                 {m.label}
               </span>
               <span className={`text-2xl font-extrabold tracking-tight ${m.color}`}>
@@ -418,7 +418,7 @@ function TodayTab({ courses, isManager }: TodayTabProps) {
           ))}
         </Card>
       )}
-      <p className="text-[11.5px] text-text-subtle">{t("journal.agendaHint")}</p>
+      <p className="text-xs text-text-subtle">{t("journal.agendaHint")}</p>
 
       {openRow && (
         <SessionDetail
@@ -496,7 +496,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
       }`}
     >
       {/* Time */}
-      <span className="font-mono text-[12.5px] font-bold text-text">
+      <span className="font-mono text-sm font-bold text-text">
         {row.start_time}–{row.end_time}
       </span>
 
@@ -511,7 +511,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
             {row.course_title}
           </div>
           {row.teacher_name ? (
-            <div className="truncate text-[11.5px] font-semibold text-text-subtle">
+            <div className="truncate text-xs font-semibold text-text-subtle">
               {row.teacher_name}
             </div>
           ) : null}
@@ -547,7 +547,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
         onBlur={saveTopic}
         placeholder={t("journal.topicPlaceholder")}
         maxLength={500}
-        className="min-w-0 rounded-lg border border-border bg-surface px-2 py-1 text-[12.5px] text-text"
+        className="min-w-0 rounded-lg border border-border bg-surface px-2 py-1 text-sm text-text"
       />
 
       {/* Status + chevron */}
@@ -555,12 +555,12 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
         {saving ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin text-text-subtle" />
         ) : marked ? (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-green-700">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700">
             <span className="h-2 w-2 rounded-full bg-green-600" />
             {row.attendance.present}/{row.attendance.total}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-text-subtle">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-text-subtle">
             <span className="h-2 w-2 rounded-full border-2 border-border-strong" />
             {t("journal.notMarked")}
           </span>
@@ -571,7 +571,7 @@ function AgendaRow({ row, date, isFirst, onOpen, onJoin }: AgendaRowProps) {
               e.stopPropagation();
               onJoin();
             }}
-            className="shrink-0 rounded-pill border border-primary px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10"
+            className="shrink-0 rounded-pill border border-primary px-2.5 py-1 text-2xs font-semibold text-primary hover:bg-primary/10"
           >
             {t("journal.join")}
           </button>
@@ -799,7 +799,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
           <div className="flex min-w-0 flex-col gap-2.5">
             <div className="flex items-center justify-between">
               <MatrixLegend />
-              <span className="text-[11.5px] text-text-subtle">
+              <span className="text-xs text-text-subtle">
                 {t("journal.clickCycleHint")}
               </span>
             </div>
@@ -807,7 +807,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
               <table className="w-full border-separate border-spacing-0 tabular-nums">
                 <thead>
                   <tr>
-                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-left font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
+                    <th className="sticky left-0 top-0 z-30 h-8 min-w-[170px] border-b-[1.5px] border-r-[1.5px] border-border bg-surface-2 px-2.5 py-0 text-left font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.student")}
                     </th>
                     {dates.map((d) => {
@@ -823,13 +823,13 @@ function RegisterTab({ courses }: RegisterTabProps) {
                           <div className="text-xs font-extrabold text-text">
                             {d.slice(5)}
                           </div>
-                          <div className="font-mono text-[9px] font-semibold text-text-subtle">
+                          <div className="font-mono text-3xs font-semibold text-text-subtle">
                             {wd}
                           </div>
                         </th>
                       );
                     })}
-                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
+                    <th className="sticky right-0 top-0 z-30 h-8 border-b-[1.5px] border-l-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.attShort")}
                     </th>
                   </tr>
@@ -885,7 +885,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-[11px] font-bold uppercase tracking-wide text-text-muted">
+                    <td className="sticky left-0 z-10 h-8 border-r-[1.5px] border-t-[1.5px] border-border bg-surface-2 px-2.5 py-0 font-mono text-2xs font-bold uppercase tracking-wide text-text-muted">
                       {t("journal.presentFrom")} {students.length}
                     </td>
                     {colTotals.map((tot, i) => (
@@ -913,12 +913,12 @@ function RegisterTab({ courses }: RegisterTabProps) {
           <div className="flex flex-col gap-3">
             <Card>
               <CardContent className="px-4 py-4">
-                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-text-subtle">
+                <div className="font-mono text-3xs font-semibold uppercase tracking-[0.14em] text-text-subtle">
                   {t("journal.avgAttendance")}
                 </div>
                 <div className="mt-1 flex items-baseline gap-1.5">
                   <span
-                    className={`text-[34px] font-extrabold tracking-tight ${
+                    className={`text-2xl font-extrabold tracking-tight ${
                       avgPct >= 85 ? "text-green-700" : "text-sun-700"
                     }`}
                   >
@@ -937,7 +937,7 @@ function RegisterTab({ courses }: RegisterTabProps) {
                   <span className="text-sm font-extrabold text-text">
                     {t("journal.atRisk")}
                   </span>
-                  <span className="ml-auto font-mono text-[11px] font-bold text-text-subtle">
+                  <span className="ml-auto font-mono text-2xs font-bold text-text-subtle">
                     &lt; 85%
                   </span>
                 </div>
@@ -954,10 +954,10 @@ function RegisterTab({ courses }: RegisterTabProps) {
                           {stu.student_name.charAt(0)}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-[12.5px] font-bold text-text">
+                          <div className="truncate text-sm font-bold text-text">
                             {stu.student_name}
                           </div>
-                          <div className="text-[10.5px] font-semibold text-text-subtle">
+                          <div className="text-2xs font-semibold text-text-subtle">
                             {absent} {t("journal.missesShort")}
                             {late ? ` · ${late} ${t("journal.latesShort")}` : ""}
                           </div>
@@ -989,10 +989,10 @@ function MatrixLegend() {
         return (
           <span
             key={s}
-            className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-text-muted"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted"
           >
             <span
-              className={`grid h-4 w-4 place-items-center rounded font-mono text-[10px] font-extrabold ${token.cell}`}
+              className={`grid h-4 w-4 place-items-center rounded font-mono text-3xs font-extrabold ${token.cell}`}
             >
               {token.letter}
             </span>
@@ -1158,7 +1158,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
           {isManager && (
             <button
               onClick={openAdd}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-fg shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-fg shadow-pop hover:bg-primary-hover active:translate-y-0.5 active:shadow-none"
             >
               <Plus className="h-3.5 w-3.5" />
               {t("schedule.addLesson")}
@@ -1171,7 +1171,7 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
       {week.clashCount > 0 && (
         <div className="flex items-center gap-2.5 rounded-xl border border-clay-300 bg-danger-soft px-3.5 py-2.5">
           <AlertTriangle className="h-4 w-4 shrink-0 text-clay-500" />
-          <span className="text-[12.5px] font-bold text-clay-700">
+          <span className="text-sm font-bold text-clay-700">
             {t("schedule.clashesFound").replace(
               "{count}",
               String(week.clashCount),
@@ -1186,13 +1186,13 @@ function ScheduleTab({ courses, isManager }: ScheduleTabProps) {
       {/* Color legend (course → group) */}
       {legendCourses.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-0.5 font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] text-text-subtle">
+          <span className="mr-0.5 font-mono text-2xs font-bold uppercase tracking-[0.08em] text-text-subtle">
             {t("schedule.groupsLegend")}
           </span>
           {legendCourses.map(([cid, title]) => (
             <span
               key={cid}
-              className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface-2 py-1 pl-2 pr-2.5 text-[11.5px] font-bold text-text"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface-2 py-1 pl-2 pr-2.5 text-xs font-bold text-text"
             >
               <span
                 className="h-2.5 w-2.5 rounded"
@@ -1255,10 +1255,10 @@ function WeekGrid({
               key={d}
               className="border-b-[1.5px] border-l border-border border-l-ink-50 bg-surface-2 py-2.5 text-center"
             >
-              <div className="text-[12.5px] font-extrabold text-text">
+              <div className="text-sm font-extrabold text-text">
                 {wd}
               </div>
-              <div className="font-mono text-[10px] font-semibold text-text-subtle">
+              <div className="font-mono text-3xs font-semibold text-text-subtle">
                 {dayIso.slice(8)}.{dayIso.slice(5, 7)}
               </div>
             </div>
@@ -1271,7 +1271,7 @@ function WeekGrid({
             <div
               key={h}
               style={{ height: SCHED_ROW_H }}
-              className="px-1.5 pt-1 text-right font-mono text-[10px] font-semibold text-text-subtle"
+              className="px-1.5 pt-1 text-right font-mono text-3xs font-semibold text-text-subtle"
             >
               {h}:00
             </div>
@@ -1300,7 +1300,7 @@ function WeekGrid({
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[11.5px] text-text-subtle">{t("schedule.gridHint")}</p>
+      <p className="mt-3 text-xs text-text-subtle">{t("schedule.gridHint")}</p>
     </div>
   );
 }
@@ -1340,12 +1340,12 @@ function SchedBlock({
         {clash && (
           <AlertTriangle className="h-[11px] w-[11px] shrink-0 text-clay-500" />
         )}
-        <span className="truncate text-[11px] font-extrabold text-text">
+        <span className="truncate text-2xs font-extrabold text-text">
           {slot.course_title}
         </span>
       </div>
       <div
-        className={`mt-0.5 flex items-center gap-1 text-[9.5px] font-semibold ${
+        className={`mt-0.5 flex items-center gap-1 text-3xs font-semibold ${
           clash ? "text-clay-700" : "text-text-subtle"
         }`}
       >
@@ -1550,7 +1550,7 @@ function SchedSlotEditor({
 
         {/* Conflict lists (room + teacher) with Save anyway */}
         {hasConflict && (
-          <div className="space-y-1.5 rounded-lg border border-clay-300 bg-danger-soft p-3 text-[11.5px] text-clay-700">
+          <div className="space-y-1.5 rounded-lg border border-clay-300 bg-danger-soft p-3 text-xs text-clay-700">
             {roomConflicts.length > 0 && (
               <div>
                 <span className="font-bold">{t("journal.roomClashWarning")}</span>{" "}
@@ -1605,7 +1605,7 @@ function SchedSlotEditor({
               <button
                 onClick={() => save(false)}
                 disabled={saving}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-fg shadow-[0_3px_0_0_var(--green-700)] hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-fg shadow-pop hover:bg-primary-hover active:translate-y-0.5 active:shadow-none disabled:opacity-50"
               >
                 {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 {t("schedule.save")}
@@ -1740,18 +1740,18 @@ function RoomsTab() {
           <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-0">
             <thead>
               <tr>
-                <th className="w-[150px] border-b-[1.5px] border-border p-3 text-left text-[11px] font-bold text-text-muted">
+                <th className="w-[150px] border-b-[1.5px] border-border p-3 text-left text-2xs font-bold text-text-muted">
                   {t("journal.room")}
                 </th>
                 {BOARD_HOURS.map((h) => (
                   <th
                     key={h}
-                    className="border-b-[1.5px] border-l border-border border-l-ink-50 py-2.5 text-center font-mono text-[10.5px] font-bold text-text-subtle"
+                    className="border-b-[1.5px] border-l border-border border-l-ink-50 py-2.5 text-center font-mono text-2xs font-bold text-text-subtle"
                   >
                     {h}
                   </th>
                 ))}
-                <th className="w-16 border-b-[1.5px] border-l-[1.5px] border-border px-2.5 py-2.5 text-[11px] font-bold text-text-muted">
+                <th className="w-16 border-b-[1.5px] border-l-[1.5px] border-border px-2.5 py-2.5 text-2xs font-bold text-text-muted">
                   {t("journal.utilization")}
                 </th>
               </tr>
@@ -1769,7 +1769,7 @@ function RoomsTab() {
         </Card>
       )}
 
-      <p className="text-[11.5px] text-text-subtle">{t("journal.roomBoardHint")}</p>
+      <p className="text-xs text-text-subtle">{t("journal.roomBoardHint")}</p>
     </div>
   );
 }
@@ -1800,11 +1800,11 @@ function RoomBoardRow({
             style={{ backgroundColor: groupColor(room.room_id) }}
           />
           <div className="min-w-0">
-            <div className="flex items-center gap-1 text-[12.5px] font-extrabold text-text">
+            <div className="flex items-center gap-1 text-sm font-extrabold text-text">
               {room.video && <Video className="h-3 w-3 shrink-0 text-info" />}
               <span className="truncate">{room.room_name}</span>
             </div>
-            <div className="truncate font-mono text-[9.5px] font-semibold text-text-subtle">
+            <div className="truncate font-mono text-3xs font-semibold text-text-subtle">
               {[room.site, room.capacity != null ? `${room.capacity}` : null]
                 .filter(Boolean)
                 .join(" · ")}
@@ -1841,7 +1841,7 @@ function RoomBoardRow({
                     <AlertTriangle className="h-[11px] w-[11px] shrink-0 text-clay-500" />
                   )}
                   <span
-                    className={`truncate text-[9.5px] font-extrabold ${
+                    className={`truncate text-3xs font-extrabold ${
                       isClash ? "text-clay-700" : "text-green-800"
                     }`}
                   >
@@ -2065,7 +2065,7 @@ function CurriculumRow({
 
   return (
     <div className="flex items-center gap-2 px-3 py-2">
-      <span className="w-6 text-center font-mono text-[11px] font-bold text-text-subtle">
+      <span className="w-6 text-center font-mono text-2xs font-bold text-text-subtle">
         {String(topic.position).padStart(2, "0")}
       </span>
       <input
@@ -2074,7 +2074,7 @@ function CurriculumRow({
         onBlur={commitTitle}
         className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1.5 py-1 text-sm font-semibold text-text hover:border-border focus:border-border-focus focus:outline-none"
       />
-      <label className="flex items-center gap-1 text-[11px] text-text-subtle">
+      <label className="flex items-center gap-1 text-2xs text-text-subtle">
         <input
           type="number"
           min={1}
@@ -2318,7 +2318,7 @@ function TimetablePanel({ courses }: { courses: CourseOption[] }) {
               {t("journal.generateFromSchedule")}
             </h4>
             <div className="flex flex-wrap items-end gap-2">
-              <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+              <label className="flex flex-col gap-1 text-2xs text-text-muted">
                 {t("journal.from")}
                 <input
                   type="date"
@@ -2327,7 +2327,7 @@ function TimetablePanel({ courses }: { courses: CourseOption[] }) {
                   className="rounded-lg border border-border-strong px-2 py-1 text-xs"
                 />
               </label>
-              <label className="flex flex-col gap-1 text-[11px] text-text-muted">
+              <label className="flex flex-col gap-1 text-2xs text-text-muted">
                 {t("journal.to")}
                 <input
                   type="date"
@@ -2439,7 +2439,7 @@ function SlotRow({ initial, rooms, isNew, onSave, onDelete }: SlotRowProps) {
         <button
           onClick={() => save(false)}
           disabled={saving}
-          className="rounded-pill bg-primary px-2 py-1 text-[11px] font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
+          className="rounded-pill bg-primary px-2 py-1 text-2xs font-semibold text-primary-fg hover:bg-primary-hover disabled:opacity-50"
           title={isNew ? t("schedule.addSlot") : t("schedule.save")}
         >
           {saving ? (
@@ -2460,7 +2460,7 @@ function SlotRow({ initial, rooms, isNew, onSave, onDelete }: SlotRowProps) {
       </div>
 
       {conflicts && (
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-danger-fg">
+        <div className="flex flex-wrap items-center gap-2 text-2xs text-danger-fg">
           <AlertTriangle className="h-3.5 w-3.5" />
           <span>
             {t("journal.roomClashWarning")}{" "}
@@ -2742,7 +2742,7 @@ function RoomsPanel({ canManage }: { canManage: boolean }) {
         )}
 
         {!canManage && (
-          <p className="text-[11px] text-text-subtle">
+          <p className="text-2xs text-text-subtle">
             {t("journal.roomsReadOnly")}
           </p>
         )}
@@ -2897,7 +2897,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
                   <Building2 className="h-3 w-3 shrink-0 text-text-subtle" />
                   {site.name}
                 </span>
-                <span className="font-mono text-[10px] text-text-subtle">
+                <span className="font-mono text-3xs text-text-subtle">
                   {site.timezone}
                 </span>
                 {canManage && (
@@ -2925,7 +2925,7 @@ function SitesPanel({ canManage }: { canManage: boolean }) {
         )}
 
         {!canManage && (
-          <p className="text-[11px] text-text-subtle">
+          <p className="text-2xs text-text-subtle">
             {t("journal.sitesReadOnly")}
           </p>
         )}

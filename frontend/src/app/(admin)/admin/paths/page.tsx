@@ -252,7 +252,7 @@ export default function AdminPathsPage() {
  </h3>
  <div className="mt-1 flex items-center gap-3 text-xs text-text-muted ">
  <span>{p.step_count} {t("admin.paths.coursesCount")}</span>
- <span className={`rounded-pill px-2 py-0.5 text-[10px] font-medium ${
+ <span className={`rounded-pill px-2 py-0.5 text-3xs font-medium ${
  p.is_published
  ? "bg-primary-soft text-success-fg "
  : "bg-surface-2 text-text-muted "

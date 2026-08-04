@@ -83,14 +83,14 @@ function StudentMock() {
  <Award className="h-5 w-5 text-warning-fg" />
  <div>
  <p className="text-sm font-bold text-warning-fg">1240 XP</p>
- <p className="text-[10px] text-warning-fg">Gold</p>
+ <p className="text-3xs text-warning-fg">Gold</p>
  </div>
  </div>
  <div className="flex items-center gap-2 rounded-lg border border-danger-soft bg-danger-soft/60 px-3 py-2.5">
  <Flame className="h-5 w-5 text-danger-fg" />
  <div>
  <p className="text-sm font-bold text-danger-fg">7 🔥</p>
- <p className="text-[10px] text-danger-fg">streak</p>
+ <p className="text-3xs text-danger-fg">streak</p>
  </div>
  </div>
  </div>
@@ -133,7 +133,7 @@ function TeacherMock() {
  <div className="space-y-1.5">
  {grades.map((row, r) => (
  <div key={r} className="flex items-center gap-1.5">
- <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-2 text-[10px] font-bold text-text-muted">
+ <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-2 text-3xs font-bold text-text-muted">
  {String.fromCharCode(65 + r)}
  </span>
  {row.map((v, c) => (
@@ -152,14 +152,14 @@ function TeacherMock() {
  <ClipboardCheck className="h-5 w-5 text-info-fg" />
  <div>
  <p className="text-sm font-bold text-info-fg">5</p>
- <p className="text-[10px] text-info-fg">{t("landing.roles.mockReview")}</p>
+ <p className="text-3xs text-info-fg">{t("landing.roles.mockReview")}</p>
  </div>
  </div>
  <div className="flex items-center gap-2 rounded-lg border border-primary-soft bg-success-soft/60 px-3 py-2.5">
  <BarChart3 className="h-5 w-5 text-primary" />
  <div>
  <p className="text-sm font-bold text-success-fg">79%</p>
- <p className="text-[10px] text-success-fg">{t("landing.roles.mockAvg")}</p>
+ <p className="text-3xs text-success-fg">{t("landing.roles.mockAvg")}</p>
  </div>
  </div>
  </div>

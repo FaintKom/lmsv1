@@ -30,6 +30,8 @@ import {
   useConfetti,
   type LessonFeedback,
 } from "@/components/lesson/lesson-shell";
+import { Sprout } from "lucide-react";
+
 import { useTranslation } from "@/lib/i18n/context";
 import { MaybeMath } from "@/components/common/math-renderer";
 import type { V2GradeFn } from "@/lib/exercises/v2-adapter";
@@ -138,9 +140,7 @@ export function QuizV2({
           gap: 6,
         }}
       >
-        <div style={{ fontSize: 44 }} aria-hidden="true">
-          🪴
-        </div>
+        <Sprout size={44} strokeWidth={1.5} color="var(--color-text-subtle)" aria-hidden="true" />
         <div style={{ fontWeight: 800, fontSize: 19, color: "var(--color-text)" }}>
           {t("exercise.quiz.emptyTitle")}
         </div>

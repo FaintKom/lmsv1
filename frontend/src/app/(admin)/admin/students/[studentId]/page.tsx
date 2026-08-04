@@ -153,7 +153,7 @@ export default function StudentProfilePage() {
               <Star className="h-5 w-5 text-reward" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.total_xp}</div>
-                <div className="text-[11px] text-text-subtle">
+                <div className="text-2xs text-text-subtle">
                   {t("admin.studentProfile.totalXp")}
                 </div>
               </div>
@@ -162,7 +162,7 @@ export default function StudentProfilePage() {
               <Flame className="h-5 w-5 text-danger" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.current_streak}</div>
-                <div className="text-[11px] text-text-subtle">
+                <div className="text-2xs text-text-subtle">
                   {t("admin.studentProfile.currentStreak")}
                 </div>
               </div>
@@ -171,7 +171,7 @@ export default function StudentProfilePage() {
               <Trophy className="h-5 w-5 text-reward-fg" />
               <div>
                 <div className="text-lg font-bold text-text">{gamification.longest_streak}</div>
-                <div className="text-[11px] text-text-subtle">
+                <div className="text-2xs text-text-subtle">
                   {t("admin.studentProfile.longestStreak")}
                 </div>
               </div>

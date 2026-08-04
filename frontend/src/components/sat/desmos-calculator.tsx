@@ -46,7 +46,7 @@ export default function DesmosCalculator({ open, onToggle }: DesmosCalculatorPro
  <button
  key={m.key}
  onClick={() => setMode(i)}
- className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+ className={`rounded-md px-2.5 py-1 text-2xs font-semibold transition-colors ${
  mode === i
  ? "bg-surface text-text shadow-sm "
  : "text-text-subtle hover:text-text-muted "

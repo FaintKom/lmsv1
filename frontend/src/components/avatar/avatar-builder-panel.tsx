@@ -88,7 +88,7 @@ export function AvatarBuilderPanel({ state }: AvatarBuilderPanelProps) {
           >
             {t(tabDef.key)}
             {tab === tabDef.id && (
-              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-[3px] bg-primary" />
+              <span className="absolute inset-x-1 bottom-0 h-[3px] rounded-t-xs bg-primary" />
             )}
           </button>
         ))}
@@ -137,7 +137,7 @@ function AvatarCard({
         "group relative flex w-full flex-col gap-2 rounded-md border bg-surface p-2.5 text-left transition",
         "border-border hover:-translate-y-px hover:border-green-300 hover:shadow-sm",
         isEquipped &&
-          "border-green-500 shadow-[0_0_0_2px_var(--green-100,#d4f0db),0_1px_2px_rgba(20,30,15,0.06)]",
+          "border-green-500 ring-2 ring-primary-soft shadow-xs",
         isLocked && "cursor-not-allowed opacity-85",
       )}
     >
@@ -147,14 +147,14 @@ function AvatarCard({
         </div>
       </div>
 
-      <p className="text-[12.5px] font-bold leading-tight text-text">
+      <p className="text-sm font-bold leading-tight text-text">
         {t(item.i18n_key) || item.name}
       </p>
 
       <div className="mt-auto flex items-center justify-between gap-1">
         <StatusPill status={status} t={t} />
         {item.price > 0 && (
-          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tabular-nums text-reward-fg">
+          <span className="inline-flex items-center gap-0.5 text-2xs font-bold tabular-nums text-reward-fg">
             <Zap className="h-2.5 w-2.5 fill-current" />
             {item.price}
           </span>
@@ -183,7 +183,7 @@ function StatusPill({ status, t }: { status: Status; t: (k: string) => string })
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-3xs font-semibold",
         styles[status],
       )}
     >

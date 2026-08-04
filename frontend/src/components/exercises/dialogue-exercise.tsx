@@ -195,7 +195,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  <div className={`max-w-[78%] ${isUser ? "items-end" : "items-start"}`}>
  {/* Speaker name */}
  {!isUser && (
- <p className="text-[10px] font-semibold text-text-subtle mb-1 ml-1">
+ <p className="text-3xs font-semibold text-text-subtle mb-1 ml-1">
  {msg.speaker}
  </p>
  )}
@@ -217,7 +217,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
 
  {/* Show correct answer if user was wrong */}
  {choiceResult === false && (
- <p className="text-[11px] text-danger-fg font-medium mt-1 ml-1">
+ <p className="text-2xs text-danger-fg font-medium mt-1 ml-1">
  Correct: {msg.options?.find((o) => o.is_correct)?.text}
  </p>
  )}
@@ -229,7 +229,7 @@ export default function DialogueExercise({ config, onSubmit }: Props) {
  {/* Choice buttons for current blocking choice */}
  {!submitted && currentChoiceIndex !== undefined && (
  <div className="space-y-2 pl-11 pt-2">
- <p className="text-[11px] font-semibold uppercase tracking-wider text-text-subtle ">
+ <p className="text-2xs font-semibold uppercase tracking-wider text-text-subtle ">
  Choose your response
  </p>
  {messages[currentChoiceIndex].options?.map((opt) => (

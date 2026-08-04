@@ -59,7 +59,7 @@ export default function ConjugationExercise({ config, onSubmit }: Props) {
  <div className="space-y-5">
  {/* Verb header */}
  <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary to-primary-hover p-6 text-white shadow-lg">
- <div className="absolute -right-4 -top-4 text-[80px] opacity-10 select-none">
+ <div className="absolute -right-4 -top-4 text-5xl opacity-10 select-none">
  {"\u270D\uFE0F"}
  </div>
  <p className="text-sm font-medium text-success-soft mb-1">Conjugate the verb</p>

@@ -650,7 +650,7 @@ function ArithmeticPuzzleConfig({
  </label>
  ))}
  </div>
- <span className="ml-auto text-[10px] text-text-subtle">
+ <span className="ml-auto text-3xs text-text-subtle">
  answer = {fillBlankValue(r)}
  </span>
  <button
@@ -1083,7 +1083,7 @@ function MCMathConfig({
  </div>
  ))}
  </div>
- <p className="mt-1 text-[11px] text-text-subtle">
+ <p className="mt-1 text-2xs text-text-subtle">
  Tick the radio next to the correct answer. Exactly one must be correct.
  </p>
  </div>
@@ -1588,7 +1588,7 @@ function CardSortConfig({
  placeholder="Category label"
  className={`flex-1 ${inputCls}`}
  />
- <span className="font-mono text-[10px] text-text-subtle">id: {cat.id}</span>
+ <span className="font-mono text-3xs text-text-subtle">id: {cat.id}</span>
  <button
  type="button"
  onClick={() => removeCategory(i)}
@@ -1739,7 +1739,7 @@ function TablePatternConfig({
  + Add row
  </button>
  </div>
- <p className="mb-2 text-[11px] text-text-subtle">
+ <p className="mb-2 text-2xs text-text-subtle">
  Tick "Blank" on rows where the student should fill in the y-value.
  </p>
  <div className="space-y-1.5">

@@ -116,7 +116,7 @@ export default function SkillsPage() {
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
  <span className={`rounded-lg p-1.5 text-xs ${CATEGORY_COLORS[cat] || "bg-surface-2 text-text-muted"}`}>
- {s.skill_icon || "⚡"}
+ {s.skill_icon || <Zap className="h-3.5 w-3.5" />}
  </span>
  <span className="font-medium text-text ">{s.skill_name}</span>
  </div>
