@@ -17,9 +17,9 @@ interface Category {
 }
 
 const DEFAULT_CATEGORIES: Category[] = [
- { id: "linear", label: "Linear", color: "#4C97FF" },
- { id: "quadratic", label: "Quadratic", color: "#FF8C1A" },
- { id: "exponential", label: "Exponential", color: "#40BF4A" },
+ { id: "linear", label: "Linear", color: "var(--viz-1)" },
+ { id: "quadratic", label: "Quadratic", color: "var(--viz-2)" },
+ { id: "exponential", label: "Exponential", color: "var(--viz-3)" },
 ];
 
 const DEFAULT_CARDS: Card[] = [

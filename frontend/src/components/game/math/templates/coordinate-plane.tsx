@@ -10,12 +10,14 @@ interface Point {
  y: number;
 }
 
+// Fixed categorical order, never cycled past 5. The letter carries identity —
+// the colour is secondary, so a colourblind reader loses nothing.
 const POINT_COLORS = [
- { fill: "#6366f1", label: "#4f46e5", name: "A", bg: "bg-primary-soft text-success-fg" },
- { fill: "#f59e0b", label: "#d97706", name: "B", bg: "bg-warning-soft text-warning-fg" },
- { fill: "#ec4899", label: "#db2777", name: "C", bg: " text-text" },
- { fill: "#22c55e", label: "#16a34a", name: "D", bg: "bg-primary-soft text-success-fg" },
- { fill: "#8b5cf6", label: "#7c3aed", name: "E", bg: "bg-primary-soft text-success-fg" },
+ { fill: "var(--viz-1)", name: "A" },
+ { fill: "var(--viz-2)", name: "B" },
+ { fill: "var(--viz-3)", name: "C" },
+ { fill: "var(--viz-4)", name: "D" },
+ { fill: "var(--viz-5)", name: "E" },
 ];
 
 export default function CoordinatePlane({ config, onComplete }: MathTemplateProps) {
@@ -99,14 +101,14 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  for (let i = -gridRange; i <= gridRange; i++) {
  gridLines.push(
  <line key={`vg${i}`} x1={toSvg(i, "x")} y1={padding} x2={toSvg(i, "x")} y2={svgSize - padding}
- stroke={i === 0 ? "currentColor" : "#e2e8f0"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
+ stroke={i === 0 ? "currentColor" : "var(--color-border)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />,
  <line key={`hg${i}`} x1={padding} y1={toSvg(i, "y")} x2={svgSize - padding} y2={toSvg(i, "y")}
- stroke={i === 0 ? "currentColor" : "#e2e8f0"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
+ stroke={i === 0 ? "currentColor" : "var(--color-border)"} strokeWidth={i === 0 ? 2 : 0.5} className="" />
  );
  if (i !== 0) {
  gridLines.push(
- <text key={`xl${i}`} x={toSvg(i, "x")} y={toSvg(0, "y") + 16} textAnchor="middle" fontSize={10} fill="#94a3b8">{i}</text>,
- <text key={`yl${i}`} x={toSvg(0, "x") - 12} y={toSvg(i, "y") + 4} textAnchor="middle" fontSize={10} fill="#94a3b8">{i}</text>
+ <text key={`xl${i}`} x={toSvg(i, "x")} y={toSvg(0, "y") + 16} textAnchor="middle" fontSize={10} fill="var(--color-text-subtle)">{i}</text>,
+ <text key={`yl${i}`} x={toSvg(0, "x") - 12} y={toSvg(i, "y") + 4} textAnchor="middle" fontSize={10} fill="var(--color-text-subtle)">{i}</text>
  );
  }
  }
@@ -118,7 +120,8 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  {targetPoints.map((p, i) => {
  const color = POINT_COLORS[i % POINT_COLORS.length];
  return (
- <span key={i} className={`inline-flex items-center gap-1 rounded-pill px-2.5 py-0.5 text-xs font-bold ${color.bg}`}>
+ <span key={i} className="inline-flex items-center gap-1.5 rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-bold text-text">
+ <span className="h-2 w-2 shrink-0 rounded-pill" style={{ background: color.fill }} />
  {color.name} → ({p.x}, {p.y})
  </span>
  );
@@ -138,13 +141,13 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  {gridLines}
 
  {/* Axis labels */}
- <text x={svgSize - padding + 10} y={toSvg(0, "y") + 4} fontSize={12} fill="#64748b" fontWeight="bold">x</text>
- <text x={toSvg(0, "x") + 8} y={padding - 10} fontSize={12} fill="#64748b" fontWeight="bold">y</text>
+ <text x={svgSize - padding + 10} y={toSvg(0, "y") + 4} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">x</text>
+ <text x={toSvg(0, "x") + 8} y={padding - 10} fontSize={12} fill="var(--color-text-muted)" fontWeight="bold">y</text>
 
  {/* Target indicators (shown after check) */}
  {checked && targetPoints.map((t, i) => (
  <circle key={`target${i}`} cx={toSvg(t.x, "x")} cy={toSvg(t.y, "y")} r={6}
- fill="none" stroke="#22c55e" strokeWidth={2} strokeDasharray="4 2" />
+ fill="none" stroke="var(--color-success)" strokeWidth={2} strokeDasharray="4 2" />
  ))}
 
  {/* Draggable points — each with distinct color and letter */}
@@ -157,8 +160,8 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  <circle cx={cx} cy={cy} r={16} fill="transparent" />
  <circle
  cx={cx} cy={cy} r={10}
- fill={checked ? (results[i] ? "#22c55e" : "#ef4444") : color.fill}
- stroke="white" strokeWidth={2.5}
+ fill={checked ? (results[i] ? "var(--color-success)" : "var(--color-danger)") : color.fill}
+ stroke="var(--color-surface)" strokeWidth={2.5}
  className="transition-colors"
  />
  {/* Letter label inside point */}
@@ -166,7 +169,7 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  fontSize={11} fill="white" fontWeight="bold">{color.name}</text>
  {/* Coordinates above */}
  <text x={cx} y={cy - 16} textAnchor="middle"
- fontSize={10} fill={checked ? (results[i] ? "#22c55e" : "#ef4444") : color.label} fontWeight="600">
+ fontSize={10} fill={checked ? (results[i] ? "var(--color-success)" : "var(--color-danger)") : "var(--color-text)"} fontWeight="600">
  ({p.x}, {p.y})
  </text>
  </g>
