@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import apiClient from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCard } from "@/components/gamification/badge-card";
-import { LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
+import { LEAGUE_TINT, LeagueMark, leagueKindFromName } from "@/components/gamification/league-mark";
 import { useTranslation } from "@/lib/i18n/context";
 import {
  Trophy, Flame, Medal, Star, Zap, TrendingUp,
@@ -308,13 +308,17 @@ function AchievementsTab({
  <Card className="mb-6 overflow-hidden">
  <CardContent className="p-0">
  <div className="flex flex-col sm:flex-row">
- <div className="flex items-center gap-4 p-6" style={{ background: `${league.color}15` }}>
+ <div
+ className="flex items-center gap-4 p-6"
+ style={{ background: `color-mix(in srgb, ${LEAGUE_TINT[leagueKindFromName(league.name)]} 8%, transparent)` }}
+ >
  <LeagueMark kind={leagueKindFromName(league.name)} size={56} />
  <div>
  <p className="text-xs font-medium uppercase tracking-wider text-text-muted ">Current League</p>
- <p className="text-2xl font-bold" style={{ color: league.color === "#FFD700" ? "#B8860B" : league.color === "#C0C0C0" ? "#6B7280" : league.color }}>
- {league.name}
- </p>
+ {/* The medal beside it carries the league; the name is text, so it
+ wears a text token. It used to be painted in the API's hex, with
+ two hardcoded darkening branches for gold and silver. */}
+ <p className="text-2xl font-bold text-text">{league.name}</p>
  </div>
  </div>
  <div className="flex flex-1 items-center gap-6 p-6">
@@ -336,7 +340,7 @@ function AchievementsTab({
  className="h-full rounded-pill transition-[width] duration-500"
  style={{
  width: `${Math.min(league.progress, 100)}%`,
- background: `linear-gradient(90deg, ${league.color}, ${league.color}cc)`,
+ background: `linear-gradient(90deg, ${LEAGUE_TINT[leagueKindFromName(league.name)]}, color-mix(in srgb, ${LEAGUE_TINT[leagueKindFromName(league.name)]} 80%, transparent))`,
  }}
  />
  </div>

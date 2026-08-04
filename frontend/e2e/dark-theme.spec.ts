@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { LoginPage } from "./poms/LoginPage";
+import { LoginPage, type QaRole } from "./poms/LoginPage";
 
 /**
  * Dark-theme surface audit.
@@ -206,37 +206,60 @@ for (const route of PUBLIC_ROUTES) {
  * One login per role, then every route in the same context: /auth/login is
  * rate-limited 5/min/IP, so logging in per route would throttle itself.
  */
-const ROLE_ROUTES: Record<"student" | "teacher", string[]> = {
+/**
+ * Widened 2026-08-04 from 14 routes across 2 roles to 51 across 4. The static
+ * design-system audit left ~92 raw light surfaces it could not adjudicate —
+ * `bg-white` under `text-text` is a real break, `bg-green-100` under
+ * `text-green-800` is a self-consistent chip that merely looks dated, and only
+ * a composited runtime read tells them apart. Most of those sit on screens the
+ * old 14 never opened.
+ *
+ * Dynamic routes ([courseId], [lessonId], …) stay out: they need fixture ids,
+ * and the shells they render are covered by their list pages. Super-admin-only
+ * screens (/admin/organizations, /admin/waitlist) stay out too — no seed role
+ * reaches them.
+ */
+const ROLE_ROUTES: Record<QaRole, string[]> = {
   student: [
-    "/dashboard",
-    "/courses",
-    "/assignments",
-    "/progress",
-    "/achievements",
-    "/leaderboard",
-    "/profile",
+    "/dashboard", "/courses", "/assignments", "/achievements", "/calendar",
+    "/meetings", "/peer-review", "/team-projects", "/attendance", "/schedule",
+    "/profile", "/progress", "/skills", "/leaderboard", "/certificates",
+    "/paths", "/support",
   ],
   teacher: [
-    "/admin",
-    "/admin/courses",
-    "/admin/journal",
-    "/admin/gradebook",
-    "/admin/users",
-    "/admin/analytics",
-    "/admin/content-library",
+    "/admin", "/admin/groups", "/admin/courses", "/admin/content-library",
+    "/admin/assignments", "/admin/gradebook", "/admin/review",
+    "/admin/peer-review", "/admin/team-projects", "/admin/journal",
+    "/admin/calendar", "/admin/meetings", "/admin/analytics",
+  ],
+  // Same screens as teacher; is_methodist widens data reach, not the nav.
+  // Kept short on purpose — it re-walks the four that change with the flag.
+  methodist: ["/admin", "/admin/journal", "/admin/content-library", "/admin/courses"],
+  admin: [
+    "/admin", "/admin/users", "/admin/groups", "/admin/courses",
+    "/admin/content-library", "/admin/assignments", "/admin/gradebook",
+    "/admin/review", "/admin/journal", "/admin/paths", "/admin/calendar",
+    "/admin/meetings", "/admin/analytics", "/admin/integrations",
+    "/admin/settings", "/admin/billing", "/admin/bulk-enroll",
   ],
 };
 
-for (const role of ["student", "teacher"] as const) {
+for (const role of ["student", "teacher", "methodist", "admin"] as const) {
   test(`dark theme: ${role} surfaces have no light surfaces or low-contrast text`, async ({
     page,
   }) => {
+    test.slow(); // one login plus up to 17 navigations
+
     await page.addInitScript(() => window.localStorage.setItem("lms.theme", "dark"));
     await new LoginPage(page).loginViaUi(role);
 
     const failures: string[] = [];
     for (const route of ROLE_ROUTES[role]) {
       await page.goto(route, { waitUntil: "networkidle" });
+      // A redirect means this role cannot reach the route. That is RBAC's
+      // assertion to make, not this test's — auditing the redirect target
+      // here would just re-audit /admin once per bounce.
+      if (!new URL(page.url()).pathname.startsWith(route)) continue;
       await expect(page.locator("html")).toHaveClass(/dark/);
       const violations = (await page.evaluate(AUDIT)) as Violation[];
       if (violations.length) failures.push(report(route, violations));
