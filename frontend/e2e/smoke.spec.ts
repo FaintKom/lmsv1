@@ -19,9 +19,11 @@ import { expect, test } from "@playwright/test";
 // passing against a stale build that still served the old page.
 test("landing page renders with core navigation", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: /try demo/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: /sign in/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
+  // Each of these appears twice — once in the header, once in the hero — so
+  // take the first match rather than tripping strict mode.
+  await expect(page.getByRole("link", { name: /try demo/i }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /sign in/i }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /get started/i }).first()).toBeVisible();
 });
 
 test("login page renders form fields", async ({ page }) => {

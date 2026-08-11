@@ -125,11 +125,15 @@ test.describe("Teacher role", () => {
   });
 
   test("API: cannot list admin users", async ({ page }) => {
-    // Teacher should get 403 on /api/v1/admin/users
-    const token = await page.evaluate(() => localStorage.getItem("access_token"));
-    const resp = await page.request.get(`${BASE}/api/v1/admin/users`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // Teacher should get 403 on /api/v1/admin/users.
+    //
+    // This used to read access_token out of localStorage and send it as a
+    // Bearer header. Sessions moved to httpOnly cookies on 2026-07-19, so that
+    // read returned null, the request went out unauthenticated, and the test
+    // asserted 403 against a 401 — it stopped testing RBAC entirely.
+    // page.request shares the browser context's cookie jar, so the session
+    // rides along on its own.
+    const resp = await page.request.get(`${BASE}/api/v1/admin/users`);
     expect(resp.status()).toBe(403);
   });
 });
