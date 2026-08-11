@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n/context";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,16 +7,8 @@ import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { QueryProvider } from "@/components/providers/query-provider";
 import CookieConsent from "@/components/cookie-consent";
 
-const manrope = Manrope({
- variable: "--font-manrope",
- subsets: ["latin", "cyrillic", "latin-ext"],
- weight: ["400", "500", "600", "700", "800"],
-});
-
-const geistMono = Geist_Mono({
- variable: "--font-geist-mono",
- subsets: ["latin"],
-});
+// Fonts are self-hosted via @font-face in globals.css — see the note there
+// for why they no longer come from next/font/google.
 
 export const viewport: Viewport = {
  width: "device-width",
@@ -64,7 +55,7 @@ export default function RootLayout({
  />
  <link rel="apple-touch-icon" href="/icon-192.png" />
  </head>
- <body className={`${manrope.variable} ${geistMono.variable} antialiased`}>
+ <body className="antialiased">
  <QueryProvider>
  <I18nProvider>
  <ConfirmProvider>
