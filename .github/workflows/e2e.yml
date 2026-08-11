@@ -1,8 +1,24 @@
-name: E2E (manual)
+name: E2E
 
-# Manual end-to-end browser suite — NOT wired into the gating CI on purpose.
+# End-to-end browser suite. Runs automatically on pull requests, and on demand
+# for anything the gate deliberately leaves out.
 #
-# Why manual (workflow_dispatch) instead of a job in ci.yml:
+# Until 2026-08-11 this was workflow_dispatch only, so the whole browser suite
+# — auth, RBAC, role journeys, exercise lifecycle, live lessons and the eight
+# functional journeys in e2e/journeys — ran only when a maintainer remembered
+# to click it. Nobody did, and specs rotted quietly: one threw at module scope
+# and aborted every other spec, another asserted a page deleted in May and
+# passed anyway.
+#
+# The PR gate skips two suites, via env flags read by playwright.config.ts:
+#   E2E_SKIP_EXTERNAL    — all-content-types drives real youtube.com and
+#                          docs.google.com embeds; their outage is not our bug.
+#   E2E_SKIP_DARK_THEME  — the dark-theme audit reports real design debt
+#                          today, so it runs as a report, not as a gate.
+# Both still run in the manual dispatch, and the dark-theme report runs on
+# every PR as a non-blocking step. Delete the skip once the debt is paid.
+#
+# Why this is not a job in ci.yml:
 #   The Playwright suite (frontend/e2e/all-content-types.spec.ts) drives real
 #   third-party embeds — the YouTube IFrame API (youtube.com), a Google Slides
 #   iframe (docs.google.com) — and heavy client editors (Monaco, KaTeX). Those
@@ -20,6 +36,17 @@ name: E2E (manual)
 # are uploaded on failure.
 
 on:
+  pull_request:
+    # Only when something the suite actually exercises changed — a docs-only
+    # PR should not spend ten minutes building the QA stack.
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - "qa/**"
+      - "sandbox/**"
+      - "scripts/seed_qa.py"
+      - "docker-compose.qa.yml"
+      - ".github/workflows/e2e.yml"
   workflow_dispatch:
     inputs:
       grep:
@@ -98,6 +125,12 @@ jobs:
 
       - name: Run Playwright E2E
         working-directory: frontend
+        env:
+          # On a PR this is the gate, so the two suites that cannot be green on
+          # every PR are skipped here and handled separately below. A manual
+          # dispatch leaves both empty and therefore runs everything.
+          E2E_SKIP_EXTERNAL: ${{ github.event_name == 'pull_request' && '1' || '' }}
+          E2E_SKIP_DARK_THEME: ${{ github.event_name == 'pull_request' && '1' || '' }}
         run: |
           # Default is now the whole e2e directory. Until 2026-08-03 this ran
           # all-content-types.spec.ts alone, so roles/, rbac, exercises and
@@ -109,6 +142,17 @@ jobs:
           else
             npx playwright test $SPEC --workers=1
           fi
+
+      # Reported, not enforced: the audit currently finds real contrast and
+      # light-surface problems (student 2 routes, teacher 13, admin 16). Making
+      # it blocking today would just paint every PR red; leaving it out
+      # entirely would let the debt grow unseen. Once it is paid, delete this
+      # step and the E2E_SKIP_DARK_THEME flag above so it joins the gate.
+      - name: Dark-theme audit (report only)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        working-directory: frontend
+        run: npx playwright test e2e/dark-theme.spec.ts --workers=1
 
       - name: Upload Playwright report
         if: failure()
