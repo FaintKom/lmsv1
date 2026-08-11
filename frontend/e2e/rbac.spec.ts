@@ -17,14 +17,22 @@ import { test, expect, Page } from "@playwright/test";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
+// Accounts are configurable so this can run against the ephemeral QA stack
+// (qa-*@qa.example.com) as well as prod. Same convention as ContentTypeHarness.
+const STUDENT_EMAIL = process.env.E2E_STUDENT_EMAIL ?? "student@grasslms.online";
+const TEACHER_EMAIL = process.env.E2E_TEACHER_EMAIL ?? "teacher@grasslms.online";
 const STUDENT_PASSWORD = process.env.E2E_STUDENT_PASSWORD;
 const TEACHER_PASSWORD = process.env.E2E_TEACHER_PASSWORD;
 
-if (!STUDENT_PASSWORD || !TEACHER_PASSWORD) {
-  throw new Error(
-    "E2E_STUDENT_PASSWORD and E2E_TEACHER_PASSWORD must be set (see CLAUDE.md test accounts table).",
+// Missing credentials skip this file. They used to throw at module scope,
+// which aborted the ENTIRE Playwright run - one unconfigured spec took every
+// other spec down with it.
+test.beforeEach(() => {
+  test.skip(
+    !STUDENT_PASSWORD || !TEACHER_PASSWORD,
+    "E2E_STUDENT_PASSWORD / E2E_TEACHER_PASSWORD not set",
   );
-}
+});
 
 async function login(page: Page, email: string, password: string) {
   await page.goto(`${BASE}/login`);
@@ -42,7 +50,7 @@ async function login(page: Page, email: string, password: string) {
 // ---------------------------------------------------------------------------
 test.describe("Student role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "student@grasslms.online", STUDENT_PASSWORD!);
+    await login(page, STUDENT_EMAIL, STUDENT_PASSWORD!);
   });
 
   test("can access /dashboard", async ({ page }) => {
@@ -93,7 +101,7 @@ test.describe("Student role", () => {
 // ---------------------------------------------------------------------------
 test.describe("Teacher role", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "teacher@grasslms.online", TEACHER_PASSWORD!);
+    await login(page, TEACHER_EMAIL, TEACHER_PASSWORD!);
   });
 
   test("can access /admin (dashboard)", async ({ page }) => {

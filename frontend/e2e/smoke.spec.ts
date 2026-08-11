@@ -13,24 +13,15 @@ import { expect, test } from "@playwright/test";
  * Deeper auth + course-flow tests go in separate spec files.
  */
 
+// The pricing page was retired from the product surface: next.config.ts
+// redirects /pricing -> / and the landing nav no longer links to it. The
+// "four tiers" test that used to sit here went with it — it only kept
+// passing against a stale build that still served the old page.
 test("landing page renders with core navigation", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Pricing" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /try demo/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /sign in/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /get started/i })).toBeVisible();
-});
-
-test("pricing page shows all four tiers", async ({ page }) => {
-  await page.goto("/pricing");
-  await expect(
-    page.getByRole("heading", { name: "Simple, transparent pricing" })
-  ).toBeVisible();
-  // The four tier headings (Free / Starter / Professional / Enterprise)
-  for (const tier of ["Free", "Starter", "Professional", "Enterprise"]) {
-    await expect(page.getByRole("heading", { name: tier, exact: true })).toBeVisible();
-  }
-  // Professional should have the "MOST POPULAR" badge
-  await expect(page.getByText("MOST POPULAR")).toBeVisible();
 });
 
 test("login page renders form fields", async ({ page }) => {

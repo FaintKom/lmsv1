@@ -15,6 +15,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: ".",
   testMatch: ["e2e/**/*.spec.ts", "widget-tests/**/*.spec.ts"],
+  // Fails fast when the app under test is wired to the wrong backend, or the
+  // seed never ran — see e2e/global-setup.ts for why that is worth a gate.
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

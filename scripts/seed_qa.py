@@ -68,6 +68,7 @@ import app.team_projects.models  # noqa: F401
 import app.waitlist.models  # noqa: F401
 import app.webhooks.models  # noqa: F401
 
+from app.admin.models import StudentGroup, StudentGroupMember
 from app.assessments.models import Question, QuestionType
 from app.auth.models import Organization, User, UserRole
 from app.auth.security import hash_password
@@ -96,6 +97,7 @@ QA_ORG_ID    = uuid.uuid5(NAMESPACE_QA, "qa-org")
 QA_COURSE_ID = uuid.uuid5(NAMESPACE_QA, "qa-course")
 QA_MODULE_ID = uuid.uuid5(NAMESPACE_QA, "qa-module")
 QA_LESSON_ID = uuid.uuid5(NAMESPACE_QA, "qa-lesson")
+QA_GROUP_ID  = uuid.uuid5(NAMESPACE_QA, "qa-group")
 
 
 def qa_uuid(slug: str) -> uuid.UUID:
@@ -204,6 +206,45 @@ async def upsert_course_tree(
         await db.flush()
 
     return course, module, lesson
+
+
+async def upsert_group(
+    db: AsyncSession, org: Organization, course: Course, teacher: User, student: User
+) -> StudentGroup:
+    """A group owned by qa-teacher containing qa-student.
+
+    e2e/live-lesson.spec.ts states this as its precondition ("qa-teacher must
+    own a group containing qa-student") but nothing created it — the spec has
+    never been able to pass against a fresh stack. Live lessons are started
+    per group, so without this the whole live-lesson surface is untestable.
+    """
+    group = await db.get(StudentGroup, QA_GROUP_ID)
+    if not group:
+        group = StudentGroup(
+            id=QA_GROUP_ID,
+            org_id=org.id,
+            name="QA Group",
+            course_id=course.id,
+            teacher_id=teacher.id,
+        )
+        db.add(group)
+        await db.flush()
+    else:
+        group.course_id = course.id
+        group.teacher_id = teacher.id
+
+    member = (
+        await db.execute(
+            select(StudentGroupMember).where(
+                StudentGroupMember.group_id == group.id,
+                StudentGroupMember.user_id == student.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if not member:
+        db.add(StudentGroupMember(group_id=group.id, user_id=student.id))
+        await db.flush()
+    return group
 
 
 async def upsert_enrollment(
@@ -327,6 +368,9 @@ async def main() -> int:
         users = await upsert_users(db, org)
         course, _module, lesson = await upsert_course_tree(db, org, users["qa-teacher"])
         await upsert_enrollment(db, course, users["qa-student"])
+        group = await upsert_group(
+            db, org, course, users["qa-teacher"], users["qa-student"]
+        )
         exercises = await upsert_exercises(db, org, lesson)
         await db.commit()
         # Machine-parseable lines for CI to capture as job outputs.
@@ -334,6 +378,7 @@ async def main() -> int:
         print(f"QA_ORG_ID={org.id}")
         print(f"QA_COURSE_ID={course.id}")
         print(f"QA_LESSON_ID={lesson.id}")
+        print(f"QA_GROUP_ID={group.id}")
         print(f"OK: org={org.id} course={course.id} lesson={lesson.id} users={len(users)}")
     return 0
 

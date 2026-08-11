@@ -3,8 +3,20 @@
 #
 # Always run with explicit project name so containers don't clash with the
 # local dev/prod stack (which uses the default project name `lms`):
-#     docker compose -f docker-compose.qa.yml up -d --wait
+#     docker compose -f docker-compose.qa.yml up -d --build --wait
 # (the top-level `name:` field below pins the project to `lms-qa`).
+#
+# ⚠️ `--build` is NOT optional locally. The frontend's /api/* rewrite target is
+# baked in at BUILD time (see frontend/Dockerfile.qa), so a stale image keeps
+# whatever target it was built with. On 2026-08-11 a local run without --build
+# reused a 2026-05-22 image whose rewrite pointed at https://grasslms.online:
+# every UI request from the "ephemeral" stack went to PRODUCTION, API-level
+# tests passed, and every UI test failed with "Invalid email or password"
+# because prod has no qa-* accounts. CI is unaffected (e2e.yml passes --build
+# and runners start imageless), but locally the failure is silent and
+# misleading. If UI tests fail while API tests pass, check this first:
+#     docker compose -f docker-compose.qa.yml exec frontend \
+#         grep -o 'https://[a-z.]*' .next/routes-manifest.json
 #
 # All POSTGRES_*/JWT_*/etc values are HARD-CODED rather than interpolated
 # from .env.qa — the root .env (prod) shadows ${VAR:-default} substitution
