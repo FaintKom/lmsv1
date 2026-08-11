@@ -48,12 +48,27 @@ export async function apiLogin(
   return tokens;
 }
 
-/** Inject tokens into localStorage so the SPA treats the session as logged in. */
-export async function authenticate(context: BrowserContext, tokens: Tokens): Promise<void> {
-  await context.addInitScript((t) => {
-    window.localStorage.setItem("access_token", t.access_token);
-    window.localStorage.setItem("refresh_token", t.refresh_token);
-  }, tokens);
+/** Log in so the browser context carries a real session.
+ *
+ * This used to write access_token/refresh_token into localStorage. Sessions
+ * moved to httpOnly cookies on 2026-07-19 (see frontend/CLAUDE.md — tokens in
+ * localStorage are forbidden, XSS must not be able to steal a session), so
+ * that stopped authenticating anything: every student page bounced to /login
+ * and all twelve content-type tests failed against a page that never rendered.
+ *
+ * context.request shares its cookie jar with the context's pages, so logging
+ * in through it leaves those pages authenticated.
+ */
+export async function authenticate(
+  context: BrowserContext,
+  creds: { email: string; password: string },
+): Promise<void> {
+  const res = await context.request.post(`${API_BASE}/auth/login`, {
+    data: { email: creds.email, password: creds.password },
+  });
+  if (!res.ok()) {
+    throw new Error(`authenticate(${creds.email}): ${res.status()} ${await res.text()}`);
+  }
 }
 
 function authHeaders(token: string) {

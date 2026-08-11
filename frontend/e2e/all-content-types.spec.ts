@@ -235,7 +235,7 @@ test.afterAll(async () => {
 
 // Each student test gets a fresh authenticated context.
 async function studentPlayer(page: Page): Promise<LessonPlayer> {
-  await authenticate(page.context(), studentTokens);
+  await authenticate(page.context(), STUDENT);
   return new LessonPlayer(page, courseId);
 }
 
@@ -427,7 +427,7 @@ test("interactive/fill_blanks: renders word bank and (best-effort) drag-fills", 
 // ── TEACHER EDITOR UI: prove the Add-Lesson content-type picker works ────────
 
 test("teacher editor UI: Add-Lesson content-type picker creates a lesson", async ({ page }) => {
-  await authenticate(page.context(), teacherTokens);
+  await authenticate(page.context(), TEACHER);
   await page.goto(`${BASE_URL}/admin/courses/${courseId}/edit`);
   const moduleRow = page.getByText("All Content Types").first();
   await expect(moduleRow).toBeVisible({ timeout: 20_000 });
