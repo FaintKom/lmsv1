@@ -1,25 +1,14 @@
-"""Methodist happy path: log in -> browse knowledge entries -> view facets.
+"""Methodist happy path.
 
-Note: the knowledge module only exposes read endpoints (search, list,
-facets, by-id) over HTTP. There is no POST /knowledge endpoint -
-entries are ingested out-of-band via the F:\\sources pipeline (see
-project CLAUDE.md). The methodist test therefore covers read paths only.
+This file used to walk the methodist through the knowledge base (list
+entries, view facets). That module went dormant on 2026-05-31 - the router
+is not mounted in main.py and /api/v1/knowledge/* returns 404 - so those two
+tests were removed on 2026-08-11 rather than left failing. Restore them
+together with the router.
+
+A methodist is modelled as role=teacher with is_methodist=True, so what is
+left to assert here is the elevated view they get over a plain student.
 """
-
-
-async def test_methodist_can_list_knowledge(role_client_factory):
-    c = await role_client_factory("methodist")
-    r = await c.get("/api/v1/knowledge", params={"limit": 5})
-    assert r.status_code == 200, r.text
-    body = r.json()
-    assert "items" in body
-    assert "total" in body
-
-
-async def test_methodist_can_view_facets(role_client_factory):
-    c = await role_client_factory("methodist")
-    r = await c.get("/api/v1/knowledge/facets")
-    assert r.status_code == 200, r.text
 
 
 async def test_methodist_can_view_dashboard(role_client_factory):

@@ -13,6 +13,15 @@ export interface Scene {
   payload: Record<string, unknown>;
 }
 
+/** One conductor programme step. `hidden` steps stay in the editor but are
+ *  skipped by navigation. */
+export interface ProgrammeStep {
+  kind: "material" | "task" | "board";
+  id: string;
+  title: string;
+  hidden?: boolean;
+}
+
 export interface LiveLesson {
   id: string;
   org_id: string;
@@ -23,6 +32,9 @@ export interface LiveLesson {
   status: "active" | "ended";
   follow_mode: FollowMode;
   current_scene: Scene | null;
+  /** Conductor programme pinned by the teacher; null = follow the auto list.
+   *  Teacher-only — the backend nulls it out for students. */
+  programme: ProgrammeStep[] | null;
   created_at: string;
   ended_at: string | null;
   summary: Record<string, unknown> | null;
@@ -123,6 +135,17 @@ export async function fetchLessons(): Promise<LiveLesson[]> {
 
 export async function setScene(lessonId: string, scene: Scene): Promise<LiveLesson> {
   const { data } = await apiClient.patch<LiveLesson>(`/live-lessons/${lessonId}/scene`, scene);
+  return data;
+}
+
+/** Persist the conductor programme. `null` drops back to the auto list. */
+export async function saveProgramme(
+  lessonId: string,
+  steps: ProgrammeStep[] | null,
+): Promise<LiveLesson> {
+  const { data } = await apiClient.patch<LiveLesson>(`/live-lessons/${lessonId}/programme`, {
+    steps,
+  });
   return data;
 }
 

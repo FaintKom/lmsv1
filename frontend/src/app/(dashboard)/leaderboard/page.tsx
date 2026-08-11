@@ -162,8 +162,10 @@ export default function LeaderboardPage() {
  {entry.league.name}
  </span>
  )}
+ {/* Token, not the raw scale value: clay-700 stays dark in dark mode and
+     measured 2.31:1 here. */}
  {entry.current_streak > 0 && (
- <span className="inline-flex items-center gap-0.5 text-3xs text-clay-700">
+ <span className="inline-flex items-center gap-0.5 text-3xs text-danger-fg">
  <Flame className="h-3 w-3" />
  {entry.current_streak}d
  </span>

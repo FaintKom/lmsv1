@@ -31,7 +31,7 @@ test.describe("live lesson", () => {
 
     // student: join via direct URL (banner needs a page load; direct is deterministic)
     await studentPage.goto(`/lesson/${lessonId}`);
-    await expect(studentPage.getByRole("button", { name: /✋/ })).toBeVisible({
+    await expect(studentPage.getByRole("button", { name: /raise hand/i })).toBeVisible({
       timeout: 15000,
     });
 
@@ -40,12 +40,14 @@ test.describe("live lesson", () => {
     await expect(studentPage.locator(".excalidraw")).toBeVisible({ timeout: 15000 });
 
     // student raises hand -> teacher roster shows it
-    await studentPage.getByRole("button", { name: /✋/ }).click();
+    await studentPage.getByRole("button", { name: /raise hand/i }).click();
     await expect(teacherPage.getByText("✋").first()).toBeVisible({ timeout: 15000 });
 
-    // end lesson
-    teacherPage.on("dialog", (d) => void d.accept());
-    await teacherPage.getByRole("button", { name: /завершить|end lesson/i }).click();
+    // End lesson: the trigger opens a confirm modal (it replaced window.confirm),
+    // whose confirm button carries the same label — hence first() then last().
+    const endButton = teacherPage.getByRole("button", { name: /завершить|end lesson/i });
+    await endButton.first().click();
+    await endButton.last().click();
     await expect(
       studentPage.getByText(/урок завершён|lesson ended|итоги урока|lesson review/i),
     ).toBeVisible({ timeout: 15000 });

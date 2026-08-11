@@ -5,6 +5,15 @@ running GrassLMS deployment and exercise the actual UI.
 
 ## Run locally
 
+⚠️ **Use `--workers=1` against a dev server.** Playwright defaults to one
+worker per core; the Next.js dev server compiles routes on demand and cannot
+serve that. Under six workers the suite produced failures that look exactly
+like product bugs — `POST /courses/{id}/modules` returning 404 for a course
+created moments earlier, RBAC navigations timing out at 11s. Same suite, same
+commit: 91 passed / 3 failed with one worker, 78 / 5 with the default. Only
+the three dark-theme failures are real. CI is unaffected — it runs a
+production build in the QA stack.
+
 Start the dev server first:
 
 ```bash

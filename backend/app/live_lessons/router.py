@@ -26,6 +26,7 @@ from app.live_lessons.schemas import (
     LiveLessonResponse,
     MessageRequest,
     PollCreateRequest,
+    ProgrammeRequest,
     QuestionRequest,
     SceneRequest,
     SettingsRequest,
@@ -147,6 +148,20 @@ async def set_settings_endpoint(
     return LiveLessonResponse.model_validate(lesson)
 
 
+@router.patch("/{lesson_id}/programme", response_model=LiveLessonResponse)
+async def set_programme_endpoint(
+    lesson_id: uuid.UUID,
+    data: ProgrammeRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Persist the conductor programme so a reload doesn't lose the edits."""
+    lesson = await _teacher_lesson(lesson_id, user, db)
+    steps = None if data.steps is None else [s.model_dump() for s in data.steps]
+    lesson = await service.set_programme(db, lesson, steps)
+    return LiveLessonResponse.model_validate(lesson)
+
+
 @router.get("", response_model=list[LiveLessonResponse])
 async def list_lessons_endpoint(
     user: User = Depends(get_current_user),
@@ -221,17 +236,32 @@ async def progress_endpoint(
 
     from app.auth.models import User as UserModel
 
-    member_rows = await db.execute(
-        select(UserModel.id, UserModel.full_name)
-        .join(StudentGroupMember, StudentGroupMember.user_id == UserModel.id)
-        .where(StudentGroupMember.group_id == lesson.group_id)
-        .order_by(UserModel.full_name)
-    )
+    member_rows = (
+        await db.execute(
+            select(UserModel.id, UserModel.full_name)
+            .join(StudentGroupMember, StudentGroupMember.user_id == UserModel.id)
+            .where(StudentGroupMember.group_id == lesson.group_id)
+            .order_by(UserModel.full_name)
+        )
+    ).all()
+    member_ids = [uid for uid, _ in member_rows]
+    if not member_ids:
+        return {"students": []}
+
+    # Scope to THIS lesson. Without the window, a student who solved the same
+    # exercise as homework yesterday lights up green on today's grid without
+    # having touched it, and `attempts` counts their whole history. Same
+    # window as the post-lesson snapshot in service._lesson_results.
+    since = lesson.created_at
     subs = (
         (
             await db.execute(
                 select(ExerciseSubmission)
-                .where(ExerciseSubmission.exercise_id == exercise_id)
+                .where(
+                    ExerciseSubmission.exercise_id == exercise_id,
+                    ExerciseSubmission.student_id.in_(member_ids),
+                    ExerciseSubmission.submitted_at >= since,
+                )
                 .order_by(ExerciseSubmission.submitted_at.desc())
             )
         )
@@ -239,27 +269,45 @@ async def progress_endpoint(
         .all()
     )
     latest: dict[str, ExerciseSubmission] = {}
+    attempts_by_student: dict[str, int] = {}
     for s in subs:
-        latest.setdefault(str(s.student_id), s)
+        sid = str(s.student_id)
+        latest.setdefault(sid, s)
+        attempts_by_student[sid] = attempts_by_student.get(sid, 0) + 1
+    # Drafts are updated in place (unique per exercise+student), so a row left
+    # over from a previous lesson would otherwise show a pencil today.
     drafts = (
-        (await db.execute(select(ExerciseDraft).where(ExerciseDraft.exercise_id == exercise_id)))
+        (
+            await db.execute(
+                select(ExerciseDraft).where(
+                    ExerciseDraft.exercise_id == exercise_id,
+                    ExerciseDraft.student_id.in_(member_ids),
+                    ExerciseDraft.updated_at >= since,
+                )
+            )
+        )
         .scalars()
         .all()
     )
     draft_at = {str(d.student_id): d.updated_at.isoformat() for d in drafts}
 
+    # `passed` is sticky (any pass in the window), matching the post-lesson
+    # snapshot — a later failed retry must not turn a solved cell red.
+    passed_by_student = {str(s.student_id) for s in subs if s.passed}
+
     students = []
     for uid, name in member_rows:
-        sub = latest.get(str(uid))
+        sid = str(uid)
+        sub = latest.get(sid)
         students.append(
             {
-                "id": str(uid),
+                "id": sid,
                 "name": name,
                 "submitted": sub is not None,
-                "passed": sub.passed if sub else None,
+                "passed": (sid in passed_by_student) if sub else None,
                 "score": sub.score if sub else None,
-                "attempts": sum(1 for s in subs if str(s.student_id) == str(uid)),
-                "draft_updated_at": draft_at.get(str(uid)),
+                "attempts": attempts_by_student.get(sid, 0),
+                "draft_updated_at": draft_at.get(sid),
             }
         )
     return {"students": students}
@@ -572,6 +620,9 @@ async def lesson_state_endpoint(
     lesson_resp = LiveLessonResponse.model_validate(lesson)
     if not is_teacher:
         lesson_resp.summary = _own_results_only(lesson_resp.summary, user.id)
+        # The programme is the teacher's plan — hidden steps and what comes
+        # next are not the class's business.
+        lesson_resp.programme = None
     return LessonStateResponse(
         lesson=lesson_resp,
         my_signal=my_signal,

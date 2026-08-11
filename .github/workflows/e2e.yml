@@ -1,8 +1,25 @@
-name: E2E (manual)
+name: E2E
 
-# Manual end-to-end browser suite — NOT wired into the gating CI on purpose.
+# End-to-end browser suite. Runs automatically on pull requests, and on demand
+# for anything the gate deliberately leaves out.
 #
-# Why manual (workflow_dispatch) instead of a job in ci.yml:
+# Until 2026-08-11 this was workflow_dispatch only, so the whole browser suite
+# — auth, RBAC, role journeys, exercise lifecycle, live lessons and the eight
+# functional journeys in e2e/journeys — ran only when a maintainer remembered
+# to click it. Nobody did, and specs rotted quietly: one threw at module scope
+# and aborted every other spec, another asserted a page deleted in May and
+# passed anyway.
+#
+# The PR gate skips one suite, via an env flag read by playwright.config.ts:
+#   E2E_SKIP_EXTERNAL — all-content-types drives real youtube.com and
+#                       docs.google.com embeds; their outage is not our bug.
+# It still runs in the manual dispatch.
+#
+# The dark-theme audit used to be skipped here too, as a non-blocking report,
+# because it was finding real debt. That debt was paid on 2026-08-11, so it
+# is part of the gate again.
+#
+# Why this is not a job in ci.yml:
 #   The Playwright suite (frontend/e2e/all-content-types.spec.ts) drives real
 #   third-party embeds — the YouTube IFrame API (youtube.com), a Google Slides
 #   iframe (docs.google.com) — and heavy client editors (Monaco, KaTeX). Those
@@ -20,6 +37,17 @@ name: E2E (manual)
 # are uploaded on failure.
 
 on:
+  pull_request:
+    # Only when something the suite actually exercises changed — a docs-only
+    # PR should not spend ten minutes building the QA stack.
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - "qa/**"
+      - "sandbox/**"
+      - "scripts/seed_qa.py"
+      - "docker-compose.qa.yml"
+      - ".github/workflows/e2e.yml"
   workflow_dispatch:
     inputs:
       grep:
@@ -98,6 +126,11 @@ jobs:
 
       - name: Run Playwright E2E
         working-directory: frontend
+        env:
+          # On a PR this is the gate, so the two suites that cannot be green on
+          # every PR are skipped here and handled separately below. A manual
+          # dispatch leaves both empty and therefore runs everything.
+          E2E_SKIP_EXTERNAL: ${{ github.event_name == 'pull_request' && '1' || '' }}
         run: |
           # Default is now the whole e2e directory. Until 2026-08-03 this ran
           # all-content-types.spec.ts alone, so roles/, rbac, exercises and

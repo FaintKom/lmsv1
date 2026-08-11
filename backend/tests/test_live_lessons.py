@@ -453,6 +453,111 @@ async def test_submission_event_published_and_progress(client, db, org, teacher,
     assert row["submitted"] is True
 
 
+async def test_programme_survives_reload_and_is_teacher_only(client, db, org, teacher, student):
+    """Conductor edits must outlive a page reload, and stay off the class."""
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+
+    steps = [
+        {"kind": "material", "id": "m1", "title": "Intro", "hidden": False},
+        {"kind": "task", "id": "t1", "title": "Warm-up", "hidden": True},
+    ]
+    resp = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/programme",
+        json={"steps": steps},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+
+    # reload: the teacher gets the pinned programme back
+    state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(teacher))
+    ).json()
+    assert state["lesson"]["programme"] == steps
+
+    # the class never sees the plan (hidden steps included)
+    student_state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+    ).json()
+    assert student_state["lesson"]["programme"] is None
+
+    # clearing drops back to the auto list
+    await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/programme",
+        json={"steps": None},
+        headers=auth_header(teacher),
+    )
+    state = (
+        await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(teacher))
+    ).json()
+    assert state["lesson"]["programme"] is None
+
+
+async def test_progress_ignores_work_from_before_the_lesson(client, db, org, teacher, student):
+    """Yesterday's homework must not read as solved-in-class today.
+
+    The live grid is scoped to the lesson window; a submission (and a draft)
+    left over from before the lesson started is invisible to it.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    from app.exercises.models import ExerciseSubmission
+    from app.live_lessons.models import ExerciseDraft
+    from tests.conftest import make_course, make_exercise, make_lesson, make_module
+
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson_row = await make_lesson(db, module.id)
+    ex = await make_exercise(db, lesson_row.id, org.id)
+    g = await make_group(db, org, teacher, [student])
+
+    yesterday = datetime.now(timezone.utc) - timedelta(days=1)
+    db.add(
+        ExerciseSubmission(
+            exercise_id=ex.id,
+            student_id=student.id,
+            answers={},
+            passed=True,
+            score=100,
+            status="submitted",
+            submitted_at=yesterday,
+        )
+    )
+    db.add(
+        ExerciseDraft(
+            org_id=org.id,
+            exercise_id=ex.id,
+            student_id=student.id,
+            answers={"stale": True},
+            created_at=yesterday,
+            updated_at=yesterday,
+        )
+    )
+    await db.flush()
+
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+
+    grid = (
+        await client.get(
+            f"/api/v1/live-lessons/{lesson_id}/progress?exercise_id={ex.id}",
+            headers=auth_header(teacher),
+        )
+    ).json()
+    row = next(m for m in grid["students"] if m["id"] == str(student.id))
+    assert row["submitted"] is False
+    assert row["passed"] is None
+    assert row["attempts"] == 0
+    assert row["draft_updated_at"] is None
+
+
 async def test_upload_publishes_submission_event(client, db, org, teacher, student):
     import asyncio
     import uuid as _uuid

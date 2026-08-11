@@ -50,6 +50,9 @@ class LiveLesson(Base, IDMixin, TimestampMixin):
     follow_mode: Mapped[str] = mapped_column(String(10), nullable=False, default="free")
     # Mirror of the Redis scene key — survives a Redis restart.
     current_scene: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Conductor programme: the teacher's edited step list. NULL = follow the
+    # auto list derived from the picked material (reorder/hide pins a copy).
+    programme: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     summary: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 

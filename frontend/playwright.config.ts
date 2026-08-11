@@ -12,9 +12,30 @@ import { defineConfig, devices } from "@playwright/test";
  * Unit / component tests live elsewhere and run via Vitest — see
  * vitest.config.ts.
  */
+/**
+ * Suites the PR gate leaves out — expressed as what to skip, not what to run,
+ * so a new spec joins the gate by existing rather than by being remembered.
+ *
+ * One left: all-content-types drives real youtube.com / docs.google.com
+ * embeds, and a transient outage there would turn main red for reasons that
+ * are not ours.
+ *
+ * E2E_SKIP_DARK_THEME is gone — that debt was paid on 2026-08-11 (seven
+ * defects behind 31 route reports, all raw scale values that stayed light
+ * while the semantic tokens flipped), so the audit is a gate again.
+ *
+ * The flag is unset by default, so a local run still covers everything.
+ */
+const testIgnore: string[] = [];
+if (process.env.E2E_SKIP_EXTERNAL) testIgnore.push("**/all-content-types.spec.ts");
+
 export default defineConfig({
   testDir: ".",
   testMatch: ["e2e/**/*.spec.ts", "widget-tests/**/*.spec.ts"],
+  testIgnore,
+  // Fails fast when the app under test is wired to the wrong backend, or the
+  // seed never ran — see e2e/global-setup.ts for why that is worth a gate.
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
