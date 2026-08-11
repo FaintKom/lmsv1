@@ -1867,3 +1867,46 @@ button { font-family: inherit; }
  .gp-btn { min-height: 44px; }
  button, [role="button"] { touch-action: manipulation; }
 }
+
+/* =================================================================
+   Driver.js onboarding tour — vendor CSS, themed.
+   driver.js/dist/driver.css paints the popover, its buttons and its
+   arrow white, with hard-coded greys. That survived every dark-mode
+   sweep because the tour shows once per user: on a machine where it had
+   already been dismissed there was nothing left to audit. CI seeds
+   fresh accounts every run, so it surfaced there — a white slab and a
+   close button at 3.23:1.
+
+   Tokens rather than a .dark block: in light these resolve to roughly
+   what driver.js already drew, so the tour just follows the theme.
+   ================================================================= */
+/* !important throughout: driver.css is imported from the component module,
+   so it lands after this file and wins ties. Same tactic the FullCalendar
+   overrides in calendar-view.tsx already use. */
+.driver-popover {
+ background-color: var(--color-surface) !important;
+ color: var(--color-text) !important;
+ border: 1px solid var(--color-border);
+}
+.driver-popover-title,
+.driver-popover-description { color: var(--color-text) !important; }
+.driver-popover-close-btn { color: var(--color-text-muted) !important; }
+.driver-popover-close-btn:hover { color: var(--color-text) !important; }
+.driver-popover-progress-text { color: var(--color-text-subtle) !important; }
+.driver-popover-navigation-btns button {
+ background-color: var(--color-surface-2);
+ color: var(--color-text);
+ border: 1px solid var(--color-border);
+ text-shadow: none;
+}
+.driver-popover-navigation-btns button:hover:not(:disabled) {
+ background-color: var(--color-primary);
+ color: var(--color-primary-fg);
+}
+.driver-popover-navigation-btns button:disabled { opacity: 0.5; }
+/* The arrow is drawn with borders, so it has to track the popover fill
+   per side or it stays white against a dark card. */
+.driver-popover-arrow-side-left { border-left-color: var(--color-surface) !important; }
+.driver-popover-arrow-side-right { border-right-color: var(--color-surface) !important; }
+.driver-popover-arrow-side-top { border-top-color: var(--color-surface) !important; }
+.driver-popover-arrow-side-bottom { border-bottom-color: var(--color-surface) !important; }
