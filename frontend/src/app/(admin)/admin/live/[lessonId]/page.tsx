@@ -37,6 +37,7 @@ import type { BoardViewHandle } from "@/components/live/board-view";
 import {
   createBoard,
   endLesson,
+  saveProgramme,
   sendClassMessage,
   sendHeartbeat,
   setFollowMode,
@@ -179,16 +180,28 @@ export default function TeacherLivePage() {
   }, [materialLessonId, programExs]);
 
   // Conductor v2: the teacher may reorder / hide steps and append a board.
-  // `programme === null` means "follow the auto list"; any edit pins a copy
-  // for the session (never persisted — Reset drops back to auto).
-  const [programme, setProgramme] = useState<Step[] | null>(null);
+  // `programme === null` means "follow the auto list"; any edit pins a copy,
+  // persisted server-side so a mid-lesson reload doesn't drop it.
+  const [programme, setProgrammeState] = useState<Step[] | null>(null);
   const [editingProgramme, setEditingProgramme] = useState(false);
+  const hydratedProgramme = useRef(false);
+  useEffect(() => {
+    if (hydratedProgramme.current || !lesson) return;
+    hydratedProgramme.current = true;
+    if (lesson.programme) setProgrammeState(lesson.programme as Step[]);
+  }, [lesson]);
+
+  const setProgramme = (next: Step[] | null) => {
+    setProgrammeState(next);
+    // Failures already surface through the apiClient error toast.
+    void saveProgramme(lessonId, next).catch(() => {});
+  };
   const fullSteps: Step[] = programme ?? autoSteps;
   // Navigation only ever sees visible steps.
   const steps = useMemo(() => fullSteps.filter((s) => !s.hidden), [fullSteps]);
 
   const editProgramme = (fn: (draft: Step[]) => Step[]) =>
-    setProgramme((cur) => fn([...(cur ?? autoSteps)]));
+    setProgramme(fn([...(programme ?? autoSteps)]));
   const moveStep = (idx: number, delta: number) =>
     editProgramme((draft) => {
       const to = idx + delta;

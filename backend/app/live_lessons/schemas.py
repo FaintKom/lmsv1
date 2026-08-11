@@ -22,6 +22,19 @@ class SettingsRequest(BaseModel):
     follow_mode: Literal["strict", "free"]
 
 
+class ProgrammeStep(BaseModel):
+    kind: Literal["material", "task", "board"]
+    id: str = Field(max_length=64)
+    title: str = Field(default="", max_length=255)
+    hidden: bool = False
+
+
+class ProgrammeRequest(BaseModel):
+    """Teacher's conductor programme. ``None`` = follow the auto list."""
+
+    steps: list[ProgrammeStep] | None = Field(default=None, max_length=200)
+
+
 class LiveLessonResponse(BaseModel):
     id: uuid.UUID
     org_id: uuid.UUID
@@ -32,6 +45,7 @@ class LiveLessonResponse(BaseModel):
     status: str
     follow_mode: str
     current_scene: dict | None
+    programme: list[dict] | None = None
     created_at: datetime
     ended_at: datetime | None
     summary: dict | None

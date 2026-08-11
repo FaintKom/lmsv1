@@ -336,6 +336,17 @@ async def set_follow_mode(db: AsyncSession, lesson: LiveLesson, follow_mode: str
     return lesson
 
 
+async def set_programme(
+    db: AsyncSession, lesson: LiveLesson, steps: list[dict] | None
+) -> LiveLesson:
+    """Pin the teacher's edited conductor programme (None = back to auto).
+
+    Teacher-only state — students never see it, so nothing is published.
+    """
+    lesson.programme = steps
+    return lesson
+
+
 BOARD_DELTA_CAP = 200_000  # bytes of JSON per PATCH
 
 
