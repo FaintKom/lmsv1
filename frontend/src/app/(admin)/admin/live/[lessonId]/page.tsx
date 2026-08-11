@@ -23,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { exercisesApi } from "@/lib/api/exercises";
 
+import { AttentionPanel } from "@/components/live/attention-panel";
 import { BoardEditor } from "@/components/live/board-editor";
 import { ExercisePicker } from "@/components/live/exercise-picker";
 import { LessonReview } from "@/components/live/lesson-review";
@@ -702,7 +703,14 @@ export default function TeacherLivePage() {
             )}
             {tab === "task" &&
               (progressData ? (
-                <ProgressGrid rows={progressData.students} />
+                <>
+                  <AttentionPanel
+                    rows={progressData.students}
+                    roster={members}
+                    currentExerciseId={taskExerciseId ?? null}
+                  />
+                  <ProgressGrid rows={progressData.students} />
+                </>
               ) : (
                 <div className="pt-2 text-center text-sm text-text-subtle">
                   {t("live.pickExercise")}
