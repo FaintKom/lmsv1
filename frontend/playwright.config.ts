@@ -16,17 +16,18 @@ import { defineConfig, devices } from "@playwright/test";
  * Suites the PR gate leaves out — expressed as what to skip, not what to run,
  * so a new spec joins the gate by existing rather than by being remembered.
  *
- * - all-content-types drives real youtube.com / docs.google.com embeds. A
- *   transient outage there would turn main red for reasons that are not ours.
- * - dark-theme is currently reporting genuine design debt (student 2 routes,
- *   teacher 13, admin 16). CI still runs it, as a report rather than a gate;
- *   drop the flag once that debt is paid.
+ * One left: all-content-types drives real youtube.com / docs.google.com
+ * embeds, and a transient outage there would turn main red for reasons that
+ * are not ours.
  *
- * Neither flag is set by default, so a local run still covers everything.
+ * E2E_SKIP_DARK_THEME is gone — that debt was paid on 2026-08-11 (seven
+ * defects behind 31 route reports, all raw scale values that stayed light
+ * while the semantic tokens flipped), so the audit is a gate again.
+ *
+ * The flag is unset by default, so a local run still covers everything.
  */
 const testIgnore: string[] = [];
 if (process.env.E2E_SKIP_EXTERNAL) testIgnore.push("**/all-content-types.spec.ts");
-if (process.env.E2E_SKIP_DARK_THEME) testIgnore.push("**/dark-theme.spec.ts");
 
 export default defineConfig({
   testDir: ".",

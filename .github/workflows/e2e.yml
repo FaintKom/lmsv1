@@ -10,13 +10,14 @@ name: E2E
 # and aborted every other spec, another asserted a page deleted in May and
 # passed anyway.
 #
-# The PR gate skips two suites, via env flags read by playwright.config.ts:
-#   E2E_SKIP_EXTERNAL    — all-content-types drives real youtube.com and
-#                          docs.google.com embeds; their outage is not our bug.
-#   E2E_SKIP_DARK_THEME  — the dark-theme audit reports real design debt
-#                          today, so it runs as a report, not as a gate.
-# Both still run in the manual dispatch, and the dark-theme report runs on
-# every PR as a non-blocking step. Delete the skip once the debt is paid.
+# The PR gate skips one suite, via an env flag read by playwright.config.ts:
+#   E2E_SKIP_EXTERNAL — all-content-types drives real youtube.com and
+#                       docs.google.com embeds; their outage is not our bug.
+# It still runs in the manual dispatch.
+#
+# The dark-theme audit used to be skipped here too, as a non-blocking report,
+# because it was finding real debt. That debt was paid on 2026-08-11, so it
+# is part of the gate again.
 #
 # Why this is not a job in ci.yml:
 #   The Playwright suite (frontend/e2e/all-content-types.spec.ts) drives real
@@ -130,7 +131,6 @@ jobs:
           # every PR are skipped here and handled separately below. A manual
           # dispatch leaves both empty and therefore runs everything.
           E2E_SKIP_EXTERNAL: ${{ github.event_name == 'pull_request' && '1' || '' }}
-          E2E_SKIP_DARK_THEME: ${{ github.event_name == 'pull_request' && '1' || '' }}
         run: |
           # Default is now the whole e2e directory. Until 2026-08-03 this ran
           # all-content-types.spec.ts alone, so roles/, rbac, exercises and
@@ -142,17 +142,6 @@ jobs:
           else
             npx playwright test $SPEC --workers=1
           fi
-
-      # Reported, not enforced: the audit currently finds real contrast and
-      # light-surface problems (student 2 routes, teacher 13, admin 16). Making
-      # it blocking today would just paint every PR red; leaving it out
-      # entirely would let the debt grow unseen. Once it is paid, delete this
-      # step and the E2E_SKIP_DARK_THEME flag above so it joins the gate.
-      - name: Dark-theme audit (report only)
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        working-directory: frontend
-        run: npx playwright test e2e/dark-theme.spec.ts --workers=1
 
       - name: Upload Playwright report
         if: failure()

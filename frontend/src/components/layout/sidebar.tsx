@@ -226,8 +226,10 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  >
  <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />
  {item.label}
+ {/* clay-600, not clay-500: white on clay-500 is 3.77:1 and fails AA in
+     both themes. clay-600 reads the same and clears it at 5.23:1. */}
  {item.badge ? (
- <span className="ml-auto rounded-pill bg-clay-500 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white">
+ <span className="ml-auto rounded-pill bg-clay-600 px-1.5 py-0.5 font-mono text-3xs font-extrabold leading-none text-white">
  {item.badge > 99 ? "99+" : item.badge}
  </span>
  ) : null}

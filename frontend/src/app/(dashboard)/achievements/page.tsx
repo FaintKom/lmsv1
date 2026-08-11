@@ -450,9 +450,13 @@ function AchievementsTab({
  {leaderboard.map((entry, i) => (
  <div key={entry.user_id} className="flex items-center gap-3 rounded-lg bg-surface-2 px-3 py-2 ">
  <span className={`flex h-6 w-6 items-center justify-center rounded-pill text-xs font-bold ${
+ // ink-200 and clay-300 are raw scale values: they stay light in dark
+ // mode while the semantic text colours flip with it, which left silver
+ // at 1.52:1 and bronze at 4.09:1. Ink on a fixed light chip reads in
+ // both themes.
  i === 0 ? "bg-warning-soft text-warning-fg "
- : i === 1 ? "bg-ink-200 text-text-muted "
- : i === 2 ? "bg-clay-300 text-clay-700 "
+ : i === 1 ? "bg-ink-200 text-ink-900 "
+ : i === 2 ? "bg-clay-300 text-ink-900 "
  : "bg-surface-2 text-text-subtle "
  }`}>
  {i + 1}
@@ -472,8 +476,10 @@ function AchievementsTab({
  {entry.total_xp} XP · {entry.completed_lessons} lessons · {entry.badge_count} badges
  </p>
  </div>
+ {/* text-danger-fg, not text-clay-700: the raw value stays dark in dark
+     mode and sat at 1.93:1 on surface-2. The token flips with the theme. */}
  {entry.current_streak > 0 && (
- <span className="flex items-center gap-0.5 text-xs font-medium text-clay-700">
+ <span className="flex items-center gap-0.5 text-xs font-medium text-danger-fg">
  <Flame className="h-3 w-3" />
  {entry.current_streak}
  </span>

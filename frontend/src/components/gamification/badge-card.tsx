@@ -18,7 +18,10 @@ export function BadgeCard({ name, description, criteriaKey, earned, earnedAt }: 
  className={cn(
  "rounded-lg border p-4 text-center transition",
  earned
- ? "border-warning bg-gradient-to-b from-sun-50 to-surface shadow-sm"
+ // sun-50 is a raw scale value, so the "earned" gradient stayed a light
+ // slab in dark mode. reward-soft is a translucent gold there and the
+ // same warm tint in light.
+ ? "border-warning bg-reward-soft shadow-sm"
  : "border-border-strong bg-surface-2 opacity-60",
  )}
  >
