@@ -22,6 +22,12 @@ export const STUDENT = {
   email: process.env.E2E_STUDENT_EMAIL ?? "student@grasslms.online",
   password: process.env.E2E_STUDENT_PASSWORD ?? "",
 };
+// Defaults to the deterministic QA account (same one LoginPage and
+// scripts/seed_qa.py use) — committed on purpose, never a prod credential.
+export const ADMIN = {
+  email: process.env.E2E_ADMIN_EMAIL ?? "qa-admin@qa.example.com",
+  password: process.env.E2E_ADMIN_PASSWORD ?? "qa-test-not-for-prod",
+};
 
 export interface Tokens {
   access_token: string;
