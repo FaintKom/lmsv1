@@ -32,7 +32,14 @@ from pathlib import Path
 # sys.path by default. Insert the parent so `from app.auth.models import ...`
 # resolves without relying on PYTHONPATH (which gets mangled by Git Bash on
 # Windows: /app -> C:/Program Files/Git/app).
-_BACKEND_ROOT = Path(__file__).resolve().parent.parent
+# Where the data files live (qa/ sits next to scripts/, in both layouts).
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+# Where the `app` package lives — NOT the same thing in a checkout, where the
+# repo root holds `backend/app` rather than `app`. In the container both are
+# /app. Prefer whichever actually contains the package.
+_BACKEND_ROOT = _REPO_ROOT
+if not (_BACKEND_ROOT / "app").is_dir() and (_BACKEND_ROOT / "backend" / "app").is_dir():
+    _BACKEND_ROOT = _BACKEND_ROOT / "backend"
 if str(_BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(_BACKEND_ROOT))
 
@@ -60,7 +67,11 @@ import app.notifications.models  # noqa: F401
 import app.peer_review.models  # noqa: F401
 import app.progress.models  # noqa: F401
 import app.recording.models  # noqa: F401
+# rooms + sites: StudentGroup.default_room_id -> rooms.id -> sites.id. Without
+# both, configuring the mappers raises NoReferencedTableError on `rooms`.
+import app.rooms.models  # noqa: F401
 import app.sandbox.models  # noqa: F401
+import app.sites.models  # noqa: F401
 import app.scorm.models  # noqa: F401
 import app.skills.models  # noqa: F401
 import app.submissions.models  # noqa: F401
@@ -78,7 +89,7 @@ from app.exercises.models import Exercise, ExerciseType
 from app.progress.models import Enrollment
 from app.sandbox.models import TestCase
 
-FIXTURES_PATH = _BACKEND_ROOT / "qa" / "exercise-fixtures.json"
+FIXTURES_PATH = _REPO_ROOT / "qa" / "exercise-fixtures.json"
 
 NAMESPACE_QA = uuid.UUID("12345678-1234-5678-1234-567812345678")
 
