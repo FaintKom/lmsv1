@@ -96,6 +96,15 @@ export class Api {
     return txt ? JSON.parse(txt) : null;
   }
 
+  async get(path: string) {
+    const res = await this.request.get(`${API_BASE}${path}`, {
+      headers: authHeaders(this.token),
+    });
+    await expectOk(res, `GET ${path}`);
+    const txt = await res.text();
+    return txt ? JSON.parse(txt) : null;
+  }
+
   async put(path: string, body: unknown) {
     const res = await this.request.put(`${API_BASE}${path}`, {
       headers: authHeaders(this.token),
