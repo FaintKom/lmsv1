@@ -9,7 +9,9 @@ test("methodist journey @smoke", async ({ page }) => {
   // Methodist is role=teacher under the hood, so login lands on /admin.
   await expect(page).toHaveURL(/\/admin/);
 
-  // Knowledge module is the methodist's primary surface.
-  await page.goto("/knowledge");
-  await expect(page).toHaveURL(/\/knowledge/);
+  // This used to visit /knowledge and assert the URL. That page was removed in
+  // May and the route now 404s — but a 404 keeps the URL, so the test went on
+  // passing while checking nothing. Assert rendered content instead.
+  await page.goto("/admin/courses");
+  await expect(page.getByText(/QA Course/i).first()).toBeVisible({ timeout: 15_000 });
 });
