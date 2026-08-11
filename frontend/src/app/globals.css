@@ -1893,17 +1893,22 @@ button { font-family: inherit; }
 .driver-popover-close-btn { color: var(--color-text-muted) !important; }
 .driver-popover-close-btn:hover { color: var(--color-text) !important; }
 .driver-popover-progress-text { color: var(--color-text-subtle) !important; }
-.driver-popover-navigation-btns button {
- background-color: var(--color-surface-2);
- color: var(--color-text);
- border: 1px solid var(--color-border);
- text-shadow: none;
+/* `.driver-popover-footer button` is the vendor's own selector — the
+   buttons sit in the footer, with .driver-popover-navigation-btns as a flex
+   wrapper inside it. Matching the wrapper instead ties on specificity and
+   loses on source order, which is how CI still found white buttons after
+   the popover itself was fixed. */
+.driver-popover-footer button {
+ background-color: var(--color-surface-2) !important;
+ color: var(--color-text) !important;
+ border: 1px solid var(--color-border) !important;
+ text-shadow: none !important;
 }
-.driver-popover-navigation-btns button:hover:not(:disabled) {
- background-color: var(--color-primary);
- color: var(--color-primary-fg);
+.driver-popover-footer button:hover,
+.driver-popover-footer button:focus {
+ background-color: var(--color-primary) !important;
+ color: var(--color-primary-fg) !important;
 }
-.driver-popover-navigation-btns button:disabled { opacity: 0.5; }
 /* The arrow is drawn with borders, so it has to track the popover fill
    per side or it stays white against a dark card. */
 .driver-popover-arrow-side-left { border-left-color: var(--color-surface) !important; }
