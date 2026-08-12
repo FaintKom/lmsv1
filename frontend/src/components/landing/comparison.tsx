@@ -25,7 +25,7 @@ export function Comparison() {
   const { t } = useTranslation();
 
   return (
-    <section className="border-t border-border bg-surface-2/50 py-20">
+    <section className="border-t border-border bg-surface-2/50 py-16">
       <div className="mx-auto max-w-5xl px-6">
         <div className="mb-10 text-center">
           <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.compare.title")}</h2>
