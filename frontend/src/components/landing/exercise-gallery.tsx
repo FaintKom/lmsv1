@@ -44,7 +44,7 @@ export function ExerciseGallery() {
   const [tab, setTab] = useState<Tab>("quiz");
 
   return (
-    <section className="border-t border-border bg-surface py-20">
+    <section className="border-t border-border bg-surface py-16">
       <div className="mx-auto max-w-4xl px-6">
         <div className="mb-8 text-center">
           <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.gallery.title")}</h2>
@@ -71,8 +71,14 @@ export function ExerciseGallery() {
           </div>
         </div>
 
-        {/* keyed on tab so switching remounts the exercise in its initial state */}
-        <div key={tab} className="rounded-xl border-2 border-border bg-surface-2/40 p-4 md:p-6">
+        {/* keyed on tab so switching remounts the exercise in its initial state.
+            `landing-exercise` drops LessonShell's chrome (see globals.css) rather
+            than threading a prop through three shared exercise components for a
+            landing-only concern. */}
+        <div
+          key={tab}
+          className="landing-exercise rounded-xl border-2 border-border bg-surface-2/40 p-4 md:p-6"
+        >
           {tab === "quiz" && (
             <QuizV2
               eyebrow={t("landing.gallery.eyebrow")}

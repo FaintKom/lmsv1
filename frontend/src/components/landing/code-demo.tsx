@@ -20,7 +20,7 @@ import { useTranslation } from "@/lib/i18n/context";
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[260px] items-center justify-center rounded-lg bg-surface-2 text-sm text-text-subtle">
+    <div className="flex h-[190px] items-center justify-center rounded-lg bg-surface-2 text-sm text-text-subtle">
       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
     </div>
   ),
@@ -137,7 +137,7 @@ export function CodeDemo() {
   }, [code, language, task, t]);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
+    <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
       {/* Editor side */}
       <div className="rounded-xl border-2 border-border bg-surface p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
@@ -163,7 +163,7 @@ export function CodeDemo() {
 
         <div className="overflow-hidden rounded-lg border border-border">
           <MonacoEditor
-            height="260px"
+            height="190px"
             language={language}
             theme="vs-dark"
             value={code}
@@ -174,6 +174,9 @@ export function CodeDemo() {
               scrollBeyondLastLine: false,
               lineNumbers: "on",
               padding: { top: 12, bottom: 12 },
+              // The starter comment is longer than the panel; without this it
+              // just disappears off the right edge on a first visit.
+              wordWrap: "on",
             }}
           />
         </div>

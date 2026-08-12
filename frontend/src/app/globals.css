@@ -851,6 +851,11 @@ button { font-family: inherit; }
  border-bottom: 1px solid var(--color-border);
  background: var(--color-bg);
 }
+/* Landing gallery: progress bar, "1 / 1", streak and hearts mean something
+   inside a lesson and nothing on a marketing page — worse, a full green bar
+   before the first answer reads as "already finished". Plain CSS rather than a
+   Tailwind utility: this rule is unlayered, so a layered utility would lose. */
+.landing-exercise .lf-top { display: none; }
 .lf-close {
  width: 28px; height: 28px;
  border-radius: 999px;
@@ -968,7 +973,10 @@ button { font-family: inherit; }
 .gp-btn:disabled,
 .gp-btn[aria-disabled="true"] {
  background: var(--color-surface-2);
- color: var(--color-text-subtle);
+ /* Was --color-text-subtle: a grey label on a grey pill read as a broken
+    button rather than one waiting for an answer. */
+ color: var(--color-text-muted);
+ border: 1px solid var(--color-border-strong);
  box-shadow: 0 4px 0 0 var(--ink-200);
  cursor: not-allowed;
 }
