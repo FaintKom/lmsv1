@@ -1,16 +1,28 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
+from app.common.rate_limit import limiter
+from app.config import settings
 from app.db.session import get_db
+from app.sandbox.demo_tasks import (
+    DEMO_TASKS,
+    build_program,
+    new_nonce,
+    parse_results,
+)
 from app.sandbox.executor import execute_code_remote
 from app.sandbox.schemas import (
     ChallengeCreate,
     ChallengeResponse,
     CodeSubmissionResponse,
+    DemoCheckRequest,
+    DemoCheckResponse,
+    DemoExecuteRequest,
+    DemoTestResult,
     ExecuteRequest,
     ExecuteResponse,
     SubmitCodeRequest,
@@ -30,6 +42,13 @@ from app.sandbox.service import (
 
 router = APIRouter()
 
+# Public demo limits. Tighter than a real submission on purpose: the landing
+# runs "hello world"-sized snippets, so anything needing more than this is not
+# a prospect trying the product.
+DEMO_LANGUAGES = frozenset({"python", "javascript"})
+DEMO_TIMEOUT_SECONDS = 5
+DEMO_MEMORY_MB = 128
+
 
 @router.post("/execute", response_model=ExecuteResponse)
 async def execute_endpoint(
@@ -40,9 +59,118 @@ async def execute_endpoint(
     return ExecuteResponse(**result)
 
 
+@router.post("/demo", response_model=ExecuteResponse)
+# Lambda, not a direct read: the limit is then resolved per call, so tightening
+# it via env actually takes effect without shipping code.
+@limiter.limit(lambda: settings.sandbox_demo_rate_limit)
+async def demo_execute_endpoint(request: Request, response: Response, data: DemoExecuteRequest):
+    """Run a snippet from the public landing page. No account required.
+
+    The landing has to prove we actually execute code, so it runs on the same
+    sandbox students use rather than faking output — the previous landing demo
+    posted to a route that does not exist and silently rendered a simulated
+    result, which is the first thing a technical buyer checks.
+
+    Being unauthenticated, this is the one place where our compute is free to
+    strangers, so it is fenced in on every axis:
+      - rate limited per IP (settings.sandbox_demo_rate_limit)
+      - source capped at 2000 chars by the schema, and no stdin is accepted
+      - its own language allowlist, narrower than the authenticated route
+      - shorter timeout and smaller memory ceiling than a real submission
+      - nothing is persisted; the result is returned and forgotten
+    The sandbox container stays the last line of defence: read-only root,
+    tmpfs, no network, CPU and memory caps.
+    """
+    if data.language not in DEMO_LANGUAGES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Demo supports: {', '.join(sorted(DEMO_LANGUAGES))}",
+        )
+    result = await execute_code_remote(
+        data.language,
+        data.source_code,
+        stdin="",
+        timeout_seconds=DEMO_TIMEOUT_SECONDS,
+        memory_limit_mb=DEMO_MEMORY_MB,
+    )
+    return ExecuteResponse(**result)
+
+
+@router.get("/demo/tasks")
+async def demo_tasks_endpoint():
+    """Task statement and starter code for the landing demo.
+
+    Deliberately does NOT include expected values — the browser gets the
+    question and the visible case names, never the answers. Grading stays at
+    /demo/check, where the server holds them.
+    """
+    return {
+        "tasks": [
+            {
+                "id": task.id,
+                "function_name": task.function_name,
+                "starters": task.starters,
+                "test_names": [t.name for t in task.tests],
+            }
+            for task in DEMO_TASKS.values()
+        ]
+    }
+
+
+@router.post("/demo/check", response_model=DemoCheckResponse)
+@limiter.limit(lambda: settings.sandbox_demo_rate_limit)
+async def demo_check_endpoint(request: Request, response: Response, data: DemoCheckRequest):
+    """Grade a landing-page solution against server-held test cases.
+
+    This is the demo's whole argument: a teacher can trust the platform because
+    the judge is the server, not the browser. So the harness is built here, the
+    expected values never travel, and the results line is prefixed with a
+    per-request nonce the submission cannot know — otherwise a visitor could
+    print their own "all passed" and the demo would be lying again.
+    """
+    if data.language not in DEMO_LANGUAGES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Demo supports: {', '.join(sorted(DEMO_LANGUAGES))}",
+        )
+    task = DEMO_TASKS.get(data.task_id)
+    if task is None:
+        raise HTTPException(status_code=400, detail="Unknown demo task")
+
+    nonce = new_nonce()
+    program = build_program(task, data.language, data.source_code, nonce)
+    result = await execute_code_remote(
+        data.language,
+        program,
+        stdin="",
+        timeout_seconds=DEMO_TIMEOUT_SECONDS,
+        memory_limit_mb=DEMO_MEMORY_MB,
+    )
+
+    produced = parse_results(result.get("stdout", ""), nonce)
+    if produced is None or len(produced) != len(task.tests):
+        # Timed out, crashed, or never defined the function. Report the
+        # runtime's own message rather than a bare "wrong" — on a landing page
+        # a syntax error must read as a syntax error.
+        detail = (result.get("stderr") or "").strip() or "No result produced"
+        return DemoCheckResponse(all_passed=False, tests=[], error=detail[:500])
+
+    tests = [
+        DemoTestResult(
+            name=case.name,
+            passed=got == case.expected,
+            expected=str(case.expected),
+            got=str(got),
+        )
+        for case, got in zip(task.tests, produced)
+    ]
+    return DemoCheckResponse(all_passed=all(t.passed for t in tests), tests=tests)
+
+
 @router.get("/languages")
 async def languages_endpoint():
     from app.sandbox.languages import get_all_languages
+
     return {"languages": get_all_languages()}
 
 
@@ -92,16 +220,27 @@ async def list_challenges_endpoint(
     items = []
     for ch in challenges:
         tcs = [
-            {"id": str(tc.id), "input": tc.input, "expected_output": tc.expected_output, "is_hidden": tc.is_hidden}
+            {
+                "id": str(tc.id),
+                "input": tc.input,
+                "expected_output": tc.expected_output,
+                "is_hidden": tc.is_hidden,
+            }
             for tc in ch.test_cases
             if not tc.is_hidden or user.role != UserRole.student
         ]
-        items.append({
-            "id": str(ch.id), "title": ch.title, "description": ch.description,
-            "language": ch.language, "starter_code": ch.starter_code,
-            "time_limit_seconds": ch.time_limit_seconds, "memory_limit_mb": ch.memory_limit_mb,
-            "test_cases": tcs,
-        })
+        items.append(
+            {
+                "id": str(ch.id),
+                "title": ch.title,
+                "description": ch.description,
+                "language": ch.language,
+                "starter_code": ch.starter_code,
+                "time_limit_seconds": ch.time_limit_seconds,
+                "memory_limit_mb": ch.memory_limit_mb,
+                "test_cases": tcs,
+            }
+        )
     return items
 
 
@@ -169,10 +308,13 @@ async def submit_code_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     import logging
+
     logger = logging.getLogger(__name__)
     try:
         submission = await submit_code(db, challenge_id, data.source_code, data.language, user)
-        logger.info(f"Submission {submission.id}: status={submission.status}, results={submission.results}")
+        logger.info(
+            f"Submission {submission.id}: status={submission.status}, results={submission.results}"
+        )
         return CodeSubmissionResponse.model_validate(submission)
     except Exception as e:
         logger.exception(f"Submit code failed: {e}")
