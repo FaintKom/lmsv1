@@ -904,8 +904,10 @@ button { font-family: inherit; }
  font-weight: 500;
  font-size: 13px;
  font-variant-numeric: tabular-nums;
- color: var(--clay-700);
- background: var(--clay-50);
+ /* Semantic tokens, not raw scale values — the scale does not flip with the
+    theme, and these pills reach the public landing via the exercise gallery. */
+ color: var(--color-danger-fg);
+ background: var(--color-danger-soft);
 }
 
 .lf-bottom {
@@ -941,7 +943,7 @@ button { font-family: inherit; }
 .lf-fb-icon.meh { background: var(--ink-400); }
 .lf-fb-text.meh { color: var(--color-text); }
 /* XC-05: streak pill lights up while a streak is alive. */
-.lf-streak.lit { color: var(--sun-700); background: var(--sun-100); }
+.lf-streak.lit { color: var(--color-reward-fg); background: var(--color-reward-soft); }
 /* SH-05: hearts as an icon row when the pool is small. */
 .lf-hearts .hrt { display: inline-grid; place-items: center; transition: transform 200ms var(--motion-ease), opacity 200ms; }
 .lf-hearts .hrt.empty { opacity: 0.28; transform: scale(0.86); }
@@ -1105,7 +1107,7 @@ button { font-family: inherit; }
  border-radius: 999px;
  flex: none;
  border: 2px solid var(--color-border-strong);
- background: #fff;
+ background: var(--color-surface);
  display: grid; place-items: center;
  color: #fff;
  font-size: 11px; font-weight: 800;
