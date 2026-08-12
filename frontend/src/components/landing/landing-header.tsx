@@ -64,30 +64,33 @@ function HeaderLocaleSwitcher() {
 export function LandingHeader() {
  return (
  <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-lg">
- <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+ <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
  <div className="flex items-center gap-2.5">
  <div className="relative flex h-9 w-9 items-center justify-center rounded-sm bg-green-500 text-lg font-extrabold text-white">
  g
  <span className="absolute bottom-[4px] right-[5px] h-[5px] w-[5px] rounded-full bg-sun-400" />
  </div>
- <span className="text-xl font-bold text-text">GrassLMS</span>
+ <span className="text-lg font-bold text-text sm:text-xl">GrassLMS</span>
  </div>
  <div className="flex items-center gap-3">
  <HeaderLocaleSwitcher />
- <Link href="/demo?role=student">
+ {/* Repeated in the hero. On a 390px screen these two are what push
+     Get Started past the right edge, so they drop below sm. */}
+ <Link href="/demo?role=student" className="hidden sm:block">
  <Button variant="ghost" size="sm">
  Try Demo
  </Button>
  </Link>
- <Link href="/login">
+ <Link href="/login" className="hidden sm:block">
  <Button variant="ghost" size="sm">
  Sign In
  </Button>
  </Link>
  <Link href="/register">
- <Button size="sm">
+ <Button size="sm" className="whitespace-nowrap">
  Get Started
- <ArrowRight className="h-4 w-4" />
+ {/* At 320px the arrow is what tips the button past the edge. */}
+ <ArrowRight className="hidden h-4 w-4 sm:block" />
  </Button>
  </Link>
  </div>
