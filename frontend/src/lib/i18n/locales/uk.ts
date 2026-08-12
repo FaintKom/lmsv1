@@ -2191,6 +2191,18 @@ const uk: TranslationMap = {
  "sat.back": "Назад",
 
  // Landing page
+ "landing.demo.serverNote": "Перевіряє наш сервер",
+ "landing.demo.check": "Перевірити розв'язок",
+ "landing.demo.run": "Запустити",
+ "landing.demo.testsHeading": "Тести",
+ "landing.demo.loading": "Завантажуємо задачу…",
+ "landing.demo.expected": "очікувалося",
+ "landing.demo.got": "отримано",
+ "landing.demo.allPassed": "Усі тести пройшли.",
+ "landing.demo.someFailed": "Частина тестів ще падає.",
+ "landing.demo.noOutput": "Вивід порожній.",
+ "landing.demo.tooMany": "Забагато запусків з вашої мережі. Зачекайте хвилину.",
+ "landing.demo.unreachable": "Пісочниця не відповіла. Спробуйте ще раз.",
  "landing.platformBadge": "Платформа для сучасної освіти",
  "landing.heroTeachSmarter": "Викладай розумніше з",
  "landing.heroInteractive": "інтерактивним навчанням",

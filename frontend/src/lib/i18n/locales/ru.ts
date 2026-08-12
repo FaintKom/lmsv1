@@ -2139,6 +2139,18 @@ const ru: TranslationMap = {
  "sat.back": "Назад",
 
  // Landing page
+ "landing.demo.serverNote": "Проверяет наш сервер",
+ "landing.demo.check": "Проверить решение",
+ "landing.demo.run": "Запустить",
+ "landing.demo.testsHeading": "Тесты",
+ "landing.demo.loading": "Загружаем задачу…",
+ "landing.demo.expected": "ожидалось",
+ "landing.demo.got": "получено",
+ "landing.demo.allPassed": "Все тесты прошли.",
+ "landing.demo.someFailed": "Часть тестов ещё падает.",
+ "landing.demo.noOutput": "Вывод пуст.",
+ "landing.demo.tooMany": "Слишком много запусков с вашей сети. Подождите минуту.",
+ "landing.demo.unreachable": "Песочница не ответила. Попробуйте ещё раз.",
  "landing.platformBadge": "Платформа для современного образования",
  "landing.heroTeachSmarter": "Преподавайте умнее с",
  "landing.heroInteractive": "интерактивным обучением",

@@ -2132,6 +2132,18 @@ const tr: TranslationMap = {
  "sat.back": "Geri",
 
  // Landing page
+ "landing.demo.serverNote": "Sunucumuz kontrol eder",
+ "landing.demo.check": "Çözümü kontrol et",
+ "landing.demo.run": "Çalıştır",
+ "landing.demo.testsHeading": "Testler",
+ "landing.demo.loading": "Görev yükleniyor…",
+ "landing.demo.expected": "beklenen",
+ "landing.demo.got": "gelen",
+ "landing.demo.allPassed": "Tüm testler geçti.",
+ "landing.demo.someFailed": "Bazı testler hâlâ başarısız.",
+ "landing.demo.noOutput": "Çıktı yok.",
+ "landing.demo.tooMany": "Ağınızdan çok fazla çalıştırma geldi. Bir dakika bekleyin.",
+ "landing.demo.unreachable": "Çalışma ortamı yanıt vermedi. Tekrar deneyin.",
  "landing.platformBadge": "Modern eğitim için platform",
  "landing.heroTeachSmarter": "Daha akıllı öğret:",
  "landing.heroInteractive": "etkileşimli öğrenme",

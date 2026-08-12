@@ -2129,6 +2129,18 @@ const es: TranslationMap = {
  "sat.back": "Atrás",
 
  // Landing page
+ "landing.demo.serverNote": "Lo revisa nuestro servidor",
+ "landing.demo.check": "Comprobar solución",
+ "landing.demo.run": "Ejecutar",
+ "landing.demo.testsHeading": "Pruebas",
+ "landing.demo.loading": "Cargando la tarea…",
+ "landing.demo.expected": "se esperaba",
+ "landing.demo.got": "se obtuvo",
+ "landing.demo.allPassed": "Todas las pruebas pasaron.",
+ "landing.demo.someFailed": "Algunas pruebas siguen fallando.",
+ "landing.demo.noOutput": "Sin salida.",
+ "landing.demo.tooMany": "Demasiadas ejecuciones desde tu red. Espera un minuto.",
+ "landing.demo.unreachable": "El entorno no respondió. Inténtalo de nuevo.",
  "landing.platformBadge": "Plataforma para la educación moderna",
  "landing.heroTeachSmarter": "Enseña con inteligencia gracias al",
  "landing.heroInteractive": "aprendizaje interactivo",

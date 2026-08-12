@@ -2192,6 +2192,18 @@ const en: TranslationMap = {
 
  // Landing page
  "landing.platformBadge": "Platform for modern education",
+ "landing.demo.serverNote": "Checked on our server",
+ "landing.demo.check": "Check solution",
+ "landing.demo.run": "Run",
+ "landing.demo.testsHeading": "Tests",
+ "landing.demo.loading": "Loading the task…",
+ "landing.demo.expected": "expected",
+ "landing.demo.got": "got",
+ "landing.demo.allPassed": "All tests passed.",
+ "landing.demo.someFailed": "Some tests still fail.",
+ "landing.demo.noOutput": "No output.",
+ "landing.demo.tooMany": "Too many runs from your network. Give it a minute.",
+ "landing.demo.unreachable": "Could not reach the sandbox. Try again.",
  "landing.heroTeachSmarter": "Teach smarter with",
  "landing.heroInteractive": "interactive learning",
  "landing.heroSubExtended": "37 programming languages, interactive math, AI tutor, gamification, and game-based learning. Everything a modern school needs in one platform.",

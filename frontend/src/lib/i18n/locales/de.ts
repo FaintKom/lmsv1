@@ -2191,6 +2191,18 @@ const de: TranslationMap = {
  "sat.back": "Zurück",
 
  // Landing page
+ "landing.demo.serverNote": "Unser Server prüft",
+ "landing.demo.check": "Lösung prüfen",
+ "landing.demo.run": "Ausführen",
+ "landing.demo.testsHeading": "Tests",
+ "landing.demo.loading": "Aufgabe wird geladen…",
+ "landing.demo.expected": "erwartet",
+ "landing.demo.got": "erhalten",
+ "landing.demo.allPassed": "Alle Tests bestanden.",
+ "landing.demo.someFailed": "Einige Tests schlagen noch fehl.",
+ "landing.demo.noOutput": "Keine Ausgabe.",
+ "landing.demo.tooMany": "Zu viele Läufe aus deinem Netz. Warte eine Minute.",
+ "landing.demo.unreachable": "Die Sandbox hat nicht geantwortet. Versuch es erneut.",
  "landing.platformBadge": "Plattform für moderne Bildung",
  "landing.heroTeachSmarter": "Smarter lehren mit",
  "landing.heroInteractive": "interaktivem Lernen",
