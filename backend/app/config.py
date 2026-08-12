@@ -99,7 +99,7 @@ class Settings(BaseSettings):
 
     # Logging
     log_level: str = "INFO"  # DEBUG / INFO / WARNING / ERROR
-    log_json: bool = True    # structured JSON in production, pretty console in dev
+    log_json: bool = True  # structured JSON in production, pretty console in dev
 
     # Read replica (optional). Falls back to primary when empty.
     replica_database_url: str = ""
@@ -117,6 +117,10 @@ class Settings(BaseSettings):
     auth_login_rate_limit: str = "30/minute"
     auth_register_rate_limit: str = "20/hour"
     auth_password_reset_rate_limit: str = "3/hour"
+    # Public landing-page code demo. Unauthenticated, so it is the only place
+    # where strangers spend our CPU — keep it stingy. Tunable via env so prod
+    # can tighten it without shipping new code.
+    sandbox_demo_rate_limit: str = "10/minute"
 
     # Demo mode — exposes POST /auth/demo-login that returns a session
     # for a pre-configured demo account without any credentials. Off by
@@ -135,7 +139,7 @@ class Settings(BaseSettings):
     s3_endpoint_url: str = ""  # R2: https://<account>.r2.cloudflarestorage.com
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
-    s3_region: str = "auto"    # R2 expects "auto"; AWS expects e.g. "us-east-1"
+    s3_region: str = "auto"  # R2 expects "auto"; AWS expects e.g. "us-east-1"
     s3_public_url_base: str = ""  # optional CDN / custom domain in front of bucket
 
     # OAuth — Zoom
@@ -185,9 +189,7 @@ class Settings(BaseSettings):
         """
         errors: list[str] = []
         if self.jwt_secret == JWT_SECRET_DEFAULT:
-            errors.append(
-                "JWT_SECRET is set to the default value. Generate a new 64+ char secret."
-            )
+            errors.append("JWT_SECRET is set to the default value. Generate a new 64+ char secret.")
         if len(self.jwt_secret) < 32:
             errors.append(
                 f"JWT_SECRET is too short ({len(self.jwt_secret)} chars). Use at least 32."

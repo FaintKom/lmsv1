@@ -1,13 +1,46 @@
 import datetime
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ExecuteRequest(BaseModel):
     language: str
     source_code: str
     stdin: str = ""
+
+
+class DemoExecuteRequest(BaseModel):
+    """Unauthenticated landing-page demo. Deliberately narrower than
+    ExecuteRequest: no stdin (one fewer input to abuse) and a hard source cap,
+    so a megabyte of generated code never reaches the sandbox. The language is
+    checked by the endpoint against its own short allowlist.
+    """
+
+    language: str = Field(max_length=16)
+    source_code: str = Field(min_length=1, max_length=2000)
+
+
+class DemoCheckRequest(BaseModel):
+    """Grade a landing-page demo solution. Same caps as DemoExecuteRequest."""
+
+    task_id: str = Field(max_length=64)
+    language: str = Field(max_length=16)
+    source_code: str = Field(min_length=1, max_length=2000)
+
+
+class DemoTestResult(BaseModel):
+    name: str
+    passed: bool
+    expected: str
+    got: str
+
+
+class DemoCheckResponse(BaseModel):
+    all_passed: bool
+    tests: list[DemoTestResult]
+    #: Set when the run never produced results — timeout, syntax error, crash.
+    error: str | None = None
 
 
 class ExecuteResponse(BaseModel):
