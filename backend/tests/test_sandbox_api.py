@@ -34,9 +34,19 @@ async def _create_challenge(client: AsyncClient, user, lesson_id):
 
 @pytest.mark.asyncio
 async def test_languages_listed(client: AsyncClient):
+    """The picker offers exactly what the runner can execute.
+
+    This used to assert `len(...) > 0`, which stayed green while the endpoint
+    advertised 37 Judge0 languages and only five ran — a student picking Rust
+    got "Unsupported language" at execution time.
+    """
+    from app.sandbox.executor import SUPPORTED_LANGUAGES
+
     resp = await client.get("/api/v1/sandbox/languages")
     assert resp.status_code == 200
-    assert len(resp.json()["languages"]) > 0
+    languages = resp.json()["languages"]
+    assert {entry["key"] for entry in languages} == set(SUPPORTED_LANGUAGES)
+    assert all(entry["name"] and entry["monaco"] for entry in languages)
 
 
 @pytest.mark.asyncio
