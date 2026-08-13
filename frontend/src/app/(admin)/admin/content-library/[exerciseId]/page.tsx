@@ -42,6 +42,7 @@ import {
  WordSearchConfigEditor,
  MapPinDropConfigEditor,
  BubbleSheetConfigEditor,
+ MathSystemConfigEditor,
 } from "./exercise-config-editors";
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
@@ -102,6 +103,7 @@ export default function ExerciseEditorPage() {
  web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
  scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
  math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
+ math_system: { problem: "", equations: ["", ""], variables: ["x", "y"] },
  srs_flashcard: { cards: [], mastery_threshold: 0.7 },
  crossword: { grid_size: 10, words: [] },
  word_search: { grid_size: 10, words: [] },
@@ -311,6 +313,10 @@ export default function ExerciseEditorPage() {
      {exercise.exercise_type === "math_stepwise" && (
        <Card><CardHeader><CardTitle>Step-by-Step Math</CardTitle></CardHeader>
        <CardContent><MathStepwiseConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
+     )}
+     {exercise.exercise_type === "math_system" && (
+       <Card><CardHeader><CardTitle>System of Equations</CardTitle></CardHeader>
+       <CardContent><MathSystemConfigEditor config={config} onChange={setConfig} /></CardContent></Card>
      )}
      {exercise.exercise_type === "srs_flashcard" && (
        <Card><CardHeader><CardTitle>Flashcards (SRS)</CardTitle></CardHeader>
