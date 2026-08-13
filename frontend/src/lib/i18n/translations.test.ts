@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_LOCALE, LOCALES, translations } from "./translations";
+import { EXERCISE_TYPES_META } from "@/lib/api/exercises";
 
 /**
  * Translation parity tests.
@@ -47,6 +48,20 @@ describe("translations", () => {
  .filter(([, v]) => !v || v.trim() === "")
  .map(([k]) => k);
  expect(empty).toEqual([]);
+ },
+ );
+
+ /**
+  * The landing page gives the number of exercise types as a fact, and says so
+  * out loud. It went stale the first time a type was added — the registry
+  * reached 25 while the page still read 24 — so the claim is pinned here.
+  */
+ it.each(LOCALES.map((l) => l.code))(
+ "states the real exercise-type count in %s",
+ (locale) => {
+ expect(translations[locale]["landing.facts.typesValue"]).toBe(
+ String(EXERCISE_TYPES_META.length),
+ );
  },
  );
 });

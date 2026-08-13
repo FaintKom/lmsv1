@@ -23,6 +23,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { readSystem, solveSystem } from "@/lib/math/linear-system";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Download, HelpCircle, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -99,6 +100,7 @@ const TYPE_DEFAULTS: Partial<Record<ExerciseType, Record<string, unknown>>> = {
   web_editor: { instructions: "", starter_html: "", starter_css: "", starter_js: "" },
   scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
   math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
+  math_system: { problem: "", equations: ["", ""], variables: ["x", "y"] },
   srs_flashcard: { cards: [], mastery_threshold: 0.7 },
   crossword: { grid_size: 10, words: [] },
   word_search: { grid_size: 10, words: [] },
@@ -234,6 +236,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
         <SCORMConfigEditor config={config} onChange={setConfig} exerciseId={exerciseId} />
       )}
       {type === "math_stepwise" && <MathStepwiseConfigEditor config={config} onChange={setConfig} />}
+      {type === "math_system" && <MathSystemConfigEditor config={config} onChange={setConfig} />}
       {type === "robot_2d" && <Robot2DEditor config={config} onConfigChange={setConfig} />}
       {type === "math_interactive" && <MathEditor config={config} onConfigChange={setConfig} />}
       {type === "world_3d" && <World3DEditor config={config} onConfigChange={setConfig} />}
@@ -538,6 +541,126 @@ function FileUploadConfigEditor({
             />
           </div>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/**
+ * System of linear equations.
+ *
+ * The preview line is the point of this editor. The server marks by solving
+ * the teacher's own equations, so what it reports here is exactly what a
+ * student will be marked against — including "no solutions", which is easy to
+ * write by accident and impossible to notice by reading.
+ */
+function MathSystemConfigEditor({
+  config,
+  onChange,
+}: {
+  config: Record<string, unknown>;
+  onChange: (c: Record<string, unknown>) => void;
+}) {
+  const equations = (config.equations as string[]) || ["", ""];
+  const variables = (config.variables as string[]) || ["x", "y"];
+  const inputCls =
+    "w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft";
+
+  const filled = equations.filter((e) => e.trim());
+  const rows = filled.length ? readSystem(filled, variables) : null;
+  const solution = rows ? solveSystem(rows, variables) : null;
+  const preview = !filled.length
+    ? "Add the equations to see what this marks as correct."
+    : !solution
+      ? "These are not linear equations in the variables above — the server will refuse the submission."
+      : solution.kind === "none"
+        ? "Marks as: no solutions (the lines are parallel)."
+        : solution.kind === "infinite"
+          ? "Marks as: infinitely many solutions."
+          : "Marks as: " + variables.map((v) => `${v} = ${solution.values?.[v]}`).join(", ");
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>System of Equations</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-text">Variables</label>
+          <input
+            type="text"
+            value={variables.join(", ")}
+            onChange={(e) =>
+              onChange({
+                ...config,
+                variables: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+              })
+            }
+            placeholder="x, y"
+            className={inputCls}
+          />
+          <p className="mt-1 text-xs text-text-muted">
+            The order here is the order of the answer boxes the student sees.
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-text">Equations</label>
+          <div className="space-y-2">
+            {equations.map((equation, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  type="text"
+                  value={equation}
+                  onChange={(e) => {
+                    const next = [...equations];
+                    next[i] = e.target.value;
+                    onChange({ ...config, equations: next });
+                  }}
+                  placeholder={i === 0 ? "2x + 3y = 12" : "x - y = 1"}
+                  className={inputCls}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={equations.length <= 1}
+                  onClick={() =>
+                    onChange({ ...config, equations: equations.filter((_, j) => j !== i) })
+                  }
+                >
+                  Remove
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => onChange({ ...config, equations: [...equations, ""] })}
+          >
+            Add equation
+          </Button>
+          <p className="mt-1 text-xs text-text-muted">
+            Plain text. Implicit multiplication is fine (<code>2x</code>), and either side may hold
+            the variables (<code>y = 2x - 1</code>).
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-text">Problem text (optional)</label>
+          <textarea
+            rows={2}
+            value={(config.problem as string) || ""}
+            onChange={(e) => onChange({ ...config, problem: e.target.value })}
+            placeholder="Two tickets and three passes cost 12 lari…"
+            className={inputCls}
+          />
+        </div>
+
+        <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">{preview}</p>
       </CardContent>
     </Card>
   );
