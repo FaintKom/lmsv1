@@ -5,6 +5,67 @@
 
 ---
 
+## AI-фичи из early.tools: Q&A по уроку + генератор черновика курса (2026-08-13)
+
+**Статус: план, ждёт одобрения траты.** Обе фичи требуют `ANTHROPIC_API_KEY`
+в проде. Оценка: ~$7/мес при 200 вопросах + 20 курсов (opus-5). Без явного
+«go» не начинать.
+
+### Общее (делается один раз, до обеих фич)
+
+- [ ] `anthropic>=0.60` в `backend/pyproject.toml`
+- [ ] `ANTHROPIC_API_KEY: str = ""` в `config.py`; если пусто — эндпоинты
+      отдают 503, а не падают на старте
+- [ ] `backend/app/common/llm.py` — синглтон `AsyncAnthropic`, ничего больше
+- [ ] Тесты: клиент подменяется фикстурой. **CI не должен ходить в API** —
+      без этого каждый прогон стоит денег
+
+### Фича A — «Спроси по этому уроку»
+
+Модель: haiku-4-5 (дёшево, задача простая). Без RAG: текст урока целиком
+в промпт. `knowledge`-модуль не трогаем — там методика, не уроки.
+
+- [ ] `backend/app/tutor/router.py` — `POST /api/v1/tutor/lessons/{id}/ask`
+      (один файл, ~80 строк, без models.py — новой таблицы нет)
+  - берёт `courses.service.get_lesson` (в нём уже проверка доступа)
+  - HTML урока → текст, обрезка до ~8k токенов
+  - system: «отвечай только по этому тексту; если ответа нет — так и скажи»
+  - `@limiter.limit("20/day")` per-user — **это и есть потолок трат**
+    (`# ponytail: rate limit = spend cap; таблица квот, если пойдут деньги`)
+- [ ] Смонтировать роутер в `main.py`
+- [ ] `frontend/src/components/lesson/ask-widget.tsx` + `lib/api/tutor.ts`,
+      вставить в `(dashboard)/courses/[courseId]/lessons/[lessonId]/page.tsx`
+- [ ] i18n: 6 локалей (иначе i18n-гейт в CI не пустит)
+- [ ] Тест: 1 pytest (мок клиента, проверка 403 для чужого курса + 429)
+
+### Фича B — генератор черновика курса
+
+Модель: opus-5, structured outputs (`output_config.format`) — валидный JSON
+гарантирован, парсинг и ретраи не нужны.
+
+Ленивое решение: **генерируем и сразу создаём курс в статусе `draft`**,
+методист правит его в существующем редакторе. Никакого превью-модала —
+не понравилось, удалил курс.
+
+- [ ] `courses/service.py`: `generate_course_draft(topic, level, n_modules)`
+      → JSON-схема `{modules: [{title, lessons: [{title, summary,
+      duration_minutes}]}]}` → создаёт Course/Module/Lesson через
+      существующие пути. Тело урока не генерим — только скелет
+- [ ] `POST /api/v1/courses/generate` — только methodist/admin,
+      `@limiter.limit("10/day")`
+- [ ] Кнопка «Сгенерировать черновик» в `(admin)/admin/courses` → редирект
+      в редактор созданного курса
+- [ ] i18n 6 локалей + 1 pytest с моком
+
+### Что сознательно НЕ делаем в v1
+
+- эмбеддинги/чанки/векторный поиск по курсу целиком → только если A зайдёт
+- таблица usage/квот по организациям → пока rate limit достаточно
+- генерация текста уроков и упражнений → только скелет курса
+- превью-модал для черновика → правка в существующем редакторе
+
+---
+
 ## Live Lesson Mode (2026-07-23)
 
 Спека: `docs/superpowers/specs/2026-07-23-live-lesson-mode-design.md`.
@@ -53,8 +114,9 @@
 **Осталось по live-урокам:**
 - [ ] Integrity model B — план из 3 PR (2026-08-02), детали ниже в секции
       «Integrity model B»; PR-1 отгружен.
-- [ ] Ученик: «мои результаты» в ревью после урока (S7 из UX-аудита) —
-      сейчас ученик видит доску+таймлайн, но не свои сабмиты.
+- [x] Ученик: «мои результаты» в ревью после урока (S7 из UX-аудита) —
+      `myResults` в `components/live/lesson-review.tsx`: сервер уже срезает
+      `summary.results` до строк самого ученика, компонент выбирает свою.
 - [x] Дирижёр v2: редактор программы урока (перестановка/скрытие шагов,
       свои шаги-доски). Редактор был написан ещё в PR #205/#210, но программа
       жила в `useState` и умирала при перезагрузке. **Персист добавлен
@@ -64,9 +126,10 @@
       не дело класса). Тест `test_programme_survives_reload_and_is_teacher_only`.
       ⚠️ Гидрация после F5 в браузере ещё не проверена — закрыть на сессии
       тестирования QA-стеком.
-- [ ] Дизайн-долг вне live: тень btn-pop не следует за org-брендингом
-      (фиолетовая кнопка + зелёная тень); чип «published» нечитаем на
-      обложке; страница Courses не мигрирована на Lively.
+- [x] Дизайн-долг вне live закрыт: `--pop: var(--primary-dark, …)` —
+      тень идёт за брендингом; чип «published» на `success-soft/success-fg`;
+      на странице Courses не осталось ни одного до-Lively цвета
+      (`grep gray-|slate-|bg-white` — ноль).
 
 ---
 
@@ -86,11 +149,14 @@
       config, контента в проде 0). `?v2=1` флаг удалён — V2 теперь дефолт
       для срезанных типов (обычный урок + live). Тесты:
       tests/test_exercises_integrity.py (13).
-- [ ] **PR-2:** deferred-пары — matching, categorize: async check через
-      /check (per-item вердикты), dual-mode рефактор компонентов;
-      + multi-pin map_pin_drop UI.
-- [ ] **PR-3:** пошаговые — quiz (ответы в relation questions, отдельная
-      ветка /check), reading, dialogue, crossword.
+- [x] **PR-2:** matching (`pairs` → `left_items` + перемешанные
+      `right_items`), categorize (`categories` → `category_names` + общий
+      пул), multi-pin map_pin_drop UI (`v2-exercise-live.tsx`, координаты и
+      tolerance срезаны). Все ходят в `/check`.
+- [x] **PR-3:** quiz (отдельная ветка `/check` — ответы в relation
+      `questions`, не в config), reading, dialogue (срезан `is_correct` в
+      опциях), crossword (слово заменено его длиной, геометрия цела).
+      Тестов в `test_exercises_integrity.py` — 24.
 - Не конвертируем (обоснованно): code_challenge/math_stepwise (уже
   server-graded), file_upload/whiteboard (ручная проверка), scorm (CMI),
   word_search (сетка = ответ), srs_flashcard (самооценка), игры
@@ -271,19 +337,17 @@ service) из этой архитектуры — это ровно пайпла
 
 ## Уборка после инцидента 2026-05-04 (некритично, не блокирует работу)
 
-- [ ] Удалить остатки worktree-директории `F:/lms/.claude/worktrees/focused-tereshkova-b85ccf/`.
-      git её уже не видит (`git worktree list` чистый), но Windows-процесс
-      держит файлы. Закрой редактор/Explorer на этой папке и выполни
-      `rm -rf F:/lms/.claude/worktrees/focused-tereshkova-b85ccf`. Освободит ~15 MB.
+- [x] Остатки worktree-директории — `F:/lms/.claude/worktrees/` больше не
+      существует (проверено 2026-08-13). Кто-то уже убрал, действий нет.
 - [ ] Удалить 5 stale веток на origin (мусор в GitHub UI):
       `chore/session-start-hook`, `claude/focused-tereshkova-b85ccf`,
       `claude/goofy-bouman-3add21`, `docs/claude-md-suite`, `infra/staging-on-same-vps`,
       плюс `claude/confident-chatterjee-e2138c` (уже смерджена через PR #6).
       Через GitHub UI → Branches → trash icon, или `git push origin --delete <name>`.
-- [ ] Через 1-2 недели удалить kill-switch SW: `frontend/public/sw.js` +
-      убедиться что `frontend/src/app/layout.tsx` не регистрирует SW
-      (registration уже выпилена в `9f3f42c`). После того как все активные
-      браузеры один раз навигировались и kill-switch unregister'нул старый SW.
+- [x] Kill-switch SW удалён (PR #277, спустя три месяца вместо двух
+      недель): `frontend/public/sw.js` вместе с `src/app/offline/` — это была
+      его fallback-страница, недостижимая без воркера. Регистрации в коде уже
+      не было (`grep serviceWorker src/` пуст).
 - [ ] Разобрать локальную ветку `wip/recovered-stash-2026-05-04` —
       48 файлов prior-session work из бывшего `stash@{0}`. Содержит
       реальные billing/config/main.py изменения + brand-cleanup hunks
