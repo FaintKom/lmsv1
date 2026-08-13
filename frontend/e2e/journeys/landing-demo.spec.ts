@@ -48,14 +48,27 @@ async function check(page: Page) {
   return response;
 }
 
+/**
+ * The code demo is the fourth slide of the exercise reel rather than a block of
+ * its own, so it is not in the DOM until you page to it. Each dot carries its
+ * slide's label as the accessible name.
+ */
+async function openCodeSlide(page: Page) {
+  await page.getByRole("button", { name: "Code", exact: true }).click();
+  // The task catalogue loads on mount; its test names are the proof it did.
+  await expect(page.getByText("count_vowels('education')")).toBeVisible({ timeout: 30_000 });
+}
+
 test.describe("landing code demo", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    // The task catalogue loads on mount; its test names are the proof it did.
-    await expect(page.getByText("count_vowels('education')")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: /next exercise/i }).first()).toBeVisible({
+      timeout: 30_000,
+    });
   });
 
   test("a visitor with no account solves the task and the server confirms it", async ({ page }) => {
+    await openCodeSlide(page);
     await writeSolution(page, CORRECT);
     const res = await check(page);
 
@@ -71,6 +84,7 @@ test.describe("landing code demo", () => {
   });
 
   test("a wrong solution is rejected with a verdict per test case", async ({ page }) => {
+    await openCodeSlide(page);
     await writeSolution(page, WRONG);
     const res = await check(page);
 
@@ -87,7 +101,9 @@ test.describe("landing code demo", () => {
   });
 
   test("the exercise gallery grades a right and a wrong answer", async ({ page }) => {
-    const gallery = page.locator("section").filter({ hasText: "Twenty-four exercise types" });
+    // Matched on the tail of the heading: the count at the front changes with
+    // the number of slides, and it already has once.
+    const gallery = page.locator("section").filter({ hasText: "exercise types you can set" });
 
     // Options are radio tiles, not plain buttons.
     await gallery.getByRole("radio", { name: /63/ }).first().click();
