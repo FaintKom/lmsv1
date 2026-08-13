@@ -1,4 +1,5 @@
 """Tests for admin endpoints: dashboard, users, groups, orgs, gradebook, review queue."""
+
 import uuid
 
 import pytest
@@ -166,7 +167,8 @@ async def test_list_users(client: AsyncClient, admin):
 @pytest.mark.asyncio
 async def test_list_users_filter_by_role(client: AsyncClient, admin):
     resp = await client.get(
-        "/api/v1/admin/users", params={"role": "student"},
+        "/api/v1/admin/users",
+        params={"role": "student"},
         headers=auth_header(admin),
     )
     assert resp.status_code == 200
@@ -174,12 +176,16 @@ async def test_list_users_filter_by_role(client: AsyncClient, admin):
 
 @pytest.mark.asyncio
 async def test_create_user_as_admin(client: AsyncClient, admin):
-    resp = await client.post("/api/v1/admin/users", json={
-        "email": f"new-user-{uuid.uuid4().hex[:6]}@test.com",
-        "password": "NewPass123!",
-        "full_name": "New User",
-        "role": "student",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/admin/users",
+        json={
+            "email": f"new-user-{uuid.uuid4().hex[:6]}@test.com",
+            "password": "NewPass123!",
+            "full_name": "New User",
+            "role": "student",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code == 200
     assert resp.json()["role"] == "student"
 
@@ -187,23 +193,31 @@ async def test_create_user_as_admin(client: AsyncClient, admin):
 @pytest.mark.asyncio
 async def test_admin_cannot_create_admin_user(client: AsyncClient, admin):
     """Only super_admin can create admin users."""
-    resp = await client.post("/api/v1/admin/users", json={
-        "email": f"admin-{uuid.uuid4().hex[:6]}@test.com",
-        "password": "NewPass123!",
-        "full_name": "New Admin",
-        "role": "admin",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/admin/users",
+        json={
+            "email": f"admin-{uuid.uuid4().hex[:6]}@test.com",
+            "password": "NewPass123!",
+            "full_name": "New Admin",
+            "role": "admin",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
 async def test_super_admin_can_create_admin_user(client: AsyncClient, super_admin):
-    resp = await client.post("/api/v1/admin/users", json={
-        "email": f"admin-{uuid.uuid4().hex[:6]}@test.com",
-        "password": "NewPass123!",
-        "full_name": "New Admin",
-        "role": "admin",
-    }, headers=auth_header(super_admin))
+    resp = await client.post(
+        "/api/v1/admin/users",
+        json={
+            "email": f"admin-{uuid.uuid4().hex[:6]}@test.com",
+            "password": "NewPass123!",
+            "full_name": "New Admin",
+            "role": "admin",
+        },
+        headers=auth_header(super_admin),
+    )
     assert resp.status_code == 200
 
 
@@ -222,6 +236,7 @@ async def test_update_user(client: AsyncClient, admin, student):
 async def test_delete_user(client: AsyncClient, admin, db, org):
     from app.auth.models import UserRole
     from tests.conftest import _make_user
+
     u = _make_user(db, org, UserRole.student, suffix="-del")
     await db.flush()
     resp = await client.delete(
@@ -278,13 +293,17 @@ async def test_admin_reset_password_sends_email_link(
 
     # A fresh, unused token now exists for the target user.
     rows = (
-        await db.execute(
-            select(PasswordResetToken).where(
-                PasswordResetToken.user_id == student.id,
-                PasswordResetToken.used == False,  # noqa: E712
+        (
+            await db.execute(
+                select(PasswordResetToken).where(
+                    PasswordResetToken.user_id == student.id,
+                    PasswordResetToken.used == False,  # noqa: E712
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert len(rows) == 1
 
     # The reset email was queued with the token.
@@ -316,10 +335,14 @@ async def test_admin_reset_password_email_disabled_still_creates_token(
     assert resp.json()["email_sent"] is False
 
     rows = (
-        await db.execute(
-            select(PasswordResetToken).where(PasswordResetToken.user_id == student.id)
+        (
+            await db.execute(
+                select(PasswordResetToken).where(PasswordResetToken.user_id == student.id)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert len(rows) == 1
 
 
@@ -359,13 +382,17 @@ async def test_admin_reset_password_invalidates_old_tokens(
     assert refreshed.used is True
 
     active = (
-        await db.execute(
-            select(PasswordResetToken).where(
-                PasswordResetToken.user_id == student.id,
-                PasswordResetToken.used == False,  # noqa: E712
+        (
+            await db.execute(
+                select(PasswordResetToken).where(
+                    PasswordResetToken.user_id == student.id,
+                    PasswordResetToken.used == False,  # noqa: E712
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert len(active) == 1
 
 
@@ -424,10 +451,14 @@ async def test_student_cannot_manage_users(client: AsyncClient, student):
 
 @pytest.mark.asyncio
 async def test_create_group(client: AsyncClient, admin):
-    resp = await client.post("/api/v1/admin/groups", json={
-        "name": "Class 10A",
-        "description": "10th grade section A",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/admin/groups",
+        json={
+            "name": "Class 10A",
+            "description": "10th grade section A",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code == 200
     assert resp.json()["name"] == "Class 10A"
 
@@ -442,6 +473,7 @@ async def test_list_groups(client: AsyncClient, admin):
 @pytest.mark.asyncio
 async def test_update_group(client: AsyncClient, admin, db, org):
     from app.admin.models import StudentGroup
+
     g = StudentGroup(org_id=org.id, name="Old Group")
     db.add(g)
     await db.flush()
@@ -456,6 +488,7 @@ async def test_update_group(client: AsyncClient, admin, db, org):
 @pytest.mark.asyncio
 async def test_delete_group(client: AsyncClient, admin, db, org):
     from app.admin.models import StudentGroup
+
     g = StudentGroup(org_id=org.id, name="To Delete")
     db.add(g)
     await db.flush()
@@ -466,6 +499,7 @@ async def test_delete_group(client: AsyncClient, admin, db, org):
 @pytest.mark.asyncio
 async def test_add_member_to_group(client: AsyncClient, admin, student, db, org):
     from app.admin.models import StudentGroup
+
     g = StudentGroup(org_id=org.id, name="Group With Members")
     db.add(g)
     await db.flush()
@@ -481,6 +515,7 @@ async def test_add_member_to_group(client: AsyncClient, admin, student, db, org)
 @pytest.mark.asyncio
 async def test_list_group_members(client: AsyncClient, admin, student, db, org):
     from app.admin.models import StudentGroup, StudentGroupMember
+
     g = StudentGroup(org_id=org.id, name="For Members List")
     db.add(g)
     await db.flush()
@@ -497,6 +532,7 @@ async def test_list_group_members(client: AsyncClient, admin, student, db, org):
 @pytest.mark.asyncio
 async def test_remove_member_from_group(client: AsyncClient, admin, student, db, org):
     from app.admin.models import StudentGroup, StudentGroupMember
+
     g = StudentGroup(org_id=org.id, name="Remove Test")
     db.add(g)
     await db.flush()
@@ -521,10 +557,14 @@ async def test_student_cannot_manage_groups(client: AsyncClient, student):
 @pytest.mark.asyncio
 async def test_admin_enroll_student(client: AsyncClient, admin, student, org, db):
     course = await make_course(db, org, admin)
-    resp = await client.post("/api/v1/admin/enroll", json={
-        "user_id": str(student.id),
-        "course_id": str(course.id),
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/admin/enroll",
+        json={
+            "user_id": str(student.id),
+            "course_id": str(course.id),
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code == 200
     assert resp.json()["status"] in ("ok", "already_enrolled")
 
@@ -533,10 +573,14 @@ async def test_admin_enroll_student(client: AsyncClient, admin, student, org, db
 async def test_admin_enroll_duplicate(client: AsyncClient, admin, student, org, db):
     course = await make_course(db, org, admin)
     await make_enrollment(db, course.id, student.id)
-    resp = await client.post("/api/v1/admin/enroll", json={
-        "user_id": str(student.id),
-        "course_id": str(course.id),
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/admin/enroll",
+        json={
+            "user_id": str(student.id),
+            "course_id": str(course.id),
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code == 200
     assert resp.json()["status"] == "already_enrolled"
 
@@ -567,6 +611,7 @@ async def test_admin_unenroll(client: AsyncClient, admin, student, org, db):
 @pytest.mark.asyncio
 async def test_bulk_enroll_group(client: AsyncClient, admin, student, org, db):
     from app.admin.models import StudentGroup, StudentGroupMember
+
     course = await make_course(db, org, admin)
     g = StudentGroup(org_id=org.id, name="Bulk Group")
     db.add(g)
