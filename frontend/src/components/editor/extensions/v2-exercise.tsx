@@ -75,6 +75,7 @@ const TYPES: { type: V2ExerciseType; label: string; group: string }[] = [
   { type: "coordinate-plane", label: "Coordinate plane", group: "Math" },
   { type: "equation-solver", label: "Equation solver", group: "Math" },
   { type: "math-system", label: "System of equations", group: "Math" },
+  { type: "stereometry", label: "Solids", group: "Math" },
   { type: "function-graph", label: "Function graph", group: "Math" },
   { type: "graph-transform", label: "Graph transform", group: "Math" },
   { type: "inequality-graph", label: "Inequality graph", group: "Math" },
@@ -125,6 +126,19 @@ const DEFAULT_PROPS: Partial<Record<V2ExerciseType, any>> = {
   "math-stepwise": {
     problem: "Solve: 2x = 8",
     steps: [{ label: "Step 1", expected: "x = 4" }],
+  },
+  // Without a starter here the type switch hands the component an empty
+  // object, and an empty task is what a methodist sees first. Both of these
+  // are a working exercise the moment they are picked.
+  "math-system": {
+    equations: ["2x + 3y = 12", "x - y = 1"],
+    variables: ["x", "y"],
+  },
+  stereometry: {
+    solid: "cone",
+    dimensions: { r: 3, h: 4 },
+    quantity: "volume",
+    unit: "cm",
   },
 };
 

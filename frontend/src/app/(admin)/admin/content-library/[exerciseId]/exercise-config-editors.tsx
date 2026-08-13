@@ -15,6 +15,15 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 });
 import apiClient from "@/lib/api-client";
 import { readSystem, solveSystem } from "@/lib/math/linear-system";
+import {
+ computeSolid,
+ dimensionsFor,
+ isSolid,
+ placesFor,
+ roundTo,
+ QUANTITIES,
+ SOLID_NAMES,
+} from "@/lib/math/solids";
 
 type EditorProps = {
  config: Record<string, unknown>;
@@ -1504,6 +1513,160 @@ export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
          placeholder="Two tickets and three passes cost 12 lari…"
          className={inputCls}
        />
+     </div>
+
+     <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">{preview}</p>
+   </div>
+ );
+}
+
+// ─── Solids ──────────────────────────────────────────────────────────
+
+const SOLID_LABELS: Record<string, string> = {
+ box: "Box",
+ pyramid: "Square pyramid",
+ cylinder: "Cylinder",
+ cone: "Cone",
+ sphere: "Sphere",
+};
+
+const QUANTITY_LABELS: Record<string, string> = {
+ volume: "Volume",
+ surface_area: "Surface area",
+ lateral_area: "Lateral area",
+};
+
+const DIMENSION_LABELS: Record<string, string> = {
+ a: "a — first base edge",
+ b: "b — second base edge",
+ c: "c — height",
+ h: "h — height",
+ r: "r — radius",
+};
+
+/**
+ * The measurements change with the solid, so the fields are generated from
+ * the same table the formulas use. The preview line is what makes this
+ * markable content rather than a guess: it shows the number the server will
+ * accept, rounded exactly as the student is asked to round it.
+ */
+export function StereometryConfigEditor({ config, onChange }: EditorProps) {
+ const solid = typeof config.solid === "string" ? config.solid : "box";
+ const quantity = typeof config.quantity === "string" ? config.quantity : "volume";
+ const dimensions = (config.dimensions as Record<string, unknown>) || {};
+ const decimals = placesFor(config.decimals);
+ const unit = typeof config.unit === "string" ? config.unit : "";
+
+ const needed = isSolid(solid) ? dimensionsFor(solid) : [];
+ const exact = computeSolid(solid, dimensions, quantity);
+ const preview =
+   exact === null
+     ? "Fill in every measurement to see what this marks as correct."
+     : `Marks as: ${roundTo(exact, decimals)}${unit ? ` ${unit}${quantity === "volume" ? "³" : "²"}` : ""}`;
+
+ return (
+   <div className="space-y-4">
+     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+       <div>
+         <label className={labelCls}>Solid</label>
+         <select
+           value={solid}
+           onChange={(e) => onChange({ ...config, solid: e.target.value, dimensions: {} })}
+           className={inputCls}
+         >
+           {SOLID_NAMES.map((name) => (
+             <option key={name} value={name}>
+               {SOLID_LABELS[name]}
+             </option>
+           ))}
+         </select>
+         <p className={hintCls}>Changing the solid clears the measurements — they differ.</p>
+       </div>
+       <div>
+         <label className={labelCls}>What to find</label>
+         <select
+           value={quantity}
+           onChange={(e) => onChange({ ...config, quantity: e.target.value })}
+           className={inputCls}
+         >
+           {QUANTITIES.map((q) => (
+             <option key={q} value={q}>
+               {QUANTITY_LABELS[q]}
+             </option>
+           ))}
+         </select>
+         {solid === "sphere" && quantity === "lateral_area" && (
+           <p className={hintCls}>A sphere has no base, so this is its whole surface.</p>
+         )}
+       </div>
+     </div>
+
+     <div>
+       <label className={labelCls}>Measurements</label>
+       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+         {needed.map((name) => (
+           <div key={name}>
+             <input
+               type="number"
+               min={0}
+               step="any"
+               value={(dimensions[name] as number | string) ?? ""}
+               onChange={(e) =>
+                 onChange({
+                   ...config,
+                   dimensions: {
+                     ...dimensions,
+                     [name]: e.target.value === "" ? "" : parseFloat(e.target.value),
+                   },
+                 })
+               }
+               placeholder={name}
+               className={inputCls}
+             />
+             <p className={hintCls}>{DIMENSION_LABELS[name] ?? name}</p>
+           </div>
+         ))}
+       </div>
+     </div>
+
+     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+       <div>
+         <label className={labelCls}>Round the answer to</label>
+         <input
+           type="number"
+           min={0}
+           max={6}
+           value={decimals}
+           onChange={(e) => onChange({ ...config, decimals: parseInt(e.target.value, 10) })}
+           className={inputCls}
+         />
+         <p className={hintCls}>
+           Decimal places. Anything within half a unit of the last place is accepted.
+         </p>
+       </div>
+       <div>
+         <label className={labelCls}>Unit (optional)</label>
+         <input
+           type="text"
+           value={unit}
+           onChange={(e) => onChange({ ...config, unit: e.target.value })}
+           placeholder="cm"
+           className={inputCls}
+         />
+         <p className={hintCls}>Shown beside the measurements and the answer box.</p>
+       </div>
+     </div>
+
+     <div>
+       <label className={labelCls}>Problem text (optional)</label>
+       <textarea
+         rows={2}
+         value={(config.problem as string) || ""}
+         onChange={(e) => onChange({ ...config, problem: e.target.value })}
+         placeholder="A grain silo is a cylinder 3 m across and 5 m tall…"
+         className={inputCls}
+       />
+       <p className={hintCls}>Left blank, the task asks for the quantity in plain words.</p>
      </div>
 
      <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">{preview}</p>

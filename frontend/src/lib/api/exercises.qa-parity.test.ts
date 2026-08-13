@@ -33,6 +33,7 @@ const ALL_TYPES: ExerciseType[] = [
   "scorm_package",
   "math_stepwise",
   "math_system",
+  "stereometry",
   "srs_flashcard",
   "crossword",
   "word_search",

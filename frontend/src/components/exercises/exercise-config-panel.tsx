@@ -53,6 +53,7 @@ import {
   MapPinDropConfigEditor,
   BubbleSheetConfigEditor,
   MathSystemConfigEditor,
+  StereometryConfigEditor,
 } from "@/app/(admin)/admin/content-library/[exerciseId]/exercise-config-editors";
 import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise";
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
@@ -101,6 +102,7 @@ const TYPE_DEFAULTS: Partial<Record<ExerciseType, Record<string, unknown>>> = {
   scorm_package: { package_id: "", launch_url: "", format: "scorm12", title: "" },
   math_stepwise: { problem: "", final_answer: "", validate_steps: true, hints: [], max_steps: 10 },
   math_system: { problem: "", equations: ["", ""], variables: ["x", "y"] },
+  stereometry: { solid: "box", dimensions: {}, quantity: "volume", decimals: 2, unit: "cm" },
   srs_flashcard: { cards: [], mastery_threshold: 0.7 },
   crossword: { grid_size: 10, words: [] },
   word_search: { grid_size: 10, words: [] },
@@ -237,6 +239,7 @@ export function ExerciseConfigPanel({ exerciseId, hideTitle, onSaved }: Exercise
       )}
       {type === "math_stepwise" && <MathStepwiseConfigEditor config={config} onChange={setConfig} />}
       {type === "math_system" && <MathSystemConfigEditor config={config} onChange={setConfig} />}
+      {type === "stereometry" && <StereometryConfigEditor config={config} onChange={setConfig} />}
       {type === "robot_2d" && <Robot2DEditor config={config} onConfigChange={setConfig} />}
       {type === "math_interactive" && <MathEditor config={config} onConfigChange={setConfig} />}
       {type === "world_3d" && <World3DEditor config={config} onConfigChange={setConfig} />}

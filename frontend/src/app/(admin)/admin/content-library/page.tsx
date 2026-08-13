@@ -82,6 +82,7 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  scorm_package: Package,
  math_stepwise: Sigma,
  math_system: Sigma,
+ stereometry: Box,
  srs_flashcard: Layers,
  crossword: Grid3X3,
  word_search: Search,

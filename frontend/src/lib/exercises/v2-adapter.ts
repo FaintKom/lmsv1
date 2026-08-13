@@ -66,6 +66,9 @@ export const V2_LIVE_TYPES = [
   // math_system needs no stripping — the config holds the teacher's equations
   // and no answer at all, and the server re-solves them at marking time.
   "math_system",
+  // stereometry needs no stripping either: the config holds the solid and
+  // its measurements, and the server works the number out at marking time.
+  "stereometry",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 

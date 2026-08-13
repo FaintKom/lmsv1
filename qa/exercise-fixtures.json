@@ -230,6 +230,18 @@
       }
     },
     {
+      "type": "stereometry",
+      "label": "Volume of a solid",
+      "config": {
+        "problem": "Find the volume of this cone.",
+        "solid": "cone",
+        "dimensions": {"r": 3, "h": 4},
+        "quantity": "volume",
+        "decimals": 2,
+        "unit": "cm"
+      }
+    },
+    {
       "type": "srs_flashcard",
       "label": "SRS flashcard",
       "config": {
