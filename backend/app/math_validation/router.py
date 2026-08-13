@@ -14,6 +14,7 @@ is supported via SymPy's standard transformations.
 LaTeX is NOT parsed by default (would require antlr4); pass plain
 ASCII or already-converted strings.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -23,65 +24,30 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sympy import Eq, Float, Integer, Rational, S, Symbol, expand, factor, simplify, solveset
-from sympy.parsing.sympy_parser import (
-    convert_xor,
-    implicit_multiplication_application,
-    parse_expr,
-    standard_transformations,
-)
+from sympy import Eq, S, Symbol, factor, simplify, solveset
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User
+from app.math_validation import service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-_MAX_EXPR_LEN = 500
-_SAFE_EXPR = re.compile(
-    r"^[0-9a-zA-Zа-яА-ЯёЁ\s\+\-\*\/\^\(\)\[\]\{\}\.\,\=\_\|]+$"
-)
+# The length cap, the character allow-list, the transformations and the
+# minimal global_dict parse_expr needs all live in service.py now — see the
+# note there about why global_dict cannot simply be empty.
 _SAFE_VARIABLE = re.compile(r"^[a-zA-Z]\w{0,15}$")
 
-_TR = standard_transformations + (
-    implicit_multiplication_application,
-    convert_xor,
-)
 
-_ALLOWED_NAMES = {
-    c: Symbol(c) for c in "abcdefghijklmnopqrstuvwxyz"
-}
-
-# parse_expr() evaluates the tokenized AST with eval(); when global_dict is
-# empty, the eval can't find numeric wrappers (Integer/Float/Rational) it
-# needs to turn `4.5` into Float(4.5), and the whole call raises
-# `NameError: name 'Float' is not defined`. The previous "harden everything"
-# pass set `global_dict={}`, which broke parsing of any literal containing
-# a decimal or fraction. Restore the minimum types parse_expr requires for
-# arithmetic literals — no functions exposed, sanitiser still blocks names.
-_PARSE_GLOBAL_DICT: dict[str, object] = {
-    "Integer": Integer,
-    "Float": Float,
-    "Rational": Rational,
-    "Symbol": Symbol,
-}
-
-
+# The parsing rules moved to service.py so the math_system grader can reuse
+# them; a second sanitiser guarding the same eval is the one duplication this
+# module cannot afford. These wrappers keep the routes' 400s unchanged.
 def _sanitize(s: str) -> str:
     """Reject expressions that could trigger code execution in SymPy's eval."""
-    if len(s) > _MAX_EXPR_LEN:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            f"Expression too long (max {_MAX_EXPR_LEN} chars)",
-        )
-    if "__" in s or "import" in s or "eval" in s or "exec" in s:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Forbidden token in expression")
-    if not _SAFE_EXPR.match(s):
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "Expression contains disallowed characters",
-        )
-    return s
+    try:
+        return service.sanitize_expression(s)
+    except service.MathParseError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from e
 
 
 def _parse(s: str):
@@ -89,44 +55,23 @@ def _parse(s: str):
 
     Raises HTTPException(400) on failure so the route returns a clean error.
     """
-    if not s or not isinstance(s, str):
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Expression is empty")
-    s = _sanitize(s.strip())
     try:
-        return parse_expr(
-            s,
-            local_dict=_ALLOWED_NAMES,
-            global_dict=_PARSE_GLOBAL_DICT,
-            transformations=_TR,
-            evaluate=True,
-        )
-    except Exception as e:  # noqa: BLE001
-        # SymPy can raise TokenError, SympifyError, AttributeError, etc.
-        # that don't inherit from (SyntaxError, ValueError, TypeError).
-        # Catching the lot and returning 400 keeps the route from 500-ing
-        # on weird student input.
-        logger.info("math parse failed for %r: %s", s, e)
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Cannot parse '{s}': {e}")
+        return service.parse_expression(s)
+    except service.MathParseError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from e
 
 
 def _parse_equation(s: str) -> Eq:
     """Parse 'x^2 - 5x + 6 = 0' into a SymPy Eq. No '=' => Eq(expr, 0)."""
-    if "=" not in s:
-        return Eq(_parse(s), S.Zero)
-    lhs, _, rhs = s.partition("=")
-    return Eq(_parse(lhs), _parse(rhs))
+    try:
+        return service.parse_equation(s)
+    except service.MathParseError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from e
 
 
 def _are_equivalent(a, b) -> bool:
     """SymPy-correct equivalence test for two expressions."""
-    try:
-        return bool(simplify(a - b) == 0)
-    except Exception as e:  # noqa: BLE001
-        logger.debug("equivalence check failed: %s", e)
-        try:
-            return bool(expand(a) == expand(b))
-        except Exception:
-            return False
+    return service.are_equivalent(a, b)
 
 
 _ALT_SEP = re.compile(r"\s*(?:or|или|,|;)\s*", re.IGNORECASE | re.UNICODE)
@@ -225,7 +170,9 @@ async def _in_thread(fn, *args):
 
 
 @router.post("/validate-step", response_model=ValidateStepOut)
-async def validate_step(body: ValidateStepIn, user: User = Depends(get_current_user)) -> ValidateStepOut:
+async def validate_step(
+    body: ValidateStepIn, user: User = Depends(get_current_user)
+) -> ValidateStepOut:
     """True iff `new_expression` is algebraically equivalent to `prev_expression`."""
     a = _parse(body.prev_expression)
     b = _parse(body.new_expression)
@@ -237,7 +184,9 @@ async def validate_step(body: ValidateStepIn, user: User = Depends(get_current_u
 
 
 @router.post("/check-answer", response_model=CheckAnswerOut)
-async def check_answer(body: CheckAnswerIn, user: User = Depends(get_current_user)) -> CheckAnswerOut:
+async def check_answer(
+    body: CheckAnswerIn, user: User = Depends(get_current_user)
+) -> CheckAnswerOut:
     """Compare a student final answer to the teacher's expected answer."""
     student = _parse_answer_set(body.student)
     expected = _parse_answer_set(body.expected)
@@ -271,14 +220,18 @@ async def solve_equation(body: SolveIn, user: User = Depends(get_current_user)) 
 
 
 @router.post("/factor", response_model=FactorOut)
-async def factor_expression(body: ExpressionIn, user: User = Depends(get_current_user)) -> FactorOut:
+async def factor_expression(
+    body: ExpressionIn, user: User = Depends(get_current_user)
+) -> FactorOut:
     expr = _parse(body.expression)
     result = await _in_thread(lambda: str(factor(expr)))
     return FactorOut(factored=result)
 
 
 @router.post("/simplify", response_model=SimplifyOut)
-async def simplify_expression(body: ExpressionIn, user: User = Depends(get_current_user)) -> SimplifyOut:
+async def simplify_expression(
+    body: ExpressionIn, user: User = Depends(get_current_user)
+) -> SimplifyOut:
     expr = _parse(body.expression)
     result = await _in_thread(lambda: str(simplify(expr)))
     return SimplifyOut(simplified=result)
@@ -300,7 +253,9 @@ async def equation_steps(body: SolveIn, user: User = Depends(get_current_user)) 
     def _compute_steps():
         steps: list[dict[str, Any]] = []
         canonical = eq.lhs - eq.rhs
-        steps.append({"description": "Move all terms to one side", "expression": f"{canonical} = 0"})
+        steps.append(
+            {"description": "Move all terms to one side", "expression": f"{canonical} = 0"}
+        )
         factored = factor(canonical)
         if factored != canonical:
             steps.append({"description": "Factor the expression", "expression": f"{factored} = 0"})
