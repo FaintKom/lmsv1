@@ -41,6 +41,7 @@ import { DialogueV2 } from "@/components/exercises/v2/dialogue-v2";
 import { QuizV2 } from "@/components/exercises/v2/quiz-v2";
 import { CrosswordV2 } from "@/components/exercises/v2/crossword-v2";
 import { MapPinDropV2 } from "@/components/exercises/v2/map-pin-v2";
+import { MathSystemV2 } from "@/components/exercises/v2/math-system-v2";
 
 interface LiveExercise {
   id: string;
@@ -420,6 +421,16 @@ export function V2ExerciseLive({
           items={(cfg.items as string[]) ?? undefined}
           categories={cfg.categories as { name: string; items: string[] }[] | undefined}
           onCheck={onCheck}
+          {...shared}
+        />
+      );
+    case "math_system":
+      return (
+        <MathSystemV2
+          equations={(cfg.equations as string[]) ?? []}
+          variables={(cfg.variables as string[]) ?? undefined}
+          problem={cfg.problem as string | undefined}
+          title={exercise.title}
           {...shared}
         />
       );

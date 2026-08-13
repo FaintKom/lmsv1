@@ -63,6 +63,9 @@ export const V2_LIVE_TYPES = [
   "crossword",
   // stripped in PR-1; its widget only grew multi-pin support later
   "map_pin_drop",
+  // math_system needs no stripping — the config holds the teacher's equations
+  // and no answer at all, and the server re-solves them at marking time.
+  "math_system",
 ] as const;
 export type V2LiveType = (typeof V2_LIVE_TYPES)[number];
 

@@ -74,6 +74,7 @@ const TYPES: { type: V2ExerciseType; label: string; group: string }[] = [
   { type: "card-sort", label: "Card sort", group: "Math" },
   { type: "coordinate-plane", label: "Coordinate plane", group: "Math" },
   { type: "equation-solver", label: "Equation solver", group: "Math" },
+  { type: "math-system", label: "System of equations", group: "Math" },
   { type: "function-graph", label: "Function graph", group: "Math" },
   { type: "graph-transform", label: "Graph transform", group: "Math" },
   { type: "inequality-graph", label: "Inequality graph", group: "Math" },
