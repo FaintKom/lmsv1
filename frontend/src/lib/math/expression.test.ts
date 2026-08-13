@@ -95,7 +95,7 @@ describe("expression parser", () => {
     expect(ast).toEqual({
       kind: "bin",
       op: "^",
-      left: { kind: "var" },
+      left: { kind: "var", name: "x" },
       right: { kind: "num", value: 2 },
     });
   });
