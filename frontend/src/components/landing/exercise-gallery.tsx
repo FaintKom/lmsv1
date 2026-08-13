@@ -19,7 +19,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, ListChecks, Link2, Boxes } from "lucide-react";
+import { ChevronLeft, ChevronRight, Code2, ListChecks, Link2, Boxes } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -35,12 +35,20 @@ const CategorizeV2 = dynamic(
   { ssr: false },
 );
 
-type Slide = "quiz" | "matching" | "categorize";
+// Monaco is heavy, so the code slide loads with the rest of the reel rather
+// than on first paint.
+const CodeDemo = dynamic(
+  () => import("@/components/landing/code-demo").then((m) => m.CodeDemo),
+  { ssr: false },
+);
+
+type Slide = "quiz" | "matching" | "categorize" | "code";
 
 const SLIDES: { id: Slide; icon: typeof ListChecks; label: string }[] = [
   { id: "quiz", icon: ListChecks, label: "landing.gallery.tabQuiz" },
   { id: "matching", icon: Link2, label: "landing.gallery.tabMatching" },
   { id: "categorize", icon: Boxes, label: "landing.gallery.tabCategorize" },
+  { id: "code", icon: Code2, label: "landing.gallery.tabCode" },
 ];
 
 /**
@@ -145,6 +153,8 @@ export function ExerciseGallery() {
                 ]}
               />
             )}
+
+            {current.id === "code" && <CodeDemo />}
           </div>
 
           {arrow(1, "hidden h-14 w-14 md:inline-flex")}
@@ -179,7 +189,12 @@ export function ExerciseGallery() {
           {arrow(1, "inline-flex h-12 w-12 md:hidden")}
         </div>
 
-        <p className="mt-6 text-center text-sm text-text-subtle">{t("landing.gallery.note")}</p>
+        {/* Only true for the three locally-graded slides. The code slide is
+            marked by the server, and saying otherwise there would be a lie on
+            the one slide that proves the opposite. */}
+        {current.id !== "code" && (
+          <p className="mt-6 text-center text-sm text-text-subtle">{t("landing.gallery.note")}</p>
+        )}
       </div>
     </section>
   );

@@ -11,7 +11,6 @@
  * this page, above, in the code demo and the exercise gallery.
  */
 
-import Link from "next/link";
 import {
   GraduationCap,
   Presentation,
@@ -25,11 +24,9 @@ import {
   ClipboardCheck,
   Users,
   BarChart3,
-  ArrowRight,
   Award,
   type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/context";
 
 const STUDENT_FEATURES: { icon: LucideIcon; key: string }[] = [
@@ -116,14 +113,6 @@ export function RoleShowcase() {
           />
         </div>
 
-        <div className="mt-12 text-center">
-          <Link href="/register">
-            <Button size="lg">
-              {t("landing.ctaCreateFree")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
       </div>
     </section>
   );
