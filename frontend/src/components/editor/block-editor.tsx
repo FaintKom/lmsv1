@@ -28,6 +28,7 @@ import {
  ImageIcon,
  AlertCircle,
  Sigma,
+ Spline,
  Puzzle,
  BookOpen,
 } from "lucide-react";
@@ -38,6 +39,7 @@ import "./editor-styles.css";
 import apiClient from "@/lib/api-client";
 import { Callout } from "./extensions/callout";
 import { MathBlock } from "./extensions/math-block";
+import { MathPlot } from "./extensions/math-plot";
 import { Term } from "./extensions/term";
 import { V2Exercise } from "./extensions/v2-exercise";
 import { SlashCommands } from "./slash-commands";
@@ -193,6 +195,13 @@ function EditorToolbar({
  <Sigma className="h-4 w-4" />
  </ToolbarButton>
  <ToolbarButton
+ onClick={() => editor.commands.setMathPlot()}
+ active={editor.isActive("mathPlot")}
+ title="Function Plot"
+ >
+ <Spline className="h-4 w-4" />
+ </ToolbarButton>
+ <ToolbarButton
  onClick={() =>
  editor.chain().focus().setCallout({ variant: "info" }).run()
  }
@@ -324,6 +333,7 @@ export function BlockEditor({
  }),
  Callout,
  MathBlock,
+ MathPlot,
  Term,
  V2Exercise,
  ...(editable ? [SlashCommands] : []),
