@@ -1,9 +1,17 @@
 /**
  * GridAxes — shared SVG axis/grid helper for math template components.
  *
- * Used by CoordinatePlaneV2, FunctionGraphV2, ScatterPlotV2,
- * InequalityGraphV2, GraphTransformV2. Renders a centered xy plane
- * with light grid lines, axes, arrowheads, and tick labels.
+ * Used by CoordinatePlaneV2, FunctionGraphV2, InequalityGraphV2 and
+ * GraphTransformV2. (ScatterPlotV2 draws its own grid — it needs a
+ * quadrant-one plot with independent x/y ranges, not a centred plane.)
+ * Renders a centred xy plane with grid lines, axes, arrowheads and tick
+ * labels.
+ *
+ * The grid strokes use --color-border, not the raw --ink-100 it was written
+ * with: raw scale values do not flip with the theme, so the grid stayed
+ * #e3e8dd on a #111713 surface — a near-white mesh in dark mode. The
+ * dark-theme audit missed it because it checks background-color and text
+ * contrast, and this is a stroke.
  *
  * Adopted from q-math-templates.jsx · GridAxes helper.
  */
@@ -37,7 +45,7 @@ export function GridAxes({
               y1={pad}
               x2={toX(v)}
               y2={size - pad}
-              stroke="var(--ink-100)"
+              stroke="var(--color-border)"
               strokeWidth={v === 0 ? 0 : 1}
             />
             <line
@@ -45,7 +53,7 @@ export function GridAxes({
               y1={toY(v)}
               x2={size - pad}
               y2={toY(v)}
-              stroke="var(--ink-100)"
+              stroke="var(--color-border)"
               strokeWidth={v === 0 ? 0 : 1}
             />
           </g>

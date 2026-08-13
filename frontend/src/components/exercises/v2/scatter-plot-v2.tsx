@@ -216,7 +216,7 @@ export function ScatterPlotV2({
                 y1={PAD.t}
                 x2={toX(i)}
                 y2={PAD.t + PLOTH}
-                stroke="var(--ink-100)"
+                stroke="var(--color-border)"
                 strokeWidth="1"
               />
             ))}
@@ -227,7 +227,7 @@ export function ScatterPlotV2({
                 y1={toY(i)}
                 x2={PAD.l + PLOTW}
                 y2={toY(i)}
-                stroke="var(--ink-100)"
+                stroke="var(--color-border)"
                 strokeWidth="1"
               />
             ))}
