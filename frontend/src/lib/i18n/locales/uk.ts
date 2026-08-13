@@ -2371,7 +2371,6 @@ const uk: TranslationMap = {
  "landing.live.colStudent": "Хто",
  "landing.live.colStatus": "Статус",
  "landing.live.rosterRow": "Учень",
- "landing.footerPricing": "Тарифи",
  "landing.footerRefund": "Повернення",
  "landing.footerCopyright": "Авторські права",
  "landing.footerAcceptableUse": "Правила використання",

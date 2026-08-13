@@ -2371,7 +2371,6 @@ const de: TranslationMap = {
  "landing.live.colStudent": "Wer",
  "landing.live.colStatus": "Status",
  "landing.live.rosterRow": "Lernende",
- "landing.footerPricing": "Preise",
  "landing.footerRefund": "Rückerstattungen",
  "landing.footerCopyright": "Urheberrecht",
  "landing.footerAcceptableUse": "Nutzungsregeln",

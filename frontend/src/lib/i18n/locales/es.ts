@@ -2309,7 +2309,6 @@ const es: TranslationMap = {
  "landing.live.colStudent": "Quién",
  "landing.live.colStatus": "Estado",
  "landing.live.rosterRow": "Alumno",
- "landing.footerPricing": "Precios",
  "landing.footerRefund": "Reembolsos",
  "landing.footerCopyright": "Derechos de autor",
  "landing.footerAcceptableUse": "Uso aceptable",

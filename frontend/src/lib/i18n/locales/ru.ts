@@ -2319,7 +2319,6 @@ const ru: TranslationMap = {
  "landing.live.colStudent": "Кто",
  "landing.live.colStatus": "Статус",
  "landing.live.rosterRow": "Ученик",
- "landing.footerPricing": "Тарифы",
  "landing.footerRefund": "Возвраты",
  "landing.footerCopyright": "Авторские права",
  "landing.footerAcceptableUse": "Правила использования",

@@ -249,8 +249,9 @@ export default function Home() {
             <span className="text-sm text-text-subtle">{t("landing.copyright")}</span>
             {/* All seven public pages, not the three that happened to be here. */}
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-text-subtle">
+              {/* No /pricing: next.config.ts redirects it to "/", so the link
+                  would just bounce back to this page. */}
               {[
-                { href: "/pricing", label: t("landing.footerPricing") },
                 { href: "/terms", label: t("landing.terms") },
                 { href: "/privacy", label: t("landing.privacy") },
                 { href: "/cookies", label: t("landing.cookies") },

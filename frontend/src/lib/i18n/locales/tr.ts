@@ -2312,7 +2312,6 @@ const tr: TranslationMap = {
  "landing.live.colStudent": "Kim",
  "landing.live.colStatus": "Durum",
  "landing.live.rosterRow": "Öğrenci",
- "landing.footerPricing": "Fiyatlar",
  "landing.footerRefund": "İadeler",
  "landing.footerCopyright": "Telif hakkı",
  "landing.footerAcceptableUse": "Kullanım kuralları",
