@@ -14,6 +14,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
  ),
 });
 import apiClient from "@/lib/api-client";
+import { readSystem, solveSystem } from "@/lib/math/linear-system";
 
 type EditorProps = {
  config: Record<string, unknown>;
@@ -1401,6 +1402,111 @@ export function WebEditorConfigEditor({ config, onChange }: EditorProps) {
          </div>
        </div>
      </div>
+   </div>
+ );
+}
+
+// ─── System of equations ─────────────────────────────────────────────
+
+/**
+ * The preview line is the point of this editor. The server marks by solving
+ * the teacher's own equations, so what it reports here is exactly what a
+ * student will be marked against — including "no solutions", which is easy to
+ * write by accident and impossible to notice by re-reading the equations.
+ */
+export function MathSystemConfigEditor({ config, onChange }: EditorProps) {
+ const equations = (config.equations as string[]) || ["", ""];
+ const variables = (config.variables as string[]) || ["x", "y"];
+
+ const filled = equations.filter((e) => e.trim());
+ const rows = filled.length ? readSystem(filled, variables) : null;
+ const solution = rows ? solveSystem(rows, variables) : null;
+ const preview = !filled.length
+   ? "Add the equations to see what this marks as correct."
+   : !solution
+     ? "These are not linear equations in the variables above — the server will refuse the submission."
+     : solution.kind === "none"
+       ? "Marks as: no solutions (the lines are parallel)."
+       : solution.kind === "infinite"
+         ? "Marks as: infinitely many solutions."
+         : "Marks as: " + variables.map((v) => `${v} = ${solution.values?.[v]}`).join(", ");
+
+ return (
+   <div className="space-y-4">
+     <div>
+       <label className={labelCls}>Variables</label>
+       <input
+         type="text"
+         value={variables.join(", ")}
+         onChange={(e) =>
+           onChange({
+             ...config,
+             variables: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+           })
+         }
+         placeholder="x, y"
+         className={inputCls}
+       />
+       <p className={hintCls}>The order here is the order of the answer boxes the student sees.</p>
+     </div>
+
+     <div>
+       <label className={labelCls}>Equations</label>
+       <div className="space-y-2">
+         {equations.map((equation, i) => (
+           <div key={i} className="flex gap-2">
+             <input
+               type="text"
+               value={equation}
+               onChange={(e) => {
+                 const next = [...equations];
+                 next[i] = e.target.value;
+                 onChange({ ...config, equations: next });
+               }}
+               placeholder={i === 0 ? "2x + 3y = 12" : "x - y = 1"}
+               className={inputCls}
+             />
+             <Button
+               type="button"
+               variant="outline"
+               size="sm"
+               disabled={equations.length <= 1}
+               onClick={() =>
+                 onChange({ ...config, equations: equations.filter((_, j) => j !== i) })
+               }
+             >
+               <Trash2 className="h-4 w-4" />
+             </Button>
+           </div>
+         ))}
+       </div>
+       <Button
+         type="button"
+         variant="outline"
+         size="sm"
+         className="mt-2"
+         onClick={() => onChange({ ...config, equations: [...equations, ""] })}
+       >
+         <Plus className="h-4 w-4" /> Add equation
+       </Button>
+       <p className={hintCls}>
+         Plain text. Implicit multiplication is fine (<code>2x</code>), and either side may hold the
+         variables (<code>y = 2x - 1</code>).
+       </p>
+     </div>
+
+     <div>
+       <label className={labelCls}>Problem text (optional)</label>
+       <textarea
+         rows={2}
+         value={(config.problem as string) || ""}
+         onChange={(e) => onChange({ ...config, problem: e.target.value })}
+         placeholder="Two tickets and three passes cost 12 lari…"
+         className={inputCls}
+       />
+     </div>
+
+     <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm text-text-muted">{preview}</p>
    </div>
  );
 }
