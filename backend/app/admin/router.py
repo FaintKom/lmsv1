@@ -161,6 +161,7 @@ async def delete_organization_endpoint(
     """Delete organization. Super admin only."""
     if admin.role != UserRole.super_admin:
         from fastapi import HTTPException
+
         raise HTTPException(403, "Only super admin can delete organizations")
     result = await db.execute(select(Organization).where(Organization.id == org_id))
     org = result.scalar_one_or_none()
@@ -169,6 +170,7 @@ async def delete_organization_endpoint(
     # Prevent deleting own org
     if org.id == admin.org_id:
         from fastapi import HTTPException
+
         raise HTTPException(400, "Cannot delete your own organization")
     await db.delete(org)
     await db.commit()
@@ -327,6 +329,7 @@ async def update_user_endpoint(
         # Only super_admin can assign the admin role
         if body.role == UserRole.admin.value and admin.role != UserRole.super_admin:
             from fastapi import HTTPException as _HTTPException
+
             raise _HTTPException(403, "Only super admin can assign admin role")
         target_user.role = body.role
     if body.is_active is not None:
@@ -361,14 +364,18 @@ async def list_organizations(
             select(func.count()).select_from(User).where(User.org_id == o.id)
         )
         user_count = count_result.scalar() or 0
-        org_list.append({
-            "id": str(o.id),
-            "name": o.name,
-            "slug": o.slug,
-            "is_active": o.is_active,
-            "user_count": user_count,
-            "created_at": str(o.created_at) if hasattr(o, 'created_at') and o.created_at else None,
-        })
+        org_list.append(
+            {
+                "id": str(o.id),
+                "name": o.name,
+                "slug": o.slug,
+                "is_active": o.is_active,
+                "user_count": user_count,
+                "created_at": str(o.created_at)
+                if hasattr(o, "created_at") and o.created_at
+                else None,
+            }
+        )
     return org_list
 
 
@@ -377,22 +384,36 @@ async def list_courses_admin(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.analytics.task_stats_service import _course_scope_clause
     from app.courses.models import Course
 
+    # The same scope every other staff-facing list uses: super_admin sees
+    # everything, admins and methodists see their org, and a plain teacher
+    # sees the courses they own. This list used to stop at the org, so one
+    # teacher could read the whole school's catalogue — while the dashboard
+    # right above it counted only their own courses.
     query = select(Course)
-    if user.role != UserRole.super_admin:
-        query = query.where(Course.org_id == user.org_id)
+    scope = _course_scope_clause(user)
+    if scope is not None:
+        query = query.where(scope)
     result = await db.execute(query.order_by(Course.created_at.desc()))
     courses = result.scalars().all()
     return [
         {
-            "id": str(c.id), "title": c.title, "slug": c.slug,
-            "description": c.description, "status": c.status.value if hasattr(c.status, 'value') else c.status,
-            "category": c.category, "org_id": str(c.org_id), "created_at": str(c.created_at),
-            "is_template": getattr(c, 'is_template', False),
-            "thumbnail_url": getattr(c, 'thumbnail_url', None),
-            "source_course_id": str(c.source_course_id) if getattr(c, 'source_course_id', None) else None,
-            "template_version": getattr(c, 'template_version', 0),
+            "id": str(c.id),
+            "title": c.title,
+            "slug": c.slug,
+            "description": c.description,
+            "status": c.status.value if hasattr(c.status, "value") else c.status,
+            "category": c.category,
+            "org_id": str(c.org_id),
+            "created_at": str(c.created_at),
+            "is_template": getattr(c, "is_template", False),
+            "thumbnail_url": getattr(c, "thumbnail_url", None),
+            "source_course_id": str(c.source_course_id)
+            if getattr(c, "source_course_id", None)
+            else None,
+            "template_version": getattr(c, "template_version", 0),
         }
         for c in courses
     ]
@@ -414,6 +435,7 @@ async def update_course_admin(
 
     if admin.role != UserRole.super_admin:
         from fastapi import HTTPException
+
         raise HTTPException(403, "Only super admin can change course organization")
 
     result = await db.execute(select(Course).where(Course.id == course_id))
@@ -525,6 +547,7 @@ async def admin_enroll_endpoint(
     course_id = data.get("course_id")
     if not user_id or not course_id:
         from fastapi import HTTPException
+
         raise HTTPException(400, "user_id and course_id required")
 
     # Verify user (super_admin can enroll any user)
@@ -546,7 +569,10 @@ async def admin_enroll_endpoint(
     # Cannot enroll into template courses
     if getattr(course, "is_template", False):
         from fastapi import HTTPException
-        raise HTTPException(400, "Cannot enroll students into a template course. Copy the template first.")
+
+        raise HTTPException(
+            400, "Cannot enroll students into a template course. Copy the template first."
+        )
 
     # Check not already enrolled
     result = await db.execute(
@@ -680,9 +706,7 @@ async def admin_bulk_enroll_endpoint(
             errors.append({"row": row_num, "email": email, "message": "Missing full_name"})
             continue
         if not password or len(password) < 8:
-            errors.append(
-                {"row": row_num, "email": email, "message": "Password must be 8+ chars"}
-            )
+            errors.append({"row": row_num, "email": email, "message": "Password must be 8+ chars"})
             continue
 
         try:
@@ -693,10 +717,7 @@ async def admin_bulk_enroll_endpoint(
 
             if existing:
                 # Only reuse if they're in the admin's org (or admin is super)
-                if (
-                    admin.role != _UserRole.super_admin
-                    and existing.org_id != admin.org_id
-                ):
+                if admin.role != _UserRole.super_admin and existing.org_id != admin.org_id:
                     errors.append(
                         {
                             "row": row_num,
@@ -865,9 +886,7 @@ async def bulk_import_students(
             name = email.split("@")[0].replace(".", " ").title()
 
         # Check if user already exists in the org
-        existing = (
-            await db.execute(select(User).where(User.email == email))
-        ).scalar_one_or_none()
+        existing = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
 
         if existing:
             if existing.org_id == user.org_id or user.role == UserRole.super_admin:
@@ -995,6 +1014,7 @@ async def create_user_endpoint(
     # Only super_admin can create admin users
     if role == UserRole.admin.value and admin.role != UserRole.super_admin:
         from fastapi import HTTPException as _HTTPException
+
         raise _HTTPException(403, "Only super admin can create admin users")
 
     # Only super_admin can set org_id; regular admin always uses their own org
@@ -1308,17 +1328,26 @@ async def add_group_members_endpoint(
     user_ids = data.get("user_ids", [])
     if len(user_ids) > _MAX_BULK_OP:
         from fastapi import HTTPException
+
         raise HTTPException(400, "Too many users in one request")
 
     # Single query for existing members instead of one per user (was N+1).
-    existing_ids = set(
-        (await db.execute(
-            select(StudentGroupMember.user_id).where(
-                StudentGroupMember.group_id == group_id,
-                StudentGroupMember.user_id.in_(user_ids),
+    existing_ids = (
+        set(
+            (
+                await db.execute(
+                    select(StudentGroupMember.user_id).where(
+                        StudentGroupMember.group_id == group_id,
+                        StudentGroupMember.user_id.in_(user_ids),
+                    )
+                )
             )
-        )).scalars().all()
-    ) if user_ids else set()
+            .scalars()
+            .all()
+        )
+        if user_ids
+        else set()
+    )
 
     added = 0
     for uid in user_ids:
@@ -1378,6 +1407,7 @@ async def enroll_group_endpoint(
     course_id = data.get("course_id")
     if not course_id:
         from fastapi import HTTPException
+
         raise HTTPException(400, "course_id required")
 
     # Cannot enroll into template courses
@@ -1387,7 +1417,10 @@ async def enroll_group_endpoint(
         raise NotFoundError("Course not found")
     if getattr(course, "is_template", False):
         from fastapi import HTTPException
-        raise HTTPException(400, "Cannot enroll students into a template course. Copy the template first.")
+
+        raise HTTPException(
+            400, "Cannot enroll students into a template course. Copy the template first."
+        )
 
     result = await db.execute(
         select(StudentGroupMember.user_id).where(StudentGroupMember.group_id == group_id)
@@ -1395,25 +1428,35 @@ async def enroll_group_endpoint(
     member_user_ids = [row[0] for row in result.all()]
 
     # Single query for already-enrolled students instead of one per member.
-    already_enrolled = set(
-        (await db.execute(
-            select(Enrollment.student_id).where(
-                Enrollment.course_id == course_id,
-                Enrollment.student_id.in_(member_user_ids),
+    already_enrolled = (
+        set(
+            (
+                await db.execute(
+                    select(Enrollment.student_id).where(
+                        Enrollment.course_id == course_id,
+                        Enrollment.student_id.in_(member_user_ids),
+                    )
+                )
             )
-        )).scalars().all()
-    ) if member_user_ids else set()
+            .scalars()
+            .all()
+        )
+        if member_user_ids
+        else set()
+    )
 
     enrolled = 0
     for uid in member_user_ids:
         if uid in already_enrolled:
             continue
         already_enrolled.add(uid)
-        db.add(Enrollment(
-            course_id=course_id,
-            student_id=uid,
-            enrolled_at=datetime.now(timezone.utc),
-        ))
+        db.add(
+            Enrollment(
+                course_id=course_id,
+                student_id=uid,
+                enrolled_at=datetime.now(timezone.utc),
+            )
+        )
         enrolled += 1
 
     await db.flush()
@@ -1433,7 +1476,14 @@ async def export_analytics_csv(
     from app.progress.models import Enrollment
 
     query = (
-        select(User.full_name, User.email, Course.title, Enrollment.progress_percent, Enrollment.enrolled_at, Enrollment.completed_at)
+        select(
+            User.full_name,
+            User.email,
+            Course.title,
+            Enrollment.progress_percent,
+            Enrollment.enrolled_at,
+            Enrollment.completed_at,
+        )
         .join(Enrollment, Enrollment.student_id == User.id)
         .join(Course, Enrollment.course_id == Course.id)
     )
@@ -1445,16 +1495,27 @@ async def export_analytics_csv(
     def generate_csv():
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["student_name", "student_email", "course_title", "progress_percent", "enrolled_at", "completed_at"])
+        writer.writerow(
+            [
+                "student_name",
+                "student_email",
+                "course_title",
+                "progress_percent",
+                "enrolled_at",
+                "completed_at",
+            ]
+        )
         for row in rows:
-            writer.writerow([
-                row.full_name,
-                row.email,
-                row.title,
-                float(row.progress_percent) if row.progress_percent is not None else 0,
-                str(row.enrolled_at) if row.enrolled_at else "",
-                str(row.completed_at) if row.completed_at else "",
-            ])
+            writer.writerow(
+                [
+                    row.full_name,
+                    row.email,
+                    row.title,
+                    float(row.progress_percent) if row.progress_percent is not None else 0,
+                    str(row.enrolled_at) if row.enrolled_at else "",
+                    str(row.completed_at) if row.completed_at else "",
+                ]
+            )
         output.seek(0)
         yield output.getvalue()
 
@@ -1492,9 +1553,7 @@ async def student_profile_endpoint(
     try:
         return await get_student_profile(db, user, student_id)
     except StudentProfileError as exc:
-        status_code = {"forbidden": 403, "not_found": 404, "bad_request": 400}.get(
-            exc.code, 400
-        )
+        status_code = {"forbidden": 403, "not_found": 404, "bad_request": 400}.get(exc.code, 400)
         raise HTTPException(status_code, detail=exc.message) from exc
 
 
@@ -1554,18 +1613,23 @@ async def gradebook_endpoint(
     if lesson_ids:
         from app.exercises.models import Exercise as Ex
         from app.exercises.models import ExerciseSubmission as ExSub
+
         result = await db.execute(
             select(Ex).where(Ex.lesson_id.in_(lesson_ids)).order_by(Ex.sort_order)
         )
         exercises = result.scalars().all()
         for ex in exercises:
             col_id = f"exercise_{ex.id}"
-            columns.append({
-                "id": col_id,
-                "type": ex.exercise_type.value if hasattr(ex.exercise_type, 'value') else str(ex.exercise_type),
-                "title": ex.title,
-                "max_score": 100,
-            })
+            columns.append(
+                {
+                    "id": col_id,
+                    "type": ex.exercise_type.value
+                    if hasattr(ex.exercise_type, "value")
+                    else str(ex.exercise_type),
+                    "title": ex.title,
+                    "max_score": 100,
+                }
+            )
             # Best score per student (score is already 0-100 in exercise_submissions)
             result2 = await db.execute(
                 select(ExSub.student_id, func.max(ExSub.score))
@@ -1585,19 +1649,20 @@ async def gradebook_endpoint(
     if lesson_ids:
         from app.assessments.models import Quiz as Qz
         from app.assessments.models import QuizSubmission as QzSub
-        result = await db.execute(
-            select(Qz).where(Qz.lesson_id.in_(lesson_ids))
-        )
+
+        result = await db.execute(select(Qz).where(Qz.lesson_id.in_(lesson_ids)))
         quizzes = result.scalars().all()
         for qz in quizzes:
             col_id = f"quiz_{qz.id}"
-            columns.append({
-                "id": col_id,
-                "type": "quiz",
-                "title": qz.title,
-                "max_score": 100,
-                "quiz_id": str(qz.id),
-            })
+            columns.append(
+                {
+                    "id": col_id,
+                    "type": "quiz",
+                    "title": qz.title,
+                    "max_score": 100,
+                    "quiz_id": str(qz.id),
+                }
+            )
             # Quiz score is already a 0-100 percentage.
             result2 = await db.execute(
                 select(QzSub.student_id, func.max(QzSub.score))
@@ -1611,16 +1676,15 @@ async def gradebook_endpoint(
                 rows[str(sid)][col_id] = round(float(score), 1) if score is not None else None
 
     # --- Homework Assignments ---
-    result = await db.execute(
-        select(Assignment).where(Assignment.course_id == course_id)
-    )
+    result = await db.execute(select(Assignment).where(Assignment.course_id == course_id))
     assignments = result.scalars().all()
     for a in assignments:
         col_id = f"assignment_{a.id}"
-        columns.append({"id": col_id, "type": "assignment", "title": a.title, "max_score": a.max_score})
+        columns.append(
+            {"id": col_id, "type": "assignment", "title": a.title, "max_score": a.max_score}
+        )
         result2 = await db.execute(
-            select(AssignmentSubmission.student_id, AssignmentSubmission.score)
-            .where(
+            select(AssignmentSubmission.student_id, AssignmentSubmission.score).where(
                 AssignmentSubmission.assignment_id == a.id,
                 AssignmentSubmission.student_id.in_([uuid.UUID(s) for s in student_ids]),
             )
@@ -1717,9 +1781,9 @@ async def gradebook_export_xlsx(
     left = Alignment(horizontal="left", vertical="center")
 
     # Colour thresholds — match the frontend gradebook UI
-    green_fill = PatternFill("solid", fgColor="D1FAE5")   # emerald-100
+    green_fill = PatternFill("solid", fgColor="D1FAE5")  # emerald-100
     yellow_fill = PatternFill("solid", fgColor="FEF3C7")  # amber-100
-    red_fill = PatternFill("solid", fgColor="FEE2E2")     # rose-100
+    red_fill = PatternFill("solid", fgColor="FEE2E2")  # rose-100
 
     def fill_for(score: float | None) -> PatternFill | None:
         if score is None:
@@ -1813,12 +1877,8 @@ async def gradebook_export_xlsx(
 
     return StreamingResponse(
         buf,
-        media_type=(
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        ),
-        headers={
-            "Content-Disposition": f"attachment; filename=gradebook_{course_id}.xlsx"
-        },
+        media_type=("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+        headers={"Content-Disposition": f"attachment; filename=gradebook_{course_id}.xlsx"},
     )
 
 
@@ -1861,7 +1921,13 @@ async def review_queue_list(
     from app.assignments.models import Assignment, AssignmentStatus, AssignmentSubmission
 
     query = (
-        select(AssignmentSubmission, Assignment.title.label("assignment_title"), Assignment.max_score, User.full_name.label("student_name"), User.email.label("student_email"))
+        select(
+            AssignmentSubmission,
+            Assignment.title.label("assignment_title"),
+            Assignment.max_score,
+            User.full_name.label("student_name"),
+            User.email.label("student_email"),
+        )
         .join(Assignment, AssignmentSubmission.assignment_id == Assignment.id)
         .join(User, AssignmentSubmission.student_id == User.id)
         .where(
