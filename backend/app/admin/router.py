@@ -384,11 +384,18 @@ async def list_courses_admin(
     user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.analytics.task_stats_service import _course_scope_clause
     from app.courses.models import Course
 
+    # The same scope every other staff-facing list uses: super_admin sees
+    # everything, admins and methodists see their org, and a plain teacher
+    # sees the courses they own. This list used to stop at the org, so one
+    # teacher could read the whole school's catalogue — while the dashboard
+    # right above it counted only their own courses.
     query = select(Course)
-    if user.role != UserRole.super_admin:
-        query = query.where(Course.org_id == user.org_id)
+    scope = _course_scope_clause(user)
+    if scope is not None:
+        query = query.where(scope)
     result = await db.execute(query.order_by(Course.created_at.desc()))
     courses = result.scalars().all()
     return [

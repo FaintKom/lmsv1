@@ -638,6 +638,43 @@ async def test_admin_list_courses(client: AsyncClient, admin, org, db):
     assert isinstance(resp.json(), list)
 
 
+async def _titles(client, user) -> set[str]:
+    resp = await client.get("/api/v1/admin/courses", headers=auth_header(user))
+    assert resp.status_code == 200, resp.text
+    return {c["title"] for c in resp.json()}
+
+
+@pytest.mark.asyncio
+async def test_a_teacher_sees_only_their_own_courses(client: AsyncClient, teacher, admin, org, db):
+    mine = await make_course(db, org, teacher, title="Mine")
+    await make_course(db, org, admin, title="Someone else's")
+
+    assert await _titles(client, teacher) == {mine.title}
+
+
+@pytest.mark.asyncio
+async def test_a_methodist_sees_the_whole_org(client: AsyncClient, teacher, admin, org, db):
+    # A methodist is a teacher with the flag set — they curate the school's
+    # content, so narrowing them to their own courses would take away the
+    # thing they are for.
+    teacher.is_methodist = True
+    await db.flush()
+    mine = await make_course(db, org, teacher, title="Mine")
+    theirs = await make_course(db, org, admin, title="Someone else's")
+
+    assert await _titles(client, teacher) == {mine.title, theirs.title}
+
+
+@pytest.mark.asyncio
+async def test_an_admin_sees_their_org_but_not_another(
+    client: AsyncClient, admin, admin2, org, org2, db
+):
+    ours = await make_course(db, org, admin, title="Ours")
+    await make_course(db, org2, admin2, title="Another school's")
+
+    assert await _titles(client, admin) == {ours.title}
+
+
 @pytest.mark.asyncio
 async def test_super_admin_change_course_org(client: AsyncClient, super_admin, org, org2, db):
     course = await make_course(db, org, super_admin)
