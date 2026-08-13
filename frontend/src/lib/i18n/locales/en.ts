@@ -2196,6 +2196,8 @@ const en: TranslationMap = {
  "landing.gallery.subtitle": "The same components students get. Answer one and see.",
  "landing.gallery.eyebrow": "Sample exercise",
  "landing.gallery.note": "In a real course the answer key stays on the server. Here it ships with the page so the demo works without an account.",
+ "landing.gallery.prev": "Previous exercise",
+ "landing.gallery.next": "Next exercise",
  "landing.gallery.tabQuiz": "Multiple choice",
  "landing.gallery.tabMatching": "Matching",
  "landing.gallery.tabCategorize": "Sorting",

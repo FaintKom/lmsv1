@@ -2195,6 +2195,8 @@ const uk: TranslationMap = {
  "landing.gallery.subtitle": "Ті самі компоненти, що бачить учень. Розв'яжіть одне й подивіться.",
  "landing.gallery.eyebrow": "Приклад завдання",
  "landing.gallery.note": "У справжньому курсі правильні відповіді лишаються на сервері. Тут вони їдуть зі сторінкою, щоб демо працювало без акаунта.",
+ "landing.gallery.prev": "Попереднє завдання",
+ "landing.gallery.next": "Наступне завдання",
  "landing.gallery.tabQuiz": "Вибір відповіді",
  "landing.gallery.tabMatching": "Зіставлення",
  "landing.gallery.tabCategorize": "Сортування",

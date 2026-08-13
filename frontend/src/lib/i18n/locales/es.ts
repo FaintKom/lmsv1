@@ -2133,6 +2133,8 @@ const es: TranslationMap = {
  "landing.gallery.subtitle": "Los mismos componentes que ve el alumno. Resuelve uno y compruébalo.",
  "landing.gallery.eyebrow": "Ejercicio de ejemplo",
  "landing.gallery.note": "En un curso real la clave de respuestas se queda en el servidor. Aquí viaja con la página para que la demo funcione sin cuenta.",
+ "landing.gallery.prev": "Ejercicio anterior",
+ "landing.gallery.next": "Ejercicio siguiente",
  "landing.gallery.tabQuiz": "Opción múltiple",
  "landing.gallery.tabMatching": "Emparejar",
  "landing.gallery.tabCategorize": "Clasificar",

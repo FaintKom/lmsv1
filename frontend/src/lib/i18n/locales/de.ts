@@ -2195,6 +2195,8 @@ const de: TranslationMap = {
  "landing.gallery.subtitle": "Dieselben Komponenten, die Lernende sehen. Lösen Sie eine.",
  "landing.gallery.eyebrow": "Beispielaufgabe",
  "landing.gallery.note": "In einem echten Kurs bleibt der Lösungsschlüssel auf dem Server. Hier kommt er mit der Seite, damit die Demo ohne Konto funktioniert.",
+ "landing.gallery.prev": "Vorherige Aufgabe",
+ "landing.gallery.next": "Nächste Aufgabe",
  "landing.gallery.tabQuiz": "Multiple Choice",
  "landing.gallery.tabMatching": "Zuordnen",
  "landing.gallery.tabCategorize": "Sortieren",

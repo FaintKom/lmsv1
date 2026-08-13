@@ -9,13 +9,17 @@
  * handed and decides on its own. Live exercises pass those callbacks and the
  * answer key never leaves the server (integrity model B).
  *
+ * Presented as a reel: arrows on either side of the card, a caption and dots
+ * underneath. It used to be a pill tab bar, which read as a settings control
+ * rather than as a set of samples to page through.
+ *
  * Loaded through `dynamic()` so LessonShell, confetti and the drag machinery
  * stay out of the first landing bundle.
  */
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { ListChecks, Link2, Boxes } from "lucide-react";
+import { ChevronLeft, ChevronRight, ListChecks, Link2, Boxes } from "lucide-react";
 
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -31,104 +35,149 @@ const CategorizeV2 = dynamic(
   { ssr: false },
 );
 
-type Tab = "quiz" | "matching" | "categorize";
+type Slide = "quiz" | "matching" | "categorize";
 
-const TABS: { id: Tab; icon: typeof ListChecks; label: string }[] = [
+const SLIDES: { id: Slide; icon: typeof ListChecks; label: string }[] = [
   { id: "quiz", icon: ListChecks, label: "landing.gallery.tabQuiz" },
   { id: "matching", icon: Link2, label: "landing.gallery.tabMatching" },
   { id: "categorize", icon: Boxes, label: "landing.gallery.tabCategorize" },
 ];
 
+/**
+ * Mirrors Button's `outline` variant (see components/ui/button.tsx). Written
+ * out rather than composed because `cn` is plain clsx with no tailwind-merge,
+ * so overriding Button's size classes would leave two conflicting sets and let
+ * stylesheet order pick the winner.
+ */
+const ARROW_CLASS =
+  "press-scale shrink-0 items-center justify-center rounded-lg border " +
+  "border-border-strong bg-surface text-text transition-colors hover:bg-surface-2 " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+
 export function ExerciseGallery() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>("quiz");
+  const [index, setIndex] = useState(0);
+
+  const current = SLIDES[index];
+  const go = (step: number) => setIndex((i) => (i + step + SLIDES.length) % SLIDES.length);
+
+  // `size` carries the display utility too. Keeping `inline-flex` in
+  // ARROW_CLASS put it in the same Tailwind group as `hidden`, and the
+  // stylesheet — not the class attribute — decided which won, so both pairs of
+  // arrows showed on a phone.
+  const arrow = (dir: -1 | 1, size: string) => {
+    const Icon = dir === -1 ? ChevronLeft : ChevronRight;
+    return (
+      <button
+        type="button"
+        onClick={() => go(dir)}
+        aria-label={t(dir === -1 ? "landing.gallery.prev" : "landing.gallery.next")}
+        className={`${ARROW_CLASS} ${size}`}
+      >
+        <Icon className="h-6 w-6" strokeWidth={2.5} aria-hidden="true" />
+      </button>
+    );
+  };
 
   return (
     <section className="border-t border-border bg-surface py-16">
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="mx-auto max-w-5xl px-6">
         <div className="mb-8 text-center">
           <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.gallery.title")}</h2>
           <p className="text-text-muted">{t("landing.gallery.subtitle")}</p>
         </div>
 
-        <div className="mb-8 flex justify-center">
-          <div className="inline-flex flex-wrap justify-center rounded-pill bg-surface-2 p-1">
-            {TABS.map(({ id, icon: Icon, label }) => (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                aria-pressed={tab === id}
-                className={`flex items-center gap-2 rounded-pill px-5 py-2.5 text-sm font-semibold transition ${
-                  tab === id
-                    ? "bg-surface text-text shadow-sm"
-                    : "text-text-muted hover:text-text"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {t(label)}
-              </button>
-            ))}
+        <div className="flex items-center gap-4">
+          {arrow(-1, "hidden h-14 w-14 md:inline-flex")}
+
+          {/* keyed on the slide so paging remounts the exercise in its initial
+              state. `landing-exercise` drops LessonShell's chrome — see
+              globals.css — rather than threading a prop through three shared
+              exercise components for a landing-only concern. */}
+          <div
+            key={current.id}
+            className="landing-exercise min-w-0 flex-1 rounded-xl border-2 border-border bg-surface-2/40 p-4 md:p-6"
+          >
+            {current.id === "quiz" && (
+              <QuizV2
+                eyebrow={t("landing.gallery.eyebrow")}
+                questions={[
+                  {
+                    question_text: t("landing.gallery.quizQuestion"),
+                    options: [
+                      { text: t("landing.gallery.quizOpt1") },
+                      { text: t("landing.gallery.quizOpt2"), is_correct: true },
+                      { text: t("landing.gallery.quizOpt3") },
+                      { text: t("landing.gallery.quizOpt4") },
+                    ],
+                  },
+                ]}
+              />
+            )}
+
+            {current.id === "matching" && (
+              <MatchingV2
+                eyebrow={t("landing.gallery.eyebrow")}
+                title={t("landing.gallery.matchingTitle")}
+                pairs={[
+                  { left: t("landing.gallery.matchL1"), right: t("landing.gallery.matchR1") },
+                  { left: t("landing.gallery.matchL2"), right: t("landing.gallery.matchR2") },
+                  { left: t("landing.gallery.matchL3"), right: t("landing.gallery.matchR3") },
+                ]}
+              />
+            )}
+
+            {current.id === "categorize" && (
+              <CategorizeV2
+                eyebrow={t("landing.gallery.eyebrow")}
+                title={t("landing.gallery.categorizeTitle")}
+                categories={[
+                  {
+                    name: t("landing.gallery.catA"),
+                    items: [t("landing.gallery.catA1"), t("landing.gallery.catA2")],
+                  },
+                  {
+                    name: t("landing.gallery.catB"),
+                    items: [t("landing.gallery.catB1"), t("landing.gallery.catB2")],
+                  },
+                ]}
+              />
+            )}
           </div>
+
+          {arrow(1, "hidden h-14 w-14 md:inline-flex")}
         </div>
 
-        {/* keyed on tab so switching remounts the exercise in its initial state.
-            `landing-exercise` drops LessonShell's chrome (see globals.css) rather
-            than threading a prop through three shared exercise components for a
-            landing-only concern. */}
-        <div
-          key={tab}
-          className="landing-exercise rounded-xl border-2 border-border bg-surface-2/40 p-4 md:p-6"
-        >
-          {tab === "quiz" && (
-            <QuizV2
-              eyebrow={t("landing.gallery.eyebrow")}
-              questions={[
-                {
-                  question_text: t("landing.gallery.quizQuestion"),
-                  options: [
-                    { text: t("landing.gallery.quizOpt1") },
-                    { text: t("landing.gallery.quizOpt2"), is_correct: true },
-                    { text: t("landing.gallery.quizOpt3") },
-                    { text: t("landing.gallery.quizOpt4") },
-                  ],
-                },
-              ]}
-            />
-          )}
+        {/* Caption and dots. Below md the arrows live here too — flanking the
+            card would leave a phone about 250px for a drag exercise. */}
+        <div className="mt-5 flex items-center justify-center gap-4">
+          {arrow(-1, "inline-flex h-12 w-12 md:hidden")}
 
-          {tab === "matching" && (
-            <MatchingV2
-              eyebrow={t("landing.gallery.eyebrow")}
-              title={t("landing.gallery.matchingTitle")}
-              pairs={[
-                { left: t("landing.gallery.matchL1"), right: t("landing.gallery.matchR1") },
-                { left: t("landing.gallery.matchL2"), right: t("landing.gallery.matchR2") },
-                { left: t("landing.gallery.matchL3"), right: t("landing.gallery.matchR3") },
-              ]}
-            />
-          )}
+          <div className="flex flex-col items-center gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-text">
+              <current.icon className="h-4 w-4 text-primary" aria-hidden="true" />
+              {t(current.label)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              {SLIDES.map((slide, i) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={t(slide.label)}
+                  aria-current={i === index}
+                  className={`h-1.5 rounded-pill transition-all ${
+                    i === index ? "w-6 bg-primary" : "w-1.5 bg-border-strong hover:bg-text-subtle"
+                  }`}
+                />
+              ))}
+            </span>
+          </div>
 
-          {tab === "categorize" && (
-            <CategorizeV2
-              eyebrow={t("landing.gallery.eyebrow")}
-              title={t("landing.gallery.categorizeTitle")}
-              categories={[
-                {
-                  name: t("landing.gallery.catA"),
-                  items: [t("landing.gallery.catA1"), t("landing.gallery.catA2")],
-                },
-                {
-                  name: t("landing.gallery.catB"),
-                  items: [t("landing.gallery.catB1"), t("landing.gallery.catB2")],
-                },
-              ]}
-            />
-          )}
+          {arrow(1, "inline-flex h-12 w-12 md:hidden")}
         </div>
 
-        <p className="mt-4 text-center text-sm text-text-subtle">
-          {t("landing.gallery.note")}
-        </p>
+        <p className="mt-6 text-center text-sm text-text-subtle">{t("landing.gallery.note")}</p>
       </div>
     </section>
   );

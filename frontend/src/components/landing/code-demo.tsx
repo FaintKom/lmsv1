@@ -136,8 +136,10 @@ export function CodeDemo() {
     }
   }, [code, language, task, t]);
 
+  // lg:items-start — grid children stretch by default, so the verdict card was
+  // padded out to the editor's height and stood half empty.
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+    <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr] lg:items-start">
       {/* Editor side */}
       <div className="rounded-xl border-2 border-border bg-surface p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
