@@ -416,6 +416,20 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
             ]
         }
 
+    elif ex_type == ExerciseType.math_system:
+        # No stored key to read: the config a student receives holds only the
+        # equations, so the answer is solved here as well as at marking time.
+        from app.math_validation.service import MathParseError, solve_linear_system
+
+        try:
+            return {
+                "answer": solve_linear_system(
+                    config.get("equations") or [], config.get("variables") or []
+                )
+            }
+        except MathParseError:
+            return None
+
     elif ex_type in (ExerciseType.matching,):
         return {"answer": config.get("pairs", [])}
     elif ex_type == ExerciseType.ordering:
@@ -524,6 +538,8 @@ async def submit_exercise(
         return await _submit_game_level(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.web_editor:
         return await _submit_web_editor(db, exercise, user, data, now)
+    elif exercise.exercise_type == ExerciseType.math_system:
+        return await _submit_math_system(db, exercise, user, data, now)
     elif exercise.exercise_type in (
         ExerciseType.translation,
         ExerciseType.sentence_builder,
@@ -687,6 +703,67 @@ async def _submit_interactive(
     # never expected answers — see grade_interactive_detail).
     sub._per_item = per_item  # type: ignore[attr-defined]
     return sub
+
+
+async def _submit_math_system(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    """Mark a system of linear equations.
+
+    The server solves the system from the teacher's equations rather than
+    comparing against a stored answer key: with integrity model B the config
+    the student receives has no answer in it, and re-solving is cheaper than
+    keeping a second copy of the truth in sync.
+
+    A submission is `{"kind": "unique"|"none"|"infinite", "values": {...}}`.
+    The two non-unique kinds are the point of the topic — a student has to
+    recognise parallel lines and a repeated line, not just crank out numbers.
+    """
+    from app.math_validation.service import (
+        MathParseError,
+        solutions_match,
+        solve_linear_system,
+    )
+
+    config = exercise.config or {}
+    equations = config.get("equations") or []
+    variables = config.get("variables") or []
+    # interactive_answers, not answers: the submit schema types `answers` as a
+    # list of per-question dicts, and this type sends one object.
+    answer = data.get("interactive_answers") or {}
+
+    try:
+        expected = solve_linear_system(list(equations), list(variables))
+    except MathParseError as e:
+        # The exercise itself is broken, not the attempt. Refuse rather than
+        # record a fail against the student for a config they cannot see.
+        raise BadRequestError(f"This exercise is misconfigured: {e}")
+
+    given = answer if isinstance(answer, dict) else {}
+    passed = solutions_match(expected, given, list(variables))
+
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers=given,
+        score=100.0 if passed else 0.0,
+        passed=passed,
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    _apply_timing(submission, data, now)
+    db.add(submission)
+    await db.flush()
+
+    if passed:
+        await _award_xp(db, user.id, 25, "exercise_passed")
+
+    return await _reload_submission(db, submission.id)
 
 
 async def upload_file_submission(

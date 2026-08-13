@@ -39,6 +39,7 @@ class ExerciseType(str, enum.Enum):
     web_editor = "web_editor"
     scorm_package = "scorm_package"
     math_stepwise = "math_stepwise"
+    math_system = "math_system"
     srs_flashcard = "srs_flashcard"
     crossword = "crossword"
     word_search = "word_search"
@@ -66,6 +67,7 @@ EXERCISE_TYPE_PREFIX = {
     "web_editor": "W",
     "scorm_package": "SC",
     "math_stepwise": "MS",
+    "math_system": "SY",
     "srs_flashcard": "SF",
     "crossword": "CW",
     "word_search": "WS",
@@ -144,9 +146,7 @@ class ExerciseSubmission(Base, IDMixin, TimestampMixin):
     file_size: Mapped[int | None] = mapped_column(Integer)
     mime_type: Mapped[str | None] = mapped_column(String(100))
 
-    submitted_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     graded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     # Per-attempt analytics (Phase 1: task statistics for methodists).

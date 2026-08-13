@@ -221,6 +221,15 @@
       }
     },
     {
+      "type": "math_system",
+      "label": "System of linear equations",
+      "config": {
+        "prompt": "Solve the system.",
+        "equations": ["x + y = 5", "x - y = 1"],
+        "variables": ["x", "y"]
+      }
+    },
+    {
       "type": "srs_flashcard",
       "label": "SRS flashcard",
       "config": {

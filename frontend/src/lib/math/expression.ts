@@ -23,7 +23,7 @@
 
 export type Node =
   | { kind: "num"; value: number }
-  | { kind: "var" }
+  | { kind: "var"; name: string }
   | { kind: "neg"; operand: Node }
   | { kind: "bin"; op: "+" | "-" | "*" | "/" | "^"; left: Node; right: Node }
   | { kind: "call"; fn: keyof typeof FUNCTIONS; arg: Node };
@@ -123,7 +123,8 @@ function tokenize(input: string): Token[] {
  * Parses an expression in one variable. Throws ExpressionError on anything it
  * cannot read, so an editor can show the reason rather than an empty plot.
  */
-export function parseExpression(input: string): Node {
+export function parseExpression(input: string, variables: string[] = ["x"]): Node {
+  const allowed = new Set(variables.map((v) => v.toLowerCase()));
   const tokens = tokenize(input);
   let pos = 0;
 
@@ -199,7 +200,9 @@ export function parseExpression(input: string): Node {
         return { kind: "call", fn: name as keyof typeof FUNCTIONS, arg };
       }
 
-      if (name === "x") return { kind: "var" };
+      // Variables win over constants: a system in x and e should read "e" as
+      // the unknown the teacher named, not as 2.718.
+      if (allowed.has(name)) return { kind: "var", name };
       if (name in CONSTANTS) return { kind: "num", value: CONSTANTS[name] };
 
       throw new ExpressionError(`Unknown name "${name}"`);
@@ -225,20 +228,25 @@ export function parseExpression(input: string): Node {
 
 // ─── evaluation ─────────────────────────────────────────────────────
 
-/** Value of the parsed expression at x. NaN where undefined. */
-export function evaluate(node: Node, x: number): number {
+/**
+ * Value of the parsed expression. `scope` is either a single number, read as
+ * the value of x, or a map of variable names — a system in x and y needs the
+ * second form.
+ */
+export function evaluate(node: Node, scope: number | Record<string, number>): number {
+  const vars = typeof scope === "number" ? { x: scope } : scope;
   switch (node.kind) {
     case "num":
       return node.value;
     case "var":
-      return x;
+      return node.name in vars ? vars[node.name] : NaN;
     case "neg":
-      return -evaluate(node.operand, x);
+      return -evaluate(node.operand, vars);
     case "call":
-      return FUNCTIONS[node.fn](evaluate(node.arg, x));
+      return FUNCTIONS[node.fn](evaluate(node.arg, vars));
     case "bin": {
-      const a = evaluate(node.left, x);
-      const b = evaluate(node.right, x);
+      const a = evaluate(node.left, vars);
+      const b = evaluate(node.right, vars);
       switch (node.op) {
         case "+":
           return a + b;
@@ -264,4 +272,17 @@ export function evaluate(node: Node, x: number): number {
 export function compileExpression(input: string): (x: number) => number {
   const ast = parseExpression(input);
   return (x: number) => evaluate(ast, x);
+}
+
+/**
+ * The same, for an expression in several unknowns: `compileMultivariate("2x +
+ * 3y", ["x", "y"])` returns a function of `{x, y}`. Used to read a system of
+ * equations, where a single-variable parser has nothing to say.
+ */
+export function compileMultivariate(
+  input: string,
+  variables: string[],
+): (values: Record<string, number>) => number {
+  const ast = parseExpression(input, variables);
+  return (values: Record<string, number>) => evaluate(ast, values);
 }
