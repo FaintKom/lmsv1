@@ -23,8 +23,11 @@ export default function CookieConsent() {
 
  return (
  <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-strong bg-surface px-4 py-3 shadow-lg ">
- <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
- <p className="text-sm text-text-muted ">
+ {/* min-w-0 on the text: a flex child will not shrink below its content by
+     default, so at 320px the German copy pushed the banner to 367px and took
+     the whole page sideways with it. */}
+ <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
+ <p className="min-w-0 flex-1 text-sm text-text-muted">
  {t("cookie.message")}{" "}
  <Link href="/cookies" className="underline hover:text-text ">
  {t("cookie.learnMore")}

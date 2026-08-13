@@ -83,7 +83,9 @@ export function ExerciseGallery() {
     <section className="border-t border-border bg-surface py-16">
       <div className="mx-auto max-w-5xl px-6">
         <div className="mb-8 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.gallery.title")}</h2>
+          <h2 className="mb-3 break-words text-2xl font-bold text-text sm:text-3xl">
+            {t("landing.gallery.title")}
+          </h2>
           <p className="text-text-muted">{t("landing.gallery.subtitle")}</p>
         </div>
 

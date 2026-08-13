@@ -657,7 +657,7 @@ const de: TranslationMap = {
  // Landing
  "landing.hero": "Intelligenter unterrichten mit interaktivem Lernen",
  "landing.heroSub": "Eine moderne Plattform für Schulen und Lehrkräfte. Erstellen Sie Kurse mit Code-Editoren, Tests und Echtzeit-Analytik.",
- "landing.getStarted": "Kostenlos starten",
+ "landing.getStarted": "Starten",
  "landing.viewDemo": "Demo ansehen",
  "landing.features": "Alles, was Sie für effektiven Unterricht brauchen",
  "landing.featuresSub": "Entwickelt für moderne Bildung mit leistungsstarken Werkzeugen für jedes Fach.",
@@ -2371,7 +2371,6 @@ const de: TranslationMap = {
  "landing.live.colStudent": "Wer",
  "landing.live.colStatus": "Status",
  "landing.live.rosterRow": "Lernende",
- "landing.footerPricing": "Preise",
  "landing.footerRefund": "Rückerstattungen",
  "landing.footerCopyright": "Urheberrecht",
  "landing.footerAcceptableUse": "Nutzungsregeln",

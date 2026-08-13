@@ -657,7 +657,7 @@ const uk: TranslationMap = {
  // Landing
  "landing.hero": "Навчайте розумніше з інтерактивним навчанням",
  "landing.heroSub": "Сучасна платформа для шкіл та викладачів. Створюйте курси з редакторами коду, тестами та аналітикою в реальному часі.",
- "landing.getStarted": "Почати безкоштовно",
+ "landing.getStarted": "Почати",
  "landing.viewDemo": "Переглянути демо",
  "landing.features": "Все, що потрібно для ефективного навчання",
  "landing.featuresSub": "Створено для сучасної освіти з потужними інструментами для кожного предмета.",
@@ -2371,7 +2371,6 @@ const uk: TranslationMap = {
  "landing.live.colStudent": "Хто",
  "landing.live.colStatus": "Статус",
  "landing.live.rosterRow": "Учень",
- "landing.footerPricing": "Тарифи",
  "landing.footerRefund": "Повернення",
  "landing.footerCopyright": "Авторські права",
  "landing.footerAcceptableUse": "Правила використання",

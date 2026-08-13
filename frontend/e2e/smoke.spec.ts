@@ -19,11 +19,14 @@ import { expect, test } from "@playwright/test";
 // passing against a stale build that still served the old page.
 test("landing page renders with core navigation", async ({ page }) => {
   await page.goto("/");
-  // Each of these appears twice — once in the header, once in the hero — so
-  // take the first match rather than tripping strict mode.
-  await expect(page.getByRole("link", { name: /try demo/i }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: /sign in/i }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: /get started/i }).first()).toBeVisible();
+  // By href, not by label. These used to match on text, so renaming "Try Demo"
+  // to "Try the demo" turned a copy edit into a red build — and the assertion
+  // would break again the moment anyone opened the page in another locale.
+  // Each destination appears twice (header and hero), so take the first match
+  // rather than tripping strict mode.
+  await expect(page.locator('a[href="/demo?role=student"]').first()).toBeVisible();
+  await expect(page.locator('a[href="/login"]').first()).toBeVisible();
+  await expect(page.locator('a[href="/register"]').first()).toBeVisible();
 });
 
 test("login page renders form fields", async ({ page }) => {
