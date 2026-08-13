@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { MathSystemV2 } from "./math-system-v2";
+import { MathSystemV2, type MathSystemV2Props } from "./math-system-v2";
 
 vi.mock("@/lib/i18n/context", () => ({
   useTranslation: () => ({ t: (k: string) => k }),
@@ -79,6 +79,18 @@ describe("MathSystemV2", () => {
     fireEvent.click(screen.getByRole("radio", { name: "exercise.mathSystem.kindNone" }));
     fireEvent.click(screen.getByRole("button", { name: "check" }));
     await waitFor(() => expect(screen.getByTestId("feedback")).toHaveTextContent("ok"));
+  });
+
+  /**
+   * The lesson editor keeps the previous type's props when a methodist
+   * switches the dropdown, so this component is mounted with a quiz's
+   * `{questions: […]}` and no equations at all. It threw on that in
+   * production and took the whole editor page down with it.
+   */
+  it("survives being mounted with another exercise type's props", () => {
+    const wrongProps = { questions: [] } as unknown as MathSystemV2Props;
+    expect(() => render(<MathSystemV2 {...wrongProps} />)).not.toThrow();
+    expect(screen.getByRole("button", { name: "check" })).toBeDisabled();
   });
 
   it("draws one line per equation when there are two variables", () => {
