@@ -40,6 +40,7 @@ class ExerciseType(str, enum.Enum):
     scorm_package = "scorm_package"
     math_stepwise = "math_stepwise"
     math_system = "math_system"
+    stereometry = "stereometry"
     srs_flashcard = "srs_flashcard"
     crossword = "crossword"
     word_search = "word_search"
@@ -68,6 +69,7 @@ EXERCISE_TYPE_PREFIX = {
     "scorm_package": "SC",
     "math_stepwise": "MS",
     "math_system": "SY",
+    "stereometry": "ST",
     "srs_flashcard": "SF",
     "crossword": "CW",
     "word_search": "WS",
