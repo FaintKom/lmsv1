@@ -629,7 +629,7 @@ const es: TranslationMap = {
  "common.mrr": "MRR",
  "landing.hero": "Enseña mejor con aprendizaje interactivo",
  "landing.heroSub": "Una plataforma moderna para escuelas y educadores. Crea cursos con editores de código, pruebas y analíticas en tiempo real.",
- "landing.getStarted": "Comenzar Gratis",
+ "landing.getStarted": "Empezar",
  "landing.viewDemo": "Ver Demo",
  "landing.features": "Todo lo que necesitas para enseñar eficazmente",
  "landing.featuresSub": "Diseñado para la educación moderna con herramientas para cada materia.",

@@ -58,7 +58,10 @@ export default function Home() {
               "code included" stranded on its own line. Padding is tight on
               purpose — Run and Check have to be visible at 1440x900. */}
           <div className="mx-auto max-w-4xl px-6 pb-4 pt-8 text-center md:pt-10">
-            <h1 className="mb-4 text-4xl font-extrabold leading-tight tracking-tight text-text md:text-5xl">
+            {/* The type scale here is not stock Tailwind: 2xl=32, 3xl=44,
+                4xl=60, 5xl=80 (globals.css). text-4xl on a phone meant 60px,
+                five lines and 450px of a 664px viewport. */}
+            <h1 className="mb-4 text-2xl font-extrabold leading-tight tracking-tight text-text sm:text-3xl md:text-4xl">
               {t("landing.hero.title")}
             </h1>
             <p className="mx-auto mb-5 max-w-2xl text-lg leading-relaxed text-text-muted">
@@ -92,11 +95,16 @@ export default function Home() {
         {/* Facts strip — numbers that come from the code, not from marketing */}
         <section className="border-t border-border bg-surface py-14">
           <div className="mx-auto max-w-5xl px-6">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {/* break-words + a smaller gap on phones: at 320px each column is
+                about 120px, and a single long word ("Programmiersprachen",
+                "программирования") pushed the whole document to 367px. */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-8 md:grid-cols-4">
               {facts.map((f) => (
-                <div key={f.label} className="text-center">
+                <div key={f.label} className="min-w-0 text-center">
                   <p className="text-4xl font-extrabold text-primary md:text-5xl">{f.value}</p>
-                  <p className="mt-2 text-sm font-medium leading-snug text-text-muted">{f.label}</p>
+                  <p className="mt-2 break-words text-sm font-medium leading-snug text-text-muted">
+                    {f.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -115,7 +123,7 @@ export default function Home() {
                 <Radio className="h-4 w-4" />
                 {t("landing.live.eyebrow")}
               </span>
-              <h2 className="mb-4 text-3xl font-bold text-text">{t("landing.live.title")}</h2>
+              <h2 className="mb-4 break-words text-2xl font-bold text-text sm:text-3xl">{t("landing.live.title")}</h2>
               <p className="mb-6 leading-relaxed text-text-muted">{t("landing.live.body")}</p>
               <ul className="space-y-3 text-sm text-text">
                 {[t("landing.live.point1"), t("landing.live.point2"), t("landing.live.point3")].map(
@@ -179,7 +187,7 @@ export default function Home() {
         <section className="border-t border-border bg-surface py-16">
           <div className="mx-auto max-w-3xl px-6">
             <div className="mb-8 text-center">
-              <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.faqTitle")}</h2>
+              <h2 className="mb-3 break-words text-2xl font-bold text-text sm:text-3xl">{t("landing.faqTitle")}</h2>
               <p className="text-text-muted">{t("landing.faqSub")}</p>
             </div>
             <div className="space-y-3">
@@ -209,7 +217,7 @@ export default function Home() {
         {/* CTA */}
         <section className="border-t border-border bg-gradient-to-b from-success-soft/50 to-surface py-16">
           <div className="mx-auto max-w-2xl px-6 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-text">{t("landing.ctaReady")}</h2>
+            <h2 className="mb-4 break-words text-2xl font-bold text-text sm:text-3xl">{t("landing.ctaReady")}</h2>
             <p className="mb-8 text-text-muted">{t("landing.ctaReadySub")}</p>
             <div className="mb-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link href="/register">

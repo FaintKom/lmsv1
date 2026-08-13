@@ -622,7 +622,7 @@ const tr: TranslationMap = {
  "common.mrr": "MRR",
  "landing.hero": "İnteraktif öğrenme ile daha akıllı öğretin",
  "landing.heroSub": "Okullar ve eğitimciler için modern bir platform. Kod editörleri, sınavlar ve gerçek zamanlı analitikle kurslar oluşturun.",
- "landing.getStarted": "Ücretsiz Başla",
+ "landing.getStarted": "Başla",
  "landing.viewDemo": "Demoyu Gör",
  "landing.features": "Etkili öğretmek için ihtiyacınız olan her şey",
  "landing.featuresSub": "Her ders için güçlü araçlarla modern eğitim için tasarlandı.",

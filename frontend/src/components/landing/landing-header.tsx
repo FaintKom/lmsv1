@@ -62,6 +62,12 @@ function HeaderLocaleSwitcher() {
 }
 
 export function LandingHeader() {
+ // These labels were hardcoded English. The file passed the i18n ratchet
+ // because HeaderLocaleSwitcher above calls useTranslation(), so the header
+ // stayed English in every locale — and disagreed with the same actions
+ // further down the page ("Sign In" vs "Sign in", "Try Demo" vs "Try the
+ // demo"). They now use the keys the page body already uses.
+ const { t } = useTranslation();
  return (
  <header className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-lg">
  <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -78,17 +84,17 @@ export function LandingHeader() {
      Get Started past the right edge, so they drop below sm. */}
  <Link href="/demo?role=student" className="hidden sm:block">
  <Button variant="ghost" size="sm">
- Try Demo
+ {t("landing.ctaTryDemo")}
  </Button>
  </Link>
  <Link href="/login" className="hidden sm:block">
  <Button variant="ghost" size="sm">
- Sign In
+ {t("landing.signIn")}
  </Button>
  </Link>
  <Link href="/register">
  <Button size="sm" className="whitespace-nowrap">
- Get Started
+ {t("landing.getStarted")}
  {/* At 320px the arrow is what tips the button past the edge. */}
  <ArrowRight className="hidden h-4 w-4 sm:block" />
  </Button>

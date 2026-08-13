@@ -657,7 +657,7 @@ const en: TranslationMap = {
  // Landing
  "landing.hero": "Teach smarter with interactive learning",
  "landing.heroSub": "A modern platform for schools and educators. Build courses with code editors, quizzes, and real-time analytics.",
- "landing.getStarted": "Get Started Free",
+ "landing.getStarted": "Get started",
  "landing.viewDemo": "View Demo",
  "landing.features": "Everything you need to teach effectively",
  "landing.featuresSub": "Built for modern education with powerful tools for every subject.",

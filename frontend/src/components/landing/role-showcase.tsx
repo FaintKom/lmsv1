@@ -64,7 +64,9 @@ function RoleColumn({
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-xl border border-border-strong bg-surface p-7">
+    // min-w-0 + break-words: a grid item defaults to min-width:auto, so at
+    // 320px a long German or Russian word widened the track past the container.
+    <div className="min-w-0 break-words rounded-xl border border-border-strong bg-surface p-5 sm:p-7">
       <div className="mb-4 flex items-center gap-3">
         <span className="inline-flex shrink-0 rounded-lg bg-success-soft p-3">
           <RoleIcon className="h-6 w-6 text-primary" />
@@ -93,7 +95,9 @@ export function RoleShowcase() {
     <section className="border-t border-border bg-surface py-16">
       <div className="mx-auto max-w-5xl px-6">
         <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-text">{t("landing.roles.title")}</h2>
+          <h2 className="mb-3 break-words text-2xl font-bold text-text sm:text-3xl">
+            {t("landing.roles.title")}
+          </h2>
           <p className="text-text-muted">{t("landing.roles.subtitle")}</p>
         </div>
 
