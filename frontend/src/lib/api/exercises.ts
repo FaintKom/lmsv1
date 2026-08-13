@@ -48,6 +48,7 @@ export type ExerciseType =
  | "scorm_package"
  | "math_stepwise"
  | "math_system"
+ | "stereometry"
  | "srs_flashcard"
  | "crossword"
  | "word_search"
@@ -149,6 +150,7 @@ export const EXERCISE_TYPE_LABELS: Record<ExerciseType, string> = {
  scorm_package: "SCORM / xAPI",
  math_stepwise: "Math Step-by-Step",
  math_system: "System of Equations",
+ stereometry: "Solids",
  srs_flashcard: "Flashcards (SRS)",
  crossword: "Crossword",
  word_search: "Word Search",
@@ -177,6 +179,7 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
  scorm_package: "bg-info-soft text-info-fg ",
  math_stepwise: "bg-primary-soft text-info-fg ",
  math_system: "bg-primary-soft text-info-fg ",
+ stereometry: "bg-lagoon-200 text-lagoon-800 ",
  srs_flashcard: "bg-sun-100 text-warning-fg ",
  crossword: "bg-lagoon-200 text-lagoon-800 ",
  word_search: "bg-info-soft text-info-fg ",
@@ -207,6 +210,7 @@ export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
  { value: "math_interactive", label: "Math Interactive", Icon: Calculator },
  { value: "math_stepwise", label: "Math Step-by-Step", Icon: Sigma },
  { value: "math_system", label: "System of Equations", Icon: Sigma },
+ { value: "stereometry", label: "Solids", Icon: Box },
  { value: "world_3d", label: "3D World", Icon: Box },
  { value: "translation", label: "Translation", Icon: Languages },
  { value: "sentence_builder", label: "Sentence Builder", Icon: Type },

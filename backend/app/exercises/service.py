@@ -430,6 +430,21 @@ def _get_correct_answer(exercise: Exercise) -> dict | None:
         except MathParseError:
             return None
 
+    elif ex_type == ExerciseType.stereometry:
+        # Same reason as math_system: the student's config carries the solid
+        # and its measurements, never the number they lead to.
+        from app.math_validation.solids import SolidError, compute
+
+        try:
+            value = compute(
+                config.get("solid") or "",
+                config.get("dimensions") or {},
+                config.get("quantity") or "",
+            )
+        except SolidError:
+            return None
+        return {"answer": round(value, _stereometry_places(config))}
+
     elif ex_type in (ExerciseType.matching,):
         return {"answer": config.get("pairs", [])}
     elif ex_type == ExerciseType.ordering:
@@ -540,6 +555,8 @@ async def submit_exercise(
         return await _submit_web_editor(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.math_system:
         return await _submit_math_system(db, exercise, user, data, now)
+    elif exercise.exercise_type == ExerciseType.stereometry:
+        return await _submit_stereometry(db, exercise, user, data, now)
     elif exercise.exercise_type in (
         ExerciseType.translation,
         ExerciseType.sentence_builder,
@@ -750,6 +767,86 @@ async def _submit_math_system(
         exercise_id=exercise.id,
         student_id=user.id,
         answers=given,
+        score=100.0 if passed else 0.0,
+        passed=passed,
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    _apply_timing(submission, data, now)
+    db.add(submission)
+    await db.flush()
+
+    if passed:
+        await _award_xp(db, user.id, 25, "exercise_passed")
+
+    return await _reload_submission(db, submission.id)
+
+
+def _stereometry_places(config: dict) -> int:
+    """How many decimals the answer is asked to. Default 2.
+
+    Rounding is what makes a numeric answer markable at all: a cone's volume
+    is irrational, and no student types 33.510321638291124.
+    """
+    raw = config.get("decimals", 2)
+    if isinstance(raw, bool) or not isinstance(raw, int):
+        return 2
+    return max(0, min(6, raw))
+
+
+async def _submit_stereometry(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    """Mark a solid-geometry answer.
+
+    The server computes the expected number from the teacher's solid rather
+    than comparing against a stored key — the config the student receives has
+    no answer in it, and recomputing is cheaper than keeping a second copy of
+    the truth in sync.
+
+    The comparison is against the rounded value, so a student who rounds as
+    asked is right, and one who answers to more places than asked is right
+    too as long as they are inside the tolerance.
+    """
+    from app.math_validation.solids import SolidError, compute
+
+    config = exercise.config or {}
+    answer = data.get("interactive_answers") or {}
+    given_raw = answer.get("value") if isinstance(answer, dict) else None
+
+    try:
+        exact = compute(
+            config.get("solid") or "",
+            config.get("dimensions") or {},
+            config.get("quantity") or "",
+        )
+    except SolidError as e:
+        # The exercise is broken, not the attempt. Refuse rather than record a
+        # fail against a student for a config they cannot see.
+        raise BadRequestError(f"This exercise is misconfigured: {e}")
+
+    places = _stereometry_places(config)
+    expected = round(exact, places)
+    # Half a unit in the last requested place, so "round to 2 dp" accepts
+    # 33.51 for 33.5103…, and a teacher can widen it deliberately.
+    tolerance = config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.5 * 10 ** (-places)
+    tolerance = abs(float(tolerance))
+
+    passed = False
+    if isinstance(given_raw, (int, float)) and not isinstance(given_raw, bool):
+        passed = abs(float(given_raw) - expected) <= tolerance
+
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers={"value": given_raw},
         score=100.0 if passed else 0.0,
         passed=passed,
         status="graded",

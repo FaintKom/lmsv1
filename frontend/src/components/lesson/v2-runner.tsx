@@ -49,6 +49,7 @@ import { CardSortV2 } from "@/components/exercises/v2/card-sort-v2";
 import { CoordinatePlaneV2 } from "@/components/exercises/v2/coordinate-plane-v2";
 import { EquationSolverV2 } from "@/components/exercises/v2/equation-solver-v2";
 import { MathSystemV2 } from "@/components/exercises/v2/math-system-v2";
+import { StereometryV2 } from "@/components/exercises/v2/stereometry-v2";
 import { FunctionGraphV2 } from "@/components/exercises/v2/function-graph-v2";
 import { GraphTransformV2 } from "@/components/exercises/v2/graph-transform-v2";
 import { InequalityGraphV2 } from "@/components/exercises/v2/inequality-graph-v2";
@@ -97,6 +98,7 @@ export type V2ExerciseType =
   | "coordinate-plane"
   | "equation-solver"
   | "math-system"
+  | "stereometry"
   | "function-graph"
   | "graph-transform"
   | "inequality-graph"
@@ -169,6 +171,7 @@ const REGISTRY: Record<V2ExerciseType, React.ComponentType<any>> = {
   "coordinate-plane": CoordinatePlaneV2,
   "equation-solver": EquationSolverV2,
   "math-system": MathSystemV2,
+  "stereometry": StereometryV2,
   "function-graph": FunctionGraphV2,
   "graph-transform": GraphTransformV2,
   "inequality-graph": InequalityGraphV2,

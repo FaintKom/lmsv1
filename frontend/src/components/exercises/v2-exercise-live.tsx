@@ -42,6 +42,7 @@ import { QuizV2 } from "@/components/exercises/v2/quiz-v2";
 import { CrosswordV2 } from "@/components/exercises/v2/crossword-v2";
 import { MapPinDropV2 } from "@/components/exercises/v2/map-pin-v2";
 import { MathSystemV2 } from "@/components/exercises/v2/math-system-v2";
+import { StereometryV2 } from "@/components/exercises/v2/stereometry-v2";
 
 interface LiveExercise {
   id: string;
@@ -429,6 +430,19 @@ export function V2ExerciseLive({
         <MathSystemV2
           equations={(cfg.equations as string[]) ?? []}
           variables={(cfg.variables as string[]) ?? undefined}
+          problem={cfg.problem as string | undefined}
+          title={exercise.title}
+          {...shared}
+        />
+      );
+    case "stereometry":
+      return (
+        <StereometryV2
+          solid={(cfg.solid as string) ?? ""}
+          dimensions={(cfg.dimensions as Record<string, unknown>) ?? {}}
+          quantity={(cfg.quantity as string) ?? ""}
+          decimals={cfg.decimals as number | undefined}
+          unit={cfg.unit as string | undefined}
           problem={cfg.problem as string | undefined}
           title={exercise.title}
           {...shared}
