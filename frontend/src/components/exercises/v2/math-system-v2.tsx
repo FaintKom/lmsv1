@@ -68,8 +68,8 @@ const sanitizeNum = (s: string): string => {
 };
 
 export function MathSystemV2({
-  equations,
-  variables = ["x", "y"],
+  equations: rawEquations,
+  variables: rawVariables,
   problem,
   explain,
   eyebrow,
@@ -82,6 +82,17 @@ export function MathSystemV2({
   onFinish,
 }: MathSystemV2Props) {
   const { t } = useTranslation();
+  // Props arrive as hand-edited JSON, and the lesson editor keeps the previous
+  // type's props when a methodist switches the dropdown — this component gets
+  // mounted with a quiz's `{questions: […]}` and no equations at all. It threw
+  // on that in production and took the editor page down with it, so nothing
+  // here may assume a shape.
+  const equations = Array.isArray(rawEquations) ? rawEquations.filter((e) => typeof e === "string") : [];
+  const variables =
+    Array.isArray(rawVariables) && rawVariables.length
+      ? rawVariables.filter((v) => typeof v === "string")
+      : ["x", "y"];
+
   const [kind, setKind] = useState<SolutionKind | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
@@ -92,7 +103,8 @@ export function MathSystemV2({
   const [checking, setChecking] = useState(false);
   const { fire, layer } = useConfetti();
 
-  const rows = readSystem(equations, variables);
+  const filled = equations.filter((e) => e.trim());
+  const rows = filled.length ? readSystem(filled, variables) : null;
   // Two variables draw as two lines. Three do not draw at all — a projection
   // of three planes onto a square is a worse explanation than no picture.
   const drawable = rows && variables.length === 2 ? rows : null;
