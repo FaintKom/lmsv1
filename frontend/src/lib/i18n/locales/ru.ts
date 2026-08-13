@@ -2313,8 +2313,6 @@ const ru: TranslationMap = {
  "landing.roles.t5": "Аналитика класса и графики",
  "landing.roles.t6": "Живые видеоуроки",
  "landing.ctaTryDemo": "Попробовать демо",
- "landing.ctaJoinWaitlist": "Или вступайте в список ожидания для раннего доступа",
- "landing.ctaWaitlistSub": "Сообщим, когда выйдут новые функции.",
  "landing.hero.title": "Всё, что нужно, чтобы вести курс",
  "landing.hero.sub": "Уроки, задания, живой класс, проверка, журнал и сертификаты живут в одной платформе и работают вместе.",
  "landing.live.colStudent": "Кто",

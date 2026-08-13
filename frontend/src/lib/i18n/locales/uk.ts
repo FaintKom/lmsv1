@@ -2365,8 +2365,6 @@ const uk: TranslationMap = {
  "landing.roles.t5": "Аналітика класу та графіки",
  "landing.roles.t6": "Живі відеоуроки",
  "landing.ctaTryDemo": "Спробувати демо",
- "landing.ctaJoinWaitlist": "Або приєднуйся до списку очікування для раннього доступу",
- "landing.ctaWaitlistSub": "Повідомимо, коли вийдуть нові функції.",
  "landing.hero.title": "Усе, що потрібно, щоб вести курс",
  "landing.hero.sub": "Уроки, завдання, живий клас, перевірка, журнал і сертифікати живуть в одній платформі й працюють разом.",
  "landing.live.colStudent": "Хто",

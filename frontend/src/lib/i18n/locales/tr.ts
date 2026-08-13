@@ -2306,8 +2306,6 @@ const tr: TranslationMap = {
  "landing.roles.t5": "Sınıf analizleri ve grafikler",
  "landing.roles.t6": "Canlı video dersleri",
  "landing.ctaTryDemo": "Demoyu dene",
- "landing.ctaJoinWaitlist": "Veya erken erişim için bekleme listesine katıl",
- "landing.ctaWaitlistSub": "Yeni özellikler yayınlandığında haber veririz.",
  "landing.hero.title": "Bir kursu yürütmek için gereken her şey",
  "landing.hero.sub": "Dersler, alıştırmalar, canlı sınıf, değerlendirme, not defteri ve sertifikalar tek bir platformda duruyor ve birlikte çalışıyor.",
  "landing.live.colStudent": "Kim",

@@ -15,7 +15,6 @@ import Link from "next/link";
 import { ArrowRight, ChevronDown, Radio, Hand, CheckCircle2, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { WaitlistForm } from "@/components/waitlist-form";
 import { ExerciseGallery } from "@/components/landing/exercise-gallery";
 import { Comparison } from "@/components/landing/comparison";
 import { RoleShowcase } from "@/components/landing/role-showcase";
@@ -229,13 +228,6 @@ export default function Home() {
                   {t("landing.ctaTryDemo")}
                 </Button>
               </Link>
-            </div>
-            <div className="mt-12 border-t border-border-strong pt-10">
-              <h3 className="mb-2 text-lg font-semibold text-text">
-                {t("landing.ctaJoinWaitlist")}
-              </h3>
-              <p className="mb-6 text-sm text-text-muted">{t("landing.ctaWaitlistSub")}</p>
-              <WaitlistForm source="landing-cta" />
             </div>
           </div>
         </section>

@@ -2365,8 +2365,6 @@ const en: TranslationMap = {
  "landing.roles.t5": "Class analytics & charts",
  "landing.roles.t6": "Live video lessons",
  "landing.ctaTryDemo": "Try the demo",
- "landing.ctaJoinWaitlist": "Or join the waitlist for early access",
- "landing.ctaWaitlistSub": "Get notified when new features launch.",
  "landing.hero.title": "Everything you need to run a course",
  "landing.hero.sub": "Lessons, exercises, a live class, marking, a gradebook and certificates all live in one platform and work together.",
  "landing.live.colStudent": "Who",
