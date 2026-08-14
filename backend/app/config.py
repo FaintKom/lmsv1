@@ -161,6 +161,14 @@ class Settings(BaseSettings):
     # YouTube Data API
     youtube_api_key: str = ""
 
+    # LLM — any OpenAI-compatible chat-completions endpoint (OpenRouter,
+    # a local Ollama, vLLM, ...). An empty key disables the feature: the
+    # /tutor endpoints answer 503 and the app still starts normally, so a
+    # deploy without the key configured degrades instead of failing.
+    llm_base_url: str = "https://openrouter.ai/api/v1"
+    llm_model: str = ""
+    llm_api_key: str = ""
+
     # App
     app_name: str = "LMS"
     debug: bool = False

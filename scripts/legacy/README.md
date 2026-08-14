@@ -40,6 +40,17 @@ review автором.
 Промежуточные дампы курса (4cid, html, html_fixed варианты). На проде живёт
 финальная версия из БД. JSON-ы оставлены как референс структуры контента.
 
+### `create_test_course.py`, `create_python_course.py`
+Перенесены 2026-08-14, заменены на `scripts/create_kitchen_sink_course.py`
+и `scripts/create_python_course.py` (переписанный).
+
+- `create_test_course.py` ходил по HTTP в `lms-backend-0b8v.onrender.com` —
+  Render выведен из эксплуатации в марте 2026, хост не существует. Покрывал
+  9 типов упражнений из 26.
+- `create_python_course.py` создавал 6 модулей и ~36 уроков с плейсхолдерами
+  вместо контента, в расчёте на «генератор контента», которого нет. В проде
+  не запускался — курса `python-programming` там никогда не было.
+
 ## Bootstrap-скрипт остался в корне
 
 `create_super_admin.py` — **не трогать**, упомянут в `CLAUDE.md` как способ

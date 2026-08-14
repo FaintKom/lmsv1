@@ -33,6 +33,7 @@ import FileUploader from "@/components/submissions/file-uploader";
 import InteractiveTaker from "@/components/submissions/interactive-taker";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { HighlightableContent } from "@/components/lesson/highlightable-content";
+import { AskWidget } from "@/components/lesson/ask-widget";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
 import { isV2LiveType } from "@/lib/exercises/v2-adapter";
@@ -557,6 +558,25 @@ export default function LessonViewerPage() {
        />
       )}
      </div>
+
+     {/* Ask about this lesson — hidden when the lesson carries no prose
+       (video-only, file upload, empty draft), since there is nothing to
+       ground an answer in. The backend enforces the same rule with 422. */}
+     {(() => {
+      const blocks = lesson.content?.blocks || [];
+      const hasText =
+       blocks.some(
+        (b: any) => b.type === "text" && (b.body || "").trim().length > 50
+       ) || String(lesson.content?.body ?? "").trim().length > 50;
+      if (!hasText) return null;
+      return (
+       <div className="mb-8 px-2 sm:px-6">
+        <div className="mx-auto max-w-[720px]">
+         <AskWidget lessonId={lessonId} />
+        </div>
+       </div>
+      );
+     })()}
 
      {/* Exercises — show exercises not already embedded in v2 blocks */}
      {(() => {

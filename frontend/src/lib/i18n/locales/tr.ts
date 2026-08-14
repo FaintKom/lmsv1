@@ -1,6 +1,17 @@
 import type { TranslationMap } from "../meta";
 
 const tr: TranslationMap = {
+ "tutor.ask": "Bu ders hakkında soru sor",
+ "tutor.placeholder": "Neyi anlamak istiyorsun?",
+ "tutor.send": "Sor",
+ "tutor.thinking": "Düşünüyor…",
+ "tutor.error": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+ "tutor.unavailable": "Asistan geçici olarak kullanılamıyor.",
+ "tutor.unconfigured": "Ders asistanı henüz kurulmadı.",
+ "tutor.limitReached": "Bugünkü soru sınırına ulaştınız.",
+ "tutor.noText": "Bu derste soru sorulacak metin yok.",
+ "tutor.disclaimer": "Yanıtlar dersin metnine dayanır ve hata içerebilir.",
+ "tutor.close": "Kapat",
  "cookie.learnMore": "Daha fazla bilgi",
  "theory.cfg.header": "Teori Slaytları",
  "theory.cfg.pdfSub": "Bir .pdf yükleyin — tarayıcı görüntüleyicide gösterilir",

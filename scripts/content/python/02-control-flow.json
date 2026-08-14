@@ -1,0 +1,239 @@
+{
+  "slug": "control-flow",
+  "title": "Control flow",
+  "order": 1,
+  "lessons": [
+    {
+      "slug": "making-decisions",
+      "title": "Making decisions",
+      "duration_minutes": 25,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>Choosing what to run</h2>\n<p>So far every line has run exactly once, in the order written. A conditional breaks that: it puts a question in front of a block of code, and the block runs only if the answer is yes.</p>\n<pre><code>temperature = 34\n\nif temperature &gt; 30:\n    print(\"hot\")\nelse:\n    print(\"not hot\")</code></pre>\n<p>The word after <code>if</code> is an expression that gets evaluated down to a single yes-or-no answer. The colon opens the block, and the indentation says where the block ends. There is no closing keyword — the first line back at the outer indentation level is outside.</p>\n<h3>elif, and why order matters</h3>\n<p>When there are more than two outcomes, chain them with <code>elif</code>. Python tries each condition top to bottom and stops at the first one that holds. Everything below it is skipped, even if it would also have been true.</p>\n<pre><code>score = 95\n\nif score &gt;= 90:\n    grade = \"A\"\nelif score &gt;= 80:\n    grade = \"B\"\nelif score &gt;= 70:\n    grade = \"C\"\nelse:\n    grade = \"F\"</code></pre>\n<p>Because the first match wins, the order of the branches is part of the logic, not a matter of taste. Sort those same branches from lowest to highest and every score above 70 comes out as a C, since <code>score &gt;= 70</code> would be tested first and would swallow every high score. When a chain gives the wrong answer, check the order before you check the conditions.</p>\n<p>Writing separate <code>if</code> statements instead of <code>elif</code> means something different: each one is tested independently, so more than one block can run. Use separate <code>if</code>s when the cases are genuinely unrelated, and <code>elif</code> when exactly one outcome should win.</p>\n<h3>Comparisons</h3>\n<p>The comparison operators are <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>. The double equals is a comparison; the single equals is assignment. Confusing them used to be a classic bug in other languages; in Python <code>if x = 5:</code> is simply a syntax error, so the mistake is caught immediately rather than silently doing the wrong thing.</p>\n<p>Python lets you chain comparisons the way mathematics does, and it means what you would expect:</p>\n<pre><code>if 0 &lt;= score &lt;= 100:\n    print(\"valid\")</code></pre>\n<p>That is genuinely equivalent to <code>0 &lt;= score and score &lt;= 100</code>, and <code>score</code> is evaluated only once. Most languages do not support this, so it is worth using where it fits — a range check reads far better this way.</p>\n<h3>Truthiness</h3>\n<p>The condition does not have to be a comparison. Any value can be tested directly, and Python has a rule for what counts as false:</p>\n<ul>\n<li><code>False</code> and <code>None</code></li>\n<li>zero of any numeric type: <code>0</code>, <code>0.0</code></li>\n<li>anything empty: <code>\"\"</code>, <code>[]</code>, <code>{}</code>, <code>()</code>, <code>set()</code></li>\n</ul>\n<p>Everything else is true, including the string <code>\"False\"</code> and the string <code>\"0\"</code> — both are non-empty text, so both are true. This catches people out when reading user input, because <code>input()</code> hands back strings.</p>\n<pre><code>name = \"\"\nif name:\n    print(\"got a name\")\nelse:\n    print(\"empty\")     # this runs</code></pre>\n<p>Testing a value directly is the idiomatic way to ask \"is there anything here\". Write <code>if items:</code> rather than <code>if len(items) &gt; 0:</code>, and <code>if not name:</code> rather than <code>if name == \"\":</code>.</p>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>Do not compare with True</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p><code>if is_ready == True:</code> works but says nothing that <code>if is_ready:</code> does not. Worse, the two differ for values that are truthy without being <code>True</code> — a non-empty list passes the second test and fails the first.</p></div></aside>\n<h3>Combining conditions</h3>\n<p>Three keywords combine conditions: <code>and</code>, <code>or</code>, <code>not</code>. Python spells them as words rather than symbols, which makes conditions read close to English.</p>\n<pre><code>if age &gt;= 18 and has_ticket:\n    print(\"let them in\")\n\nif not results:\n    print(\"nothing found\")</code></pre>\n<p>Both <code>and</code> and <code>or</code> <strong>short-circuit</strong>: evaluation stops as soon as the answer is settled. With <code>and</code>, a false left side means the right side is never evaluated at all. This is not just a speed optimisation — it is a guard you can rely on:</p>\n<pre><code>if items and items[0] == \"first\":\n    ...</code></pre>\n<p>If <code>items</code> is empty, the left side is false and <code>items[0]</code> is never touched, so there is no IndexError. Reverse the two halves and the same code crashes on an empty list.</p>\n<h3>Equality and identity</h3>\n<p><code>==</code> asks whether two values are equal. <code>is</code> asks whether they are the very same object in memory. These usually agree, and then one day they do not:</p>\n<pre><code>a = [1, 2, 3]\nb = [1, 2, 3]\nprint(a == b)   # True  — same contents\nprint(a is b)   # False — two separate lists</code></pre>\n<p>The rule in practice: use <code>==</code> for comparing values, and reserve <code>is</code> for comparing against <code>None</code>, which is a single unique object. <code>if value is None:</code> is the correct spelling; <code>if value == None:</code> works but is not idiomatic and can be fooled by a class that defines its own equality.</p>\n<h3>Asking whether something is in a collection</h3>\n<p>The <code>in</code> operator tests membership, and it reads like the sentence you would say out loud:</p>\n<pre><code>if \"error\" in line:\n    print(\"something went wrong\")\n\nif user_id not in banned:\n    allow(user_id)</code></pre>\n<p>It works on strings, lists, dictionaries and sets. On a string it asks about substrings; on a dictionary it asks about keys, not values, which surprises people once and then never again. Written out as a loop the same test takes four lines and an early exit, so this is one of the few places where the short form is also the clearer one.</p>\n<p>Two related built-ins collapse a whole loop into a condition. <code>any()</code> is true when at least one item is true; <code>all()</code> is true when every item is:</p>\n<pre><code>scores = [45, 92, 68]\n\nif any(s &gt; 90 for s in scores):\n    print(\"someone did well\")\n\nif all(s &gt;= 40 for s in scores):\n    print(\"nobody failed\")</code></pre>\n<p>Both short-circuit like <code>and</code> and <code>or</code>: <code>any</code> stops at the first true item, <code>all</code> at the first false one. Worth knowing about the empty case, because it catches everyone eventually — <code>any([])</code> is False and <code>all([])</code> is True. The second looks wrong until you phrase it precisely: <code>all</code> asks whether any item breaks the rule, and an empty collection has no rule-breakers.</p>\n<h3>Flattening nested conditions</h3>\n<p>Conditions inside conditions inside conditions are hard to read, because to understand the innermost line you have to hold three separate facts in your head at once:</p>\n<pre><code>if user is not None:\n    if user.is_active:\n        if user.has_permission:\n            do_the_thing()</code></pre>\n<p>Two rewrites make this flatter. Combine the tests with <code>and</code>, which works when each one only guards the next:</p>\n<pre><code>if user is not None and user.is_active and user.has_permission:\n    do_the_thing()</code></pre>\n<p>Short-circuiting is doing real work here — if <code>user</code> is <code>None</code>, the next test is never evaluated, so nothing tries to read an attribute off nothing. That is why the order of the conditions cannot be shuffled freely: each one protects everything to its right.</p>\n<p>The other rewrite is to handle the failing cases first and get them out of the way. Inside a function this is the guard-clause style, and it is the shape most experienced code takes: the exceptional cases are dealt with at the top, and the interesting work sits unindented at the bottom rather than buried four levels deep.</p>\n<h3>match: comparing one value against many shapes</h3>\n<p>Since version 3.10, Python has a <code>match</code> statement. At its simplest it is a tidier way to compare one value against a list of possibilities:</p>\n<pre><code>match command:\n    case \"start\":\n        run()\n    case \"stop\":\n        halt()\n    case \"pause\" | \"wait\":\n        suspend()\n    case _:\n        print(\"unknown command\")</code></pre>\n<p>The vertical bar means \"or\", and the underscore is the catch-all that matches anything, playing the role of <code>else</code>. Unlike the switch statement in other languages, cases do not fall through into each other — the first match runs and the rest are skipped, exactly like <code>elif</code>.</p>\n<p>It can also match on the <em>shape</em> of the data rather than just the value, which is where the name comes from, but that is worth meeting after collections. For now: if you have a chain of four or more <code>elif</code>s all comparing the same variable to different constants, <code>match</code> says the same thing more clearly. For two or three branches, or for conditions that are not simple equality, plain <code>if</code> remains the better choice.</p>\n<h3>Three conditions that do not mean what they look like</h3>\n<p>The first: comparing one value against several by chaining <code>or</code>.</p>\n<pre><code>if day == \"Sat\" or \"Sun\":     # always true, never what you meant\n    ...</code></pre>\n<p>Python reads that as <code>(day == \"Sat\") or (\"Sun\")</code>, and a non-empty string is truthy, so the whole condition is true no matter what day it is. No error is raised; the branch just always runs. Write <code>if day in (\"Sat\", \"Sun\"):</code> instead, which is shorter as well as correct.</p>\n<p>The second: comparing floats for equality. As the previous module showed, <code>0.1 + 0.2 == 0.3</code> is False. Any condition testing a computed decimal against an exact value is a bug waiting for the right input; compare with a tolerance.</p>\n<p>The third: assuming a condition is re-checked. A condition is evaluated once, at the moment control reaches it. If the values it depends on change later, the branch already taken does not un-take itself. That sounds obvious written down, and is still the explanation for a surprising share of confused debugging sessions.</p>\n<h3>Conditional expressions</h3>\n<p>When both branches only pick a value, a one-line form is available:</p>\n<pre><code>label = \"even\" if n % 2 == 0 else \"odd\"</code></pre>\n<p>It reads as a sentence: the value is this, if the condition holds, otherwise that. Keep it for short cases. Once either branch grows past a few words, the full <code>if</code> statement is easier to read and much easier to debug.</p>"
+        },
+        { "type": "exercise", "ref": "quiz-truthiness" },
+        { "type": "exercise", "ref": "tf-is-vs-eq" },
+        { "type": "exercise", "ref": "code-grade" }
+      ],
+      "exercises": [
+        {
+          "ref": "quiz-truthiness",
+          "type": "quiz",
+          "title": "Conditions and truthiness",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "Which of these values is truthy?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "0", "is_correct": false },
+                { "text": "an empty string", "is_correct": false },
+                { "text": "the string \"0\"", "is_correct": true },
+                { "text": "an empty list", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "A grading chain tests score >= 70 first, then score >= 80, then score >= 90. What grade does a score of 95 receive?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "The grade for 90 and above — the highest match wins", "is_correct": false },
+                { "text": "The grade for 70 and above — the first matching branch wins and the rest are skipped", "is_correct": true },
+                { "text": "All three branches run", "is_correct": false },
+                { "text": "Python raises an error about overlapping conditions", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "Why does `if items and items[0] == \"x\":` avoid crashing when items is empty?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Python catches the IndexError automatically", "is_correct": false },
+                { "text": "`and` short-circuits — the left side is false, so the right side is never evaluated", "is_correct": true },
+                { "text": "Indexing an empty list returns None", "is_correct": false },
+                { "text": "It does crash", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "tf-is-vs-eq",
+          "type": "true_false",
+          "title": "Equality versus identity",
+          "config": {
+            "statement": "Two different lists with identical contents compare equal with == but not with is.",
+            "correct_answer": true
+          }
+        },
+        {
+          "ref": "code-grade",
+          "type": "code_challenge",
+          "title": "Letter grade",
+          "config": {
+            "language": "python",
+            "starter_code": "# Read one whole number: a score from 0 to 100.\n# Print the letter grade:\n#   90 and above -> A\n#   80 to 89     -> B\n#   70 to 79     -> C\n#   60 to 69     -> D\n#   below 60     -> F\n",
+            "solution_code": "score = int(input())\nif score >= 90:\n    print(\"A\")\nelif score >= 80:\n    print(\"B\")\nelif score >= 70:\n    print(\"C\")\nelif score >= 60:\n    print(\"D\")\nelse:\n    print(\"F\")",
+            "time_limit_seconds": 5,
+            "memory_limit_mb": 128
+          },
+          "test_cases": [
+            { "input": "95", "expected_output": "A", "is_hidden": false },
+            { "input": "71", "expected_output": "C", "is_hidden": false },
+            { "input": "60", "expected_output": "D", "is_hidden": true },
+            { "input": "0", "expected_output": "F", "is_hidden": true }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "repeating-work",
+      "title": "Repeating work with loops",
+      "duration_minutes": 30,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>Two loops, two jobs</h2>\n<p>Python has two loops and they answer different questions. <code>for</code> asks \"how many things do I have to go through\", and <code>while</code> asks \"has this condition stopped being true yet\". Choosing the wrong one is the usual reason loop code looks awkward.</p>\n<h3>for: once per item</h3>\n<p>A <code>for</code> loop walks through the items of a sequence and hands you one at a time. It does not count; it iterates.</p>\n<pre><code>for letter in \"cat\":\n    print(letter)\n# c\n# a\n# t</code></pre>\n<p>Anything you can walk through works the same way — strings, lists, dictionaries, files. There is no index arithmetic and no length to get wrong. If you catch yourself writing an index only to immediately look up the item at that index, you want plain iteration instead.</p>\n<h3>range: numbers on demand</h3>\n<p>When you genuinely need numbers rather than items, <code>range()</code> produces them:</p>\n<pre><code>for i in range(5):        # 0 1 2 3 4\n    print(i)\n\nfor i in range(1, 6):     # 1 2 3 4 5\n    print(i)\n\nfor i in range(0, 10, 2): # 0 2 4 6 8\n    print(i)</code></pre>\n<p>The end value is excluded, exactly like slicing. <code>range(5)</code> gives five numbers starting at zero, which is why it stops at four. This exclusive end is consistent across the whole language, and once you stop fighting it, off-by-one errors mostly disappear: the length of <code>range(a, b)</code> is simply <code>b - a</code>.</p>\n<p><code>range</code> does not build a list. It generates numbers as the loop asks for them, which is why a range over a billion values is instant and uses almost no memory. Printing one directly shows you the recipe, not the numbers.</p>\n<h3>enumerate: item and position together</h3>\n<p>When you need both the item and where it sits, do not reach for an index loop:</p>\n<pre><code>colours = [\"red\", \"green\", \"blue\"]\n\nfor i, colour in enumerate(colours):\n    print(i, colour)\n# 0 red\n# 1 green\n# 2 blue</code></pre>\n<p><code>enumerate</code> starts at zero unless told otherwise: <code>enumerate(colours, 1)</code> numbers them from one, which is what you usually want when printing a list for a human.</p>\n<h3>while: repeat until something changes</h3>\n<p>A <code>while</code> loop tests its condition before every pass and keeps going as long as it holds. Use it when the number of repetitions is not known up front — reading until the input runs out, retrying until something succeeds, simulating until a value settles.</p>\n<pre><code>n = 27\nsteps = 0\nwhile n != 1:\n    n = n // 2 if n % 2 == 0 else 3 * n + 1\n    steps += 1\nprint(steps)</code></pre>\n<p>Every <code>while</code> loop needs something inside it that can eventually make the condition false. Forget that, and the loop runs forever — the program does not crash, it simply stops responding, which is harder to diagnose than an error. When a while loop hangs, the first question is always: what in the body is supposed to change the condition, and does it actually change on every path through the body?</p>\n<h3>break and continue</h3>\n<p><code>break</code> leaves the loop immediately. <code>continue</code> skips the rest of this pass and starts the next one. Both apply to the innermost loop only.</p>\n<pre><code>for n in numbers:\n    if n &lt; 0:\n        continue          # ignore negatives\n    if n &gt; 100:\n        break             # stop at the first big number\n    print(n)</code></pre>\n<p><code>break</code> earns its keep in searches: once you have found what you were looking for, there is no reason to keep walking. A loop that scans an entire million-item list after finding its answer on the second item is not wrong, just wasteful — and on large inputs that waste is the difference between instant and unusable.</p>\n<h3>Counting backwards</h3>\n<p>A negative step makes <code>range</code> count down, and the same exclusive-end rule applies at the other end:</p>\n<pre><code>for i in range(10, 0, -1):    # 10 9 8 ... 1\n    print(i)\n\nfor i in range(len(items) - 1, -1, -1):   # last index down to 0\n    print(items[i])</code></pre>\n<p>That second line is worth reading twice. To reach index zero the stop value has to be <code>-1</code>, because the stop is excluded — writing <code>0</code> there quietly skips the first item. This is the shape to use when deleting from a list while walking it, since removing an item never disturbs positions you have already passed.</p>\n<p>When you only need the items and not their positions, <code>reversed(items)</code> says the same thing without the arithmetic, and cannot be got wrong.</p>\n<h3>Reading until the input runs out</h3>\n<p>Programs that process piped data do not know how many lines they will get. Reading a fixed count is not an option, so the loop has to run until the source is exhausted. Iterating over standard input does exactly that, ending on its own when there is nothing left:</p>\n<pre><code>import sys\n\ntotal = 0\nfor line in sys.stdin:\n    total += int(line)\nprint(total)</code></pre>\n<p>Each line arrives with its trailing newline attached, which <code>int()</code> tolerates but string comparisons do not — <code>line == \"quit\"</code> is False when the actual value is <code>\"quit\\n\"</code>. Strip it as it arrives with <code>line.strip()</code> and the whole class of problem disappears. Using <code>input()</code> in this situation raises EOFError when the input ends, which is why a bare <code>while True</code> around <code>input()</code> works interactively and crashes when fed from a file.</p>\n<h3>while True, and leaving from the middle</h3>\n<p>Sometimes the decision to stop can only be made partway through the body — you have to read the input before you can tell whether it was the last one. Testing at the top does not fit, so the idiom is to loop forever and break out explicitly:</p>\n<pre><code>while True:\n    line = input()\n    if line == \"quit\":\n        break\n    print(f\"you said: {line}\")</code></pre>\n<p>This is not a workaround for a missing feature; it is the honest shape of a loop whose exit is in the middle. The alternative — priming a variable before the loop and repeating the read at the bottom — duplicates the read in two places, and the day someone edits one copy and not the other is the day it breaks.</p>\n<p>The rule to hold onto is that <code>while True</code> must contain a reachable <code>break</code>. If you cannot point at the line that ends the loop, you have written a program that hangs.</p>\n<h3>Walking two sequences together</h3>\n<p><code>zip()</code> pairs up items from several sequences and hands them over one tuple at a time:</p>\n<pre><code>names = [\"Ada\", \"Alan\", \"Grace\"]\nscores = [91, 84, 97]\n\nfor name, score in zip(names, scores):\n    print(f\"{name}: {score}\")</code></pre>\n<p>The alternative is looping over an index and using it to reach into both lists, which is longer and offers two chances to get the bounds wrong. <code>zip</code> stops at the shortest input, so mismatched lengths silently truncate rather than raising — convenient when that is what you meant, and a quiet source of missing data when it is not. If the lengths must match, either check them first or pass <code>strict=True</code>, which raises instead.</p>\n<h3>Looping in a different order</h3>\n<p>Two built-ins change the order without touching the original sequence:</p>\n<pre><code>for n in reversed(numbers):\n    print(n)\n\nfor n in sorted(numbers):\n    print(n)\n\nfor n in sorted(numbers, reverse=True):\n    print(n)</code></pre>\n<p>Both return something new and leave the input alone, which matters because lists also have a <code>.sort()</code> method that rearranges in place and returns nothing. Writing <code>numbers = numbers.sort()</code> is a classic mistake — it sorts the list and then throws it away by assigning <code>None</code> over the name. When you want a sorted copy, use <code>sorted()</code>; when you want to rearrange what you have, use <code>.sort()</code> and do not assign the result.</p>\n<h3>Do the work once, not every pass</h3>\n<p>Everything inside a loop body runs on every pass, including work whose answer never changes. Moving that work above the loop is usually the single cheapest speed-up available:</p>\n<pre><code># the length is recomputed on every comparison\nfor i in range(len(items)):\n    ...\n\n# the multiplier is rebuilt on every pass\nfor value in values:\n    factor = compute_factor(config)\n    print(value * factor)</code></pre>\n<p>In the second case, if <code>compute_factor</code> does not depend on <code>value</code>, calling it once before the loop turns a thousand calls into one. This matters much more than micro-optimising the arithmetic inside, and it is easy to spot: look at each line of the body and ask whether it would produce the same answer on every iteration.</p>\n<h3>Index loops, and when they are justified</h3>\n<p>The habit brought from other languages is to loop over positions and index into the sequence:</p>\n<pre><code>for i in range(len(names)):\n    print(names[i])          # works, but noisy</code></pre>\n<p>In Python that is the long way round; iterate the sequence directly, or use <code>enumerate</code> when the position is genuinely needed. The index form does have legitimate uses: comparing an item with its neighbour, walking two positions at once from opposite ends, or writing back into the list at a specific slot. Those all need the number itself, and reaching for <code>range(len(...))</code> there is correct rather than clumsy.</p>\n<pre><code># comparing each item with the next one along\nfor i in range(len(values) - 1):\n    if values[i] &gt; values[i + 1]:\n        print(\"out of order at\", i)</code></pre>\n<p>Note the <code>- 1</code>. Looking one position ahead means the last index has no neighbour, and forgetting that is the most common off-by-one error in this shape of loop — it produces an IndexError on the final pass, every time, for every input.</p>\n<h3>The loop else clause</h3>\n<p>Both loops accept an <code>else</code> block, and its meaning is unusual: it runs when the loop finished normally, and is skipped when the loop was cut short by <code>break</code>. Read it as \"if we never broke out\".</p>\n<pre><code>for n in numbers:\n    if n == target:\n        print(\"found\")\n        break\nelse:\n    print(\"not found\")</code></pre>\n<p>This removes the usual <code>found = False</code> flag variable. It is a small feature, but search loops are common enough that it is worth recognising when you meet it in someone else's code.</p>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>Do not edit a list while looping over it</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p>Removing items from a list inside a <code>for</code> over that same list makes the loop skip elements, because the positions shift underneath it. Build a new list instead, or loop over a copy with <code>for item in items[:]</code>.</p></div></aside>"
+        },
+        { "type": "exercise", "ref": "fill-range" },
+        { "type": "exercise", "ref": "quiz-loop-choice" },
+        { "type": "exercise", "ref": "code-sum-evens" }
+      ],
+      "exercises": [
+        {
+          "ref": "fill-range",
+          "type": "fill_blanks",
+          "title": "Reading a range",
+          "config": {
+            "text": "range(2, 10, 3) produces the numbers 2, 5 and ___. The end value is always ___ from the result.",
+            "blanks": ["8", "excluded"]
+          }
+        },
+        {
+          "ref": "quiz-loop-choice",
+          "type": "quiz",
+          "title": "Picking the right loop",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "You must keep asking the user for a password until they get it right. Which loop fits?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "for, because there is a fixed number of attempts", "is_correct": false },
+                { "text": "while, because the number of repetitions is not known in advance", "is_correct": true },
+                { "text": "Either — they are interchangeable", "is_correct": false },
+                { "text": "Neither; this needs recursion", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "When does a loop's else block run?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Every time the loop ends", "is_correct": false },
+                { "text": "Only if the loop body never ran", "is_correct": false },
+                { "text": "Only if the loop finished without hitting break", "is_correct": true },
+                { "text": "Only if the loop hit break", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "code-sum-evens",
+          "type": "code_challenge",
+          "title": "Sum the even numbers",
+          "config": {
+            "language": "python",
+            "starter_code": "# Read one whole number n.\n# Print the sum of every even number from 1 to n inclusive.\n",
+            "solution_code": "n = int(input())\ntotal = 0\nfor i in range(2, n + 1, 2):\n    total += i\nprint(total)",
+            "time_limit_seconds": 5,
+            "memory_limit_mb": 128
+          },
+          "test_cases": [
+            { "input": "10", "expected_output": "30", "is_hidden": false },
+            { "input": "1", "expected_output": "0", "is_hidden": false },
+            { "input": "100", "expected_output": "2550", "is_hidden": true }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "nested-loops-and-patterns",
+      "title": "Nested loops and loop patterns",
+      "duration_minutes": 30,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>A loop inside a loop</h2>\n<p>Put one loop in the body of another and the inner one runs from the start, in full, on every single pass of the outer one. Three outer passes over four inner steps is twelve iterations, not seven.</p>\n<pre><code>for row in range(1, 4):\n    for col in range(1, 4):\n        print(row * col, end=\" \")\n    print()\n# 1 2 3\n# 2 4 6\n# 3 6 9</code></pre>\n<p>Notice the bare <code>print()</code> after the inner loop but inside the outer one. That is what ends each row. Move it one level out and the whole table lands on a single line; move it one level in and every number gets its own. Indentation here is not formatting — it decides the shape of the output.</p>\n<h3>The cost of nesting</h3>\n<p>Nested loops multiply. Two loops over the same thousand-item list is a million iterations; three is a billion, which is no longer something you wait for. You do not need formal complexity analysis to work with this — you need the habit of multiplying the sizes before you run the code. If the result has more digits than you are comfortable with, the approach needs rethinking rather than the code needing optimising.</p>\n<p>Often the fix is to replace an inner loop with a lookup. Searching a list inside a loop scans it from the beginning every time; doing the same against a set or dictionary is effectively instant. That single substitution turns many slow solutions into fast ones, and it is the most useful performance idea in this whole course.</p>\n<h3>The accumulator</h3>\n<p>Most loops that produce an answer follow the same shape: start with an empty result, update it once per item, use it after the loop.</p>\n<pre><code>total = 0\nfor n in numbers:\n    total += n</code></pre>\n<p>The starting value has to be the right kind of nothing — zero for a sum, one for a product, an empty list for a collection, and for a running maximum, either the first item or negative infinity. Starting a maximum at zero is a classic bug: feed it nothing but negative numbers and it confidently reports zero, a value that was never in the data.</p>\n<h3>Search with early exit</h3>\n<p>A search loop looks at items until it finds one, then stops:</p>\n<pre><code>found = None\nfor user in users:\n    if user[\"id\"] == wanted:\n        found = user\n        break</code></pre>\n<p>Two things matter here. The result is initialised <em>before</em> the loop, so it still exists if nothing matched — otherwise the name simply does not exist afterwards and the next line raises NameError. And <code>break</code> stops the scan, which on a long list is the difference between reading three items and reading all of them.</p>\n<h3>Counting and filtering</h3>\n<p>Counting is the accumulator with a condition attached:</p>\n<pre><code>evens = 0\nfor n in numbers:\n    if n % 2 == 0:\n        evens += 1</code></pre>\n<p>Filtering builds a new collection instead of a number:</p>\n<pre><code>positives = []\nfor n in numbers:\n    if n &gt; 0:\n        positives.append(n)</code></pre>\n<p>Both of these have shorter spellings you will meet in the next module. Learn the loop version first: the compact forms are the same idea folded up, and they are much harder to debug when you are not yet sure what the loop was supposed to do.</p>\n<h3>Two passes are often clearer than one</h3>\n<p>There is a pull towards computing everything in a single loop, on the theory that one pass must be better than two. It usually is not worth the tangle. A loop that maintains four accumulators and three flags is hard to read and harder to change; two straightforward loops over the same data cost twice as many iterations of something that was already cheap.</p>\n<pre><code>average = sum(scores) / len(scores)\nabove = [s for s in scores if s &gt; average]</code></pre>\n<p>This genuinely cannot be done in one pass anyway — the average is not known until every score has been seen. Reach for a single pass when the data is large enough that walking it twice actually costs something, or when it arrives as a stream you cannot rewind. For a list already sitting in memory, clarity wins.</p>\n<h3>Sentinels and flags</h3>\n<p>A flag is a boolean that records whether something happened, and it is the usual way to carry an answer out of a loop:</p>\n<pre><code>has_negative = False\nfor n in numbers:\n    if n &lt; 0:\n        has_negative = True\n        break</code></pre>\n<p>That exact pattern is what <code>any()</code> replaces, and where a built-in fits you should prefer it. Flags earn their place when the loop records something more detailed — which item, at which position, for what reason — or when several conditions are tracked at once.</p>\n<p>The related idea is a sentinel: a value chosen to mean \"nothing found yet\". <code>None</code> is the right choice almost always, because it cannot be confused with real data. Using <code>-1</code> or <code>0</code> as the sentinel works only until the day a legitimate value is <code>-1</code>, and then the bug is subtle and the code looks correct.</p>\n<h3>The loop you do not have to write</h3>\n<p>Several of the accumulator patterns already exist as built-in functions, and the built-in is faster as well as shorter:</p>\n<pre><code>total   = sum(numbers)\nbiggest = max(numbers)\nsmallest= min(numbers)\ncount   = len(numbers)</code></pre>\n<p>These are implemented in C, so they beat any equivalent Python loop, and they also handle the awkward starting-value question for you. There is one case they refuse: <code>max</code> and <code>min</code> on an empty sequence raise ValueError rather than inventing an answer. Supply a default when that is possible input — <code>max(numbers, default=0)</code> — which is both shorter and more explicit than wrapping the call in a length check.</p>\n<p><code>max</code> and <code>min</code> also take a <code>key</code> argument saying what to compare by, which replaces a whole hand-written scan:</p>\n<pre><code>longest = max(words, key=len)\nbest = max(students, key=lambda s: s[\"score\"])</code></pre>\n<p>Write the manual loop when you need something the built-in does not give you — the position of the maximum rather than its value, or several statistics in one pass. Otherwise the built-in wins on every axis.</p>\n<h3>Building a grid</h3>\n<p>Nested data needs nested loops, and building it has one trap worth knowing before you meet it in anger. The obvious way to make a grid of zeros is wrong:</p>\n<pre><code>grid = [[0] * 3] * 2      # DANGER\ngrid[0][0] = 9\nprint(grid)               # [[9, 0, 0], [9, 0, 0]]</code></pre>\n<p>Multiplying a list repeats the <em>reference</em>, not the contents. That grid holds one row listed twice, so writing into the first row writes into the second as well — they are the same object. The same trap appears anywhere a mutable value gets duplicated by repetition.</p>\n<p>Build each row separately instead, with a comprehension or a loop:</p>\n<pre><code>grid = [[0] * 3 for _ in range(2)]\ngrid[0][0] = 9\nprint(grid)               # [[9, 0, 0], [0, 0, 0]]</code></pre>\n<p>The inner <code>[0] * 3</code> is safe because integers cannot be modified in place — you can only replace them. It is the outer repetition of a mutable row that causes the problem. The underscore is a conventional name for a loop variable you do not intend to use.</p>\n<p>Walking a grid mirrors building it, with the outer loop over rows and the inner over columns:</p>\n<pre><code>for row in grid:\n    for cell in row:\n        print(cell, end=\" \")\n    print()</code></pre>\n<h3>Leaving both loops at once</h3>\n<p>Since <code>break</code> only leaves the loop it sits in, escaping a nested search takes one of two shapes. The first is a flag the outer loop checks:</p>\n<pre><code>found = False\nfor row in grid:\n    for cell in row:\n        if cell == target:\n            found = True\n            break\n    if found:\n        break</code></pre>\n<p>That works and is easy to get subtly wrong — forget the second <code>break</code> and the outer loop keeps scanning after the answer is known. The cleaner shape is to put the search in a function and <code>return</code>, which leaves everything at once no matter how deep the nesting goes. Functions arrive in the next module, and this is one of the reasons they are worth having.</p>\n<h3>Two positions at once</h3>\n<p>Some problems need to look at a sequence from both ends, moving inward. That calls for a <code>while</code> loop with two indices rather than a <code>for</code>:</p>\n<pre><code>left = 0\nright = len(word) - 1\nwhile left &lt; right:\n    if word[left] != word[right]:\n        print(\"not a palindrome\")\n        break\n    left += 1\n    right -= 1\nelse:\n    print(\"palindrome\")</code></pre>\n<p>Three details carry the whole loop. The condition is <code>&lt;</code> rather than <code>&lt;=</code>, so a middle character in an odd-length word is skipped — correctly, since it is its own mirror. Both indices move on every pass, and forgetting one gives an infinite loop. And <code>right</code> starts at <code>len(word) - 1</code>, because the last valid index is one less than the length.</p>\n<p>This particular problem has a one-line answer in Python — <code>word == word[::-1]</code> — but the two-pointer shape generalises to problems that have no slicing trick, such as merging two sorted lists or finding a pair that sums to a target.</p>\n<h3>Building strings</h3>\n<p>Growing a string with <code>+=</code> inside a loop works and is fine for a handful of pieces. It is quietly expensive at scale, because strings cannot be modified — every addition copies everything accumulated so far. Collect the pieces and join them once:</p>\n<pre><code>parts = []\nfor word in words:\n    parts.append(word.upper())\nprint(\" \".join(parts))</code></pre>\n<p><code>join</code> is a method on the separator, which reads backwards the first time you see it. The separator is the thing that knows how to put items together, so it owns the operation: <code>\", \".join(names)</code>.</p>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>break only leaves one loop</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p>Inside nested loops, <code>break</code> exits the loop it sits in and the outer one carries on. To leave both, either put the search in a function and <code>return</code>, or set a flag the outer loop checks. Python has no labelled break.</p></div></aside>"
+        },
+        { "type": "exercise", "ref": "quiz-nesting" },
+        { "type": "exercise", "ref": "code-times-table" }
+      ],
+      "exercises": [
+        {
+          "ref": "quiz-nesting",
+          "type": "quiz",
+          "title": "Nested loops and accumulators",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "An outer loop runs 5 times and contains an inner loop that runs 4 times. How many times does the inner body execute in total?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "9", "is_correct": false },
+                { "text": "20", "is_correct": true },
+                { "text": "5", "is_correct": false },
+                { "text": "4", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "You track a running maximum starting from 0 over a list of temperatures that are all below freezing. What goes wrong?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Nothing — 0 is a safe starting point", "is_correct": false },
+                { "text": "The answer is 0, a value that never appeared in the data", "is_correct": true },
+                { "text": "The loop raises a ValueError", "is_correct": false },
+                { "text": "The result is the smallest temperature", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "Inside two nested loops, what does a break in the inner loop do?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Leaves both loops", "is_correct": false },
+                { "text": "Leaves the inner loop only; the outer loop continues", "is_correct": true },
+                { "text": "Skips to the next inner iteration", "is_correct": false },
+                { "text": "Raises an error unless a label is given", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "code-times-table",
+          "type": "code_challenge",
+          "title": "Multiplication table",
+          "config": {
+            "language": "python",
+            "starter_code": "# Read one whole number n.\n# Print an n by n multiplication table.\n# Each row holds n numbers separated by single spaces, with no trailing space.\n",
+            "solution_code": "n = int(input())\nfor row in range(1, n + 1):\n    print(\" \".join(str(row * col) for col in range(1, n + 1)))",
+            "time_limit_seconds": 5,
+            "memory_limit_mb": 128
+          },
+          "test_cases": [
+            { "input": "3", "expected_output": "1 2 3\n2 4 6\n3 6 9", "is_hidden": false },
+            { "input": "1", "expected_output": "1", "is_hidden": false },
+            { "input": "4", "expected_output": "1 2 3 4\n2 4 6 8\n3 6 9 12\n4 8 12 16", "is_hidden": true }
+          ]
+        }
+      ]
+    }
+  ]
+}

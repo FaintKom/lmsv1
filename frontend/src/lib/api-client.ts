@@ -80,7 +80,14 @@ apiClient.interceptors.response.use(
  (error.response && RETRY_CODES.includes(error.response.status)) ||
  (!error.response && error.code === "ERR_NETWORK");
 
- if (isWakeError && (originalRequest._wakeRetryCount ?? 0) < MAX_WAKE_RETRIES) {
+ // Callers can opt out when a 429/502/503 is a real answer rather than a
+ // cold-start symptom. Retrying those spends the user's rate-limit quota and
+ // hides the actual message behind up to a minute of backoff.
+ if (
+  isWakeError &&
+  !originalRequest.skipWakeRetry &&
+  (originalRequest._wakeRetryCount ?? 0) < MAX_WAKE_RETRIES
+ ) {
  originalRequest._wakeRetryCount = (originalRequest._wakeRetryCount ?? 0) + 1;
  // Respect Retry-After header from 429 responses
  const retryAfter = error.response?.headers?.["retry-after"];

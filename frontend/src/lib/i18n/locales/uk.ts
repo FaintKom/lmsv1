@@ -1,6 +1,17 @@
 import type { TranslationMap } from "../meta";
 
 const uk: TranslationMap = {
+ "tutor.ask": "Запитати про урок",
+ "tutor.placeholder": "Що хочеться зрозуміти?",
+ "tutor.send": "Запитати",
+ "tutor.thinking": "Думаю…",
+ "tutor.error": "Щось пішло не так. Спробуйте ще раз.",
+ "tutor.unavailable": "Помічник тимчасово недоступний.",
+ "tutor.unconfigured": "Помічник з уроків ще не налаштований.",
+ "tutor.limitReached": "Денний ліміт запитань вичерпано.",
+ "tutor.noText": "У цьому уроці немає тексту, про який можна запитати.",
+ "tutor.disclaimer": "Відповідь ґрунтується на тексті уроку й може містити помилки.",
+ "tutor.close": "Закрити",
  "cookie.learnMore": "Докладніше",
  "theory.cfg.header": "Слайди теорії",
  "theory.cfg.pdfSub": "Завантажте .pdf — показується у браузерному перегляді",
