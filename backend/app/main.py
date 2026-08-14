@@ -79,6 +79,7 @@ from app.sites.router import router as sites_router
 from app.skills.router import router as skills_router
 from app.submissions.router import router as submissions_router
 from app.team_projects.router import router as team_projects_router
+from app.tutor.router import router as tutor_router
 from app.waitlist.router import router as waitlist_router
 from app.webhooks.router import router as webhooks_router
 
@@ -510,6 +511,7 @@ def create_app() -> FastAPI:
     app.include_router(export_router, prefix="/api/v1/courses", tags=["Course Export"])
     app.include_router(peer_review_router, prefix="/api/v1/peer-review", tags=["Peer Review"])
     app.include_router(team_projects_router, prefix="/api/v1/team-projects", tags=["Team Projects"])
+    app.include_router(tutor_router, prefix="/api/v1/tutor", tags=["Tutor"])
     app.include_router(recording_router, prefix="/api/v1/recordings", tags=["Recordings"])
     app.include_router(metered_billing_router, prefix="/api/v1/billing", tags=["Metered Billing"])
 

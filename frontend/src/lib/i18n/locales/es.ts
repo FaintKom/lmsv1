@@ -1,6 +1,17 @@
 import type { TranslationMap } from "../meta";
 
 const es: TranslationMap = {
+ "tutor.ask": "Pregunta sobre esta lección",
+ "tutor.placeholder": "¿Qué te gustaría entender?",
+ "tutor.send": "Preguntar",
+ "tutor.thinking": "Pensando…",
+ "tutor.error": "Algo salió mal. Inténtalo de nuevo.",
+ "tutor.unavailable": "El asistente no está disponible temporalmente.",
+ "tutor.unconfigured": "El asistente de lecciones aún no está configurado.",
+ "tutor.limitReached": "Has alcanzado el límite de preguntas de hoy.",
+ "tutor.noText": "Esta lección no tiene texto sobre el que preguntar.",
+ "tutor.disclaimer": "Las respuestas se basan en el texto de la lección y pueden contener errores.",
+ "tutor.close": "Cerrar",
  "cookie.learnMore": "Más información",
  "theory.cfg.header": "Diapositivas de teoría",
  "theory.cfg.pdfSub": "Sube un .pdf — se muestra en el visor del navegador",
