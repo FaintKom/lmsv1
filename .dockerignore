@@ -1,0 +1,49 @@
+# Root build context ignore.
+#
+# docker-compose.qa.yml builds the frontend with `context: .` so the image can
+# COPY both frontend/ and qa/exercise-fixtures.json. Docker reads .dockerignore
+# from the ROOT of the context, so frontend/.dockerignore was never consulted
+# for that build: .git, node_modules and .next all went to the daemon. Locally
+# that is ~2.9GB of context transfer before a single layer is built.
+#
+# Keep in step with frontend/.dockerignore and backend/.dockerignore — those
+# still apply to builds whose context is their own directory.
+
+.git/
+.github/
+.claude/
+
+# Dependencies and build output — reinstalled or rebuilt inside the image.
+**/node_modules/
+**/.next/
+**/.venv/
+**/venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/
+
+# Test and tooling artefacts.
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/.turbo/
+**/coverage/
+
+# Local-only material.
+**/.env
+**/.env.*
+!**/.env.example
+*.log
+*.bak*
+**/src.bak*
+backups/
+tools/
+
+# Docs and notes never affect a build.
+docs/
+tasks/
+marketing/
+*.md
+!README.md
