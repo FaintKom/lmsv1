@@ -82,6 +82,14 @@ export function LandingHeader() {
  <HeaderLocaleSwitcher />
  {/* Repeated in the hero. On a 390px screen these two are what push
      Get Started past the right edge, so they drop below sm. */}
+ {/* Pricing sits before Demo: a school owner opens the header looking
+     for a number, and finding it is what makes the demo worth a click.
+     Hidden below sm with the rest, for the reason noted above. */}
+ <Link href="/pricing" className="hidden sm:block">
+ <Button variant="ghost" size="sm">
+ {t("pricing.title")}
+ </Button>
+ </Link>
  <Link href="/demo?role=student" className="hidden sm:block">
  <Button variant="ghost" size="sm">
  {t("landing.ctaTryDemo")}

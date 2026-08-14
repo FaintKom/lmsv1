@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
  Terms of Service
  </h1>
  <p className="mb-8 text-sm text-text-muted ">
- Effective Date: March 31, 2026
+ Effective Date: August 14, 2026
  </p>
 
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
@@ -26,9 +26,9 @@ export default function TermsOfServicePage() {
  1. Acceptance of Terms
  </h2>
  <p>
- By accessing or using GrassLMS (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or
- &ldquo;our&rdquo;), you agree to be bound by these Terms of Service
- (&ldquo;Terms&rdquo;). If you are using GrassLMS on behalf of a school or organization,
+ GrassLMS is operated by Mario Rafael Becerra Duenias, a sole trader. By accessing or
+ using GrassLMS (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), you agree to
+ be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you are using GrassLMS on behalf of a school or organization,
  you represent that you have the authority to bind that organization to these Terms, and
  &ldquo;you&rdquo; refers to both you individually and the organization.
  </p>
@@ -51,16 +51,19 @@ export default function TermsOfServicePage() {
  </p>
  <p className="mt-2">The platform includes:</p>
  <ul className="mt-2 list-disc space-y-1 pl-5">
- <li>9 lesson types for diverse content delivery</li>
+ <li>10 lesson content types</li>
  <li>
- 11 interactive exercise formats including code editors, quizzes, and assignments
+ 26 exercise formats including code editors, quizzes, and assignments
  </li>
- <li>Support for 37 programming languages with sandboxed code execution</li>
- <li>An AI Tutor powered by a self-hosted language model for student assistance</li>
+ <li>
+ Sandboxed code execution in Python, JavaScript, Java, C++, and Go
+ </li>
+ <li>
+ An optional AI assistant that answers questions about the lesson being read
+ </li>
  <li>
  Gamification features including experience points, levels, streaks, and achievements
  </li>
- <li>SAT preparation materials and practice exercises</li>
  <li>Progress tracking, analytics, and reporting for teachers and administrators</li>
  </ul>
  <p className="mt-2">
@@ -201,9 +204,9 @@ export default function TermsOfServicePage() {
  7. Code Execution
  </h2>
  <p>
- GrassLMS provides a sandboxed code execution environment that supports 37 programming
- languages. This environment is provided &ldquo;as is&rdquo; for educational purposes
- only. We make no guarantees regarding the accuracy, completeness, or reliability of code
+ GrassLMS provides a sandboxed code execution environment that supports Python,
+ JavaScript, Java, C++, and Go. This environment is provided &ldquo;as is&rdquo; for
+ educational purposes only. We make no guarantees regarding the accuracy, completeness, or reliability of code
  execution results.
  </p>
  <p className="mt-2">
@@ -232,15 +235,19 @@ export default function TermsOfServicePage() {
  8. AI Tutor
  </h2>
  <p>
- GrassLMS includes an AI Tutor feature powered by a language model that is entirely
- self-hosted on our own servers. No student data, questions, code, or conversation content
- is sent to any external AI provider or third-party service.
+ GrassLMS includes an optional AI Tutor that answers questions about the lesson a student
+ is reading. It runs on a third-party language-model provider. When a student asks a
+ question, the text of that lesson and the question itself are sent to that provider over
+ the internet and are processed under the provider&rsquo;s own terms. Student names, email
+ addresses, grades and other account data are not sent. The feature is switched off unless
+ your organization enables it, and no request leaves the platform until a student asks
+ one.
  </p>
  <p className="mt-2">
- The AI Tutor uses the Socratic method to guide students through problems by asking
- leading questions rather than providing direct answers. It is designed to supplement, not
- replace, professional instruction from qualified teachers. The AI Tutor is not a
- substitute for human teaching, professional tutoring, or academic advising.
+ The AI Tutor answers from the content of the lesson in front of the student. It is
+ designed to supplement, not replace, professional instruction from qualified teachers.
+ The AI Tutor is not a substitute for human teaching, professional tutoring, or academic
+ advising.
  </p>
  <p className="mt-2">
  The AI Tutor may occasionally produce inaccurate, incomplete, or misleading information.
@@ -249,10 +256,10 @@ export default function TermsOfServicePage() {
  responses.
  </p>
  <p className="mt-2">
- AI Tutor conversations are processed in real time and are not stored long-term.
- Conversation data may be temporarily held in server memory during your session and is not
- retained after the session ends. The AI Tutor is subject to rate limiting to ensure fair
- usage across all users.
+ We do not store AI Tutor conversations. Questions and answers are held in server memory
+ for the length of the request and are not written to our database. What the
+ language-model provider retains is governed by that provider&rsquo;s own policy. The AI
+ Tutor is rate limited per user to keep usage fair and costs predictable.
  </p>
  </section>
 

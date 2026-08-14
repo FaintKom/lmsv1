@@ -239,9 +239,12 @@ export default function Home() {
             <span className="text-sm text-text-subtle">{t("landing.copyright")}</span>
             {/* All seven public pages, not the three that happened to be here. */}
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-text-subtle">
-              {/* No /pricing: next.config.ts redirects it to "/", so the link
-                  would just bounce back to this page. */}
+              {/* /pricing is a real page again (2026-08-14). It leads this
+                  list on purpose: it and /contact are the two links a school
+                  looks for, and the two a payment provider checks for. */}
               {[
+                { href: "/pricing", label: t("pricing.title") },
+                { href: "/contact", label: t("contact.title") },
                 { href: "/terms", label: t("landing.terms") },
                 { href: "/privacy", label: t("landing.privacy") },
                 { href: "/cookies", label: t("landing.cookies") },

@@ -13,10 +13,11 @@ import { expect, test } from "@playwright/test";
  * Deeper auth + course-flow tests go in separate spec files.
  */
 
-// The pricing page was retired from the product surface: next.config.ts
-// redirects /pricing -> / and the landing nav no longer links to it. The
-// "four tiers" test that used to sit here went with it — it only kept
-// passing against a stale build that still served the old page.
+// The pricing page is back (2026-08-14): the redirect to "/" is gone and
+// /pricing serves four plans again. The old "four tiers" test is still not
+// here on purpose — it read plan names out of the marketing copy while the
+// numbers live in billing/service.py. If that pairing needs a guard, assert
+// it against the API, not the page.
 test("landing page renders with core navigation", async ({ page }) => {
   await page.goto("/");
   // By href, not by label. These used to match on text, so renaming "Try Demo"

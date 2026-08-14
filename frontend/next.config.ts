@@ -4,7 +4,6 @@ const nextConfig: NextConfig = {
   output: "standalone",
   async redirects() {
     return [
-      { source: "/pricing", destination: "/", permanent: false },
       // SAT practice retired from the product surface (2026-08-02, owner
       // decision). The engine stays in components/sat/* and the store; only
       // the routes and nav entries are gone.
