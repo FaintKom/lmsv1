@@ -1,0 +1,252 @@
+{
+  "slug": "getting-started",
+  "title": "Getting started",
+  "order": 0,
+  "lessons": [
+    {
+      "slug": "how-python-runs-your-code",
+      "title": "How Python runs your code",
+      "duration_minutes": 30,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>A language and a program that reads it</h2>\n<p>When people say \"Python\", they mean two things at once. One is the language: a set of rules about what counts as a valid instruction, what words are reserved, how a block of code is marked off. The other is the interpreter: an actual program installed on your machine, usually called <code>python</code> or <code>python3</code>, whose job is to read those instructions and carry them out.</p>\n<p>That second part matters more than beginners expect. Your program does not become a standalone application when you save it. It stays a text file. Something has to read that file and act on it, and that something is the interpreter. If a colleague has no interpreter installed, your file is just text to them — the way sheet music is just paper to someone with no instrument.</p>\n<p>This also explains why \"which Python do I have\" is a real question with a real answer. Different machines have different versions installed, and a feature added in one version simply does not exist in an older one. You can always ask:</p>\n<pre><code>python --version\n# Python 3.12.1</code></pre>\n<p>The first number is the language generation and has not changed in over a decade. The second is the one that matters day to day: 3.10 introduced structural pattern matching, 3.8 introduced the walrus operator, and code using either will fail outright on anything older. When a snippet from the internet raises a syntax error on a line that looks perfectly reasonable, the version is the first thing to check.</p>\n<h3>Compiled, interpreted, and the truth in between</h3>\n<p>Python is usually described as an interpreted language, in contrast to compiled ones like C. The distinction is real but the popular version of it is too tidy. Before running anything, Python translates your source into a compact intermediate form called bytecode — a sequence of simple operations for a virtual machine. That virtual machine then executes the bytecode.</p>\n<p>So there is a compilation step; it just happens automatically, every time, and produces something for Python's own machine rather than for your processor. You can see the evidence: after importing a module, a <code>__pycache__</code> directory appears next to it holding <code>.pyc</code> files. Those are cached bytecode, kept so the translation does not have to be repeated. They are generated files. Never edit them, never commit them, and never worry when they appear.</p>\n<p>The practical consequence of this design is the trade-off you will feel constantly. Python does not need a separate build step, which makes the edit-run-look cycle very fast. It also does most of its checking while running rather than before, which means a misspelled name on a rarely-taken branch can sit undetected for months and then break in production. Languages that compile ahead of time catch that class of mistake before the program ever starts. Neither approach is better in the abstract; they trade different things.</p>\n<h3>Two ways to run code</h3>\n<p>The first is the <strong>REPL</strong> — read, evaluate, print, loop. You type one line, press Enter, and see the result immediately. It is a conversation. Start it by running <code>python</code> with no filename, and you get a prompt made of three angle brackets:</p>\n<pre><code>&gt;&gt;&gt; 2 + 2\n4\n&gt;&gt;&gt; \"hello\".upper()\n'HELLO'\n&gt;&gt;&gt; len(\"hello\")\n5</code></pre>\n<p>Notice that nothing here calls <code>print</code>. The REPL echoes the value of whatever you type. That is the loop's P: it prints, automatically, so you never have to ask.</p>\n<p>The REPL is where you check a hunch. Does this method exist? What exactly does <code>split</code> return when the string is empty? Is this expression true for negative numbers? Answering those by editing a file, saving, and re-running is slow; answering them in the REPL takes seconds. Experienced programmers keep one open constantly, and beginners who discover this habit early progress noticeably faster.</p>\n<p>The second way is a <strong>script</strong>: a file, say <code>solve.py</code>, that you hand to the interpreter all at once.</p>\n<pre><code>python solve.py</code></pre>\n<p>Here nothing prints unless you ask it to. The REPL echoes every result back at you; a script stays silent until it reaches a <code>print()</code>. This trips up almost everyone once — you write a file full of correct calculations, run it, and get nothing at all, because you never asked it to speak. The calculations happened. Their results went nowhere and were discarded when the program ended.</p>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>Do not name a file after something you import</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p>Save a file as <code>random.py</code> and any later <code>import random</code> finds <em>your</em> file instead of the standard library module, because the current directory is searched first. The error that follows mentions a missing attribute and never mentions the filename. The same goes for <code>math.py</code>, <code>json.py</code>, and <code>string.py</code>.</p></div></aside>\n<h3>Top to bottom, one line at a time</h3>\n<p>The interpreter starts at the first line and works down. Nothing runs ahead of schedule, and nothing runs twice unless you tell it to. Order is not a stylistic preference here — it is the whole execution model. If you use a name on line 3 that you only define on line 7, line 3 fails, because at that moment the name genuinely does not exist yet.</p>\n<pre><code>print(greeting)      # NameError: name 'greeting' is not defined\ngreeting = \"hi\"</code></pre>\n<p>Every statement can change the state of the program, and every later statement sees the result. Reading unfamiliar code means walking it in the same order the interpreter will, keeping a rough mental note of what each name currently holds. When a program surprises you, the fastest diagnostic is usually to make that mental note explicit — put a <code>print</code> on the line before the surprise and look at what is actually there rather than what you assumed.</p>\n<h3>Two kinds of broken</h3>\n<p>It is worth separating the two ways a program can fail, because they need different fixes and they happen at different moments.</p>\n<p>A <strong>syntax error</strong> means the interpreter could not even understand the instruction — a missing colon, an unclosed bracket, a stray quote. Nothing runs at all, not even the correct lines above the mistake. The whole file is parsed before any of it executes, so a typo on the last line prevents the first line from running.</p>\n<pre><code>if x &gt; 5\n    print(\"big\")\n# SyntaxError: expected ':'</code></pre>\n<p>Syntax errors are the friendly kind. They are found before anything happens, they cannot corrupt data, and the report includes a line number. One habit is worth forming immediately: when the reported line looks perfectly fine, check the line <em>above</em> it. An unclosed bracket makes the interpreter keep reading, hoping to find the closing one, and it only gives up somewhere further down.</p>\n<pre><code>total = (1 + 2\nprint(total)\n# The error points at the print, but the bracket on the line above is the cause.</code></pre>\n<p>A <strong>runtime error</strong> means the instruction made sense but could not be carried out with the values it got. Dividing by zero, adding a number to a word, opening a file that is not there, indexing past the end of a list. Here the lines before the failure did run, and their effects stuck — files were written, values were changed.</p>\n<pre><code>total = 10\nprint(total / 0)\n# ZeroDivisionError: division by zero</code></pre>\n<p>There is a third category that no interpreter can help with: the program runs to completion and produces a confidently wrong answer. No error, no warning, just a number that is not the number you wanted. Those are found by checking results against cases you already know, which is why the exercises in this course give you expected outputs to compare against.</p>\n<h3>Reading a traceback</h3>\n<p>When a runtime error happens, Python prints a traceback. It looks intimidating and is actually a straightforward story told in the wrong direction for beginners:</p>\n<pre><code>Traceback (most recent call last):\n  File \"solve.py\", line 12, in &lt;module&gt;\n    result = average(scores)\n  File \"solve.py\", line 7, in average\n    return total / len(values)\nZeroDivisionError: division by zero</code></pre>\n<p>Read it bottom-up. The last line is the error type and message — the actual problem. Directly above it is the line where the failure happened, line 7. Above that is who called that code, line 12. The chain grows downward as calls get deeper, so the deepest and most specific frame is always at the bottom, just above the message.</p>\n<p>Beginners tend to start at the top and drown in file paths. Start at the bottom instead: read the error type, read the message, look at the line right above it. Only if that line looks innocent do you walk upward to find out who handed it bad values. In this example the division is not really the bug — the bug is whoever called <code>average</code> with an empty list, and that is on line 12.</p>\n<h3>Indentation is syntax</h3>\n<p>Most languages mark blocks with braces and treat indentation as decoration for humans. Python does the opposite: the indentation <em>is</em> the block. Lines indented under an <code>if</code> belong to that <code>if</code>; the first line back at the outer level is outside it. This is why a misaligned line changes behaviour rather than just looking untidy.</p>\n<pre><code>if temperature &gt; 30:\n    print(\"hot\")\n    print(\"drink water\")   # inside the if\nprint(\"done\")              # always runs</code></pre>\n<p>Move that last line four spaces to the right and \"done\" stops appearing on cold days. Nothing about the program's appearance suggests a bug; the indentation is the instruction.</p>\n<p>The convention is four spaces per level. What matters far more than the number is consistency: never mix tabs and spaces in one file. They can look identical on screen and be completely different characters, and Python will refuse to run a file where the two are mixed ambiguously. Configure your editor to insert spaces when you press Tab and the problem disappears permanently.</p>\n<h3>Comments</h3>\n<p>Everything after a <code>#</code> on a line is ignored by the interpreter, all the way to the end of the line.</p>\n<pre><code># Convert to the units the report expects.\ndistance_km = distance_miles * 1.609</code></pre>\n<p>Good comments explain <em>why</em>, because the code already says what. <code>distance_km = distance_miles * 1.609  # multiply by 1.609</code> adds nothing; a note explaining which report demands kilometres is genuinely useful six months later. The best comment is often the one you did not need to write because the names said it already.</p>"
+        },
+        { "type": "exercise", "ref": "quiz-execution-model" },
+        { "type": "exercise", "ref": "tf-indentation" }
+      ],
+      "exercises": [
+        {
+          "ref": "quiz-execution-model",
+          "type": "quiz",
+          "title": "How code gets executed",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "You run a script that calculates a total correctly but prints nothing. What is the most likely cause?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "The calculation silently failed", "is_correct": false },
+                { "text": "The script never calls print() — unlike the REPL, a script does not echo results", "is_correct": true },
+                { "text": "The interpreter needs to be restarted", "is_correct": false },
+                { "text": "Scripts can only print strings, not numbers", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "A file has valid code on lines 1-20 and a missing colon on line 21. What happens when you run it?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Lines 1-20 run, then it stops with an error", "is_correct": false },
+                { "text": "Nothing runs — the whole file is parsed before any of it executes", "is_correct": true },
+                { "text": "The whole file runs and line 21 is skipped", "is_correct": false },
+                { "text": "It depends on whether line 21 was ever reached", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "Which of these fails at runtime rather than being rejected as a syntax error?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "print(\"hi\"", "is_correct": false },
+                { "text": "if x > 5 print(x)", "is_correct": false },
+                { "text": "int(\"twelve\")", "is_correct": true },
+                { "text": "def f(:", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "In a traceback, where is the most specific information about what went wrong?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "The first line, which names the file", "is_correct": false },
+                { "text": "The last line, which gives the error type and message", "is_correct": true },
+                { "text": "The middle, where the call chain is listed", "is_correct": false },
+                { "text": "It varies by error type", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "tf-indentation",
+          "type": "true_false",
+          "title": "Indentation check",
+          "config": {
+            "statement": "In Python, indenting a line differently can change what the program does, not just how it looks.",
+            "correct_answer": true
+          }
+        }
+      ]
+    },
+    {
+      "slug": "values-variables-and-input",
+      "title": "Values, variables, and talking to the user",
+      "duration_minutes": 30,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>Names point at values</h2>\n<p>A variable in Python is not a box you put a value into. It is a name attached to a value that already exists somewhere in memory. The difference sounds academic until two names point at the same thing, at which point it explains behaviour that is otherwise baffling.</p>\n<pre><code>count = 5\ntotal = count\ncount = 9\nprint(total)   # 5</code></pre>\n<p>Here <code>total</code> was pointed at the value <code>5</code>. Re-pointing <code>count</code> at <code>9</code> later does not drag <code>total</code> along, because <code>total</code> was never linked to <code>count</code> — it was linked to the value <code>count</code> happened to be holding at that moment. The assignment copied the arrow, not the variable.</p>\n<p>Python will show you the identity of the object behind a name with <code>id()</code>, which returns a number unique to that object while it lives:</p>\n<pre><code>a = [1, 2, 3]\nb = a\nprint(id(a) == id(b))   # True — one list, two names\nb.append(4)\nprint(a)                # [1, 2, 3, 4]</code></pre>\n<p>Nothing was assigned to <code>a</code> on the third line, and yet <code>a</code> changed. That is the whole point: there was only ever one list. This is harmless with numbers and strings, which cannot be modified in place, and is a genuine source of bugs with lists and dictionaries, which can. We will come back to it properly when we meet those types.</p>\n<h3>Assignment, several at a time</h3>\n<p>Python allows assigning several names in one statement, which is more than a space-saving trick:</p>\n<pre><code>x, y = 3, 4\nfirst, second, third = \"abc\"</code></pre>\n<p>The right-hand side is fully evaluated before anything is assigned, which makes swapping trivial and safe — no temporary variable, and no risk of overwriting one value before you have read it:</p>\n<pre><code>a, b = b, a</code></pre>\n<p>In most languages that line loses one of the values. In Python the pair on the right is built first, then unpacked into the names on the left. The count has to match, though: unpacking three values into two names raises a ValueError, and the message tells you exactly how many it expected.</p>\n<h3>Types come from values, not declarations</h3>\n<p>You never announce that a name will hold a number. The value carries its own type, and the name simply refers to it. The same name can refer to a number now and a string later, and Python will not object.</p>\n<pre><code>x = 42\nprint(type(x))     # &lt;class 'int'&gt;\nx = \"forty-two\"\nprint(type(x))     # &lt;class 'str'&gt;</code></pre>\n<p>This is called dynamic typing, and the trade is the familiar one. It removes ceremony and makes short programs very quick to write. It also means a name holding the wrong kind of value is discovered when something tries to use it, which may be much later and somewhere else entirely. Larger Python codebases claw some of that back with type hints — annotations that tools check but the interpreter ignores — but the runtime behaviour never changes.</p>\n<p>The four types you will meet in the first hour:</p>\n<ul>\n<li><code>int</code> — whole numbers, of any size. Python does not overflow at 32 or 64 bits; a factorial of 500 is computed exactly, limited only by memory.</li>\n<li><code>float</code> — numbers with a decimal point, stored approximately in binary.</li>\n<li><code>str</code> — text, in single or double quotes; the choice is yours as long as you close with what you opened.</li>\n<li><code>bool</code> — <code>True</code> or <code>False</code>, capitalised. Internally these behave as 1 and 0, so <code>True + True</code> is 2, which is occasionally useful for counting.</li>\n</ul>\n<p>There is a fifth value worth meeting now: <code>None</code>. It represents the deliberate absence of a value — not zero, not empty text, but nothing at all. Functions that are not asked to produce anything return <code>None</code>, and it is the conventional starting value for a name that will be filled in later.</p>\n<h3>Naming things</h3>\n<p>Names may contain letters, digits and underscores, and may not start with a digit. They are case-sensitive: <code>total</code> and <code>Total</code> are unrelated. The convention is <code>lower_case_with_underscores</code> for variables and functions, and <code>UPPER_CASE</code> for values that are meant to stay fixed.</p>\n<p>That much is style. What is not style: do not reuse the name of something built in. Writing <code>list = [1, 2, 3]</code> works fine, and then <code>list(\"abc\")</code> fails three screens later with a message that mentions none of this. The usual victims are <code>list</code>, <code>dict</code>, <code>str</code>, <code>id</code>, <code>sum</code>, <code>max</code>, <code>min</code>, <code>type</code> and <code>input</code>. Add a suffix instead — <code>items_list</code>, <code>user_input</code> — and the problem never arises.</p>\n<p>Beyond the rules, names are the main tool you have for making a program readable. <code>d</code> tells the reader nothing; <code>days_since_signup</code> tells them everything and costs a few keystrokes once. Short names are defensible only where the scope is tiny and the meaning is obvious, such as <code>i</code> for a loop counter or <code>x</code> and <code>y</code> for coordinates.</p>\n<h3>Getting input</h3>\n<p><code>input()</code> shows a prompt, waits for the user to type something and press Enter, and hands back what they typed. Always as text. Even if they type digits, you get a string of digits.</p>\n<pre><code>age = input(\"How old are you? \")\nprint(age + 1)   # TypeError: can only concatenate str (not \"int\") to str</code></pre>\n<p>This is the single most common first bug in Python, and the error message is unusually helpful about it. The fix is to convert explicitly:</p>\n<pre><code>age = int(input(\"How old are you? \"))\nprint(age + 1)   # works</code></pre>\n<p>Conversion functions are named after the types they produce: <code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>. They are strict about what they accept. <code>int(\"12\")</code> is 12, but <code>int(\"twelve\")</code> and even <code>int(\"12.5\")</code> both raise ValueError — the second because it is a valid float, not a valid integer. If you want to truncate a decimal, convert to float first and then to int: <code>int(float(\"12.5\"))</code> gives 12.</p>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>Convert at the edge</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p>Convert input the moment it arrives, not later where you use it. If a name holds a number everywhere below line 3, you never have to remember whether this particular one is still text. Conversions scattered through the body of a program are a reliable sign that nobody is sure what type anything is.</p></div></aside>\n<h3>Chained assignment and constants</h3>\n<p>One value can be given to several names at once, which is occasionally useful for initialising counters:</p>\n<pre><code>wins = losses = draws = 0</code></pre>\n<p>Be careful with this when the value is a mutable object such as a list. <code>a = b = []</code> creates <em>one</em> list with two names pointing at it, so appending through <code>a</code> changes what <code>b</code> sees. For numbers and strings the distinction never bites, because they cannot be modified in place; for containers it is a classic source of confusion.</p>\n<p>Python has no way to mark a name as unchangeable. The convention is to write names in capitals to signal intent to human readers:</p>\n<pre><code>MAX_ATTEMPTS = 3\nTAX_RATE = 0.21</code></pre>\n<p>Nothing stops you reassigning those, and the interpreter will not complain. The value of the convention is entirely social — it tells the next reader that this is a setting rather than a working variable. It also removes what are sometimes called magic numbers: a bare <code>3</code> buried in the middle of a condition tells nobody what it means, whereas <code>MAX_ATTEMPTS</code> explains itself and can be changed in one place.</p>\n<h3>When conversion fails</h3>\n<p>Converting text to a number is the first place a program meets input it did not expect. Users type words where digits belong, leave fields empty, or paste a value with a stray space. <code>int(\"\")</code> and <code>int(\"abc\")</code> both raise ValueError, and an unhandled ValueError ends the program.</p>\n<p>You will see the proper treatment — <code>try</code> and <code>except</code> — in the module on error handling. Until then, know that the failure is loud rather than silent, which is the useful behaviour. A language that quietly turned <code>\"abc\"</code> into zero would let a typo travel silently into a report and be discovered a week later by someone who does not know where it came from.</p>\n<p>One thing you can do now is normalise before converting. <code>int(\"  42  \".strip())</code> handles stray spaces, and <code>float(\"3,14\".replace(\",\", \".\"))</code> handles a decimal comma. Cleaning input at the point it arrives is cheaper than discovering the problem downstream.</p>\n<h3>Deleting names</h3>\n<p><code>del</code> removes a name. It does not directly destroy the value — the value goes away when nothing refers to it any more, which Python handles for you.</p>\n<pre><code>x = 5\ndel x\nprint(x)   # NameError: name 'x' is not defined</code></pre>\n<p>You will rarely need this. It appears here mostly to reinforce the mental model: names and values are separate things, and removing a name is not the same as removing what it pointed at. Memory management is automatic in Python — objects with no remaining references are reclaimed without you asking.</p>\n<h3>Printing</h3>\n<p><code>print()</code> accepts several values, separates them with a space, and ends with a newline. Both of those behaviours are adjustable:</p>\n<pre><code>print(\"a\", \"b\", \"c\")              # a b c\nprint(\"a\", \"b\", sep=\"-\")          # a-b\nprint(\"loading\", end=\"...\")       # no newline at the end\nprint(1, \"two\", 3.0, True)        # 1 two 3.0 True</code></pre>\n<p>Unlike <code>+</code>, <code>print()</code> does not care about types — it converts everything to text on the way out. <code>print(\"age:\", 30)</code> is fine; <code>\"age:\" + 30</code> is not. When you want a number inside a sentence, either hand both to <code>print</code> separately or build the text with an f-string:</p>\n<pre><code>name = \"Ada\"\nitems = 3\nprint(f\"{name} has {items} items\")</code></pre>\n<p>An f-string is a string with an <code>f</code> before the opening quote; anything in braces is evaluated and dropped into place. We will use these constantly, and the next lesson covers their formatting options in detail.</p>\n<h3>Reading several values at once</h3>\n<p>When a task feeds you two numbers on one line, read the line once and split it:</p>\n<pre><code>a, b = input().split()\na, b = int(a), int(b)\nprint(a + b)</code></pre>\n<p><code>split()</code> with no argument breaks on any run of whitespace and ignores leading and trailing spaces, which is exactly what you want for hand-typed input. Given a separator, it splits on precisely that: <code>\"a,b,,c\".split(\",\")</code> gives four pieces, one of them empty, because two commas in a row genuinely delimit an empty field.</p>\n<p>The conversion step has a shorter spelling that you will see everywhere:</p>\n<pre><code>a, b = map(int, input().split())</code></pre>\n<p><code>map</code> applies a function to every item of a sequence. Read it as \"int each of these\". For an unknown number of values, collect them into a list instead:</p>\n<pre><code>numbers = [int(n) for n in input().split()]</code></pre>\n<p>That bracket form is a list comprehension, covered properly in the collections module. For now, treat it as the standard way to turn a line of text into a list of numbers.</p>"
+        },
+        { "type": "exercise", "ref": "fill-input-types" },
+        { "type": "exercise", "ref": "quiz-names-and-values" },
+        { "type": "exercise", "ref": "code-sum-two" }
+      ],
+      "exercises": [
+        {
+          "ref": "fill-input-types",
+          "type": "fill_blanks",
+          "title": "What input() gives you",
+          "config": {
+            "text": "input() always returns a value of type ___, so to do arithmetic on it you must first convert it with a function such as ___.",
+            "blanks": ["str", "int"]
+          }
+        },
+        {
+          "ref": "quiz-names-and-values",
+          "type": "quiz",
+          "title": "Names, values and conversion",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "After a = 5; b = a; a = 9, what is b?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "9, because b follows a", "is_correct": false },
+                { "text": "5, because b was pointed at the value a held at the time", "is_correct": true },
+                { "text": "None", "is_correct": false },
+                { "text": "It raises an error", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "What does int(\"12.5\") do?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Returns 12", "is_correct": false },
+                { "text": "Returns 13", "is_correct": false },
+                { "text": "Raises ValueError — the text is a valid float, not a valid integer", "is_correct": true },
+                { "text": "Returns 12.5", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "Why is `list = [1, 2, 3]` a bad idea?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "It is a syntax error", "is_correct": false },
+                { "text": "It shadows the built-in list, so calling list(...) later fails with a confusing message", "is_correct": true },
+                { "text": "Lists cannot be assigned to names", "is_correct": false },
+                { "text": "It works but is slower", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "code-sum-two",
+          "type": "code_challenge",
+          "title": "Add two numbers",
+          "config": {
+            "language": "python",
+            "starter_code": "# Read two whole numbers from one line and print their sum.\n",
+            "solution_code": "a, b = map(int, input().split())\nprint(a + b)",
+            "time_limit_seconds": 5,
+            "memory_limit_mb": 128
+          },
+          "test_cases": [
+            { "input": "2 3", "expected_output": "5", "is_hidden": false },
+            { "input": "-4 10", "expected_output": "6", "is_hidden": false },
+            { "input": "1000000 2000000", "expected_output": "3000000", "is_hidden": true }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "numbers-strings-formatting",
+      "title": "Numbers, strings, and formatting",
+      "duration_minutes": 35,
+      "blocks": [
+        {
+          "type": "text",
+          "page": 1,
+          "body": "<h2>Integers without limits</h2>\n<p>Python integers have no maximum. In most languages an <code>int</code> is a fixed number of bits and overflows silently or wraps around when you exceed it; Python grows the number instead, using as much memory as it needs.</p>\n<pre><code>print(2 ** 200)\n# 1606938044258990275541962092341162602522202993782792835301376</code></pre>\n<p>This removes a whole category of bugs — no overflow checks, no worrying whether a total will fit — at the cost of arithmetic on huge numbers being slower than the fixed-width kind. For everyday sizes the difference is invisible.</p>\n<h3>Two kinds of division</h3>\n<p>Python gives you two division operators, and picking the wrong one is a quiet source of wrong answers.</p>\n<pre><code>print(7 / 2)    # 3.5   true division, always a float\nprint(7 // 2)   # 3     floor division, rounds down\nprint(7 % 2)    # 1     remainder\nprint(2 ** 10)  # 1024  power</code></pre>\n<p>Note that <code>/</code> returns a float even when the division comes out even: <code>4 / 2</code> is <code>2.0</code>, not <code>2</code>. If you need a whole number — as an index, a count, or anything that will be printed without a decimal point — say so with <code>//</code>.</p>\n<p>Floor division rounds <em>down</em>, not toward zero, which shows up with negatives: <code>-7 // 2</code> is <code>-4</code>, not <code>-3</code>. The remainder follows the same rule, so <code>-7 % 2</code> is <code>1</code> and never negative for a positive divisor. This pairing is deliberate — the two always satisfy <code>a == (a // b) * b + (a % b)</code> — and it makes the remainder directly usable for cyclic things like days of the week, where a negative result would be useless.</p>\n<p>The remainder operator earns its keep in three everyday jobs: testing divisibility with <code>n % 2 == 0</code>, extracting the last digit with <code>n % 10</code>, and wrapping a value into a range with <code>index % length</code>.</p>\n<h3>Floats are approximate</h3>\n<p>Decimal fractions are stored in binary, and most of them do not fit exactly, in the same way that one third does not fit in a finite decimal. So:</p>\n<pre><code>print(0.1 + 0.2)          # 0.30000000000000004\nprint(0.1 + 0.2 == 0.3)   # False</code></pre>\n<p>This is not a Python quirk; it is how floating point works in every language that uses the hardware's floating point unit, which is nearly all of them. The number 0.1 has no exact binary representation, so what gets stored is the nearest value that does, and the tiny discrepancies accumulate.</p>\n<p>Two practical rules follow. Never compare floats with <code>==</code>; compare with a tolerance instead:</p>\n<pre><code>print(abs((0.1 + 0.2) - 0.3) &lt; 1e-9)   # True</code></pre>\n<p>And never store money as a float. Fractions of a cent that vanish in one calculation reappear as a discrepancy in a report, and accountants notice. Store amounts as whole cents in an <code>int</code>, or use the <code>decimal</code> module, which does base-ten arithmetic exactly at the cost of speed.</p>\n<p><code>round()</code> exists and has one surprise worth knowing: it rounds halves to the nearest <em>even</em> number, so <code>round(0.5)</code> is 0 and <code>round(1.5)</code> is 2. This is deliberate — it avoids the upward bias you get from always rounding halves up — and it is what statisticians expect, even though it looks wrong the first time.</p>\n<h3>Augmented assignment and precedence</h3>\n<p>Updating a value in terms of itself has a short form:</p>\n<pre><code>total = 0\ntotal += 5     # same as total = total + 5\ntotal *= 2\ntotal -= 3</code></pre>\n<p>These read better in loops and are the conventional spelling. Operator precedence follows normal mathematics: power binds tightest, then multiplication and division, then addition and subtraction, with comparisons below all of them. When a formula gets long enough that you have to think about it, add brackets. They cost nothing and remove the doubt for the next reader — who may well be you.</p>\n<h3>Strings are sequences</h3>\n<p>A string is an ordered sequence of characters. You can ask its length, index into it from zero, and index backwards with negative numbers:</p>\n<pre><code>word = \"python\"\nprint(word[0])    # p\nprint(word[-1])   # n\nprint(len(word))  # 6</code></pre>\n<p>Negative indexing is genuinely convenient: <code>word[-1]</code> is the last character without computing <code>len(word) - 1</code> first. Reading past the end raises IndexError rather than returning an empty value, which is a deliberate choice — it turns a silent wrong answer into a loud failure at the point of the mistake.</p>\n<p>Slicing takes a range, including the start and excluding the end. That exclusive end is what makes <code>word[0:3]</code> and <code>word[3:6]</code> fit together without overlap or gap:</p>\n<pre><code>print(word[0:3])   # pyt\nprint(word[3:])    # hon   (to the end)\nprint(word[:2])    # py    (from the start)\nprint(word[::2])   # pto   (every second character)\nprint(word[::-1])  # nohtyp   (step of -1 reverses)</code></pre>\n<p>Unlike indexing, slicing never raises for out-of-range positions; it just gives you what exists. <code>word[0:100]</code> returns the whole string. This is forgiving in the way that removes bugs when trimming text of unknown length.</p>\n<h3>Strings do not change</h3>\n<p>Strings are <strong>immutable</strong>. Every method that looks like it edits a string actually returns a new one and leaves the original alone:</p>\n<pre><code>name = \"  Ada  \"\nname.strip()          # returns \"Ada\"\nprint(name)           # \"  Ada  \" — unchanged\nname = name.strip()   # this is how you keep the result</code></pre>\n<p>Forgetting to assign the result is a common early mistake, and it fails silently: no error, no effect, and a puzzling value later. If a string method appears on a line by itself, that line does nothing at all.</p>\n<p>The methods worth knowing on day one:</p>\n<ul>\n<li><code>strip()</code> — remove whitespace from both ends; <code>lstrip()</code> and <code>rstrip()</code> do one side</li>\n<li><code>lower()</code> and <code>upper()</code> — case conversion, the usual way to compare text case-insensitively</li>\n<li><code>replace(old, new)</code> — every occurrence, not just the first</li>\n<li><code>split(sep)</code> — break into a list; <code>join(parts)</code> — put a list back together</li>\n<li><code>startswith(prefix)</code> and <code>endswith(suffix)</code> — cleaner than slicing for prefix checks</li>\n<li><code>find(sub)</code> — position, or -1 if absent; <code>index(sub)</code> is the same but raises instead</li>\n<li><code>count(sub)</code> — how many non-overlapping occurrences</li>\n</ul>\n<p>To test whether text appears at all, no method is needed — <code>in</code> does it, and reads better: <code>if \"error\" in line:</code>.</p>\n<h3>Comparing text</h3>\n<p>Strings compare with the same operators as numbers, and the ordering is by character codes, one position at a time. That means uppercase sorts before lowercase, because capital letters have lower codes:</p>\n<pre><code>print(\"apple\" &lt; \"banana\")   # True\nprint(\"Zoe\" &lt; \"adam\")       # True — 'Z' comes before 'a'</code></pre>\n<p>For anything a human will look at, compare in a single case: <code>a.lower() == b.lower()</code>. Sorting a list of names without doing this produces the classic result where every capitalised name sorts above every lowercase one, which nobody expects and everybody reports as a bug.</p>\n<h3>Building and repeating strings</h3>\n<p><code>+</code> joins strings and <code>*</code> repeats them, which is handy for separators and simple layout:</p>\n<pre><code>print(\"-\" * 40)\nprint(\"ab\" + \"cd\")     # abcd\nprint(\"ha\" * 3)        # hahaha</code></pre>\n<p>Both operands of <code>+</code> must be strings. Mixing in a number raises TypeError, and the fix is either <code>str(n)</code> or, better, an f-string.</p>\n<h3>Asking what a string contains</h3>\n<p>A family of methods answers yes-or-no questions about the characters:</p>\n<pre><code>print(\"42\".isdigit())      # True\nprint(\"abc\".isalpha())     # True\nprint(\"a1\".isalnum())      # True\nprint(\"   \".isspace())     # True</code></pre>\n<p><code>isdigit()</code> is the usual way to check whether text can safely be converted to an integer, with one caveat worth knowing: it rejects a leading minus sign, so <code>\"-5\".isdigit()</code> is False. For negative numbers you need a slightly more careful check, or the <code>try</code> approach covered later.</p>\n<h3>Characters are not bytes</h3>\n<p>Python strings hold characters, not bytes, and any character exists — accented letters, other alphabets, emoji. <code>len(\"café\")</code> is 4, as a reader would expect, even though storing that text takes five bytes in UTF-8.</p>\n<p>Two functions convert between a character and its numeric code:</p>\n<pre><code>print(ord(\"A\"))    # 65\nprint(chr(97))     # a</code></pre>\n<p>Those codes are what makes the alphabet-shifting exercises possible, and they are also why <code>\"Z\" &lt; \"a\"</code>. You will meet bytes properly when reading files, where the encoding of the file has to be stated; for now the useful fact is that Python keeps text and bytes as separate types on purpose, so that the confusion between them cannot happen silently.</p>\n<h3>Other number bases</h3>\n<p>Integers can be written and read in bases other than ten, which matters when working with colours, permissions or protocols:</p>\n<pre><code>print(0b1010)          # 10   binary literal\nprint(0xff)            # 255  hexadecimal literal\nprint(bin(10))         # '0b1010'\nprint(hex(255))        # '0xff'\nprint(int(\"ff\", 16))   # 255  parse text in base 16</code></pre>\n<p><code>int()</code> takes an optional base, which is the correct way to read a hex string. And <code>divmod(a, b)</code> returns the quotient and remainder together as a pair, which is neater than computing <code>//</code> and <code>%</code> separately when you need both — converting a total number of seconds into minutes and seconds, for instance.</p>\n<h3>Quotes, escapes and multi-line text</h3>\n<p>Single and double quotes are interchangeable, which lets you avoid escaping: <code>\"it's here\"</code> needs no backslash, and <code>'she said \"no\"'</code> needs none either. Where you cannot dodge, a backslash escapes the next character. The sequences that matter are <code>\\n</code> for a newline, <code>\\t</code> for a tab, and <code>\\\\</code> for a literal backslash.</p>\n<p>Triple quotes hold text spanning several lines, newlines included, which is the readable way to write a block of output or a long message. And prefixing a string with <code>r</code> makes it raw: backslashes stay literal, which is what you want for Windows paths and regular expressions.</p>\n<pre><code>path = r\"C:\\Users\\new\\table.csv\"   # without the r, \\n and \\t become control characters</code></pre>\n<h3>f-strings in detail</h3>\n<p>Put an <code>f</code> before the quote and write expressions in braces. Any expression works, not just a name:</p>\n<pre><code>name = \"Ada\"\nitems = 3\nprint(f\"{name} has {items} items\")\nprint(f\"{items} squared is {items ** 2}\")\nprint(f\"{name.upper()} shouts\")</code></pre>\n<p>A colon inside the braces introduces a format specifier, which is how you control decimals, width and alignment:</p>\n<pre><code>price = 12.3456\nprint(f\"{price:.2f}\")     # 12.35        two decimal places\nprint(f\"{price:8.2f}\")    # '   12.35'   padded to width 8, right-aligned\nprint(f\"{price:&lt;8.2f}\")   # '12.35   '   left-aligned\nprint(f\"{1234567:,}\")     # 1,234,567    thousands separators\nprint(f\"{0.256:.1%}\")     # 25.6%        as a percentage</code></pre>\n<p>Width and alignment are what turn a loop's output into a readable table instead of a ragged list. And a lone <code>=</code> inside the braces prints the expression alongside its value, which is the fastest debugging aid in the language:</p>\n<pre><code>total = 42\nprint(f\"{total=}\")   # total=42</code></pre>\n<aside style='margin:1.25rem 0;padding:1rem 1.25rem;border-left:4px solid #f59e0b;background:#fffbeb;border-radius:8px;'><div style='font-weight:600;color:#92400e;margin-bottom:0.5rem;'>Rounding for display is not rounding the value</div><div style='color:#78350f;font-size:0.95em;line-height:1.65;'><p><code>f\"{price:.2f}\"</code> produces text with two decimals. The number itself is untouched. If a later calculation needs the rounded value, round it explicitly with <code>round(price, 2)</code> — otherwise you will show one figure and compute with another, and the totals will not add up.</p></div></aside>"
+        },
+        { "type": "exercise", "ref": "order-operators" },
+        { "type": "exercise", "ref": "quiz-strings" },
+        { "type": "exercise", "ref": "code-format-average" }
+      ],
+      "exercises": [
+        {
+          "ref": "order-operators",
+          "type": "ordering",
+          "title": "Order these by their result, smallest first",
+          "config": {
+            "items": ["7 // 2", "7 / 2", "7 % 2", "2 ** 10"],
+            "correct_order": ["7 % 2", "7 // 2", "7 / 2", "2 ** 10"]
+          }
+        },
+        {
+          "ref": "quiz-strings",
+          "type": "quiz",
+          "title": "Numbers and strings",
+          "config": { "passing_score": 70 },
+          "questions": [
+            {
+              "question_text": "What is -7 // 2?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "-3, because it rounds toward zero", "is_correct": false },
+                { "text": "-4, because floor division rounds down", "is_correct": true },
+                { "text": "-3.5", "is_correct": false },
+                { "text": "3", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "A line reads `name.strip()` with nothing assigned. What does it change?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "It removes the whitespace from name", "is_correct": false },
+                { "text": "Nothing — strings are immutable, so the stripped copy is discarded", "is_correct": true },
+                { "text": "It raises an error", "is_correct": false },
+                { "text": "It removes whitespace only from the left side", "is_correct": false }
+              ],
+              "points": 1
+            },
+            {
+              "question_text": "Why should money not be stored in a float?",
+              "question_type": "multiple_choice",
+              "options": [
+                { "text": "Floats are too small to hold large amounts", "is_correct": false },
+                { "text": "Binary floats cannot represent most decimal fractions exactly, so tiny errors accumulate", "is_correct": true },
+                { "text": "Floats are slower than integers", "is_correct": false },
+                { "text": "Floats cannot be formatted with two decimal places", "is_correct": false }
+              ],
+              "points": 1
+            }
+          ]
+        },
+        {
+          "ref": "code-format-average",
+          "type": "code_challenge",
+          "title": "Average, to two decimals",
+          "config": {
+            "language": "python",
+            "starter_code": "# Read three whole numbers from one line.\n# Print their average with exactly two decimal places.\n",
+            "solution_code": "nums = [int(n) for n in input().split()]\nprint(f\"{sum(nums) / len(nums):.2f}\")",
+            "time_limit_seconds": 5,
+            "memory_limit_mb": 128
+          },
+          "test_cases": [
+            { "input": "1 2 3", "expected_output": "2.00", "is_hidden": false },
+            { "input": "10 10 5", "expected_output": "8.33", "is_hidden": false },
+            { "input": "0 0 1", "expected_output": "0.33", "is_hidden": true }
+          ]
+        }
+      ]
+    }
+  ]
+}
