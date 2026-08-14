@@ -107,8 +107,17 @@ export function NotificationBell() {
  )}
  </button>
 
+ {/* Two things about where this panel sits, both learned the hard way.
+     Desktop: the bell is in the sidebar footer, so the panel opens UPWARDS
+     (`bottom-full`). Downwards left the window — 28px of it empty, the whole
+     320px list once there was anything to read.
+     Phone: `fixed` here is NOT relative to the viewport. The sidebar carries
+     a transform for its slide-in, and a transform makes the element the
+     containing block for fixed descendants — so the panel was measured
+     against a 240px drawer, and `right-4` put its left edge at -96. Anchoring
+     left instead keeps it on screen, because the drawer starts at x=0. */}
  {open && (
- <div role="region" aria-label="Notifications" className="fixed right-4 top-16 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border-strong bg-surface shadow-lg sm:absolute sm:left-0 sm:right-auto sm:top-full sm:mt-2">
+ <div role="region" aria-label="Notifications" className="fixed left-2 top-16 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-lg border border-border-strong bg-surface shadow-lg sm:absolute sm:bottom-full sm:left-0 sm:top-auto sm:mb-2">
  <div className="flex items-center justify-between border-b border-border px-4 py-3">
  <h3 className="text-sm font-semibold text-text">Notifications</h3>
  {unread > 0 && (

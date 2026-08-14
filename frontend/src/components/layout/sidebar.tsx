@@ -136,14 +136,24 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  <>
  {open && (
  <div
- className="fixed inset-0 z-40 bg-ink-900/60 md:hidden"
+ // Above the mobile tab bar (z-50), which otherwise keeps taking taps
+ // through the dimmed backdrop.
+ className="fixed inset-0 z-[55] bg-ink-900/60 md:hidden"
  onClick={onClose}
  aria-hidden="true"
  />
  )}
  <aside
  className={cn(
- "rail-dark fixed inset-y-0 left-0 z-50 flex h-screen w-[240px] flex-col bg-ink-900 transition-transform duration-200 ease-in-out md:static md:translate-x-0",
+ // h-dvh, not h-screen: on a phone 100vh is taller than what you can see,
+ // because the browser's address bar overlays the bottom of it. The footer
+ // holds the account link and Sign Out, so those were the parts that ended
+ // up underneath it — the sidebar opened and you still could not log out.
+ // z-[60] puts the drawer above the mobile tab bar (z-50). At equal
+ // layers the tab bar won on DOM order and swallowed taps aimed at the
+ // footer — which is where the account link and Sign Out live, so the
+ // drawer opened and logging out still did nothing.
+ "rail-dark fixed inset-y-0 left-0 z-[60] flex h-dvh w-[240px] flex-col bg-ink-900 transition-transform duration-200 ease-in-out md:static md:h-screen md:translate-x-0",
  open ? "translate-x-0" : "-translate-x-full"
  )}
  >
