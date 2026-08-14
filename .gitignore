@@ -61,3 +61,6 @@ frontend/public/voxel-gallery/
 # Playwright run artefacts and local agent scratch state
 test-results/
 .superpowers/
+
+# Third-party screenshot editor, cloned on demand by scripts/screenshot-studio.sh
+tools/screenshot-studio/
