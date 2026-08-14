@@ -686,6 +686,10 @@ async def test_broadcast_message_to_class(client, db, org, teacher, student):
         .all()
     )
     assert any("Take a 5 minute break" in (n.body or "") for n in notes)
+    # The title is ours, not the teacher's — assert it, or a stray localised
+    # literal reaches every student's bell unnoticed, which is how two Russian
+    # titles shipped to an English product.
+    assert any(n.title == "Message from your teacher" for n in notes)
 
 
 async def test_scene_change_clears_signals(client, db, org, teacher, student):
@@ -806,4 +810,6 @@ async def test_message_creates_notification(client, db, org, teacher, student):
         .scalars()
         .all()
     )
+    # A non-ASCII body is the teacher's own text and must survive the round trip.
     assert any("Смотри на условие" in (n.body or "") for n in notes)
+    assert any(n.title == "Hint from your teacher" for n in notes)
