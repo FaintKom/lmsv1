@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
  Privacy Policy
  </h1>
  <p className="mb-8 text-sm text-text-muted ">
- Effective Date: March 31, 2026
+ Effective Date: August 14, 2026
  </p>
 
  <div className="space-y-8 text-sm leading-relaxed text-text-muted ">
@@ -212,14 +212,23 @@ export default function PrivacyPolicyPage() {
  6. AI Tutor and Your Data
  </h2>
  <p>
- GrassLMS includes an AI Tutor feature that helps students with coursework. The AI model
- is entirely self-hosted on our own servers. No student data, questions, code, or
- conversation content is sent to any external AI provider or third-party service.
+ GrassLMS includes an optional AI Tutor that answers a student&rsquo;s questions about the
+ lesson they are reading. It runs on a third-party language-model provider, which acts as
+ a processor on our behalf. When a student asks a question, two things are sent to that
+ provider: the text of the lesson and the question the student typed.
  </p>
  <p className="mt-2">
- AI Tutor conversations are processed in real time to generate responses. We do not store
- AI conversation history long-term. Conversation data may be temporarily held in server
- memory during your session and is not retained after the session ends.
+ Names, email addresses, grades, submissions and other account data are not sent. The
+ provider receives no identifier that ties a question to a named student. The feature is
+ off unless your organization turns it on, and nothing is sent until a student asks a
+ question.
+ </p>
+ <p className="mt-2">
+ We do not store AI Tutor conversations. Questions and answers are held in server memory
+ for the length of the request and are not written to our database. Retention on the
+ provider&rsquo;s side is governed by that provider&rsquo;s own policy. Schools that need
+ the provider named in writing, or need the feature switched off for their organization,
+ should contact us.
  </p>
  </section>
 
