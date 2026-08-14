@@ -529,7 +529,7 @@ async def send_hint(
             await create_notification(
                 db,
                 user_id=sid,
-                title="Сообщение от преподавателя",
+                title="Message from your teacher",
                 body=text,
                 link=f"/lesson/{lesson.id}",
             )
@@ -548,7 +548,7 @@ async def send_hint(
     await create_notification(
         db,
         user_id=student_id,
-        title="Подсказка от преподавателя",
+        title="Hint from your teacher",
         body=text,
         link=f"/lesson/{lesson.id}",
     )
