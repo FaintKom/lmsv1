@@ -56,9 +56,16 @@ async def get_subscription_endpoint(
 
 
 class CheckoutBody(BaseModel):
+    """Where the payer lands afterwards is not the caller's choice.
+
+    This used to accept ``success_url`` and ``cancel_url`` and hand them
+    straight to Stripe, so whoever opened a checkout decided where the payer
+    was sent once the card details were in. Nothing has ever sent those
+    fields — there is no caller in the frontend — and both addresses are ours
+    to build, so the safest version of the field is no field.
+    """
+
     plan_id: str
-    success_url: str = ""
-    cancel_url: str = ""
 
 
 @router.get("/status")
@@ -91,10 +98,13 @@ async def checkout_endpoint(
     base = settings.app_url.rstrip("/")
     try:
         import uuid as _uuid
+
         url = await create_checkout_session(
-            db, _uuid.UUID(data.plan_id), user,
-            success_url=data.success_url or f"{base}/admin/billing?success=true",
-            cancel_url=data.cancel_url or f"{base}/admin/billing?canceled=true",
+            db,
+            _uuid.UUID(data.plan_id),
+            user,
+            success_url=f"{base}/admin/billing?success=true",
+            cancel_url=f"{base}/admin/billing?canceled=true",
         )
         return CheckoutResponse(checkout_url=url)
     except Exception as e:
@@ -112,7 +122,8 @@ async def portal_endpoint(
     base = settings.app_url.rstrip("/")
     try:
         url = await create_portal_session(
-            db, user,
+            db,
+            user,
             return_url=f"{base}/admin/billing",
         )
         return {"portal_url": url}
@@ -153,9 +164,7 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             logger.warning(f"Webhook signature failed: {e}")
             raise HTTPException(400, "Invalid signature")
     elif settings.is_production():
-        logger.error(
-            "Webhook received but STRIPE_WEBHOOK_SECRET is unset in production"
-        )
+        logger.error("Webhook received but STRIPE_WEBHOOK_SECRET is unset in production")
         raise HTTPException(503, "Webhook endpoint not configured")
     else:
         # Dev mode only — signature verification disabled.
@@ -176,7 +185,7 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
 class LSCheckoutBody(BaseModel):
     plan_id: str
     interval: str = "month"  # 'month' or 'year'
-    success_url: str = ""
+    # No success_url here either — same reasoning as CheckoutBody.
 
 
 @router.post("/lemonsqueezy/checkout", response_model=CheckoutResponse)
@@ -198,12 +207,13 @@ async def ls_checkout_endpoint(
     base = settings.app_url.rstrip("/")
     try:
         import uuid as _uuid
+
         url = await ls_service.create_checkout_url(
             db,
             _uuid.UUID(data.plan_id),
             user,
             interval=data.interval,
-            success_url=data.success_url or f"{base}/admin/billing?success=true&provider=lemonsqueezy",
+            success_url=f"{base}/admin/billing?success=true&provider=lemonsqueezy",
         )
         return CheckoutResponse(checkout_url=url)
     except ValueError as e:
@@ -232,9 +242,7 @@ async def lemonsqueezy_webhook(request: Request, db: AsyncSession = Depends(get_
             logger.warning("ls.webhook.signature_invalid")
             raise HTTPException(400, "Invalid signature")
     elif settings.is_production():
-        logger.error(
-            "ls.webhook.misconfigured LEMONSQUEEZY_WEBHOOK_SECRET is unset in production"
-        )
+        logger.error("ls.webhook.misconfigured LEMONSQUEEZY_WEBHOOK_SECRET is unset in production")
         raise HTTPException(503, "Webhook endpoint not configured")
 
     try:
