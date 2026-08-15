@@ -73,7 +73,22 @@ def _check_permission(user: User) -> None:
         raise ForbiddenError("Only teachers and admins can manage exercises")
 
 
-async def _get_exercise_with_relations(db: AsyncSession, exercise_id: uuid.UUID) -> Exercise:
+async def _get_exercise_with_relations(
+    db: AsyncSession, exercise_id: uuid.UUID, user: User
+) -> Exercise:
+    """Fetch one exercise, refusing anything outside the caller's school.
+
+    ``user`` is required rather than optional on purpose. This used to look up
+    by id alone, and every path in this module goes through here — read,
+    update, delete, questions, test cases, attempts, submissions, uploads. A
+    teacher or admin holding another school's exercise id could therefore edit
+    or delete that school's content, and any signed-in account could read it.
+    ``list_exercises`` was scoped correctly, so the UI never offered those ids
+    — but an id is not a secret, and it was never the access control.
+
+    Cross-org reads as "not found", the same way the student profile and the
+    class journal hide the existence of another school's rows.
+    """
     result = await db.execute(
         select(Exercise)
         .where(Exercise.id == exercise_id)
@@ -84,6 +99,8 @@ async def _get_exercise_with_relations(db: AsyncSession, exercise_id: uuid.UUID)
     )
     exercise = result.scalar_one_or_none()
     if not exercise:
+        raise NotFoundError("Exercise not found")
+    if user.role != UserRole.super_admin and exercise.org_id != user.org_id:
         raise NotFoundError("Exercise not found")
     return exercise
 
@@ -125,11 +142,11 @@ async def create_exercise(db: AsyncSession, user: User, data: dict) -> Exercise:
     db.add(exercise)
     await db.flush()
 
-    return await _get_exercise_with_relations(db, exercise.id)
+    return await _get_exercise_with_relations(db, exercise.id, user)
 
 
 async def get_exercise(db: AsyncSession, exercise_id: uuid.UUID, user: User) -> Exercise:
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
     # Students shouldn't see correct answers in quiz questions
     return exercise
 
@@ -174,13 +191,23 @@ async def list_exercises(
     return exercises, total
 
 
-async def get_exercises_by_lesson(db: AsyncSession, lesson_id: uuid.UUID) -> list[Exercise]:
-    result = await db.execute(
+async def get_exercises_by_lesson(
+    db: AsyncSession, lesson_id: uuid.UUID, user: User
+) -> list[Exercise]:
+    """Exercises of one lesson, scoped like every other read here.
+
+    Took no caller at all before, so a lesson id from another school listed
+    that school's exercises to anyone signed in.
+    """
+    query = (
         select(Exercise)
         .where(Exercise.lesson_id == lesson_id)
         .options(selectinload(Exercise.questions), selectinload(Exercise.test_cases))
         .order_by(Exercise.sort_order)
     )
+    if user.role != UserRole.super_admin:
+        query = query.where(Exercise.org_id == user.org_id)
+    result = await db.execute(query)
     return list(result.scalars().unique().all())
 
 
@@ -188,19 +215,19 @@ async def update_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
 ) -> Exercise:
     _check_permission(user)
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
 
     for key, value in data.items():
         if value is not None and hasattr(exercise, key):
             setattr(exercise, key, value)
 
     await db.flush()
-    return await _get_exercise_with_relations(db, exercise_id)
+    return await _get_exercise_with_relations(db, exercise_id, user)
 
 
 async def delete_exercise(db: AsyncSession, exercise_id: uuid.UUID, user: User) -> None:
     _check_permission(user)
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
     await db.delete(exercise)
     await db.flush()
 
@@ -212,7 +239,7 @@ async def add_question_to_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
 ) -> Question:
     _check_permission(user)
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
 
     max_order = (
         await db.execute(
@@ -234,6 +261,21 @@ async def add_question_to_exercise(
     return result.scalar_one()
 
 
+async def _owning_exercise_of(
+    db: AsyncSession, user: User, exercise_id: uuid.UUID | None, label: str
+) -> None:
+    """Apply the exercise's org rule to one of its child rows.
+
+    Questions and test cases are addressed by their own id, so the guard on
+    the exercise was being skipped entirely: a teacher elsewhere could rewrite
+    a question, or bolt a test case onto another school's code challenge and
+    change how that school's students are marked.
+    """
+    if exercise_id is None:
+        raise NotFoundError(f"{label} not found")
+    await _get_exercise_with_relations(db, exercise_id, user)
+
+
 async def update_question_in_exercise(
     db: AsyncSession, question_id: uuid.UUID, user: User, data: dict
 ) -> Question:
@@ -242,6 +284,7 @@ async def update_question_in_exercise(
     question = result.scalar_one_or_none()
     if not question:
         raise NotFoundError("Question not found")
+    await _owning_exercise_of(db, user, question.exercise_id, "Question")
 
     for key, value in data.items():
         if value is not None:
@@ -259,6 +302,7 @@ async def delete_question_from_exercise(
     question = result.scalar_one_or_none()
     if not question:
         raise NotFoundError("Question not found")
+    await _owning_exercise_of(db, user, question.exercise_id, "Question")
     await db.delete(question)
     await db.flush()
 
@@ -270,6 +314,10 @@ async def add_test_case_to_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
 ) -> TestCase:
     _check_permission(user)
+    # This one never loaded the exercise at all — it wrote a row keyed by
+    # whatever id arrived, so a test case could be attached to another
+    # school's code challenge.
+    await _get_exercise_with_relations(db, exercise_id, user)
 
     max_order = (
         await db.execute(
@@ -299,6 +347,7 @@ async def update_test_case_in_exercise(
     tc = result.scalar_one_or_none()
     if not tc:
         raise NotFoundError("Test case not found")
+    await _owning_exercise_of(db, user, tc.exercise_id, "Test case")
     for k, v in data.items():
         if hasattr(tc, k):
             setattr(tc, k, v)
@@ -314,6 +363,7 @@ async def delete_test_case_from_exercise(
     tc = result.scalar_one_or_none()
     if not tc:
         raise NotFoundError("Test case not found")
+    await _owning_exercise_of(db, user, tc.exercise_id, "Test case")
     await db.delete(tc)
     await db.flush()
 
@@ -463,7 +513,7 @@ async def get_attempt_status(
     user: User,
 ) -> dict:
     """Get current attempt count, remaining attempts, and last submission for a student."""
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
     max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
     count = await _count_attempts(db, exercise_id, user.id)
     remaining = max(0, max_att - count)
@@ -504,7 +554,7 @@ async def get_attempt_status(
 async def submit_exercise(
     db: AsyncSession, exercise_id: uuid.UUID, user: User, data: dict
 ) -> ExerciseSubmission:
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
     now = datetime.now(timezone.utc)
 
     # Check max attempts
@@ -869,7 +919,7 @@ async def upload_file_submission(
     user: User,
     file: UploadFile,
 ) -> ExerciseSubmission:
-    exercise = await _get_exercise_with_relations(db, exercise_id)
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
     if exercise.exercise_type != ExerciseType.file_upload:
         raise BadRequestError("This exercise does not accept file uploads")
 
