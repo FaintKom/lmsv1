@@ -127,13 +127,12 @@ async def get_exercises_by_lesson_endpoint(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    exercises = await get_exercises_by_lesson(db, lesson_id)
+    exercises = await get_exercises_by_lesson(db, lesson_id, user)
 
-    # Strip answers for students
     result = []
     for ex in exercises:
         resp = ExerciseResponse.model_validate(ex)
-        if user.role == UserRole.student:
+        if not _may_see_answers(user):
             resp = _strip_answers(resp)
         result.append(resp)
     return result
@@ -147,7 +146,7 @@ async def get_exercise_endpoint(
 ):
     exercise = await get_exercise(db, exercise_id, user)
     resp = ExerciseResponse.model_validate(exercise)
-    if user.role == UserRole.student:
+    if not _may_see_answers(user):
         resp = _strip_answers(resp)
     return resp
 
@@ -360,7 +359,7 @@ async def submit_exercise_endpoint(
         # time; only remaining/limit info is computed here.
         from app.exercises.service import _count_attempts, _get_exercise_with_relations
 
-        exercise = await _get_exercise_with_relations(db, exercise_id)
+        exercise = await _get_exercise_with_relations(db, exercise_id, user)
         max_att = exercise.max_attempts if exercise.max_attempts is not None else 100
         count = await _count_attempts(db, exercise_id, user.id)
         if resp.attempt_number is None:
@@ -493,8 +492,21 @@ async def get_draft_endpoint(
 # ─── Helpers ─────────────────────────────────────────────────────────
 
 
+def _may_see_answers(user: User) -> bool:
+    """Only staff read an exercise with its answer key attached.
+
+    The check used to be ``role == student``, which left parents — the one
+    other non-staff role, and one deliberately linked to a child — reading the
+    correct answers of the very exercises that child is set. Mirrors
+    ``exercises.service._check_permission``: student and parent are the roles
+    that may not manage exercises, so they are the roles that may not see
+    inside them either.
+    """
+    return user.role not in (UserRole.student, UserRole.parent)
+
+
 def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
-    """Remove correct answers from response for students."""
+    """Remove correct answers from a response bound for a non-staff reader."""
     if resp.questions:
         for q in resp.questions:
             if q.options:
