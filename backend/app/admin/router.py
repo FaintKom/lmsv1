@@ -1572,17 +1572,21 @@ async def gradebook_endpoint(
     """
     from sqlalchemy import func
 
+    from app.analytics.task_stats_service import TaskStatsError, _authorize_course
     from app.assignments.models import Assignment, AssignmentSubmission
-    from app.courses.models import Course, Lesson, Module
+    from app.courses.models import Lesson, Module
     from app.progress.models import Enrollment
 
-    # Verify course access
-    course_q = select(Course).where(Course.id == course_id)
-    if user.role != UserRole.super_admin:
-        course_q = course_q.where(Course.org_id == user.org_id)
-    result = await db.execute(course_q)
-    course = result.scalar_one_or_none()
-    if not course:
+    # Every other view of a student's marks — task stats, the student profile —
+    # scopes a plain teacher to their own courses. This one only checked the
+    # org, so any teacher could pull a colleague's whole class by passing its
+    # course id. The dropdown never offers those courses, which is why it went
+    # unnoticed; the API is the boundary, not the dropdown.
+    try:
+        await _authorize_course(db, user, course_id)
+    except TaskStatsError as e:
+        if e.code == "forbidden":
+            raise HTTPException(status_code=403, detail=e.message)
         raise NotFoundError("Course not found")
 
     # Get enrolled students
