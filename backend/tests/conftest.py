@@ -33,6 +33,7 @@ import app.billing.models  # noqa
 import app.calendar.models  # noqa
 import app.certificates.models  # noqa
 import app.courses.models  # noqa
+import app.crm.models  # noqa
 import app.curriculum.models  # noqa
 import app.donations.models  # noqa
 import app.exercises.models  # noqa

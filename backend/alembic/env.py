@@ -17,6 +17,7 @@ import app.billing.models  # noqa: F401
 import app.calendar.models  # noqa: F401
 import app.certificates.models  # noqa: F401
 import app.courses.models  # noqa: F401
+import app.crm.models  # noqa: F401
 import app.curriculum.models  # noqa: F401
 import app.donations.models  # noqa: F401
 import app.exercises.models  # noqa: F401
