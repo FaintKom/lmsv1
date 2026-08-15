@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import apiClient from "@/lib/api-client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Users, Loader2, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 
@@ -21,8 +20,6 @@ export default function ParentDashboard() {
  const { t } = useTranslation();
  const [children, setChildren] = useState<Child[]>([]);
  const [loading, setLoading] = useState(true);
- const [linkEmail, setLinkEmail] = useState("");
- const [linking, setLinking] = useState(false);
 
  const fetchChildren = async () => {
  try {
@@ -37,22 +34,6 @@ export default function ParentDashboard() {
 
  useEffect(() => { fetchChildren(); }, []);
 
- const handleLink = async (e: React.FormEvent) => {
- e.preventDefault();
- if (!linkEmail) return;
- setLinking(true);
- try {
- await apiClient.post("/parent/children/link", { child_email: linkEmail });
- toast.success("Child linked successfully");
- setLinkEmail("");
- fetchChildren();
- } catch (err: any) {
- toast.error(err?.response?.data?.detail || "Failed to link child");
- } finally {
- setLinking(false);
- }
- };
-
  return (
  <div className="mx-auto max-w-4xl space-y-6 p-6">
  <div>
@@ -64,32 +45,9 @@ export default function ParentDashboard() {
  </p>
  </div>
 
- {/* Link child */}
- <Card>
- <CardHeader>
- <CardTitle className="text-sm">{t("parent.linkChild")}</CardTitle>
- </CardHeader>
- <CardContent>
- <form onSubmit={handleLink} className="flex gap-2">
- <input
- type="email"
- placeholder={t("parent.childEmail")}
- value={linkEmail}
- onChange={(e) => setLinkEmail(e.target.value)}
- required
- className="flex-1 rounded-lg border border-border-strong px-3 py-2 text-sm "
- />
- <button
- type="submit"
- disabled={linking}
- className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-50"
- >
- {linking ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
- {t("parent.link")}
- </button>
- </form>
- </CardContent>
- </Card>
+ {/* No form to claim a child here on purpose: the school links parents to
+     students, not the other way round. Self-service meant any parent could
+     type any classmate's address and read that child's grades. */}
 
  {/* Children */}
  {loading ? (
