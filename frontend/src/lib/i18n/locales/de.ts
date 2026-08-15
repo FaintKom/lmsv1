@@ -2573,7 +2573,6 @@ const de: TranslationMap = {
  "journal.exercisesShort": "Üb.",
  "journal.quizzesShort": "Tests",
  "journal.assignmentsShort": "Aufgaben",
- "journal.registerReadOnly": "Schreibgeschützt – Anwesenheit unter „Heute“ oder in einer Stunde erfassen.",
  "journal.noRegisterData": "Für diesen Kurs sind noch keine Stunden erfasst.",
  "journal.metricLessons": "Stunden heute",
  "journal.metricMarked": "Erfasst",

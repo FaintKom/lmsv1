@@ -2511,7 +2511,6 @@ const es: TranslationMap = {
  "journal.exercisesShort": "ej",
  "journal.quizzesShort": "cuestionarios",
  "journal.assignmentsShort": "tareas",
- "journal.registerReadOnly": "Solo lectura: marca la asistencia desde Hoy o una sesión.",
  "journal.noRegisterData": "Aún no hay sesiones registradas para este curso.",
  "journal.metricLessons": "Clases hoy",
  "journal.metricMarked": "Registradas",
