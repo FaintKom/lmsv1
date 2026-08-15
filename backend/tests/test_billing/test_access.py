@@ -153,9 +153,11 @@ async def test_admin_sees_only_their_own_schools_invoices(
     resp = await client.get("/api/v1/billing/invoices", headers=auth_header(admin))
     assert resp.status_code == 200
 
+    # The provider's invoice id is not part of the response schema, so the
+    # marker is read off invoice_url instead.
     body = resp.text
-    assert "in_test_ours" in body
-    assert "in_test_theirs" not in body
+    assert "billing.example/ours" in body
+    assert "billing.example/theirs" not in body
 
     # Same schema bug as the subscription above: the three datetime fields
     # were typed `str`, so this endpoint raised for any school that had ever
