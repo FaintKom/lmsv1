@@ -291,8 +291,9 @@ OpenRouter free-модели ($0, баланс не трогается). Про�
       `c7d8e9f0a1b2`), `PATCH /live-lessons/{id}/programme`, `NULL` = авто-
       список; программа срезается для студентов (скрытые шаги — план препода,
       не дело класса). Тест `test_programme_survives_reload_and_is_teacher_only`.
-      ⚠️ Гидрация после F5 в браузере ещё не проверена — закрыть на сессии
-      тестирования QA-стеком.
+      Гидрация после F5 закрыта 2026-08-14: `frontend/e2e/live-programme.spec.ts`
+      правит программу, перезагружает вкладку и ждёт свой же порядок шагов.
+      Спека проверена сломанной фичей — без гидрации она падает.
 - [x] Дизайн-долг вне live закрыт: `--pop: var(--primary-dark, …)` —
       тень идёт за брендингом; чип «published» на `success-soft/success-fg`;
       на странице Courses не осталось ни одного до-Lively цвета
@@ -480,13 +481,10 @@ service) из этой архитектуры — это ровно пайпла
 
 ## Ждёт действий пользователя
 
-- [ ] **P1-15.** Записать 5-минутное demo-видео (SAT-курс end-to-end:
-      студент → учитель/gradebook). Loom или OBS. Опубликовать на лендинге
-      и YouTube. Скрипт см. в `marketing/launch-posts.md`.
-- [ ] **P1-19.** Найти первого beta-клиента: 20-30 владельцам небольших
-      SAT prep-центров — DM в LinkedIn, оффер 3 месяца бесплатно
-      за testimonial + cohort observation. Целевой сегмент описан в
-      `marketing/target-segment.md`.
+P1-15 и P1-19 сняты 2026-08-14: оба описывали SAT-центры, которых больше
+нет ни в продукте, ни в нише. Живут дальше как Ф2-8 (демо-видео под новую
+нишу) и Ф4-1/Ф4-2 (оффер и 50 контактов, цель — платящий, а не отзыв).
+
 - [ ] **P1-20.** Отправить Tali Green (@green_mammy, Teachers for Ukrainian Kids,
       ~30 учителей) ссылку на demo: https://grasslms.online/demo + краткое
       сопроводительное письмо. Demo-стек готов (2026-05-25):
@@ -506,28 +504,23 @@ service) из этой архитектуры — это ровно пайпла
 
 - [x] Остатки worktree-директории — `F:/lms/.claude/worktrees/` больше не
       существует (проверено 2026-08-13). Кто-то уже убрал, действий нет.
-- [ ] Удалить 5 stale веток на origin (мусор в GitHub UI):
-      `chore/session-start-hook`, `claude/focused-tereshkova-b85ccf`,
-      `claude/goofy-bouman-3add21`, `docs/claude-md-suite`, `infra/staging-on-same-vps`,
-      плюс `claude/confident-chatterjee-e2138c` (уже смерджена через PR #6).
-      Через GitHub UI → Branches → trash icon, или `git push origin --delete <name>`.
+- [x] Ветки на origin вычищены 2026-08-14 — удалено 18 смердженных, включая
+      все шесть из этого пункта. На origin осталось шесть живых веток.
 - [x] Kill-switch SW удалён (PR #277, спустя три месяца вместо двух
       недель): `frontend/public/sw.js` вместе с `src/app/offline/` — это была
       его fallback-страница, недостижимая без воркера. Регистрации в коде уже
       не было (`grep serviceWorker src/` пуст).
-- [ ] Разобрать локальную ветку `wip/recovered-stash-2026-05-04` —
-      48 файлов prior-session work из бывшего `stash@{0}`. Содержит
-      реальные billing/config/main.py изменения + brand-cleanup hunks
-      (последние стейл — уже в PR #4). Cherry-pick valuable hunks или
-      `git branch -D wip/recovered-stash-2026-05-04` если не нужно.
-      Push на origin сейчас отклонён OAuth-scope'ом на `.github/workflows/ci.yml`
-      — нужен токен с `workflow` scope, либо amend commit без ci.yml.
-- [ ] Решить судьбу staging-фич, дропнутых в Variant B (5 новых exercise
-      типов: srs_flashcard, crossword, word_search, map_pin_drop, bubble_sheet).
-      Код жив на ветке `origin/claude/focused-tereshkova-b85ccf`, миграция
-      `n1o2p3q4r5s6_add_5_exercise_types`. Backup staging DB:
-      `/opt/lms-staging/backups/pre-rollback-2026-05-04.sql.gz`. Если фича
-      нужна — открыть PR с этой веткой в main; если нет — branch удалить.
+- [x] Ветка `wip/recovered-stash-2026-05-04` удалена 2026-08-14 (была
+      `13224be`, воскрешается из reflog). Салважить оказалось нечего: всё,
+      что она несла, давно в `main` — `billing/ls_service.py`,
+      `billing/lemonsqueezy.py`, `app/knowledge/*` и обе миграции лежат
+      там своим путём. Остальные её 900 файлов — версии от мая: монолитный
+      `translations.ts` до code-split локалей, `sat-test-runner` снятого
+      SAT. Против `main` это не 53k добавлений, а 222k удалений.
+- [x] Судьба пяти exercise-типов решена сама: srs_flashcard, crossword,
+      word_search, map_pin_drop и bubble_sheet давно в продукте — все пять
+      в `exercise-renderer.tsx` на `main`, и все прошли через Integrity
+      model B. Ветка-донор `claude/focused-tereshkova-b85ccf` удалена.
 
 ## Опциональные конфиги (когда понадобится монетизация)
 
