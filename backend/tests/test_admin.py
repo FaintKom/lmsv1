@@ -121,6 +121,38 @@ async def test_update_org_settings(client: AsyncClient, admin, org):
 
 
 @pytest.mark.asyncio
+async def test_admin_cannot_edit_another_org(client: AsyncClient, admin, org2, db):
+    """Reading another school's settings was covered; writing was not."""
+    before = org2.name
+
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org2.id}",
+        json={"name": "Renamed by a stranger"},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 404
+
+    await db.refresh(org2)
+    assert org2.name == before
+
+
+@pytest.mark.asyncio
+async def test_a_plain_admin_cannot_deactivate_their_own_org(client: AsyncClient, admin, org, db):
+    """is_active is a super-admin switch — a school cannot suspend itself. The
+    endpoint ignores the field rather than refusing the whole request."""
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={"name": org.name, "is_active": False},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["is_active"] is True
+
+    await db.refresh(org)
+    assert org.is_active is True
+
+
+@pytest.mark.asyncio
 async def test_delete_org_requires_super_admin(client: AsyncClient, admin, org2):
     """Regular admin cannot delete an org."""
     resp = await client.delete(
