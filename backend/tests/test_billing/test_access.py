@@ -86,6 +86,45 @@ async def test_plans_never_expose_the_stripe_price_id(client: AsyncClient, db):
 
 
 @pytest.mark.asyncio
+async def test_a_subscription_actually_serialises(client: AsyncClient, db, admin, org):
+    """With a row present, not just an empty table.
+
+    SubscriptionResponse declared its two period fields as `str` over DateTime
+    columns, so this endpoint raised for any school that had a subscription —
+    which is to say, for every paying customer. The old test asserted
+    "200 or 404" against an empty table and never noticed.
+    """
+    from app.billing.models import Plan, Subscription, SubscriptionStatus
+
+    plan = Plan(
+        name=f"Serialise Plan {uuid.uuid4().hex[:6]}",
+        stripe_price_id="price_test",
+        price_monthly=29,
+        max_students=50,
+        max_courses=10,
+        features={},
+    )
+    db.add(plan)
+    await db.flush()
+
+    db.add(
+        Subscription(
+            org_id=org.id,
+            plan_id=plan.id,
+            status=SubscriptionStatus.active,
+            current_period_start=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            current_period_end=datetime(2026, 2, 1, tzinfo=timezone.utc),
+        )
+    )
+    await db.flush()
+
+    resp = await client.get("/api/v1/billing/subscription", headers=auth_header(admin))
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["status"] == "active"
+    assert resp.json()["current_period_start"].startswith("2026-01-01")
+
+
+@pytest.mark.asyncio
 async def test_teacher_cannot_read_the_schools_subscription(client: AsyncClient, teacher):
     resp = await client.get("/api/v1/billing/subscription", headers=auth_header(teacher))
     assert resp.status_code == 403
@@ -117,6 +156,13 @@ async def test_admin_sees_only_their_own_schools_invoices(
     body = resp.text
     assert "in_test_ours" in body
     assert "in_test_theirs" not in body
+
+    # Same schema bug as the subscription above: the three datetime fields
+    # were typed `str`, so this endpoint raised for any school that had ever
+    # been invoiced.
+    [row] = resp.json()
+    assert row["amount_cents"] == 1000
+    assert row["period_start"].startswith("2026-01-01")
 
 
 # ── Writing: the webhook ─────────────────────────────────────────────────
