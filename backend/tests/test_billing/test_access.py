@@ -37,6 +37,10 @@ async def _make_invoice(db, org_id: uuid.UUID, *, amount_cents: int, marker: str
         invoice_url=f"https://billing.example/{marker}",
         period_start=datetime(2026, 1, 1, tzinfo=timezone.utc),
         period_end=datetime(2026, 2, 1, tzinfo=timezone.utc),
+        # Invoice carries IDMixin but not TimestampMixin, so created_at is
+        # NOT NULL with no default — every caller sets it, including the
+        # webhook handler that writes the real rows.
+        created_at=datetime(2026, 2, 1, tzinfo=timezone.utc),
     )
     db.add(inv)
     await db.flush()
@@ -147,8 +151,13 @@ async def test_webhook_rejects_a_bad_signature(client: AsyncClient):
 async def test_webhook_refuses_to_run_unsigned_in_production(client: AsyncClient):
     """Failing closed is the whole point: no secret in production means the
     endpoint refuses rather than trusting whatever arrives."""
+    from app.config import Settings
+
+    # is_production is a method on the Settings class, not a pydantic field,
+    # so it has to be patched on the class — the instance refuses the
+    # attribute. The secret above is a real field and patches normally.
     with patch("app.billing.router.settings.stripe_webhook_secret", ""):
-        with patch("app.billing.router.settings.is_production", return_value=True):
+        with patch.object(Settings, "is_production", lambda self: True):
             resp = await client.post(
                 "/api/v1/billing/webhook",
                 json={"type": "invoice.paid", "data": {"object": {}}},
