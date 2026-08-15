@@ -28,6 +28,10 @@ export const ADMIN = {
   email: process.env.E2E_ADMIN_EMAIL ?? "qa-admin@qa.example.com",
   password: process.env.E2E_ADMIN_PASSWORD ?? "qa-test-not-for-prod",
 };
+export const PARENT = {
+  email: process.env.E2E_PARENT_EMAIL ?? "qa-parent@qa.example.com",
+  password: process.env.E2E_PARENT_PASSWORD ?? "qa-test-not-for-prod",
+};
 
 export interface Tokens {
   access_token: string;

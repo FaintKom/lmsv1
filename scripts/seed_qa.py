@@ -102,6 +102,9 @@ QA_USERS = [
     {"slug": "qa-teacher",   "email": "qa-teacher@qa.example.com",   "role": UserRole.teacher, "is_methodist": False, "name": "QA Teacher"},
     {"slug": "qa-methodist", "email": "qa-methodist@qa.example.com", "role": UserRole.teacher, "is_methodist": True,  "name": "QA Methodist"},
     {"slug": "qa-admin",     "email": "qa-admin@qa.example.com",     "role": UserRole.admin,   "is_methodist": False, "name": "QA Admin"},
+    # Unlinked on purpose: the parent journey starts from an empty portal and
+    # has staff attach the child, which is the only way a link is made now.
+    {"slug": "qa-parent",    "email": "qa-parent@qa.example.com",    "role": UserRole.parent,  "is_methodist": False, "name": "QA Parent"},
 ]
 
 QA_ORG_ID    = uuid.uuid5(NAMESPACE_QA, "qa-org")

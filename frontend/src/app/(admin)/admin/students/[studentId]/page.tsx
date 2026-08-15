@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Award,
@@ -10,6 +10,7 @@ import {
   Star,
   Trophy,
   GraduationCap,
+  Users,
 } from "lucide-react";
 
 import apiClient from "@/lib/api-client";
@@ -23,6 +24,77 @@ import type {
   StudentProfile,
   SubmissionSummary,
 } from "@/lib/api/student-profile";
+
+/** Attach a parent account to this student.
+ *
+ * Lives on the staff side because the school decides who a child's parent is.
+ * The parent-facing page used to carry this form, which let any parent in the
+ * org claim any student by email and then read that child's grades. */
+function ParentLinkCard({ studentId }: { studentId: string }) {
+  const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const link = useMutation({
+    mutationFn: async (parentEmail: string) => {
+      const resp = await apiClient.post<{ parent_name: string }>("/parent/links", {
+        student_id: studentId,
+        parent_email: parentEmail,
+      });
+      return resp.data;
+    },
+    onSuccess: (data) => {
+      setResult({ ok: true, text: `${t("admin.studentProfile.parentLinked")} ${data.parent_name}` });
+      setEmail("");
+    },
+    onError: (err) => {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setResult({ ok: false, text: detail || t("admin.studentProfile.parentLinkFailed") });
+    },
+  });
+
+  return (
+    <Card className="mb-6">
+      <CardContent className="p-6">
+        <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-text">
+          <Users className="h-5 w-5 text-primary" />
+          {t("admin.studentProfile.parentAccess")}
+        </h2>
+        <p className="mb-4 text-sm text-text-muted">
+          {t("admin.studentProfile.parentAccessHint")}
+        </p>
+        <form
+          className="flex flex-wrap gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (email) link.mutate(email);
+          }}
+        >
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t("admin.studentProfile.parentEmail")}
+            aria-label={t("admin.studentProfile.parentEmail")}
+            className="min-w-56 flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text"
+          />
+          <Button type="submit" disabled={link.isPending}>
+            {t("admin.studentProfile.linkParent")}
+          </Button>
+        </form>
+        {result && (
+          <p
+            role="status"
+            className={`mt-3 text-sm ${result.ok ? "text-success-fg" : "text-danger"}`}
+          >
+            {result.text}
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
@@ -205,6 +277,8 @@ export default function StudentProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      <ParentLinkCard studentId={studentId} />
 
       {/* Enrollments & progress */}
       <Card className="mb-6">

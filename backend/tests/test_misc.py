@@ -15,10 +15,14 @@ from tests.conftest import (
 
 @pytest.mark.asyncio
 async def test_create_learning_path(client: AsyncClient, admin, org, db):
-    resp = await client.post("/api/v1/learning-paths", json={
-        "title": "Web Dev Path",
-        "description": "Full stack web development",
-    }, headers=auth_header(admin))
+    resp = await client.post(
+        "/api/v1/learning-paths",
+        json={
+            "title": "Web Dev Path",
+            "description": "Full stack web development",
+        },
+        headers=auth_header(admin),
+    )
     assert resp.status_code in (200, 201)
 
 
@@ -30,10 +34,14 @@ async def test_list_learning_paths(client: AsyncClient, student):
 
 @pytest.mark.asyncio
 async def test_student_cannot_create_learning_path(client: AsyncClient, student):
-    resp = await client.post("/api/v1/learning-paths", json={
-        "title": "Nope",
-        "description": "Student path",
-    }, headers=auth_header(student))
+    resp = await client.post(
+        "/api/v1/learning-paths",
+        json={
+            "title": "Nope",
+            "description": "Student path",
+        },
+        headers=auth_header(student),
+    )
     assert resp.status_code == 403
 
 
@@ -46,13 +54,9 @@ async def test_parent_list_children(client: AsyncClient, parent):
     assert resp.status_code == 200
 
 
-@pytest.mark.asyncio
-async def test_parent_link_child(client: AsyncClient, parent, student):
-    resp = await client.post("/api/v1/parent/children/link", json={
-        "child_email": student.email,
-    }, headers=auth_header(parent))
-    # May succeed or fail depending on validation
-    assert resp.status_code in (200, 400, 404)
+# Linking a parent to a child is covered properly in test_parent.py. The test
+# that used to sit here accepted 200, 400 or 404, so it passed while the
+# endpoint was handing any parent any child's grades.
 
 
 @pytest.mark.asyncio
@@ -64,6 +68,7 @@ async def test_student_cannot_access_parent_portal(client: AsyncClient, student)
 @pytest.mark.asyncio
 async def test_parent_view_child_progress(client: AsyncClient, parent, student, db):
     from app.auth.models import ParentChild
+
     pc = ParentChild(parent_id=parent.id, child_id=student.id)
     db.add(pc)
     await db.flush()
@@ -77,6 +82,7 @@ async def test_parent_view_child_progress(client: AsyncClient, parent, student, 
 @pytest.mark.asyncio
 async def test_parent_view_child_grades(client: AsyncClient, parent, student, db):
     from app.auth.models import ParentChild
+
     pc = ParentChild(parent_id=parent.id, child_id=student.id)
     db.add(pc)
     await db.flush()
@@ -171,10 +177,14 @@ async def test_generate_math_problem(client: AsyncClient, student):
 
 @pytest.mark.asyncio
 async def test_check_math_answer(client: AsyncClient, student):
-    resp = await client.post("/api/v1/math-problems/check", json={
-        "user_answer": "42",
-        "correct_answer": "42",
-    }, headers=auth_header(student))
+    resp = await client.post(
+        "/api/v1/math-problems/check",
+        json={
+            "user_answer": "42",
+            "correct_answer": "42",
+        },
+        headers=auth_header(student),
+    )
     assert resp.status_code in (200, 400, 422)
 
 
