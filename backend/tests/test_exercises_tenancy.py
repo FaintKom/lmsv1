@@ -162,9 +162,12 @@ async def test_submitting_to_another_schools_exercise_is_refused(
 ):
     ex = await _exercise_in(db, org2, admin2)
 
+    # interactive_answers, not answers: the latter is a list[dict] and a bad
+    # shape 422s during request parsing, before the guard is ever reached —
+    # which would make this test pass without proving anything.
     resp = await client.post(
         f"/api/v1/exercises/{ex.id}/submit",
-        json={"answers": {"a": "4"}},
+        json={"interactive_answers": {"a": "4"}},
         headers=auth_header(student),
     )
     assert resp.status_code == 404
