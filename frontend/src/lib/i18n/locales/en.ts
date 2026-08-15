@@ -2573,7 +2573,6 @@ const en: TranslationMap = {
  "journal.exercisesShort": "ex",
  "journal.quizzesShort": "quizzes",
  "journal.assignmentsShort": "assignments",
- "journal.registerReadOnly": "Read-only — mark attendance from Today or a session.",
  "journal.noRegisterData": "No sessions recorded for this course yet.",
  "journal.metricLessons": "Lessons today",
  "journal.metricMarked": "Marked",

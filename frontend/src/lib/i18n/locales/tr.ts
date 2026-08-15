@@ -2514,7 +2514,6 @@ const tr: TranslationMap = {
  "journal.exercisesShort": "alıştırma",
  "journal.quizzesShort": "test",
  "journal.assignmentsShort": "ödev",
- "journal.registerReadOnly": "Salt okunur — yoklamayı Bugün sekmesinden veya bir dersten alın.",
  "journal.noRegisterData": "Bu kurs için henüz kayıtlı ders yok.",
  "journal.metricLessons": "Bugünkü dersler",
  "journal.metricMarked": "İşaretlendi",

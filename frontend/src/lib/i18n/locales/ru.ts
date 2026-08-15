@@ -2521,7 +2521,6 @@ const ru: TranslationMap = {
  "journal.exercisesShort": "упр",
  "journal.quizzesShort": "тестов",
  "journal.assignmentsShort": "заданий",
- "journal.registerReadOnly": "Только просмотр — отмечайте посещаемость во вкладке «Сегодня» или в занятии.",
  "journal.noRegisterData": "По этому курсу пока нет занятий.",
  "journal.metricLessons": "Занятий сегодня",
  "journal.metricMarked": "Отмечено",

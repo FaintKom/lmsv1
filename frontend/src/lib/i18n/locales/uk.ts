@@ -2573,7 +2573,6 @@ const uk: TranslationMap = {
  "journal.exercisesShort": "впр",
  "journal.quizzesShort": "тестів",
  "journal.assignmentsShort": "завдань",
- "journal.registerReadOnly": "Лише перегляд — відмічайте відвідуваність на вкладці «Сьогодні» або в занятті.",
  "journal.noRegisterData": "Для цього курсу ще немає занять.",
  "journal.metricLessons": "Занять сьогодні",
  "journal.metricMarked": "Відмічено",
