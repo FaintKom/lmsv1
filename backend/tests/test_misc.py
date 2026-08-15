@@ -102,24 +102,11 @@ async def test_list_plans(client: AsyncClient, admin):
     assert resp.status_code == 200
 
 
-@pytest.mark.asyncio
-async def test_get_subscription(client: AsyncClient, admin):
-    resp = await client.get("/api/v1/billing/subscription", headers=auth_header(admin))
-    # May return 200 with null or 404 if no subscription
-    assert resp.status_code in (200, 404)
-
-
-@pytest.mark.asyncio
-async def test_list_invoices(client: AsyncClient, admin):
-    resp = await client.get("/api/v1/billing/invoices", headers=auth_header(admin))
-    assert resp.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_student_cannot_access_billing(client: AsyncClient, student):
-    resp = await client.get("/api/v1/billing/plans", headers=auth_header(student))
-    # Billing might be accessible to all or restricted
-    assert resp.status_code in (200, 403)
+# Subscription, invoices and the role rules moved to
+# tests/test_billing/test_access.py. What stood here asserted "200 or 404",
+# "200", and — under the name test_student_cannot_access_billing — "200 or
+# 403" against an endpoint that is public by design. None of the three could
+# fail.
 
 
 # ─── Sandbox / Code Execution ────────────────────────────────────────────
