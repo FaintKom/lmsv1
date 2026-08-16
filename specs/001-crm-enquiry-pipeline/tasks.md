@@ -139,14 +139,14 @@ the school's administrators are notified and emailed exactly once.
 
 ### Tests for User Story 2 — write first, prove they fail
 
-- [ ] T031 [US2] Failing test in `backend/tests/test_crm.py`: a due reminder with no assignee notifies the school's administrators
-- [ ] T032 [P] [US2] Failing test: a due reminder is emailed as well as put in the bell, exactly once
-- [ ] T033 [P] [US2] Failing test: a reminder whose enquiry has been closed notifies nobody — it belongs to work that no longer exists
+- [X] T031 [US2] Failing test in `backend/tests/test_crm.py`: a due reminder with no assignee notifies the school's administrators
+- [X] T032 [P] [US2] Failing test: a due reminder is emailed as well as put in the bell, exactly once
+- [X] T033 [P] [US2] Failing test: a reminder whose enquiry has been closed notifies nobody — it belongs to work that no longer exists
 
 ### Implementation for User Story 2
 
-- [ ] T034 [P] [US2] Add `send_crm_reminder(to_email, title, contact_name)` to `backend/app/email/service.py`, linking to the board
-- [ ] T035 [US2] Extend `_sweep_crm_task_reminders` in `backend/app/scheduler.py`: fall back to org administrators when unassigned, queue the email alongside the notification, and skip reminders on closed enquiries (depends on T034)
+- [X] T034 [P] [US2] Add `send_crm_reminder(to_email, title, contact_name)` to `backend/app/email/service.py`, linking to the board
+- [X] T035 [US2] Extend `_sweep_crm_task_reminders` in `backend/app/scheduler.py`: fall back to org administrators when unassigned, queue the email alongside the notification, and skip reminders on closed enquiries (depends on T034)
 
 **Checkpoint**: no enquiry passes its follow-up date unnoticed.
 

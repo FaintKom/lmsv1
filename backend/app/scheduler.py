@@ -73,7 +73,13 @@ async def send_deadline_reminders() -> None:
 
 
 async def _sweep_crm_task_reminders(session) -> int:
-    """Notify assignees about CRM reminders that have come due. Returns count.
+    """Tell somebody about CRM reminders that have come due. Returns count.
+
+    Somebody, not the assignee: a reminder with no assignee reached nobody at
+    all, which is what happened to every reminder carried by a staff member
+    whose account was later deleted. Those fall to the school's administrators.
+    Each recipient gets the bell and an email, because the bell is seen only by
+    a person already signed in.
 
     Split from the job below so tests can drive it with their own session —
     same arrangement as ``_purge_unconfirmed_consent_accounts``. A job that
@@ -85,7 +91,9 @@ async def _sweep_crm_task_reminders(session) -> int:
     """
     from sqlalchemy import select
 
+    from app.auth.models import User, UserRole
     from app.crm.models import Lead, LeadTask
+    from app.email.service import queue_email, send_crm_reminder
     from app.notifications.service import create_notification
 
     now = datetime.now(timezone.utc)
@@ -97,20 +105,48 @@ async def _sweep_crm_task_reminders(session) -> int:
                 LeadTask.done_at.is_(None),
                 LeadTask.notified.is_(False),
                 LeadTask.due_at <= now,
-                LeadTask.assignee_id.is_not(None),
+                # A reminder on a won or lost enquiry belongs to work that no
+                # longer exists. Chasing it spends the one thing the reminder
+                # is meant to protect. Excluded here rather than skipped in the
+                # loop so dead rows never consume the batch — and so a reopened
+                # enquiry brings its reminders back with it.
+                Lead.stage.notin_(("won", "lost")),
             )
             .limit(500)
         )
     ).all()
 
     for task, contact_name in rows:
-        await create_notification(
-            session,
-            user_id=task.assignee_id,
-            title="Follow-up due",
-            body=f"{task.title} — {contact_name}",
-            link="/admin/crm",
-        )
+        # An unassigned reminder used to reach nobody. `assignee_id` is ON
+        # DELETE SET NULL, so this is what happens when whoever was chasing an
+        # enquiry leaves the school: the chase was silently orphaned. It falls
+        # to the office instead.
+        if task.assignee_id:
+            who = select(User).where(User.id == task.assignee_id)
+        else:
+            who = select(User).where(
+                User.org_id == task.org_id,
+                User.role == UserRole.admin,
+                User.is_active.is_(True),
+            )
+        recipients = (await session.execute(who)).scalars().all()
+
+        for person in recipients:
+            await create_notification(
+                session,
+                user_id=person.id,
+                title="Follow-up due",
+                body=f"{task.title} — {contact_name}",
+                link="/admin/crm",
+            )
+            # The bell is only seen by somebody already signed in. Delivery
+            # failures are swallowed inside queue_email on purpose, so this
+            # cannot break the sweep for the reminders after it.
+            queue_email(send_crm_reminder, person.email, task.title, contact_name)
+
+        # Marked in the same transaction whether or not anybody was found: a
+        # task left open for a week must not notify every morning, or people
+        # learn to ignore the bell and the inbox alike.
         task.notified = True
 
     await session.flush()

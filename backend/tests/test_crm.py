@@ -744,3 +744,127 @@ async def test_another_schools_enquiry_cannot_be_reopened(client: AsyncClient, a
 
     resp = await client.post(f"/api/v1/crm/leads/{theirs['id']}/reopen", headers=auth_header(admin))
     assert resp.status_code == 404
+
+
+# ── The follow-up nobody forgets ─────────────────────────────────────────
+#
+# The sweep only ever spoke to an assignee, through the bell, inside the
+# product. Three ways for a reminder to reach nobody follow from that, and a
+# reminder that reaches nobody is the silence enquiries are actually lost to.
+
+
+@pytest.mark.asyncio
+async def test_a_reminder_with_no_assignee_reaches_the_office(client: AsyncClient, db, org, admin):
+    """The staff member who owned it left, and the row went to NULL with them.
+
+    `assignee_id` is ON DELETE SET NULL, so this is not hypothetical: deleting
+    the account of whoever was chasing an enquiry silently orphaned the chase.
+    """
+    from app.crm.models import LeadTask
+    from app.notifications.models import Notification
+    from app.scheduler import _sweep_crm_task_reminders
+
+    colleague = _make_user(db, org, UserRole.admin, suffix="-colleague")
+    await db.flush()
+
+    lead = await _lead(client, admin, contact_name="Waiting On Us")
+    created = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/tasks",
+        json={"title": "Ring back", "due_at": _due(-1)},
+        headers=auth_header(admin),
+    )
+    task = await db.get(LeadTask, uuid.UUID(created.json()["id"]))
+    task.assignee_id = None
+    await db.flush()
+
+    assert await _sweep_crm_task_reminders(db) == 1
+
+    # Both administrators, which the assignee path could never produce.
+    for who in (admin, colleague):
+        notes = (
+            (
+                await db.execute(
+                    sa_select(Notification).where(
+                        Notification.user_id == who.id,
+                        Notification.title == "Follow-up due",
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert len(notes) == 1, f"{who.email} was not told"
+
+
+@pytest.mark.asyncio
+async def test_a_due_reminder_is_emailed_as_well_as_belled_and_only_once(
+    client: AsyncClient, db, admin, monkeypatch
+):
+    """A bell is only seen by somebody already signed in, and the person who
+    forgot to follow up is by definition not looking at the board."""
+    import app.email.service as email_service
+    from app.config import settings
+    from app.scheduler import _sweep_crm_task_reminders
+
+    monkeypatch.setattr(settings, "email_enabled", True)
+    sent: list[tuple] = []
+    monkeypatch.setattr(
+        email_service, "queue_email", lambda func, *a, **k: sent.append((func.__name__, a, k))
+    )
+
+    lead = await _lead(client, admin, contact_name="Emailed Parent")
+    await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/tasks",
+        json={"title": "Send the timetable", "due_at": _due(-1)},
+        headers=auth_header(admin),
+    )
+
+    assert await _sweep_crm_task_reminders(db) == 1
+    assert [name for name, _, _ in sent] == ["send_crm_reminder"]
+    assert admin.email in sent[0][1]
+
+    # A reminder left open for a week must not send every morning, or people
+    # learn to ignore both the bell and the inbox.
+    assert await _sweep_crm_task_reminders(db) == 0
+    assert len(sent) == 1
+
+
+@pytest.mark.asyncio
+async def test_a_reminder_on_a_closed_enquiry_tells_nobody(client: AsyncClient, db, admin):
+    """It belongs to work that no longer exists. Chasing it wastes the one
+    thing the reminder is meant to protect: the office's attention."""
+    from app.notifications.models import Notification
+    from app.scheduler import _sweep_crm_task_reminders
+
+    lead = await _lead(client, admin, contact_name="Gone Elsewhere")
+    await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/tasks",
+        json={"title": "Chase a lost cause", "due_at": _due(-1)},
+        headers=auth_header(admin),
+    )
+    await client.patch(
+        f"/api/v1/crm/leads/{lead['id']}",
+        json={"stage": "lost", "lost_reason": "Chose a school closer to home"},
+        headers=auth_header(admin),
+    )
+
+    assert await _sweep_crm_task_reminders(db) == 0
+
+    notes = (
+        (
+            await db.execute(
+                sa_select(Notification).where(
+                    Notification.user_id == admin.id,
+                    Notification.title == "Follow-up due",
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert notes == []
+
+    # Reopened, it is live work again and the sweep picks it back up. Without
+    # this the "skip" would be indistinguishable from dropping the row.
+    await client.post(f"/api/v1/crm/leads/{lead['id']}/reopen", headers=auth_header(admin))
+    assert await _sweep_crm_task_reminders(db) == 1
