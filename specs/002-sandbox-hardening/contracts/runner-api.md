@@ -63,6 +63,19 @@ backend HTTP client timeout   >   queue ceiling + execution timeout + margin
   while the runner is still working and the pupil sees a connection failure for
   a program that was about to answer.
 
+Measured (T003), `backend/app/sandbox/executor.py:46`:
+
+```python
+async with httpx.AsyncClient(timeout=timeout_seconds + 30) as client:
+```
+
+So the caller allows the execution timeout plus **30 seconds**. With the queue
+ceiling set to the execution timeout — 10 seconds at the default — the sum is
+20 seconds against a 40-second budget, leaving 20 seconds of margin. Comfortable
+today, and precisely the kind of headroom that disappears quietly when somebody
+raises one of the three. That is why T021 asserts the relationship from the real
+values rather than trusting this paragraph.
+
 This relationship MUST be asserted by a test rather than left in a comment. It
 is exactly the kind of thing that holds on the day it is written and quietly
 stops holding when one of the three is tuned.

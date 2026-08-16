@@ -98,6 +98,33 @@ Bounds address space. The JVM and the Go runtime reserve far more than they
 use, so at the platform default of 256MB neither starts. This is the P1 defect;
 it is not a candidate.
 
+**Correction found during implementation (T011): Node is broken too.** The
+failing-test run flagged javascript, which nothing in the audit predicted and
+which I had not expected either. Measured:
+
+```
+docker exec lms-qa-sandbox-1 sh -c '(ulimit -v 262144; node -e "console.log(42)")'
+Fatal process OOM in Failed to reserve virtual memory for CodeRange
+```
+
+V8 reserves a large virtual code range for exactly the same reason the JVM and
+the Go runtime do. So the count is not two languages broken but **four**:
+
+| Language | Runs at the default 256MB allowance today? |
+|---|---|
+| python | yes |
+| javascript | **no** — V8 cannot reserve its code range |
+| java | **no** — the JVM cannot reserve its code cache |
+| go | **no** — twice over: the runtime cannot reserve, and the binary is on a noexec mount |
+| cpp | **no** — the binary is on a noexec mount |
+
+Only Python worked. That is the real size of the defect, and it was found by
+running the tests before the fix rather than by reading the code — which is the
+entire argument for making that demonstration its own task.
+
+Under `RLIMIT_DATA` all three reserving runtimes start; verified in the same
+container.
+
 ### `RLIMIT_DATA` (`ulimit -d`) — chosen
 
 Bounds the data segment, which is what a program actually allocates.
@@ -274,8 +301,24 @@ under the profile before it ships, which the quickstart covers.
 
 **The `pids_limit` value**: it must sit above what a legitimate program needs.
 The JVM alone starts several threads, and threads count towards the process
-limit. The number is chosen after measuring the resting and peak process count
-of each language, not by picking one that looks generous.
+limit. Measured (T002) in the QA container, `ps -eLf | wc -l` while each runtime
+was up:
+
+| State | Threads | Cost of one execution |
+|---|---|---|
+| Runner at rest | 6 | — |
+| One Java program running | 19 | **13** |
+| One Node program running | 13 | 7 |
+| One Python program running | 7 | 1 |
+
+Java is the expensive one by a wide margin, and `javac` is itself a JVM, so a
+request can hold roughly that many threads in either of its two phases.
+
+With the concurrency bound of Finding C — 4 in production — the worst
+legitimate case is about `6 + 4 × 13 = 58` threads. A `pids_limit` of **256**
+leaves more than four times that headroom while still stopping a fork bomb dead,
+because a fork bomb reaches thousands within a second rather than dozens. The
+number is chosen from that arithmetic, not from what looked generous.
 
 ---
 

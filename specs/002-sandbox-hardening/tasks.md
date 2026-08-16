@@ -35,9 +35,9 @@ compose files at the repository root.
 **Purpose**: know the ground before standing on it. Two of these are measurements
 the plan depends on and deliberately did not guess.
 
-- [ ] T001 Bring up the QA sandbox with `docker compose -f docker-compose.qa.yml up -d --build sandbox` and confirm a correct Python program returns its output through the existing path
-- [ ] T002 [P] Record the resting and peak thread count of each of the five languages — `docker exec lms-qa-sandbox-1 sh -c 'ps -eLf | wc -l'` while each runtime is up — into `specs/002-sandbox-hardening/research.md` under Finding G, because `pids_limit` in T032 must be chosen against the JVM's real thread count and not a generous-looking number
-- [ ] T003 [P] Confirm the backend's current HTTP client timeout to the sandbox in `backend/app/exercises/service.py` and record it in `specs/002-sandbox-hardening/contracts/runner-api.md` — the timeout arithmetic in T021 has to be checked against a real number
+- [X] T001 Bring up the QA sandbox with `docker compose -f docker-compose.qa.yml up -d --build sandbox` and confirm a correct Python program returns its output through the existing path
+- [X] T002 [P] Record the resting and peak thread count of each of the five languages — `docker exec lms-qa-sandbox-1 sh -c 'ps -eLf | wc -l'` while each runtime is up — into `specs/002-sandbox-hardening/research.md` under Finding G, because `pids_limit` in T032 must be chosen against the JVM's real thread count and not a generous-looking number
+- [X] T003 [P] Confirm the backend's current HTTP client timeout to the sandbox in `backend/app/exercises/service.py` and record it in `specs/002-sandbox-hardening/contracts/runner-api.md` — the timeout arithmetic in T021 has to be checked against a real number
 
 ---
 
@@ -51,10 +51,10 @@ compose file gives the backend `SANDBOX_URL: http://sandbox:8001` and maps no
 port. Every limit in this feature is a runner property, so without both of these
 each story would invent its own way to observe one.
 
-- [ ] T004 Add a host port mapping for the sandbox service in `docker-compose.qa.yml` only — QA is the test environment, and production must keep the sandbox unreachable except over `sandbox-net`
-- [ ] T005 Create `sandbox/tests/conftest.py` with a fixture that posts to the running QA sandbox and returns the parsed result, plus a helper that asserts no descendant of a submission survives (used by T022)
-- [ ] T006 Add `limit_hit` and `queued_ms` to the result returned by `sandbox/runner/executor.py` and `sandbox/runner/main.py`, per data-model.md — `limit_hit` null and `queued_ms` zero on every path that exists today, so nothing changes behaviour yet and every story below has one field to assert on
-- [ ] T007 [P] Add a test in `backend/tests/test_sandbox_api.py` asserting an unrecognised `limit_hit` value is rendered as a generic refusal showing the program's own stderr, never as success — contracts/runner-api.md requires this so that adding a limit later costs nothing
+- [X] T004 Add a host port mapping for the sandbox service in `docker-compose.qa.yml` only — QA is the test environment, and production must keep the sandbox unreachable except over `sandbox-net`
+- [X] T005 Create `sandbox/tests/conftest.py` with a fixture that posts to the running QA sandbox and returns the parsed result, plus a helper that asserts no descendant of a submission survives (used by T022)
+- [X] T006 Add `limit_hit` and `queued_ms` to the result returned by `sandbox/runner/executor.py` and `sandbox/runner/main.py`, per data-model.md — `limit_hit` null and `queued_ms` zero on every path that exists today, so nothing changes behaviour yet and every story below has one field to assert on
+- [X] T007 [P] Add a test in `backend/tests/test_sandbox_api.py` asserting an unrecognised `limit_hit` value is rendered as a generic refusal showing the program's own stderr, never as success — contracts/runner-api.md requires this so that adding a limit later costs nothing
 
 **Checkpoint**: the runner can be driven directly and can say why it stopped
 something. No limit has changed yet.
@@ -77,20 +77,20 @@ delivered while looking complete.
 
 ### Tests for User Story 1 — write first, prove they fail
 
-- [ ] T008 [US1] Failing test in `sandbox/tests/test_languages.py`: a correct program in each of python, javascript, java, cpp and go returns its output at `memory_limit_mb=256`. Expected to fail today on java (the VM cannot reserve its code cache) and on cpp and go (`Permission denied` — the binary sits on a `noexec` mount)
-- [ ] T009 [P] [US1] Failing test in `sandbox/tests/test_limits_memory.py`: a program allocating 400MB at `memory_limit_mb=256` returns `limit_hit == "memory"` — **and its control in the same test**, the same allocation at a 1024MB allowance succeeding. Without the control the test passes on a machine that is merely short of memory
-- [ ] T010 [P] [US1] Failing test in `sandbox/tests/test_limits_memory.py`: the message a pupil receives names the memory allowance and does not contain the runtime's own initialisation wording (FR-002)
-- [ ] T011 [US1] Run T008–T010 against the unchanged runner and record which failed and how in the pull request — this is the demonstration, not a formality
+- [X] T008 [US1] Failing test in `sandbox/tests/test_languages.py`: a correct program in each of python, javascript, java, cpp and go returns its output at `memory_limit_mb=256`. Expected to fail today on java (the VM cannot reserve its code cache) and on cpp and go (`Permission denied` — the binary sits on a `noexec` mount)
+- [X] T009 [P] [US1] Failing test in `sandbox/tests/test_limits_memory.py`: a program allocating 400MB at `memory_limit_mb=256` returns `limit_hit == "memory"` — **and its control in the same test**, the same allocation at a 1024MB allowance succeeding. Without the control the test passes on a machine that is merely short of memory
+- [X] T010 [P] [US1] Failing test in `sandbox/tests/test_limits_memory.py`: the message a pupil receives names the memory allowance and does not contain the runtime's own initialisation wording (FR-002)
+- [X] T011 [US1] Run T008–T010 against the unchanged runner and record which failed and how in the pull request — this is the demonstration, not a formality
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Replace the `ulimit -v` prefix in `sandbox/runner/executor.py` with `RLIMIT_DATA` set through `preexec_fn` on the child, per research.md Finding B, and delete the shell prefix string entirely
-- [ ] T013 [US1] Add an execute-permitted working area to the sandbox service in all four compose files — `docker-compose.yml`, `docker-compose.prod.yml`, `docker-compose.staging.yml`, `docker-compose.qa.yml` — as a second small tmpfs without `noexec`, leaving `/tmp` itself `noexec` (research.md Finding A)
-- [ ] T014 [US1] Point compilation and execution of the compiled languages at that area in `sandbox/runner/executor.py`, wiping it per execution; leave interpreted languages on `/tmp`
-- [ ] T015 [P] [US1] Set `HOME` and `GOCACHE` to a writable path in `sandbox/Dockerfile` — Go's build cache defaulted to `/root/.cache` on a read-only filesystem, a second reason Go failed
-- [ ] T016 [US1] Map a memory refusal to `limit_hit: "memory"` in `sandbox/runner/executor.py`, from the child's allocation failure or an OOM kill, per data-model.md
-- [ ] T017 [US1] Apply the time allowance to compilation as well as execution in `sandbox/runner/executor.py` (FR-004) — a compiler can be made to consume as much as a program can
-- [ ] T018 [US1] Rebuild the QA sandbox, run T008–T010 green, and run the existing `backend/tests/test_sandbox_api.py` and `test_sandbox_demo.py` unchanged
+- [X] T012 [US1] Replace the `ulimit -v` prefix in `sandbox/runner/executor.py` with `RLIMIT_DATA` set through `preexec_fn` on the child, per research.md Finding B, and delete the shell prefix string entirely
+- [X] T013 [US1] Add an execute-permitted working area to the sandbox service in all four compose files — `docker-compose.yml`, `docker-compose.prod.yml`, `docker-compose.staging.yml`, `docker-compose.qa.yml` — as a second small tmpfs without `noexec`, leaving `/tmp` itself `noexec` (research.md Finding A)
+- [X] T014 [US1] Point compilation and execution of the compiled languages at that area in `sandbox/runner/executor.py`, wiping it per execution; leave interpreted languages on `/tmp`
+- [X] T015 [P] [US1] Set `HOME` and `GOCACHE` to a writable path in `sandbox/Dockerfile` — Go's build cache defaulted to `/root/.cache` on a read-only filesystem, a second reason Go failed
+- [X] T016 [US1] Map a memory refusal to `limit_hit: "memory"` in `sandbox/runner/executor.py`, from the child's allocation failure or an OOM kill, per data-model.md
+- [X] T017 [US1] Apply the time allowance to compilation as well as execution in `sandbox/runner/executor.py` (FR-004) — a compiler can be made to consume as much as a program can
+- [X] T018 [US1] Rebuild the QA sandbox, run T008–T010 green, and run the existing `backend/tests/test_sandbox_api.py` and `test_sandbox_demo.py` unchanged
 
 **Checkpoint**: every advertised language works, and the product stops claiming
 two it cannot run.

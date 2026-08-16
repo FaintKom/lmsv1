@@ -17,6 +17,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget \
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 
+# The filesystem is read-only at runtime, so anything a toolchain wants to write
+# has to point at a tmpfs. Go's build cache defaults to $HOME/.cache and failed
+# with "mkdir /root/.cache: read-only file system" — a second reason Go never
+# ran, independent of both the memory limit and noexec.
+ENV HOME=/tmp
+ENV GOCACHE=/tmp/.gocache
+
+# Mount point for the one directory that permits execution. Created here so it
+# exists whether or not a compose file mounts over it; see executor.EXEC_DIR.
+RUN mkdir -p /sandbox-exec
+
 WORKDIR /app
 
 RUN pip install --no-cache-dir fastapi uvicorn

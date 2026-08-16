@@ -88,6 +88,10 @@ services:
     read_only: true
     tmpfs:
       - /tmp:size=100M
+      # The one directory that permits execution: a binary our own compiler
+      # just produced from the pupil's source. /tmp stays noexec, so four of
+      # the five languages never gain the permission (research.md Finding A).
+      - /sandbox-exec:size=64M,exec
     security_opt:
       - "no-new-privileges:true"
     restart: unless-stopped
