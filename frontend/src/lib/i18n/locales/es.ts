@@ -825,6 +825,13 @@ const es: TranslationMap = {
  "crm.event.call": "Llamada",
  "crm.event.email": "Correo",
  "crm.event.converted": "Matriculado",
+ "crm.event.reopened": "Reabierta",
+ "crm.reopen": "Reabrir esta solicitud",
+ "crm.reopenHint": "Vuelve a «contactado» y conserva su historial y el motivo de la pérdida.",
+ "crm.reopenFailed": "No se pudo reabrir la solicitud.",
+ "crm.showClosed": "Mostrar solicitudes cerradas",
+ "crm.hideClosed": "Ocultar solicitudes cerradas",
+ "crm.noClosed": "Todavía no hay cerradas.",
  "nav.integrations": "Integraciones",
  "nav.settings": "Configuración",
 

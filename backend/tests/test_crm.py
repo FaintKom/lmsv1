@@ -656,3 +656,91 @@ async def test_the_board_is_told_where_its_own_enquiry_page_lives(
     # And it is the caller's own school, not whichever one asked first.
     other = (await client.get("/api/v1/crm/meta", headers=auth_header(admin2))).json()
     assert other["enquiry_path"] != meta["enquiry_path"]
+
+
+# ── A closed enquiry that comes back ─────────────────────────────────────
+#
+# Families change their minds, and a school that cannot reopen an enquiry
+# opens a second one. Two rows for one family is what makes the funnel's
+# numbers wrong: the same enquiry counts twice, and whichever half is read
+# first is missing the reason the first attempt failed.
+
+
+@pytest.mark.asyncio
+async def test_reopening_returns_a_lost_enquiry_with_its_history_intact(client: AsyncClient, admin):
+    lead = await _lead(client, admin, contact_name="Came Back")
+    await client.patch(
+        f"/api/v1/crm/leads/{lead['id']}",
+        json={"stage": "lost", "lost_reason": "Chose a school closer to home"},
+        headers=auth_header(admin),
+    )
+
+    resp = await client.post(f"/api/v1/crm/leads/{lead['id']}/reopen", headers=auth_header(admin))
+    assert resp.status_code == 200, resp.text
+    reopened = resp.json()
+    assert reopened["stage"] == "contacted"
+    # Why it was lost the first time survives. It is the record of what to
+    # avoid saying twice, and a school that loses it learns nothing.
+    assert reopened["lost_reason"] == "Chose a school closer to home"
+
+    events = (
+        await client.get(f"/api/v1/crm/leads/{lead['id']}/events", headers=auth_header(admin))
+    ).json()["items"]
+    assert [e["kind"] for e in events] == ["created", "stage_changed", "reopened"]
+
+    # And it is back on the board without asking for closed rows.
+    board = (await client.get("/api/v1/crm/leads", headers=auth_header(admin))).json()["items"]
+    assert lead["id"] in {row["id"] for row in board}
+
+
+@pytest.mark.asyncio
+async def test_a_converted_enquiry_cannot_be_reopened(client: AsyncClient, admin):
+    """The pupil already exists. Reopening would ask the office to enrol them
+    a second time."""
+    lead = await _lead(client, admin, contact_name="Already Enrolled")
+    converted = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/convert",
+        json={"student_email": f"reopen-{uuid.uuid4().hex[:8]}@example.com"},
+        headers=auth_header(admin),
+    )
+    assert converted.status_code == 200
+
+    resp = await client.post(f"/api/v1/crm/leads/{lead['id']}/reopen", headers=auth_header(admin))
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_an_open_enquiry_cannot_be_reopened(client: AsyncClient, admin):
+    """There is nothing to reopen, and answering 200 would put a `reopened`
+    line in a history where nothing was ever closed."""
+    lead = await _lead(client, admin, contact_name="Still Open")
+
+    resp = await client.post(f"/api/v1/crm/leads/{lead['id']}/reopen", headers=auth_header(admin))
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_another_schools_enquiry_cannot_be_reopened(client: AsyncClient, admin, admin2):
+    theirs = await _lead(client, admin2, contact_name="Their lost one")
+    await client.patch(
+        f"/api/v1/crm/leads/{theirs['id']}",
+        json={"stage": "lost", "lost_reason": "Price"},
+        headers=auth_header(admin2),
+    )
+
+    # Their own administrator can. Without this the assertion below passes on a
+    # server with no such endpoint, where everything answers 404.
+    mine = await client.post(
+        f"/api/v1/crm/leads/{theirs['id']}/reopen", headers=auth_header(admin2)
+    )
+    assert mine.status_code == 200, mine.text
+
+    # Close it again so the two calls differ only in who is asking.
+    await client.patch(
+        f"/api/v1/crm/leads/{theirs['id']}",
+        json={"stage": "lost", "lost_reason": "Price"},
+        headers=auth_header(admin2),
+    )
+
+    resp = await client.post(f"/api/v1/crm/leads/{theirs['id']}/reopen", headers=auth_header(admin))
+    assert resp.status_code == 404

@@ -828,6 +828,13 @@ const tr: TranslationMap = {
  "crm.event.call": "Arama",
  "crm.event.email": "E-posta",
  "crm.event.converted": "Kaydoldu",
+ "crm.event.reopened": "Yeniden açıldı",
+ "crm.reopen": "Bu başvuruyu yeniden aç",
+ "crm.reopenHint": "Geçmişi ve kaybedilme nedeni korunarak «iletişim kuruldu» aşamasına döner.",
+ "crm.reopenFailed": "Başvuru yeniden açılamadı.",
+ "crm.showClosed": "Kapanan başvuruları göster",
+ "crm.hideClosed": "Kapanan başvuruları gizle",
+ "crm.noClosed": "Henüz kapanan yok.",
  "nav.integrations": "Entegrasyonlar",
  "nav.settings": "Ayarlar",
 

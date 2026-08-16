@@ -24,6 +24,7 @@ import {
   fetchEvents,
   fetchLeads,
   fetchMeta,
+  reopenLead,
   fetchSummary,
   fetchTasks,
   updateLead,
@@ -64,10 +65,16 @@ export default function CrmPage() {
   const [converted, setConverted] = useState<string | null>(null);
   const [lostReason, setLostReason] = useState("");
   const [enquiryPath, setEnquiryPath] = useState<string | null>(null);
+  // Closed enquiries are off the board by design — but a family that comes
+  // back has to be findable, or the office opens a second record for them.
+  const [showClosed, setShowClosed] = useState(false);
 
   const reload = useCallback(async () => {
     try {
-      const [rows, counts] = await Promise.all([fetchLeads(), fetchSummary()]);
+      const [rows, counts] = await Promise.all([
+        fetchLeads(showClosed ? { include_closed: true } : undefined),
+        fetchSummary(),
+      ]);
       setLeads(rows);
       setSummary(counts);
     } catch {
@@ -75,7 +82,7 @@ export default function CrmPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, showClosed]);
 
   useEffect(() => {
     fetchMeta()
@@ -165,6 +172,18 @@ export default function CrmPage() {
   const finishTask = async (taskId: string) => {
     await completeTask(taskId);
     if (selected) setTasks(await fetchTasks(selected.id));
+  };
+
+  const reopen = async (lead: Lead) => {
+    setError(null);
+    try {
+      const back = await reopenLead(lead.id);
+      setSelected(back);
+      await reload();
+      setEvents(await fetchEvents(lead.id));
+    } catch {
+      setError(t("crm.reopenFailed"));
+    }
   };
 
   const convert = async (e: React.FormEvent) => {
@@ -291,6 +310,34 @@ export default function CrmPage() {
         ))}
       </div>
 
+      {/* Closed enquiries, on request. A family that comes back has to be
+          findable, or the office opens a second record for the same people
+          and the funnel counts them twice. */}
+      <div className="space-y-2">
+        <Button variant="outline" size="sm" onClick={() => setShowClosed((v) => !v)}>
+          {showClosed ? t("crm.hideClosed") : t("crm.showClosed")}
+        </Button>
+        {showClosed && (
+          <div className="flex flex-wrap gap-2">
+            {leads
+              .filter((lead) => lead.stage === "won" || lead.stage === "lost")
+              .map((lead) => (
+                <button
+                  key={lead.id}
+                  onClick={() => openLead(lead)}
+                  className="rounded-lg border border-border bg-surface p-3 text-left transition-colors hover:bg-surface-2"
+                >
+                  <p className="text-sm font-medium text-text">{lead.contact_name}</p>
+                  <p className="text-xs text-text-muted">{t(`crm.stage.${lead.stage}`)}</p>
+                </button>
+              ))}
+            {leads.filter((lead) => lead.stage === "won" || lead.stage === "lost").length === 0 && (
+              <p className="px-1 text-xs text-text-subtle">{t("crm.noClosed")}</p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* The enquiry under discussion */}
       {selected && (
         <Card>
@@ -317,6 +364,15 @@ export default function CrmPage() {
                   ))}
               </div>
             </div>
+
+            {selected.stage === "lost" && (
+              <div className="space-y-1">
+                <Button variant="outline" onClick={() => reopen(selected)}>
+                  {t("crm.reopen")}
+                </Button>
+                <p className="text-xs text-text-muted">{t("crm.reopenHint")}</p>
+              </div>
+            )}
 
             {selected.stage !== "lost" && (
               <label className="flex flex-col gap-1 text-xs text-text-muted">

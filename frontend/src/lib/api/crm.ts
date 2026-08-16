@@ -90,6 +90,11 @@ export async function updateLead(id: string, body: Partial<Lead>): Promise<Lead>
   return data;
 }
 
+export async function reopenLead(id: string): Promise<Lead> {
+  const { data } = await apiClient.post<Lead>(`/crm/leads/${id}/reopen`);
+  return data;
+}
+
 export async function deleteLead(id: string): Promise<void> {
   await apiClient.delete(`/crm/leads/${id}`);
 }

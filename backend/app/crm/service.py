@@ -174,6 +174,34 @@ async def update_lead(db: AsyncSession, user: User, lead_id: uuid.UUID, data: di
     return lead
 
 
+async def reopen_lead(db: AsyncSession, user: User, lead_id: uuid.UUID) -> Lead:
+    """Bring a lost enquiry back, on the record it already has.
+
+    Families change their minds. Without this a school opens a second enquiry
+    for the same family, and the funnel then counts them twice while each half
+    is missing what the other knows.
+
+    It returns to `contacted` rather than `new`, because somebody has already
+    spoken to them and pretending otherwise would restart a conversation that
+    happened. `lost_reason` is deliberately kept: it is the record of what went
+    wrong the first time, and the one thing worth reading before the second.
+    """
+    lead = await get_lead(db, user, lead_id)
+
+    if lead.stage == "won" or lead.converted_student_id is not None:
+        # The pupil exists. Reopening asks the office to enrol them twice.
+        raise BadRequestError("This enquiry became a pupil and cannot be reopened")
+    if lead.stage != "lost":
+        # Answering 200 would write a "reopened" line into a history where
+        # nothing was ever closed.
+        raise BadRequestError("This enquiry is already open")
+
+    lead.stage = "contacted"
+    await _record(db, lead, kind="reopened", body="Reopened after being lost", author=user)
+    await db.flush()
+    return lead
+
+
 async def delete_lead(db: AsyncSession, user: User, lead_id: uuid.UUID) -> None:
     lead = await get_lead(db, user, lead_id)
     await db.delete(lead)

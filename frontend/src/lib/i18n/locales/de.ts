@@ -887,6 +887,13 @@ const de: TranslationMap = {
  "crm.event.call": "Anruf",
  "crm.event.email": "E-Mail",
  "crm.event.converted": "Angemeldet",
+ "crm.event.reopened": "Wieder geöffnet",
+ "crm.reopen": "Diese Anfrage wieder öffnen",
+ "crm.reopenHint": "Sie geht zurück auf «kontaktiert» und behält Verlauf und Verlustgrund.",
+ "crm.reopenFailed": "Die Anfrage konnte nicht wieder geöffnet werden.",
+ "crm.showClosed": "Geschlossene Anfragen anzeigen",
+ "crm.hideClosed": "Geschlossene Anfragen ausblenden",
+ "crm.noClosed": "Noch nichts geschlossen.",
  "nav.integrations": "Integrationen",
  "nav.settings": "Einstellungen",
 
