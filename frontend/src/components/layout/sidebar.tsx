@@ -33,6 +33,7 @@ import {
  CalendarClock,
  BookOpenCheck,
  Mail,
+ Contact,
 } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { OrgSwitcher } from "./org-switcher";
@@ -98,6 +99,9 @@ export function Sidebar({ open, onClose, onCollapse }: SidebarProps) {
  const adminNav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
  { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
  ...(isAdminOnly && isMenuVisible("users") ? [{ href: "/admin/users", label: t("nav.users"), icon: Users }] : []),
+ // Admin-only: the enquiry pipeline is the office's business, and the
+ // endpoints refuse teachers anyway.
+ ...(isAdminOnly && isMenuVisible("crm") ? [{ href: "/admin/crm", label: t("nav.crm"), icon: Contact }] : []),
  ...(isMenuVisible("groups") ? [{ href: "/admin/groups", label: t("nav.groups"), icon: UsersRound }] : []),
  ...(isMenuVisible("courses") ? [{ href: "/admin/courses", label: t("nav.courses"), icon: BookOpen }] : []),
  ...(isMenuVisible("content_library") ? [{ href: "/admin/content-library", label: t("nav.contentLibrary"), icon: Library }] : []),
