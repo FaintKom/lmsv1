@@ -37,6 +37,9 @@ const PUBLIC_ROUTES = [
   "/refund",
   "/acceptable-use",
   "/copyright",
+  // A school's own enquiry page. Public, so it is audited here; the slug is
+  // the one the QA seed creates.
+  "/s/qa-org/enquire",
 ];
 
 type Violation = { kind: "surface" | "contrast"; where: string; detail: string };

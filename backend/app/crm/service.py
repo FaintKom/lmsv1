@@ -191,6 +191,103 @@ async def _validate_course(db: AsyncSession, user: User, course_id: uuid.UUID | 
         raise NotFoundError("Course not found")
 
 
+# ── The school's own website ─────────────────────────────────────────────
+#
+# No caller, so no caller's org to scope by. The slug in the path is the only
+# thing naming a school, which makes it the boundary: everything below resolves
+# it once, to an *active* school, and works from that row rather than from
+# anything else the request carried.
+
+
+async def org_of(db: AsyncSession, user: User) -> Organization:
+    """The caller's own school. Never a slug or an id from the request."""
+    org = (
+        await db.execute(select(Organization).where(Organization.id == user.org_id))
+    ).scalar_one_or_none()
+    if org is None:
+        raise NotFoundError("School not found")
+    return org
+
+
+async def public_school(db: AsyncSession, slug: str) -> Organization:
+    """The school behind a public URL, or nothing.
+
+    An inactive school reads exactly like one that never existed. A school that
+    has stopped paying stops collecting enquiries, and saying so in the status
+    code would turn this into a directory of who our customers used to be.
+    """
+    org = (
+        await db.execute(
+            select(Organization).where(
+                Organization.slug == (slug or "").strip().lower(),
+                Organization.is_active.is_(True),
+            )
+        )
+    ).scalar_one_or_none()
+    if org is None:
+        raise NotFoundError("School not found")
+    return org
+
+
+async def public_courses(db: AsyncSession, org: Organization) -> list[Course]:
+    """What the enquiry form may offer as "interested in".
+
+    Published only. A draft course is a plan, and a parent asking about one is
+    an enquiry the school cannot answer.
+    """
+    from app.courses.models import CourseStatus
+
+    rows = await db.execute(
+        select(Course)
+        .where(Course.org_id == org.id, Course.status == CourseStatus.published)
+        .order_by(Course.title)
+    )
+    return list(rows.scalars().all())
+
+
+async def create_public_lead(db: AsyncSession, org: Organization, data: dict) -> Lead:
+    """Take an enquiry from a stranger on the school's website.
+
+    Deliberately *not* `create_lead` with a synthetic user. That path takes an
+    owner and a stage from its caller, and this caller is the open internet.
+    Source, stage and owner are decided here, not accepted.
+    """
+    contact_name = (data.get("contact_name") or "").strip()
+    if not contact_name:
+        raise BadRequestError("A contact name is required")
+    if not (data.get("contact_email") or data.get("contact_phone")):
+        raise BadRequestError("An email address or a phone number is required")
+
+    # A course id that is not this school's is dropped rather than refused.
+    # Refusing would answer "does this id belong to you?" for any id offered.
+    course_id = data.get("interest_course_id")
+    if course_id is not None:
+        owned = (
+            await db.execute(
+                select(Course.id).where(Course.id == course_id, Course.org_id == org.id)
+            )
+        ).scalar_one_or_none()
+        course_id = owned
+
+    lead = Lead(
+        org_id=org.id,
+        contact_name=contact_name,
+        contact_email=(data.get("contact_email") or None),
+        contact_phone=(data.get("contact_phone") or None),
+        student_name=(data.get("student_name") or None),
+        interest_course_id=course_id,
+        interest_note=(data.get("interest_note") or None),
+        stage="new",
+        source="website",
+        owner_id=None,
+    )
+    db.add(lead)
+    await db.flush()
+    await _record(db, lead, kind="created", body="Submitted from the school's website", author=None)
+    await db.flush()
+    return lead
+
+
 async def _validate_staff(
     db: AsyncSession, user: User, owner_id: uuid.UUID | None
 ) -> uuid.UUID | None:

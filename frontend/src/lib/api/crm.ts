@@ -45,6 +45,8 @@ export interface CrmMeta {
   stages: string[];
   sources: string[];
   event_kinds: string[];
+  /** Where this school's own public enquiry page lives, e.g. /s/qa-org/enquire. */
+  enquiry_path: string;
 }
 
 export interface ConvertResult {
@@ -131,4 +133,35 @@ export async function convertLead(
 ): Promise<ConvertResult> {
   const { data } = await apiClient.post<ConvertResult>(`/crm/leads/${leadId}/convert`, body);
   return data;
+}
+
+/* ── The school's own website ───────────────────────────────────────────
+ *
+ * Signed out. These are the only calls in this file a stranger can make, and
+ * the enquiry answers the same way every time by design — there is nothing in
+ * the response to branch on, and nothing worth reading back.
+ */
+
+export interface PublicSchool {
+  name: string;
+  slug: string;
+  courses: { id: string; title: string }[];
+}
+
+export interface PublicEnquiry {
+  contact_name: string;
+  contact_email?: string;
+  contact_phone?: string;
+  student_name?: string;
+  interest_course_id?: string;
+  interest_note?: string;
+}
+
+export async function fetchPublicSchool(slug: string): Promise<PublicSchool> {
+  const { data } = await apiClient.get<PublicSchool>(`/crm/public/${encodeURIComponent(slug)}`);
+  return data;
+}
+
+export async function submitPublicEnquiry(slug: string, body: PublicEnquiry): Promise<void> {
+  await apiClient.post(`/crm/public/${encodeURIComponent(slug)}/enquiries`, body);
 }
