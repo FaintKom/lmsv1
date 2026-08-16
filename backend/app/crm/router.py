@@ -122,12 +122,22 @@ def _task_json(task: LeadTask) -> dict:
 
 
 @router.get("/meta")
-async def crm_meta(user: User = Depends(require_role(*_STAFF))):
-    """The vocabulary the board is built from — stages, sources, event kinds."""
+async def crm_meta(
+    user: User = Depends(require_role(*_STAFF)),
+    db: AsyncSession = Depends(get_db),
+):
+    """The vocabulary the board is built from — stages, sources, event kinds.
+
+    And where this school's public enquiry page lives. A form the office cannot
+    find is a form nobody links to, so the address travels with the board that
+    receives what it collects.
+    """
+    org = await service.org_of(db, user)
     return {
         "stages": list(LEAD_STAGES),
         "sources": list(LEAD_SOURCES),
         "event_kinds": list(EVENT_KINDS),
+        "enquiry_path": f"/s/{org.slug}/enquire",
     }
 
 

@@ -82,3 +82,22 @@ test("converting it produces a pupil who was actually invited", async ({ page })
   await page.goto(`${BASE_URL}/admin/users`);
   await expect(page.getByText(PUPIL_EMAIL).first()).toBeVisible({ timeout: 15_000 });
 });
+
+test("an enquiry left on the school's own page reaches the board", async ({ page }) => {
+  // Signed out on purpose. Nobody filling in a school's website has an account,
+  // and the whole point of this page is that the office does not retype it.
+  const webContact = `E2E Web Parent ${STAMP}`;
+
+  await page.goto(`${BASE_URL}/s/qa-org/enquire`);
+  await page.getByLabel(/your name/i).fill(webContact);
+  await page.getByLabel(/^email$/i).fill(`e2e-web-${STAMP}@qa.example.com`.toLowerCase());
+  await page.getByLabel(/who would be learning/i).fill(`E2E Web Pupil ${STAMP}`);
+  await page.getByRole("button", { name: /send enquiry/i }).click();
+
+  await expect(page.getByRole("status")).toContainText(/has your enquiry/i, { timeout: 15_000 });
+
+  // Now from the office's seat: it is on the board, nobody retyped it.
+  await authenticate(page.context(), ADMIN);
+  await page.goto(`${BASE_URL}/admin/crm`);
+  await expect(page.getByText(webContact).first()).toBeVisible({ timeout: 15_000 });
+});

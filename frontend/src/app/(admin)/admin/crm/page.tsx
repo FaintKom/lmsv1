@@ -63,6 +63,7 @@ export default function CrmPage() {
   const [convertEmail, setConvertEmail] = useState("");
   const [converted, setConverted] = useState<string | null>(null);
   const [lostReason, setLostReason] = useState("");
+  const [enquiryPath, setEnquiryPath] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -78,7 +79,10 @@ export default function CrmPage() {
 
   useEffect(() => {
     fetchMeta()
-      .then((meta) => setStages(meta.stages))
+      .then((meta) => {
+        setStages(meta.stages);
+        setEnquiryPath(meta.enquiry_path);
+      })
       .catch(() => setStages(["new", "contacted", "trial_scheduled", "trial_done"]));
     reload();
   }, [reload]);
@@ -202,6 +206,19 @@ export default function CrmPage() {
       <div>
         <h1 className="text-2xl font-bold text-text">{t("crm.title")}</h1>
         <p className="text-base text-text-muted">{t("crm.subtitle")}</p>
+        {enquiryPath && (
+          <p className="text-sm text-text-muted">
+            {t("crm.enquiryPageIs")}{" "}
+            <a
+              href={enquiryPath}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary underline"
+            >
+              {enquiryPath}
+            </a>
+          </p>
+        )}
       </div>
 
       {error && (

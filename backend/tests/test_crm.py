@@ -506,3 +506,153 @@ async def test_the_summary_counts_every_stage(client: AsyncClient, admin):
     assert summary["new"] >= 1
     assert summary["contacted"] >= 1
     assert "won" in summary and "lost" in summary
+
+
+# ── The school's own website ─────────────────────────────────────────────
+#
+# The public surface. Everything above this line has a signed-in administrator
+# behind it; nothing below does, which is why each of these asks what an
+# anonymous stranger can learn as well as what they can do.
+
+
+PUBLIC = "/api/v1/crm/public"
+
+
+@pytest.mark.asyncio
+async def test_a_stranger_can_leave_an_enquiry_and_it_lands_on_the_board(
+    client: AsyncClient, org, admin
+):
+    resp = await client.post(
+        f"{PUBLIC}/{org.slug}/enquiries",
+        json={
+            "contact_name": "Passing Parent",
+            "contact_email": "passing.parent@example.com",
+            "student_name": "Small Passer",
+            "interest_note": "Saturday mornings if possible",
+        },
+    )
+    assert resp.status_code == 200, resp.text
+
+    board = (await client.get("/api/v1/crm/leads", headers=auth_header(admin))).json()["items"]
+    landed = [lead for lead in board if lead["contact_name"] == "Passing Parent"]
+    assert len(landed) == 1
+    assert landed[0]["stage"] == "new"
+    assert landed[0]["source"] == "website"
+    # Nobody at the school has picked it up yet, and the form cannot assign it.
+    assert landed[0]["owner_id"] is None
+    assert landed[0]["student_name"] == "Small Passer"
+
+
+@pytest.mark.asyncio
+async def test_the_form_never_says_whether_an_address_has_written_before(client: AsyncClient, org):
+    """FR-019. A form that answers differently the second time is a directory
+    of everyone who has enquired, readable by anyone with a browser."""
+    body = {"contact_name": "Repeat Parent", "contact_email": "repeat@example.com"}
+
+    first = await client.post(f"{PUBLIC}/{org.slug}/enquiries", json=body)
+    second = await client.post(f"{PUBLIC}/{org.slug}/enquiries", json=body)
+
+    assert first.status_code == second.status_code == 200
+    assert first.content == second.content
+    # And the answer carries nothing to correlate against — no id, no count.
+    payload = first.json()
+    assert "id" not in payload
+    assert not any(isinstance(v, int) for v in payload.values())
+
+
+@pytest.mark.asyncio
+async def test_an_unknown_or_closed_school_reveals_nothing(client: AsyncClient, db, org):
+    # The control. Without it every assertion below passes on a server with no
+    # such endpoint at all, which is how a test comes to read as coverage.
+    open_page = await client.get(f"{PUBLIC}/{org.slug}")
+    assert open_page.status_code == 200, open_page.text
+
+    unknown = await client.get(f"{PUBLIC}/no-such-school-{uuid.uuid4().hex[:8]}")
+    assert unknown.status_code == 404
+
+    org.is_active = False
+    await db.flush()
+
+    # A school that has stopped paying stops collecting enquiries, and says so
+    # no differently than one that never existed.
+    closed_page = await client.get(f"{PUBLIC}/{org.slug}")
+    assert closed_page.status_code == 404
+    closed_post = await client.post(
+        f"{PUBLIC}/{org.slug}/enquiries",
+        json={"contact_name": "Too Late", "contact_email": "late@example.com"},
+    )
+    assert closed_post.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_the_form_is_rate_limited_by_ip(client: AsyncClient, org, monkeypatch):
+    monkeypatch.setattr("app.config.settings.crm_public_enquiry_rate_limit", "2/hour")
+    body = {"contact_name": "Flooder", "contact_email": "flood@example.com"}
+
+    for _ in range(2):
+        allowed = await client.post(f"{PUBLIC}/{org.slug}/enquiries", json=body)
+        assert allowed.status_code == 200
+
+    blocked = await client.post(f"{PUBLIC}/{org.slug}/enquiries", json=body)
+    assert blocked.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_a_course_from_another_school_is_dropped_not_refused(
+    client: AsyncClient, db, org, org2, admin
+):
+    from app.auth.models import UserRole as _Role
+
+    foreign_teacher = _make_user(db, org2, _Role.teacher, suffix="-far")
+    await db.flush()
+    foreign_course = await make_course(db, org2, foreign_teacher)
+
+    resp = await client.post(
+        f"{PUBLIC}/{org.slug}/enquiries",
+        json={
+            "contact_name": "Curious Parent",
+            "contact_email": "curious@example.com",
+            "interest_course_id": str(foreign_course.id),
+        },
+    )
+    # Refusing would confirm the id is not this school's. Accepting and
+    # dropping it tells the sender nothing and still cannot cross the boundary.
+    assert resp.status_code == 200
+
+    board = (await client.get("/api/v1/crm/leads", headers=auth_header(admin))).json()["items"]
+    landed = [lead for lead in board if lead["contact_name"] == "Curious Parent"][0]
+    assert landed["interest_course_id"] is None
+
+
+@pytest.mark.asyncio
+async def test_the_public_page_offers_only_this_school_and_only_published_courses(
+    client: AsyncClient, db, org, teacher
+):
+    from app.courses.models import CourseStatus
+
+    published = await make_course(db, org, teacher, title="Python for Beginners")
+    await make_course(db, org, teacher, title="Half-Written Draft", status=CourseStatus.draft)
+
+    page = await client.get(f"{PUBLIC}/{org.slug}")
+    assert page.status_code == 200
+    payload = page.json()
+    assert payload["name"] == org.name
+    titles = [course["title"] for course in payload["courses"]]
+    assert "Python for Beginners" in titles
+    assert "Half-Written Draft" not in titles
+    assert str(published.id) in [course["id"] for course in payload["courses"]]
+    # Nothing about the people.
+    assert "leads" not in payload and "students" not in payload
+
+
+@pytest.mark.asyncio
+async def test_the_board_is_told_where_its_own_enquiry_page_lives(
+    client: AsyncClient, org, admin, admin2
+):
+    """A form nobody at the school can find is a form nobody uses."""
+    meta = (await client.get("/api/v1/crm/meta", headers=auth_header(admin))).json()
+    assert meta["enquiry_path"] == f"/s/{org.slug}/enquire"
+
+    # And it is the caller's own school, not whichever one asked first.
+    other = (await client.get("/api/v1/crm/meta", headers=auth_header(admin2))).json()
+    assert other["enquiry_path"] != meta["enquiry_path"]

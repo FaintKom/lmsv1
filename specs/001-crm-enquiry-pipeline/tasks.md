@@ -86,19 +86,19 @@ with the website as its source; confirm no other school can see it.
 
 ### Tests for User Story 3 — write first, prove they fail
 
-- [ ] T013 [US3] Failing test in `backend/tests/test_crm.py`: an anonymous submission creates a lead in the named school, stage `new`, source `website`, no owner
-- [ ] T014 [P] [US3] Failing test: two submissions of the same address return byte-identical responses, so the form cannot be used to ask who has been in touch (FR-019)
-- [ ] T015 [P] [US3] Failing test: an unknown slug and an inactive school both answer 404, revealing nothing
-- [ ] T016 [P] [US3] Failing test: submissions past the rate limit answer 429
-- [ ] T017 [P] [US3] Failing test: a course id belonging to another school is ignored rather than attached
+- [X] T013 [US3] Failing test in `backend/tests/test_crm.py`: an anonymous submission creates a lead in the named school, stage `new`, source `website`, no owner
+- [X] T014 [P] [US3] Failing test: two submissions of the same address return byte-identical responses, so the form cannot be used to ask who has been in touch (FR-019)
+- [X] T015 [P] [US3] Failing test: an unknown slug and an inactive school both answer 404, revealing nothing
+- [X] T016 [P] [US3] Failing test: submissions past the rate limit answer 429
+- [X] T017 [P] [US3] Failing test: a course id belonging to another school is ignored rather than attached
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Create `backend/app/crm/public_router.py` with `GET /{org_slug}` (school name plus published course titles) and `POST /{org_slug}/enquiries`, rate-limited through the existing `slowapi` limiter, fields capped per `contracts/api.md`
-- [ ] T019 [US3] Mount it in `backend/app/main.py` at `/api/v1/crm/public`, separate from the authenticated router so the public surface is visible in the file tree
-- [ ] T020 [P] [US3] Add the public calls to `frontend/src/lib/api/crm.ts`
-- [ ] T021 [US3] Create `frontend/src/app/s/[slug]/enquire/page.tsx` — the school's public enquiry page — with its strings in all six locale files
-- [ ] T022 [US3] Add a journey step that submits the public page signed out and finds the enquiry on the board as an administrator
+- [X] T018 [US3] Create `backend/app/crm/public_router.py` with `GET /{org_slug}` (school name plus published course titles) and `POST /{org_slug}/enquiries`, rate-limited through the existing `slowapi` limiter, fields capped per `contracts/api.md`
+- [X] T019 [US3] Mount it in `backend/app/main.py` at `/api/v1/crm/public`, separate from the authenticated router so the public surface is visible in the file tree
+- [X] T020 [P] [US3] Add the public calls to `frontend/src/lib/api/crm.ts`
+- [X] T021 [US3] Create `frontend/src/app/s/[slug]/enquire/page.tsx` — the school's public enquiry page — with its strings in all six locale files
+- [X] T022 [US3] Add a journey step that submits the public page signed out and finds the enquiry on the board as an administrator
 
 **Checkpoint**: enquiries arrive without being retyped.
 
