@@ -848,6 +848,8 @@ const de: TranslationMap = {
  "crm.studentEmail": "E-Mail für das Schülerkonto",
  "crm.convert": "Anmelden",
  "crm.convertHint": "Legt das Schülerkonto an, verknüpft das Elternteil und meldet zum gewünschten Kurs an.",
+ "crm.invitationsSent": "Einladungen gesendet:",
+ "crm.invitationsNotSent": "Angemeldet, aber es konnte keine Einladung versendet werden. E-Mail-Einstellungen der Schule prüfen.",
  "crm.alreadyConverted": "Angemeldet — das Konto besteht.",
  "crm.lostReason": "Falls es nichts wird, warum?",
  "crm.lostReasonHint": "Zu weit, Preis, andere Schule gewählt...",

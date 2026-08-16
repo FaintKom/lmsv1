@@ -24,6 +24,7 @@ def queue_email(func: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
     because email failures must never break the request path that queued
     them — see P0-6 and earlier comments about best-effort welcome emails.
     """
+
     def _run() -> None:
         try:
             func(*args, **kwargs)
@@ -178,7 +179,35 @@ def send_password_reset(to_email: str, token: str) -> bool:
     return _send_email(to_email, "Reset Your Password", _base_template(content))
 
 
-def send_assignment_notification(to_email: str, student_name: str, assignment_title: str, due_date: str) -> bool:
+def send_account_invitation(
+    to_email: str, full_name: str, school_name: str, token: str, expires_on: str
+) -> bool:
+    """Invite somebody the school just enrolled to set their own password.
+
+    Lands on the same page as a password reset, because it is the same single-use
+    token. The copy differs because the reader differs: nobody asked for this
+    email, so it has to say who the school is and why they are hearing from us.
+    """
+    invite_url = f"{settings.app_url}/reset-password?token={token}"
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">{school_name} has set up your account</h2>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      Hello {full_name}, {school_name} has enrolled you on their learning platform.
+      Choose a password to get in. This link works once, and expires on {expires_on}.
+    </p>
+    <a href="{invite_url}" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      Choose a password
+    </a>
+    <p style="margin:16px 0 0;color:#94a3b8;font-size:12px;">
+      If you were not expecting this, contact the school before using the link.
+    </p>
+    """
+    return _send_email(to_email, f"Your {school_name} account", _base_template(content))
+
+
+def send_assignment_notification(
+    to_email: str, student_name: str, assignment_title: str, due_date: str
+) -> bool:
     """Notify student about a new assignment."""
     content = f"""
     <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">New Assignment</h2>
@@ -196,9 +225,20 @@ def send_assignment_notification(to_email: str, student_name: str, assignment_ti
     return _send_email(to_email, f"New Assignment: {assignment_title}", _base_template(content))
 
 
-def send_grade_notification(to_email: str, student_name: str, assignment_title: str, score: float, max_score: int, feedback: str | None) -> bool:
+def send_grade_notification(
+    to_email: str,
+    student_name: str,
+    assignment_title: str,
+    score: float,
+    max_score: int,
+    feedback: str | None,
+) -> bool:
     """Notify student that their work has been graded."""
-    feedback_html = f'<p style="margin:8px 0 0;color:#475569;font-size:13px;">Feedback: {feedback}</p>' if feedback else ""
+    feedback_html = (
+        f'<p style="margin:8px 0 0;color:#475569;font-size:13px;">Feedback: {feedback}</p>'
+        if feedback
+        else ""
+    )
     content = f"""
     <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Your Work Has Been Graded</h2>
     <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
@@ -234,7 +274,9 @@ def send_schedule_change(to_email: str, student_name: str, course_title: str) ->
     return _send_email(to_email, f"Schedule updated: {course_title}", _base_template(content))
 
 
-def send_deadline_reminder(to_email: str, student_name: str, assignment_title: str, due_date: str) -> bool:
+def send_deadline_reminder(
+    to_email: str, student_name: str, assignment_title: str, due_date: str
+) -> bool:
     """Remind student about upcoming deadline."""
     content = f"""
     <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">Deadline Reminder</h2>

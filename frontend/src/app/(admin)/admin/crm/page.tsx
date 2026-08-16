@@ -61,6 +61,7 @@ export default function CrmPage() {
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDue, setTaskDue] = useState("");
   const [convertEmail, setConvertEmail] = useState("");
+  const [converted, setConverted] = useState<string | null>(null);
   const [lostReason, setLostReason] = useState("");
 
   const reload = useCallback(async () => {
@@ -84,6 +85,7 @@ export default function CrmPage() {
 
   const openLead = useCallback(async (lead: Lead) => {
     setSelected(lead);
+    setConverted(null);
     setConvertEmail("");
     setLostReason(lead.lost_reason ?? "");
     const [history, reminders] = await Promise.all([fetchEvents(lead.id), fetchTasks(lead.id)]);
@@ -166,10 +168,18 @@ export default function CrmPage() {
     if (!selected || !convertEmail.trim()) return;
     setError(null);
     try {
-      await convertLead(selected.id, {
+      const result = await convertLead(selected.id, {
         student_email: convertEmail.trim(),
         create_parent_account: true,
       });
+      // Say plainly whether anybody was actually written to. Mail is optional
+      // in a deployment and its failures are swallowed on purpose, so silence
+      // here would let the office believe a family had been contacted.
+      setConverted(
+        result.invitations_sent > 0
+          ? `${t("crm.invitationsSent")} ${result.invitations_sent}`
+          : t("crm.invitationsNotSent"),
+      );
       setConvertEmail("");
       await reload();
       setEvents(await fetchEvents(selected.id));
@@ -375,6 +385,11 @@ export default function CrmPage() {
             </div>
 
             {/* Conversion — where the funnel lands inside the product */}
+            {converted && (
+              <p role="status" className="text-sm text-success-fg">
+                {converted}
+              </p>
+            )}
             {selected.converted_student_id ? (
               <p className="text-sm text-success-fg">{t("crm.alreadyConverted")}</p>
             ) : (

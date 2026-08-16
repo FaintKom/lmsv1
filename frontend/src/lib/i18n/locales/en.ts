@@ -848,6 +848,8 @@ const en: TranslationMap = {
  "crm.studentEmail": "Email for the student account",
  "crm.convert": "Enrol",
  "crm.convertHint": "Creates the student account, links the parent, and enrols them in the course of interest.",
+ "crm.invitationsSent": "Invitations sent:",
+ "crm.invitationsNotSent": "Enrolled — but no invitation could be emailed. Check the school's mail settings.",
  "crm.alreadyConverted": "Enrolled - the account exists.",
  "crm.lostReason": "If this falls through, why?",
  "crm.lostReasonHint": "Too far, price, chose elsewhere...",

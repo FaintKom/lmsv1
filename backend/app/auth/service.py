@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.models import (
     Organization,
     ParentConsentToken,
+    PasswordResetToken,
     User,
     UserRole,
     compute_age,
@@ -68,9 +69,7 @@ async def register(
         base_slug = slug
         counter = 1
         while True:
-            existing_org = await db.execute(
-                select(Organization).where(Organization.slug == slug)
-            )
+            existing_org = await db.execute(select(Organization).where(Organization.slug == slug))
             if not existing_org.scalar_one_or_none():
                 break
             slug = f"{base_slug}-{counter}"
@@ -92,9 +91,7 @@ async def register(
     # email to their parent/guardian.
     age = compute_age(data.date_of_birth)
     is_minor_student = (
-        user_role == UserRole.student
-        and age is not None
-        and age < settings.digital_consent_age
+        user_role == UserRole.student and age is not None and age < settings.digital_consent_age
     )
 
     # Child safety: a student account may only be created once consent exists.
@@ -191,9 +188,7 @@ async def confirm_parental_consent(db: AsyncSession, token: str) -> User:
     # same org as the child. A real password is not set here — the parent can use
     # "forgot password" to claim the account later if they want to log in.
     parent_email = token_row.parent_email.strip().lower()
-    parent = (
-        await db.execute(select(User).where(User.email == parent_email))
-    ).scalar_one_or_none()
+    parent = (await db.execute(select(User).where(User.email == parent_email))).scalar_one_or_none()
     if not parent:
         parent = User(
             org_id=child.org_id,
@@ -250,11 +245,38 @@ async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> User:
     from sqlalchemy.orm import selectinload
 
     result = await db.execute(
-        select(User)
-        .options(selectinload(User.organization))
-        .where(User.id == user_id)
+        select(User).options(selectinload(User.organization)).where(User.id == user_id)
     )
     user = result.scalar_one_or_none()
     if not user:
         raise NotFoundError("User not found")
     return user
+
+
+INVITATION_TTL_DAYS = 7
+
+
+async def issue_invitation_token(
+    db: AsyncSession, user: User, *, ttl_days: int = INVITATION_TTL_DAYS
+) -> str:
+    """Give a freshly created account a single-use way in, and return the token.
+
+    Deliberately the same row a password reset uses. An invitation *is* "set your
+    password from a one-time link", and the flow that does it is already built,
+    tested and deployed — a second table with identical columns would exist only
+    to change the wording of one email.
+
+    The one difference that matters is the expiry. A reset is asked for by
+    somebody sitting at the screen and lasts an hour; an invitation lands in a
+    parent's inbox and may not be read until the weekend.
+    """
+    token = str(uuid.uuid4())
+    db.add(
+        PasswordResetToken(
+            user_id=user.id,
+            token=token,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=ttl_days),
+        )
+    )
+    await db.flush()
+    return token

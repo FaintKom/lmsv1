@@ -796,6 +796,8 @@ const ru: TranslationMap = {
  "crm.studentEmail": "Email для аккаунта ученика",
  "crm.convert": "Зачислить",
  "crm.convertHint": "Создаёт аккаунт ученика, привязывает родителя и зачисляет на интересующий курс.",
+ "crm.invitationsSent": "Приглашений отправлено:",
+ "crm.invitationsNotSent": "Зачислен — но письмо-приглашение не ушло. Проверьте почтовые настройки школы.",
  "crm.alreadyConverted": "Зачислен — аккаунт создан.",
  "crm.lostReason": "Если не сложится, то почему?",
  "crm.lostReasonHint": "Далеко, цена, выбрали другую школу...",
