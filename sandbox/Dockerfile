@@ -37,6 +37,16 @@ COPY . .
 # Create unprivileged user for code execution
 RUN useradd -m -s /bin/bash runner
 
+# Everything below this line runs as `runner`, including uvicorn itself. No step
+# needs root: the port is 8001, above the privileged range, and every writable
+# path is a tmpfs the compose files mount world-writable.
+#
+# This was the last of the audit's findings and the one it called a one-line
+# change. It is one line — but only because Phase 3 moved the writable areas
+# somewhere an unprivileged user can reach. Before that, running as `runner`
+# would have failed on a directory rather than on a permission.
+USER runner
+
 EXPOSE 8001
 
 CMD ["uvicorn", "runner.main:app", "--host", "0.0.0.0", "--port", "8001"]

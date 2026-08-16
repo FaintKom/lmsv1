@@ -417,6 +417,29 @@ failed to initialize build cache at /root/.cache: mkdir /root/.cache: read-only 
 user runs. Doing the user switch after the working-directory work keeps one
 change under test at a time.
 
+**Measured when it came to it (Phase 7).** The sequencing was right, and one
+thing still needed changing:
+
+| Path | Before | Usable by `runner`? |
+|---|---|---|
+| `/tmp` | `drwxrwxrwt` (1777) | yes — tmpfs defaults to world-writable |
+| `/sandbox-exec` | `drwxr-xr-x` root:root, `mode=755` | **no** |
+
+The execute-permitted mount added in Phase 3 was created root-owned, which
+nobody noticed while everything ran as root. It is now mounted `mode=1777`,
+sticky like `/tmp` — and sticky matters more here than it does for `/tmp`,
+because up to four concurrent executions share this directory and without it one
+could delete another's working directory.
+
+`uid=1000` was the alternative and was rejected: it hardcodes into four compose
+files a number that comes from the order of `useradd` in the image, so a
+Dockerfile change nobody connects to compose would silently take the write
+permission away again.
+
+Nothing else needed root. The port is 8001, above the privileged range, so
+uvicorn binds as `runner` without capabilities. All eighteen sandbox tests pass
+as uid 1000, including every language.
+
 ---
 
 ## What was measured, and where

@@ -192,14 +192,14 @@ everything ran as root.
 
 ### Tests for User Story 5 — write first, prove they fail
 
-- [ ] T040 [P] [US5] Failing test in `sandbox/tests/test_user.py`: a submission reporting its own user does not report root. Expected to fail today — `whoami` inside the container returns root in both QA and production
-- [ ] T041 [US5] Run T040 unchanged and record that it reported root
+- [X] T040 [P] [US5] Failing test in `sandbox/tests/test_user.py`: a submission reporting its own user does not report root. Expected to fail today — `whoami` inside the container returns root in both QA and production
+- [X] T041 [US5] Run T040 unchanged and record that it reported root
 
 ### Implementation for User Story 5
 
-- [ ] T042 [US5] Add `USER runner` to `sandbox/Dockerfile`, after the writable paths from T013 and T015 exist
-- [ ] T043 [US5] Make the execute-permitted area and the compiler caches writable by `runner` rather than root, in `sandbox/Dockerfile` and the four compose files
-- [ ] T044 [US5] Rebuild and run the whole of `sandbox/tests/` plus T008 — this step changes who touches every path in the service, so the full set is the check
+- [X] T042 [US5] Add `USER runner` to `sandbox/Dockerfile`, after the writable paths from T013 and T015 exist
+- [X] T043 [US5] Make the execute-permitted area and the compiler caches writable by `runner` rather than root, in `sandbox/Dockerfile` and the four compose files
+- [X] T044 [US5] Rebuild and run the whole of `sandbox/tests/` plus T008 — this step changes who touches every path in the service, so the full set is the check
 
 **Checkpoint**: every control in this feature is in place.
 
