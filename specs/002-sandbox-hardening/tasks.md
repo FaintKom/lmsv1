@@ -112,20 +112,20 @@ would mean writing that prefix twice.
 
 ### Tests for User Story 2 — write first, prove they fail
 
-- [ ] T019 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: twenty-five concurrent submissions all return correct output, none errors, and the slowest completes within ten seconds (SC-002, SC-003)
-- [ ] T020 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: with every slot filled by a long program, one more submission returns `limit_hit == "busy"` promptly — not a hang, and not a connection error
-- [ ] T021 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: the backend's client timeout exceeds queue ceiling plus execution timeout plus margin, asserted from the real values rather than stated in a comment (contracts/runner-api.md)
-- [ ] T022 [P] [US2] Failing test in `sandbox/tests/test_reaping.py`: after a submission that starts a child and then exceeds its time allowance, **no descendant remains** — asserted against the container's process list, not against the request having returned. It returned before this change too
-- [ ] T023 [US2] Run T019–T022 against the unchanged runner and record the failures — expect unbounded parallelism in T019, no `busy` outcome at all in T020, and a surviving orphan in T022
+- [X] T019 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: twenty-five concurrent submissions all return correct output, none errors, and the slowest completes within ten seconds (SC-002, SC-003)
+- [X] T020 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: with every slot filled by a long program, one more submission returns `limit_hit == "busy"` promptly — not a hang, and not a connection error
+- [X] T021 [P] [US2] Failing test in `sandbox/tests/test_concurrency.py`: the backend's client timeout exceeds queue ceiling plus execution timeout plus margin, asserted from the real values rather than stated in a comment (contracts/runner-api.md)
+- [X] T022 [P] [US2] Failing test in `sandbox/tests/test_reaping.py`: after a submission that starts a child and then exceeds its time allowance, **no descendant remains** — asserted against the container's process list, not against the request having returned. It returned before this change too
+- [X] T023 [US2] Run T019–T022 against the unchanged runner and record the failures — expect unbounded parallelism in T019, no `busy` outcome at all in T020, and a surviving orphan in T022
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Derive the concurrency bound from `cpu.max` (quota ÷ period) in `sandbox/runner/main.py`, falling back to `os.cpu_count()` only when the file is absent, overridable by environment variable — never `nproc`, which reports 4 in QA where the quota is 1 (research.md Finding C)
-- [ ] T025 [US2] Guard `/execute` with an `asyncio.Semaphore` of that size in `sandbox/runner/main.py`, acquired through `asyncio.wait_for`, answering `limit_hit: "busy"` on timeout and reporting `queued_ms`
-- [ ] T026 [US2] Derive the queue ceiling from the execution timeout in `sandbox/runner/main.py` rather than configuring it separately, so the two cannot drift apart
-- [ ] T027 [US2] Replace `create_subprocess_shell` with `create_subprocess_exec` in `sandbox/runner/executor.py`, splitting the command instead of formatting a string
-- [ ] T028 [US2] Start the child with `start_new_session=True` and, on timeout, signal the process group with `os.killpg` — `SIGTERM`, then `SIGKILL` after a short grace period — in `sandbox/runner/executor.py` (research.md Finding E)
-- [ ] T029 [US2] Log the limit that fired and the occupancy at that moment in `sandbox/runner/main.py` (FR-016), so "the sandbox was slow" has an answer
+- [X] T024 [US2] Derive the concurrency bound from `cpu.max` (quota ÷ period) in `sandbox/runner/main.py`, falling back to `os.cpu_count()` only when the file is absent, overridable by environment variable — never `nproc`, which reports 4 in QA where the quota is 1 (research.md Finding C)
+- [X] T025 [US2] Guard `/execute` with an `asyncio.Semaphore` of that size in `sandbox/runner/main.py`, acquired through `asyncio.wait_for`, answering `limit_hit: "busy"` on timeout and reporting `queued_ms`
+- [X] T026 [US2] Derive the queue ceiling from the execution timeout in `sandbox/runner/main.py` rather than configuring it separately, so the two cannot drift apart
+- [X] T027 [US2] Replace `create_subprocess_shell` with `create_subprocess_exec` in `sandbox/runner/executor.py`, splitting the command instead of formatting a string
+- [X] T028 [US2] Start the child with `start_new_session=True` and, on timeout, signal the process group with `os.killpg` — `SIGTERM`, then `SIGKILL` after a short grace period — in `sandbox/runner/executor.py` (research.md Finding E)
+- [X] T029 [US2] Log the limit that fired and the occupancy at that moment in `sandbox/runner/main.py` (FR-016), so "the sandbox was slow" has an answer
 
 **Checkpoint**: a class can work, and one pupil's runaway program is their own
 problem.
