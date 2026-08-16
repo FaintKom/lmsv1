@@ -684,7 +684,18 @@ async def _submit_code(
         )
         actual = result.get("stdout", "").strip()
         expected = tc.expected_output.strip()
-        is_pass = actual == expected
+        # A limit that fired means the program did not finish, whatever it had
+        # printed by then. Comparing text alone passed a program that printed
+        # the right answer and then exhausted its memory — the pupil was told
+        # they had solved it on a run that died.
+        #
+        # Any non-null value counts, including one this code has never heard of:
+        # contracts/runner-api.md requires an unrecognised limit to be treated
+        # as a refusal, so the runner can add one without every caller changing
+        # first. Erring towards "not passed" is the safe direction; the
+        # alternative marks work correct that was not.
+        limit_hit = result.get("limit_hit")
+        is_pass = actual == expected and not limit_hit
 
         if is_pass:
             total_passed += 1
