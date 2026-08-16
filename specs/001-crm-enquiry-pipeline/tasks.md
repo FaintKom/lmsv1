@@ -31,8 +31,8 @@ Web application: `backend/app/`, `backend/tests/`, `frontend/src/`, `frontend/e2
 
 **Purpose**: know the ground is solid before standing on it
 
-- [ ] T001 Start PostgreSQL (`docker compose up -d db redis sandbox`) and run `cd backend && python -m pytest tests/ -q` to confirm the suite is green before any change
-- [ ] T002 [P] Run `cd backend && python -m alembic heads` and record the single head — this plan adds no migration, so the head must be unchanged when it ends
+- [X] T001 Start PostgreSQL (`docker compose up -d db redis sandbox`) and run `cd backend && python -m pytest tests/ -q` to confirm the suite is green before any change
+- [X] T002 [P] Run `cd backend && python -m alembic heads` and record the single head — this plan adds no migration, so the head must be unchanged when it ends
 
 ---
 
@@ -59,19 +59,19 @@ through the interface.
 
 ### Tests for User Story 1 — write first, prove they fail
 
-- [ ] T003 [US1] Failing test in `backend/tests/test_crm.py`: after conversion the pupil sets a password using the issued token and authenticates successfully. Must fail today — conversion issues no token
-- [ ] T004 [P] [US1] Failing test in `backend/tests/test_crm.py`: the guardian created by conversion receives a usable invitation of their own
-- [ ] T005 [P] [US1] Failing test in `backend/tests/test_crm.py`: an invitation works exactly once; a second use is refused
-- [ ] T006 [P] [US1] Failing test in `backend/tests/test_crm.py`: the conversion response reports whether invitations were actually sent, so an office with mail switched off is told rather than left assuming
+- [X] T003 [US1] Failing test in `backend/tests/test_crm.py`: after conversion the pupil sets a password using the issued token and authenticates successfully. Must fail today — conversion issues no token
+- [X] T004 [P] [US1] Failing test in `backend/tests/test_crm.py`: the guardian created by conversion receives a usable invitation of their own
+- [X] T005 [P] [US1] Failing test in `backend/tests/test_crm.py`: an invitation works exactly once; a second use is refused
+- [X] T006 [P] [US1] Failing test in `backend/tests/test_crm.py`: the conversion response reports whether invitations were actually sent, so an office with mail switched off is told rather than left assuming
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Add `issue_invitation_token(db, user, ttl)` to `backend/app/auth/service.py`, writing a `PasswordResetToken` with a longer expiry than an ordinary reset (research §1) — no new table
-- [ ] T008 [P] [US1] Add `send_account_invitation(to_email, full_name, school_name, token, expires_at)` to `backend/app/email/service.py`, linking to the existing reset page
-- [ ] T009 [US1] Call both from `convert_lead` in `backend/app/crm/service.py` for the pupil and, when created, the guardian; return `invitations_sent` in the result (depends on T007, T008)
-- [ ] T010 [US1] Show the invitation outcome after conversion in `frontend/src/app/(admin)/admin/crm/page.tsx`, with its strings in all six files under `frontend/src/lib/i18n/locales/`
-- [ ] T011 [US1] Write `frontend/e2e/journeys/crm-board.spec.ts`: record an enquiry, move it between columns, log a note, set a reminder, convert — all through the interface, asserting the enquiry's own row rather than that the page rendered
-- [ ] T012 [US1] Demonstrate T011 failing: break the conversion step, confirm the journey goes red, restore it, confirm green
+- [X] T007 [US1] Add `issue_invitation_token(db, user, ttl)` to `backend/app/auth/service.py`, writing a `PasswordResetToken` with a longer expiry than an ordinary reset (research §1) — no new table
+- [X] T008 [P] [US1] Add `send_account_invitation(to_email, full_name, school_name, token, expires_at)` to `backend/app/email/service.py`, linking to the existing reset page
+- [X] T009 [US1] Call both from `convert_lead` in `backend/app/crm/service.py` for the pupil and, when created, the guardian; return `invitations_sent` in the result (depends on T007, T008)
+- [X] T010 [US1] Show the invitation outcome after conversion in `frontend/src/app/(admin)/admin/crm/page.tsx`, with its strings in all six files under `frontend/src/lib/i18n/locales/`
+- [X] T011 [US1] Write `frontend/e2e/journeys/crm-board.spec.ts`: record an enquiry, move it between columns, log a note, set a reminder, convert — all through the interface, asserting the enquiry's own row rather than that the page rendered
+- [X] T012 [US1] Demonstrate T011 failing: break the conversion step, confirm the journey goes red, restore it, confirm green
 
 **Checkpoint**: a converted family can sign in, and the board is exercised by a browser.
 

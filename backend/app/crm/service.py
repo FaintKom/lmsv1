@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.models import ParentChild, User, UserRole
+from app.auth.models import Organization, ParentChild, User, UserRole
 from app.auth.security import hash_password
 from app.common.exceptions import BadRequestError, NotFoundError
 from app.courses.models import Course
@@ -339,6 +339,11 @@ async def convert_lead(db: AsyncSession, user: User, lead_id: uuid.UUID, data: d
     db.add(student)
     await db.flush()
 
+    # Everybody this conversion creates gets a way in. Without it the funnel
+    # ends in accounts with an unusable random password that nobody is told
+    # about — which is what it did until 2026-08-16.
+    invited: list[User] = [student]
+
     parent_id: uuid.UUID | None = None
     if data.get("create_parent_account") and lead.contact_email:
         parent_email = lead.contact_email.strip().lower()
@@ -364,11 +369,14 @@ async def convert_lead(db: AsyncSession, user: User, lead_id: uuid.UUID, data: d
             if parent.org_id == lead.org_id and parent.role == UserRole.parent:
                 db.add(ParentChild(parent_id=parent.id, child_id=student.id))
                 parent_id = parent.id
+                invited.append(parent)
 
     enrolled = False
     if course_id:
         db.add(Enrollment(student_id=student.id, course_id=course_id, enrolled_at=now))
         enrolled = True
+
+    invitations_sent = await _invite(db, invited, school_name=await _school_name(db, lead.org_id))
 
     lead.converted_student_id = student.id
     lead.converted_at = now
@@ -382,7 +390,44 @@ async def convert_lead(db: AsyncSession, user: User, lead_id: uuid.UUID, data: d
         "student_email": student_email,
         "parent_id": str(parent_id) if parent_id else None,
         "enrolled": enrolled,
+        # How many people were actually written to. The office needs to know
+        # this rather than assume it: mail is optional in a deployment, and
+        # queue_email swallows delivery failures on purpose.
+        "invitations_sent": invitations_sent,
     }
+
+
+async def _school_name(db: AsyncSession, org_id: uuid.UUID) -> str:
+    name = await db.scalar(select(Organization.name).where(Organization.id == org_id))
+    return name or "Your school"
+
+
+async def _invite(db: AsyncSession, users: list[User], *, school_name: str) -> int:
+    """Issue each new account a single-use invitation and email it.
+
+    Returns how many were emailed. Accounts without an address are skipped
+    rather than failing the conversion — a school may enrol a pupil who has no
+    email of their own, and the guardian still gets theirs.
+    """
+    from app.auth.service import INVITATION_TTL_DAYS, issue_invitation_token
+    from app.email.service import queue_email, send_account_invitation
+
+    sent = 0
+    expires_on = (_now() + timedelta(days=INVITATION_TTL_DAYS)).date().isoformat()
+    for account in users:
+        if not account.email:
+            continue
+        token = await issue_invitation_token(db, account)
+        queue_email(
+            send_account_invitation,
+            account.email,
+            account.full_name,
+            school_name,
+            token,
+            expires_on,
+        )
+        sent += 1
+    return sent
 
 
 # ── Board summary ────────────────────────────────────────────────────────

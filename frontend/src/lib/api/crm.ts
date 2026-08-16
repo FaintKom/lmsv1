@@ -53,6 +53,10 @@ export interface ConvertResult {
   student_email: string;
   parent_id: string | null;
   enrolled: boolean;
+  /** How many people were actually emailed an invitation. Zero means the
+   *  school's mail is not configured — the office needs to hear that rather
+   *  than assume a family was contacted. */
+  invitations_sent: number;
 }
 
 export async function fetchMeta(): Promise<CrmMeta> {

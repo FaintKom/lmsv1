@@ -848,6 +848,8 @@ const uk: TranslationMap = {
  "crm.studentEmail": "Email для акаунта учня",
  "crm.convert": "Зарахувати",
  "crm.convertHint": "Створює акаунт учня, привʼязує батьків і зараховує на потрібний курс.",
+ "crm.invitationsSent": "Надіслано запрошень:",
+ "crm.invitationsNotSent": "Зараховано, але лист-запрошення не надіслано. Перевірте поштові налаштування школи.",
  "crm.alreadyConverted": "Зараховано — акаунт створено.",
  "crm.lostReason": "Якщо не складеться, то чому?",
  "crm.lostReasonHint": "Далеко, ціна, обрали іншу школу...",

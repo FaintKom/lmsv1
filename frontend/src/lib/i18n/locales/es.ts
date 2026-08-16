@@ -786,6 +786,8 @@ const es: TranslationMap = {
  "crm.studentEmail": "Correo para la cuenta del alumno",
  "crm.convert": "Matricular",
  "crm.convertHint": "Crea la cuenta del alumno, vincula a la familia y lo matricula en el curso de interés.",
+ "crm.invitationsSent": "Invitaciones enviadas:",
+ "crm.invitationsNotSent": "Matriculado, pero no se pudo enviar la invitación. Revisa el correo del centro.",
  "crm.alreadyConverted": "Matriculado: la cuenta ya existe.",
  "crm.lostReason": "Si no sale adelante, ¿por qué?",
  "crm.lostReasonHint": "Lejos, precio, eligieron otro centro...",

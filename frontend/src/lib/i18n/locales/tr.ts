@@ -789,6 +789,8 @@ const tr: TranslationMap = {
  "crm.studentEmail": "Öğrenci hesabı için e-posta",
  "crm.convert": "Kaydet",
  "crm.convertHint": "Öğrenci hesabını oluşturur, veliyi bağlar ve ilgilenilen kursa kaydeder.",
+ "crm.invitationsSent": "Gönderilen davet:",
+ "crm.invitationsNotSent": "Kaydedildi, ancak davet e-postası gönderilemedi. Okulun posta ayarlarını kontrol edin.",
  "crm.alreadyConverted": "Kaydedildi — hesap mevcut.",
  "crm.lostReason": "Olmazsa, neden?",
  "crm.lostReasonHint": "Uzak, fiyat, başka okulu seçtiler...",

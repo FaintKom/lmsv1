@@ -304,6 +304,117 @@ async def test_the_reminder_sweep_notifies_once(client: AsyncClient, db, admin):
 # ── Conversion ───────────────────────────────────────────────────────────
 
 
+async def _invitation_for(db, user_id) -> str:
+    """The single-use token conversion issued for one account."""
+    from app.auth.models import PasswordResetToken
+
+    row = (
+        (
+            await db.execute(
+                sa_select(PasswordResetToken)
+                .where(
+                    PasswordResetToken.user_id == user_id,
+                    PasswordResetToken.used.is_(False),
+                )
+                .order_by(PasswordResetToken.created_at.desc())
+            )
+        )
+        .scalars()
+        .first()
+    )
+    assert row is not None, "conversion issued no invitation"
+    return row.token
+
+
+@pytest.mark.asyncio
+async def test_the_converted_pupil_can_actually_sign_in(client: AsyncClient, db, org, admin):
+    """The point of the whole funnel, and what it did not do.
+
+    Conversion created an account with a random password and told nobody, so a
+    family reached the end of the pipeline and could not get in. This asserts
+    the account is *usable*, not that a row exists — a row-exists test passes
+    against the broken behaviour.
+    """
+    lead = await _lead(client, admin, student_name="Small Ada")
+    converted = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/convert",
+        json={"student_email": "signs.in@example.com", "create_parent_account": False},
+        headers=auth_header(admin),
+    )
+    assert converted.status_code == 200, converted.text
+
+    token = await _invitation_for(db, uuid.UUID(converted.json()["student_id"]))
+    reset = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token, "new_password": "chosen-by-the-family"},
+    )
+    assert reset.status_code == 200, reset.text
+
+    signed_in = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "signs.in@example.com", "password": "chosen-by-the-family"},
+    )
+    assert signed_in.status_code == 200, signed_in.text
+
+
+@pytest.mark.asyncio
+async def test_the_guardian_is_invited_too(client: AsyncClient, db, org, admin):
+    lead = await _lead(
+        client, admin, student_name="Small Ada", contact_email="guardian@example.com"
+    )
+    converted = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/convert",
+        json={"student_email": "child@example.com", "create_parent_account": True},
+        headers=auth_header(admin),
+    )
+    assert converted.status_code == 200, converted.text
+    parent_id = converted.json()["parent_id"]
+    assert parent_id is not None
+
+    token = await _invitation_for(db, uuid.UUID(parent_id))
+    reset = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token, "new_password": "guardian-password"},
+    )
+    assert reset.status_code == 200, reset.text
+
+
+@pytest.mark.asyncio
+async def test_an_invitation_works_exactly_once(client: AsyncClient, db, org, admin):
+    lead = await _lead(client, admin)
+    converted = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/convert",
+        json={"student_email": "once.only@example.com", "create_parent_account": False},
+        headers=auth_header(admin),
+    )
+    token = await _invitation_for(db, uuid.UUID(converted.json()["student_id"]))
+
+    first = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token, "new_password": "first-password"},
+    )
+    assert first.status_code == 200
+
+    second = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token, "new_password": "second-password"},
+    )
+    assert second.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_conversion_reports_whether_invitations_were_sent(client: AsyncClient, org, admin):
+    """An office with mail switched off must be told, not left assuming."""
+    lead = await _lead(client, admin, contact_email="told@example.com")
+    converted = await client.post(
+        f"/api/v1/crm/leads/{lead['id']}/convert",
+        json={"student_email": "told.child@example.com", "create_parent_account": True},
+        headers=auth_header(admin),
+    )
+    assert converted.status_code == 200, converted.text
+    assert "invitations_sent" in converted.json()
+
+
 @pytest.mark.asyncio
 async def test_converting_creates_the_pupil_the_parent_and_the_enrolment(
     client: AsyncClient, db, org, admin
