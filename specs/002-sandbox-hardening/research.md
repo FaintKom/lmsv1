@@ -338,6 +338,39 @@ pupil only; that is not the smallest change that works.
 breaks it silently and only under load. Every supported language must be run
 under the profile before it ships, which the quickstart covers.
 
+**Correction, found while implementing (Phase 6). The profile as written was
+unusable, and "wire it up" was not a one-line change.**
+
+Docker applies a seccomp profile to *every* process in the container, and the
+runner is itself a web server. The original deny-list included `bind` and
+`listen`, so referencing it stopped the service before it served anything:
+
+```
+ERROR: could not bind on any address out of [('0.0.0.0', 8001)]
+```
+
+Denying `sendto` as well — the obvious second entry, since
+`socket(SOCK_DGRAM)` + `sendto(addr)` reaches a host without ever calling
+`connect` — broke it in a subtler way. On x86-64 Linux there is no separate
+`send` syscall; glibc implements `send()` as `sendto(fd, buf, len, flags,
+NULL, 0)`. The server accepted the request, processed it, logged `200 OK`, and
+the caller received an empty reply. From the log side it looks perfectly
+healthy.
+
+What ships is a deny-list of exactly one syscall, `connect`, which is the one
+thing the runner never does and the one thing a pupil's program needs to reach
+anything. Measured after: the service serves, a program's attempt to reach
+`backend:8000` fails, and all five languages run.
+
+**A requirement had to be amended rather than met.** FR-011 said a pupil's
+program must not open, accept *or listen for* connections. Listening cannot be
+denied without denying it to uvicorn. The spec now records the measurement and
+narrows the requirement to what is enforced, and the test was rewritten to pin
+the property that actually holds — a pupil may listen, and nothing can dial
+them, because outbound connection is denied to every process in the container.
+Deleting the test would have turned "we could not enforce that" into "nothing
+enforces that", which is a different claim.
+
 **The `pids_limit` value**: it must sit above what a legitimate program needs.
 The JVM alone starts several threads, and threads count towards the process
 limit. Measured (T002) in the QA container, `ps -eLf | wc -l` while each runtime

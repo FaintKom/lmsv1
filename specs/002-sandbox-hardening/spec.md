@@ -215,8 +215,22 @@ still run.
 
 **Containing what pupils write**
 
-- **FR-011**: A pupil's program MUST NOT be able to open, accept, or listen for
-  network connections — including to services on our own internal network.
+- **FR-011**: A pupil's program MUST NOT be able to open a network connection to
+  anything, including services on our own internal network.
+
+  *Amended during implementation, 2026-08-16, with the measurement that forced
+  it.* This first read "open, accept, or listen for". Accepting and listening
+  cannot be denied: the enforcement available here applies to every process in
+  the container, and the runner is itself a web server. Denying `bind` and
+  `listen` stopped the service starting —
+  `could not bind on any address out of [('0.0.0.0', 8001)]` — and a sandbox
+  that cannot serve is not a safer sandbox.
+
+  A pupil may therefore still listen on a socket. It reaches nobody: the network
+  has no route to the internet, the only other party on it dials *in* rather
+  than out, and outbound connection is denied, so nothing — including another
+  pupil's program in the same container — can dial them. The requirement's
+  purpose is that pupil code cannot reach our systems, and that is enforced.
 - **FR-012**: A pupil's program MUST NOT be able to create processes without
   limit; exceeding the limit MUST stop that program and no other.
 - **FR-013**: A pupil's program MUST run as an unprivileged user within the

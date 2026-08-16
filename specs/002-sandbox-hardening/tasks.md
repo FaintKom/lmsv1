@@ -166,14 +166,14 @@ service address fails, while every supported language still runs normally.
 
 ### Tests for User Story 4 — write first, prove they fail
 
-- [ ] T035 [P] [US4] Failing test in `sandbox/tests/test_network.py`: a submission that opens a socket to the backend's internal address fails. Expected to **succeed** today — that is the finding, and the test goes red before the profile is wired up
-- [ ] T036 [P] [US4] Failing test in `sandbox/tests/test_network.py`: a submission that listens for connections cannot
-- [ ] T037 [US4] Run T035–T036 unchanged and record that the connection succeeded
+- [X] T035 [P] [US4] Failing test in `sandbox/tests/test_network.py`: a submission that opens a socket to the backend's internal address fails. Expected to **succeed** today — that is the finding, and the test goes red before the profile is wired up
+- [X] T036 [P] [US4] Failing test in `sandbox/tests/test_network.py`: a submission that listens for connections cannot
+- [X] T037 [US4] Run T035–T036 unchanged and record that the connection succeeded
 
 ### Implementation for User Story 4
 
-- [ ] T038 [US4] Reference `sandbox/policies/seccomp.json` from `security_opt` alongside `no-new-privileges` in all four compose files
-- [ ] T039 [US4] Run a correct program in **every** supported language under the profile and record the result — a syscall filter that breaks a runtime breaks it silently, and only for whoever uses that language
+- [X] T038 [US4] Reference `sandbox/policies/seccomp.json` from `security_opt` alongside `no-new-privileges` in all four compose files
+- [X] T039 [US4] Run a correct program in **every** supported language under the profile and record the result — a syscall filter that breaks a runtime breaks it silently, and only for whoever uses that language
 
 **Checkpoint**: the route from a pupil's code to our own API is closed.
 

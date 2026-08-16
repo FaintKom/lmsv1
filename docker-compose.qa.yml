@@ -80,6 +80,11 @@ services:
       - /sandbox-exec:size=64M,exec
     security_opt:
       - "no-new-privileges:true"
+      # Denies outbound connect() to every process in the container. The
+      # runner never dials out; a pupil's program needs it to reach the
+      # backend, which shares the sandbox network. See the profile for
+      # what it deliberately does not deny, and why.
+      - "seccomp=./sandbox/policies/seccomp.json"
     deploy:
       resources:
         limits:
