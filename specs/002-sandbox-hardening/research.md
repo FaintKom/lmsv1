@@ -273,8 +273,47 @@ killer (memory), a fork failed once the process limit was reached (processes).
 
 ## Finding G — where `pids_limit` and the seccomp profile go
 
-`pids_limit` is a top-level service key, not a `deploy.resources` one. It goes
-on the sandbox service in all four compose files, and only there.
+**Correction, found while implementing (Phase 5).** This said `pids_limit` is a
+top-level service key rather than a `deploy.resources` one. That is true of
+Compose in general and wrong for these files, which already use
+`deploy.resources.limits` for cpus and memory:
+
+```
+services.sandbox: can't set distinct values on 'pids_limit'
+and 'deploy.resources.limits.pids': invalid compose project
+```
+
+Compose treats the two as one knob and refuses the whole project when both could
+apply. The cap goes under `deploy.resources.limits.pids`, beside the limits
+already there.
+
+Worth recording how that was nearly missed: the rebuild command had its output
+sent to `/dev/null`, so a compose failure looked like a successful rebuild and
+the test ran twice against the old container. Hiding a command's output hides
+the one thing that explains the result.
+
+**A cap alone does not contain a fork bomb.** Measured, in this order:
+
+| State | What happened |
+|---|---|
+| No cap | The bomb exhausted the container's memory by process count. The kernel OOM-killed the container itself — `exit=137`, `OOMKilled=true`. Production and staging carry `restart: unless-stopped`, so there it becomes a restart loop any pupil can trigger at will, costing them nothing and costing the class every execution in flight plus the Go cache warm-up on each restart. Dev and QA have no restart policy, so the sandbox simply stays dead. |
+| Cap, no init | The container survived, and then refused everything forever. `docker top` showed a single live process while the pids cgroup still held all 256 — the bomb's orphans had been killed but never reaped, and a zombie keeps its slot. PID 1 here is uvicorn, which does not reap orphans. |
+| Cap and `init: true` | The container survived, the budget returned to 2, and the next submission ran. |
+
+So `init: true` is not tidiness: without it the cap converts "the container dies"
+into "the container refuses everything forever", which is not much of an
+improvement.
+
+**Attributing the refusal.** The kernel counts refusals in
+`/sys/fs/cgroup/pids.events` (`max <n>`). Sampling it around an execution is a
+fact rather than a reading of somebody else's error message, and it settles a
+case string-matching gets wrong: once orphans are reaped promptly, a fork loop
+no longer dies of its own failed fork — it runs to its time allowance, and the
+pupil would have been told to make their program faster when the fix is to stop
+starting processes. The counter is container-wide rather than per-execution, so
+with four slots two programs failing in the same second can be credited to each
+other; both failed anyway, and per-execution cgroups are unavailable for the
+reason in Finding B.
 
 The `deploy.resources.limits` already in use *are* applied by Compose v2, which
 is worth stating because the opposite is often assumed. Measured: the production

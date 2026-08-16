@@ -142,14 +142,14 @@ returns correct output.
 
 ### Tests for User Story 3 — write first, prove they fail
 
-- [ ] T030 [P] [US3] Failing test in `sandbox/tests/test_limits_processes.py`: a forking program is stopped with `limit_hit == "processes"`, **and an ordinary submission immediately after it returns correct output**. The second assertion is the point — a fork bomb that is stopped while leaving the service unusable has not been contained
-- [ ] T031 [US3] Run T030 against the unchanged stack and record what happens — this is the one test that may take the QA sandbox down while failing, which is itself the finding
+- [X] T030 [P] [US3] Failing test in `sandbox/tests/test_limits_processes.py`: a forking program is stopped with `limit_hit == "processes"`, **and an ordinary submission immediately after it returns correct output**. The second assertion is the point — a fork bomb that is stopped while leaving the service unusable has not been contained
+- [X] T031 [US3] Run T030 against the unchanged stack and record what happens — this is the one test that may take the QA sandbox down while failing, which is itself the finding
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Add `pids_limit` to the sandbox service in all four compose files, using the value measured in T002 rather than a generous-looking number — the JVM's threads count towards it
-- [ ] T033 [US3] Map a fork failure to `limit_hit: "processes"` in `sandbox/runner/executor.py`
-- [ ] T034 [US3] Rebuild, run T030 green, then re-run T008 to confirm no language lost threads it needs
+- [X] T032 [US3] Add `pids_limit` to the sandbox service in all four compose files, using the value measured in T002 rather than a generous-looking number — the JVM's threads count towards it
+- [X] T033 [US3] Map a fork failure to `limit_hit: "processes"` in `sandbox/runner/executor.py`
+- [X] T034 [US3] Rebuild, run T030 green, then re-run T008 to confirm no language lost threads it needs
 
 **Checkpoint**: the cheapest attack costs the attacker their own submission and
 nobody else's.
