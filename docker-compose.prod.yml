@@ -111,7 +111,11 @@ services:
       # The one directory that permits execution: a binary our own compiler
       # just produced from the pupil's source. /tmp stays noexec, so four of
       # the five languages never gain the permission (research.md Finding A).
-      - /sandbox-exec:size=64M,exec
+      # mode=1777 because the service no longer runs as root: the default
+      # 755 root-owned mount left `runner` unable to write here, which is
+      # where compiled languages put their binary. Sticky, like /tmp, so
+      # one of the concurrent executions cannot delete another's directory.
+      - /sandbox-exec:size=64M,exec,mode=1777
     security_opt:
       - "no-new-privileges:true"
       # Denies outbound connect() to every process in the container. The
