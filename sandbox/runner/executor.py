@@ -1,6 +1,7 @@
 import asyncio
 import os
 import resource
+import shlex
 import signal
 import tempfile
 import time
@@ -54,6 +55,36 @@ def _limits(memory_limit_mb: int):
         resource.setrlimit(resource.RLIMIT_DATA, (limit, limit))
 
     return _apply
+
+
+async def _reap(proc) -> None:
+    """Stop a program and everything it started.
+
+    `proc.kill()` killed the process the runner launched and nothing beneath it.
+    A program that spawned a child kept that child running after its own time
+    allowance expired — still holding the processors the next pupil needs, while
+    the slot it occupied had already been handed back. The request looked
+    perfectly correct from the caller's side, which is how this survived.
+
+    The child is a process-group leader (`start_new_session=True`), so one
+    signal reaches every descendant. SIGTERM first, so a program that installed
+    a handler gets to run it, then SIGKILL for anything still there.
+    """
+    try:
+        group = os.getpgid(proc.pid)
+    except ProcessLookupError:  # already gone
+        return
+
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(group, sig)
+        except ProcessLookupError:
+            return
+        try:
+            await asyncio.wait_for(proc.wait(), timeout=1.0)
+            return
+        except asyncio.TimeoutError:
+            continue
 
 
 def _looks_out_of_memory(stderr: str, returncode: int | None) -> bool:
@@ -128,11 +159,12 @@ async def execute_code(
         if lang_config["compile_cmd"]:
             compile_cmd = lang_config["compile_cmd"].format(file=filepath, dir=tmpdir)
             try:
-                proc = await asyncio.create_subprocess_shell(
-                    compile_cmd,
+                proc = await asyncio.create_subprocess_exec(
+                    *shlex.split(compile_cmd),
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                     cwd=tmpdir,
+                    start_new_session=True,
                     preexec_fn=apply_limits,
                 )
                 stdout, stderr = await asyncio.wait_for(
@@ -148,6 +180,7 @@ async def execute_code(
                         limit_hit="memory" if memory else None,
                     )
             except asyncio.TimeoutError:
+                await _reap(proc)
                 return _result(
                     stderr="Compilation took longer than its time allowance",
                     exit_code=1,
@@ -160,12 +193,16 @@ async def execute_code(
 
         start_time = time.monotonic()
         try:
-            proc = await asyncio.create_subprocess_shell(
-                run_cmd,
+            proc = await asyncio.create_subprocess_exec(
+                *shlex.split(run_cmd),
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 cwd=tmpdir,
+                # Makes the child a process-group leader, so one signal reaches
+                # everything it starts. Without it a timed-out program's
+                # descendants outlive it (see _reap).
+                start_new_session=True,
                 preexec_fn=apply_limits,
             )
             stdout, stderr = await asyncio.wait_for(
@@ -197,7 +234,7 @@ async def execute_code(
 
         except asyncio.TimeoutError:
             elapsed_ms = int((time.monotonic() - start_time) * 1000)
-            proc.kill()
+            await _reap(proc)
             return _result(
                 stderr=f"Time limit exceeded ({timeout_seconds}s)",
                 exit_code=-1,
