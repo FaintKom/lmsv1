@@ -835,6 +835,13 @@ const ru: TranslationMap = {
  "crm.event.call": "Звонок",
  "crm.event.email": "Письмо",
  "crm.event.converted": "Зачислен",
+ "crm.event.reopened": "Возобновлена",
+ "crm.reopen": "Вернуть заявку в работу",
+ "crm.reopenHint": "Вернётся в «связались», история и причина отказа сохранятся.",
+ "crm.reopenFailed": "Не удалось вернуть заявку в работу.",
+ "crm.showClosed": "Показать закрытые заявки",
+ "crm.hideClosed": "Скрыть закрытые заявки",
+ "crm.noClosed": "Закрытых пока нет.",
  "nav.integrations": "Интеграции",
  "nav.settings": "Настройки",
 

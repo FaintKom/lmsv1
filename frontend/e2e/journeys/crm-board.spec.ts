@@ -101,3 +101,29 @@ test("an enquiry left on the school's own page reaches the board", async ({ page
   await page.goto(`${BASE_URL}/admin/crm`);
   await expect(page.getByText(webContact).first()).toBeVisible({ timeout: 15_000 });
 });
+
+test("a lost enquiry can be brought back rather than opened twice", async ({ page }) => {
+  const returning = `E2E Returning ${STAMP}`;
+
+  await authenticate(page.context(), ADMIN);
+  await page.goto(`${BASE_URL}/admin/crm`);
+
+  // A fresh enquiry of its own: the one above became a pupil.
+  await page.getByLabel(/who got in touch/i).fill(returning);
+  await page.getByLabel(/their email/i).fill(`e2e-returning-${STAMP}@qa.example.com`.toLowerCase());
+  await page.getByRole("button", { name: /add enquiry/i }).click();
+  await page.getByText(returning).first().click();
+
+  // Lose it, with a reason.
+  await page.getByLabel(/falls through/i).fill("Chose somewhere closer");
+  await page.getByRole("button", { name: /^lost$/i }).click();
+
+  // It is off the board, and findable only on request — which is the point.
+  await page.getByRole("button", { name: /show closed enquiries/i }).click();
+  await page.getByText(returning).first().click();
+
+  await page.getByRole("button", { name: /reopen this enquiry/i }).click();
+
+  // Back in the pipeline, with the reopening in its own history.
+  await expect(page.getByText(/^reopened$/i).first()).toBeVisible({ timeout: 15_000 });
+});

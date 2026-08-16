@@ -195,6 +195,18 @@ async def update_lead_endpoint(
     return _lead_json(lead)
 
 
+@router.post("/leads/{lead_id}/reopen")
+async def reopen_lead_endpoint(
+    lead_id: uuid.UUID,
+    user: User = Depends(require_role(*_STAFF)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Bring a lost enquiry back, rather than opening a second one for the
+    same family."""
+    lead = await service.reopen_lead(db, user, lead_id)
+    return _lead_json(lead)
+
+
 @router.delete("/leads/{lead_id}")
 async def delete_lead_endpoint(
     lead_id: uuid.UUID,

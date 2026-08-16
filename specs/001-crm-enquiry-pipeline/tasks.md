@@ -113,17 +113,17 @@ board with its earlier history and the reopening recorded.
 
 ### Tests for User Story 5 — write first, prove they fail
 
-- [ ] T023 [US5] Failing test in `backend/tests/test_crm.py`: reopening a lost enquiry returns it to `contacted`, keeps `lost_reason`, and appends a `reopened` history entry
-- [ ] T024 [P] [US5] Failing test: reopening a converted enquiry is refused — the pupil already exists
-- [ ] T025 [P] [US5] Failing test: reopening an already-open enquiry is refused
-- [ ] T026 [P] [US5] Failing test: another school's enquiry cannot be reopened and reads as 404
+- [X] T023 [US5] Failing test in `backend/tests/test_crm.py`: reopening a lost enquiry returns it to `contacted`, keeps `lost_reason`, and appends a `reopened` history entry
+- [X] T024 [P] [US5] Failing test: reopening a converted enquiry is refused — the pupil already exists
+- [X] T025 [P] [US5] Failing test: reopening an already-open enquiry is refused
+- [X] T026 [P] [US5] Failing test: another school's enquiry cannot be reopened and reads as 404
 
 ### Implementation for User Story 5
 
-- [ ] T027 [US5] Add `reopened` to `EVENT_KINDS` in `backend/app/crm/models.py` — a Python tuple, so no migration (data-model.md)
-- [ ] T028 [US5] Add `reopen_lead` to `backend/app/crm/service.py`, resolving the lead through the existing org guard
-- [ ] T029 [US5] Add `POST /leads/{lead_id}/reopen` to `backend/app/crm/router.py`
-- [ ] T030 [US5] Offer reopening on a closed enquiry in `frontend/src/app/(admin)/admin/crm/page.tsx`, strings in all six locale files
+- [X] T027 [US5] Add `reopened` to `EVENT_KINDS` in `backend/app/crm/models.py` — a Python tuple, so no migration (data-model.md)
+- [X] T028 [US5] Add `reopen_lead` to `backend/app/crm/service.py`, resolving the lead through the existing org guard
+- [X] T029 [US5] Add `POST /leads/{lead_id}/reopen` to `backend/app/crm/router.py`
+- [X] T030 [US5] Offer reopening on a closed enquiry in `frontend/src/app/(admin)/admin/crm/page.tsx`, strings in all six locale files
 
 **Checkpoint**: the funnel's numbers stop being corrupted by duplicates.
 

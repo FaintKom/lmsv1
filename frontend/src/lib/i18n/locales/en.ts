@@ -887,6 +887,13 @@ const en: TranslationMap = {
  "crm.event.call": "Call",
  "crm.event.email": "Email",
  "crm.event.converted": "Enrolled",
+ "crm.event.reopened": "Reopened",
+ "crm.reopen": "Reopen this enquiry",
+ "crm.reopenHint": "It goes back to contacted, keeping its history and the reason it was lost.",
+ "crm.reopenFailed": "The enquiry could not be reopened.",
+ "crm.showClosed": "Show closed enquiries",
+ "crm.hideClosed": "Hide closed enquiries",
+ "crm.noClosed": "Nothing closed yet.",
  "nav.integrations": "Integrations",
  "nav.settings": "Settings",
 

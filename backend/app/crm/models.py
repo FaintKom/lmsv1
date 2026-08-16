@@ -58,6 +58,10 @@ EVENT_KINDS: tuple[str, ...] = (
     "call",
     "email",
     "converted",
+    # A lost enquiry that came back. Kept as a distinct kind rather than
+    # another stage_changed, because "they returned" is the thing a school
+    # reads a history to find.
+    "reopened",
 )
 
 

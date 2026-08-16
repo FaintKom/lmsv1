@@ -887,6 +887,13 @@ const uk: TranslationMap = {
  "crm.event.call": "Дзвінок",
  "crm.event.email": "Лист",
  "crm.event.converted": "Зараховано",
+ "crm.event.reopened": "Відновлено",
+ "crm.reopen": "Повернути заявку в роботу",
+ "crm.reopenHint": "Повернеться у «звʼязалися», історія та причина відмови збережуться.",
+ "crm.reopenFailed": "Не вдалося повернути заявку в роботу.",
+ "crm.showClosed": "Показати закриті заявки",
+ "crm.hideClosed": "Сховати закриті заявки",
+ "crm.noClosed": "Закритих поки немає.",
  "nav.integrations": "Інтеграції",
  "nav.settings": "Налаштування",
 
