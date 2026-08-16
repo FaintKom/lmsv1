@@ -33,6 +33,52 @@ Project docs are split by audience — load only what you need.
 - [`tasks/todo.md`](tasks/todo.md) — active items only
 - [`tasks/lessons.md`](tasks/lessons.md) — incident learnings (read before deploy)
 - [`tasks/archive/`](tasks/archive/) — completed sprint archives
+- [`.specify/memory/constitution.md`](.specify/memory/constitution.md) — принципы
+  разработки (изоляция арендаторов, тесты, которые способны упасть, серверная
+  проверка ответов)
+- [`docs/superpowers/archive/`](docs/superpowers/archive/) — планы и спеки до
+  Spec Kit; история, не пополняется
+
+## Как ведётся разработка — Spec Kit
+
+**Вся работа идёт через [Spec Kit](https://github.com/github/spec-kit),
+независимо от размера.** Установлен 2026-08-16.
+
+```
+/speckit-specify    что и зачем — без решений о реализации
+/speckit-clarify    вопросы по дырам в спеке, до планирования
+/speckit-plan       как: архитектура, файлы, миграции
+/speckit-tasks      разбивка с учётом зависимостей
+/speckit-implement  исполнение
+```
+
+Мелкая правка получает короткую спеку, а не пропускает её: изменения, которые
+дорого обошлись этому проекту, все были мелкими и нигде не записанными.
+
+Дополнительно: `/speckit-analyze` — сверка спеки, плана и задач между собой,
+обязателен для всего, что трогает права доступа, схему БД или деньги;
+`/speckit-converge` — сверка готовой фичи с её же спекой.
+
+**Где что лежит:**
+- Спеки фич — `specs/NNN-короткое-имя/` в корне репозитория.
+- Принципы — `.specify/memory/constitution.md`. Правила деплоя, инфраструктуры
+  и денег остаются **здесь**, в этом файле; конституция на них ссылается и
+  никогда не дублирует. При расхождении прав у этого файла.
+- Шаблоны и скрипты — `.specify/` (в git). PowerShell-скрипты, потому что
+  разработка идёт под Windows.
+
+**Ветки.** `create-new-feature.ps1` по умолчанию заводит ветку вида
+`001-имя`. У нас конвенция `feat/`, `fix/`, `chore/` — работаем в своей ветке
+и передаём скрипту `-AllowExistingBranch`.
+
+**Навыки не в git.** Команды spec-kit ставятся в `.claude/skills/`, а этот путь
+в `.gitignore` (там же лежат сторонние навыки со своими лицензиями). После
+свежего клона восстанавливаются одной командой:
+
+```bash
+uv tool install specify-cli
+specify init --here --integration claude --script ps --force --ignore-agent-tools
+```
 
 ## Production
 
