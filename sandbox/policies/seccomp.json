@@ -1,17 +1,51 @@
 {
+  "_comment": [
+    "Seccomp profile for the code-execution sandbox.",
+    "",
+    "Docker applies a profile to EVERY process in the container, which is the",
+    "constraint that shapes everything here: the runner is itself a web server,",
+    "so a filter cannot distinguish it from a pupil's program.",
+    "",
+    "The first version of this file denied socket, connect, sendto, recvfrom,",
+    "bind, listen and accept. It was never referenced by any compose file, and",
+    "wiring it up as written killed the service outright:",
+    "",
+    "    ERROR: could not bind on any address out of [('0.0.0.0', 8001)]",
+    "",
+    "uvicorn needs socket, bind, listen and accept to serve at all. So those are",
+    "allowed, and the one thing the service never does is denied instead:",
+    "",
+    "  connect  - the runner accepts connections and initiates none. A pupil's",
+    "             program needs this to reach anything, including our own API on",
+    "             the shared sandbox-net, which is the route this exists to",
+    "             close. internal: true already closes the internet.",
+    "  sendto is NOT denied, though it is the obvious second entry. On x86-64",
+    "  Linux there is no separate send() syscall: glibc implements send() as",
+    "  sendto(fd, buf, len, flags, NULL, 0). Denying it stopped the server",
+    "  writing any response at all — uvicorn accepted the request, logged",
+    "  '200 OK', and the caller saw an empty reply. Measured, and it looks",
+    "  exactly like a healthy service from the log side.",
+    "",
+    "  That leaves a connectionless path — socket(SOCK_DGRAM) then sendto(addr)",
+    "  — open. It reaches nothing: internal: true closes the internet, and the",
+    "  only thing on sandbox-net is the backend, which speaks TCP.",
+    "What this deliberately does NOT claim: a pupil's program can still create a",
+    "socket and listen on one. On an egress-isolated network with nothing",
+    "dialling in, that reaches nobody. Denying bind as well would deny it to",
+    "uvicorn too, and a sandbox that cannot serve is not a safer sandbox.",
+    "",
+    "Every supported language is run under this profile before it ships; a",
+    "syscall filter that breaks a runtime breaks it silently, and only for",
+    "whoever happens to use that language."
+  ],
   "defaultAction": "SCMP_ACT_ALLOW",
   "syscalls": [
     {
       "names": [
-        "socket",
-        "connect",
-        "sendto",
-        "recvfrom",
-        "bind",
-        "listen",
-        "accept"
+        "connect"
       ],
-      "action": "SCMP_ACT_ERRNO"
+      "action": "SCMP_ACT_ERRNO",
+      "args": []
     }
   ]
 }
