@@ -205,6 +205,30 @@ def send_account_invitation(
     return _send_email(to_email, f"Your {school_name} account", _base_template(content))
 
 
+def send_crm_reminder(to_email: str, title: str, contact_name: str) -> bool:
+    """Tell somebody at the school that a follow-up has come due.
+
+    The bell alone was not enough: it is seen only by whoever is already signed
+    in, and the person who forgot to ring a family back is by definition not
+    looking at the board. Enquiries are lost to silence more often than to
+    competitors, so this one goes to the inbox as well.
+    """
+    content = f"""
+    <h2 style="margin:0 0 16px;color:#1e293b;font-size:18px;">A follow-up is due</h2>
+    <p style="margin:0 0 16px;color:#475569;font-size:14px;line-height:1.6;">
+      {escape(title)} — {escape(contact_name)}
+    </p>
+    <a href="{settings.app_url}/admin/crm" style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+      Open the enquiry
+    </a>
+    <p style="margin:16px 0 0;color:#94a3b8;font-size:12px;">
+      You are getting this because the reminder is yours, or because nobody at
+      the school was carrying it.
+    </p>
+    """
+    return _send_email(to_email, f"Follow-up due: {contact_name}", _base_template(content))
+
+
 def send_assignment_notification(
     to_email: str, student_name: str, assignment_title: str, due_date: str
 ) -> bool:
