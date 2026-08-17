@@ -195,14 +195,23 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  if (data.max_reached) {
  setMaxReached(true);
  }
- // Restore last submission result so UI shows completed state
- if (data.last_submission && data.last_submission.passed) {
+ // Restore the last submission so the exercise stops pretending to be
+ // untouched. This used to fire only when `passed` was true, so a student
+ // whose last attempt was wrong came back to a blank board: no score, no
+ // attempt counter, nothing saying they had ever tried. ResultDisplay renders
+ // both outcomes and offers Retry, so hiding the failed one bought nothing.
+ if (data.last_submission) {
    setResult({
      score: data.last_submission.score,
      passed: data.last_submission.passed,
    });
  }
- }).catch(() => {});
+ }).catch((err) => {
+ // Swallowed whole, this left a student looking at an exercise that seemed
+ // new and behaved oddly, with nothing anywhere explaining why. The UI stays
+ // quiet, but whoever has to explain it now has something to read.
+ console.error(`Could not load attempt state for exercise ${exercise.id}`, err);
+ });
  }, [exercise.id]);
 
  const openFullscreen = useCallback(() => setFullscreen(true), []);

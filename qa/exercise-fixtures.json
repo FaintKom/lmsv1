@@ -254,12 +254,12 @@
     {
       "type": "crossword",
       "label": "Crossword",
+      "$note": "grid_size + words[] with row/col/direction is the shape both sides actually read: the renderer's adapter in v2-exercise-live.tsx and _grade_crossword_detail, which walks content['words'] and compares w['word']. The earlier grid_width/grid_height/clues[] shape was read by neither, so the board rendered as an empty 10x10 default with no clues at all - and since that grader answers 1.0/True when it finds no words, the unsolvable exercise scored full marks too.",
       "config": {
-        "grid_width": 5,
-        "grid_height": 5,
-        "clues": [
-          {"number": 1, "direction": "across", "answer": "CAT", "clue": "A small furry pet."},
-          {"number": 2, "direction": "down", "answer": "CAR", "clue": "A road vehicle."}
+        "grid_size": 5,
+        "words": [
+          {"word": "CAT", "clue": "A small furry pet.", "row": 0, "col": 0, "direction": "across", "length": 3},
+          {"word": "CAR", "clue": "A road vehicle.", "row": 0, "col": 0, "direction": "down", "length": 3}
         ]
       }
     },

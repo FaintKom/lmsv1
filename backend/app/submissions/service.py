@@ -1,3 +1,4 @@
+import logging
 import uuid
 from pathlib import Path
 
@@ -109,11 +110,76 @@ async def get_file_submission(
 PerItem = dict[str, bool] | list[bool] | None
 
 
+logger = logging.getLogger(__name__)
+
+
+def _nothing_to_grade(exercise_type: str, missing: str) -> None:
+    """Record that an exercise was graded against an empty answer key.
+
+    Every `_grade_*` helper answers "full marks, passed" when its part of the
+    config is empty, and that is right for content which legitimately has nothing
+    to get wrong. It is also what a *misconfigured* exercise does, and there the
+    school is told a class passed something nobody could attempt: on 2026-08-17 a
+    crossword whose config used keys no reader understood rendered as an empty
+    board and still scored 100 for anyone who pressed submit.
+
+    Grading behaviour is deliberately unchanged — returning zero instead would
+    punish students for a teacher's mistake, and the two cases cannot be told
+    apart at grading time. What changes is that the silent case now leaves a
+    trace somebody can find.
+    """
+    logger.warning(
+        "exercise graded with an empty answer key — full marks awarded by default",
+        extra={"exercise_type": exercise_type, "missing_config_key": missing},
+    )
+
+
+# Where each type keeps its answer key. Only types whose grader was read and
+# confirmed are listed; a wrong entry here would produce a false warning, which is
+# worse than none. The rest simply go unwatched for now.
+_ANSWER_KEY_BY_TYPE = {
+    "matching": "pairs",
+    "ordering": "correct_order",
+    "fill_blanks": "blanks",
+    "categorize": "categories",
+    "crossword": "words",
+    "word_search": "words",
+    "srs_flashcard": "cards",
+    "reading": "questions",
+    "conjugation": "table",
+}
+
+
+def _warn_if_no_answer_key(content: dict, exercise_type: str) -> None:
+    key = _ANSWER_KEY_BY_TYPE.get(exercise_type)
+    if key and not (content or {}).get(key):
+        _nothing_to_grade(exercise_type, key)
+
+
+def _as_answer_dict(answers: object) -> dict:
+    """Coerce whatever a caller passed into the mapping the graders expect.
+
+    Every `_grade_*` helper below calls `answers.get(...)`, so anything that is
+    not a mapping has to become an empty one here rather than raise there.
+
+    Callers do hand this non-dicts. `_submit_interactive` reads
+    `data.get("interactive_answers") or data.get("answers", {})`: an empty dict
+    is falsy, so a student who cleared their answer falls through to `answers`,
+    which the submit schema declares as `list[dict] | None`. The graders then
+    received a list or None, and every interactive type answered 500 instead of
+    scoring zero — found 2026-08-17 across all six types of corner-case wave 1.
+    Regression test: tests/test_submissions.py.
+    """
+    return answers if isinstance(answers, dict) else {}
+
+
 def grade_interactive_detail(
     content: dict, exercise_type: str, answers: dict
 ) -> tuple[float, bool, PerItem]:
     """Like grade_interactive, but with per-item verdicts where the type
     supports them (integrity model B deferred feedback)."""
+    answers = _as_answer_dict(answers)
+    _warn_if_no_answer_key(content, exercise_type)
     if exercise_type == "translation":
         score, passed = _grade_translation(content, answers)
         return score, passed, None
@@ -141,6 +207,8 @@ def grade_interactive_detail(
 
 def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple[float, bool]:
     """Grade interactive exercise. Returns (score 0.0-1.0, passed)."""
+    answers = _as_answer_dict(answers)
+    _warn_if_no_answer_key(content, exercise_type)
     if exercise_type == "matching":
         return _grade_matching(content, answers)
     elif exercise_type == "ordering":
