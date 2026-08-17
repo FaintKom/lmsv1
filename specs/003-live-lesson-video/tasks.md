@@ -36,7 +36,7 @@ actually holds. No feature code is written in this phase.
 - [x] T003 Add the `livekit` service to `docker-compose.prod.yml` with the image **pinned to a version tag, never `:latest`** (research.md Finding I: `cloudflared` in the same file uses `:latest`, and copying that habit means a silent restart mid-lesson), plus `restart: unless-stopped` and `deploy.resources.limits` of `cpus: "1.2"` and `memory: 700M`, commented with the arithmetic the way the `sandbox` service comments its own
 - [x] T004 Add `livekit.yaml` at the repository root: UDP mux, TURN on 3478/udp with its relay range published (Finding M), and the audio selection from Finding G that decides whether a fifteen-person room fits
 - [x] T005 [P] Add the six media settings to `backend/app/config.py` per data-model.md, with `max_concurrent_media_participants` defaulting to **0**, meaning media is off until a measurement says otherwise
-- [ ] T006 [P] ~~Add `livekit-api` and the browser SDK~~ — **deferred to slice 1.** Neither is imported by anything until the grants module and the room UI exist, and an unused dependency is weight in the lock file and the bundle. Add each beside its first caller
+- [x] T006 [P] Add `livekit-api` to `backend/pyproject.toml` and `livekit-client` with `@livekit/components-react` to `frontend/package.json` — done in slice 1, each beside its first caller rather than ahead of it. The browser half needed node 22, which is now installed through `fnm`
 - [x] T007 Proxy the signalling WebSocket in `nginx/nginx.conf`: `/rtc` to `lms-livekit-1:7880` with the upgrade headers and hour-long timeouts, so 7880 stays on loopback and a lesson-length socket is not cut every minute
 - [x] T008 ~~**Owner-gated.** Open the production firewall~~ — **no firewall change is needed, and this is measured rather than assumed.** A published container port is DNAT'd in `nat/PREROUTING` and travels `FORWARD`, which Docker has already opened, while ufw filters `INPUT`; the prod compose file records an unrelated container reachable from the internet on 2026-08-17 with ufw active. Publishing the ports in compose is what makes them reachable. **The `ports:` list is therefore the security boundary**, which is why 7880 binds to `127.0.0.1`. Verify with `ss -lntup`, never `ufw status` (research.md Finding D as revised)
 - [ ] T091 Raise `net.core.rmem_max` on the production host before the load test. LiveKit's own startup log asks for it — `"UDP receive buffer is too small for a production set-up","current":425984,"suggested":5000000` — and measuring capacity against a starved socket buffer measures the wrong thing (Finding N)
@@ -92,22 +92,25 @@ each other inside the lesson page, with no second window and no external domain.
 - [x] T025 [US1] Write the grant request and response schemas in `backend/app/live_media/schemas.py` per contracts/api.md
 - [x] T026 [US1] Implement `POST /media/token` in `backend/app/live_media/router.py`: resolve the lesson through the existing `live_lessons` lookup, check the removed set, check the ceiling, then sign through `grants.py`
 
-> **The browser half of this phase is blocked on tooling, not on design.** The
-> SDK cannot be installed on this machine: `package.json` requires node 22.x
-> with npm 10.x, `.npmrc` sets `engine-strict`, and the only node here is
-> v24.19.0 with npm 11.17.0, so `npm install livekit-client` stops with
-> `EBADENGINE`. Installing anyway writes a lock file npm 10 rejects, which is
-> the failure PR #259 and #313 were opened to fix — the guard is doing its job
-> and is not to be argued with. T027 onwards need node 22 present.
+> **Unblocked 2026-08-17.** node v22.23.2 installed through `fnm` (winget:
+> `Schniz.fnm`), which leaves the machine's global node 24 alone rather than
+> taking over `C:\Program Files\nodejs`. The SDK then installed under npm
+> 10.9.8, and `package-lock.json` kept `lockfileVersion: 3`, so nothing about
+> the guard from PR #259 and #313 had to be argued with.
+>
+> One Windows wrinkle worth writing down: `fnm exec --using=22 -- npm` fails
+> with "program not found", because npm is a `.cmd` shim that fnm's spawn does
+> not resolve. Call `npm.cmd` from the version's own directory instead.
 
-- [ ] T028 [P] [US1] Add the typed API functions to `frontend/src/lib/api/live.ts`
-- [ ] T029 [US1] Write `frontend/src/components/live/media-stage.tsx`: the teacher and whoever holds the floor at a high layer, everyone else as low-layer thumbnails (research.md Finding G)
-- [ ] T030 [US1] Write `frontend/src/components/live/media-controls.tsx`: device pickers, mute, camera off, leave, and joining with audio alone when there is no camera (FR-007)
-- [ ] T031 [US1] Mount the stage and controls in `frontend/src/app/(dashboard)/lesson/[lessonId]/page.tsx`, beside the existing scene and roster
-- [ ] T032 [US1] Mount the same in `frontend/src/app/(admin)/admin/live/[lessonId]/page.tsx`
-- [ ] T033 [US1] Show the capacity refusal as a plain message when the grant returns 503, leaving board, tasks and roster working
-- [ ] T034 [P] [US1] Add every new string to all six files in `frontend/src/lib/i18n/locales/`, or the parity test fails (FR-026)
-- [ ] T035 [P] [US1] Vitest for the reconnect path in `frontend/src/lib/live/media-client.test.ts`
+- [x] T027 ~~Write `frontend/src/lib/live/media-client.ts`~~ — **folded into T029.** `@livekit/components-react` supplies the connection component, so a hand-written client would have been a wrapper with a single caller, which principle V forbids. `adaptiveStream` and `dynacast` are passed as options where the room is mounted
+- [x] T028 [P] [US1] Add the typed API function to `frontend/src/lib/api/live.ts`
+- [x] T029 [US1] Write `frontend/src/components/live/media-stage.tsx`: the grid, the deliberate join step, and the capacity message in one component
+- [x] T030 ~~Write `media-controls.tsx`~~ — **folded into T029** for the same reason: the SDK's control bar already covers microphone, camera, screen share and leave, and wrapping it would add a file without adding behaviour
+- [x] T031 [US1] Mount the stage in `frontend/src/app/(dashboard)/lesson/[lessonId]/page.tsx`, under the scene
+- [x] T032 [US1] Mount the same in `frontend/src/app/(admin)/admin/live/[lessonId]/page.tsx`, directly above the roster so a tile and a name line up by eye
+- [x] T033 [US1] Show the capacity refusal as a plain message when the grant returns 503, leaving board, tasks and roster working
+- [x] T034 [P] [US1] Add every new string to all six files in `frontend/src/lib/i18n/locales/`, or the parity test fails (FR-026)
+- [ ] T035 [P] [US1] ~~Vitest for the reconnect path~~ — **deferred to slice 2.** Reconnection belongs to the SDK, and the only branch worth asserting here is the 503 refusal, which the browser journey at T084 covers end to end. Revisit if `media-stage.tsx` grows logic of its own
 - [ ] T036 [US1] Close the media room when the lesson ends, in `backend/app/live_lessons/router.py`, and delete every breakout group belonging to it so no room outlives its lesson (FR-018; the test for the breakout half is T057)
 
 **Checkpoint**: SC-001, SC-004, SC-006 and SC-009 hold. This is the MVP and is deployable.

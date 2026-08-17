@@ -322,3 +322,32 @@ export function useSetScene(lessonId: string) {
     },
   });
 }
+
+/**
+ * A ticket to join one lesson's media room.
+ *
+ * The permissions are not here — they are inside the signed token, which the
+ * media server checks. `can_publish_screen` only tells the interface whether to
+ * offer the button; hiding a button is not a control.
+ */
+export interface MediaToken {
+  url: string;
+  token: string;
+  identity: string;
+  room: string;
+  can_publish_screen: boolean;
+  expires_in: number;
+}
+
+/**
+ * Ask the server for a grant. Short-lived on purpose: a token that outlived a
+ * teacher's decision to remove somebody would let them walk straight back in.
+ *
+ * A 503 here is not a failure to retry blindly — it means the host is at its
+ * measured ceiling, and the caller should say so and leave the rest of the
+ * lesson working.
+ */
+export async function fetchMediaToken(lessonId: string): Promise<MediaToken> {
+  const { data } = await apiClient.post<MediaToken>(`/live-lessons/${lessonId}/media/token`);
+  return data;
+}

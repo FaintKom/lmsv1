@@ -9,6 +9,7 @@ import { BookOpen, X } from "lucide-react";
 
 import { LessonReview } from "@/components/live/lesson-review";
 import { PollModal } from "@/components/live/poll-modal";
+import { MediaStage } from "@/components/live/media-stage";
 import { MaterialPane, SceneView } from "@/components/live/scene-view";
 import { SignalBar } from "@/components/live/signal-bar";
 import type { BoardViewHandle } from "@/components/live/board-view";
@@ -205,6 +206,11 @@ export default function StudentLessonPage() {
             </button>
           </div>
         )}
+      </div>
+      {/* The faces sit under the scene rather than in a second window: the
+          point of this feature is that a lesson is one page. */}
+      <div className="h-56 shrink-0 border-t border-border p-2">
+        <MediaStage lessonId={lessonId} />
       </div>
       <SignalBar
         key={signalEpoch}

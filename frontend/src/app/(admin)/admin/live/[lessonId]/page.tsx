@@ -31,6 +31,7 @@ import { ReviewInspector } from "@/components/live/review-inspector";
 import { MaterialPicker } from "@/components/live/material-picker";
 import { PollPanel } from "@/components/live/poll-panel";
 import { ProgressGrid } from "@/components/live/progress-grid";
+import { MediaStage } from "@/components/live/media-stage";
 import { RosterPanel } from "@/components/live/roster-panel";
 import { SceneView } from "@/components/live/scene-view";
 import { StudentDrawer } from "@/components/live/student-drawer";
@@ -671,6 +672,12 @@ export default function TeacherLivePage() {
                     ))}
                   </div>
                 )}
+                {/* Directly above the roster on purpose: a tile and a name
+                    should line up by eye, which is why the media moved onto
+                    this page at all. */}
+                <div className="mb-3 h-48 shrink-0">
+                  <MediaStage lessonId={lessonId} />
+                </div>
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   <RosterPanel members={members} onPick={setPicked} />
                 </div>
