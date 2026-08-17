@@ -11,9 +11,9 @@ Mounted at /api/v1/crm.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +29,9 @@ from app.crm.models import (
     LeadTask,
 )
 from app.db.session import get_db
+
+# The same bound, for the same reason, from the place that already states it.
+from app.journal.service import MAX_EXPORT_SPAN_DAYS
 
 router = APIRouter()
 
@@ -154,6 +157,42 @@ async def list_leads_endpoint(
         db, user, stage=stage, owner_id=owner_id, search=search, include_closed=include_closed
     )
     return {"items": [_lead_json(lead) for lead in leads]}
+
+
+@router.get("/report")
+async def funnel_report_endpoint(
+    from_date: date | None = Query(None, alias="from"),
+    to_date: date | None = Query(None, alias="to"),
+    user: User = Depends(require_role(*_STAFF)),
+    db: AsyncSession = Depends(get_db),
+):
+    """The funnel's numbers over a window — conversion, sources, response time.
+
+    Defaults to the last thirty days, because a school opening a report wants
+    "how are we doing" rather than a form to fill in first.
+
+    The span cap is the journal export's, imported rather than repeated: two
+    copies of 366 drift apart, and the reason for the bound is identical — one
+    request must not fan out over an unbounded range.
+    """
+    today = datetime.now(timezone.utc).date()
+    to_date = to_date or today
+    from_date = from_date or (to_date - timedelta(days=30))
+
+    if to_date < from_date:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="`to` must be on or after `from`",
+        )
+    if (to_date - from_date).days + 1 > MAX_EXPORT_SPAN_DAYS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Range may span at most {MAX_EXPORT_SPAN_DAYS} days",
+        )
+
+    # An empty window is a legitimate answer, not an error: a school that
+    # received nothing last week is entitled to read zero.
+    return await service.funnel_report(db, user, from_date, to_date)
 
 
 @router.get("/summary")

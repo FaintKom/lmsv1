@@ -868,3 +868,175 @@ async def test_a_reminder_on_a_closed_enquiry_tells_nobody(client: AsyncClient, 
     # this the "skip" would be indistinguishable from dropping the row.
     await client.post(f"/api/v1/crm/leads/{lead['id']}/reopen", headers=auth_header(admin))
     assert await _sweep_crm_task_reminders(db) == 1
+
+
+# ── Which channel is worth the money ─────────────────────────────────────
+#
+# A school cannot answer "is the website worth it?" from a board that shows only
+# open work. These numbers come from the rows that already exist — no
+# denormalised column, no rollup table (research §4).
+
+
+async def _aged_lead(client: AsyncClient, db, who, *, days_ago: int, **overrides) -> dict:
+    """An enquiry that arrived `days_ago` days ago."""
+    from app.crm.models import Lead
+
+    lead = await _lead(client, who, **overrides)
+    row = await db.get(Lead, uuid.UUID(lead["id"]))
+    row.created_at = datetime.now(timezone.utc) - timedelta(days=days_ago)
+    await db.flush()
+    return lead
+
+
+def _window(days: int = 30) -> dict[str, str]:
+    today = datetime.now(timezone.utc).date()
+    return {
+        "from": (today - timedelta(days=days)).isoformat(),
+        "to": today.isoformat(),
+    }
+
+
+@pytest.mark.asyncio
+async def test_the_report_counts_the_window_and_states_the_conversion_rate(
+    client: AsyncClient, db, admin
+):
+    """Three enrolled, one lost, one still open — a rate of 0.75 among those
+    closed, and the open one counted but not held against it."""
+    for n in range(3):
+        won = await _aged_lead(client, db, admin, days_ago=5, contact_name=f"Won {n}")
+        resp = await client.post(
+            f"/api/v1/crm/leads/{won['id']}/convert",
+            json={"student_email": f"won-{n}-{uuid.uuid4().hex[:6]}@example.com"},
+            headers=auth_header(admin),
+        )
+        assert resp.status_code == 200, resp.text
+
+    lost = await _aged_lead(client, db, admin, days_ago=5, contact_name="Lost one")
+    await client.patch(
+        f"/api/v1/crm/leads/{lost['id']}",
+        json={"stage": "lost", "lost_reason": "Price"},
+        headers=auth_header(admin),
+    )
+    await _aged_lead(client, db, admin, days_ago=5, contact_name="Still talking")
+
+    # Outside the window, so it must not be counted at all.
+    await _aged_lead(client, db, admin, days_ago=400, contact_name="Ancient history")
+
+    report = (
+        await client.get("/api/v1/crm/report", params=_window(), headers=auth_header(admin))
+    ).json()
+
+    assert report["received"] == 5, report
+    assert report["enrolled"] == 3
+    assert report["lost"] == 1
+    assert report["open"] == 1
+    # Among those that closed, not among all five. A school judging a channel on
+    # enquiries still being worked would be reading noise.
+    assert report["conversion_rate"] == pytest.approx(0.75)
+
+
+@pytest.mark.asyncio
+async def test_enquiries_with_no_source_are_counted_as_unknown(client: AsyncClient, db, admin):
+    """Dropping them would make the breakdown add up to less than the total, and
+    a school comparing channels would silently be comparing a subset."""
+    await _aged_lead(client, db, admin, days_ago=2, contact_name="From site", source="website")
+    await _aged_lead(client, db, admin, days_ago=2, contact_name="No idea")
+
+    report = (
+        await client.get("/api/v1/crm/report", params=_window(), headers=auth_header(admin))
+    ).json()
+
+    assert report["by_source"]["website"] == 1
+    assert report["by_source"]["unknown"] == 1
+    assert sum(report["by_source"].values()) == report["received"]
+
+
+@pytest.mark.asyncio
+async def test_median_time_to_first_contact_uses_the_earliest_contact(
+    client: AsyncClient, db, admin
+):
+    """And says how many enquiries it is based on.
+
+    A median over an unstated subset is the kind of number that gets quoted in a
+    decision. A school that logs no calls should read "based on 0" rather than a
+    confident null they might mistake for "we answer instantly".
+    """
+    from app.crm.models import LeadEvent
+
+    lead = await _aged_lead(client, db, admin, days_ago=3, contact_name="Rang back")
+    created_at = (
+        await db.get(__import__("app.crm.models", fromlist=["Lead"]).Lead, uuid.UUID(lead["id"]))
+    ).created_at
+
+    # Two contacts: four hours after arrival, and two days after. The earliest
+    # is the one that answers "how long did this family wait".
+    for hours, kind in ((4, "call"), (48, "email")):
+        event = LeadEvent(lead_id=uuid.UUID(lead["id"]), kind=kind, body="spoke")
+        db.add(event)
+        await db.flush()
+        event.created_at = created_at + timedelta(hours=hours)
+    # A note is not contact — nobody outside the office heard from us.
+    note = LeadEvent(lead_id=uuid.UUID(lead["id"]), kind="note", body="looks keen")
+    db.add(note)
+    await db.flush()
+    note.created_at = created_at + timedelta(hours=1)
+    await db.flush()
+
+    report = (
+        await client.get("/api/v1/crm/report", params=_window(), headers=auth_header(admin))
+    ).json()
+
+    assert report["median_hours_to_first_contact"] == pytest.approx(4.0, abs=0.1), report
+    assert report["contacted"] == 1
+
+
+@pytest.mark.asyncio
+async def test_a_bad_range_is_refused_and_an_empty_one_is_answered(client: AsyncClient, admin):
+    """An empty report is a legitimate answer; a nonsensical range is not."""
+    today = datetime.now(timezone.utc).date()
+
+    reversed_range = await client.get(
+        "/api/v1/crm/report",
+        params={"from": today.isoformat(), "to": (today - timedelta(days=1)).isoformat()},
+        headers=auth_header(admin),
+    )
+    assert reversed_range.status_code == 422
+
+    too_long = await client.get(
+        "/api/v1/crm/report",
+        params={"from": (today - timedelta(days=400)).isoformat(), "to": today.isoformat()},
+        headers=auth_header(admin),
+    )
+    assert too_long.status_code == 422
+
+    empty = await client.get(
+        "/api/v1/crm/report",
+        params={
+            "from": (today - timedelta(days=3)).isoformat(),
+            "to": (today - timedelta(days=2)).isoformat(),
+        },
+        headers=auth_header(admin),
+    )
+    assert empty.status_code == 200, empty.text
+    body = empty.json()
+    assert body["received"] == 0
+    assert body["conversion_rate"] == 0
+    assert body["median_hours_to_first_contact"] is None
+    assert body["contacted"] == 0
+
+
+@pytest.mark.asyncio
+async def test_the_report_counts_only_the_callers_school(client: AsyncClient, db, admin, admin2):
+    """The positive control comes first: without it this passes on a server with
+    no such endpoint, where both schools read zero."""
+    await _aged_lead(client, db, admin, days_ago=1, contact_name="Ours")
+
+    mine = (
+        await client.get("/api/v1/crm/report", params=_window(), headers=auth_header(admin))
+    ).json()
+    assert mine["received"] == 1, mine
+
+    theirs = (
+        await client.get("/api/v1/crm/report", params=_window(), headers=auth_header(admin2))
+    ).json()
+    assert theirs["received"] == 0, theirs

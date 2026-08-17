@@ -558,6 +558,116 @@ async def _invite(db: AsyncSession, users: list[User], *, school_name: str) -> i
 # ── Board summary ────────────────────────────────────────────────────────
 
 
+# What counts as having contacted a family. A note is an internal record —
+# somebody looked at the enquiry — and counting it would let a school report a
+# four-minute response time for an enquiry nobody answered.
+#
+# A stage change into `contacted` also means contact happened, and is
+# deliberately not counted: detecting it means matching the wording inside an
+# event body, and a report built on string-sniffing is a report that changes
+# meaning when somebody edits a message. The consequence is stated in the
+# numbers instead — see `contacted` in the report — so a school that only moves
+# cards reads "based on 0 enquiries" rather than a confident median over
+# nothing.
+CONTACT_KINDS: tuple[str, ...] = ("call", "email")
+
+
+async def funnel_report(db: AsyncSession, user: User, from_date, to_date) -> dict:
+    """What a school needs to decide whether a channel earns its money.
+
+    Computed from the rows that already exist rather than from a denormalised
+    column (research §4). The history is already append-only and already indexed
+    by `(lead_id, created_at)`, and at 10–300 pupils a school the aggregate is
+    small. A `first_contact_at` column would be faster and would need a
+    migration, a backfill, and a second place to keep correct.
+
+    The window is inclusive at both ends, in whole days: a school asking about
+    "the first to the seventh" means all seven days.
+    """
+    from datetime import datetime
+    from datetime import time as _time
+
+    start = datetime.combine(from_date, _time.min, tzinfo=timezone.utc)
+    end = datetime.combine(to_date, _time.max, tzinfo=timezone.utc)
+
+    scope = [Lead.created_at >= start, Lead.created_at <= end]
+    if user.role != UserRole.super_admin:
+        scope.append(Lead.org_id == user.org_id)
+
+    rows = (
+        await db.execute(
+            select(Lead.stage, Lead.source, func.count(Lead.id))
+            .where(*scope)
+            .group_by(Lead.stage, Lead.source)
+        )
+    ).all()
+
+    received = 0
+    enrolled = 0
+    lost = 0
+    by_source: dict[str, int] = {}
+    for stage, source, count in rows:
+        received += count
+        if stage == "won":
+            enrolled += count
+        elif stage == "lost":
+            lost += count
+        # A missing source is counted, not dropped. Dropping it would make the
+        # breakdown add up to less than the total, and a school comparing
+        # channels would be silently comparing a subset.
+        by_source[source or "unknown"] = by_source.get(source or "unknown", 0) + count
+
+    closed = enrolled + lost
+    # Among those that closed, not among everything. An enquiry still being
+    # worked is neither a win nor a loss, and counting it as a loss would make
+    # every healthy pipeline look like a failing one.
+    conversion_rate = round(enrolled / closed, 4) if closed else 0.0
+
+    first_contact = (
+        select(
+            LeadEvent.lead_id.label("lead_id"),
+            func.min(LeadEvent.created_at).label("at"),
+        )
+        .where(LeadEvent.kind.in_(CONTACT_KINDS))
+        .group_by(LeadEvent.lead_id)
+        .subquery()
+    )
+    waits = (
+        await db.execute(
+            select(first_contact.c.at, Lead.created_at)
+            .join(Lead, Lead.id == first_contact.c.lead_id)
+            .where(*scope)
+        )
+    ).all()
+    hours = sorted(
+        (contacted_at - created_at).total_seconds() / 3600.0
+        for contacted_at, created_at in waits
+        if contacted_at >= created_at
+    )
+
+    return {
+        "from": from_date.isoformat(),
+        "to": to_date.isoformat(),
+        "received": received,
+        "enrolled": enrolled,
+        "lost": lost,
+        "open": received - closed,
+        "conversion_rate": conversion_rate,
+        "by_source": by_source,
+        "median_hours_to_first_contact": round(_median(hours), 2) if hours else None,
+        # How many enquiries the median is based on. An unstated subset is the
+        # kind of number that gets quoted in a decision.
+        "contacted": len(hours),
+    }
+
+
+def _median(values: list[float]) -> float:
+    middle = len(values) // 2
+    if len(values) % 2:
+        return values[middle]
+    return (values[middle - 1] + values[middle]) / 2
+
+
 async def pipeline_summary(db: AsyncSession, user: User) -> dict[str, int]:
     """Counts per stage — what the board header shows."""
     query = select(Lead.stage, func.count(Lead.id))
