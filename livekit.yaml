@@ -1,0 +1,83 @@
+# LiveKit — media server for live lessons
+#
+# Mounted read-only into the `livekit` container by every compose file.
+# Keys never live here: they arrive as LIVEKIT_KEYS in the environment, so this
+# file is safe in git.
+#
+# The reasoning behind each choice is in specs/003-live-lesson-video/research.md,
+# cited below by finding letter.
+
+port: 7880
+
+rtc:
+  # UDP mux (Finding C, revised). One socket carries every participant's media
+  # instead of two ports each. The documented alternative, port_range_start and
+  # port_range_end at 50000-60000, is ten thousand ports: thousands of NAT rules
+  # to publish and a firewall change to match. LiveKit's own advice is a port
+  # count at least equal to the machine's vCPUs, and production has two — hence
+  # two ports, not two hundred.
+  #
+  # port_range_start and port_range_end MUST stay unset, or udp_port is ignored.
+  udp_port: 7882-7883
+
+  # Fallback for networks that block UDP outright. Slower and lossier than UDP;
+  # it exists so those participants join at all.
+  tcp_port: 7881
+
+  # The container sits on a Docker bridge and sees a private address, so the ICE
+  # candidates it would otherwise advertise are unroutable. This asks a STUN
+  # server for the real one. Without it, nobody outside the host connects.
+  use_external_ip: true
+
+# Embedded TURN, which removes the separate coturn container the first draft of
+# the plan carried (Finding D). TLS on 5349 stays off: the port that pierces
+# restrictive networks is 443, it belongs to nginx, and sharing it needs an
+# nginx stream block plus a certificate of its own. That is task T085 and it
+# waits on the owner (Finding E).
+turn:
+  enabled: true
+  udp_port: 3478
+  tls_port: 0
+  # 3478 only accepts the control connection. The relayed media itself leaves
+  # on a separate port per allocation, and the default range is 30000-40000 —
+  # ten thousand ports nobody would publish, which is how you ship a TURN
+  # server that answers and then relays nothing. Caught on 2026-08-17 by
+  # reading the startup log rather than trusting the config:
+  #   "Starting TURN server" turn.relay_range_start:30000 relay_range_end:40000
+  #
+  # Twenty-one ports is one per participant who needs a relay, which is more
+  # than a class. The compose files publish exactly this range.
+  relay_range_start: 30000
+  relay_range_end: 30020
+
+# Rooms are created by the backend, which has already checked who may join.
+# auto_create would let anyone holding a valid token conjure a room name.
+room:
+  auto_create: false
+  empty_timeout: 300
+  # 0 means no limit here on purpose. The real ceiling is enforced by the
+  # backend when it signs a grant, from a number slice 0 measures (FR-008,
+  # FR-024). Two ceilings in two places drift apart, and the one that matters
+  # is the one that can refuse politely.
+  max_participants: 0
+
+# What makes fifteen people fit on two cores (Finding G).
+#
+# Video is handled by the client SDKs: simulcast has a publisher send several
+# qualities at once and the server hands each subscriber the one their tile
+# needs, while dynacast pauses the qualities nobody is watching. Fourteen
+# thumbnails therefore never cost fourteen full-size streams.
+#
+# Audio is handled here. Left alone, the server forwards every microphone to
+# everyone, and audio rather than video becomes the packet load: twelve silent
+# microphones cost the same as twelve talking ones. Forwarding only the loudest
+# cuts the packet count by roughly two thirds in a class-sized room.
+audio:
+  active_level: 30
+  min_percentile: 15
+  update_interval: 400
+  smooth_intervals: 4
+
+logging:
+  level: info
+  json: true

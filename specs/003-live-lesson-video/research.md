@@ -54,47 +54,63 @@ Alternatives considered.
   stated requirement is independence from external technology, and each also
   costs money that would need separate approval.
 
-## Finding C — Container networking: host mode, narrow port range
+## Finding C — Port strategy, revised: UDP mux on an ordinary bridge
 
-**Decision: `network_mode: host` for the LiveKit container, with the WebRTC
-range narrowed to 50000–50200/udp.**
+**Decision: `rtc.udp_port: 7882-7883`, published from an ordinary Docker
+bridge. No host networking, no port range.**
 
-The documented default range is 50000–60000, ten thousand ports, and each
-participant uses two. Publishing that range through Docker's port mapping means
-thousands of NAT rules and a userland hop for every packet, on a host that will
-be moving something like eight to sixteen thousand packets a second during a
-lesson. Host networking removes the hop, which is the cheapest performance
-decision in this plan.
+The first draft of this finding said `network_mode: host` with the range
+narrowed to 50000–50200. Both halves answered a problem LiveKit already solves.
 
-Two hundred ports covers a hundred participants, well past anything slice 0 will
-measure, and shrinks the firewall change from ten thousand ports to two hundred.
+LiveKit supports **UDP mux**: set `rtc.udp_port` and every participant's media
+shares one socket instead of taking two ports each. Its own advice is a port
+count at least equal to the machine's vCPUs, and production has two. The media
+footprint is therefore **two ports, not two hundred, and not ten thousand**.
 
-Consequence: the container has no Compose network alias, so the backend reaches
-it at `127.0.0.1:7880`. That also sidesteps the shared-network alias trap
-recorded in project memory, where a service name becomes an alias on every
-network it joins.
+With four ports to publish in total, the case for host networking collapses. It
+rested on thousands of NAT rules; four rules are nothing, the DNAT is
+kernel-side, and an ordinary bridge behaves identically in development, QA and
+production instead of needing a special case for each. `use_external_ip: true`
+answers the one real objection, which is that a bridged container sees a private
+address and would otherwise advertise unroutable ICE candidates.
+
+The consequence is a simplification: the container keeps a normal Compose alias,
+so nginx reaches it at `lms-livekit-1:7880` the way it reaches everything else.
+`port_range_start` and `port_range_end` must stay unset, or `udp_port` is
+silently ignored.
 
 ## Finding D — Ports and the firewall
 
 LiveKit's own port list:
 
-| Port | Protocol | Required | Purpose |
+What this deployment actually opens, after Finding C and Finding M:
+
+| Port | Protocol | Exposure | Purpose |
 |---|---|---|---|
-| 7880 | TCP | yes | Signalling over WebSocket, expected to sit behind TLS termination |
-| 50000–60000 | UDP | yes | WebRTC media, two ports per participant |
-| 7881 | TCP | yes | WebRTC fallback when UDP cannot connect |
-| 3478 | UDP | optional | Embedded TURN over UDP |
-| 5349 | TCP | optional | Embedded TURN over TLS |
+| 7880 | TCP | loopback only | Signalling, proxied by nginx at `/rtc` over TLS |
+| 7882–7883 | UDP | public | Media, multiplexed across all participants |
+| 7881 | TCP | public | WebRTC fallback when UDP cannot connect |
+| 3478 | UDP | public | Embedded TURN, control connection only |
+| 30000–30020 | UDP | public | TURN relay allocations (Finding M) |
 
 The embedded TURN removes any need for a separate `coturn` container, which is
-one fewer service on a crowded host.
+one fewer service on a crowded host. Signalling never faces the internet on its
+own: 7880 binds to `127.0.0.1`, and nginx carries it with the certificate and
+the timeouts a lesson-length WebSocket needs.
 
-Production firewall today, read on 2026-08-17: `22/tcp`, `80/tcp`, `443/tcp`,
-and `11434` from the Docker bridge only. Nothing else, and no UDP at all.
+**The firewall does not need to change, and this is not an assumption.** The
+prod compose file already records it, measured 2026-08-17 next to the nginx
+service: a published container port is DNAT'd in `nat/PREROUTING` and then
+travels the `FORWARD` chain, which Docker has already opened, while ufw filters
+`INPUT`. An unrelated container published `0.0.0.0:2567` and was reachable from
+the internet with ufw active. So publishing these ports in compose is what makes
+them reachable, and `ufw status` will keep reporting `22/80/443` either way.
 
-**Decision.** Signalling stays behind nginx on 443, so 7880 is never exposed.
-The firewall change opens `50000:50200/udp`, `3478/udp` and `7881/tcp`. It is a
-change to a live server's firewall and waits for the owner's explicit approval.
+Two consequences, and they cut in opposite directions. Nothing is owner-gated
+here after all, which removes one of the two blockers this plan carried. And the
+`ports:` list is now the security boundary rather than the firewall, so binding
+7880 to loopback is load-bearing rather than tidy. Verify with `ss -lntup`,
+never with `ufw status`.
 
 ## Finding E — TURN over TLS on 443, and the cert that must not be touched
 
@@ -261,6 +277,55 @@ belongs on this hardware.
 - Attendance, unchanged.
 - `FileStorage` with its local and S3 backends, and `get_storage()`.
 - The `recordings` table, extended instead of replaced.
+
+## Finding M — TURN answers on 3478 and relays somewhere else entirely
+
+Found on 2026-08-17 by reading the container's own startup log rather than
+trusting the configuration that produced it:
+
+```
+"msg":"Starting TURN server","turn.relay_range_start":30000,"turn.relay_range_end":40000,"turn.portUDP":3478
+```
+
+Port 3478 carries only the **control** connection. Each relayed stream leaves on
+a separate port drawn from a range that defaults to 30000–40000, and none of
+those were in the compose `ports:` list. The result would have been a TURN
+server that answers, negotiates, and then relays nothing — failing precisely for
+the pupils behind restrictive networks it exists to serve, and passing every
+test written by anyone whose own network did not need it.
+
+**Decision:** `turn.relay_range_start: 30000`, `relay_range_end: 30020`,
+published. Twenty-one ports is one per participant needing a relay, which is
+more than a class.
+
+The general lesson is worth more than the fix: a media server's configuration
+file does not list the ports it will actually bind. Its startup log does.
+
+## Finding N — What it costs at rest, and one host tuning it asks for
+
+Measured locally on 2026-08-17, `livekit/livekit-server:v1.8.4` idle with no
+participants:
+
+```
+lms29-livekit-1  cpu=0.14%  mem=32.09MiB
+```
+
+Thirty-two megabytes against a 700 MB cap, so the cap constrains load rather
+than startup, and an idle media server costs the platform nothing. The number
+that matters is still the one slice 0 measures under load.
+
+The same startup log asks for one host-level change:
+
+```
+"msg":"UDP receive buffer is too small for a production set-up","current":425984,"suggested":5000000
+```
+
+That is `net.core.rmem_max`, a sysctl on the host rather than anything a
+container can set for itself. Undersized, the kernel drops inbound media under
+burst, which reads to a user as choppy audio and to a maintainer as an
+inexplicable capacity ceiling. Raising it belongs with the load test in slice 0,
+because measuring capacity against a starved socket buffer would measure the
+wrong thing.
 
 ## Open decisions carried into tasks
 
