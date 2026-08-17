@@ -92,10 +92,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Node 22
+      # Version comes from .nvmrc so CI and a developer's machine cannot
+      # disagree. They did: a lock file written by npm 11 (node 24) was
+      # rejected by the npm 10 that node 22 ships, and `npm ci` failed before
+      # lint, typecheck or build ran at all — a red job that looked like a
+      # dependency conflict and was really a version mismatch.
+      - name: Set up Node
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 

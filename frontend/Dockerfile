@@ -1,9 +1,13 @@
 # Stage 1: Build
+# Keep this major in step with ../.nvmrc, which CI reads. .npmrc is copied
+# alongside the manifest so `engine-strict` applies here too: without it a
+# bumped FROM would build green against a lock npm 10 wrote and diverge from
+# CI in silence, because a newer npm reads an older lock without complaint.
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 ENV NEXT_PUBLIC_API_URL=""

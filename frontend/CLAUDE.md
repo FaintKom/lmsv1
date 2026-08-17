@@ -144,8 +144,26 @@ TanStack Query хуков.
 
 ## Локальный запуск
 
+**Node 22.** Версия закреплена в `../.nvmrc`; оттуда её берут оба workflow
+(`node-version-file`), и она же стоит в `engines` этого пакета. `.npmrc`
+включает `engine-strict`, поэтому на другой мажорной версии npm **откажется
+ставить зависимости**:
+
+```
+npm error code EBADENGINE
+npm error notsup Required: {"node":"22.x","npm":"10.x"}
+```
+
+Это не поломка, а тот самый охранник. Причина: npm 11 пишет lock, который npm 10
+из CI не принимает, и тогда `npm ci` падает до линта, тайпчека и сборки —
+красный CI выглядит как конфликт зависимостей, а на деле расхождение версий
+(PR #259, 2026-08-17). Лечится `nvm use` (читает `../.nvmrc`) или разово
+`npx npm@10 install`. На `npm run dev` и `npm test` ограничение не влияет —
+заперта только установка.
+
 ```bash
 cd frontend
+nvm use        # node 22 из ../.nvmrc
 npm install    # peer-конфликтов нет с @sentry/nextjs@10 (2026-07-18)
 cp .env.local.example .env.local  # если есть; иначе создать руками
 npm run dev                        # http://localhost:3000
