@@ -70,6 +70,10 @@ export default function TeacherLivePage() {
   const [rail, setRail] = useState<Rail>("blank");
   const [tab, setTab] = useState<"group" | "task" | "poll">("group");
   const [picked, setPicked] = useState<RosterMember | null>(null);
+  // Who currently has the floor, and who may share a screen. Both come off the
+  // lesson's existing event stream rather than being polled.
+  const [floorHolder, setFloorHolder] = useState<string | null>(null);
+  const [sharers, setSharers] = useState<Set<string>>(new Set());
   const [pollCounts, setPollCounts] = useState<number[] | null>(null);
   const [members, setMembers] = useState<RosterMember[]>([]);
   const [pickingMaterial, setPickingMaterial] = useState(false);
@@ -143,6 +147,16 @@ export default function TeacherLivePage() {
         ms.map((m) => (m.id === s.student_id ? { ...m, signal: s.on ? s.type : null } : m)),
       ),
     onSignalsCleared: () => setMembers((ms) => ms.map((m) => ({ ...m, signal: null }))),
+    onMediaFloorChanged: (d) => setFloorHolder(d.user_id),
+    onMediaParticipantRemoved: (d) =>
+      setMembers((ms) => ms.filter((m) => m.id !== d.user_id)),
+    onMediaShareGrantChanged: (d) =>
+      setSharers((prev) => {
+        const next = new Set(prev);
+        if (d.allowed) next.add(d.user_id);
+        else next.delete(d.user_id);
+        return next;
+      }),
     onStudentQuestion: (q) => setQuestions((qs) => [...qs, q]),
     onSubmission: () => {
       void qc.invalidateQueries({ queryKey: ["live", lessonId, "progress"] });
@@ -730,6 +744,8 @@ export default function TeacherLivePage() {
 
       {picked && (
         <StudentDrawer
+          hasFloor={floorHolder === picked.id}
+          canShare={sharers.has(picked.id)}
           lessonId={lessonId}
           member={picked}
           exerciseId={taskExerciseId}

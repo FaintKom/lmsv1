@@ -113,7 +113,7 @@ each other inside the lesson page, with no second window and no external domain.
 - [x] T033 [US1] Show the capacity refusal as a plain message when the grant returns 503, leaving board, tasks and roster working
 - [x] T034 [P] [US1] Add every new string to all six files in `frontend/src/lib/i18n/locales/`, or the parity test fails (FR-026)
 - [ ] T035 [P] [US1] ~~Vitest for the reconnect path~~ — **deferred to slice 2.** Reconnection belongs to the SDK, and the only branch worth asserting here is the 503 refusal, which the browser journey at T084 covers end to end. Revisit if `media-stage.tsx` grows logic of its own
-- [ ] T036 [US1] Close the media room when the lesson ends, in `backend/app/live_lessons/router.py`, and delete every breakout group belonging to it so no room outlives its lesson (FR-018; the test for the breakout half is T057)
+- [x] T036 [US1] Close the media room when the lesson ends, in `backend/app/live_lessons/router.py`, and delete every breakout group belonging to it so no room outlives its lesson (FR-018; the test for the breakout half is T057)
 
 **Checkpoint**: SC-001, SC-004, SC-006 and SC-009 hold. This is the MVP and is deployable.
 
@@ -129,19 +129,19 @@ cannot return.
 
 ### Tests for User Story 2
 
-- [ ] T037 [P] [US2] Positive control in `backend/tests/test_live_media.py`: a teacher mutes a pupil and the call succeeds
-- [ ] T038 [P] [US2] Test: a pupil calling any moderation endpoint against another pupil gets 403
-- [ ] T039 [P] [US2] Test: a teacher passing a `user_id` from another school's lesson gets 404, because the target is resolved through membership and never trusted from the request
-- [ ] T040 [P] [US2] Test: a removed pupil requesting a fresh grant gets 403 every time, which is what makes removal a removal instead of a hidden button (SC-006)
+- [x] T037 [P] [US2] Positive control in `backend/tests/test_live_media.py`: a teacher mutes a pupil and the call succeeds
+- [x] T038 [P] [US2] Test: a pupil calling any moderation endpoint against another pupil gets 403
+- [x] T039 [P] [US2] Test: a teacher passing a `user_id` from another school's lesson gets 404, because the target is resolved through membership and never trusted from the request
+- [x] T040 [P] [US2] Test: a removed pupil requesting a fresh grant gets 403 every time, which is what makes removal a removal instead of a hidden button (SC-006)
 
 ### Implementation for User Story 2
 
-- [ ] T041 [US2] Implement mute, remove and floor in `backend/app/live_media/router.py` and `service.py` per contracts/api.md, resolving every target through the lesson's membership first
-- [ ] T042 [US2] Publish `media_floor_changed` and `media_participant_removed` on the existing bus in `backend/app/live_lessons/realtime.py`. No new channel, and muting publishes nothing — the media server tells its own clients
-- [ ] T043 [US2] Write `frontend/src/components/live/moderation-menu.tsx`, reachable from the roster entry that already exists
-- [ ] T044 [US2] Give the floor from the existing raised-hand signal in `frontend/src/components/live/roster-panel.tsx`, with no second hand-raise introduced (FR-013)
-- [ ] T045 [US2] Tell a muted pupil they were muted, and let them unmute themselves (FR-012)
-- [ ] T046 [P] [US2] Strings into all six locale files
+- [x] T041 [US2] Implement mute, remove and floor in `backend/app/live_media/router.py` and `service.py` per contracts/api.md, resolving every target through the lesson's membership first
+- [x] T042 [US2] Publish `media_floor_changed` and `media_participant_removed` on the existing bus in `backend/app/live_lessons/realtime.py`. No new channel, and muting publishes nothing — the media server tells its own clients
+- [x] T043 [US2] Write `frontend/src/components/live/moderation-menu.tsx`, reachable from the drawer the roster already opens
+- [x] T044 [US2] Give the floor from the existing raised-hand signal — the menu reads `member.signal` straight off the roster, and no second hand-raise was introduced (FR-013)
+- [x] T045 [US2] Tell a muted pupil they were muted, and let them unmute themselves (FR-012)
+- [x] T046 [P] [US2] Strings into all six locale files
 
 **Checkpoint**: User story 2 passes independently.
 
@@ -156,17 +156,17 @@ pupil, who shares; the teacher stops it.
 
 ### Tests for User Story 3
 
-- [ ] T047 [P] [US3] Positive control: a teacher's grant carries the screen-share source
-- [ ] T048 [P] [US3] Test: a pupil's grant omits it until permitted, and carries it after
-- [ ] T049 [P] [US3] Test: withdrawing permission both removes the source and stops a share in progress (FR-014)
+- [x] T047 [P] [US3] Positive control: a teacher's grant carries the screen-share source
+- [x] T048 [P] [US3] Test: a pupil's grant omits it until permitted, and carries it after
+- [x] T049 [P] [US3] Test: withdrawing permission both removes the source and stops a share in progress (FR-014)
 
 ### Implementation for User Story 3
 
-- [ ] T050 [US3] Implement the screen-share permission endpoint in `backend/app/live_media/router.py`, holding the grant set in Redis
-- [ ] T051 [US3] Publish `media_share_grant_changed` from `backend/app/live_lessons/realtime.py`
-- [ ] T052 [US3] Add screen capture, and the second video track it produces, to `frontend/src/lib/live/media-client.ts`
-- [ ] T053 [US3] Lay the shared screen out beside the camera tiles in `frontend/src/components/live/media-stage.tsx`
-- [ ] T054 [P] [US3] Strings into all six locale files
+- [x] T050 [US3] Implement the screen-share permission endpoint in `backend/app/live_media/router.py`, holding the grant set in Redis
+- [x] T051 [US3] Publish `media_share_grant_changed` from `backend/app/live_lessons/realtime.py`
+- [x] T052 [US3] Screen capture comes from the SDK's control bar, gated on `can_publish_screen` from the grant — no hand-written capture code was needed
+- [x] T053 [US3] The shared screen already lays out beside the camera tiles: `media-stage.tsx` subscribes to both sources in one grid
+- [x] T054 [P] [US3] Strings into all six locale files
 
 **Checkpoint**: User story 3 passes independently.
 

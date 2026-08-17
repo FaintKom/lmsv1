@@ -191,6 +191,17 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
     lesson.status = "ended"
     lesson.ended_at = datetime.now(timezone.utc)
 
+    # Close the media room with the lesson, or everybody stays connected to a
+    # room that belongs to nothing: the page says the lesson is over while their
+    # microphones are still live to each other (FR-018). Imported here rather
+    # than at module level so lessons do not need media to load, and
+    # ``close_room`` treats a missing room as success — a lesson nobody joined
+    # never had one, and ending it must not fail for that.
+    from app.live_media import grants as media_grants
+    from app.live_media import service as media_service
+
+    await media_service.close_room(media_grants.room_name(lesson.id))
+
     await realtime.publish(lesson.id, "all", "lesson_ended", {})
     for sid in member_ids:
         await r.delete(realtime.active_lesson_key(sid))

@@ -20,11 +20,55 @@ from app.auth.models import User
 from app.common.rate_limit import limiter
 from app.config import settings
 from app.db.session import get_db
+from app.live_lessons import realtime
 from app.live_lessons import service as lesson_service
 from app.live_media import grants, service
-from app.live_media.schemas import MediaTokenResponse
+from app.live_media.schemas import (
+    FloorRequest,
+    FloorResponse,
+    MediaTokenResponse,
+    ModerationResponse,
+    ScreenShareRequest,
+)
 
 router = APIRouter()
+
+
+async def _lesson_a_teacher_runs(
+    lesson_id: uuid.UUID, user: User, db: AsyncSession
+) -> "lesson_service.LiveLesson":
+    """Resolve a lesson this caller may moderate.
+
+    Same lookup as everywhere else in the module, so another school's lesson is
+    404 and a pupil of this school gets 403 rather than a hint about what they
+    are missing.
+    """
+    try:
+        lesson, is_teacher = await lesson_service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if not is_teacher:
+        raise HTTPException(status_code=403, detail="forbidden")
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    return lesson
+
+
+async def _participant_of(lesson, target_id: uuid.UUID, db: AsyncSession) -> uuid.UUID:
+    """Confirm the target belongs to this lesson before acting on them.
+
+    An identifier arriving in a request is never used on trust. Without this a
+    teacher could name somebody from another school and the media server would
+    happily be told to mute them.
+    """
+    if target_id == lesson.teacher_id:
+        return target_id
+    members = await lesson_service.group_member_ids(db, lesson.group_id)
+    if target_id not in members:
+        raise HTTPException(status_code=404, detail="participant not in this lesson")
+    return target_id
 
 
 @router.post("/{lesson_id}/media/token", response_model=MediaTokenResponse)
@@ -82,3 +126,100 @@ async def issue_token(
         can_publish_screen=may_share,
         expires_in=settings.media_grant_ttl_seconds,
     )
+
+
+@router.post("/{lesson_id}/media/participants/{user_id}/mute", response_model=ModerationResponse)
+@limiter.limit("60/minute")
+async def mute_participant(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ModerationResponse:
+    """Silence one participant's microphone (FR-011).
+
+    They may unmute themselves again — this quiets a room, it does not gag
+    anybody, and the teacher can repeat it (FR-012).
+    """
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    target = await _participant_of(lesson, user_id, db)
+    applied = await service.mute_microphone(grants.room_name(lesson.id), target)
+    return ModerationResponse(applied=applied)
+
+
+@router.post("/{lesson_id}/media/participants/{user_id}/remove", response_model=ModerationResponse)
+@limiter.limit("30/minute")
+async def remove_participant(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ModerationResponse:
+    """Remove somebody from the room and keep them out (FR-003)."""
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    target = await _participant_of(lesson, user_id, db)
+    await service.eject(lesson.id, target, grants.room_name(lesson.id))
+    await realtime.publish(lesson.id, "all", "media_participant_removed", {"user_id": str(target)})
+    return ModerationResponse()
+
+
+@router.post("/{lesson_id}/media/floor", response_model=FloorResponse)
+@limiter.limit("60/minute")
+async def set_floor(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    body: FloorRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> FloorResponse:
+    """Give one participant the floor, or take it back (FR-013).
+
+    This answers the raised hand pupils already send. There is no second
+    hand-raise, and there is no separate endpoint for clearing: clearing is the
+    same decision made about nobody.
+    """
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    target = await _participant_of(lesson, body.user_id, db) if body.user_id else None
+    await service.set_floor(lesson.id, target)
+    await realtime.publish(
+        lesson.id, "all", "media_floor_changed", {"user_id": str(target) if target else None}
+    )
+    return FloorResponse(user_id=target)
+
+
+@router.post(
+    "/{lesson_id}/media/participants/{user_id}/screen-share",
+    response_model=ModerationResponse,
+)
+@limiter.limit("60/minute")
+async def set_screen_share(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user_id: uuid.UUID,
+    body: ScreenShareRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ModerationResponse:
+    """Permit a pupil to share a screen, or withdraw it (FR-014).
+
+    Withdrawing reaches the live participant as well as the next grant, so a
+    share already on the class's screens actually stops.
+    """
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    target = await _participant_of(lesson, user_id, db)
+    await service.set_screen_share(
+        lesson.id, target, grants.room_name(lesson.id), allowed=body.allowed
+    )
+    await realtime.publish(
+        lesson.id,
+        "all",
+        "media_share_grant_changed",
+        {"user_id": str(target), "allowed": body.allowed},
+    )
+    return ModerationResponse()

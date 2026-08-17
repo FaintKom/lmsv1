@@ -351,3 +351,39 @@ export async function fetchMediaToken(lessonId: string): Promise<MediaToken> {
   const { data } = await apiClient.post<MediaToken>(`/live-lessons/${lessonId}/media/token`);
   return data;
 }
+
+/**
+ * Silence one participant's microphone.
+ *
+ * They can unmute themselves afterwards — this quiets a room, it does not gag
+ * anybody, and the teacher can repeat it.
+ */
+export async function muteParticipant(lessonId: string, userId: string): Promise<void> {
+  await apiClient.post(`/live-lessons/${lessonId}/media/participants/${userId}/mute`);
+}
+
+/** Remove somebody from the room. The server also keeps them out of the next grant. */
+export async function removeParticipant(lessonId: string, userId: string): Promise<void> {
+  await apiClient.post(`/live-lessons/${lessonId}/media/participants/${userId}/remove`);
+}
+
+/**
+ * Give one participant the floor, or take it back with `null`.
+ *
+ * This answers the raised hand the roster already shows; there is no second
+ * hand-raise anywhere in the product.
+ */
+export async function setFloor(lessonId: string, userId: string | null): Promise<void> {
+  await apiClient.post(`/live-lessons/${lessonId}/media/floor`, { user_id: userId });
+}
+
+/** Permit a pupil to share their screen, or stop one already sharing. */
+export async function setScreenShare(
+  lessonId: string,
+  userId: string,
+  allowed: boolean,
+): Promise<void> {
+  await apiClient.post(`/live-lessons/${lessonId}/media/participants/${userId}/screen-share`, {
+    allowed,
+  });
+}

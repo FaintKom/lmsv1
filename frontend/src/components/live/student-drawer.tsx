@@ -5,17 +5,22 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import { fetchDraft, sendHint, type Draft, type RosterMember } from "@/lib/api/live";
+import { ModerationMenu } from "@/components/live/moderation-menu";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function StudentDrawer({
   lessonId,
   member,
   exerciseId,
+  hasFloor = false,
+  canShare = false,
   onClose,
 }: {
   lessonId: string;
   member: RosterMember;
   exerciseId: string | null; // current task scene's exercise
+  hasFloor?: boolean;
+  canShare?: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -55,6 +60,17 @@ export function StudentDrawer({
         >
           <X size={16} />
         </button>
+      </div>
+      {/* Running the room sits above reading the draft: quieting a microphone
+          is what a teacher reaches for mid-sentence, and looking at somebody's
+          work is what they do when there is a moment. */}
+      <div className="mb-5 border-b border-border pb-4">
+        <ModerationMenu
+          lessonId={lessonId}
+          member={member}
+          hasFloor={hasFloor}
+          canShare={canShare}
+        />
       </div>
       <div className="mb-2 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide text-text">
         <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-green-500" />
