@@ -381,11 +381,43 @@ OpenRouter free-модели ($0, баланс не трогается). Про�
       `questions`, не в config), reading, dialogue (срезан `is_correct` в
       опциях), crossword (слово заменено его длиной, геометрия цела).
       Тестов в `test_exercises_integrity.py` — 24.
-- Не конвертируем (обоснованно): code_challenge/math_stepwise (уже
-  server-graded), file_upload/whiteboard (ручная проверка), scorm (CMI),
-  word_search (сетка = ответ), srs_flashcard (самооценка), игры
-  robot_2d/world_3d/math_interactive (клиентская симуляция; их утечка в
-  test_cases — known out of scope).
+- Не конвертируем (обоснованно): code_challenge (уже server-graded),
+  file_upload/whiteboard (ручная проверка), scorm (CMI), word_search (список
+  слов печатается на экране, из него же строится сетка), srs_flashcard
+  (самооценка), math_system/stereometry (сервер решает из уравнений и тела —
+  ответ вообще не хранится).
+- [x] **PR-4 (спека `004-exercise-answer-leak`):** `GET /api/v1/exercises` —
+      тот же фильтр `lesson_id`, что и у `by-lesson`, но без среза вообще.
+      Студент читал `config.solution_code` и все скрытые test_cases; в проде
+      подтверждено. Каждый эндпоинт решал сам, срезать ли, — теперь все ходят
+      через `_for_reader()`, а прямой `ExerciseResponse.model_validate` остался
+      ровно один, внутри неё. Тесты бьют по всем трём путям чтения, с
+      положительным контролем на учителе.
+
+### Осталось после PR-4 — клиент судит сам себя
+
+Четыре типа грейдятся в браузере, и он же присылает вердикт. Срезать их ключи
+нельзя — задание перестанет работать; оставить — ключ у студента. Закрывается
+только переносом грейда на сервер, обе половины сразу.
+
+- [ ] `math_stepwise` — **строка выше врала**: server-graded он не был никогда.
+      Клиент сверяет ответ с `cfg.final_answer`
+      ([math-stepwise-exercise.tsx:331](../frontend/src/components/exercises/math-stepwise-exercise.tsx))
+      и шлёт `correct` в payload. На сервере тип падает в `else` →
+      `_submit_interactive` → `grade_interactive()`, где ветки `math_stepwise`
+      нет, → `0.0, False`. **Побочный эффект: любая сдача math_stepwise
+      получает 0 и «не пройдено», независимо от ответа.** Ветку писать не с
+      нуля: `/math-validation/check-answer` уже делает саму сверку, её и звать.
+- [ ] `math_interactive` — ключи лежат в `template_config` и разные на каждый
+      из 8 шаблонов (`final_answer`, `correct_answers`, `answers`,
+      `rule_answer`, `target_slope`/`target_intercept`, `target_points`,
+      `choices[].correct`, `cards[].category`), грейдят
+      `components/game/math/templates/*.tsx`.
+- [ ] `robot_2d`, `world_3d` — `custom_win_js` исполняется в браузере.
+- [ ] Общее для всех четырёх: `_submit_game_level`
+      ([service.py:1089](../backend/app/exercises/service.py)) кладёт
+      `completed` и `score` прямо из тела запроса. Даже со срезанным конфигом
+      студент шлёт `{completed: true, score: 1.0}`, не открывая задание.
 
 ---
 
