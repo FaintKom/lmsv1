@@ -120,6 +120,11 @@ the organisation has `recording_enabled = false` (FR-019). Creates the
 `recordings` row, notes it in Redis so anyone joining later still sees the
 indicator, and broadcasts `media_recording_started`.
 
+What the capture contains is fixed by FR-027 and is not a parameter: the
+teacher's microphone, the teacher's camera and the teacher's screen share. The
+client builds that stream from its own local tracks and never subscribes to a
+pupil's track for recording, so no request can widen it.
+
 Response `201`:
 
 ```json
@@ -168,8 +173,13 @@ announcement over SSE would be a race with no winner.
 
 ## What is removed
 
-`/api/v1/meetings` keeps working, because a meeting is not a lesson. What goes
-is `frontend/src/lib/meetings.ts` and its Jitsi URL composition once lessons no
-longer need it, together with the Jitsi paragraphs in `docs/API_REFERENCE.md`
-and `docs/ARCHITECTURE.md` (Constitution IV). Retiring `meetings` altogether is
-a separate decision and not part of this feature.
+Less than a first reading suggests. `/api/v1/meetings` keeps working, and so
+does `frontend/src/lib/meetings.ts`: its `buildJoinUrl` is imported by the
+schedule page, both meetings pages and the journal, none of which is a live
+lesson. Deleting it would break four working pages to tidy up a fifth.
+
+What actually goes is the Jitsi paragraph in `docs/API_REFERENCE.md` and
+`docs/ARCHITECTURE.md` where it describes how a **lesson** gets its video
+(Constitution IV), and the lesson page's own reliance on an external room.
+Replacing the external service in the schedule, the journal and standalone
+meetings is a separate feature nobody has specified yet.

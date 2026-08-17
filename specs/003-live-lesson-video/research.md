@@ -239,10 +239,16 @@ describes — a pupil who was ill wants to see the lesson — it loses very litt
 It also records no child, which is the difference between a feature a European
 school can switch on and one its data protection officer asks about.
 
-**Recommendation: capture the teacher and the shared screen in v1.** The full
-room composite becomes an option later, beside server-side recording, which is
-where it belongs on this hardware. Flagged for the owner rather than decided
-here, because it narrows what the specification asked for.
+**Decision, taken by the owner on 2026-08-17: capture the teacher and the shared
+screen.** A recording holds the teacher's microphone, the teacher's camera and
+the teacher's screen share, and nothing else. No pupil's camera or microphone
+enters it.
+
+This narrows what the specification originally asked for, so the specification
+was amended to match instead of being left to disagree with the plan: user story
+5 and FR-027 now say what a recording contains. The full room composite stays
+available as a later option beside server-side recording, which is where it
+belongs on this hardware.
 
 ## Finding L — What is reused without change
 
@@ -258,14 +264,14 @@ here, because it narrows what the specification asked for.
 
 ## Open decisions carried into tasks
 
-1. What is recorded: the teacher and the screen, or the whole room composite
-   (Finding K). Owner's call, and slice 4 is last, so it can wait.
-2. Retention for recordings. Twelve gigabytes of free disk against roughly a
+1. Retention for recordings. Twelve gigabytes of free disk against roughly a
    gigabyte per hour of 720p means the default has to be conservative; the
    number belongs with the storage decision in slice 4.
-3. Whether the TURN hostname is added at Hostinger before or with the nginx
+2. Whether the TURN hostname is added at Hostinger before or with the nginx
    stream task (Finding E). It must exist and point at the host before its
    certificate can be issued standalone.
+
+Finding K was open and is now closed; the decision is recorded above.
 
 ## Sources
 
