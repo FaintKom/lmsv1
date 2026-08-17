@@ -29,6 +29,9 @@ dependencies = [
     "openpyxl>=3.1.0",
     "pgvector>=0.3.0",
     "sympy>=1.13.0",
+    # Signs the grant each participant carries into a live lesson's room, and
+    # administers those rooms over the media server's own API.
+    "livekit-api>=0.8.0",
 ]
 
 [project.optional-dependencies]
