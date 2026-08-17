@@ -1,5 +1,7 @@
 """Tests for file/interactive submissions — upload validation, ownership, tenancy."""
 
+import logging
+
 import pytest
 from httpx import AsyncClient
 
@@ -219,3 +221,41 @@ async def test_exhausted_attempts_stop_writing_new_submissions(
     # Two real attempts plus one exhaustion row, and it stays there however many
     # times the student presses submit.
     assert attempts.json()["attempt_count"] == 3
+
+
+def test_grading_against_an_empty_answer_key_is_not_silent(caplog):
+    """A misconfigured exercise still passes everyone — but it says so now.
+
+    Every `_grade_*` helper answers 1.0/True when its part of the config is
+    empty. For content that legitimately has nothing to get wrong that is right;
+    for a misconfigured exercise it means a school is told a class passed
+    something nobody could attempt. A crossword whose config used keys neither
+    the renderer nor the grader reads did exactly that on 2026-08-17: an empty
+    board, full marks.
+
+    The grade is deliberately left alone — the two cases are indistinguishable at
+    grading time, and scoring zero would punish students for a teacher's mistake.
+    What is asserted here is that the silent case stops being silent.
+    """
+    from app.submissions.service import grade_interactive_detail
+
+    def warnings_about_empty_keys():
+        return [r for r in caplog.records if "empty answer key" in r.getMessage()]
+
+    # Positive control: a configured crossword grades quietly. Without this the
+    # test would pass against a build that warns on absolutely everything.
+    with caplog.at_level(logging.WARNING):
+        score, passed, _ = grade_interactive_detail(
+            {"words": [{"word": "CAT"}]}, "crossword", {"words": {"0": "CAT"}}
+        )
+    assert (score, passed) == (1.0, True)
+    assert warnings_about_empty_keys() == []
+
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        score, passed, _ = grade_interactive_detail({}, "crossword", {})
+
+    # Behaviour unchanged on purpose: still a pass.
+    assert (score, passed) == (1.0, True)
+    # But no longer unrecorded.
+    assert len(warnings_about_empty_keys()) >= 1
