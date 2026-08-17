@@ -174,7 +174,12 @@ down false paths during a live outage.
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript strict, Tailwind 4, Zustand, TanStack Query, Axios, TipTap, Monaco, Three.js + R3F. `frontend/src/app/(dashboard)`, `(admin)`, `(auth)` route groups.
 - **DB:** PostgreSQL 16 (docker volume `pgdata`).
 - **Sandbox:** separate container for untrusted code execution (read-only tmpfs, resource-limited).
-- **Reverse proxy:** nginx in `nginx/nginx.conf` (NOT `deploy/nginx.conf` which was deleted).
+- **Reverse proxy:** nginx in `nginx/conf.d/default.conf` (NOT `deploy/nginx.conf`,
+  deleted). Compose mounts the **directory** `nginx/conf.d`, deliberately: a
+  single-file bind mount goes on pointing at the old inode after `git reset
+  --hard` replaces the file, so a config change reaches the disk and never
+  reaches nginx. Check what is actually loaded with
+  `docker exec lms-nginx-1 nginx -T`, never by reading the file on the host.
 
 ## Test accounts (prod)
 
