@@ -184,7 +184,7 @@ reported numbers match what was entered.
 - [X] T045 [P] Add the CRM routers to the index in `docs/API_REFERENCE.md`
 - [X] T046 Run `specs/001-crm-enquiry-pipeline/quickstart.md` end to end and record what was actually seen, not what was expected
 - [X] T047 Confirm `alembic heads` still reports the head recorded in T002 and that no migration was added
-- [ ] T048 After merge, verify the deploy reached production and the board still works there — a green merge is not a green deploy
+- [X] T048 After merge, verify the deploy reached production and the board still works there — a green merge is not a green deploy
 
 ---
 
