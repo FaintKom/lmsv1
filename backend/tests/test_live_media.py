@@ -16,6 +16,7 @@ import uuid
 
 import pytest
 from httpx import AsyncClient
+from livekit import api as livekit_api
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.models import StudentGroup, StudentGroupMember
@@ -36,11 +37,33 @@ class _FakeRooms:
         self.rooms = rooms
 
 
+class _FakeTrack:
+    def __init__(self, sid: str, source):
+        self.sid = sid
+        self.source = source
+
+
+class _FakeParticipant:
+    def __init__(self, identity: str, tracks):
+        self.identity = identity
+        self.tracks = tracks
+
+
+class _FakeParticipants:
+    def __init__(self, participants):
+        self.participants = participants
+
+
 class _FakeRoomService:
     def __init__(self, participants: int = 0):
         self.participants = participants
         self.deleted: list[str] = []
         self.created: list[str] = []
+        self.muted: list[tuple] = []
+        self.removed: list[tuple] = []
+        self.updated: list[tuple] = []
+        # Identity -> published tracks, so a mute has something to aim at.
+        self.in_room: dict[str, list] = {}
 
     async def list_rooms(self, _request):
         return _FakeRooms([_FakeRoom(self.participants)] if self.participants else [])
@@ -50,6 +73,21 @@ class _FakeRoomService:
 
     async def delete_room(self, request):
         self.deleted.append(request.room)
+
+    async def list_participants(self, request):
+        return _FakeParticipants(
+            [_FakeParticipant(i, t) for i, t in self.in_room.items()],
+        )
+
+    async def mute_published_track(self, request):
+        self.muted.append((request.room, request.identity, request.track_sid, request.muted))
+
+    async def remove_participant(self, request):
+        self.removed.append((request.room, request.identity))
+
+    async def update_participant(self, request):
+        sources = list(getattr(request.permission, "can_publish_sources", []) or [])
+        self.updated.append((request.room, request.identity, sources))
 
 
 class _FakeLiveKit:
@@ -315,3 +353,175 @@ async def test_ended_lesson_issues_no_grant(client: AsyncClient, db, org, teache
 
     resp = await client.post(token_url(lesson), headers=auth_header(teacher))
     assert resp.status_code == 409
+
+
+# --- Running the room: mute, remove, floor ----------------------------------
+
+
+async def test_teacher_mutes_a_pupil(client: AsyncClient, db, org, teacher, student, fake_livekit):
+    """Positive control. Every refusal below means nothing without this passing."""
+    lesson = await make_lesson(db, org, teacher, [student])
+    fake_livekit.room.in_room[str(student.id)] = [_FakeTrack("TR_mic", 2)]
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/mute",
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    assert fake_livekit.room.muted == [(f"lesson-{lesson.id}", str(student.id), "TR_mic", True)]
+
+
+async def test_pupil_cannot_mute_anybody(client: AsyncClient, db, org, teacher, student):
+    """A pupil holding a valid grant is still not a moderator."""
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{teacher.id}/mute",
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403
+
+
+async def test_moderating_a_stranger_is_not_found(
+    client: AsyncClient, db, org, org2, teacher, student, admin2
+):
+    """The target is resolved through the lesson's own membership.
+
+    An identifier arriving in a request is never used on trust, so a teacher
+    naming somebody from another school gets 404 rather than acting on them.
+    """
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{admin2.id}/mute",
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 404
+
+
+async def test_removing_a_pupil_disconnects_and_keeps_them_out(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """Removal has to survive a page reload, or it is theatre."""
+    lesson = await make_lesson(db, org, teacher, [student])
+    assert (await client.post(token_url(lesson), headers=auth_header(student))).status_code == 200
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/remove",
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    assert fake_livekit.room.removed == [(f"lesson-{lesson.id}", str(student.id))]
+
+    again = await client.post(token_url(lesson), headers=auth_header(student))
+    assert again.status_code == 403
+
+
+async def test_teacher_gives_and_takes_back_the_floor(
+    client: AsyncClient, db, org, teacher, student
+):
+    """The floor is the existing raised hand answered, not a second signal."""
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/floor",
+        json={"user_id": str(student.id)},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["user_id"] == str(student.id)
+
+    cleared = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/floor",
+        json={"user_id": None},
+        headers=auth_header(teacher),
+    )
+    assert cleared.status_code == 200
+    assert cleared.json()["user_id"] is None
+
+
+async def test_pupil_cannot_take_the_floor(client: AsyncClient, db, org, teacher, student):
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/floor",
+        json={"user_id": str(student.id)},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403
+
+
+# --- Screen sharing is a teacher's to give and to take back ------------------
+
+
+async def test_screen_share_is_granted_then_withdrawn(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """A pupil's grant gains the source only while the teacher permits it."""
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    before = (await client.post(token_url(lesson), headers=auth_header(student))).json()
+    assert before["can_publish_screen"] is False
+
+    granted = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": True},
+        headers=auth_header(teacher),
+    )
+    assert granted.status_code == 200
+
+    during = (await client.post(token_url(lesson), headers=auth_header(student))).json()
+    assert during["can_publish_screen"] is True
+    assert "screen_share" in claims(during["token"])["video"]["canPublishSources"]
+
+    withdrawn = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": False},
+        headers=auth_header(teacher),
+    )
+    assert withdrawn.status_code == 200
+
+    after = (await client.post(token_url(lesson), headers=auth_header(student))).json()
+    assert after["can_publish_screen"] is False
+
+
+async def test_withdrawing_screen_share_stops_a_share_already_running(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """A new grant only affects the next join.
+
+    Somebody already in the room keeps the permissions they entered with, so
+    withdrawing has to reach the live participant too — otherwise the teacher
+    presses the button and the screen stays up (FR-014).
+    """
+    lesson = await make_lesson(db, org, teacher, [student])
+    fake_livekit.room.in_room[str(student.id)] = []
+    url = f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share"
+
+    # Positive control first. Asserting only the absence of a value would pass
+    # against a list that never contained it — including the wrong-typed list
+    # this test caught once already, where the permission is an enum and the
+    # assertion was written against the grant's lower-case spelling.
+    await client.post(url, json={"allowed": True}, headers=auth_header(teacher))
+    room, identity, granted = fake_livekit.room.updated[-1]
+    assert room == f"lesson-{lesson.id}"
+    assert identity == str(student.id)
+    assert livekit_api.TrackSource.SCREEN_SHARE in granted
+
+    await client.post(url, json={"allowed": False}, headers=auth_header(teacher))
+    _, _, withdrawn = fake_livekit.room.updated[-1]
+    assert livekit_api.TrackSource.SCREEN_SHARE not in withdrawn
+    assert livekit_api.TrackSource.MICROPHONE in withdrawn
+
+
+async def test_pupil_cannot_grant_themselves_a_screen(
+    client: AsyncClient, db, org, teacher, student
+):
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": True},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403

@@ -141,6 +141,105 @@ async def may_share_screen(lesson_id: uuid.UUID, user_id: uuid.UUID) -> bool:
     return bool(await realtime.get_redis().sismember(share_grants_key(lesson_id), str(user_id)))
 
 
+async def set_screen_share(
+    lesson_id: uuid.UUID, user_id: uuid.UUID, room: str, *, allowed: bool
+) -> None:
+    """Let a pupil share a screen, or stop them.
+
+    Two things have to happen, and doing only the first is the bug worth naming:
+    a grant is read when somebody joins, so changing it alone reaches nobody who
+    is already in the room. The teacher would press the button and the screen
+    would stay up. Updating the live participant is what actually withdraws it,
+    and the media server drops the track as a consequence.
+    """
+    r = realtime.get_redis()
+    key = share_grants_key(lesson_id)
+    if allowed:
+        await r.sadd(key, str(user_id))
+    else:
+        await r.srem(key, str(user_id))
+
+    # The same permission set is spelled two different ways by the media
+    # server: lower-case strings inside the signed grant, and an enum on the
+    # server API. Passing the grant's spelling here fails with
+    # `unknown enum label "camera"`, so the two are kept apart deliberately.
+    sources = [livekit_api.TrackSource.CAMERA, livekit_api.TrackSource.MICROPHONE]
+    if allowed:
+        sources += [
+            livekit_api.TrackSource.SCREEN_SHARE,
+            livekit_api.TrackSource.SCREEN_SHARE_AUDIO,
+        ]
+
+    await get_livekit().room.update_participant(
+        livekit_api.UpdateParticipantRequest(
+            room=room,
+            identity=str(user_id),
+            permission=livekit_api.ParticipantPermission(
+                can_subscribe=True,
+                can_publish=True,
+                can_publish_data=True,
+                can_publish_sources=sources,
+            ),
+        )
+    )
+
+
+# --- Moderation ---
+
+
+async def mute_microphone(room: str, user_id: uuid.UUID) -> bool:
+    """Silence one participant's microphone.
+
+    The media server mutes a *track*, not a person, so the track has to be found
+    first. A participant who is not in the room, or who is in it with no
+    microphone published, is not an error: the teacher asked for silence and
+    silence is what there is.
+    """
+    participants = await get_livekit().room.list_participants(
+        livekit_api.ListParticipantsRequest(room=room)
+    )
+    for participant in participants.participants:
+        if participant.identity != str(user_id):
+            continue
+        for track in participant.tracks:
+            # 2 is MICROPHONE in the media server's track-source enum.
+            if getattr(track, "source", None) == 2:
+                await get_livekit().room.mute_published_track(
+                    livekit_api.MuteRoomTrackRequest(
+                        room=room, identity=str(user_id), track_sid=track.sid, muted=True
+                    )
+                )
+                return True
+    return False
+
+
+async def eject(lesson_id: uuid.UUID, user_id: uuid.UUID, room: str) -> None:
+    """Remove somebody from the room, and keep them out.
+
+    Disconnecting alone lasts exactly as long as it takes them to reload the
+    page and ask for another grant, so the removal is remembered first and the
+    disconnect follows.
+    """
+    await mark_removed(lesson_id, user_id)
+    await get_livekit().room.remove_participant(
+        livekit_api.RoomParticipantIdentity(room=room, identity=str(user_id))
+    )
+
+
+async def set_floor(lesson_id: uuid.UUID, user_id: uuid.UUID | None) -> None:
+    """Focus one participant for everybody, or nobody.
+
+    This is the existing raised hand being answered. FR-013 forbids a second
+    hand-raise, so the teacher's action refers to the signal pupils already
+    send rather than introducing a parallel one.
+    """
+    r = realtime.get_redis()
+    if user_id is None:
+        await r.delete(floor_key(lesson_id))
+    else:
+        await r.set(floor_key(lesson_id), str(user_id))
+
+
 # --- Rooms ---
 
 

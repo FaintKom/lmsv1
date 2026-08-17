@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -16,3 +18,33 @@ class MediaTokenResponse(BaseModel):
     room: str
     can_publish_screen: bool
     expires_in: int
+
+
+class FloorRequest(BaseModel):
+    """Who the class should be looking at, or nobody.
+
+    ``None`` clears it. There is no separate "clear" endpoint because clearing
+    is the same decision as setting, made about a different person.
+    """
+
+    user_id: uuid.UUID | None = None
+
+
+class FloorResponse(BaseModel):
+    user_id: uuid.UUID | None = None
+
+
+class ScreenShareRequest(BaseModel):
+    allowed: bool
+
+
+class ModerationResponse(BaseModel):
+    """What the action left behind.
+
+    ``applied`` is false when there was nothing to act on — a participant who
+    has not joined yet, or one with no microphone published. Not an error: the
+    teacher asked for silence and silence is what there is.
+    """
+
+    ok: bool = True
+    applied: bool = True
