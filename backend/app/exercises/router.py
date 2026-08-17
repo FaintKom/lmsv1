@@ -60,7 +60,7 @@ async def create_exercise_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     exercise = await create_exercise(db, user, data.model_dump())
-    return ExerciseResponse.model_validate(exercise)
+    return _for_reader(exercise, user)
 
 
 @router.get("", response_model=ExerciseListResponse)
@@ -83,7 +83,7 @@ async def list_exercises_endpoint(
         per_page=per_page,
     )
     return ExerciseListResponse(
-        items=[ExerciseResponse.model_validate(e) for e in items],
+        items=[_for_reader(e, user) for e in items],
         total=total,
         page=page,
         per_page=per_page,
@@ -128,14 +128,7 @@ async def get_exercises_by_lesson_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     exercises = await get_exercises_by_lesson(db, lesson_id, user)
-
-    result = []
-    for ex in exercises:
-        resp = ExerciseResponse.model_validate(ex)
-        if not _may_see_answers(user):
-            resp = _strip_answers(resp)
-        result.append(resp)
-    return result
+    return [_for_reader(ex, user) for ex in exercises]
 
 
 @router.get("/{exercise_id}", response_model=ExerciseResponse)
@@ -145,10 +138,7 @@ async def get_exercise_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     exercise = await get_exercise(db, exercise_id, user)
-    resp = ExerciseResponse.model_validate(exercise)
-    if not _may_see_answers(user):
-        resp = _strip_answers(resp)
-    return resp
+    return _for_reader(exercise, user)
 
 
 @router.put("/{exercise_id}", response_model=ExerciseResponse)
@@ -159,7 +149,7 @@ async def update_exercise_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     exercise = await update_exercise(db, exercise_id, user, data.model_dump(exclude_unset=True))
-    return ExerciseResponse.model_validate(exercise)
+    return _for_reader(exercise, user)
 
 
 @router.delete("/{exercise_id}")
@@ -490,6 +480,21 @@ async def get_draft_endpoint(
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────
+
+
+def _for_reader(exercise, user: User) -> ExerciseResponse:
+    """The only way an Exercise becomes an ExerciseResponse.
+
+    Each read endpoint used to build the response itself and decide for itself
+    whether to strip. `GET /exercises` — which takes the same `lesson_id`
+    filter as `by-lesson` — never did, so the guarded route had an unguarded
+    twin that handed students `solution_code` and every hidden test case.
+    Routing all of them through here leaves nothing to remember: writing an
+    endpoint that leaks now means calling `model_validate` directly, which is
+    one grep away from being spotted.
+    """
+    resp = ExerciseResponse.model_validate(exercise)
+    return resp if _may_see_answers(user) else _strip_answers(resp)
 
 
 def _may_see_answers(user: User) -> bool:

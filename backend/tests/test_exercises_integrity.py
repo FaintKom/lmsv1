@@ -32,6 +32,62 @@ async def _student_config(client, student, ex):
     return resp.json()["config"]
 
 
+# Three endpoints return an exercise, and every stripping test above reads
+# only the third. See specs/004-exercise-answer-leak.
+READ_PATHS = ["list", "by-lesson", "detail"]
+
+
+async def _read_via(client, user, ex, path: str) -> dict:
+    """One exercise, fetched through whichever endpoint `path` names.
+
+    They differ in envelope only — a page, a bare array, a single object —
+    so the same assertions apply to all three.
+    """
+    if path == "list":
+        resp = await client.get(
+            f"/api/v1/exercises?lesson_id={ex.lesson_id}", headers=auth_header(user)
+        )
+        assert resp.status_code == 200
+        return next(e for e in resp.json()["items"] if e["id"] == str(ex.id))
+    if path == "by-lesson":
+        resp = await client.get(
+            f"/api/v1/exercises/by-lesson/{ex.lesson_id}", headers=auth_header(user)
+        )
+        assert resp.status_code == 200
+        return next(e for e in resp.json() if e["id"] == str(ex.id))
+    resp = await client.get(f"/api/v1/exercises/{ex.id}", headers=auth_header(user))
+    assert resp.status_code == 200
+    return resp.json()
+
+
+async def _code_challenge_with_hidden_case(client, db, org, teacher):
+    """A challenge carrying both kinds of answer key: the reference solution
+    in `config`, and a test case the teacher marked hidden.
+
+    Rows go in directly rather than through `POST /test-cases`: that endpoint
+    loads the exercise into the same session the test shares with the app, and
+    the empty `test_cases` collection it caches is what every later read then
+    returns.
+    """
+    from app.sandbox.models import TestCase
+
+    ex = await _make_typed(
+        db,
+        org,
+        teacher,
+        ExerciseType.code_challenge,
+        {"language": "python", "starter_code": "def add(a, b):", "solution_code": "return a + b"},
+    )
+    db.add_all(
+        [
+            TestCase(exercise_id=ex.id, input="1 2", expected_output="3", is_hidden=False),
+            TestCase(exercise_id=ex.id, input="3 4", expected_output="7", is_hidden=True),
+        ]
+    )
+    await db.flush()
+    return ex
+
+
 # ─── Stripping ───────────────────────────────────────────────────────────
 
 
@@ -609,3 +665,91 @@ async def test_check_crossword_per_word(client: AsyncClient, student, teacher, o
         .where(ExerciseSubmission.exercise_id == ex.id)
     )
     assert count == 0
+
+
+# ─── 004: every read path strips, not only the one under test ────────────
+
+
+@pytest.mark.parametrize("path", READ_PATHS)
+async def test_teacher_reads_the_answer_key_on_every_path(
+    client: AsyncClient, teacher, org, db, path
+):
+    """Positive control for the two tests below.
+
+    Asserting only that a key is absent passes just as well against an
+    endpoint that returns an empty config, a 404, or nothing at all — so
+    first prove the key is there to be stripped.
+    """
+    ex = await _code_challenge_with_hidden_case(client, db, org, teacher)
+    body = await _read_via(client, teacher, ex, path)
+    assert body["config"]["solution_code"] == "return a + b"
+    assert sorted(tc["expected_output"] for tc in body["test_cases"]) == ["3", "7"]
+
+
+@pytest.mark.parametrize("path", READ_PATHS)
+async def test_student_never_reads_the_answer_key(
+    client: AsyncClient, student, teacher, org, db, path
+):
+    """`GET /exercises?lesson_id=` shipped the whole config to students in
+    production: it takes the same filter as `by-lesson` and had none of its
+    stripping."""
+    ex = await _code_challenge_with_hidden_case(client, db, org, teacher)
+    body = await _read_via(client, student, ex, path)
+    assert "solution_code" not in body["config"]
+    assert [tc["expected_output"] for tc in body["test_cases"]] == ["3"]
+    # display data still arrives, or the exercise cannot be attempted
+    assert body["config"]["starter_code"] == "def add(a, b):"
+
+
+async def test_stripping_does_not_reach_the_stored_row(
+    client: AsyncClient, student, teacher, org, db
+):
+    """Stripping edits a response, never the exercise.
+
+    `_strip_answers` pops keys and rewrites nested lists, and the session it
+    runs in is the one `get_db` commits. If any of that reached the ORM object
+    the answer key would be deleted from the database by the act of a student
+    opening the lesson — and the list endpoint now runs it over every row of
+    the page, not one.
+    """
+    from sqlalchemy import text
+
+    ex = await _code_challenge_with_hidden_case(client, db, org, teacher)
+    await _read_via(client, student, ex, "list")
+
+    # straight at the column, so no ORM instance can answer from memory
+    stored = await db.scalar(
+        text("SELECT config FROM exercises WHERE id = :id"), {"id": str(ex.id)}
+    )
+    assert stored["solution_code"] == "return a + b"
+    fresh = await _read_via(client, teacher, ex, "detail")
+    assert fresh["config"]["solution_code"] == "return a + b"
+    assert sorted(tc["expected_output"] for tc in fresh["test_cases"]) == ["3", "7"]
+
+
+def test_only_one_place_builds_an_exercise_response():
+    """The three tests around this one cover the three endpoints that exist
+    today; a fourth would be born leaking, the way the list endpoint was.
+
+    So guard the rule instead of the routes: `_for_reader` is the one place
+    allowed to call `ExerciseResponse.model_validate`, because it is the one
+    place that then strips. Reaching for `model_validate` directly is what
+    writing the next leak looks like.
+    """
+    from pathlib import Path
+
+    import app.exercises.router as router_module
+
+    source = Path(router_module.__file__).read_text(encoding="utf-8")
+    assert source.count("ExerciseResponse.model_validate") == 1
+
+
+@pytest.mark.parametrize("path", READ_PATHS)
+async def test_parent_never_reads_the_answer_key(
+    client: AsyncClient, parent, teacher, org, db, path
+):
+    """A parent is linked to a child sitting these exercises — same rule."""
+    ex = await _code_challenge_with_hidden_case(client, db, org, teacher)
+    body = await _read_via(client, parent, ex, path)
+    assert "solution_code" not in body["config"]
+    assert [tc["expected_output"] for tc in body["test_cases"]] == ["3"]
