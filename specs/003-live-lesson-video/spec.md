@@ -190,6 +190,9 @@ finished file arrives against that lesson and can be played back.
 5. **Given** a recording exists, **When** someone from another school requests
    it, **Then** the request is refused and the recording's existence is not
    revealed.
+6. **Given** a lesson with pupils on camera was recorded, **When** the file is
+   played back, **Then** it holds the teacher and the shared screen, and no
+   pupil's camera or microphone appears in it.
 
 ---
 
@@ -292,6 +295,12 @@ finished file arrives against that lesson and can be played back.
   MUST NOT disappear.
 - **FR-023**: Recordings MUST be subject to a stated retention period, after
   which they are removed.
+- **FR-027**: A recording MUST contain the teacher's microphone, the teacher's
+  camera and the teacher's screen share, and MUST NOT contain any other
+  participant's camera or microphone.
+- **FR-027**: A recording MUST contain the teacher's microphone, the teacher's
+  camera and the teacher's screen share, and MUST NOT contain any other
+  participant's camera or microphone.
 
 #### Operating within the platform
 
@@ -365,6 +374,12 @@ before planning.
   planning decision, not a change in scope.
 - Membership, presence, raised hands and attendance come from the existing live
   lesson. This feature adds no second roster and no second signal.
+- A recording captures the teacher and the shared screen, and no pupil. Owner's
+  decision, 2026-08-17. It costs a fraction of the work of compositing every
+  participant in the teacher's browser, it costs the teacher's machine almost
+  nothing while that machine is already publishing and subscribing, and for the
+  case this story describes it loses very little. Capturing the whole room stays
+  available later, beside server-side recording.
 - Recordings are visible to staff of the school by default; sharing one with a
   group is the teacher's deliberate act. The school is responsible for obtaining
   whatever consent its jurisdiction requires, and the platform's part is to make

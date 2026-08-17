@@ -158,7 +158,11 @@ Recording is off until a school turns it on, so start there.
    started (SC-007).
 3. Stop it. The file uploads and the recording shows as ready against that
    lesson.
-4. Close the teacher's tab mid-recording, and confirm the row ends up `failed`
+4. Play it back after a lesson where pupils had cameras on, and confirm the file
+   holds the teacher and the shared screen and nobody else (FR-027). This is the
+   check that fails loudly if somebody later "improves" the recorder into a room
+   composite.
+5. Close the teacher's tab mid-recording, and confirm the row ends up `failed`
    instead of stuck at `uploading` (FR-022).
 
 The upload endpoint does not exist today, so the first thing to check is that it

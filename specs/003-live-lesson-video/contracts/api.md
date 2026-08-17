@@ -120,6 +120,11 @@ the organisation has `recording_enabled = false` (FR-019). Creates the
 `recordings` row, notes it in Redis so anyone joining later still sees the
 indicator, and broadcasts `media_recording_started`.
 
+What the capture contains is fixed by FR-027 and is not a parameter: the
+teacher's microphone, the teacher's camera and the teacher's screen share. The
+client builds that stream from its own local tracks and never subscribes to a
+pupil's track for recording, so no request can widen it.
+
 Response `201`:
 
 ```json

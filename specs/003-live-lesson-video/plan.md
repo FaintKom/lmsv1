@@ -154,7 +154,7 @@ Each slice is deployable on its own and leaves the platform working.
 | 1 | Grants, the room inside the lesson page, camera and microphone, capacity refusal | SC-001, SC-004, SC-006 and SC-009 hold |
 | 2 | Screen sharing and moderation, the raised hand giving the floor | User stories 2 and 3 pass |
 | 3 | Breakout groups | User story 4 passes |
-| 4 | Client-side recording, the missing upload endpoint, retention | User story 5 passes |
+| 4 | Recording of the teacher and the shared screen, captured in the browser; the missing upload endpoint; retention | User story 5 passes |
 
 Slice 0 writes no feature code and its output is a number, not a release. If the
 number is too low to hold a class, the second host enters the conversation with
