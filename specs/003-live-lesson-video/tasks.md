@@ -54,13 +54,13 @@ actually holds. No feature code is written in this phase.
 
 **⚠️ No user story work begins until this phase is complete.**
 
-- [ ] T012 Create the `backend/app/live_media/` module with `__init__.py`, `models.py`, `schemas.py`, `router.py`, `service.py` and `grants.py`, following the layout its sibling modules already use
-- [ ] T013 Write one additive Alembic migration in `backend/alembic/versions/`: the `live_breakout_groups` table, the four new `recordings` columns, the two new `organizations` columns, and the `recording_source` enum created explicitly before the column that uses it, per data-model.md and the enum recipe in `docs/MIGRATIONS.md`
-- [ ] T014 Import `app.live_media.models` in all three places autogenerate needs — `backend/app/main.py` lifespan, `backend/tests/conftest.py`, and `backend/alembic/env.py` — or the module stays invisible the way `knowledge` and `integrations` did
-- [ ] T015 [P] Write `backend/app/live_media/grants.py`: the permission set per role in one function, teacher carrying `roomAdmin` and pupil not, per the table in contracts/api.md. Nothing else in the module may build a grant
-- [ ] T016 Write the LiveKit server wrapper in `backend/app/live_media/service.py`: room listing, participant mute and removal, and a live participant count cached in Redis for two seconds. Read the count from the media server instead of keeping a counter, per research.md Finding F
-- [ ] T017 [P] Add the six media Redis key helpers to `backend/app/live_media/service.py`, named in one place the way `live_lessons/realtime.py` names its own
-- [ ] T018 Mount the router at `/api/v1/live-lessons/{lesson_id}/media` in `backend/app/main.py`
+- [x] T012 Create the `backend/app/live_media/` module with `__init__.py`, `schemas.py`, `router.py`, `service.py` and `grants.py`, following the layout its sibling modules already use
+- [ ] T013 ~~One additive migration~~ — **moved to slice 3, because slice 1 needs no schema change at all.** Grants are not stored, removal lives in Redis, and capacity is read from the media server, so there is nothing here to persist. The `recordings` and `organizations` columns belong to slice 4 for the same reason; writing them now would be dead schema for weeks
+- [ ] T014 ~~Import `app.live_media.models` in three places~~ — **moved to slice 3 with T013.** The breakout model was written and then removed on purpose: a model in `Base.metadata` with no migration is created by `create_all` in development and never reaches production, which is the divergence `backend/CLAUDE.md` warns about
+- [x] T015 [P] Write `backend/app/live_media/grants.py`: the permission set per role in one function, teacher carrying `roomAdmin` and pupil not, per the table in contracts/api.md. Nothing else in the module may build a grant
+- [x] T016 Write the LiveKit server wrapper in `backend/app/live_media/service.py`: room listing and deletion, and a live participant count cached in Redis for two seconds. Read the count from the media server instead of keeping a counter, per research.md Finding F
+- [x] T017 [P] Add the media Redis key helpers to `backend/app/live_media/service.py`, named in one place the way `live_lessons/realtime.py` names its own
+- [x] T018 Mount the router at `/api/v1/live-lessons` in `backend/app/main.py`, beside the lesson it belongs to
 
 **Checkpoint**: Schema and permissions exist. User stories may begin.
 
@@ -80,18 +80,26 @@ each other inside the lesson page, with no second window and no external domain.
 > control first, because "another school gets 404" passes before the endpoint
 > exists.
 
-- [ ] T019 [P] [US1] Positive control in `backend/tests/test_live_media.py`: the lesson's own teacher receives a grant, and its payload carries `roomAdmin`
-- [ ] T020 [P] [US1] Isolation test in `backend/tests/test_live_media.py`: a teacher of another organisation requesting a grant for this lesson gets **404, not 403** (Constitution I, SC-009)
-- [ ] T021 [P] [US1] Isolation test in `backend/tests/test_live_media.py`: a pupil who is not in the lesson's group gets 404
-- [ ] T022 [P] [US1] Test in `backend/tests/test_live_media.py`: a pupil's grant carries no `roomAdmin` and no screen-share source
-- [ ] T023 [P] [US1] Test in `backend/tests/test_live_media.py`: with the ceiling set to one, the second participant gets **503 with a reason**, and the first participant's room is untouched (FR-008)
-- [ ] T024 [P] [US1] Test in `backend/tests/test_live_media.py`: a grant expires within `media_grant_ttl_seconds`, so a token cannot outlive a removal
+- [x] T019 [P] [US1] Positive control in `backend/tests/test_live_media.py`: the lesson's own teacher receives a grant, and its payload carries `roomAdmin`
+- [x] T020 [P] [US1] Isolation test in `backend/tests/test_live_media.py`: a teacher of another organisation requesting a grant for this lesson gets **404, not 403** (Constitution I, SC-009)
+- [x] T021 [P] [US1] Isolation test in `backend/tests/test_live_media.py`: a pupil who is not in the lesson's group gets **403, not 404** — corrected from the contract during implementation. The lesson's existence is no secret from somebody at the same school; they simply are not in it. Cross-organisation is the case that must read as absent, and T020 covers it
+- [x] T022 [P] [US1] Test in `backend/tests/test_live_media.py`: a pupil's grant carries no `roomAdmin` and no screen-share source
+- [x] T023 [P] [US1] Test in `backend/tests/test_live_media.py`: with the ceiling set to one, the second participant gets **503 with a reason**, and the first participant's room is untouched (FR-008). A second test asserts the shipped default of 0 refuses everybody
+- [x] T024 [P] [US1] Test in `backend/tests/test_live_media.py`: a grant expires within `media_grant_ttl_seconds`, so a token cannot outlive a removal
 
 ### Implementation for User Story 1
 
-- [ ] T025 [US1] Write the grant request and response schemas in `backend/app/live_media/schemas.py` per contracts/api.md
-- [ ] T026 [US1] Implement `POST /media/token` in `backend/app/live_media/router.py`: resolve the lesson through the existing `live_lessons` lookup, check the removed set, check the ceiling, then sign through `grants.py`
-- [ ] T027 [P] [US1] Write `frontend/src/lib/live/media-client.ts`: connect, publish camera and microphone, subscribe with `adaptiveStream` and `dynacast` on, and reconnect on its own
+- [x] T025 [US1] Write the grant request and response schemas in `backend/app/live_media/schemas.py` per contracts/api.md
+- [x] T026 [US1] Implement `POST /media/token` in `backend/app/live_media/router.py`: resolve the lesson through the existing `live_lessons` lookup, check the removed set, check the ceiling, then sign through `grants.py`
+
+> **The browser half of this phase is blocked on tooling, not on design.** The
+> SDK cannot be installed on this machine: `package.json` requires node 22.x
+> with npm 10.x, `.npmrc` sets `engine-strict`, and the only node here is
+> v24.19.0 with npm 11.17.0, so `npm install livekit-client` stops with
+> `EBADENGINE`. Installing anyway writes a lock file npm 10 rejects, which is
+> the failure PR #259 and #313 were opened to fix — the guard is doing its job
+> and is not to be argued with. T027 onwards need node 22 present.
+
 - [ ] T028 [P] [US1] Add the typed API functions to `frontend/src/lib/api/live.ts`
 - [ ] T029 [US1] Write `frontend/src/components/live/media-stage.tsx`: the teacher and whoever holds the floor at a high layer, everyone else as low-layer thumbnails (research.md Finding G)
 - [ ] T030 [US1] Write `frontend/src/components/live/media-controls.tsx`: device pickers, mute, camera off, leave, and joining with audio alone when there is no camera (FR-007)
