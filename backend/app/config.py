@@ -121,6 +121,10 @@ class Settings(BaseSettings):
     # where strangers spend our CPU — keep it stingy. Tunable via env so prod
     # can tighten it without shipping new code.
     sandbox_demo_rate_limit: str = "10/minute"
+    # A school's public enquiry form. Generous by the hour, because a family
+    # sitting on one home connection may well send two — and stingy enough that
+    # nobody fills an office's board overnight.
+    crm_public_enquiry_rate_limit: str = "10/hour"
 
     # Demo mode — exposes POST /auth/demo-login that returns a session
     # for a pre-configured demo account without any credentials. Off by

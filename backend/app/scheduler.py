@@ -15,6 +15,7 @@ Jobs are registered here. Each should be idempotent (safe if re-run on the
 same data), log what it did, and swallow its own errors so a failing job
 does not bring down the scheduler.
 """
+
 from __future__ import annotations
 
 import logging
@@ -45,10 +46,7 @@ async def cleanup_expired_refresh_tokens() -> None:
             result = await session.execute(
                 delete(RefreshToken).where(
                     (RefreshToken.expires_at < datetime.now(timezone.utc))
-                    | (
-                        (RefreshToken.revoked_at.is_not(None))
-                        & (RefreshToken.revoked_at < cutoff)
-                    )
+                    | ((RefreshToken.revoked_at.is_not(None)) & (RefreshToken.revoked_at < cutoff))
                 )
             )
             await session.commit()
@@ -72,6 +70,104 @@ async def send_deadline_reminders() -> None:
     flip this on later without touching the wiring.
     """
     logger.debug("send_deadline_reminders: not implemented yet (stub)")
+
+
+async def _sweep_crm_task_reminders(session) -> int:
+    """Tell somebody about CRM reminders that have come due. Returns count.
+
+    Somebody, not the assignee: a reminder with no assignee reached nobody at
+    all, which is what happened to every reminder carried by a staff member
+    whose account was later deleted. Those fall to the school's administrators.
+    Each recipient gets the bell and an email, because the bell is seen only by
+    a person already signed in.
+
+    Split from the job below so tests can drive it with their own session —
+    same arrangement as ``_purge_unconfirmed_consent_accounts``. A job that
+    opens its own connection cannot see a test's uncommitted rows, so testing
+    it through the wrapper would prove nothing.
+
+    ``notified`` is set in the same transaction: a task left open for a week
+    must not notify every morning, or people learn to ignore the bell.
+    """
+    from sqlalchemy import select
+
+    from app.auth.models import User, UserRole
+    from app.crm.models import Lead, LeadTask
+    from app.email.service import queue_email, send_crm_reminder
+    from app.notifications.service import create_notification
+
+    now = datetime.now(timezone.utc)
+    rows = (
+        await session.execute(
+            select(LeadTask, Lead.contact_name)
+            .join(Lead, Lead.id == LeadTask.lead_id)
+            .where(
+                LeadTask.done_at.is_(None),
+                LeadTask.notified.is_(False),
+                LeadTask.due_at <= now,
+                # A reminder on a won or lost enquiry belongs to work that no
+                # longer exists. Chasing it spends the one thing the reminder
+                # is meant to protect. Excluded here rather than skipped in the
+                # loop so dead rows never consume the batch — and so a reopened
+                # enquiry brings its reminders back with it.
+                Lead.stage.notin_(("won", "lost")),
+            )
+            .limit(500)
+        )
+    ).all()
+
+    for task, contact_name in rows:
+        # An unassigned reminder used to reach nobody. `assignee_id` is ON
+        # DELETE SET NULL, so this is what happens when whoever was chasing an
+        # enquiry leaves the school: the chase was silently orphaned. It falls
+        # to the office instead.
+        if task.assignee_id:
+            who = select(User).where(User.id == task.assignee_id)
+        else:
+            who = select(User).where(
+                User.org_id == task.org_id,
+                User.role == UserRole.admin,
+                User.is_active.is_(True),
+            )
+        recipients = (await session.execute(who)).scalars().all()
+
+        for person in recipients:
+            await create_notification(
+                session,
+                user_id=person.id,
+                title="Follow-up due",
+                body=f"{task.title} — {contact_name}",
+                link="/admin/crm",
+            )
+            # The bell is only seen by somebody already signed in. Delivery
+            # failures are swallowed inside queue_email on purpose, so this
+            # cannot break the sweep for the reminders after it.
+            queue_email(send_crm_reminder, person.email, task.title, contact_name)
+
+        # Marked in the same transaction whether or not anybody was found: a
+        # task left open for a week must not notify every morning, or people
+        # learn to ignore the bell and the inbox alike.
+        task.notified = True
+
+    await session.flush()
+    return len(rows)
+
+
+async def send_crm_task_reminders() -> None:
+    """Daily CRM follow-up sweep.
+
+    Enquiries are lost to silence more often than to competitors, which is the
+    whole reason the reminder exists.
+    """
+    async with async_session_factory() as session:
+        try:
+            count = await _sweep_crm_task_reminders(session)
+            await session.commit()
+            if count:
+                logger.info("send_crm_task_reminders: notified %d task(s)", count)
+        except Exception as e:
+            logger.warning(f"send_crm_task_reminders failed: {e}")
+            await session.rollback()
 
 
 async def purge_inactive_students() -> None:
@@ -207,6 +303,18 @@ def start_scheduler() -> AsyncIOScheduler:
         misfire_grace_time=600,
     )
 
+    # Daily at 06:00 UTC — CRM follow-ups. Morning rather than the small
+    # hours: this one produces notifications a person is meant to act on that
+    # day, not housekeeping.
+    scheduler.add_job(
+        send_crm_task_reminders,
+        CronTrigger(hour=6, minute=0),
+        id="send_crm_task_reminders",
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=3600,
+    )
+
     # Daily at 03:30 UTC — retention purge of dormant student accounts. Runs
     # after token cleanup (03:10) and before the 04:00 backup.
     scheduler.add_job(
@@ -232,10 +340,7 @@ def start_scheduler() -> AsyncIOScheduler:
 
     scheduler.start()
     _scheduler = scheduler
-    logger.info(
-        f"Scheduler started with {len(scheduler.get_jobs())} jobs "
-        f"(timezone=UTC)"
-    )
+    logger.info(f"Scheduler started with {len(scheduler.get_jobs())} jobs (timezone=UTC)")
     return scheduler
 
 

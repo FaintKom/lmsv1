@@ -121,6 +121,38 @@ async def test_update_org_settings(client: AsyncClient, admin, org):
 
 
 @pytest.mark.asyncio
+async def test_admin_cannot_edit_another_org(client: AsyncClient, admin, org2, db):
+    """Reading another school's settings was covered; writing was not."""
+    before = org2.name
+
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org2.id}",
+        json={"name": "Renamed by a stranger"},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 404
+
+    await db.refresh(org2)
+    assert org2.name == before
+
+
+@pytest.mark.asyncio
+async def test_a_plain_admin_cannot_deactivate_their_own_org(client: AsyncClient, admin, org, db):
+    """is_active is a super-admin switch — a school cannot suspend itself. The
+    endpoint ignores the field rather than refusing the whole request."""
+    resp = await client.put(
+        f"/api/v1/admin/organizations/{org.id}",
+        json={"name": org.name, "is_active": False},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 200
+    assert resp.json()["is_active"] is True
+
+    await db.refresh(org)
+    assert org.is_active is True
+
+
+@pytest.mark.asyncio
 async def test_delete_org_requires_super_admin(client: AsyncClient, admin, org2):
     """Regular admin cannot delete an org."""
     resp = await client.delete(
@@ -722,10 +754,38 @@ async def test_student_cannot_access_analytics(client: AsyncClient, student):
 # ─── Gradebook ───────────────────────────────────────────────────────────
 
 
-@pytest.mark.asyncio
-async def test_gradebook(client: AsyncClient, admin, student, org, db):
-    course = await make_course(db, org, admin)
+async def _graded_course(db, org, teacher, student, score: float, max_score: int = 100):
+    """A course with one enrolled student and one graded assignment."""
+    from app.assignments.models import AssignmentSubmission
+    from tests.conftest import make_assignment
+
+    course = await make_course(db, org, teacher)
     await make_enrollment(db, course.id, student.id)
+    assignment = await make_assignment(
+        db, org.id, course.id, teacher.id, title="Essay", max_score=max_score
+    )
+    db.add(
+        AssignmentSubmission(
+            assignment_id=assignment.id,
+            student_id=student.id,
+            content="done",
+            score=score,
+            graded_by=teacher.id,
+        )
+    )
+    await db.flush()
+    return course, assignment
+
+
+@pytest.mark.asyncio
+async def test_gradebook_shows_the_awarded_score(client: AsyncClient, admin, student, org, db):
+    """The marks themselves, not just the shape of the response.
+
+    The old test asserted that the keys "students" and "columns" existed, which
+    stays true whether the numbers are right, wrong or missing entirely.
+    """
+    course, assignment = await _graded_course(db, org, admin, student, score=87.0)
+
     resp = await client.get(
         "/api/v1/admin/gradebook",
         params={"course_id": str(course.id)},
@@ -733,19 +793,135 @@ async def test_gradebook(client: AsyncClient, admin, student, org, db):
     )
     assert resp.status_code == 200
     data = resp.json()
-    assert "students" in data
-    assert "columns" in data
+
+    assert [s["id"] for s in data["students"]] == [str(student.id)]
+    col_id = f"assignment_{assignment.id}"
+    assert any(c["id"] == col_id for c in data["columns"])
+    assert data["rows"][str(student.id)][col_id] == 87.0
+    assert data["averages"][col_id] == 87.0
 
 
 @pytest.mark.asyncio
-async def test_gradebook_export(client: AsyncClient, admin, org, db):
-    course = await make_course(db, org, admin)
+async def test_gradebook_averages_ignore_students_without_a_mark(
+    client: AsyncClient, admin, student, org, db
+):
+    """An ungraded student must not count as a zero — that would drag the class
+    average down and misrepresent the cohort."""
+    from app.auth.models import UserRole
+    from tests.conftest import _make_user
+
+    course, assignment = await _graded_course(db, org, admin, student, score=80.0)
+    second = _make_user(db, org, UserRole.student, suffix="-ungraded")
+    await db.flush()
+    await make_enrollment(db, course.id, second.id)
+
+    resp = await client.get(
+        "/api/v1/admin/gradebook",
+        params={"course_id": str(course.id)},
+        headers=auth_header(admin),
+    )
+    data = resp.json()
+    col_id = f"assignment_{assignment.id}"
+
+    assert len(data["students"]) == 2
+    assert data["rows"][str(second.id)].get(col_id) is None
+    assert data["averages"][col_id] == 80.0
+
+
+@pytest.mark.asyncio
+async def test_teacher_cannot_open_a_colleagues_gradebook(
+    client: AsyncClient, admin, teacher, student, org, db
+):
+    """Same org, different owner. The course dropdown never offers it, but the
+    endpoint is the boundary and used to hand over the whole class."""
+    course, _ = await _graded_course(db, org, admin, student, score=80.0)
+
+    resp = await client.get(
+        "/api/v1/admin/gradebook",
+        params={"course_id": str(course.id)},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_teacher_opens_their_own_gradebook(client: AsyncClient, teacher, student, org, db):
+    course, _ = await _graded_course(db, org, teacher, student, score=80.0)
+
+    resp = await client.get(
+        "/api/v1/admin/gradebook",
+        params={"course_id": str(course.id)},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_methodist_opens_any_gradebook_in_their_org(
+    client: AsyncClient, admin, teacher, student, org, db
+):
+    """Methodists are org-wide by design — that is what the flag is for."""
+    course, _ = await _graded_course(db, org, admin, student, score=80.0)
+    teacher.is_methodist = True
+    await db.flush()
+
+    resp = await client.get(
+        "/api/v1/admin/gradebook",
+        params={"course_id": str(course.id)},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_gradebook_of_another_org_reads_as_not_found(
+    client: AsyncClient, admin, admin2, org2, db
+):
+    """Existence stays hidden across schools — 404, not 403."""
+    from app.auth.models import UserRole
+    from tests.conftest import _make_user
+
+    foreign_student = _make_user(db, org2, UserRole.student, suffix="-foreign")
+    await db.flush()
+    course, _ = await _graded_course(db, org2, admin2, foreign_student, score=80.0)
+
+    resp = await client.get(
+        "/api/v1/admin/gradebook",
+        params={"course_id": str(course.id)},
+        headers=auth_header(admin),
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_gradebook_csv_carries_the_marks(client: AsyncClient, admin, student, org, db):
+    """The export is what a school actually files, so assert its contents."""
+    course, _ = await _graded_course(db, org, admin, student, score=87.0)
+
     resp = await client.get(
         "/api/v1/admin/gradebook/export",
         params={"course_id": str(course.id)},
         headers=auth_header(admin),
     )
     assert resp.status_code == 200
+    body = resp.text
+    assert "Essay" in body
+    assert student.email in body
+    assert "87" in body
+
+
+@pytest.mark.asyncio
+async def test_gradebook_export_obeys_the_same_scope(
+    client: AsyncClient, admin, teacher, student, org, db
+):
+    """Both exports delegate to the same endpoint — prove the guard travels."""
+    course, _ = await _graded_course(db, org, admin, student, score=80.0)
+
+    for path in ("/api/v1/admin/gradebook/export", "/api/v1/admin/gradebook/export-xlsx"):
+        resp = await client.get(
+            path, params={"course_id": str(course.id)}, headers=auth_header(teacher)
+        )
+        assert resp.status_code == 403, path
 
 
 # ─── Review Queue ────────────────────────────────────────────────────────

@@ -21,7 +21,8 @@ Feature-модульная: каждый модуль — отдельная з�
 (где применимо).
 
 Список модулей: admin, analytics, assessments, assignments, attendance, auth,
-billing, calendar, certificates, common, courses, curriculum, db, donations,
+billing, calendar, certificates, common, courses, crm (школьная воронка
+заявок — не путать с `waitlist`, это наша), curriculum, db, donations,
 email, exercises, export, feedback, gamification, integrations, journal,
 knowledge (dormant — роутер не смонтирован), learning_paths, math_problems,
 math_validation, meetings, metered_billing, notifications, orgs, parent,

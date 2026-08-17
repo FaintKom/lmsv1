@@ -1331,6 +1331,20 @@ async def add_group_members_endpoint(
 
         raise HTTPException(400, "Too many users in one request")
 
+    # The group was checked; the ids in the body were not. Any uuid at all
+    # could be inserted here, including accounts from another school — and
+    # membership is not cosmetic: it drives live-lesson rosters, the class
+    # register, and who /groups/{id}/enroll puts into a course. Unknown or
+    # foreign ids are dropped rather than rejected, so one stale id in a bulk
+    # payload does not fail the whole request; the count that comes back says
+    # how many actually landed.
+    if user_ids:
+        known_query = select(User.id).where(User.id.in_(user_ids))
+        if admin.role != UserRole.super_admin:
+            known_query = known_query.where(User.org_id == admin.org_id)
+        known = {str(uid) for uid in (await db.execute(known_query)).scalars().all()}
+        user_ids = [uid for uid in user_ids if str(uid) in known]
+
     # Single query for existing members instead of one per user (was N+1).
     existing_ids = (
         set(
@@ -1368,7 +1382,16 @@ async def remove_group_member_endpoint(
     db: AsyncSession = Depends(get_db),
 ):
     """Remove a user from a group."""
-    from app.admin.models import StudentGroupMember
+    from app.admin.models import StudentGroup, StudentGroupMember
+
+    # Checked the membership row and nothing else, so two ids were enough to
+    # pull a student out of any school's group — every other group endpoint
+    # confirms the group first.
+    group_query = select(StudentGroup).where(StudentGroup.id == group_id)
+    if admin.role != UserRole.super_admin:
+        group_query = group_query.where(StudentGroup.org_id == admin.org_id)
+    if not (await db.execute(group_query)).scalar_one_or_none():
+        raise NotFoundError("Group not found")
 
     result = await db.execute(
         select(StudentGroupMember).where(
@@ -1410,9 +1433,14 @@ async def enroll_group_endpoint(
 
         raise HTTPException(400, "course_id required")
 
-    # Cannot enroll into template courses
-    course_result = await db.execute(select(Course).where(Course.id == course_id))
-    course = course_result.scalar_one_or_none()
+    # Course came in from the body and was fetched by id alone, so a group
+    # could be enrolled into another school's course. Enrolment is what the
+    # victim's gradebook and rosters are built from, so those students would
+    # then show up in their register.
+    course_query = select(Course).where(Course.id == course_id)
+    if admin.role != UserRole.super_admin:
+        course_query = course_query.where(Course.org_id == admin.org_id)
+    course = (await db.execute(course_query)).scalar_one_or_none()
     if not course:
         raise NotFoundError("Course not found")
     if getattr(course, "is_template", False):
@@ -1572,17 +1600,21 @@ async def gradebook_endpoint(
     """
     from sqlalchemy import func
 
+    from app.analytics.task_stats_service import TaskStatsError, _authorize_course
     from app.assignments.models import Assignment, AssignmentSubmission
-    from app.courses.models import Course, Lesson, Module
+    from app.courses.models import Lesson, Module
     from app.progress.models import Enrollment
 
-    # Verify course access
-    course_q = select(Course).where(Course.id == course_id)
-    if user.role != UserRole.super_admin:
-        course_q = course_q.where(Course.org_id == user.org_id)
-    result = await db.execute(course_q)
-    course = result.scalar_one_or_none()
-    if not course:
+    # Every other view of a student's marks — task stats, the student profile —
+    # scopes a plain teacher to their own courses. This one only checked the
+    # org, so any teacher could pull a colleague's whole class by passing its
+    # course id. The dropdown never offers those courses, which is why it went
+    # unnoticed; the API is the boundary, not the dropdown.
+    try:
+        await _authorize_course(db, user, course_id)
+    except TaskStatsError as e:
+        if e.code == "forbidden":
+            raise HTTPException(status_code=403, detail=e.message)
         raise NotFoundError("Course not found")
 
     # Get enrolled students

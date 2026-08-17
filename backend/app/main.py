@@ -49,6 +49,8 @@ from app.billing.router import router as billing_router
 from app.calendar.router import router as calendar_router
 from app.certificates.router import router as certificates_router
 from app.courses.router import router as courses_router
+from app.crm.public_router import router as crm_public_router
+from app.crm.router import router as crm_router
 from app.curriculum.router import router as curriculum_router
 from app.donations.router import router as donations_router
 from app.exercises.router import router as exercises_router
@@ -301,6 +303,7 @@ async def lifespan(app: FastAPI):
     # Import all models so they register with Base metadata
     import app.auth.models  # noqa
     import app.courses.models  # noqa
+    import app.crm.models  # noqa
     import app.assessments.models  # noqa
     import app.progress.models  # noqa
     import app.billing.models  # noqa
@@ -494,6 +497,10 @@ def create_app() -> FastAPI:
     app.include_router(live_lessons_router, prefix="/api/v1/live-lessons", tags=["Live Lessons"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
+    # Public first: it is the surface a stranger can reach, and the one worth
+    # noticing when reading this list.
+    app.include_router(crm_public_router, prefix="/api/v1/crm/public", tags=["CRM (public)"])
+    app.include_router(crm_router, prefix="/api/v1/crm", tags=["CRM"])
     app.include_router(skills_router, prefix="/api/v1/skills", tags=["Skills"])
     app.include_router(
         recommendations_router, prefix="/api/v1/recommendations", tags=["Recommendations"]

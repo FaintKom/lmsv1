@@ -95,7 +95,7 @@ async def upload_image(
 async def serve_image(filename: str):
     """Serve an uploaded image."""
     # Sanitize filename to prevent directory traversal — must match UUID hex + allowed ext
-    if not re.match(r'^[a-f0-9]{32}\.(jpg|jpeg|png|gif|webp|svg)$', filename):
+    if not re.match(r"^[a-f0-9]{32}\.(jpg|jpeg|png|gif|webp|svg)$", filename):
         raise HTTPException(404, "Not found")
 
     filepath = os.path.join(settings.upload_dir, "images", filename)
@@ -144,7 +144,7 @@ async def upload_theory(
 @router.get("/files/{filename}")
 async def serve_theory_file(filename: str):
     """Serve an uploaded theory deck (PDF/PPTX)."""
-    if not re.match(r'^[a-f0-9]{32}\.(pdf|pptx|ppt)$', filename):
+    if not re.match(r"^[a-f0-9]{32}\.(pdf|pptx|ppt)$", filename):
         raise HTTPException(404, "Not found")
 
     filepath = os.path.join(settings.upload_dir, "theory", filename)
@@ -192,6 +192,7 @@ async def create_course_endpoint(
 ):
     # P2: enforce plan course limit
     from app.billing.limits import check_course_limit
+
     await check_course_limit(db, user.org_id)
 
     course = await create_course(db, data, user)
@@ -234,9 +235,9 @@ async def copy_course_with_group_endpoint(
     from app.progress.models import Enrollment
 
     # Verify source is a published template
-    source = (await db.execute(
-        select(CourseModel).where(CourseModel.id == course_id)
-    )).scalar_one_or_none()
+    source = (
+        await db.execute(select(CourseModel).where(CourseModel.id == course_id))
+    ).scalar_one_or_none()
     if not source:
         raise NotFoundError("Course not found")
     if user.role != UserRole.super_admin and source.org_id != user.org_id:
@@ -249,34 +250,40 @@ async def copy_course_with_group_endpoint(
     enrolled = 0
     for group_id in data.group_ids:
         # Validate group belongs to org
-        grp = (await db.execute(
-            select(StudentGroup).where(
-                StudentGroup.id == group_id,
-                StudentGroup.org_id == user.org_id,
+        grp = (
+            await db.execute(
+                select(StudentGroup).where(
+                    StudentGroup.id == group_id,
+                    StudentGroup.org_id == user.org_id,
+                )
             )
-        )).scalar_one_or_none()
+        ).scalar_one_or_none()
         if not grp:
             continue
 
-        members = (await db.execute(
-            select(StudentGroupMember.user_id).where(
-                StudentGroupMember.group_id == group_id
+        members = (
+            await db.execute(
+                select(StudentGroupMember.user_id).where(StudentGroupMember.group_id == group_id)
             )
-        )).all()
+        ).all()
 
         for (uid,) in members:
-            existing = (await db.execute(
-                select(Enrollment).where(
-                    Enrollment.course_id == new_course.id,
-                    Enrollment.student_id == uid,
+            existing = (
+                await db.execute(
+                    select(Enrollment).where(
+                        Enrollment.course_id == new_course.id,
+                        Enrollment.student_id == uid,
+                    )
                 )
-            )).scalar_one_or_none()
+            ).scalar_one_or_none()
             if not existing:
-                db.add(Enrollment(
-                    course_id=new_course.id,
-                    student_id=uid,
-                    enrolled_at=datetime.now(timezone.utc),
-                ))
+                db.add(
+                    Enrollment(
+                        course_id=new_course.id,
+                        student_id=uid,
+                        enrolled_at=datetime.now(timezone.utc),
+                    )
+                )
                 enrolled += 1
 
     await db.flush()
@@ -323,9 +330,7 @@ async def get_course_endpoint(
     resp = CourseResponse.model_validate(course)
 
     # Add enrolled student count
-    count_result = await db.execute(
-        select(func.count()).where(Enrollment.course_id == course_id)
-    )
+    count_result = await db.execute(select(func.count()).where(Enrollment.course_id == course_id))
     resp.enrolled_count = count_result.scalar() or 0
     return resp
 
@@ -352,6 +357,7 @@ async def publish_course_endpoint(
 
 
 # Modules
+
 
 @router.post("/{course_id}/modules", response_model=ModuleResponse)
 async def create_module_endpoint(
@@ -389,6 +395,7 @@ async def reorder_lessons_endpoint(
 
 # Lessons
 
+
 @router.post("/{course_id}/modules/{module_id}/lessons", response_model=LessonResponse)
 async def create_lesson_endpoint(
     course_id: uuid.UUID,
@@ -411,7 +418,7 @@ async def get_lesson_endpoint(
     from app.exercises.service import get_exercises_by_lesson
 
     lesson = await get_lesson(db, lesson_id, user)
-    exercises = await get_exercises_by_lesson(db, lesson_id)
+    exercises = await get_exercises_by_lesson(db, lesson_id, user)
     lesson_dict = _lesson_to_dict(lesson)
     normalized = normalize_lesson_content(lesson_dict, exercises)
     return LessonResponse(**normalized)

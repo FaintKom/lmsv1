@@ -77,6 +77,8 @@ jobs:
       E2E_TEACHER_PASSWORD: qa-test-not-for-prod
       E2E_STUDENT_EMAIL: qa-student@qa.example.com
       E2E_STUDENT_PASSWORD: qa-test-not-for-prod
+      E2E_PARENT_EMAIL: qa-parent@qa.example.com
+      E2E_PARENT_PASSWORD: qa-test-not-for-prod
 
     steps:
       - uses: actions/checkout@v7

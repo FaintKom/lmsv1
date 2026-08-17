@@ -55,14 +55,53 @@ services:
   sandbox:
     build: ./sandbox
     command: uvicorn runner.main:app --host 0.0.0.0 --port 8001
+    # QA only. Every limit this service enforces is a container property, so its
+    # tests have to reach the real container rather than an in-process copy.
+    # Production and staging deliberately have no mapping: there the sandbox is
+    # reachable only over sandbox-net, and only by the backend.
+    ports:
+      - "8101:8001"
+    # PID 1 here is uvicorn, and uvicorn does not reap orphans. A fork bomb's
+    # children are re-parented to it when their own parent dies, and a killed
+    # orphan stays a zombie — still occupying a slot in the pids cgroup.
+    #
+    # Measured: after one fork bomb the container held 256 pids while `docker
+    # top` showed a single live process, and every later submission was refused
+    # for a limit somebody else had reached. pids_limit alone therefore turns
+    # "the container dies" into "the container refuses everything forever",
+    # which is not much of an improvement. Docker's init (tini) reaps them.
+    init: true
     read_only: true
     tmpfs:
       - /tmp:size=100M
+      # The one directory that permits execution: a binary our own compiler
+      # just produced from the pupil's source. /tmp stays noexec, so four of
+      # the five languages never gain the permission (research.md Finding A).
+      # mode=1777 because the service no longer runs as root: the default
+      # 755 root-owned mount left `runner` unable to write here, which is
+      # where compiled languages put their binary. Sticky, like /tmp, so
+      # one of the concurrent executions cannot delete another's directory.
+      - /sandbox-exec:size=64M,exec,mode=1777
     security_opt:
       - "no-new-privileges:true"
+      # Denies outbound connect() to every process in the container. The
+      # runner never dials out; a pupil's program needs it to reach the
+      # backend, which shares the sandbox network. See the profile for
+      # what it deliberately does not deny, and why.
+      - "seccomp=./sandbox/policies/seccomp.json"
     deploy:
       resources:
         limits:
+          # A fork bomb is three lines and needs no skill. Without this cap it
+          # exhausted the container's memory by sheer process count and the kernel
+          # OOM-killed the container itself (exit 137) — measured, not assumed.
+          #
+          # 256 is arithmetic, not a round number: one Java program costs ~13 threads
+          # (measured, research.md Finding G), four slots is the production bound, and
+          # the runner rests at 6 — so the worst legitimate case is about 58. Four
+          # times that leaves room for a language nobody has profiled yet, while a
+          # fork bomb reaches thousands within a second.
+          pids: 256
           cpus: "1.0"
           memory: 256M
 

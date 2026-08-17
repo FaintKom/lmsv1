@@ -135,10 +135,32 @@ test("student sees the score and the feedback", async ({ page }) => {
   await expect(page.getByText(FEEDBACK)).toBeVisible();
 });
 
-test("the graded student shows up in the gradebook", async ({ page }) => {
+test("the gradebook shows the mark that was awarded", async ({ page }) => {
   await authenticate(page.context(), TEACHER);
   await page.goto(`${BASE_URL}/admin/gradebook`);
 
   await page.locator("select").first().selectOption({ label: courseTitle });
   await expect(page.getByText(/QA Student/i).first()).toBeVisible({ timeout: 15_000 });
+
+  // The name appearing only proves the roster loaded. A gradebook that lost
+  // every score, or showed the wrong one, would still pass that. Assert the
+  // assignment column and the mark inside the student's own row.
+  await expect(page.getByText(assignmentTitle).first()).toBeVisible();
+  const row = page.locator("tr", { hasText: /QA Student/i }).first();
+  await expect(row.getByText(String(AWARDED)).first()).toBeVisible();
+});
+
+test("the CSV export carries the same mark", async ({ page }) => {
+  await authenticate(page.context(), TEACHER);
+
+  // What a school files away. It reads through the same endpoint, so an
+  // export that silently loses the marks is a real failure.
+  const resp = await page
+    .context()
+    .request.get(`${BASE_URL}/api/v1/admin/gradebook/export?course_id=${courseId}`);
+  expect(resp.status()).toBe(200);
+
+  const csv = await resp.text();
+  expect(csv).toContain(assignmentTitle);
+  expect(csv).toContain(String(AWARDED));
 });

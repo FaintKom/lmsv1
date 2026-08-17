@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.admin.student_profile_service import _authorize_student
 from app.assignments.models import Assignment, AssignmentSubmission
 from app.auth.models import ParentChild, User, UserRole
 from app.courses.models import Course
@@ -66,16 +67,16 @@ async def get_child_progress(
     ]
 
     # Streak / XP
-    streak_result = await db.execute(
-        select(UserStreak).where(UserStreak.user_id == child_id)
-    )
+    streak_result = await db.execute(select(UserStreak).where(UserStreak.user_id == child_id))
     streak = streak_result.scalar_one_or_none()
 
     return {
         "enrollments": enrollments,
         "total_courses": len(enrollments),
         "completed_courses": sum(1 for e in enrollments if e["completed_at"]),
-        "avg_progress": round(sum(e["progress_percent"] for e in enrollments) / len(enrollments), 1) if enrollments else 0,
+        "avg_progress": round(sum(e["progress_percent"] for e in enrollments) / len(enrollments), 1)
+        if enrollments
+        else 0,
         "current_streak": streak.current_streak if streak else 0,
         "total_xp": streak.total_xp if streak else 0,
     }
@@ -111,7 +112,7 @@ async def get_child_grades(
             "assignment_title": title,
             "max_score": max_score,
             "score": sub.score,
-            "status": sub.status.value if hasattr(sub.status, 'value') else sub.status,
+            "status": sub.status.value if hasattr(sub.status, "value") else sub.status,
             "submitted_at": sub.submitted_at.isoformat(),
             "feedback": sub.feedback,
         }
@@ -119,35 +120,83 @@ async def get_child_grades(
     ]
 
 
-async def link_child(
+async def link_parent_to_student(
     db: AsyncSession,
-    parent_id: uuid.UUID,
-    child_email: str,
-    org_id: uuid.UUID,
+    staff: User,
+    student_id: uuid.UUID,
+    parent_email: str,
 ) -> dict:
-    """Link a child to a parent by email."""
-    child = await db.execute(
-        select(User).where(
-            User.email == child_email,
-            User.org_id == org_id,
-            User.role == UserRole.student,
-        )
-    )
-    child_user = child.scalar_one_or_none()
-    if not child_user:
-        raise ValueError("Student not found")
+    """Link a parent account to a student. **School staff only.**
 
-    # Check not already linked
-    existing = await db.execute(
-        select(ParentChild).where(
-            ParentChild.parent_id == parent_id,
-            ParentChild.child_id == child_user.id,
+    This used to be self-service: a parent typed an email and got a link. The
+    only checks were that the target was a student in the same org — which in
+    a school means every classmate — and a link opens that child's grades and
+    progress. Parents do not get to assert who their children are; the school
+    does. That is the rule the rest of the codebase already follows, see
+    ``User.parental_consent_by`` and the consent-token flow in
+    ``auth/service.py``, where staff or a mailed token stands behind the link.
+
+    Authorisation is delegated to ``_authorize_student``, so this inherits the
+    student-profile rules exactly: a plain teacher may only link parents of
+    students they actually teach, admins and methodists work org-wide, and a
+    student in another org reads as "not found" rather than "forbidden".
+    """
+    student = await _authorize_student(db, staff, student_id)
+
+    parent = await db.scalar(
+        select(User).where(
+            User.email == parent_email,
+            User.org_id == student.org_id,
+            User.role == UserRole.parent,
         )
     )
-    if existing.scalar_one_or_none():
+    if parent is None:
+        raise ValueError("No parent account with that email in this school")
+
+    existing = await db.scalar(
+        select(ParentChild).where(
+            ParentChild.parent_id == parent.id,
+            ParentChild.child_id == student.id,
+        )
+    )
+    if existing is not None:
         raise ValueError("Already linked")
 
-    link = ParentChild(parent_id=parent_id, child_id=child_user.id)
-    db.add(link)
+    db.add(ParentChild(parent_id=parent.id, child_id=student.id))
     await db.commit()
-    return {"child_id": str(child_user.id), "full_name": child_user.full_name}
+    return {
+        "parent_id": str(parent.id),
+        "parent_name": parent.full_name,
+        "child_id": str(student.id),
+        "child_name": student.full_name,
+    }
+
+
+async def unlink_parent_from_student(
+    db: AsyncSession,
+    staff: User,
+    student_id: uuid.UUID,
+    parent_email: str,
+) -> dict:
+    """Detach a parent from a student. Same staff-only rule as linking.
+
+    A link opens a child's grades, so getting one wrong has to be undoable —
+    a guardian changes, or a name is mistyped into a colleague's address.
+    """
+    student = await _authorize_student(db, staff, student_id)
+
+    link = await db.scalar(
+        select(ParentChild)
+        .join(User, ParentChild.parent_id == User.id)
+        .where(
+            ParentChild.child_id == student.id,
+            User.email == parent_email,
+            User.org_id == student.org_id,
+        )
+    )
+    if link is None:
+        raise ValueError("That parent is not linked to this student")
+
+    await db.delete(link)
+    await db.commit()
+    return {"unlinked": True}
