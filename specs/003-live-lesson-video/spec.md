@@ -387,6 +387,11 @@ before planning.
 - Participants use a current version of Chrome, Edge, Firefox or Safari on a
   desktop or a tablet. The recording control is shown only where the browser can
   actually capture one.
+- This replaces the external video service **inside the live lesson only**. The
+  same service still opens from scheduled slots, from standalone meetings and
+  from the journal, and those pages keep working unchanged. Replacing it there
+  as well is worth doing and is not this feature; saying so here stops a reader
+  concluding the platform has no external video left in it.
 - The webinar case, where one source is watched by a hundred or more viewers,
   is out of scope. It scales by a different transport and gets its own
   specification.
