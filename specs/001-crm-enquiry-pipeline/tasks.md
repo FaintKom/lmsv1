@@ -162,17 +162,17 @@ reported numbers match what was entered.
 
 ### Tests for User Story 4 — write first, prove they fail
 
-- [ ] T036 [US4] Failing test in `backend/tests/test_crm.py`: counts and conversion rate over a window match a known set
-- [ ] T037 [P] [US4] Failing test: the breakdown by source counts nulls as unknown rather than dropping them
-- [ ] T038 [P] [US4] Failing test: median time to first contact is derived from the earliest contact event per enquiry
-- [ ] T039 [P] [US4] Failing test: a reversed range and a range over 366 days both answer 422; an empty window answers zeroes and a null median rather than an error
-- [ ] T040 [P] [US4] Failing test: the report counts only the caller's school
+- [X] T036 [US4] Failing test in `backend/tests/test_crm.py`: counts and conversion rate over a window match a known set
+- [X] T037 [P] [US4] Failing test: the breakdown by source counts nulls as unknown rather than dropping them
+- [X] T038 [P] [US4] Failing test: median time to first contact is derived from the earliest contact event per enquiry
+- [X] T039 [P] [US4] Failing test: a reversed range and a range over 366 days both answer 422; an empty window answers zeroes and a null median rather than an error
+- [X] T040 [P] [US4] Failing test: the report counts only the caller's school
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Add `funnel_report(db, user, from_date, to_date)` to `backend/app/crm/service.py`, computed from existing rows — no denormalised column (research §4)
-- [ ] T042 [US4] Add `GET /crm/report` to `backend/app/crm/router.py` with range validation
-- [ ] T043 [US4] Add the report to `frontend/src/app/(admin)/admin/crm/page.tsx` with its strings in all six locale files
+- [X] T041 [US4] Add `funnel_report(db, user, from_date, to_date)` to `backend/app/crm/service.py`, computed from existing rows — no denormalised column (research §4)
+- [X] T042 [US4] Add `GET /crm/report` to `backend/app/crm/router.py` with range validation
+- [X] T043 [US4] Add the report to `frontend/src/app/(admin)/admin/crm/page.tsx` with its strings in all six locale files
 
 **Checkpoint**: the school can tell which channel earns its money.
 

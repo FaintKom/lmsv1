@@ -127,3 +127,17 @@ test("a lost enquiry can be brought back rather than opened twice", async ({ pag
   // Back in the pipeline, with the reopening in its own history.
   await expect(page.getByText(/^reopened$/i).first()).toBeVisible({ timeout: 15_000 });
 });
+
+test("the board states the funnel's numbers", async ({ page }) => {
+  await authenticate(page.context(), ADMIN);
+  await page.goto(`${BASE_URL}/admin/crm`);
+
+  // The report sits on the board rather than behind a link, because a report
+  // nobody opens teaches a school nothing about its channels.
+  await expect(page.getByText(/last 30 days/i)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/^conversion$/i)).toBeVisible();
+
+  // The count the median rests on is shown next to it. A median over an
+  // unstated subset is the kind of number that gets quoted in a decision.
+  await expect(page.getByText(/based on enquiries/i)).toBeVisible();
+});

@@ -23,11 +23,13 @@ import {
   createTask,
   fetchEvents,
   fetchLeads,
+  fetchFunnelReport,
   fetchMeta,
   reopenLead,
   fetchSummary,
   fetchTasks,
   updateLead,
+  type FunnelReport,
   type Lead,
   type LeadEvent,
   type LeadTask,
@@ -68,6 +70,7 @@ export default function CrmPage() {
   // Closed enquiries are off the board by design — but a family that comes
   // back has to be findable, or the office opens a second record for them.
   const [showClosed, setShowClosed] = useState(false);
+  const [report, setReport] = useState<FunnelReport | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -91,6 +94,11 @@ export default function CrmPage() {
         setEnquiryPath(meta.enquiry_path);
       })
       .catch(() => setStages(["new", "contacted", "trial_scheduled", "trial_done"]));
+    // Best effort: a board that works is worth more than a board that refuses
+    // to load because its numbers did.
+    fetchFunnelReport(30)
+      .then(setReport)
+      .catch(() => setReport(null));
     reload();
   }, [reload]);
 
@@ -244,6 +252,68 @@ export default function CrmPage() {
         <p role="status" className="text-sm text-danger">
           {error}
         </p>
+      )}
+
+      {/* Which channel earns its money. Thirty days, because that is the window
+          a school actually reviews — and because a report nobody opens teaches
+          nothing, this sits on the board rather than behind a link. */}
+      {report && (
+        <Card>
+          <CardContent className="space-y-3 p-4">
+            <h2 className="text-sm font-semibold text-text">{t("crm.reportTitle")}</h2>
+            <div className="flex flex-wrap gap-6">
+              {(
+                [
+                  ["crm.reportReceived", String(report.received)],
+                  ["crm.reportEnrolled", String(report.enrolled)],
+                  ["crm.reportLost", String(report.lost)],
+                  ["crm.reportOpen", String(report.open)],
+                  [
+                    "crm.reportConversion",
+                    `${Math.round(report.conversion_rate * 100)}%`,
+                  ],
+                ] as const
+              ).map(([key, value]) => (
+                <div key={key}>
+                  <p className="text-2xs uppercase tracking-wide text-text-subtle">{t(key)}</p>
+                  <p className="text-lg font-semibold text-text">{value}</p>
+                </div>
+              ))}
+              <div>
+                <p className="text-2xs uppercase tracking-wide text-text-subtle">
+                  {t("crm.reportFirstContact")}
+                </p>
+                <p className="text-lg font-semibold text-text">
+                  {report.median_hours_to_first_contact === null
+                    ? "—"
+                    : `${report.median_hours_to_first_contact}${t("crm.reportHoursShort")}`}
+                </p>
+                {/* Said out loud: a median over an unstated subset is the kind
+                    of number that gets quoted in a decision. */}
+                <p className="text-2xs text-text-subtle">
+                  {t("crm.reportBasedOn")} {report.contacted}
+                </p>
+              </div>
+            </div>
+            {Object.keys(report.by_source).length > 0 && (
+              <div>
+                <p className="mb-1 text-2xs uppercase tracking-wide text-text-subtle">
+                  {t("crm.reportBySource")}
+                </p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {Object.entries(report.by_source)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([source, count]) => (
+                      <span key={source} className="text-sm text-text-muted">
+                        {source === "unknown" ? t("crm.reportUnknownSource") : source}:{" "}
+                        <span className="font-medium text-text">{count}</span>
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* New enquiry — the thing a school does twenty times a week. */}

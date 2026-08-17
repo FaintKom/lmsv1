@@ -80,6 +80,35 @@ export async function fetchSummary(): Promise<Record<string, number>> {
   return data;
 }
 
+export interface FunnelReport {
+  from: string;
+  to: string;
+  received: number;
+  enrolled: number;
+  lost: number;
+  open: number;
+  /** Among those that closed, not among everything — an enquiry still being
+   *  worked is neither a win nor a loss. */
+  conversion_rate: number;
+  by_source: Record<string, number>;
+  median_hours_to_first_contact: number | null;
+  /** How many enquiries the median is based on. A median over an unstated
+   *  subset is the kind of number that gets quoted in a decision. */
+  contacted: number;
+}
+
+export async function fetchFunnelReport(days = 30): Promise<FunnelReport> {
+  // The endpoint takes dates, not a span. Computing them here keeps the
+  // window the office asked for out of the URL's shape.
+  const to = new Date();
+  const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const { data } = await apiClient.get<FunnelReport>("/crm/report", {
+    params: { from: iso(from), to: iso(to) },
+  });
+  return data;
+}
+
 export async function createLead(body: Partial<Lead>): Promise<Lead> {
   const { data } = await apiClient.post<Lead>("/crm/leads", body);
   return data;
