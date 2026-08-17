@@ -180,10 +180,10 @@ reported numbers match what was entered.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T044 [P] Add the CRM to `tasks/todo.md` — it was built on request and never entered the plan, so the plan currently understates what exists
-- [ ] T045 [P] Add the CRM routers to the index in `docs/API_REFERENCE.md`
-- [ ] T046 Run `specs/001-crm-enquiry-pipeline/quickstart.md` end to end and record what was actually seen, not what was expected
-- [ ] T047 Confirm `alembic heads` still reports the head recorded in T002 and that no migration was added
+- [X] T044 [P] Add the CRM to `tasks/todo.md` — it was built on request and never entered the plan, so the plan currently understates what exists
+- [X] T045 [P] Add the CRM routers to the index in `docs/API_REFERENCE.md`
+- [X] T046 Run `specs/001-crm-enquiry-pipeline/quickstart.md` end to end and record what was actually seen, not what was expected
+- [X] T047 Confirm `alembic heads` still reports the head recorded in T002 and that no migration was added
 - [ ] T048 After merge, verify the deploy reached production and the board still works there — a green merge is not a green deploy
 
 ---
