@@ -169,6 +169,78 @@ def _hit_process_cap(before: int | None) -> bool:
     after = _pids_refused()
     return after is not None and after > before
 
+# How much a program may say. Output is the one resource a program consumes on
+# *our* side of the wire: the runner buffers it, the backend carries it, the
+# browser renders it. `communicate()` reads until the pipe closes, so
+# `while True: print(...)` filled the container's memory before any limit could
+# notice — measured, 2MB carried in full with nothing complaining.
+#
+# 64KB is about a thousand lines. A pupil cannot read more than that, and an
+# exercise whose expected output is larger is not an exercise a person checks.
+OUTPUT_CAP_BYTES = 64 * 1024
+
+_TRUNCATION_NOTICE = "\n... output truncated: your program printed more than {kb}KB.\n"
+
+
+async def _read_capped(stream, cap: int, on_cap) -> tuple[bytes, bool]:
+    """Read at most `cap` bytes. Returns the bytes and whether more was coming.
+
+    `on_cap` is awaited the moment the cap is reached, *before* checking whether
+    anything was left behind. That ordering is the whole of it: the two streams
+    are read concurrently, and a program that floods stdout usually writes
+    nothing to stderr — so the read on the quiet stream sits waiting for an EOF
+    that only arrives when the program exits, and the program cannot exit
+    because we stopped draining the stream it is writing to. Measured: a
+    deadlock that looked exactly like the program running out of time.
+
+    Stopping the program at the cap unblocks both.
+    """
+    if stream is None:
+        return b"", False
+    chunks: list[bytes] = []
+    size = 0
+    while size < cap:
+        chunk = await stream.read(min(8192, cap - size))
+        if not chunk:
+            return b"".join(chunks), False
+        chunks.append(chunk)
+        size += len(chunk)
+    await on_cap()
+    # Whatever is still in the pipe after the kill decides whether the program
+    # really had more to say, or happened to print exactly the cap and stop.
+    return b"".join(chunks), bool(await stream.read(1))
+
+
+async def _feed_and_read(proc, stdin: str, cap: int) -> tuple[bytes, bytes, bool]:
+    """Send the exercise's input, then read both streams under a cap.
+
+    stdin is written and closed. Closing it is what stops a program that reads
+    input the exercise never supplied from waiting out its whole allowance —
+    `input()` gets EOF instead of blocking, and the slot comes back at once.
+    """
+    if proc.stdin is not None:
+        try:
+            proc.stdin.write(stdin.encode())
+            await proc.stdin.drain()
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # the program exited before reading its input
+        proc.stdin.close()
+
+    stopped = False
+
+    async def _stop_at_cap() -> None:
+        nonlocal stopped
+        if not stopped:
+            stopped = True
+            await _reap(proc.pid)
+
+    (out, out_more), (err, err_more) = await asyncio.gather(
+        _read_capped(proc.stdout, cap, _stop_at_cap),
+        _read_capped(proc.stderr, cap, _stop_at_cap),
+    )
+    await proc.wait()
+    return out, err, out_more or err_more
+
 
 def _result(
     *,
@@ -292,13 +364,21 @@ async def execute_code(
                 preexec_fn=apply_limits,
             )
             pgid = proc.pid  # it is its own group leader
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=stdin.encode()),
+            stdout, stderr, truncated = await asyncio.wait_for(
+                _feed_and_read(proc, stdin, OUTPUT_CAP_BYTES),
                 timeout=remaining,
             )
             elapsed_ms = int((time.monotonic() - start_time) * 1000)
             out = stdout.decode(errors="replace")
             err = stderr.decode(errors="replace")
+            if truncated:
+                # Said out loud, in the stream the pupil is reading. Silent
+                # truncation is worse than either bound or no bound: a pupil
+                # comparing their output against an expected value cannot tell
+                # whether their program is wrong or their output was clipped.
+                notice = _TRUNCATION_NOTICE.format(kb=OUTPUT_CAP_BYTES // 1024)
+                out += notice
+                err += notice
 
             if proc.returncode == 0:
                 return _result(
@@ -307,11 +387,21 @@ async def execute_code(
                     exit_code=0,
                     execution_time_ms=elapsed_ms,
                     status="success",
+                    limit_hit="output" if truncated else None,
                 )
 
+            # Precedence follows how certain each verdict is. The process cap
+            # is a kernel counter; truncation is something the runner did on
+            # purpose; memory is inferred from a runtime's own words. So
+            # truncation outranks memory — and must, because reaping a truncated
+            # program leaves a signal that _limit_from_failure would otherwise
+            # read as an out-of-memory kill, telling a pupil to use less memory
+            # for printing too much.
             limit = _limit_from_failure(err, proc.returncode)
             if limit != "processes" and _hit_process_cap(refused_before):
                 limit = "processes"
+            if truncated and limit != "processes":
+                limit = "output"
             return _result(
                 stdout=out,
                 stderr=err,

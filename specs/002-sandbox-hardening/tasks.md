@@ -207,11 +207,11 @@ everything ran as root.
 
 ## Phase 8: Polish & cross-cutting
 
-- [ ] T045 [P] Render `limit_hit` in the pupil-facing message in `backend/app/exercises/service.py`, per the table in contracts/runner-api.md — the runner names the limit, and the product has to say it
-- [ ] T046 [P] Bound the output returned to a pupil and signal truncation with `limit_hit: "output"` in `sandbox/runner/executor.py` (FR-006)
-- [ ] T047 [P] Add a test in `sandbox/tests/test_limits_time.py` that a program reading from stdin when the exercise supplies none ends rather than holding a slot until its timeout (spec.md, Edge Cases)
-- [ ] T048 Run the full backend suite and the QA journeys — this feature changes the layer every code exercise sits on, and a green sandbox with a broken exercise path is not a result
-- [ ] T049 Update the sandbox documentation and `tasks/todo.md` to record which of the seven audit findings shipped, and that `/tmp` being `noexec` was an eighth, found by measurement
+- [X] T045 [P] Render `limit_hit` in the pupil-facing message in `backend/app/exercises/service.py`, per the table in contracts/runner-api.md — the runner names the limit, and the product has to say it
+- [X] T046 [P] Bound the output returned to a pupil and signal truncation with `limit_hit: "output"` in `sandbox/runner/executor.py` (FR-006)
+- [X] T047 [P] Add a test in `sandbox/tests/test_limits_time.py` that a program reading from stdin when the exercise supplies none ends rather than holding a slot until its timeout (spec.md, Edge Cases)
+- [X] T048 Run the full backend suite and the QA journeys — this feature changes the layer every code exercise sits on, and a green sandbox with a broken exercise path is not a result
+- [X] T049 Update the sandbox documentation and `tasks/todo.md` to record which of the seven audit findings shipped, and that `/tmp` being `noexec` was an eighth, found by measurement
 - [ ] T050 Measure the production box after the deploy — `free -h` and `docker stats --no-stream` over read-only SSH — and confirm the service still fits its budget (SC-007, FR-015). Never assert this from memory
 
 ---
