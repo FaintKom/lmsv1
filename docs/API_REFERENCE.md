@@ -9,12 +9,19 @@
 
 ## Роутеры (по алфавиту префикса)
 
+> **Что здесь было неверно (исправлено 2026-08-17).** Индекс перечислял
+> `/ai`, `/discussions` и `/admin/plagiarism` — эти модули удалены из кода
+> (коммит `8186c29`), каталогов больше нет. `/knowledge` числился рабочим, а его
+> роутер не смонтирован в `main.py`, то есть все его адреса отдают 404. `/sandbox`
+> описывался как прокси к Judge0, хотя от Judge0 отказались специально: код
+> учеников больше не уходит на публичный сервис. Четыре строки обещали
+> покупателю то, чего нет.
+
+
 | Префикс | Файл | Что внутри |
 |---|---|---|
 | `/admin` | `app/admin/router.py` | Super-admin: users CRUD, gradebook (CSV/XLSX), bulk-enroll, аналитика, branding |
-| `/admin/plagiarism` | `app/plagiarism/router.py` | Запуск проверки, отчёты, similarity matrix |
 | `/admin/scorm` | `app/scorm/router.py` | Импорт SCORM пакетов |
-| `/ai` | `app/ai/router.py` | AI tutor: hint, pre-grade essay |
 | `/assessments` | `app/assessments/router.py` | Quiz CRUD, attempts, auto-grading |
 | `/assignments` | `app/assignments/router.py` | Assignment CRUD, submissions, grading |
 | `/attendance` | `app/attendance/router.py` | Отметка присутствия по группам |
@@ -24,11 +31,11 @@
 | `/calendar` | `app/calendar/router.py` | Events CRUD, iCal feed |
 | `/certificates` | `app/certificates/router.py` | Generate, list, public verify |
 | `/courses` | `app/courses/router.py` | Course/Module/Lesson CRUD, image upload, publish/archive, copy, templates |
-| `/discussions` | `app/discussions/router.py` | Comments, threading |
+| `/crm` | `app/crm/router.py` | Школьная воронка заявок: доска, история, напоминания, конверсия в ученика, отчёт по каналам. Admin-only |
+| `/crm/public` | `app/crm/public_router.py` | **Без аутентификации**: страница заявки школы и приём заявки с её сайта. Rate-limited |
 | `/exercises` | `app/exercises/router.py` | Унифицированные интерактивные упражнения |
 | `/gamification` | `app/gamification/router.py` | XP, leagues, badges, streaks, leaderboard |
 | `/integrations` | `app/integrations/router.py` | Zoom/Google/Microsoft/YouTube OAuth |
-| `/knowledge` | `app/knowledge/router.py` | RAG search, facets, list, detail |
 | `/learning-paths` | `app/learning_paths/router.py` | Path CRUD, enroll, progress |
 | `/math-problems` | `app/math_problems/router.py` | Generate / check математические задачи |
 | `/meetings` | `app/meetings/router.py` | Jitsi rooms, JWT-auth |
@@ -38,7 +45,7 @@
 | `/progress` | `app/progress/router.py` | Enrollment, lesson completion, video progress |
 | `/recommendations` | `app/recommendations/router.py` | Personalized recs |
 | `/recordings` | `app/recording/router.py` | Audio/video submissions |
-| `/sandbox` | `app/sandbox/router.py` | Прокси к Judge0 для исполнения кода |
+| `/sandbox` | `app/sandbox/router.py` | Исполнение кода в собственном контейнере (Judge0 убран — код учеников не уходит наружу) |
 | `/skills` | `app/skills/router.py` | Skill XP, радар |
 | `/submissions` | `app/submissions/router.py` | Generic file submissions |
 | `/team-projects` | `app/team_projects/router.py` | Команды, групповые задания |

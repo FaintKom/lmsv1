@@ -111,3 +111,42 @@ because it has caught this exact omission before.
 All of the above pass, **and** the behaviour has been seen working — in the browser for
 the page and the board, in a real inbox for the invitation. A green suite is evidence,
 not proof; the constitution asks for both.
+
+---
+
+## What was actually seen (T046, run 2026-08-17)
+
+Recorded because a validation guide that only lists expectations is a wish list.
+These are outputs, not predictions.
+
+**Backend.** `pytest tests/test_crm.py` — 41 passed. The invitation subset — 2
+passed. `pytest tests/` — 881 passed. `ruff check app/ tests/` — clean.
+
+**The public form's refusals**, against the QA stack:
+
+| Check | Seen |
+|---|---|
+| Rate limit | 200 ×10, then `429 {"error":"Rate limit exceeded: 10 per 1 hour"}` on the eleventh |
+| Same address twice | `{"status":"received"}` both times — byte-identical |
+| Unknown school | `404` |
+
+One correction worth recording. The identical-answers check ran first *while the
+rate limit was still exhausted from the check above it*, so it compared two
+rate-limit errors — byte-identical, and proving nothing about what the form
+reveals. Flushing the QA rate-limit store and repeating it gave the answer that
+matters. A check that passes for the wrong reason is the failure this whole spec
+kept finding; the order of two commands was enough to produce one.
+
+**The board, through a browser.** `playwright test e2e/journeys/crm-board.spec.ts`
+— 7 passed: record, move and log, remind, convert-and-invite, arrive from the
+school's own page, reopen, and read the funnel's numbers. With the dark-theme
+sweep, 23 passed.
+
+**Migrations.** `alembic heads` — `f6a7b8c9d0e1 (head)`, the v1 CRM migration,
+unchanged. Nothing added under `alembic/versions/` since the plan began, which
+research §6 predicted for all six requirements.
+
+**Not verified here.** Following an invitation link in a mailbox and signing in
+as the created pupil needs a deployment with mail configured and a real inbox.
+The token's single use is asserted by test rather than by hand.
+
