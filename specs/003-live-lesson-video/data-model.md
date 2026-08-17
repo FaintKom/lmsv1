@@ -106,7 +106,7 @@ configuration.
 
 | Setting | Default | Notes |
 |---|---|---|
-| `livekit_url` | `ws://127.0.0.1:7880` | The container runs with host networking, so there is no Compose alias (Finding C) |
+| `livekit_url` | `ws://localhost:7880` | Where the backend administers rooms. The container sits on an ordinary bridge and keeps its Compose alias (Finding C, revised) |
 | `livekit_public_url` | `""` | What the browser connects to, proxied by nginx on 443. Empty in development means same origin |
 | `livekit_api_key` | `""` | Signs grants |
 | `livekit_api_secret` | `""` | Signs grants. `validate_production()` refuses to start production with either of these empty once the feature is live |

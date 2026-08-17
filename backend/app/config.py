@@ -28,6 +28,29 @@ class Settings(BaseSettings):
     # Sandbox
     sandbox_url: str = "http://localhost:8001"
 
+    # Live-lesson media (LiveKit). Where the backend reaches the media server to
+    # administer rooms, and where the browser is told to connect.
+    livekit_url: str = "ws://localhost:7880"
+    # Empty means "same origin": nginx proxies /rtc to the media server, so the
+    # browser needs no second hostname and no second certificate.
+    livekit_public_url: str = ""
+    livekit_api_key: str = ""
+    livekit_api_secret: str = ""
+
+    # How many participants this host may carry across all live rooms at once.
+    #
+    # 0 means media is off, and that is the deliberate default: the real number
+    # comes from driving bot load at the production host and watching both the
+    # media container's processor cap and the rest of the platform's page loads
+    # (spec FR-024, SC-003). Until that measurement exists, refusing politely
+    # beats guessing a number that turns one busy lesson into three slow ones.
+    max_concurrent_media_participants: int = 0
+
+    # A grant is a ticket to join, not a session. Short on purpose: a token that
+    # outlives a teacher's decision to remove somebody lets that person walk
+    # straight back in (FR-003).
+    media_grant_ttl_seconds: int = 120
+
     # Data retention (child-safety / GDPR storage limitation). Student accounts
     # dormant longer than this are purged by the scheduled retention job
     # (app/scheduler.py). 0 disables the purge. Default 24 months.

@@ -31,14 +31,15 @@ actually holds. No feature code is written in this phase.
 
 **Output**: a number. Nothing in Phase 3 starts until it exists.
 
-- [ ] T001 [P] Add a `livekit` service to `docker-compose.yml` for local work: `network_mode: host`, the development key pair, and the WebRTC range narrowed to 50000–50200 per research.md Finding C
-- [ ] T002 [P] Add the same `livekit` service to `docker-compose.qa.yml` so the ephemeral E2E stack has media, checked against the five gotchas already recorded for that file
-- [ ] T003 Add the `livekit` service to `docker-compose.prod.yml` with the image **pinned to a version tag, never `:latest`** (research.md Finding I: `cloudflared` in the same file uses `:latest`, and copying that habit means a silent restart mid-lesson), plus `network_mode: host`, `restart: unless-stopped`, and `deploy.resources.limits` of `cpus: "1.2"` and `memory: 700M`, commented with the arithmetic the way the `sandbox` service comments its own
-- [ ] T004 Add `livekit.yaml` at the repository root: port range 50000–50200, embedded TURN on 3478/udp, and the tuning from research.md Finding G — simulcast, dynacast, and audio selection limited to the loudest three, which is the setting that decides whether a fifteen-person room fits
-- [ ] T005 [P] Add the six media settings to `backend/app/config.py` per data-model.md, with `max_concurrent_media_participants` defaulting to **0**, meaning media is off until a measurement says otherwise
-- [ ] T006 [P] Add `livekit-api` to `backend/pyproject.toml`, and `livekit-client` with `@livekit/components-react` to `frontend/package.json`, installing on node 22 so the lock file matches what CI reads
-- [ ] T007 Proxy the signalling WebSocket in `nginx/nginx.conf`: `/rtc` to `127.0.0.1:7880` with `Upgrade` and `Connection` headers, so port 7880 is never exposed publicly
-- [ ] T008 **Owner-gated. Do not run without an explicit yes.** Open the production firewall for `50000:50200/udp`, `3478/udp` and `7881/tcp`. This is a change to a live server, and today UFW passes only 22, 80 and 443 TCP (research.md Finding D)
+- [x] T001 [P] Add a `livekit` service to `docker-compose.yml` for local work: an ordinary bridge, the development key pair, and UDP mux on 7882–7883 per research.md Finding C as revised
+- [ ] T002 [P] ~~Add the same `livekit` service to `docker-compose.qa.yml`~~ — **deferred to slice 1.** Nothing in the QA stack exercises media until the e2e journey at T084 exists, and an unused container makes every PR's e2e gate slower for no return. Move it here when T084 is written
+- [x] T003 Add the `livekit` service to `docker-compose.prod.yml` with the image **pinned to a version tag, never `:latest`** (research.md Finding I: `cloudflared` in the same file uses `:latest`, and copying that habit means a silent restart mid-lesson), plus `restart: unless-stopped` and `deploy.resources.limits` of `cpus: "1.2"` and `memory: 700M`, commented with the arithmetic the way the `sandbox` service comments its own
+- [x] T004 Add `livekit.yaml` at the repository root: UDP mux, TURN on 3478/udp with its relay range published (Finding M), and the audio selection from Finding G that decides whether a fifteen-person room fits
+- [x] T005 [P] Add the six media settings to `backend/app/config.py` per data-model.md, with `max_concurrent_media_participants` defaulting to **0**, meaning media is off until a measurement says otherwise
+- [ ] T006 [P] ~~Add `livekit-api` and the browser SDK~~ — **deferred to slice 1.** Neither is imported by anything until the grants module and the room UI exist, and an unused dependency is weight in the lock file and the bundle. Add each beside its first caller
+- [x] T007 Proxy the signalling WebSocket in `nginx/nginx.conf`: `/rtc` to `lms-livekit-1:7880` with the upgrade headers and hour-long timeouts, so 7880 stays on loopback and a lesson-length socket is not cut every minute
+- [x] T008 ~~**Owner-gated.** Open the production firewall~~ — **no firewall change is needed, and this is measured rather than assumed.** A published container port is DNAT'd in `nat/PREROUTING` and travels `FORWARD`, which Docker has already opened, while ufw filters `INPUT`; the prod compose file records an unrelated container reachable from the internet on 2026-08-17 with ufw active. Publishing the ports in compose is what makes them reachable. **The `ports:` list is therefore the security boundary**, which is why 7880 binds to `127.0.0.1`. Verify with `ss -lntup`, never `ufw status` (research.md Finding D as revised)
+- [ ] T091 Raise `net.core.rmem_max` on the production host before the load test. LiveKit's own startup log asks for it — `"UDP receive buffer is too small for a production set-up","current":425984,"suggested":5000000` — and measuring capacity against a starved socket buffer measures the wrong thing (Finding N)
 - [ ] T009 Record the idle baseline before any load: page load times for `/login` and one dashboard page, three samples each, written into research.md as a new finding
 - [ ] T010 Run `livekit-cli load-test` against the production host in a quiet window, stepping the participant count up run by run, stopping at whichever fails first — the container pinning its `cpus` cap, or platform page loads exceeding the baseline by more than 20% (SC-002). Record the join latency the tool reports at each step as well, because SC-004 asks for 95% of participants connected within ten seconds and this is the only run that measures it
 - [ ] T011 Write the last passing participant count into `MAX_CONCURRENT_MEDIA_PARTICIPANTS` in the production environment and into research.md as a measured finding. **If the number is below a class size, stop here and bring the second host back to the owner with the measurement attached** instead of starting Phase 3
@@ -282,8 +283,13 @@ own.
 
 ## Notes
 
-- Two tasks wait on the owner and say so in their own text: T008 (production
-  firewall) and T085 (nginx stream block and the TURN certificate)
+- **One task waits on the owner, not two.** T085 (the nginx stream block and the
+  TURN certificate) still does. T008 no longer does: publishing a container port
+  bypasses ufw entirely, so there is no firewall to ask about — see its own text
+- Three tasks were rewritten after the container was actually run rather than
+  reasoned about. T001, T003 and T004 assumed host networking and a two-hundred
+  port range; UDP mux made both unnecessary. T008's premise was wrong outright.
+  T091 and Finding M came out of reading the startup log
 - `docker-compose.staging.yml` is deliberately untouched. Staging is evicted from
   the host and routed-broken, so adding a media service there would configure
   something nobody runs

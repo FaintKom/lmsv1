@@ -104,6 +104,32 @@ services:
       # one of the concurrent executions cannot delete another's directory.
       - /sandbox-exec:size=64M,exec,mode=1777
 
+  livekit:
+    # Pinned, never `:latest`. A moving tag means `docker compose up -d` can
+    # recreate this container on any unrelated deploy, which cuts off whatever
+    # lesson is running (research.md Finding I).
+    image: livekit/livekit-server:v1.8.4
+    command: --config /etc/livekit.yaml
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    environment:
+      # Development keys. Worthless, identical for everyone, and deliberately
+      # in git — production reads real ones from its own environment.
+      # LiveKit refuses secrets under 32 characters, so this is long rather
+      # than memorable. It is worthless, identical for everyone, and the
+      # server logs an error on anything shorter.
+      LIVEKIT_KEYS: "devkey: local-development-secret-not-for-production"
+    ports:
+      - "7880:7880" # signalling (HTTP/WebSocket)
+      - "7881:7881" # WebRTC over TCP, for networks that block UDP
+      - "7882-7883:7882-7883/udp" # media, multiplexed (see livekit.yaml)
+      - "3478:3478/udp" # embedded TURN, control connection
+      - "30000-30020:30000-30020/udp" # TURN relay allocations — without these
+        # the TURN server answers and then relays nothing
+    networks:
+      - backend-net
+      - frontend-net
+
 volumes:
   pgdata:
 

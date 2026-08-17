@@ -155,6 +155,57 @@ services:
       - internal
     restart: unless-stopped
 
+  livekit:
+    # Pinned to a version tag, and this is not a style preference. `deploy.yml`
+    # pulls `backend`, `frontend` and `sandbox` by name and then runs
+    # `docker compose up -d`, which recreates only services whose image or
+    # definition changed. A pinned tag therefore means an ordinary deploy walks
+    # straight past this container and a lesson in progress never notices.
+    # `cloudflared` below uses `:latest`; copying that habit here would mean a
+    # silent restart on any day the upstream image moved (research.md Finding I).
+    image: livekit/livekit-server:v1.8.4
+    command: --config /etc/livekit.yaml
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    environment:
+      # Real keys come from .env on the box and never enter git. The backend
+      # signs its grants with the same pair.
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+    # Read the nginx comment below before touching this list. A published port
+    # is DNAT'd in nat/PREROUTING and then travels FORWARD, which Docker has
+    # already opened — ufw filters INPUT and will not stop it either way.
+    #
+    #   - 7880 carries signalling and is bound to loopback deliberately. nginx
+    #     proxies /rtc to it over TLS; published publicly it would be an
+    #     unauthenticated WebSocket on the open internet.
+    #   - the rest carry media and must be reachable, which publishing achieves
+    #     with no ufw change at all. Verify with `ss -lntup`, never with
+    #     `ufw status`, which reports 22/80/443 whatever the truth is.
+    ports:
+      - "127.0.0.1:7880:7880"
+      - "7881:7881"
+      - "7882-7883:7882-7883/udp"
+      - "3478:3478/udp"
+      # TURN's relay allocations. 3478 carries only the control connection;
+      # the relayed media leaves on one of these. Omitting them ships a TURN
+      # server that answers and then relays nothing, which fails for exactly
+      # the pupils it exists to serve (livekit.yaml explains the range).
+      - "30000-30020:30000-30020/udp"
+    deploy:
+      resources:
+        limits:
+          # This box has 2 vCPU and about 2.4 GB free, measured 2026-08-17.
+          # 1.2 leaves eight tenths of a core for PostgreSQL, FastAPI and
+          # Next.js, which is the difference between a busy lesson and an
+          # unreachable platform. It is a cap the media server may saturate
+          # rather than a reservation, and slice 0 measures capacity *under*
+          # it, because this is what production runs (research.md Finding F).
+          cpus: "1.2"
+          memory: 700M
+    networks:
+      - internal
+    restart: unless-stopped
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate --url http://nginx:80
