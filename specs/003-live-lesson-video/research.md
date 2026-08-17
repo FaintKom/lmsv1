@@ -327,6 +327,51 @@ inexplicable capacity ceiling. Raising it belongs with the load test in slice 0,
 because measuring capacity against a starved socket buffer would measure the
 wrong thing.
 
+## Finding O — The measurement, and the number it produced
+
+Run against the production host on 2026-08-17 in a quiet window, with
+`livekit/livekit-cli load-test` in a throwaway container. Baseline first, taken
+from the box through nginx so the figures measure contention for the processor
+rather than a home connection: `/login` at **13 ms** median, the API at 10 ms.
+
+| Participants | Subscriptions | Media container CPU | Memory | Worst `/login` |
+|---|---|---|---|---|
+| 12 | 27 | 13% | 70 MiB | 13 ms |
+| 30 | 144 | 35% | 155 MiB | 11.8 ms |
+| 50 | 400 | 47% | 219 MiB | 19.7 ms |
+| 75 | 900 | 60% | 354 MiB | 20.2 ms |
+
+Packet loss was **zero at every step**, and the backend container never rose
+above 0.2%.
+
+**The wall is not where the plan expected it.** The processor cap of 1.2 cores
+was never approached: nine hundred subscriptions cost 60% of a single core. What
+bends first is the rest of the platform. At 30 participants page loads sat at or
+below their idle baseline; by 50 the worst sample was 19.7 ms against 13, which
+is past the 20% SC-002 allows.
+
+**Ceiling set to 30**, written to `MAX_CONCURRENT_MEDIA_PARTICIPANTS` in the
+production environment. It is the largest step where SC-002 held with room to
+spare, and it carries two simultaneous classes of fifteen.
+
+**Why the number is conservative, and by an unknown margin.** The bots ran on
+the box they were testing, so every figure includes load a real deployment would
+not carry — remote participants cost this host nothing to simulate. The media
+container's own CPU is cgroup-isolated and therefore honest; the page latency is
+not, and stands as an upper bound on the real effect. Measuring again with load
+generated from outside would very likely justify a higher ceiling. The loopback
+path also skips the network card, so packet-handling overhead is understated.
+
+Two smaller observations worth keeping:
+
+- `room.auto_create: false` earns its place. The first attempt failed with
+  "could not connect: not found" for every bot, because a valid token alone
+  cannot conjure a room — which is the guard it was added for.
+- The container holds **356 MiB after the test ends**. Go returns memory to the
+  operating system lazily. That sits inside the 700 MB cap, so it is a note
+  rather than a problem, but a reading taken minutes after a lesson will not
+  look like an idle one.
+
 ## Open decisions carried into tasks
 
 1. Retention for recordings. Twelve gigabytes of free disk against roughly a

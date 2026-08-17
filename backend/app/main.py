@@ -61,6 +61,7 @@ from app.integrations.router import router as integrations_router
 from app.journal.router import router as journal_router
 from app.learning_paths.router import router as learning_paths_router
 from app.live_lessons.router import router as live_lessons_router
+from app.live_media.router import router as live_media_router
 from app.math_problems.router import router as math_problems_router
 from app.math_validation.router import router as math_validation_router
 from app.meetings.router import router as meetings_router
@@ -495,6 +496,9 @@ def create_app() -> FastAPI:
     app.include_router(calendar_router, prefix="/api/v1/calendar", tags=["Calendar"])
     app.include_router(meetings_router, prefix="/api/v1/meetings", tags=["Meetings"])
     app.include_router(live_lessons_router, prefix="/api/v1/live-lessons", tags=["Live Lessons"])
+    # Same prefix as the lesson itself: the media belongs to a lesson and is
+    # reached through it, so there is no second resource to authorise.
+    app.include_router(live_media_router, prefix="/api/v1/live-lessons", tags=["Live Media"])
     app.include_router(integrations_router, prefix="/api/v1/integrations", tags=["Integrations"])
     app.include_router(parent_router, prefix="/api/v1/parent", tags=["Parent"])
     # Public first: it is the surface a stranger can reach, and the one worth
