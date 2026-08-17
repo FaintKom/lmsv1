@@ -40,9 +40,13 @@ class _FakeRoomService:
     def __init__(self, participants: int = 0):
         self.participants = participants
         self.deleted: list[str] = []
+        self.created: list[str] = []
 
     async def list_rooms(self, _request):
         return _FakeRooms([_FakeRoom(self.participants)] if self.participants else [])
+
+    async def create_room(self, request):
+        self.created.append(request.name)
 
     async def delete_room(self, request):
         self.deleted.append(request.room)
@@ -140,6 +144,29 @@ async def test_pupil_of_the_group_gets_a_grant(client: AsyncClient, db, org, tea
 
     resp = await client.post(token_url(lesson), headers=auth_header(student))
     assert resp.status_code == 200, resp.text
+
+
+async def test_issuing_a_grant_creates_the_room(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """A grant into a room nobody created is a grant into nothing.
+
+    ``auto_create`` is off on the media server, so that holding a valid token
+    cannot be turned into inventing a room. That makes creating it somebody's
+    job, and this endpoint is the only place that has already decided the caller
+    belongs there.
+
+    Production found this before any test did: the token was right, the proxy
+    upgraded the socket, the media server accepted the token, and then answered
+    *requested room does not exist*. Every test here fakes the media client, and
+    a fake has whatever room you ask it for.
+    """
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(token_url(lesson), headers=auth_header(teacher))
+    assert resp.status_code == 200
+
+    assert fake_livekit.room.created == [f"lesson-{lesson.id}"]
 
 
 # --- Tenant isolation --------------------------------------------------------

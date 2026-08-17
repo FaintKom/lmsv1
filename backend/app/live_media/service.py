@@ -22,6 +22,11 @@ from app.live_lessons import realtime
 # one queries the media server separately to learn the same number.
 CAPACITY_CACHE_SECONDS = 2
 
+# How long an empty room lingers before the media server discards it. Long
+# enough that a teacher reloading the page does not destroy the room under the
+# class, short enough that a forgotten lesson does not hold one open.
+EMPTY_ROOM_TIMEOUT_SECONDS = 300
+
 _livekit: livekit_api.LiveKitAPI | None = None
 
 
@@ -137,6 +142,29 @@ async def may_share_screen(lesson_id: uuid.UUID, user_id: uuid.UUID) -> bool:
 
 
 # --- Rooms ---
+
+
+async def ensure_room(room: str) -> None:
+    """Create this lesson's room if it is not there yet.
+
+    ``auto_create`` is off on the media server, and deliberately so: it is what
+    stops anyone holding a valid grant from conjuring a room of their own
+    choosing. The consequence is that something has to create the room, and the
+    only place that has already decided the caller belongs in it is the endpoint
+    that signs the grant.
+
+    Missing this cost a live lesson in production. The grant was correct, the
+    proxy upgraded the socket, the media server read the token and accepted it —
+    then refused with *requested room does not exist*, because nothing had ever
+    created one. The unit tests could not catch it: they replace the media
+    client with a fake, and a fake has every room you ask it for.
+
+    ``CreateRoom`` returns the existing room when the name is taken, so calling
+    it on each join is safe and costs one local request.
+    """
+    await get_livekit().room.create_room(
+        livekit_api.CreateRoomRequest(name=room, empty_timeout=EMPTY_ROOM_TIMEOUT_SECONDS)
+    )
 
 
 async def close_room(room: str) -> None:
