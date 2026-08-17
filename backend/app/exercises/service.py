@@ -657,6 +657,34 @@ async def _submit_quiz(
     return await _reload_submission(db, submission.id)
 
 
+def _limit_message(limit_hit: str | None, *, seconds: int, megabytes: int) -> str | None:
+    """What a pupil reads when an allowance stopped their program.
+
+    The runner names the limit; without this the pupil sees only their runtime's
+    own words — a MemoryError traceback, or nothing at all for a program that was
+    simply stopped — and has to guess which of five allowances they hit.
+
+    The numbers come from the exercise, not from a sentence written here, because
+    an author who sets a 5-second limit and reads "longer than 10 seconds" learns
+    the wrong thing about their own task.
+
+    An unrecognised value gets the generic refusal rather than nothing:
+    contracts/runner-api.md requires a caller to treat a limit it has never heard
+    of as a refusal, so the runner can add one without every caller changing
+    first.
+    """
+    if not limit_hit:
+        return None
+    known = {
+        "time": f"Your program ran longer than {seconds} seconds.",
+        "memory": f"Your program used more than {megabytes} MB of memory.",
+        "processes": "Your program tried to start too many processes.",
+        "output": "Your program printed more than we can show — the output was cut short.",
+        "busy": "The class is busy right now. Try running your program again in a moment.",
+    }
+    return known.get(limit_hit, "Your program was stopped before it finished.")
+
+
 async def _submit_code(
     db: AsyncSession,
     exercise: Exercise,
@@ -667,6 +695,8 @@ async def _submit_code(
     source_code = data.get("source_code", "")
     language = data.get("language") or exercise.config.get("language", "python")
     test_cases = exercise.test_cases or []
+    seconds = exercise.config.get("time_limit_seconds", 10)
+    megabytes = exercise.config.get("memory_limit_mb", 256)
 
     from app.sandbox.executor import execute_code_remote
 
@@ -679,8 +709,8 @@ async def _submit_code(
             language,
             source_code,
             tc.input,
-            timeout_seconds=exercise.config.get("time_limit_seconds", 10),
-            memory_limit_mb=exercise.config.get("memory_limit_mb", 256),
+            timeout_seconds=seconds,
+            memory_limit_mb=megabytes,
         )
         actual = result.get("stdout", "").strip()
         expected = tc.expected_output.strip()
@@ -711,6 +741,10 @@ async def _submit_code(
                 "status": result.get("status", "error"),
                 "stderr": result.get("stderr", ""),
                 "execution_time_ms": result.get("execution_time_ms", 0),
+                # Which allowance stopped this run, and what to say about it.
+                # Null on a run that finished on its own terms.
+                "limit_hit": limit_hit,
+                "limit_message": _limit_message(limit_hit, seconds=seconds, megabytes=megabytes),
             }
         )
 
