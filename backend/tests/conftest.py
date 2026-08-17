@@ -363,6 +363,10 @@ async def make_exercise(db: AsyncSession, lesson_id: uuid.UUID, org_id: uuid.UUI
         display_id=kwargs.get("display_id", f"EX-{uuid.uuid4().hex[:6]}"),
         config=kwargs.get("config", {}),
         sort_order=kwargs.get("sort_order", 0),
+        # Read from kwargs like everything else above: without this the helper
+        # silently dropped it, so a test asking for a 2-attempt exercise quietly
+        # got the unlimited default and could not exercise the limit at all.
+        max_attempts=kwargs.get("max_attempts"),
     )
     db.add(ex)
     await db.flush()

@@ -381,6 +381,21 @@ async def _count_attempts(db: AsyncSession, exercise_id: uuid.UUID, student_id: 
     return result.scalar() or 0
 
 
+async def _latest_submission(
+    db: AsyncSession, exercise_id: uuid.UUID, student_id: uuid.UUID
+) -> ExerciseSubmission | None:
+    result = await db.execute(
+        select(ExerciseSubmission)
+        .where(
+            ExerciseSubmission.exercise_id == exercise_id,
+            ExerciseSubmission.student_id == student_id,
+        )
+        .order_by(ExerciseSubmission.submitted_at.desc())
+        .limit(1)
+    )
+    return result.scalars().first()
+
+
 # Cap time-on-task at 24h to drop garbage (clock skew, tab left open overnight).
 _MAX_ELAPSED_SECONDS = 24 * 60 * 60
 
@@ -566,8 +581,27 @@ async def submit_exercise(
     data["_attempt_number"] = attempt_count + 1
 
     if attempt_count >= max_att:
-        # Max attempts reached — create a "completed" submission with correct answer
+        # Max attempts reached. The student is told the correct answer and is let
+        # through, which is deliberate — being stuck forever on one exercise is
+        # worse than seeing the answer.
+        #
+        # What is NOT deliberate is writing a fresh row every time they press
+        # submit again. That row carries score=0, and each one also bumps
+        # attempt_count, so the limit never actually holds: a 2-attempt exercise
+        # was measured accepting a 4th submission (2026-08-17 corner-case wave 1),
+        # and a student who had scored 80 on their last real attempt could
+        # overwrite it with a zero by clicking once more. Write the exhaustion row
+        # once; every later press returns that same row.
         correct = _get_correct_answer(exercise)
+        latest = await _latest_submission(db, exercise.id, user.id)
+        if latest is not None and (latest.answers or {}).get("max_attempts_exhausted"):
+            sub = await _reload_submission(db, latest.id)
+            sub._attempt_number = attempt_count  # type: ignore[attr-defined]
+            sub._attempts_remaining = 0  # type: ignore[attr-defined]
+            sub._max_attempts_reached = True  # type: ignore[attr-defined]
+            sub._correct_answer = correct  # type: ignore[attr-defined]
+            return sub
+
         submission = ExerciseSubmission(
             exercise_id=exercise.id,
             student_id=user.id,

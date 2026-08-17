@@ -163,3 +163,59 @@ async def test_cleared_interactive_answer_scores_zero_instead_of_crashing(
     # `answers` as a list is refused by the schema on this endpoint (422), which
     # is correct — it is not another path into the graders, so nothing to assert
     # here beyond the fact that it never reaches them.
+
+
+@pytest.mark.asyncio
+async def test_exhausted_attempts_stop_writing_new_submissions(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Pressing submit after the limit returns the same row, it does not add one.
+
+    Being let through with the correct answer once the attempts run out is
+    deliberate. Writing a fresh `max_attempts_exhausted` row on every later press
+    was not: each row carried score=0 and each one bumped the attempt count, so
+    the limit never held. A 2-attempt exercise was measured accepting a fourth
+    submission on 2026-08-17, and a student who had scored well on their last
+    real attempt could overwrite it with a zero by pressing once more.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.matching,
+        config={"pairs": [{"left": "Cat", "right": "Meow"}]},
+        max_attempts=2,
+    )
+    wrong = {"interactive_answers": {"pairs": [{"left": "Cat", "right": "Bark"}]}}
+
+    async def submit():
+        return await client.post(
+            f"/api/v1/exercises/{ex.id}/submit", json=wrong, headers=auth_header(student)
+        )
+
+    # Positive control: the two allowed attempts are graded like any other.
+    for _ in range(2):
+        graded = await submit()
+        assert graded.status_code == 200, graded.text
+        assert graded.json()["score"] == 0
+
+    # Third press: the attempts are gone, so this writes the one exhaustion row.
+    exhausted = await submit()
+    assert exhausted.status_code == 200, exhausted.text
+    assert exhausted.json()["max_attempts_reached"] is True
+
+    # Fourth press: the same row comes back. Before the fix this wrote another
+    # one, which is how a 2-attempt exercise reached a fourth submission.
+    again = await submit()
+    assert again.status_code == 200, again.text
+    assert again.json()["id"] == exhausted.json()["id"]
+
+    attempts = await client.get(f"/api/v1/exercises/{ex.id}/attempts", headers=auth_header(student))
+    assert attempts.status_code == 200, attempts.text
+    # Two real attempts plus one exhaustion row, and it stays there however many
+    # times the student presses submit.
+    assert attempts.json()["attempt_count"] == 3
