@@ -69,6 +69,11 @@ async def issue_token(
     may_share = is_teacher or await service.may_share_screen(lesson.id, user.id)
     room = grants.room_name(lesson.id)
 
+    # The media server does not create rooms on demand, so that a valid grant
+    # cannot be used to invent one. Something has to, and this is the only place
+    # that has already established the caller belongs here.
+    await service.ensure_room(room)
+
     return MediaTokenResponse(
         url=settings.livekit_public_url,
         token=grants.sign(user, room, is_teacher=is_teacher, may_share_screen=may_share),
