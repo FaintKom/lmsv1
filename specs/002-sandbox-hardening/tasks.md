@@ -212,7 +212,7 @@ everything ran as root.
 - [X] T047 [P] Add a test in `sandbox/tests/test_limits_time.py` that a program reading from stdin when the exercise supplies none ends rather than holding a slot until its timeout (spec.md, Edge Cases)
 - [X] T048 Run the full backend suite and the QA journeys — this feature changes the layer every code exercise sits on, and a green sandbox with a broken exercise path is not a result
 - [X] T049 Update the sandbox documentation and `tasks/todo.md` to record which of the seven audit findings shipped, and that `/tmp` being `noexec` was an eighth, found by measurement
-- [ ] T050 Measure the production box after the deploy — `free -h` and `docker stats --no-stream` over read-only SSH — and confirm the service still fits its budget (SC-007, FR-015). Never assert this from memory
+- [X] T050 Measure the production box after the deploy — `free -h` and `docker stats --no-stream` over read-only SSH — and confirm the service still fits its budget (SC-007, FR-015). Never assert this from memory
 
 ---
 
