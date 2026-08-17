@@ -111,10 +111,11 @@ jobs:
           done
           echo "::error::backend never became ready"; exit 1
 
-      - name: Set up Node 22
+      # Same source of truth as ci.yml — see the note there.
+      - name: Set up Node
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
