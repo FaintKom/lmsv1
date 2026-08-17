@@ -45,7 +45,6 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lms}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lms}
       SANDBOX_URL: http://sandbox:8001
-      OLLAMA_URL: http://172.18.0.1:11434
       # Rate limiter persists counters in Redis so a redeploy doesn't
       # reset them. See app/common/rate_limit.py.
       RATE_LIMIT_STORAGE_URI: ${RATE_LIMIT_STORAGE_URI:-redis://redis:6379/0}
@@ -127,6 +126,22 @@ services:
 
   nginx:
     image: nginx:alpine
+    # A `ports:` line without a `127.0.0.1:` prefix means "on the public
+    # internet", and nginx is the only service here that has earned one.
+    #
+    # ufw will not save you from getting this wrong. It filters the INPUT
+    # chain — traffic addressed to the host — while a published container
+    # port is DNAT'd in nat/PREROUTING and then travels the FORWARD chain,
+    # which Docker has already opened. `ufw status` keeps reporting 22/80/443
+    # either way, so the mistake stays invisible exactly where somebody would
+    # look for it. Measured 2026-08-17: an unrelated container published
+    # 0.0.0.0:2567 and was reachable from the internet with ufw active.
+    #
+    # To reach a service from your laptop, bind it to loopback and use an SSH
+    # tunnel — never publish it:
+    #     ports: ["127.0.0.1:5432:5432"]
+    # db, redis, backend and sandbox deliberately publish nothing; they are
+    # reachable only over the internal Docker networks.
     ports:
       - "80:80"
       - "443:443"
