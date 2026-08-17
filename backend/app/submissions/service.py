@@ -109,11 +109,29 @@ async def get_file_submission(
 PerItem = dict[str, bool] | list[bool] | None
 
 
+def _as_answer_dict(answers: object) -> dict:
+    """Coerce whatever a caller passed into the mapping the graders expect.
+
+    Every `_grade_*` helper below calls `answers.get(...)`, so anything that is
+    not a mapping has to become an empty one here rather than raise there.
+
+    Callers do hand this non-dicts. `_submit_interactive` reads
+    `data.get("interactive_answers") or data.get("answers", {})`: an empty dict
+    is falsy, so a student who cleared their answer falls through to `answers`,
+    which the submit schema declares as `list[dict] | None`. The graders then
+    received a list or None, and every interactive type answered 500 instead of
+    scoring zero — found 2026-08-17 across all six types of corner-case wave 1.
+    Regression test: tests/test_submissions.py.
+    """
+    return answers if isinstance(answers, dict) else {}
+
+
 def grade_interactive_detail(
     content: dict, exercise_type: str, answers: dict
 ) -> tuple[float, bool, PerItem]:
     """Like grade_interactive, but with per-item verdicts where the type
     supports them (integrity model B deferred feedback)."""
+    answers = _as_answer_dict(answers)
     if exercise_type == "translation":
         score, passed = _grade_translation(content, answers)
         return score, passed, None
@@ -141,6 +159,7 @@ def grade_interactive_detail(
 
 def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple[float, bool]:
     """Grade interactive exercise. Returns (score 0.0-1.0, passed)."""
+    answers = _as_answer_dict(answers)
     if exercise_type == "matching":
         return _grade_matching(content, answers)
     elif exercise_type == "ordering":
