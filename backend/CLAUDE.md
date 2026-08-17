@@ -27,11 +27,19 @@ email, exercises, export, feedback, gamification, integrations, journal,
 knowledge (dormant — роутер не смонтирован), learning_paths, math_problems,
 math_validation, meetings, metered_billing, notifications, orgs, parent,
 peer_review, progress, recommendations, recording, rooms, sandbox, schedule,
-scorm, scorm_import, sites, skills, submissions, team_projects, waitlist,
+scorm, scorm_import, sites, skills, submissions, team_projects, tutor, waitlist,
 webhooks.
 
 Модулей `ai/`, `discussions/`, `plagiarism/` больше НЕТ (код удалён в
 8186c29, каталоги зачищены) — возврат этих фич = написать заново, не «включить».
+
+⚠️ **Но AI-тьютор жив.** Он в `tutor/`, смонтирован на `/api/v1/tutor`
+([main.py:525](app/main.py)), фронт зовёт его из
+`components/lesson/ask-widget.tsx`. Из абзаца выше легко заключить обратное:
+`ai/` правда удалён, а фича переехала. В списке модулей `tutor` отсутствовал до
+2026-08-17 — из-за этого при сверке позиционирования
+(`marketing/target-segment.md`, Ф0-5) тьютор сначала был записан как мёртвый.
+Провайдер модели внешний (`config.llm_base_url`), не «self-hosted».
 
 Особые папки:
 - `common/` — кроссмодульные утилиты (rate_limit, file_validation, storage).
