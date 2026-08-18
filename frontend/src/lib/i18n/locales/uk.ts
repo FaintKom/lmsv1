@@ -3000,6 +3000,8 @@ const uk: TranslationMap = {
  "live.media.recordOpen": "Відкрити",
  "live.media.recordFailed": "Не вдалося записати",
  "live.media.join": "Приєднатися до відео",
+ "live.media.notJoinedYet": "Ви ще не в дзвінку",
+ "live.media.joinExplains": "Приєднайтеся, щоб увімкнути камеру та мікрофон. Змінити їх можна потім у панелі.",
  "live.media.micOn": "Мікрофон увімкнено",
  "live.media.micOff": "Мікрофон вимкнено",
  "live.media.camOn": "Камера увімкнена",

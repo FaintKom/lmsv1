@@ -352,6 +352,35 @@ small, and every one of them broke the feature completely.
   dark page the stock bar was near-invisible — a participant pressed mute and
   there was nothing there to press. Replaced with labelled, state-coloured
   controls keeping the device menus (FR-029, FR-006). Fixed in #334
+- [x] T097 A teacher who navigates away cannot get back into their own lesson
+  (FR-030). Two faults compound: the rejoin banner is mounted only in the
+  dashboard layout, so staff — who live under `(admin)` — never see it; and its
+  button targets `/lesson/{id}`, the pupil route, which bounces staff to
+  `/admin`. Mount it for staff too and send each role to the page it can open
+- [x] T098 The screen-share control paints "not sharing" as an alarm. My own
+  regression from T095: I applied "off means clay" to every control, but a
+  screen nobody is sharing is the resting state, not a fault. Only the
+  microphone and the camera warn when off (FR-029)
+- [x] T099 The teacher's controls overlap the video tile and wrap unevenly — the
+  labels are wider than the stock icons the panel was sized for (FR-029)
+- [x] T100 A pupil watching a shared screen sees it in a 224px strip while the
+  idle "waiting for the teacher" placeholder holds the whole page. A shared
+  screen has to become the main stage (FR-031)
+- [x] T101 The pupil's pre-join state does not say it is a preview, or that
+  choosing a camera and a microphone and then joining is what connects them
+  (FR-032)
+- [ ] T102 Clicking any link inside the lesson drops the teacher out of the
+  call: the room is mounted inside the page component, so a route change
+  unmounts it and disconnects (FR-033). Hoist it above the router so it
+  survives navigation, and show it as a small floating tile once the person is
+  no longer on the lesson page — which also gives them the way back T097 asks
+  for
+- [ ] T103 Make the shared screen and the faces scenes the teacher can choose,
+  alongside board, material, task and solution (FR-034). Today they live in a
+  strip under whatever the scene is, which is why a shared screen is unreadable
+  when the scene is idle. T100 buys space back from the idle placeholder only —
+  the real answer is that "what the class is looking at" is one decision with
+  one owner, and video is one of its options
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

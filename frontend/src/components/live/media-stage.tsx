@@ -70,15 +70,33 @@ function ControlToggle({
   offIcon: OffIcon,
   onLabel,
   offLabel,
+  /**
+   * Whether being off is worth warning about.
+   *
+   * A microphone or camera that is off is something the person probably wants
+   * to know — they may be talking to nobody. A screen nobody is sharing is
+   * simply the resting state of a lesson, and painting it like a fault trains
+   * people to ignore the colour that matters.
+   */
+  warnWhenOff = true,
 }: {
   source: ToggleSource;
   onIcon: typeof Mic;
   offIcon: typeof Mic;
   onLabel: string;
   offLabel: string;
+  warnWhenOff?: boolean;
 }) {
   const { toggle, enabled, pending } = useTrackToggle({ source });
   const Icon = enabled ? OnIcon : OffIcon;
+
+  const tone = enabled
+    ? warnWhenOff
+      ? "border-border bg-surface text-text"
+      : "border-primary bg-primary text-primary-fg"
+    : warnWhenOff
+      ? "border-clay-500 bg-clay-500 text-white"
+      : "border-border bg-surface text-text";
 
   return (
     <button
@@ -87,11 +105,7 @@ function ControlToggle({
       disabled={pending}
       aria-pressed={enabled}
       title={enabled ? offLabel : onLabel}
-      className={`btn-pop inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1.5 text-2xs font-bold disabled:opacity-50 ${
-        enabled
-          ? "border-border bg-surface text-text"
-          : "border-clay-500 bg-clay-500 text-white"
-      }`}
+      className={`btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-2.5 py-1.5 text-2xs font-bold disabled:opacity-50 ${tone}`}
     >
       <Icon size={14} aria-hidden />
       {enabled ? onLabel : offLabel}
@@ -104,7 +118,11 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
   const room = useRoomContext();
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 px-2 py-1.5">
+    // Its own row, wrapping onto more rows rather than over the faces. The
+    // labels are wider than the icons this panel was measured for, and a
+    // control that lands on top of somebody's video is worse than one that
+    // takes a second line.
+    <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-t border-border bg-surface-2 px-2 py-1.5">
       <ControlToggle
         source={Track.Source.Microphone}
         onIcon={Mic}
@@ -112,7 +130,7 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
         onLabel={t("live.media.micOn")}
         offLabel={t("live.media.micOff")}
       />
-      <span className="lk-button-group-menu">
+      <span className="lk-button-group-menu shrink-0">
         <MediaDeviceMenu kind="audioinput" />
       </span>
 
@@ -123,7 +141,7 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
         onLabel={t("live.media.camOn")}
         offLabel={t("live.media.camOff")}
       />
-      <span className="lk-button-group-menu">
+      <span className="lk-button-group-menu shrink-0">
         <MediaDeviceMenu kind="videoinput" />
       </span>
 
@@ -134,13 +152,14 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
           offIcon={MonitorX}
           onLabel={t("live.media.screenOn")}
           offLabel={t("live.media.screenOff")}
+          warnWhenOff={false}
         />
       )}
 
       <button
         type="button"
         onClick={() => void room.disconnect()}
-        className="btn-pop ml-auto inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
+        className="btn-pop ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
       >
         <LogOut size={14} aria-hidden />
         {t("live.media.leave")}
@@ -149,7 +168,7 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
   );
 }
 
-function Tiles() {
+function Tiles({ onScreenShare }: { onScreenShare?: (sharing: boolean) => void }) {
   // Camera and screen share in one grid. A placeholder keeps a tile for
   // somebody whose camera is off, so the grid matches the roster beside it
   // instead of quietly dropping people out of the room.
@@ -160,6 +179,14 @@ function Tiles() {
     ],
     { onlySubscribed: false },
   );
+
+  // Reported upward so the page can give a shared screen the room it needs.
+  // Only this side of the boundary knows a screen is being shared, and only the
+  // page can decide what shrinks to make space (FR-031).
+  const sharing = tracks.some((t) => t.source === Track.Source.ScreenShare);
+  useEffect(() => {
+    onScreenShare?.(sharing);
+  }, [sharing, onScreenShare]);
 
   return (
     <GridLayout tracks={tracks} className="h-full">
@@ -178,6 +205,7 @@ function Tiles() {
 export function MediaStage({
   lessonId,
   breakoutIndex = null,
+  onScreenShare,
 }: {
   lessonId: string;
   /**
@@ -188,6 +216,12 @@ export function MediaStage({
    * opposite of what a breakout is for.
    */
   breakoutIndex?: number | null;
+  /**
+   * Told when somebody starts or stops sharing a screen, so the page around
+   * this one can give it the space it needs (FR-031). A shared screen shown in
+   * a strip beside a placeholder is a lesson nobody can read.
+   */
+  onScreenShare?: (sharing: boolean) => void;
 }) {
   const { t } = useTranslation();
   const [grant, setGrant] = useState<MediaToken | null>(null);
@@ -231,7 +265,7 @@ export function MediaStage({
           className="flex h-full flex-col"
         >
           <div className="min-h-0 flex-1">
-            <Tiles />
+            <Tiles onScreenShare={onScreenShare} />
           </div>
           <RoomAudioRenderer />
           <div className="flex items-center justify-between gap-2 px-2 pt-1">
@@ -264,6 +298,8 @@ export function MediaStage({
       ) : (
         <>
           <Video className="h-6 w-6 text-text-muted" aria-hidden />
+          <p className="text-sm font-bold text-text">{t("live.media.notJoinedYet")}</p>
+          <p className="max-w-xs text-xs text-text-muted">{t("live.media.joinExplains")}</p>
           <button
             type="button"
             onClick={() => join.mutate()}

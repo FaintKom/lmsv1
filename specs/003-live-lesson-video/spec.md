@@ -306,6 +306,22 @@ finished file arrives against that lesson and can be played back.
   any class uses the feature.
 - **FR-025**: A routine release MUST NOT end a lesson in progress. Where media
   services do restart, participants MUST return without teacher intervention.
+- **FR-033**: A participant MUST stay in the call while moving around the
+  platform. Opening a material, a task or any other page is part of taking a
+  lesson, and today each one drops the person out of the room they are in.
+- **FR-034**: Camera and screen sharing belong to the scene system, not beside
+  it. The teacher decides what the class is looking at — a board, a material, a
+  task, a shared screen, faces — and the pupil's page shows that one thing.
+  Whatever a pupil is working in keeps the page: a task must never be squeezed
+  into a strip because somebody started sharing.
+- **FR-031**: When somebody is sharing a screen, that screen MUST become the
+  main thing on the page for everybody watching. A shared screen confined to a
+  strip beside a placeholder is a lesson nobody can read.
+- **FR-032**: Before joining, a participant MUST be able to tell that what they
+  are looking at is their own preview, and what will happen when they join.
+- **FR-030**: A lesson in progress MUST be reachable from anywhere in the
+  platform by everyone taking part in it, and by the route their own role can
+  actually open. Knowing the address is not a way back.
 - **FR-028**: The media server and the browser client MUST be versions that
   speak the same signalling protocol, and the pairing MUST be stated where the
   version is pinned. Signalling connects across a mismatch, so a room reports a

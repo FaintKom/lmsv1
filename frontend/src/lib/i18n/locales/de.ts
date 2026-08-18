@@ -3000,6 +3000,8 @@ const de: TranslationMap = {
  "live.media.recordOpen": "Öffnen",
  "live.media.recordFailed": "Aufnahme fehlgeschlagen",
  "live.media.join": "Video beitreten",
+ "live.media.notJoinedYet": "Du bist noch nicht im Gespräch",
+ "live.media.joinExplains": "Tritt bei, um Kamera und Mikrofon einzuschalten. Welche, kannst du danach in der Leiste wechseln.",
  "live.media.micOn": "Mikrofon an",
  "live.media.micOff": "Mikrofon aus",
  "live.media.camOn": "Kamera an",
