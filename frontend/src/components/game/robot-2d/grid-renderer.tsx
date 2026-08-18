@@ -36,6 +36,19 @@ export default function GridRenderer({
 
  const getCellType = (x: number, y: number): CellType => cellMap.get(`${x},${y}`) || "empty";
 
+ // A second map, by position, for what a cell carries besides its type: a mark
+ // to be painted, the paint itself, a number. The frames have carried these
+ // since the runner shipped; the grid simply was not drawing them.
+ const detailMap = useMemo(() => {
+ const map = new Map<string, { mark?: boolean; painted?: boolean; value?: number }>();
+ for (const cell of cells) {
+ if (cell.mark || cell.painted || cell.value !== undefined) {
+ map.set(`${cell.x},${cell.y}`, { mark: cell.mark, painted: cell.painted, value: cell.value });
+ }
+ }
+ return map;
+ }, [cells]);
+
  return (
  <svg
  viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -106,6 +119,30 @@ export default function GridRenderer({
  fill="#fefcf7" stroke="#e8dfd2" strokeWidth={0.8} filter="url(#tileShd)"
  className=" " />
  )}
+
+ {/* Paint, and the squares asking for it */}
+ {(() => {
+ const detail = detailMap.get(`${x},${y}`);
+ if (!detail || type === "wall") return null;
+ return (
+ <g>
+ {detail.painted && (
+ <rect x={cx} y={cy} width={cw} height={cw} rx={5}
+ fill="#a78bfa" opacity={0.55} />
+ )}
+ {detail.mark && !detail.painted && (
+ <rect x={cx + 3} y={cy + 3} width={cw - 6} height={cw - 6} rx={4}
+ fill="none" stroke="#8b5cf6" strokeWidth={1.6} strokeDasharray="4 3" />
+ )}
+ {detail.value !== undefined && (
+ <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
+ fontSize={cs * 0.34} fontWeight="bold" fill="#0f766e" className="select-none">
+ {detail.value}
+ </text>
+ )}
+ </g>
+ );
+ })()}
 
  {/* Star collectible */}
  {type === "item" && (
