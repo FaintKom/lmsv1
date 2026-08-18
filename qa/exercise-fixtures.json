@@ -284,10 +284,17 @@
     {
       "type": "bubble_sheet",
       "label": "Bubble sheet",
+      "$note": "questions[] with a per-question `correct` letter is the shape both sides read: _grade_bubble_sheet_detail walks content['questions'] and compares q['correct'], and v2-exercise-live turns that letter into the option index the widget draws. The earlier question_count/choices_per_question/correct_answers shape was read by neither, so the card rendered with no bubbles and the grader, finding nothing to mark, awarded 100 to every submission - an empty one included.",
       "config": {
-        "question_count": 5,
-        "choices_per_question": 4,
-        "correct_answers": ["A", "B", "C", "D", "A"]
+        "num_options": 4,
+        "passing_score": 70,
+        "questions": [
+          { "number": 1, "question": "2 + 2 = ?", "correct": "A" },
+          { "number": 2, "question": "Capital of France?", "correct": "B" },
+          { "number": 3, "question": "Largest planet?", "correct": "C" },
+          { "number": 4, "question": "Water is?", "correct": "D" },
+          { "number": 5, "question": "Colour of the sky?", "correct": "A" }
+        ]
       }
     }
   ]

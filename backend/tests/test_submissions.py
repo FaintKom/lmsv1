@@ -340,3 +340,90 @@ async def test_exhausted_attempts_are_not_recorded_as_passing(
     assert again.status_code == 200, again.text
     assert again.json()["id"] == body["id"]
     assert again.json()["passed"] is False
+
+
+def test_bubble_sheet_can_be_failed_and_says_when_it_cannot(caplog):
+    """A bubble sheet must be markable, and an unmarkable one must not be silent.
+
+    Measured 2026-08-18: the seeded bubble sheet awarded 100 to every submission,
+    including an empty one, because the grader reads `content["questions"]` while
+    the fixture wrote `correct_answers`. The renderer reads the same key, so the
+    card drew no bubbles either - a pupil saw nothing to answer and scored full
+    marks for it.
+
+    The warning added for exactly this shape of defect never fired: `bubble_sheet`
+    was not in the watchlist. Neither were `dialogue`, `translation`,
+    `sentence_builder` or `map_pin_drop`.
+    """
+    from app.submissions.service import grade_interactive_detail
+
+    def warnings_about_empty_keys():
+        return [r for r in caplog.records if "empty answer key" in r.getMessage()]
+
+    config = {
+        "num_options": 4,
+        "passing_score": 70,
+        "questions": [
+            {"number": 1, "question": "2+2?", "correct": "A"},
+            {"number": 2, "question": "Capital of France?", "correct": "B"},
+        ],
+    }
+
+    # Control: the right answers score, quietly.
+    with caplog.at_level(logging.WARNING):
+        score, passed, _ = grade_interactive_detail(
+            config, "bubble_sheet", {"answers": {"0": "A", "1": "B"}}
+        )
+    assert (score, passed) == (1.0, True)
+    assert warnings_about_empty_keys() == []
+
+    # A configured sheet can be failed, which is the whole point of marking it.
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        score, passed, _ = grade_interactive_detail(config, "bubble_sheet", {})
+    assert score == 0.0
+    assert passed is False
+    assert warnings_about_empty_keys() == []
+
+    # An unmarkable sheet still passes everyone, as every type does - but it says so.
+    caplog.clear()
+    with caplog.at_level(logging.WARNING):
+        score, passed, _ = grade_interactive_detail(
+            {"question_count": 5, "correct_answers": ["A"]}, "bubble_sheet", {}
+        )
+    assert (score, passed) == (1.0, True)
+    assert len(warnings_about_empty_keys()) >= 1
+
+
+def test_every_watched_type_names_a_key_its_grader_reads():
+    """The watchlist is only worth having if its keys are the real ones.
+
+    A wrong entry warns about a correctly configured exercise, which is worse than
+    not warning at all - that is why the original list was deliberately short.
+    This pins each entry against a config that carries only that key: the grader
+    must find something to mark, so no warning is due.
+    """
+    from app.submissions.service import _ANSWER_KEY_BY_TYPE, grade_interactive_detail
+
+    samples = {
+        "matching": [{"left": "a", "right": "b"}],
+        "ordering": ["a", "b"],
+        "fill_blanks": ["a"],
+        "categorize": [{"name": "Fruit", "items": ["apple"]}],
+        "crossword": [{"word": "CAT"}],
+        "word_search": ["cat"],
+        "srs_flashcard": [{"front": "a", "back": "b"}],
+        "reading": [{"question": "q", "type": "text", "correct_answer": "a"}],
+        "conjugation": [{"pronoun": "I", "correct": "am"}],
+        "bubble_sheet": [{"number": 1, "correct": "A"}],
+        "dialogue": [{"speaker": "a", "text": "", "options": ["x"]}],
+        "translation": ["hola"],
+        "sentence_builder": ["I", "am"],
+        "map_pin_drop": [{"label": "Paris", "x": 0.5, "y": 0.3}],
+    }
+    assert set(samples) == set(_ANSWER_KEY_BY_TYPE), (
+        "a watched type has no sample here, or a sample names a type nobody watches"
+    )
+    for ex_type, key in _ANSWER_KEY_BY_TYPE.items():
+        score, passed, _ = grade_interactive_detail({key: samples[ex_type]}, ex_type, {})
+        assert score == 0.0, f"{ex_type}: empty answer against a real key should score 0"

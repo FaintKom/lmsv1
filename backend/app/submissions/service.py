@@ -134,9 +134,15 @@ def _nothing_to_grade(exercise_type: str, missing: str) -> None:
     )
 
 
-# Where each type keeps its answer key. Only types whose grader was read and
-# confirmed are listed; a wrong entry here would produce a false warning, which is
-# worse than none. The rest simply go unwatched for now.
+# Where each type keeps its answer key. Every entry names a key its grader really
+# reads, and a test pins that: a wrong entry would warn about a correctly
+# configured exercise, which is worse than staying quiet.
+#
+# The list started at nine types, the ones whose graders had been read. The first
+# type outside it proved why that was not enough: a seeded bubble sheet awarded
+# 100 to every submission, including an empty one, and nothing was logged
+# (2026-08-18). Reading the remaining graders was a five-minute job the short list
+# had deferred indefinitely.
 _ANSWER_KEY_BY_TYPE = {
     "matching": "pairs",
     "ordering": "correct_order",
@@ -147,6 +153,11 @@ _ANSWER_KEY_BY_TYPE = {
     "srs_flashcard": "cards",
     "reading": "questions",
     "conjugation": "table",
+    "bubble_sheet": "questions",
+    "dialogue": "messages",
+    "translation": "accepted_answers",
+    "sentence_builder": "correct_order",
+    "map_pin_drop": "pins",
 }
 
 
