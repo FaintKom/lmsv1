@@ -273,6 +273,36 @@ async def purge_unconfirmed_consent_accounts() -> None:
             await session.rollback()
 
 
+async def sweep_stale_recording_uploads() -> None:
+    """Mark abandoned recording uploads as failed (FR-022)."""
+    from app.recording.service import sweep_stale_uploads
+
+    async with async_session_factory() as session:
+        try:
+            swept = await sweep_stale_uploads(session)
+            await session.commit()
+            if swept:
+                logger.info("Swept %d abandoned recording upload(s)", swept)
+        except Exception:
+            await session.rollback()
+            logger.exception("sweep_stale_recording_uploads failed")
+
+
+async def purge_expired_recordings() -> None:
+    """Delete recordings past their retention, bytes and row together (FR-023)."""
+    from app.recording.service import purge_expired
+
+    async with async_session_factory() as session:
+        try:
+            purged = await purge_expired(session)
+            await session.commit()
+            if purged:
+                logger.info("Purged %d expired recording(s)", purged)
+        except Exception:
+            await session.rollback()
+            logger.exception("purge_expired_recordings failed")
+
+
 def start_scheduler() -> AsyncIOScheduler:
     """Create the scheduler, register jobs, start it. Idempotent."""
     global _scheduler
@@ -333,6 +363,30 @@ def start_scheduler() -> AsyncIOScheduler:
         purge_unconfirmed_consent_accounts,
         CronTrigger(hour=3, minute=40),
         id="purge_unconfirmed_consent_accounts",
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=600,
+    )
+
+    # Hourly — a teacher's browser can die mid-recording, and a row left at
+    # "uploading" promises a file that is never coming. Hourly rather than
+    # daily because the interface says something wrong the whole time it waits.
+    scheduler.add_job(
+        sweep_stale_recording_uploads,
+        CronTrigger(minute=25),
+        id="sweep_stale_recording_uploads",
+        max_instances=1,
+        coalesce=True,
+        misfire_grace_time=600,
+    )
+
+    # Daily at 03:50 UTC — delete recordings past their school's retention,
+    # bytes and row together. Before the 04:00 backup on purpose: running after
+    # it would put a day's worth of expired video into every backup.
+    scheduler.add_job(
+        purge_expired_recordings,
+        CronTrigger(hour=3, minute=50),
+        id="purge_expired_recordings",
         max_instances=1,
         coalesce=True,
         misfire_grace_time=600,

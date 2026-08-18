@@ -367,3 +367,92 @@ async def issue_breakout_token(
         can_publish_screen=may_share,
         expires_in=settings.media_grant_ttl_seconds,
     )
+
+
+@router.post("/{lesson_id}/media/recording", status_code=201)
+@limiter.limit("20/minute")
+async def start_recording(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Begin recording this lesson (FR-019, FR-020).
+
+    Refused unless the school has turned recording on. What gets captured is
+    fixed by FR-027 and decided in the browser: the teacher's microphone,
+    camera and screen share, and nobody else's. There is no parameter for it,
+    so no request can widen it.
+    """
+    from app.recording import service as rec_service
+    from app.recording.models import Recording, RecordingStatus, RecordingType
+
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+
+    org = await rec_service.org_of(db, user.org_id)
+    if not rec_service.recording_enabled(org):
+        raise HTTPException(status_code=403, detail="recording is not enabled for this school")
+
+    recording = Recording(
+        user_id=user.id,
+        org_id=user.org_id,
+        type=RecordingType.video,
+        status=RecordingStatus.uploading,
+        live_lesson_id=lesson.id,
+    )
+    db.add(recording)
+    await db.flush()
+
+    # Remembered rather than only announced: somebody joining later has to be
+    # able to find out, and an event they missed cannot tell them (FR-020).
+    await realtime.get_redis().set(service.recording_key(lesson.id), str(recording.id))
+    await realtime.publish(
+        lesson.id, "all", "media_recording_started", {"recording_id": str(recording.id)}
+    )
+    return {
+        "recording_id": str(recording.id),
+        "upload_url": f"/api/v1/recordings/{recording.id}/upload",
+    }
+
+
+@router.get("/{lesson_id}/media/recording")
+async def recording_state(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Whether this lesson is being recorded right now.
+
+    Read on joining, so a participant who arrives mid-recording sees the
+    indicator too. Any participant may ask: being recorded without being told
+    is the situation this whole flag exists to prevent.
+    """
+    try:
+        lesson, _ = await lesson_service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    current = await realtime.get_redis().get(service.recording_key(lesson.id))
+    return {"recording": current is not None, "recording_id": current}
+
+
+@router.post("/{lesson_id}/media/recording/stop")
+@limiter.limit("20/minute")
+async def stop_recording(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Stop recording. The file itself arrives separately, by upload."""
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+
+    r = realtime.get_redis()
+    current = await r.get(service.recording_key(lesson.id))
+    await r.delete(service.recording_key(lesson.id))
+    await realtime.publish(lesson.id, "all", "media_recording_stopped", {"recording_id": current})
+    return {"recording_id": current}

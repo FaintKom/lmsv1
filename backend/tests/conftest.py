@@ -149,6 +149,11 @@ async def db():
                 "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS kind varchar(16) NOT NULL DEFAULT 'offline'",
                 "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS meeting_url varchar(500)",
                 "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS site_id uuid REFERENCES sites(id) ON DELETE SET NULL",
+                # Live-lesson recordings: create_all does not add columns to a
+                # recordings table a local database already had.
+                "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS live_lesson_id uuid REFERENCES live_lessons(id) ON DELETE SET NULL",
+                "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS shared_with_group boolean NOT NULL DEFAULT false",
+                "ALTER TABLE recordings ADD COLUMN IF NOT EXISTS expires_at timestamptz",
             ):
                 await conn.execute(_text(_stmt))
         _tables_created = True

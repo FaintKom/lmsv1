@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
-from app.auth.models import User
+from app.auth.models import User, UserRole
 from app.db.session import get_db
+from app.recording import service as rec_service
 from app.recording.models import Recording, RecordingStatus, RecordingType
 
 router = APIRouter()
@@ -39,9 +41,20 @@ class RecordingInitResponse(BaseModel):
 
 
 class RecordingCompleteRequest(BaseModel):
-    storage_url: str
+    """What the client knows and the server does not.
+
+    ``storage_url`` used to be here. The server writes the file, so the server
+    knows where it went; taking the location from the caller meant a row could
+    be pointed at anything, and that value later becomes a link somebody
+    follows.
+    """
+
     duration_seconds: int | None = None
     size_bytes: int | None = None
+
+
+class RecordingShareRequest(BaseModel):
+    shared_with_group: bool
 
 
 @router.post("/init", response_model=RecordingInitResponse, status_code=status.HTTP_201_CREATED)
@@ -95,10 +108,91 @@ async def complete_recording(
     if not recording:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
 
-    recording.storage_url = body.storage_url
     recording.duration_seconds = body.duration_seconds
     recording.size_bytes = body.size_bytes
+    if not recording.storage_url:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="nothing was uploaded for this recording",
+        )
     recording.status = RecordingStatus.ready
+
+    org = await rec_service.org_of(db, recording.org_id)
+    recording.expires_at = datetime.now(timezone.utc) + timedelta(
+        days=rec_service.retention_days(org)
+    )
+    await db.flush()
+    return recording
+
+
+@router.put("/{recording_id}/upload", response_model=RecordingResponse)
+async def upload_recording(
+    recording_id: uuid.UUID,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Accept the captured file.
+
+    The route `/init` has been advertising since it was written, and which did
+    not exist: anything following the API's own instructions got a 404.
+
+    Only the recording's own creator may upload to it, and only while it is
+    still expecting a file. Where the bytes land is the server's decision.
+    """
+    result = await db.execute(
+        select(Recording).where(
+            Recording.id == recording_id,
+            Recording.user_id == user.id,
+            Recording.org_id == user.org_id,
+        )
+    )
+    recording = result.scalar_one_or_none()
+    if not recording:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
+    if recording.status != RecordingStatus.uploading:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="this recording is already finished"
+        )
+
+    data = await request.body()
+    if not data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="empty upload")
+
+    recording.storage_url = rec_service.store_upload(
+        recording, data, request.headers.get("content-type")
+    )
+    recording.size_bytes = len(data)
+    await db.flush()
+    return recording
+
+
+@router.patch("/{recording_id}", response_model=RecordingResponse)
+async def share_recording(
+    recording_id: uuid.UUID,
+    body: RecordingShareRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Give a recording to the lesson's group, or take it back (FR-021).
+
+    Staff-only until somebody deliberately shares it. Another school's
+    recording reads as absent rather than forbidden.
+    """
+    if user.role not in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="forbidden")
+
+    result = await db.execute(
+        select(Recording).where(
+            Recording.id == recording_id,
+            Recording.org_id == user.org_id,
+        )
+    )
+    recording = result.scalar_one_or_none()
+    if not recording:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
+
+    recording.shared_with_group = body.shared_with_group
     await db.flush()
     return recording
 
@@ -108,7 +202,15 @@ async def list_recordings(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Recording).where(Recording.user_id == user.id)
-    )
+    # Staff see their school's recordings; a pupil sees their own, plus any a
+    # teacher deliberately shared with the group. Every branch is scoped by
+    # organisation — the old query filtered on user_id alone, which happened to
+    # be safe only because it never showed anybody else's.
+    query = select(Recording).where(Recording.org_id == user.org_id)
+    if user.role in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
+        result = await db.execute(query)
+    else:
+        result = await db.execute(
+            query.where(or_(Recording.user_id == user.id, Recording.shared_with_group.is_(True)))
+        )
     return result.scalars().all()

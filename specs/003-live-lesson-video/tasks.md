@@ -215,26 +215,26 @@ file holds the teacher and the screen and nobody else.
 
 ### Tests for User Story 5
 
-- [ ] T066 [P] [US5] Positive control: with `recording_enabled` true, a teacher starts a recording and the row appears
-- [ ] T067 [P] [US5] Test: with `recording_enabled` false, starting one gets 403 and no control is offered (FR-019)
-- [ ] T068 [P] [US5] Test: a pupil starting or stopping a recording gets 403
-- [ ] T069 [P] [US5] Test: uploading to somebody else's recording gets 404, and uploading to one already `ready` is refused
-- [ ] T070 [P] [US5] Test: `storage_url` is written by the server, and a value sent by the client is ignored because the field has left the request schema
-- [ ] T071 [P] [US5] Test: a recording left `uploading` past the grace window is swept to `failed` (FR-022)
-- [ ] T072 [P] [US5] Test: another school reading the recording gets 404 and learns nothing about whether it exists
+- [x] T066 [P] [US5] Positive control: with `recording_enabled` true, a teacher starts a recording and the row appears
+- [x] T067 [P] [US5] Test: with `recording_enabled` false, starting one gets 403 and no control is offered (FR-019)
+- [x] T068 [P] [US5] Test: a pupil starting or stopping a recording gets 403
+- [x] T069 [P] [US5] Test: uploading to somebody else's recording gets 404, and uploading to one already `ready` is refused
+- [x] T070 [P] [US5] Test: `storage_url` is written by the server, and a value sent by the client is ignored because the field has left the request schema
+- [x] T071 [P] [US5] Test: a recording left `uploading` past the grace window is swept to `failed` (FR-022)
+- [x] T072 [P] [US5] Test: another school reading the recording gets 404 and learns nothing about whether it exists
 - [ ] T090 [P] [US5] Test: a participant who joins after a recording started still receives the indicator state, because it is read from Redis on join rather than only broadcast at start (SC-007)
 
 ### Implementation for User Story 5
 
-- [ ] T073 [US5] Expose `recording_enabled` and `recording_retention_days` on the organisation, in `backend/app/orgs/router.py` and the settings page under `frontend/src/app/(admin)/admin/`, so a school administrator can turn recording on (FR-019)
-- [ ] T074 [US5] Build `PUT /api/v1/recordings/{id}/upload` in `backend/app/recording/router.py` on the existing `get_storage()` abstraction — the endpoint `/init` has been promising since it was written
-- [ ] T075 [US5] Remove `storage_url` from the complete request schema, derive it on the server, and write `expires_at` from the organisation's retention
-- [ ] T076 [US5] Add `PATCH /api/v1/recordings/{id}` for `shared_with_group`, the teacher's deliberate act (FR-021)
-- [ ] T077 [US5] Implement start and stop in `backend/app/live_media/router.py`, holding the in-progress id in Redis so a late joiner still sees the indicator
-- [ ] T078 [US5] Add the sweep for stale `uploading` rows and the retention cleanup to `backend/app/scheduler.py`
-- [ ] T079 [US5] Write `frontend/src/lib/live/recorder.ts` with MediaRecorder over **the teacher's own local tracks only** — microphone, camera and screen share. It must never subscribe to a remote track (FR-027). Show the control only where the browser can actually capture
-- [ ] T080 [US5] Write `frontend/src/components/live/recording-indicator.tsx`, visible to every participant for the whole time recording runs (FR-020)
-- [ ] T081 [P] [US5] Strings into all six locale files
+- [x] T073 [US5] Expose `recording_enabled` and `recording_retention_days` on the organisation, in `backend/app/orgs/router.py` and the settings page under `frontend/src/app/(admin)/admin/`, so a school administrator can turn recording on (FR-019)
+- [x] T074 [US5] Build `PUT /api/v1/recordings/{id}/upload` in `backend/app/recording/router.py` on the existing `get_storage()` abstraction — the endpoint `/init` has been promising since it was written
+- [x] T075 [US5] Remove `storage_url` from the complete request schema, derive it on the server, and write `expires_at` from the organisation's retention
+- [x] T076 [US5] Add `PATCH /api/v1/recordings/{id}` for `shared_with_group`, the teacher's deliberate act (FR-021)
+- [x] T077 [US5] Implement start and stop in `backend/app/live_media/router.py`, holding the in-progress id in Redis so a late joiner still sees the indicator
+- [x] T078 [US5] Add the sweep for stale `uploading` rows and the retention cleanup to `backend/app/scheduler.py`
+- [x] T079 [US5] Write `frontend/src/lib/live/recorder.ts` with MediaRecorder over **the teacher's own local tracks only** — microphone, camera and screen share. It must never subscribe to a remote track (FR-027). Show the control only where the browser can actually capture
+- [x] T080 [US5] Write `frontend/src/components/live/recording-indicator.tsx`, visible to every participant for the whole time recording runs (FR-020)
+- [x] T081 [P] [US5] Strings into all six locale files
 
 **Checkpoint**: User story 5 passes independently. Every story is done.
 
