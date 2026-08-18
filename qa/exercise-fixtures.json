@@ -112,12 +112,12 @@
     {
       "type": "math_interactive",
       "label": "Math (interactive)",
+      "$note": "The template decides the task from template_config; there is no success_condition, because nothing reads one. An earlier version paired {kind: click_origin} with an instruction telling the pupil to drag two points, and neither half was the task the widget set.",
       "config": {
         "template_type": "coordinate_plane",
-        "template_config": {},
-        "success_condition": {"kind": "click_origin"},
+        "template_config": { "target_points": [{ "x": 3, "y": 2 }, { "x": -2, "y": 4 }] },
         "difficulty": "beginner",
-        "instructions": "Click the origin."
+        "instructions": "Drag point A to (3, 2) and point B to (-2, 4)."
       }
     },
     {

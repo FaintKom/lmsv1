@@ -93,3 +93,49 @@ def test_code_challenge_starter_is_not_the_solution():
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
+
+
+def test_fixture_configs_only_use_keys_the_product_declares():
+    """A fixture key nobody reads is how three defects here started.
+
+    The crossword shipped `grid_width`/`clues[]` while both readers wanted
+    `words`, so the board was empty and the grader awarded full marks. The bubble
+    sheet shipped `correct_answers` while both readers wanted `questions`, with
+    the same two symptoms. The maths fixture shipped `success_condition`, which
+    nothing anywhere reads, next to an instruction that contradicted what the
+    template actually asks.
+
+    Seventeen of the twenty-six types declare a `*Config` model in
+    `app/exercises/schemas.py`. Where one exists it is the closest thing to a
+    written contract, so a fixture key outside it is either a typo or a field the
+    product forgot to implement. The nine types without a model are listed rather
+    than silently skipped.
+    """
+
+    from app.exercises import schemas as schema_module
+
+    newline = chr(10)
+
+    fixtures = json.loads(_FIXTURES.read_text(encoding="utf-8"))["fixtures"]
+
+    def config_model(exercise_type: str):
+        name = "".join(part.capitalize() for part in exercise_type.split("_"))
+        name = {"Robot2d": "Robot2D", "World3d": "World3D"}.get(name, name)
+        return getattr(schema_module, f"{name}Config", None)
+
+    unmodelled: list[str] = []
+    problems: list[str] = []
+    for fixture in fixtures:
+        model = config_model(fixture["type"])
+        if model is None:
+            unmodelled.append(fixture["type"])
+            continue
+        declared = set(model.model_fields)
+        extra = sorted(set(fixture.get("config") or {}) - declared)
+        if extra:
+            problems.append(f"{fixture['type']}: {extra} — not in {model.__name__}")
+
+    assert not problems, "fixture keys nobody declares:" + newline + newline.join(problems)
+    # Informational, and deliberately not an assertion: these types have no model
+    # to check against, which is a gap in the schemas rather than in the fixtures.
+    assert len(unmodelled) <= 9, f"more types lost their config model: {sorted(unmodelled)}"
