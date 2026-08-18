@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 import type { GridState, CellType, Direction } from "./grid-engine";
 
 interface GridRendererProps {
@@ -21,6 +22,7 @@ const DIRECTION_ROTATION: Record<Direction, number> = {
 export default function GridRenderer({
  state, cellSize = 56, editMode = false, activeTool, onCellClick, onCellEnter, className = "",
 }: GridRendererProps) {
+ const { t } = useTranslation();
  const { width, height, cells, robot } = state;
  const pad = 8; // outer padding
  const gap = 3;
@@ -172,7 +174,7 @@ export default function GridRenderer({
  {/* Start marker (edit mode only) */}
  {type === "start" && editMode && (
  <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
- fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">START</text>
+ fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">{t("game.start")}</text>
  )}
 
  {/* Edit hover */}

@@ -16,14 +16,15 @@
  * the teacher's own solution passes — and never dresses the second as the
  * first.
  *
- * Strings are still English; this file is on the i18n allowlist and comes off
- * it in the polish pass, once it has stopped changing shape.
+ * Command names are not translated. `move_up()` is what a child types, and a
+ * translated command would be a command the runner refuses.
  */
 
 import { useCallback, useMemo, useState } from "react";
 import { Box, Eraser, Flag, Play as PlayIcon, Star, Undo2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/context";
 import {
   exercisesApi,
   type RobotBlocker,
@@ -38,90 +39,66 @@ interface Robot2DEditorProps {
   onConfigChange: (config: Record<string, unknown>) => void;
 }
 
+type Translate = (key: string) => string;
+
 /** What a teacher paints. `start`, `mark` and `value` are not cell types. */
 type Tool = CellType | "start" | "mark" | "value";
 
-const CELL_TOOLS: { type: Tool; label: string; icon: typeof Box }[] = [
-  { type: "empty", label: "Erase", icon: Eraser },
-  { type: "wall", label: "Wall", icon: Box },
-  { type: "item", label: "Item", icon: Star },
-  { type: "goal", label: "Goal", icon: Flag },
-  { type: "start", label: "Start", icon: PlayIcon },
-  { type: "mark", label: "To paint", icon: Star },
-  { type: "value", label: "Number", icon: Star },
+const CELL_TOOLS: { type: Tool; icon: typeof Box }[] = [
+  { type: "empty", icon: Eraser },
+  { type: "wall", icon: Box },
+  { type: "item", icon: Star },
+  { type: "goal", icon: Flag },
+  { type: "start", icon: PlayIcon },
+  { type: "mark", icon: Star },
+  { type: "value", icon: Star },
 ];
 
-const COMMAND_GROUPS: { title: string; hint: string; commands: string[] }[] = [
+const COMMAND_GROUPS: { id: string; hint: boolean; commands: string[] }[] = [
+  { id: "absolute", hint: true, commands: ["move_up", "move_down", "move_left", "move_right"] },
+  { id: "facing", hint: true, commands: ["move_forward", "turn_left", "turn_right"] },
+  { id: "items", hint: false, commands: ["take", "drop", "paint"] },
+  { id: "numbers", hint: true, commands: ["read", "write"] },
   {
-    title: "Move by direction",
-    hint: "The first lesson — a child who knows up from left can use these.",
-    commands: ["move_up", "move_down", "move_left", "move_right"],
-  },
-  {
-    title: "Move by facing",
-    hint: "The robot has a direction to keep track of. Sensors need these.",
-    commands: ["move_forward", "turn_left", "turn_right"],
-  },
-  { title: "Items and paint", hint: "", commands: ["take", "drop", "paint"] },
-  {
-    title: "Numbers",
-    hint: "A goal involving numbers cannot be checked for a shortest solution.",
-    commands: ["read", "write"],
-  },
-  {
-    title: "Ask about the surroundings",
-    hint: "Relative to where the robot faces, so these need the facing commands.",
+    id: "sensors",
+    hint: true,
     commands: ["wall_ahead", "item_here", "at_goal", "painted", "value_here"],
   },
 ];
 
-const PRESETS: { label: string; commands: string[] }[] = [
-  { label: "First steps", commands: ["move_up", "move_down", "move_left", "move_right"] },
+const PRESETS: { id: string; commands: string[] }[] = [
+  { id: "firstSteps", commands: ["move_up", "move_down", "move_left", "move_right"] },
   {
-    label: "Facing and loops",
+    id: "facingLoops",
     commands: ["move_forward", "turn_left", "turn_right", "wall_ahead", "at_goal"],
   },
-  { label: "Everything", commands: COMMAND_GROUPS.flatMap((g) => g.commands) },
+  { id: "everything", commands: COMMAND_GROUPS.flatMap((g) => g.commands) },
 ];
 
 /** The win vocabulary, and what each leaf needs alongside it. */
-const CONDITIONS: { cond: string; label: string; arg?: "dir" | "n" }[] = [
-  { cond: "at_goal", label: "the robot stands on the goal" },
-  { cond: "all_items_taken", label: "every item has been collected" },
-  { cond: "all_marks_painted", label: "every marked square is painted" },
-  { cond: "facing", label: "the robot faces", arg: "dir" },
-  { cond: "steps_at_most", label: "the run took at most … steps", arg: "n" },
-  { cond: "all_values_read", label: "every number has been read" },
-  { cond: "values_total", label: "the numbers add up to …", arg: "n" },
+const CONDITIONS: { cond: string; arg?: "dir" | "n" }[] = [
+  { cond: "at_goal" },
+  { cond: "all_items_taken" },
+  { cond: "all_marks_painted" },
+  { cond: "facing", arg: "dir" },
+  { cond: "steps_at_most", arg: "n" },
+  { cond: "all_values_read" },
+  { cond: "values_total", arg: "n" },
 ];
 
-/** What each blocker code means, in words a teacher can act on. */
-const BLOCKER_TEXT: Record<string, string> = {
-  start_off_grid: "The robot starts outside the grid.",
-  start_on_wall: "The robot starts inside a wall.",
-  cell_off_grid: "Something is placed outside the grid.",
-  duplicate_cell: "Two things share one square.",
-  two_goals: "There are two goals.",
-  mark_on_wall: "A wall is marked for painting, and a robot cannot stand on it.",
-  value_on_wall: "A wall carries a number, and a robot cannot read it.",
-  no_commands: "No commands are offered, so there is nothing a pupil can write.",
-  unknown_command: "This level offers a command the robot does not have.",
-  sensor_without_facing:
-    "Sensors read relative to where the robot faces, so offer the facing commands too.",
-  win_needs_goal: "The goal is part of the win condition, but there is no goal on the grid.",
-  win_needs_items: "The level asks for every item to be collected and holds none.",
-  win_needs_marks: "The level asks for painted squares and none are marked.",
-  win_needs_values: "The level asks about numbers and no square carries one.",
-  win_needs_take_command: "The level asks for items to be collected but does not offer take().",
-  win_needs_paint_command: "The level asks for painted squares but does not offer paint().",
-  win_needs_read_command: "The level asks for numbers to be read but does not offer read().",
-  no_reference_solution:
-    "Nobody has finished this level yet. Write a solution below so it can be checked.",
-};
+const DIRECTIONS: Direction[] = ["up", "right", "down", "left"];
 
 const UNDO_LIMIT = 50;
 
+/** `t()` takes no parameters, and composing fragments breaks word order in
+ *  other languages. The keys hold `{name}` placeholders instead. */
+function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
+}
+
 export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorProps) {
+  const { t } = useTranslation();
+
   const gridWidth = (config.grid_width as number) || 5;
   const gridHeight = (config.grid_height as number) || 5;
   const cells = useMemo(() => (config.cells as Cell[]) || [], [config.cells]);
@@ -154,7 +131,8 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
     (patch: Record<string, unknown>) => {
       setHistory((h) => [...h, config].slice(-UNDO_LIMIT));
       onConfigChange({ ...config, ...patch });
-      setAnswer(null); // the level moved; the old answer describes a level that no longer exists
+      // The level moved; the old answer describes one that no longer exists.
+      setAnswer(null);
     },
     [config, onConfigChange],
   );
@@ -183,7 +161,8 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
         return;
       }
       if (activeTool === "value") {
-        const next = ((at?.value ?? -1) + 1) % 10; // 0–9, cycling, so one tool sets any digit
+        // 0–9, cycling, so one tool sets any digit.
+        const next = ((at?.value ?? -1) + 1) % 10;
         update({ cells: [...without, { ...(at ?? { x, y, type: "empty" }), value: next }] });
         return;
       }
@@ -281,18 +260,18 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-        <NumberField label="Width" value={gridWidth} min={2} max={10} onChange={(v) => resize(v, gridHeight)} />
-        <NumberField label="Height" value={gridHeight} min={2} max={10} onChange={(v) => resize(gridWidth, v)} />
-        <NumberField label="Step allowance" value={maxSteps} min={10} max={5000} onChange={(v) => update({ max_steps: v })} />
+        <NumberField label={t("robot.width")} value={gridWidth} min={2} max={10} onChange={(v) => resize(v, gridHeight)} />
+        <NumberField label={t("robot.height")} value={gridHeight} min={2} max={10} onChange={(v) => resize(gridWidth, v)} />
+        <NumberField label={t("robot.stepAllowance")} value={maxSteps} min={10} max={5000} onChange={(v) => update({ max_steps: v })} />
         <NumberField
-          label="★★ within steps"
+          label={t("robot.starSteps")}
           value={(config.star_steps as number) ?? 0}
           min={0}
           max={5000}
           onChange={(v) => update({ star_steps: v || null })}
         />
         <NumberField
-          label="★★★ within lines"
+          label={t("robot.starSize")}
           value={(config.star_size as number) ?? 0}
           min={0}
           max={500}
@@ -300,14 +279,19 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
         />
       </div>
 
-      <WinBuilder win={win} onChange={(next) => update({ win: next })} />
+      <WinBuilder win={win} onChange={(next) => update({ win: next })} t={t} />
 
-      <CommandPalette commands={commands} onToggle={toggleCommand} onPreset={(p) => update({ commands: p.commands, preset: p.label })} />
+      <CommandPalette
+        commands={commands}
+        onToggle={toggleCommand}
+        onPreset={(p) => update({ commands: p.commands, preset: p.id })}
+        t={t}
+      />
 
       {/* Painting the grid */}
       <div className="flex gap-4">
         <div className="flex flex-col gap-1.5">
-          <span className="mb-1 text-xs font-medium text-text-muted">Paint</span>
+          <span className="mb-1 text-xs font-medium text-text-muted">{t("robot.paint")}</span>
           {CELL_TOOLS.map((tool) => {
             const Icon = tool.icon;
             return (
@@ -321,31 +305,28 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
                 }`}
               >
                 <Icon className="h-4 w-4" />
-                {tool.label}
+                {t(`robot.tool.${tool.type}`)}
               </button>
             );
           })}
 
-          <label className="mt-3 block text-xs font-medium text-text-muted">Facing</label>
+          <label className="mt-3 block text-xs font-medium text-text-muted">
+            {t("robot.startFacing")}
+          </label>
           <select
             value={start.facing}
             onChange={(e) => update({ start: { ...start, facing: e.target.value } })}
             className="rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-xs"
           >
-            <option value="up">Up</option>
-            <option value="right">Right</option>
-            <option value="down">Down</option>
-            <option value="left">Left</option>
+            {DIRECTIONS.map((d) => (
+              <option key={d} value={d}>
+                {t(`robot.dir.${d}`)}
+              </option>
+            ))}
           </select>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-2"
-            disabled={history.length === 0}
-            onClick={undo}
-          >
-            <Undo2 className="mr-1 h-3 w-3" /> Undo
+          <Button variant="ghost" size="sm" className="mt-2" disabled={history.length === 0} onClick={undo}>
+            <Undo2 className="mr-1 h-3 w-3" /> {t("robot.undo")}
           </Button>
         </div>
 
@@ -360,13 +341,11 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
             state={initialState(config)}
             cellSize={Math.min(48, 400 / Math.max(gridWidth, gridHeight))}
             editMode
-            activeTool={activeTool === "start" || activeTool === "mark" || activeTool === "value" ? "empty" : activeTool}
+            activeTool={isCellType(activeTool) ? activeTool : "empty"}
             onCellClick={paint}
             onCellEnter={(x, y) => painting && paint(x, y)}
           />
-          <p className="mt-2 text-3xs text-text-subtle">
-            Drag to paint. The number tool cycles 0–9 on each click.
-          </p>
+          <p className="mt-2 text-3xs text-text-subtle">{t("robot.dragHint")}</p>
         </div>
       </div>
 
@@ -374,15 +353,15 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
       <div className="rounded-lg border border-border-strong bg-surface p-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={check} disabled={busy !== null}>
-            {busy === "check" ? "Checking…" : "Check this level"}
+            {busy === "check" ? t("robot.checking") : t("robot.check")}
           </Button>
-          {answer && <AnswerLine answer={answer} />}
+          {answer && <AnswerLine answer={answer} t={t} />}
         </div>
 
         {blockers.length > 0 && (
           <ul className="mt-3 space-y-1 rounded-lg bg-warning-soft p-3 text-xs text-warning-fg">
             {blockers.map((b) => (
-              <li key={b.code}>{describeBlocker(b)}</li>
+              <li key={b.code}>{describeBlocker(b, t)}</li>
             ))}
           </ul>
         )}
@@ -394,14 +373,15 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
         run={playtest}
         onPlaytest={runPlaytest}
         onSave={saveSolution}
+        t={t}
       />
 
       {/* Hints */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-medium text-text-muted">Hints</label>
+          <label className="text-xs font-medium text-text-muted">{t("robot.hints")}</label>
           <Button variant="ghost" size="sm" onClick={() => update({ hints: [...hints, ""] })}>
-            + Add hint
+            {t("robot.addHint")}
           </Button>
         </div>
         {hints.map((hint, i) => (
@@ -413,7 +393,7 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
                 next[i] = e.target.value;
                 update({ hints: next });
               }}
-              placeholder={`Hint ${i + 1}`}
+              placeholder={fill(t("robot.hintPlaceholder"), { n: i + 1 })}
               className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
             />
             <Button variant="ghost" size="sm" onClick={() => update({ hints: hints.filter((_, j) => j !== i) })}>
@@ -427,29 +407,27 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
 }
 
 /** The three answers, told apart on sight. SC-011 lives here. */
-function AnswerLine({ answer }: { answer: RobotSolveAnswer }) {
+function AnswerLine({ answer, t }: { answer: RobotSolveAnswer; t: Translate }) {
   if (answer.answer === "shortest") {
     return (
       <p className="text-sm font-semibold text-primary">
-        Solvable in {answer.steps} steps.
+        {fill(t("robot.solvableIn"), { steps: answer.steps ?? 0 })}
       </p>
     );
   }
   if (answer.answer === "unsolvable") {
-    return <p className="text-sm font-semibold text-danger-fg">No path to the goal.</p>;
+    return <p className="text-sm font-semibold text-danger-fg">{t("robot.noPath")}</p>;
   }
+
+  const why =
+    answer.reason === "win_uses_values" ? t("robot.reasonValues") : t("robot.reasonTargets");
+
   return (
     <p className="text-sm text-text-muted">
       {answer.steps === null
-        ? "Not checked — and no solution has finished this level yet."
-        : `Not checked for a shortest solution. Yours takes ${answer.steps} steps.`}
-      <span className="ml-1 text-xs text-text-subtle">
-        (
-        {answer.reason === "win_uses_values"
-          ? "the goal involves the numbers on the floor"
-          : "too many things to collect or paint"}
-        )
-      </span>
+        ? t("robot.notCheckedNoSolution")
+        : fill(t("robot.notCheckedYours"), { steps: answer.steps })}
+      <span className="ml-1 text-xs text-text-subtle">({why})</span>
     </p>
   );
 }
@@ -458,25 +436,24 @@ function CommandPalette({
   commands,
   onToggle,
   onPreset,
+  t,
 }: {
   commands: string[];
   onToggle: (command: string) => void;
-  onPreset: (preset: { label: string; commands: string[] }) => void;
+  onPreset: (preset: { id: string; commands: string[] }) => void;
+  t: Translate;
 }) {
   return (
     <div className="rounded-lg border border-border-strong bg-surface p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-text">Commands this level offers</h3>
-          <p className="text-xs text-text-subtle">
-            Pupils see exactly these — in the blocks, in the autocompletion, and in the starter
-            file. Loops and <code>if</code> are always available.
-          </p>
+          <h3 className="text-sm font-semibold text-text">{t("robot.paletteTitle")}</h3>
+          <p className="text-xs text-text-subtle">{t("robot.paletteHint")}</p>
         </div>
         <div className="flex gap-1.5">
           {PRESETS.map((preset) => (
-            <Button key={preset.label} variant="outline" size="sm" onClick={() => onPreset(preset)}>
-              {preset.label}
+            <Button key={preset.id} variant="outline" size="sm" onClick={() => onPreset(preset)}>
+              {t(`robot.preset.${preset.id}`)}
             </Button>
           ))}
         </div>
@@ -484,9 +461,11 @@ function CommandPalette({
 
       <div className="grid gap-4 sm:grid-cols-2">
         {COMMAND_GROUPS.map((group) => (
-          <div key={group.title}>
-            <p className="text-xs font-semibold text-text-muted">{group.title}</p>
-            {group.hint && <p className="mb-1.5 text-3xs text-text-subtle">{group.hint}</p>}
+          <div key={group.id}>
+            <p className="text-xs font-semibold text-text-muted">{t(`robot.group.${group.id}`)}</p>
+            {group.hint && (
+              <p className="mb-1.5 text-3xs text-text-subtle">{t(`robot.groupHint.${group.id}`)}</p>
+            )}
             <div className="flex flex-wrap gap-1.5">
               {group.commands.map((command) => {
                 const on = commands.includes(command);
@@ -516,23 +495,24 @@ function CommandPalette({
  *
  * Deliberately not a full tree editor: a flat list with negation covers every
  * level anyone has asked for, and a nested expression a teacher cannot draw is
- * a nested expression they cannot debug. An expression this cannot represent is
- * preserved untouched and shown as read-only rather than silently flattened.
+ * one they cannot debug. An expression this cannot represent is preserved
+ * untouched and shown read-only rather than silently flattened.
  */
 function WinBuilder({
   win,
   onChange,
+  t,
 }: {
   win: Record<string, unknown>;
   onChange: (win: Record<string, unknown>) => void;
+  t: Translate;
 }) {
   const parsed = useMemo(() => parseWin(win), [win]);
 
   if (!parsed) {
     return (
       <div className="rounded-lg border border-border-strong bg-surface p-4 text-xs text-text-muted">
-        This level&apos;s goal is more deeply nested than the editor can draw. It is kept as it
-        is and still works.
+        {t("robot.winTooDeep")}
       </div>
     );
   }
@@ -542,15 +522,15 @@ function WinBuilder({
   return (
     <div className="rounded-lg border border-border-strong bg-surface p-4">
       <div className="mb-2 flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-text">The level is finished when</h3>
+        <h3 className="text-sm font-semibold text-text">{t("robot.winTitle")}</h3>
         {parsed.leaves.length > 1 && (
           <select
             value={parsed.mode}
             onChange={(e) => set({ ...parsed, mode: e.target.value as "all" | "any" })}
             className="rounded-lg border border-border-strong bg-surface px-2 py-1 text-xs"
           >
-            <option value="all">all of these are true</option>
-            <option value="any">any of these is true</option>
+            <option value="all">{t("robot.winAll")}</option>
+            <option value="any">{t("robot.winAny")}</option>
           </select>
         )}
       </div>
@@ -569,7 +549,7 @@ function WinBuilder({
                   set({ ...parsed, leaves });
                 }}
               />
-              not
+              {t("robot.winNot")}
             </label>
 
             <select
@@ -583,7 +563,7 @@ function WinBuilder({
             >
               {CONDITIONS.map((c) => (
                 <option key={c.cond} value={c.cond}>
-                  {c.label}
+                  {t(`robot.cond.${c.cond}`)}
                 </option>
               ))}
             </select>
@@ -598,10 +578,11 @@ function WinBuilder({
                 }}
                 className="rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-xs"
               >
-                <option value="up">up</option>
-                <option value="right">right</option>
-                <option value="down">down</option>
-                <option value="left">left</option>
+                {DIRECTIONS.map((d) => (
+                  <option key={d} value={d}>
+                    {t(`robot.dir.${d}`)}
+                  </option>
+                ))}
               </select>
             )}
 
@@ -634,11 +615,9 @@ function WinBuilder({
       <Button
         variant="ghost"
         size="sm"
-        onClick={() =>
-          set({ ...parsed, leaves: [...parsed.leaves, { cond: "at_goal", negated: false }] })
-        }
+        onClick={() => set({ ...parsed, leaves: [...parsed.leaves, { cond: "at_goal", negated: false }] })}
       >
-        + Add a condition
+        {t("robot.addCondition")}
       </Button>
     </div>
   );
@@ -650,22 +629,21 @@ function SolutionPanel({
   run,
   onPlaytest,
   onSave,
+  t,
 }: {
   solution: string;
   busy: boolean;
   run: RobotRunResult | null;
   onPlaytest: (source: string) => Promise<RobotRunResult | null>;
   onSave: (source: string) => void;
+  t: Translate;
 }) {
   const [draft, setDraft] = useState(solution);
 
   return (
     <div className="rounded-lg border border-border-strong bg-surface p-4">
-      <h3 className="text-sm font-semibold text-text">Your own solution</h3>
-      <p className="mb-2 text-xs text-text-subtle">
-        Play the level without saving it. A solution that does not finish the level is not
-        stored — pupils never see this either way.
-      </p>
+      <h3 className="text-sm font-semibold text-text">{t("robot.solutionTitle")}</h3>
+      <p className="mb-2 text-xs text-text-subtle">{t("robot.solutionHint")}</p>
 
       <textarea
         value={draft}
@@ -678,21 +656,22 @@ function SolutionPanel({
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" disabled={busy} onClick={() => onPlaytest(draft)}>
-          {busy ? "Running…" : "Play it"}
+          {busy ? t("robot.running") : t("robot.playIt")}
         </Button>
         <Button size="sm" disabled={busy} onClick={() => onSave(draft)}>
-          Save as the reference solution
+          {t("robot.saveSolution")}
         </Button>
 
         {run && (
-          <span
-            className={`text-xs ${run.won ? "text-primary" : "text-danger-fg"}`}
-          >
+          <span className={`text-xs ${run.won ? "text-primary" : "text-danger-fg"}`}>
             {run.won
-              ? `Finished in ${run.steps} steps, ${run.size} lines.`
+              ? fill(t("robot.solutionWon"), { steps: run.steps, size: run.size })
               : run.error
-                ? `Stopped on line ${run.error.line}: ${run.error.message}`
-                : `Ran ${run.steps} steps and did not finish the level.`}
+                ? fill(t("robot.solutionError"), {
+                    line: run.error.line ?? 0,
+                    message: run.error.message,
+                  })
+                : fill(t("robot.solutionLost"), { steps: run.steps })}
           </span>
         )}
       </div>
@@ -728,9 +707,13 @@ function NumberField({
   );
 }
 
-function describeBlocker(blocker: RobotBlocker): string {
-  const text = BLOCKER_TEXT[blocker.code] ?? blocker.code;
+function describeBlocker(blocker: RobotBlocker, t: Translate): string {
+  const text = t(`robot.blocker.${blocker.code}`);
   return blocker.commands?.length ? `${text} (${blocker.commands.join(", ")})` : text;
+}
+
+function isCellType(tool: Tool): tool is CellType {
+  return tool !== "start" && tool !== "mark" && tool !== "value";
 }
 
 function clamp(value: number, min: number, max: number) {
