@@ -26,10 +26,19 @@ import "@livekit/components-styles";
  * the media rides the certificate and the port the platform already has, and
  * there is no second hostname for anybody to configure or get wrong.
  */
-function resolveServerUrl(url: string): string {
+export function resolveServerUrl(url: string, origin: string): string {
   if (url) return url;
-  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${scheme}://${window.location.host}/rtc`;
+  const scheme = origin.startsWith("https:") ? "wss" : "ws";
+  // The origin, and deliberately not `${origin}/rtc`. The SDK appends `/rtc`
+  // itself, so naming it here asked production for `/rtc/rtc` — a path the
+  // media server does not serve, answered `404`, and retried forever behind a
+  // tile that looked like a camera nobody had switched on.
+  //
+  // Every check this feature passed — the token, the grants, the proxy, the
+  // certificate — passes with the room never connecting. There is a test
+  // beside this file now, because the next person to touch it will have the
+  // same instinct.
+  return `${scheme}://${new URL(origin).host}`;
 }
 
 function Tiles() {
@@ -100,7 +109,7 @@ export function MediaStage({
     return (
       <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
         <LiveKitRoom
-          serverUrl={resolveServerUrl(grant.url)}
+          serverUrl={resolveServerUrl(grant.url, window.location.href)}
           token={grant.token}
           connect
           audio
