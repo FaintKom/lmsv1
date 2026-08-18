@@ -119,6 +119,55 @@ test.describe("a lesson with video in it", () => {
     await teacher.getByRole("button", { name: /close|закрыть/i }).first().click();
   });
 
+  test("a recording is made, told to everybody, and handed back", async () => {
+    // The pupils' cameras are live fake devices here, which is the honest
+    // limit of this test: Chrome paints the same test pattern for every
+    // participant, so no pixel can say whose camera it came from. The
+    // "holds nobody else" boundary is enforced by construction and by the
+    // unit test that reads only the local participant (recorder.test.ts,
+    // demonstrated failing against a room composite). What a browser CAN
+    // prove end to end is everything around it, and that is what this does.
+    await teacher.getByRole("button", { name: /^record|записать/i }).click();
+
+    // Told to everybody, not only the one who pressed it (FR-020) — the
+    // pupil's indicator is fed by the server, so a browser that missed the
+    // start event still learns.
+    await expect(teacher.getByText(/^recording$|идёт запись/i)).toBeVisible({ timeout: 15_000 });
+    await expect(pupilA.getByText(/^recording$|идёт запись/i)).toBeVisible({ timeout: 15_000 });
+
+    // Long enough for MediaRecorder to cut at least one chunk.
+    await teacher.waitForTimeout(3_000);
+    await teacher.getByRole("button", { name: /stop recording|остановить запись/i }).click();
+    await expect(teacher.getByText(/recording saved|запись сохранена/i)).toBeVisible({
+      timeout: 30_000,
+    });
+
+    // The server has the file: ready, linked, with a duration — and it is a
+    // real WebM, which the first four bytes state (EBML magic). The pupil is
+    // refused the same file until a teacher deliberately shares it, and that
+    // pair of checks lives in pytest where both sides of it are cheap.
+    const rec = await teacher.evaluate(async () => {
+      const rows = await fetch("/api/v1/recordings", { credentials: "include" }).then((r) =>
+        r.json(),
+      );
+      const row = rows[0];
+      const file = await fetch(row.download_url, { credentials: "include" });
+      const head = new Uint8Array(await file.arrayBuffer()).slice(0, 4);
+      return {
+        status: row.status,
+        seconds: row.duration_seconds,
+        fileStatus: file.status,
+        magic: Array.from(head)
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join(" "),
+      };
+    });
+    expect(rec.status).toBe("ready");
+    expect(rec.seconds).toBeGreaterThanOrEqual(1);
+    expect(rec.fileStatus).toBe(200);
+    expect(rec.magic).toBe("1a 45 df a3");
+  });
+
   test("a removed pupil is out, and stays out", async () => {
     await teacher
       .getByRole("button", { name: /QA Student Two/i })

@@ -408,11 +408,17 @@ small, and every one of them broke the feature completely.
   plugged in. Found by T084 asserting a pupil is told they are muted; fixed by
   deriving the listener list from the dispatch map so the list cannot forget
   what the map knows
+- [x] T110 A pupil already in the room never learned a recording had started.
+  The indicator asked the server once on mount, which covers a late joiner and
+  nobody else; the media_recording_started/stopped events published since
+  slice 4 had no handler in the channel map — same class as T109, found the
+  same way: the journey put a pupil in the room, started recording, and
+  asserted the pupil was told (FR-020)
 - [x] T108 A muted pupil was never told. FR-012 says in as many words that a
   participant muted by a teacher must be told so, and nothing said it: the
   endpoint silenced the track and published no event, the channel had no
   handler, and the pupil heard their own silence and guessed. Found by T084 on
   its first real run — no unit test could, because every piece worked
-- [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
+- [~] T096 (browser-provable part done 2026-08-18 — the journey records, tells everybody, uploads and hands back a real WebM with a duration; the source-attribution half stays with T086, because Chrome's fake cameras paint one identical pattern for every participant and no pixel can say whose it was) Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

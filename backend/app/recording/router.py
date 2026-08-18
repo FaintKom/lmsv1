@@ -290,7 +290,15 @@ async def list_recordings(
     # teacher deliberately shared with the group. Every branch is scoped by
     # organisation — the old query filtered on user_id alone, which happened to
     # be safe only because it never showed anybody else's.
-    query = select(Recording).where(Recording.org_id == user.org_id)
+    # Newest first, stated rather than assumed: without an order the database
+    # returns whatever it likes, and "the recording I just made" lands anywhere
+    # in the list. The first question this endpoint answers is "where is the
+    # one from today's lesson".
+    query = (
+        select(Recording)
+        .where(Recording.org_id == user.org_id)
+        .order_by(Recording.created_at.desc())
+    )
     if user.role in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
         result = await db.execute(query)
     else:

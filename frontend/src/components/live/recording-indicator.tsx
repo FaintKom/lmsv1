@@ -20,16 +20,31 @@ import { useTranslation } from "@/lib/i18n/context";
 export function RecordingIndicator({
   lessonId,
   canRecord,
+  liveRecordingId,
 }: {
   lessonId: string;
   /** Whether to offer the control. The server refuses regardless. */
   canRecord: boolean;
+  /**
+   * The server's current word on whether a recording is running, carried in
+   * over the lesson channel. The mount-time fetch below covers somebody who
+   * arrives late; this covers somebody already here when it starts — who used
+   * to learn nothing at all (T110).
+   */
+  liveRecordingId?: string | null;
 }) {
   const { t } = useTranslation();
   const { localParticipant } = useLocalParticipant();
   const [recordingId, setRecordingId] = useState<string | null>(null);
   const [handle, setHandle] = useState<LessonRecorder | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // The channel outranks the mount-time snapshot, but never this browser's
+  // own in-flight recording: the person who pressed the button must not have
+  // their handle yanked by their own start event arriving back.
+  useEffect(() => {
+    if (liveRecordingId !== undefined && !handle) setRecordingId(liveRecordingId);
+  }, [liveRecordingId, handle]);
 
   // Ask on mount, so a late arrival sees the indicator straight away.
   useEffect(() => {
