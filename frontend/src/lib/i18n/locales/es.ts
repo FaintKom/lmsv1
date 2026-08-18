@@ -2935,6 +2935,7 @@ const es: TranslationMap = {
  "live.media.recordStart": "Grabar",
  "live.media.recordStop": "Detener grabación",
  "live.media.recordSaved": "Grabación guardada",
+ "live.media.recordOpen": "Abrir",
  "live.media.recordFailed": "No se pudo grabar",
  "live.media.join": "Unirse al vídeo",
  "live.media.connecting": "Conectando…",

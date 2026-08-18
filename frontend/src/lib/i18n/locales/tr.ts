@@ -2938,6 +2938,7 @@ const tr: TranslationMap = {
  "live.media.recordStart": "Kaydet",
  "live.media.recordStop": "Kaydı durdur",
  "live.media.recordSaved": "Kayıt kaydedildi",
+ "live.media.recordOpen": "Aç",
  "live.media.recordFailed": "Kaydedilemedi",
  "live.media.join": "Görüntülü katıl",
  "live.media.connecting": "Bağlanıyor…",

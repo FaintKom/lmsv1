@@ -75,8 +75,17 @@ export function RecordingIndicator({
         method: "POST",
         credentials: "include",
       });
-      await uploadRecording(recordingId, file);
-      toast.success(t("live.media.recordSaved"));
+      const saved = recordingId;
+      await uploadRecording(saved, file);
+      // Handed over straight away. Otherwise the teacher has a file they can
+      // only reach by knowing its id, and there is no page that lists them yet.
+      toast.success(t("live.media.recordSaved"), {
+        action: {
+          label: t("live.media.recordOpen"),
+          onClick: () => window.open(`/api/v1/recordings/${saved}/file`, "_blank"),
+        },
+        duration: 15000,
+      });
     } catch {
       toast.error(t("live.media.recordFailed"));
     } finally {

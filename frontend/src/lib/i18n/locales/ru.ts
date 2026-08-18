@@ -2945,6 +2945,7 @@ const ru: TranslationMap = {
  "live.media.recordStart": "Записать",
  "live.media.recordStop": "Остановить запись",
  "live.media.recordSaved": "Запись сохранена",
+ "live.media.recordOpen": "Открыть",
  "live.media.recordFailed": "Не удалось записать",
  "live.media.join": "Подключить видео",
  "live.media.connecting": "Подключение…",

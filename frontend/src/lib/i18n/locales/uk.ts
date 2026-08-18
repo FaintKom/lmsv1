@@ -2997,6 +2997,7 @@ const uk: TranslationMap = {
  "live.media.recordStart": "Записати",
  "live.media.recordStop": "Зупинити запис",
  "live.media.recordSaved": "Запис збережено",
+ "live.media.recordOpen": "Відкрити",
  "live.media.recordFailed": "Не вдалося записати",
  "live.media.join": "Приєднатися до відео",
  "live.media.connecting": "З'єднання…",
