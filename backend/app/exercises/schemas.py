@@ -92,7 +92,12 @@ class MathInteractiveConfig(BaseModel):
     template_type: str = "coordinate_plane"
     template_config: dict = {}
     custom_html: str | None = None
-    success_condition: dict = {}
+    # `success_condition` lived here and was read by nobody: not the templates,
+    # which decide from their own `template_config`, and not the server, which
+    # does not mark this type at all. A seeded exercise carried
+    # {"kind": "click_origin"} next to an instruction telling the pupil to drag
+    # two points, and neither the audit nor the code could say which was the
+    # task, because the field never was one.
     difficulty: str = "beginner"
     instructions: str = ""
 
