@@ -220,6 +220,36 @@ class ExerciseListResponse(BaseModel):
 # ─── Submission schemas ─────────────────────────────────────────────
 
 
+class GameResultPayload(BaseModel):
+    """What a game level reports when the browser has finished playing a run.
+
+    Typed rather than a bare dict because `_submit_game_level` hands `score`
+    straight to `float()`. A word there raised ValueError and the pupil read
+    `Internal server error`; now the request is refused with 422 naming the
+    field. Unknown keys are still accepted, so a client that sends more than
+    this keeps working.
+    """
+
+    completed: bool = False
+    score: float = 0.0
+    steps_used: int | None = None
+    time_seconds: float | None = None
+    code_snapshot: str | None = None
+    replay_log: list | dict | None = None
+
+
+class WebCodePayload(BaseModel):
+    """The three files a web-editor submission carries.
+
+    Typed for the same reason: `html` is stored in a VARCHAR column, so a list
+    reached the driver and failed there, long after the request was accepted.
+    """
+
+    html: str = ""
+    css: str = ""
+    js: str = ""
+
+
 class SubmitExerciseRequest(BaseModel):
     """Universal submit request. Depending on exercise type, different fields are used."""
 
@@ -234,14 +264,12 @@ class SubmitExerciseRequest(BaseModel):
     # it carried the client's own verdict, which the server then recorded
     # verbatim. A request that still sends it is accepted and the field ignored,
     # so an old client cannot forge a pass — it simply gets graded on its code.
-    game_result: dict | None = (
-        None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
-    )
+    game_result: GameResultPayload | None = None
     # robot_2d. The program, and nothing about how it went — the server runs it
     # and reaches its own verdict. {source, mode: "python"|"blocks"}
     robot: dict | None = None
     # Web editor (HTML/CSS/JS)
-    web_code: dict | None = None  # {html, css, js}
+    web_code: WebCodePayload | None = None
     # Time-on-task (Phase 1 analytics). Optional — older clients omit it and
     # the submission still succeeds with the timing fields left NULL. Clamped
     # server-side to [0, 86400] (24h) to drop garbage / tab-switch inflation.

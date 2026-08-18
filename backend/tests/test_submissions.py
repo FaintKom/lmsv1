@@ -427,3 +427,128 @@ def test_every_watched_type_names_a_key_its_grader_reads():
     for ex_type, key in _ANSWER_KEY_BY_TYPE.items():
         score, passed, _ = grade_interactive_detail({key: samples[ex_type]}, ex_type, {})
         assert score == 0.0, f"{ex_type}: empty answer against a real key should score 0"
+
+
+@pytest.mark.parametrize(
+    "exercise_type,config,good_answer,junk_answer",
+    [
+        (
+            ExerciseType.crossword,
+            {"grid_size": 5, "words": [{"word": "CAT", "row": 0, "col": 0, "direction": "across"}]},
+            {"words": {"0": "CAT"}},
+            {"words": "not-a-dict"},
+        ),
+        (
+            ExerciseType.map_pin_drop,
+            {
+                "map_url": "/static/map.png",
+                "pins": [{"label": "Paris", "x": 0.5, "y": 0.3, "tolerance": 0.05}],
+            },
+            {"pins": [{"x": 0.5, "y": 0.3}]},
+            {"pins": "not-a-list"},
+        ),
+        (
+            ExerciseType.srs_flashcard,
+            {"cards": [{"front": "2+2", "back": "4"}]},
+            {"ratings": {"0": "good"}},
+            {"ratings": ["good"]},
+        ),
+    ],
+)
+async def test_answer_of_the_wrong_type_scores_zero_instead_of_crashing(
+    client: AsyncClient, db, org, teacher, student, exercise_type, config, good_answer, junk_answer
+):
+    """A value of the wrong type inside the answer must not reach the grader raw.
+
+    The earlier fix normalised the container: `interactive_answers` has to be a
+    dict. What it holds stayed unchecked, so a string where the grader expects a
+    mapping, or a list where it expects a mapping, reached `.get` and raised â€”
+    the student saw `Internal server error` and the teacher saw nothing at all.
+    Measured 2026-08-18 on the QA stack: crossword and map_pin_drop both 500.
+
+    Each case opens with the answer that should score, so a test that passes
+    cannot be passing against an endpoint that refuses everything.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(db, lesson.id, org.id, exercise_type=exercise_type, config=config)
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": good_answer},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+
+    junk = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": junk_answer},
+        headers=auth_header(student),
+    )
+    assert junk.status_code == 200, junk.text
+    assert junk.json()["score"] == 0
+    assert junk.json()["passed"] is False
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "exercise_type,config,field,good_payload,junk_payload",
+    [
+        (
+            ExerciseType.world_3d,
+            {"grid_width": 3, "grid_depth": 3, "cells": [], "win_condition": "reach_goal"},
+            "game_result",
+            {"completed": True, "score": 1.0},
+            {"completed": "yes", "score": "lots"},
+        ),
+        (
+            ExerciseType.web_editor,
+            {"description": "Make it red", "starter_html": "<p>hi</p>"},
+            "web_code",
+            {"html": "<p>hi</p>", "css": "", "js": ""},
+            {"html": []},
+        ),
+    ],
+)
+async def test_game_and_web_payloads_are_refused_not_crashed(
+    client: AsyncClient,
+    db,
+    org,
+    teacher,
+    student,
+    exercise_type,
+    config,
+    field,
+    good_payload,
+    junk_payload,
+):
+    """`game_result` and `web_code` were declared as bare dicts, so nothing
+    checked what was inside them.
+
+    A non-numeric score reached `float()` and raised ValueError; a list where
+    html belongs reached the INSERT and raised asyncpg's DataError against a
+    VARCHAR column. Both surfaced as 500. Refusing the request with 422 is the
+    honest answer â€” the client sent something the field cannot hold.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(db, lesson.id, org.id, exercise_type=exercise_type, config=config)
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={field: good_payload},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+
+    junk = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={field: junk_payload},
+        headers=auth_header(student),
+    )
+    assert junk.status_code == 422, junk.text

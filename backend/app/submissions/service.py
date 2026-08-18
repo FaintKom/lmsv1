@@ -184,6 +184,24 @@ def _as_answer_dict(answers: object) -> dict:
     return answers if isinstance(answers, dict) else {}
 
 
+def _as_value_dict(value: object) -> dict:
+    """A student's answer for one key, where the grader walks it as a mapping.
+
+    `_as_answer_dict` guards the envelope; this guards what sits inside it. The
+    two were found separately: with the envelope fixed on 2026-08-17, a string
+    under `words` and a list under `ratings` still reached `.get` and raised, so
+    the pupil read `Internal server error` and the teacher saw nothing. An
+    unusable answer now grades as an empty one, which is what a cleared answer
+    already did.
+    """
+    return value if isinstance(value, dict) else {}
+
+
+def _as_value_list(value: object) -> list:
+    """Same guard, for the keys a grader iterates or indexes."""
+    return value if isinstance(value, list) else []
+
+
 def grade_interactive_detail(
     content: dict, exercise_type: str, answers: dict
 ) -> tuple[float, bool, PerItem]:
@@ -264,7 +282,7 @@ def _grade_matching_detail(content: dict, answers: dict) -> tuple[float, bool, P
     pairs = content.get("pairs", [])
     if not pairs:
         return 1.0, True, None
-    student_pairs = answers.get("pairs", [])
+    student_pairs = _as_value_list(answers.get("pairs"))
     correct_map = {p["left"]: p["right"] for p in pairs}
     picked = {sp.get("left"): sp.get("right") for sp in student_pairs if isinstance(sp, dict)}
     per_item = {str(left): picked.get(left) == right for left, right in correct_map.items()}
@@ -274,7 +292,7 @@ def _grade_matching_detail(content: dict, answers: dict) -> tuple[float, bool, P
 
 def _grade_ordering(content: dict, answers: dict) -> tuple[float, bool]:
     correct_order = content.get("correct_order", [])
-    student_order = answers.get("order", [])
+    student_order = _as_value_list(answers.get("order"))
     if not correct_order:
         return 1.0, True
     if student_order == correct_order:
@@ -287,7 +305,7 @@ def _grade_ordering(content: dict, answers: dict) -> tuple[float, bool]:
 
 def _grade_fill_blanks(content: dict, answers: dict) -> tuple[float, bool]:
     blanks = content.get("blanks", [])
-    student_blanks = answers.get("blanks", [])
+    student_blanks = _as_value_list(answers.get("blanks"))
     if not blanks:
         return 1.0, True
     correct = 0
@@ -316,7 +334,7 @@ def _grade_categorize_detail(content: dict, answers: dict) -> tuple[float, bool,
     """Grade categorize. per_item = {item: verdict} — an item counts correct
     only when it sits in the bucket its config category names."""
     categories = content.get("categories", [])
-    student_categories = answers.get("categories", {})
+    student_categories = _as_value_dict(answers.get("categories"))
     if not categories:
         return 1.0, True, None
     # item -> where the student put it
@@ -398,7 +416,7 @@ def _grade_dialogue_detail(content: dict, answers: dict) -> tuple[float, bool, P
         drives the grade)
     """
     messages = content.get("messages") or []
-    selections = (answers or {}).get("selections") or {}
+    selections = _as_value_dict(answers.get("selections"))
     per_item: dict[str, bool] = {}
     for i, msg in enumerate(messages):
         options = (msg or {}).get("options")
@@ -445,7 +463,7 @@ def _grade_conjugation_detail(content: dict, answers: dict) -> tuple[float, bool
         return s
 
     table = content.get("table", [])
-    student_answers = answers.get("conjugations", {})  # {pronoun: answer}
+    student_answers = _as_value_dict(answers.get("conjugations"))  # {pronoun: answer}
     if not table:
         return 1.0, True, None
     per_item: dict[str, bool] = {}
@@ -472,7 +490,7 @@ def _grade_reading_detail(content: dict, answers: dict) -> tuple[float, bool, Pe
       - a list of dicts {id, label, is_correct} (id-based check)
     """
     questions = content.get("questions") or []
-    student_answers = (answers or {}).get("answers") or {}
+    student_answers = _as_value_dict(answers.get("answers"))
     if not questions:
         return 1.0, True, None
     per_item: dict[str, bool] = {}
@@ -507,7 +525,7 @@ def _grade_reading_detail(content: dict, answers: dict) -> tuple[float, bool, Pe
 def _grade_srs_flashcard(content: dict, answers: dict) -> tuple[float, bool]:
     """Grade SRS flashcards — pass if student rated all cards good or easy."""
     cards = content.get("cards", [])
-    ratings = answers.get("ratings", {})
+    ratings = _as_value_dict(answers.get("ratings"))
     if not cards:
         return 1.0, True
     good_ratings = {"good", "easy"}
@@ -525,7 +543,7 @@ def _grade_crossword(content: dict, answers: dict) -> tuple[float, bool]:
 def _grade_crossword_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
     """Grade crossword. per_item = {word index: verdict}."""
     words = content.get("words", [])
-    student_words = answers.get("words", {})
+    student_words = _as_value_dict(answers.get("words"))
     if not words:
         return 1.0, True, None
     per_item: dict[str, bool] = {}
@@ -540,7 +558,7 @@ def _grade_crossword_detail(content: dict, answers: dict) -> tuple[float, bool, 
 def _grade_word_search(content: dict, answers: dict) -> tuple[float, bool]:
     """Grade word search — check how many hidden words were found."""
     hidden_words = content.get("words", [])
-    found = answers.get("found_words", [])
+    found = _as_value_list(answers.get("found_words"))
     if not hidden_words:
         return 1.0, True
     expected_set = {w.strip().lower() for w in hidden_words}
@@ -558,7 +576,7 @@ def _grade_map_pin_drop(content: dict, answers: dict) -> tuple[float, bool]:
 def _grade_map_pin_drop_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
     """Grade map pin drop — pins within tolerance. per_item = verdict per pin."""
     pins = content.get("pins", [])
-    student_pins = answers.get("pins", [])
+    student_pins = _as_value_list(answers.get("pins"))
     if not pins:
         return 1.0, True, None
     per_item: list[bool] = []
@@ -567,6 +585,9 @@ def _grade_map_pin_drop_detail(content: dict, answers: dict) -> tuple[float, boo
             per_item.append(False)
             continue
         sp = student_pins[i]
+        if not isinstance(sp, dict):
+            per_item.append(False)
+            continue
         dx = sp.get("x", 0) - pin.get("x", 0)
         dy = sp.get("y", 0) - pin.get("y", 0)
         dist = (dx**2 + dy**2) ** 0.5
@@ -584,7 +605,7 @@ def _grade_bubble_sheet(content: dict, answers: dict) -> tuple[float, bool]:
 def _grade_bubble_sheet_detail(content: dict, answers: dict) -> tuple[float, bool, PerItem]:
     """Grade bubble sheet — standard MC answer sheet. per_item = {index: verdict}."""
     questions = content.get("questions", [])
-    student_answers = answers.get("answers", {})
+    student_answers = _as_value_dict(answers.get("answers"))
     if not questions:
         return 1.0, True, None
     per_item: dict[str, bool] = {}
