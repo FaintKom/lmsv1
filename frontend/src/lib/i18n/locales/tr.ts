@@ -666,7 +666,7 @@ const tr: TranslationMap = {
  "game.collectAll": "Tüm nesneleri topla!",
  "game.completeTask": "Görevi tamamla!",
  "game.noCommands": "Komut yok. Blok ekleyin!",
- "game.noCommandsPython": "Komut bulunamadı. robot.move_forward() vb. yazın.",
+ "game.noCommandsPython": "Komut bulunamadı. move_forward() vb. yazın.",
  "game.goalNotReached": "Program bitti ama hedefe ulaşılamadı.",
  "game.statements": "satır",
  "game.blocksTab": "Bloklar",

@@ -68,8 +68,11 @@ function buildSubmitBody(
       "math_stepwise",
     ].includes(t);
 
+  // world_3d and math_interactive still post the browser's verdict. robot_2d
+  // no longer can: since spec 005 the server runs the program itself and grades
+  // off its own trace, so the only submission it accepts is source code.
   const game = (t: ExerciseTypeSpec["type"]) =>
-    ["robot_2d", "world_3d", "math_interactive"].includes(t);
+    ["world_3d", "math_interactive"].includes(t);
 
   if (spec.type === "quiz" && questionId) {
     return { answers: [{ question_id: questionId, selected_option: "4" }] };
@@ -85,6 +88,10 @@ function buildSubmitBody(
   }
   if (spec.type === "web_editor") {
     return { web_code: { html: "<p>hello</p>", css: "p{color:red}", js: "" } };
+  }
+  if (spec.type === "robot_2d") {
+    // The fixture level is three wide with the goal two steps to the right.
+    return { robot: { source: "move_right()\nmove_right()\n" } };
   }
   if (game(spec.type)) {
     return {

@@ -652,7 +652,7 @@ const ru: TranslationMap = {
  "game.collectAll": "Собери все предметы!",
  "game.completeTask": "Выполни задание!",
  "game.noCommands": "Нет команд. Добавь блоки!",
- "game.noCommandsPython": "Нет команд. Напиши robot.move_forward() и т.д.",
+ "game.noCommandsPython": "Нет команд. Напиши move_forward() и т.д.",
  "game.goalNotReached": "Программа завершилась, но цель не достигнута.",
  "game.statements": "строк",
  "game.blocksTab": "Блоки",

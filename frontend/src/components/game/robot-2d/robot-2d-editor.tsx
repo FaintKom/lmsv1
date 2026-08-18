@@ -377,7 +377,7 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
             cellSize={Math.min(48, 400 / Math.max(gridWidth, gridHeight))}
             editMode
             activeTool={isCellType(activeTool) ? activeTool : "empty"}
-            onCellClick={paint}
+            onCellPress={paint}
             onCellEnter={(x, y) => painting && paint(x, y)}
           />
           <p className="mt-2 text-3xs text-text-subtle">{t("robot.dragHint")}</p>

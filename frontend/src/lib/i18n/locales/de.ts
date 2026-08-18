@@ -703,7 +703,7 @@ const de: TranslationMap = {
  "game.collectAll": "Sammle alle Gegenstände!",
  "game.completeTask": "Schließe die Aufgabe ab!",
  "game.noCommands": "Keine Befehle vorhanden. Füge Blöcke hinzu!",
- "game.noCommandsPython": "Keine Befehle gefunden. Schreibe robot.move_forward() usw.",
+ "game.noCommandsPython": "Keine Befehle gefunden. Schreibe move_forward() usw.",
  "game.goalNotReached": "Programm beendet, aber das Ziel wurde nicht erreicht.",
  "game.statements": "Zeilen",
  "game.blocksTab": "Blöcke",
