@@ -298,9 +298,6 @@ finished file arrives against that lesson and can be played back.
 - **FR-027**: A recording MUST contain the teacher's microphone, the teacher's
   camera and the teacher's screen share, and MUST NOT contain any other
   participant's camera or microphone.
-- **FR-027**: A recording MUST contain the teacher's microphone, the teacher's
-  camera and the teacher's screen share, and MUST NOT contain any other
-  participant's camera or microphone.
 
 #### Operating within the platform
 

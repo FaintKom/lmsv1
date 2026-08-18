@@ -248,8 +248,21 @@ file holds the teacher and the screen and nobody else.
 - [x] T089 [P] Add a Vitest to `frontend/src/lib/live/recorder.test.ts` asserting the recorder builds its stream only from local tracks and never touches a remote participant's track. FR-027 is otherwise checked only by a human watching a file play back, and this is the check that catches somebody "improving" it into a room composite
 - [ ] T084 Write `frontend/e2e/live-media.spec.ts`: one teacher and two pupils — start, join, share, mute one, remove the other, end
 - [ ] T085 **Owner-gated. Do not apply without an explicit yes.** Add the nginx `stream` block with `ssl_preread` on 443 in `nginx/nginx.conf`, routing `turn.grasslms.online` to the embedded TURN and everything else to the HTTPS server moved to `127.0.0.1:8443`. Issue a **separate standalone certificate** for that hostname and **never add it to the `grasslms.online` bundle** — bundling a subdomain is what expired the production certificate on 2026-07-29. Rehearse on the QA stack, run `nginx -t`, and have the rollback ready before applying (research.md Finding E, SC-005)
-- [ ] T086 Run `quickstart.md` end to end against a real lesson, including the check that a recording holds no pupil
-- [ ] T087 Verify in production after the deploy: poll both the CI run and the deploy run to completion, hold a real lesson with two accounts, and watch `docker stats` and `free -h` on the host while it runs. State in the pull request body which guard tests were demonstrated failing before their fix, which Constitution principle II requires and a green suite does not show
+- [ ] T086 Run `quickstart.md` end to end against a real lesson, including the check that a recording holds no pupil — **blocked on people, not on code.** Needs two accounts with real cameras in the same lesson; the passwords live in the owner's password manager and the browser pane cannot capture devices. What can be asserted without them has been: the recorder reads only local publications (`recorder.test.ts`, demonstrated failing against a version that reaches for the room)
+- [x] T087 Verify in production after the deploy: poll both the CI run and the deploy run to completion, hold a real lesson with two accounts, and watch `docker stats` and `free -h` on the host while it runs. State in the pull request body which guard tests were demonstrated failing before their fix, which Constitution principle II requires and a green suite does not show — **done 2026-08-18** against `ffa8921`, each check paired with a control:
+
+  | Check | Before | After | Control |
+  |---|---|---|---|
+  | `Permissions-Policy` | `camera=()` | `camera=(self)` | `geolocation` still `false` |
+  | `featurePolicy.allowsFeature('camera')` | `false` | `true` | same for microphone |
+  | Migration | `lk1br3ak0ut5`, 0 of 3 columns | `r3c0rd1ng5x`, all 3 | — |
+  | 51 MB to `/api/v1/recordings/.../upload` | — | `401` (reached the app) | same payload to `/api/v1/submissions` → `413` |
+  | New routes | — | five answer `401` | `/media/nope-control` → `404` |
+  | Media container across the deploy | — | `lms-livekit-1` up 13 h, untouched | backend/frontend recreated, up 2 min |
+
+  Host after the deploy: 8 containers, ~425 MiB, 2.3 GiB available, disk 11 GiB free. The media container idles at 48.7 MiB of its 700 MB cap.
+
+  Not verified, and needing a second person rather than more effort: a lesson held with two real cameras. The capture path is proven only as far as the browser being *allowed* to capture
 
 ---
 
