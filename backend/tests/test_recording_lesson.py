@@ -186,7 +186,7 @@ async def test_upload_stores_the_file_and_the_server_decides_where(
     assert done.status_code == 200
     body = done.json()
     assert body["status"] == "ready"
-    assert body["storage_url"]
+    assert body["download_url"] == f"/api/v1/recordings/{rid}/file"
 
 
 async def test_a_client_cannot_choose_where_its_recording_points(
@@ -213,7 +213,7 @@ async def test_a_client_cannot_choose_where_its_recording_points(
         headers=auth_header(teacher),
     )
     assert done.status_code == 200
-    assert "example.invalid" not in done.json()["storage_url"]
+    assert "example.invalid" not in (done.json()["download_url"] or "")
 
 
 async def test_only_the_recorder_may_upload(client: AsyncClient, db, org, teacher, student):
@@ -439,3 +439,89 @@ async def test_the_disk_guard_says_yes_when_there_is_room(tmp_path):
         assert rec_service.room_for(1024) is True
     finally:
         settings.upload_dir = saved
+
+
+# --- A recording nobody can watch is not a recording -------------------------
+
+
+async def upload(client: AsyncClient, rid: str, who, body: bytes = b"pretend webm") -> None:
+    resp = await client.put(
+        f"/api/v1/recordings/{rid}/upload",
+        content=body,
+        headers={**auth_header(who), "Content-Type": "video/webm"},
+    )
+    assert resp.status_code == 200, resp.text
+
+
+async def test_the_teacher_can_watch_what_they_recorded(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Positive control for everything below: the file comes back."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher, b"pretend webm bytes")
+
+    resp = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(teacher))
+    assert resp.status_code == 200, resp.text
+    assert resp.content == b"pretend webm bytes"
+
+
+async def test_a_pupil_cannot_watch_a_recording_that_was_not_shared(
+    client: AsyncClient, db, org, teacher, student
+):
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+
+    resp = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(student))
+    assert resp.status_code == 404
+
+    shared = await client.patch(
+        f"/api/v1/recordings/{rid}",
+        json={"shared_with_group": True},
+        headers=auth_header(teacher),
+    )
+    assert shared.status_code == 200
+
+    # Same pupil, same file, one deliberate act in between.
+    allowed = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(student))
+    assert allowed.status_code == 200
+
+
+async def test_another_school_cannot_watch_it_even_once_shared(
+    client: AsyncClient, db, org, teacher, student, admin2
+):
+    """Sharing is with a class, not with the internet (Constitution I)."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+    await upload(client, rid, teacher)
+    await client.patch(
+        f"/api/v1/recordings/{rid}",
+        json={"shared_with_group": True},
+        headers=auth_header(teacher),
+    )
+
+    resp = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(admin2))
+    assert resp.status_code == 404
+
+
+async def test_a_recording_with_no_file_yet_is_absent_rather_than_broken(
+    client: AsyncClient, db, org, teacher, student
+):
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+
+    resp = await client.get(f"/api/v1/recordings/{rid}/file", headers=auth_header(teacher))
+    assert resp.status_code == 404
+
+    listed = await client.get("/api/v1/recordings", headers=auth_header(teacher))
+    row = next(r for r in listed.json() if r["id"] == rid)
+    assert row["download_url"] is None

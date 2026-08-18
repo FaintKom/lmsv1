@@ -46,7 +46,7 @@
 | `/peer-review` | `app/peer_review/router.py` | Distribution, rubrics, submit review |
 | `/progress` | `app/progress/router.py` | Enrollment, lesson completion, video progress |
 | `/recommendations` | `app/recommendations/router.py` | Personalized recs |
-| `/recordings` | `app/recording/router.py` | Audio/video submissions и записи живых уроков: `PUT /{id}/upload`, `/complete`, `PATCH /{id}` (открыть группе). `storage_url` определяет сервер, не клиент |
+| `/recordings` | `app/recording/router.py` | Audio/video submissions и записи живых уроков: `PUT /{id}/upload` (предел `MAX_RECORDING_UPLOAD_MB`), `/complete`, `PATCH /{id}` (открыть группе), `GET /{id}/file` — сама запись. Клиенту отдаётся маршрут, а не путь на диске; куда лёг файл, решает сервер |
 | `/sandbox` | `app/sandbox/router.py` | Исполнение кода в собственном контейнере (Judge0 убран — код учеников не уходит наружу) |
 | `/skills` | `app/skills/router.py` | Skill XP, радар |
 | `/submissions` | `app/submissions/router.py` | Generic file submissions |

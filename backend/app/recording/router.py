@@ -3,13 +3,15 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User, UserRole
+from app.common.storage import get_storage
 from app.config import settings
 from app.db.session import get_db
 from app.recording import service as rec_service
@@ -27,12 +29,34 @@ class RecordingResponse(BaseModel):
     user_id: uuid.UUID
     org_id: uuid.UUID
     type: str
-    storage_url: str | None
+    download_url: str | None
     duration_seconds: int | None
     size_bytes: int | None
     status: str
 
     model_config = {"from_attributes": True}
+
+
+def _visible(recording: Recording) -> RecordingResponse:
+    """Shape a recording for a client.
+
+    The row stores where the file actually is, which for local storage is a
+    path inside the container. That is no use to a browser and tells a pupil
+    how the server lays out its disk, so what goes out is the route that
+    serves the bytes, and only once there are bytes to serve.
+    """
+    return RecordingResponse(
+        id=recording.id,
+        user_id=recording.user_id,
+        org_id=recording.org_id,
+        type=recording.type.value if hasattr(recording.type, "value") else str(recording.type),
+        download_url=(f"/api/v1/recordings/{recording.id}/file" if recording.storage_url else None),
+        duration_seconds=recording.duration_seconds,
+        size_bytes=recording.size_bytes,
+        status=(
+            recording.status.value if hasattr(recording.status, "value") else str(recording.status)
+        ),
+    )
 
 
 class RecordingInitResponse(BaseModel):
@@ -77,16 +101,7 @@ async def init_recording(
     # pre-signed S3/R2 URL here using the storage backend settings.
     upload_url = f"/api/v1/recordings/{recording.id}/upload"
     return RecordingInitResponse(
-        recording=RecordingResponse(
-            id=recording.id,
-            user_id=recording.user_id,
-            org_id=recording.org_id,
-            type=recording.type,
-            storage_url=recording.storage_url,
-            duration_seconds=recording.duration_seconds,
-            size_bytes=recording.size_bytes,
-            status=recording.status,
-        ),
+        recording=_visible(recording),
         upload_url=upload_url,
         instructions="PUT your file to the upload_url with the correct Content-Type header.",
     )
@@ -123,7 +138,7 @@ async def complete_recording(
         days=rec_service.retention_days(org)
     )
     await db.flush()
-    return recording
+    return _visible(recording)
 
 
 @router.put("/{recording_id}/upload", response_model=RecordingResponse)
@@ -193,7 +208,7 @@ async def upload_recording(
     )
     recording.size_bytes = len(data)
     await db.flush()
-    return recording
+    return _visible(recording)
 
 
 @router.patch("/{recording_id}", response_model=RecordingResponse)
@@ -223,7 +238,47 @@ async def share_recording(
 
     recording.shared_with_group = body.shared_with_group
     await db.flush()
-    return recording
+    return _visible(recording)
+
+
+@router.get("/{recording_id}/file")
+async def download_recording(
+    recording_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Serve the file itself.
+
+    Without this a recording is write-only: it uploads, it is listed, and
+    nobody can ever watch it. Visibility matches the listing exactly — staff
+    see their school's recordings, a pupil sees their own and whatever a
+    teacher deliberately shared — because two places deciding who may watch a
+    room full of children is one place too many.
+    """
+    query = select(Recording).where(Recording.id == recording_id, Recording.org_id == user.org_id)
+    if user.role not in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
+        query = query.where(
+            or_(Recording.user_id == user.id, Recording.shared_with_group.is_(True))
+        )
+    recording = (await db.execute(query)).scalar_one_or_none()
+    # 404 rather than 403: another school's recording, and one not shared with
+    # this pupil, are both simply absent.
+    if not recording or not recording.storage_url:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recording not found")
+
+    if settings.storage_backend == "local":
+        # Streamed by the server rather than read into memory: the cap allows
+        # 300 MB, and a handful of parents watching at once must not each cost
+        # that much of a 3.7 GB host.
+        return FileResponse(
+            recording.storage_url,
+            media_type="video/webm",
+            filename=f"recording-{recording.id}.webm",
+        )
+    return Response(
+        content=get_storage().read(rec_service.storage_path(recording)),
+        media_type="video/webm",
+    )
 
 
 @router.get("", response_model=list[RecordingResponse])
@@ -242,4 +297,4 @@ async def list_recordings(
         result = await db.execute(
             query.where(or_(Recording.user_id == user.id, Recording.shared_with_group.is_(True)))
         )
-    return result.scalars().all()
+    return [_visible(r) for r in result.scalars().all()]
