@@ -22,10 +22,11 @@
     {
       "type": "code_challenge",
       "label": "Code Challenge",
+      "$note": "A program, not a function: the sandbox feeds test_case.input on stdin and compares stdout with expected_output. The earlier def add(a, b) pair read nothing and printed nothing, so the reference solution failed its own two cases and the exercise was unsolvable as written. backend/tests/test_qa_fixtures.py now runs this solution against these cases.",
       "config": {
         "language": "python",
-        "starter_code": "def add(a, b):\n    pass",
-        "solution_code": "def add(a, b):\n    return a + b",
+        "starter_code": "a, b = map(int, input().split())\n# Print their sum.\n",
+        "solution_code": "a, b = map(int, input().split())\nprint(a + b)\n",
         "time_limit_seconds": 5,
         "memory_limit_mb": 128
       },
