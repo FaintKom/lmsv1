@@ -125,25 +125,79 @@ export const DIFFICULTY_3D_TOOLBOXES: Record<Difficulty, ToolboxDef> = {
  },
 };
 
-/** Build a toolbox from an explicit list of available block types. */
-export function buildToolboxFromBlocks(blocks: string[]): ToolboxDef {
- const allCategories = [
- movementCategory(),
- itemsCategory(),
- loopsCategory(),
- conditionsCategory(),
- mathCategory(),
- world3dCategory(),
- ];
+/**
+ * Build a Robot 2D toolbox from the commands a level offers.
+ *
+ * Block ids equal command names, so this is a plain filter — the level's one
+ * list drives the palette, and it cannot offer a command whose block is absent.
+ *
+ * Control flow is not filtered. `for`, `while` and `if` are Python, not
+ * commands the world grants: a level withholds `paint`, never `if`.
+ */
+export function buildToolboxFromBlocks(commands: string[]): ToolboxDef {
+ const offered = new Set(commands);
+ const has = (...names: string[]) => names.some((n) => offered.has(n));
+ const only = (...names: string[]) =>
+ names.filter((n) => offered.has(n)).map((type) => ({ kind: "block" as const, type }));
 
- const filtered = allCategories
- .map((cat) => ({
- ...cat,
- contents: cat.contents.filter((b) => blocks.includes(b.type)),
- }))
- .filter((cat) => cat.contents.length > 0);
+ const contents: ToolboxCategory[] = [];
 
- return { kind: "categoryToolbox", contents: filtered };
+ const moves = only(
+ "move_up",
+ "move_down",
+ "move_left",
+ "move_right",
+ "move_forward",
+ "turn_left",
+ "turn_right",
+ );
+ if (moves.length > 0) contents.push(makeCategory("movement", MOTION, moves));
+
+ const handling = only("take", "drop", "paint");
+ if (handling.length > 0) contents.push(makeCategory("items", ITEM, handling));
+
+ if (has("read", "write")) {
+ contents.push(
+ makeCategory("numbers", MATH, [
+ ...only("read"),
+ ...(offered.has("write")
+ ? [
+ {
+ kind: "block" as const,
+ type: "write",
+ inputs: { N: { shadow: { type: "math_number", fields: { NUM: 1 } } } },
+ },
+ ]
+ : []),
+ { kind: "block" as const, type: "math_number" },
+ ]),
+ );
+ }
+
+ const sensing = only("wall_ahead", "item_here", "at_goal", "painted", "value_here");
+ contents.push(
+ makeCategory("conditions", SENSE, [
+ { kind: "block", type: "controls_if" },
+ ...sensing,
+ ...(sensing.length > 0 ? [{ kind: "block" as const, type: "logic_negate" }] : []),
+ ]),
+ );
+
+ // Always present: this is the language, not the level's gift.
+ contents.push(
+ makeCategory("loops", LOOP, [
+ {
+ kind: "block",
+ type: "repeat_times",
+ inputs: { TIMES: { shadow: { type: "math_number", fields: { NUM: 3 } } } },
+ },
+ ...(offered.has("at_goal") ? [{ kind: "block" as const, type: "while_not_at_goal" }] : []),
+ ]),
+ );
+
+ if (!has("read", "write")) contents.push(mathCategory());
+
+ return { kind: "categoryToolbox", contents };
 }
 
 export const DIFFICULTY_BLOCKS: Record<Difficulty, string[]> = {
