@@ -694,7 +694,7 @@ export default function TeacherLivePage() {
                     should line up by eye, which is why the media moved onto
                     this page at all. */}
                 <div className="mb-3 h-48 shrink-0">
-                  <MediaStage lessonId={lessonId} />
+                  <MediaStage lessonId={lessonId} layout="roll" />
                 </div>
                 <div className="mb-3 shrink-0 border-b border-border pb-3">
                   <BreakoutPanel
