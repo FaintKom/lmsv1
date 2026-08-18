@@ -76,22 +76,18 @@ test.describe("a lesson with video in it", () => {
       await joinCall(pupil);
     }
 
-    // Asserted from the pupils' side, and deliberately so: the teacher's panel
-    // is a few hundred pixels tall and the tile grid paginates inside it, so a
-    // count there measures the panel's height rather than who is in the room
-    // (T107). A pupil's strip is wide enough to hold the class.
-    //
     // Somebody else's tile is the whole point — a room of one renders your own.
     await expect(tileFor(pupilA, TEACHER_TILE)).toHaveCount(1, { timeout: 30_000 });
     await expect(tileFor(pupilA, /QA Student Two/i)).toHaveCount(1, { timeout: 30_000 });
     await expect(tileFor(pupilB, TEACHER_TILE)).toHaveCount(1, { timeout: 30_000 });
 
-    // The teacher's evidence is the roster, which is not paginated: both
-    // pupils are in the lesson, by name.
-    await expect(teacher.getByText(/QA Student(?! Two)/i).first()).toBeVisible({
-      timeout: 30_000,
-    });
-    await expect(teacher.getByText(/QA Student Two/i).first()).toBeVisible({ timeout: 30_000 });
+    // The teacher sees the whole class, not a page of it. This assertion was
+    // once weakened to the roster because the panel's grid paginated — a class
+    // of two showed one pupil (T107). The panel is a scrollable band now, and
+    // this line is the regression test: if pagination ever comes back, a class
+    // of two fails it again.
+    await expect(tileFor(teacher, /QA Student(?! Two)/i)).toHaveCount(1, { timeout: 30_000 });
+    await expect(tileFor(teacher, /QA Student Two/i)).toHaveCount(1, { timeout: 30_000 });
   });
 
   test("the class sees the teacher's screen", async () => {

@@ -396,7 +396,7 @@ small, and every one of them broke the feature completely.
   `size_bytes` to `/complete`, so `duration_seconds` stays null on a row that
   is otherwise `ready` — the column exists, the interface will want it, and
   nothing fills it. The browser knows the length; it simply never says
-- [ ] T107 The teacher's media panel is about 150 pixels tall, and the tile
+- [x] T107 The teacher's media panel is about 150 pixels tall, and the tile
   grid paginates: with a teacher and two pupils in the room, only one pupil is
   in the page at all. Found by T084, which asserted the teacher could see both
   and could not. A teacher who cannot see the class is the opposite of what

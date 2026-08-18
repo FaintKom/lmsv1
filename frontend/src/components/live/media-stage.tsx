@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  CarouselLayout,
   GridLayout,
   MediaDeviceMenu,
   ParticipantTile,
@@ -175,7 +176,20 @@ function RoomControls({
   );
 }
 
-function Tiles({ onScreenShare }: { onScreenShare?: (sharing: boolean) => void }) {
+function Tiles({
+  onScreenShare,
+  layout = "grid",
+}: {
+  onScreenShare?: (sharing: boolean) => void;
+  /**
+   * "grid" fits tiles to the box and paginates the overflow — right for the
+   * pupil's wide strip, wrong for the teacher's narrow panel, where pagination
+   * meant a class of two showed one pupil and a class of fifteen showed the
+   * panel's height (T107). "roll" is a scrollable band of every participant:
+   * nobody is on a page the teacher has not turned.
+   */
+  layout?: "grid" | "roll";
+}) {
   // Camera and screen share in one grid. A placeholder keeps a tile for
   // somebody whose camera is off, so the grid matches the roster beside it
   // instead of quietly dropping people out of the room.
@@ -195,6 +209,13 @@ function Tiles({ onScreenShare }: { onScreenShare?: (sharing: boolean) => void }
     onScreenShare?.(sharing);
   }, [sharing, onScreenShare]);
 
+  if (layout === "roll") {
+    return (
+      <CarouselLayout tracks={tracks} orientation="vertical" className="h-full">
+        <ParticipantTile />
+      </CarouselLayout>
+    );
+  }
   return (
     <GridLayout tracks={tracks} className="h-full">
       <ParticipantTile />
@@ -216,6 +237,7 @@ export function MediaStage({
   lessonId,
   breakoutIndex = null,
   onScreenShare,
+  layout = "grid",
 }: {
   lessonId: string;
   /**
@@ -232,6 +254,8 @@ export function MediaStage({
    * a strip beside a placeholder is a lesson nobody can read.
    */
   onScreenShare?: (sharing: boolean) => void;
+  /** Passed to the tile layout — see Tiles. The teacher's panel uses "roll". */
+  layout?: "grid" | "roll";
 }) {
   const { t } = useTranslation();
   const call = useCall();
@@ -242,8 +266,10 @@ export function MediaStage({
     () => ({
       render: (grant) => (
         <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
-          <div className="min-h-0 flex-1">
-            <Tiles onScreenShare={onScreenShare} />
+          {/* overflow-hidden, or the roll of tiles grows past its box and a
+              video ends up on top of the controls, eating their clicks. */}
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <Tiles onScreenShare={onScreenShare} layout={layout} />
           </div>
           <RoomControls
             canShareScreen={grant.can_publish_screen}
@@ -253,7 +279,7 @@ export function MediaStage({
         </div>
       ),
     }),
-    [lessonId, onScreenShare, call.leave],
+    [lessonId, onScreenShare, layout, call.leave],
   );
 
   // Claim the space while this page is open, hand it back when it closes. The
