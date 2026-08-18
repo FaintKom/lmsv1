@@ -31,7 +31,7 @@ Web application, per plan.md: `backend/app/`, `backend/tests/`, `frontend/src/`,
 
 **Purpose**: make the worktree runnable, and add the one new setting.
 
-- [ ] T001 Install frontend dependencies in the worktree with `npm ci --prefix frontend`, and copy `.env` and `.env.local` from the main checkout — neither is in git
+- [x] T001 Install frontend dependencies in the worktree with `npm ci --prefix frontend`, and copy `.env` and `.env.local` from the main checkout — neither is in git
 - [x] T002 [P] Add `robot_run_rate_limit: str = "60/minute"` to `backend/app/config.py`, beside the existing `sandbox_demo_rate_limit`
 - [x] T003 [P] Document `ROBOT_RUN_RATE_LIMIT` in `.env.example`
 
@@ -86,7 +86,7 @@ losing program and watch it recorded as not passed.
 - [x] T019 [P] [US1] Failing test for tamper resistance in `backend/tests/test_robot_submit.py` — a program that reaches into the simulator and sets the win flag is graded not passed, because the server replays rather than trusts (research Finding B)
 - [x] T020 [P] [US1] Failing test for forgery in `backend/tests/test_robot_submit.py` — a submission carrying `game_result: {completed: true, score: 1.0}` beside a losing program is `passed: false`, **with the winning-program positive control in the same test** (Constitution II)
 - [x] T021 [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that a pupil reading the exercise through all three read endpoints sees no `solution_code`, and a teacher reading the same one does (FR-010)
-- [ ] T022 [P] [US1] Failing tests for the trace player in `frontend/src/components/game/engine/trace-player.test.ts` — play, pause, step, seek and speed over a fixed frame array
+- [x] T022 [P] [US1] Failing tests for the trace player in `frontend/src/components/game/engine/trace-player.test.ts` — play, pause, step, seek and speed over a fixed frame array
 - [x] T022a [P] [US1] Failing tenant-isolation test in `backend/tests/test_robot_submit.py` — a pupil of another school posting to `/robot/run` for this exercise gets 404, **and a pupil of the owning school gets 200 in the same test** (Constitution I). Without the positive control the assertion passes before the route exists
 - [x] T022b [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that twenty runs leave `attempts_remaining` unchanged, and that submitting once decrements it (FR-026, SC-010)
 - [x] T022c [P] [US1] Failing tests for the star rules in `backend/tests/test_robot_runner.py` — the same program on the same level scores identically twice (SC-008), and each threshold is checked at its boundary, one either side (FR-028). They live beside the runner rather than in a file of their own because `stars()` is a function of the runner's own output, and splitting them would mean building that output twice
@@ -102,16 +102,16 @@ losing program and watch it recorded as not passed.
 - [x] T029 [US1] Return `503` from that route when the sandbox does not answer, recording nothing and consuming no attempt
 - [x] T030 [US1] Change `_submit_game_level` in `backend/app/exercises/service.py` so `robot_2d` grades from its own replay and ignores `completed` and `score` from the body; leave `math_interactive` on the old path, still tracked by `specs/004-exercise-answer-leak`
 - [x] T031 [US1] Store the submission as `answers.robot` per data-model.md, and award experience on the server's `won`
-- [ ] T032 [P] [US1] Create `frontend/src/components/game/engine/trace-player.ts` — play, pause, step, seek and speed over a frame array
-- [ ] T033 [US1] Move `step-executor.ts` into World 3D rather than deleting it — `frontend/src/components/game/world-3d/world-3d-exercise.tsx:22` imports `parseCommands` and calls it at line 113, so deleting the module stops World 3D compiling. Relocate it to `frontend/src/components/game/world-3d/legacy-step-executor.ts`, unreferenced by anything in `robot-2d/`, and delete it for real in `specs/006-world-3d-rework`
-- [ ] T033a [US1] Confirm by grep that nothing under `frontend/src/components/game/robot-2d/` imports the relocated executor, and that `npx tsc --noEmit` is clean — the `_while` machinery that never re-read its condition must be gone from the 2D path even though the file survives for 3D
-- [ ] T034 [US1] Strip the rules from `frontend/src/components/game/robot-2d/grid-engine.ts`, keeping only the types the renderer needs
+- [x] T032 [P] [US1] Create `frontend/src/components/game/engine/trace-player.ts` — play, pause, step, seek and speed over a frame array
+- [x] T033 [US1] Move `step-executor.ts` into World 3D rather than deleting it — `frontend/src/components/game/world-3d/world-3d-exercise.tsx:22` imports `parseCommands` and calls it at line 113, so deleting the module stops World 3D compiling. Relocate it to `frontend/src/components/game/world-3d/legacy-step-executor.ts`, unreferenced by anything in `robot-2d/`, and delete it for real in `specs/006-world-3d-rework`
+- [x] T033a [US1] Confirm by grep that nothing under `frontend/src/components/game/robot-2d/` imports the relocated executor, and that `npx tsc --noEmit` is clean — the `_while` machinery that never re-read its condition must be gone from the 2D path even though the file survives for 3D
+- [x] T034 [US1] Strip the rules from `frontend/src/components/game/robot-2d/grid-engine.ts`, keeping only the types the renderer needs
 - [ ] T035 [US1] Rewrite `frontend/src/components/game/robot-2d/grid-renderer.tsx` to draw a frame, including painted floors and values on cells
-- [ ] T036 [US1] Add `runRobot` to `frontend/src/lib/api/exercises.ts`, posting `{source, mode}` and returning the run result — no completion field in either direction
-- [ ] T037 [US1] Rewrite the run path in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` to post the code, receive a trace and play it, **fixing the `[speed, handleReset]` dependency arrays** that made edited Python unrunnable
-- [ ] T038 [US1] Show the error panel in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` and mark the reported line in Monaco (FR-005)
-- [ ] T039 [US1] Add the output pane to `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, separate from the robot, with the truncation marker (FR-007)
-- [ ] T040 [US1] Drive Monaco's theme from the `isDark` state already computed and thrown away in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`
+- [x] T036 [US1] Add `runRobot` to `frontend/src/lib/api/exercises.ts`, posting `{source, mode}` and returning the run result — no completion field in either direction
+- [x] T037 [US1] Rewrite the run path in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` to post the code, receive a trace and play it, **fixing the `[speed, handleReset]` dependency arrays** that made edited Python unrunnable
+- [x] T038 [US1] Show the error panel in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` and mark the reported line in Monaco (FR-005)
+- [x] T039 [US1] Add the output pane to `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, separate from the robot, with the truncation marker (FR-007)
+- [x] T040 [US1] Drive Monaco's theme from the `isDark` state already computed and thrown away in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`
 
 **Checkpoint**: levels are playable, loops loop, and the verdict is the server's.
 
@@ -134,13 +134,13 @@ Four blocks, four commands in the starter, no turning command anywhere.
 
 ### Implementation
 
-- [ ] T043 [US2] Change **only the Python generators** in `frontend/src/components/game/blockly/custom-blocks.ts` to emit `move_up()` rather than `robot.move_up()`, and add blocks for `paint`, `read`, `write`, `painted` and `value_here`. The JavaScript generators stay exactly as they are — `world-3d-exercise.tsx:113` parses their output with a regex expecting the `robot.` prefix, and this file is shared
-- [ ] T044 [US2] Rebuild `frontend/src/components/game/blockly/toolbox-configs.ts` around `buildToolboxFromBlocks`. Three consumers outside this feature import from it and must keep working: `blockly-workspace.tsx:7-8` (`ToolboxDef`, `Difficulty`, `DIFFICULTY_TOOLBOXES`), `world-3d-exercise.tsx:23-24` (`Difficulty`, `DIFFICULTY_3D_TOOLBOXES`) and `world-3d-editor.tsx:7` (`Difficulty`). Keep those exports; demote them from source of truth to preset, without removing them
+- [x] T043 [US2] Change **only the Python generators** in `frontend/src/components/game/blockly/custom-blocks.ts` to emit `move_up()` rather than `robot.move_up()`, and add blocks for `paint`, `read`, `write`, `painted` and `value_here`. The JavaScript generators stay exactly as they are — `world-3d-exercise.tsx:113` parses their output with a regex expecting the `robot.` prefix, and this file is shared
+- [x] T044 [US2] Rebuild `frontend/src/components/game/blockly/toolbox-configs.ts` around `buildToolboxFromBlocks`. Three consumers outside this feature import from it and must keep working: `blockly-workspace.tsx:7-8` (`ToolboxDef`, `Difficulty`, `DIFFICULTY_TOOLBOXES`), `world-3d-exercise.tsx:23-24` (`Difficulty`, `DIFFICULTY_3D_TOOLBOXES`) and `world-3d-editor.tsx:7` (`Difficulty`). Keep those exports; demote them from source of truth to preset, without removing them
 - [ ] T044a [US2] Open a World 3D level in the browser after T043 and T044 and confirm it still runs — this spec declares 3D out of scope, which protects it only if the tasks that touch shared files check
-- [ ] T045 [US2] Pass `config.commands` to the workspace in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the `difficulty` prop that made the teacher's choice unreachable
-- [ ] T046 [US2] Submit the generated Python in block mode from `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, so blocks and Python share one execution path (FR-003)
-- [ ] T047 [US2] Generate the starter file's comment header from `config.commands` in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the hardcoded Russian block
-- [ ] T048 [US2] Register a Monaco completion provider in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` offering exactly `config.commands`, disposed on unmount
+- [x] T045 [US2] Pass `config.commands` to the workspace in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the `difficulty` prop that made the teacher's choice unreachable
+- [x] T046 [US2] Submit the generated Python in block mode from `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, so blocks and Python share one execution path (FR-003)
+- [x] T047 [US2] Generate the starter file's comment header from `config.commands` in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the hardcoded Russian block
+- [x] T048 [US2] Register a Monaco completion provider in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` offering exactly `config.commands`, disposed on unmount
 - [ ] T049 [US2] Add the grouped command palette to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` — checkboxes over contracts/commands.md, with presets that tick boxes and leave them editable (FR-021)
 
 **Checkpoint**: a course is a sequence of levels, not a pile of grids.
