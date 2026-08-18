@@ -225,8 +225,10 @@ Check again: it reports a step count, which matches a hand-counted path.
   `drop` and a move a wall refused each count as one.
 - **FR-028**: The second star MUST be awarded when the run's step count falls
   within the level's step threshold. The third MUST be awarded when the program's
-  size falls within the level's size threshold, where size counts blocks in the
-  block editor and statements in Python.
+  size falls within the level's size threshold, where size is the number of
+  statements in the program the system ran. Because a block program is turned
+  into the same statements before it runs, one rule serves both editors and
+  neither side reports its own size.
 
 **What counts as winning**
 
@@ -238,8 +240,10 @@ Check again: it reports a step count, which matches a hand-counted path.
   direction; the run took no more than a given number of steps; every cell
   carrying a value has been read; the values written to the grid satisfy a stated
   total.
-- **FR-031**: The win condition MUST be evaluated where the program was run, and
-  MUST NOT be sent to the pupil.
+- **FR-031**: The win condition is the pupil's instructions and MUST be shown to
+  them, in words, before they write anything. What MUST NOT reach the pupil is
+  the verdict: whether the condition holds is decided by the system, never
+  reported to it.
 - **FR-032**: The editor MUST refuse a win condition no arrangement of the grid
   can satisfy — asking for painted cells on a grid with none marked, or for a
   collection on a grid holding no items.
