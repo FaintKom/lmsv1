@@ -136,7 +136,7 @@ Four blocks, four commands in the starter, no turning command anywhere.
 
 - [x] T043 [US2] Change **only the Python generators** in `frontend/src/components/game/blockly/custom-blocks.ts` to emit `move_up()` rather than `robot.move_up()`, and add blocks for `paint`, `read`, `write`, `painted` and `value_here`. The JavaScript generators stay exactly as they are — `world-3d-exercise.tsx:113` parses their output with a regex expecting the `robot.` prefix, and this file is shared
 - [x] T044 [US2] Rebuild `frontend/src/components/game/blockly/toolbox-configs.ts` around `buildToolboxFromBlocks`. Three consumers outside this feature import from it and must keep working: `blockly-workspace.tsx:7-8` (`ToolboxDef`, `Difficulty`, `DIFFICULTY_TOOLBOXES`), `world-3d-exercise.tsx:23-24` (`Difficulty`, `DIFFICULTY_3D_TOOLBOXES`) and `world-3d-editor.tsx:7` (`Difficulty`). Keep those exports; demote them from source of truth to preset, without removing them
-- [ ] T044a [US2] Open a World 3D level in the browser after T043 and T044 and confirm it still runs — this spec declares 3D out of scope, which protects it only if the tasks that touch shared files check
+- [x] T044a [US2] Open a World 3D level in the browser after T043 and T044 and confirm it still runs — this spec declares 3D out of scope, which protects it only if the tasks that touch shared files check
 - [x] T045 [US2] Pass `config.commands` to the workspace in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the `difficulty` prop that made the teacher's choice unreachable
 - [x] T046 [US2] Submit the generated Python in block mode from `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, so blocks and Python share one execution path (FR-003)
 - [x] T047 [US2] Generate the starter file's comment header from `config.commands` in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the hardcoded Russian block
@@ -186,7 +186,7 @@ and names what blocks it. Remove one wall; the step count matches a hand count.
 - [x] T067 Show the win condition to the pupil in words in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` — it is their instructions, not a secret (FR-031)
 - [ ] T068 [P] Write the journey in `frontend/e2e/journeys/robot-2d.spec.ts` — teacher builds a level, Check reports a step count, saves; pupil solves it; the submission is passed
 - [ ] T069 [P] Register the journey with the QA stack alongside the eight existing ones in `frontend/e2e/`
-- [ ] T070 Measure the Run round trip against the real sandbox per quickstart §7 and record the figure in `research.md` under Finding J, whether it passes SC-009 or not
+- [x] T070 Measure the Run round trip against the real sandbox per quickstart §7 and record the figure in `research.md` under Finding J, whether it passes SC-009 or not
 - [ ] T071 Delete `custom_win_js` from `backend/app/exercises/schemas.py` and confirm by grep that nothing in `backend/` or `frontend/src/` still reads it
 - [ ] T072 Run the whole of [quickstart.md](quickstart.md) and fix what it finds
 
