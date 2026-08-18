@@ -172,7 +172,9 @@ class World:
                 raise StepsExhaustedError()
             self.steps += 1
 
-        self.commands.append(name)
+        # `write` is the one command a name alone does not describe, so it is
+        # recorded with its argument. Everything else records as a bare name.
+        self.commands.append(name if arg is None else [name, int(arg)])
         changed: list[dict] = []
         refusal: str | None = None
 
