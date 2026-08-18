@@ -306,6 +306,9 @@ finished file arrives against that lesson and can be played back.
   any class uses the feature.
 - **FR-025**: A routine release MUST NOT end a lesson in progress. Where media
   services do restart, participants MUST return without teacher intervention.
+- **FR-033**: A participant MUST stay in the call while moving around the
+  platform. Opening a material, a task or any other page is part of taking a
+  lesson, and today each one drops the person out of the room they are in.
 - **FR-031**: When somebody is sharing a screen, that screen MUST become the
   main thing on the page for everybody watching. A shared screen confined to a
   strip beside a placeholder is a lesson nobody can read.

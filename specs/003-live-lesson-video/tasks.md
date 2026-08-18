@@ -369,6 +369,12 @@ small, and every one of them broke the feature completely.
 - [ ] T101 The pupil's pre-join state does not say it is a preview, or that
   choosing a camera and a microphone and then joining is what connects them
   (FR-032)
+- [ ] T102 Clicking any link inside the lesson drops the teacher out of the
+  call: the room is mounted inside the page component, so a route change
+  unmounts it and disconnects (FR-033). Hoist it above the router so it
+  survives navigation, and show it as a small floating tile once the person is
+  no longer on the lesson page — which also gives them the way back T097 asks
+  for
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)
