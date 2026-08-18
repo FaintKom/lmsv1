@@ -139,3 +139,37 @@ def test_fixture_configs_only_use_keys_the_product_declares():
     # Informational, and deliberately not an assertion: these types have no model
     # to check against, which is a gap in the schemas rather than in the fixtures.
     assert len(unmodelled) <= 9, f"more types lost their config model: {sorted(unmodelled)}"
+
+
+def test_fixture_asset_paths_are_shipped_with_the_frontend():
+    """A fixture that points at a file nobody serves leaves a pupil stuck.
+
+    The map pin drop asked a pupil to tap a map at /static/qa-fixtures/world-map.png.
+    Nothing serves /static: production answered 404, the widget drew a blank
+    gradient, and the exercise could not be done. Measured through a student
+    session on 2026-08-19.
+
+    Anything the fixtures reference by absolute path has to exist under
+    frontend/public, which Next serves from the site root.
+    """
+    public = _FIXTURES.parent.parent / "frontend" / "public"
+    assert public.is_dir(), f"frontend/public not found at {public}"
+
+    fixtures = json.loads(_FIXTURES.read_text(encoding="utf-8"))["fixtures"]
+    missing = []
+    checked = 0
+    for fixture in fixtures:
+        for key, value in (fixture.get("config") or {}).items():
+            if not isinstance(value, str) or not value.startswith("/"):
+                continue
+            if not any(
+                value.endswith(ext)
+                for ext in (".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".zip")
+            ):
+                continue
+            checked += 1
+            if not (public / value.lstrip("/")).exists():
+                missing.append(f"{fixture['type']}.{key} -> {value}")
+
+    assert checked, "no asset paths in the fixtures — has the shape changed?"
+    assert not missing, "fixtures point at files nobody ships: " + ", ".join(missing)
