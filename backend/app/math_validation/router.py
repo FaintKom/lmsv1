@@ -74,34 +74,6 @@ def _are_equivalent(a, b) -> bool:
     return service.are_equivalent(a, b)
 
 
-_ALT_SEP = re.compile(r"\s*(?:or|или|,|;)\s*", re.IGNORECASE | re.UNICODE)
-
-
-def _parse_answer_set(s: str) -> set:
-    """Parse a student answer that may list multiple solutions.
-
-    Accepts: "2", "x = 2", "x = 2 or 3", "x = 2, x = 3", "x=2; x=3".
-    """
-    s = (s or "").strip()
-    if not s:
-        return set()
-    parts = _ALT_SEP.split(s)
-    out: set = set()
-    for p in parts:
-        p = p.strip()
-        if not p:
-            continue
-        m = re.match(r"^[A-Za-z]\w*\s*=\s*(.*)$", p)
-        if m:
-            p = m.group(1).strip()
-        try:
-            out.add(_parse(p))
-        except HTTPException as e:
-            logger.warning("_parse_answer_set: skipping part %r: %s", p, e.detail)
-            continue
-    return out
-
-
 # ─── Schemas ────────────────────────────────────────────────────────────
 
 
@@ -188,8 +160,8 @@ async def check_answer(
     body: CheckAnswerIn, user: User = Depends(get_current_user)
 ) -> CheckAnswerOut:
     """Compare a student final answer to the teacher's expected answer."""
-    student = _parse_answer_set(body.student)
-    expected = _parse_answer_set(body.expected)
+    student = service.parse_answer_set(body.student)
+    expected = service.parse_answer_set(body.expected)
     return CheckAnswerOut(
         correct=student == expected and len(expected) > 0,
         student_parsed=sorted(str(x) for x in student),

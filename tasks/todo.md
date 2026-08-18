@@ -412,7 +412,7 @@ OpenRouter free-модели ($0, баланс не трогается). Про�
 в редакторе: **первое же реальное задание любого из четырёх вернёт обе дыры**.
 Список ниже — входной барьер, а не бэклог.
 
-- [ ] `math_stepwise` — **строка выше врала**: server-graded он не был никогда.
+- [x] `math_stepwise` — **строка выше врала**: server-graded он не был никогда.
       Клиент сверяет ответ с `cfg.final_answer`
       ([math-stepwise-exercise.tsx:331](../frontend/src/components/exercises/math-stepwise-exercise.tsx))
       и шлёт `correct` в payload. На сервере тип падает в `else` →
@@ -420,6 +420,10 @@ OpenRouter free-модели ($0, баланс не трогается). Про�
       нет, → `0.0, False`. **Побочный эффект: любая сдача math_stepwise
       получает 0 и «не пройдено», независимо от ответа.** Ветку писать не с
       нуля: `/math-validation/check-answer` уже делает саму сверку, её и звать.
+      **Сделано 2026-08-18 (PR #350):** разбор ответа переехал из роутера в
+      `math_validation/service.py`, `_submit_math_stepwise` зовёт его же, и
+      клиентский `correct` больше не читается. Срез ключа `final_answer` —
+      вторая половина, остаётся за 004.
 - [ ] `math_interactive` — ключи лежат в `template_config` и разные на каждый
       из 8 шаблонов (`final_answer`, `correct_answers`, `answers`,
       `rule_answer`, `target_slope`/`target_intercept`, `target_points`,
