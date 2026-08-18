@@ -267,6 +267,45 @@ class World:
             return self.here in self.values
         raise RobotError("not_offered")
 
+    # ─── State, for the search ───────────────────────────────────────
+
+    def snapshot(self) -> tuple:
+        """Everything a command can change, as a hashable value.
+
+        The shortest-solution search walks millions of states. Building a fresh
+        ``World`` for each would mean re-parsing the level every time, and
+        re-deriving the rules by hand would mean a second copy of them. This is
+        the third option: one world, restored between expansions.
+        """
+        return (
+            self.x,
+            self.y,
+            self.facing,
+            self.carrying,
+            frozenset(self.items),
+            frozenset(self.painted),
+            frozenset(self.values_read),
+            tuple(sorted(self.values.items())),
+            self.steps,
+        )
+
+    def restore(self, snap: tuple) -> None:
+        (
+            self.x,
+            self.y,
+            self.facing,
+            self.carrying,
+            items,
+            painted,
+            values_read,
+            values,
+            self.steps,
+        ) = snap
+        self.items = set(items)
+        self.painted = set(painted)
+        self.values_read = set(values_read)
+        self.values = dict(values)
+
     # ─── Did they win? ───────────────────────────────────────────────
 
     def evaluate(self, expr: dict | None = None) -> bool:

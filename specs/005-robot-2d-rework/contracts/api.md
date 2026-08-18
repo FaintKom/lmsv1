@@ -161,9 +161,16 @@ Searched, and there is no path:
 |---|---|---|
 | `answer` | enum | `shortest` · `reference_only` · `unsolvable` |
 | `steps` | int or null | Fills `star_steps` (FR-017), labelled by `answer` |
-| `size` | int or null | Fills `star_size`; present only with a reference solution |
-| `reason` | enum or null | `too_many_targets` · `win_uses_values` · `no_reference_solution` |
+| `size` | int or null | Fills `star_size`; present only with a reference solution that wins |
+| `reason` | enum or null | `too_many_targets` · `win_uses_values` |
 | `blockers` | array | Same shape as `/robot/preview` |
+
+`reason` and `blockers` answer different questions, and the split is deliberate.
+`reason` says why no search was run — the teacher needs that whether or not they
+have written a solution. Whether a *usable* solution exists is a blocker
+(`no_reference_solution`), because it is a thing they can go and fix. A reference
+solution that loses reports its figures nowhere: a run that did not finish the
+level is not evidence the level can be finished.
 
 `answer` exists so the editor can never render a reference-solution figure as an
 optimum. A client that ignores it is a defect the tests catch.
