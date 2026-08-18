@@ -25,7 +25,7 @@ decrypting them:
                          │                                │
             127.0.0.1:8444 (TLS ends here)      127.0.0.1:8443 (the site)
                          │
-        plain TURN → lms-livekit-1:5349  (external_tls: true)
+        plain TURN → lms-livekit-1:443   (external_tls: true)
 ```
 
 The media server never sees a certificate. One process holds a private key, one
@@ -153,7 +153,14 @@ And the relay is reachable by the name it advertises:
 ssh root@204.168.165.41 "docker logs lms-livekit-1 2>&1 | grep 'Starting TURN server'"
 ```
 
-Expect `turn.portTLS: 5349` and `turn.externalTLS: true`.
+Expect `turn.portTLS: 443` and `turn.externalTLS: true`.
+
+**443 is not an arbitrary internal port.** LiveKit advertises whatever
+`tls_port` says as the candidate it hands browsers, so pointing it at 5349
+would tell a pupil to reach the relay on a port closed from outside — every
+part of this working, and the feature still not happening. Nothing publishes
+it: that is 443 inside the media container's own namespace, and the host's 443
+still belongs to nginx.
 
 ## Rolling back
 
