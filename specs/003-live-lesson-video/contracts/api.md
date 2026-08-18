@@ -41,6 +41,7 @@ Response `200`:
   "identity": "<user uuid>",
   "room": "lesson-<uuid>",
   "can_publish_screen": false,
+  "can_record": false,
   "expires_in": 120
 }
 ```

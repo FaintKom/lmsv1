@@ -18,13 +18,21 @@ Browser ─────► Cloudflare Tunnel / nginx (TLS)
               │  lms-backend (8000)  │  FastAPI async
               └─┬──────┬──────┬──────┘
                 │      │      │
-       ┌────────▼┐  ┌──▼──┐  ┌▼────────────┐
-       │ lms-db  │  │redis│  │ lms-sandbox │
-       │ pg16+pgv│  │     │  │ Judge0 CE   │
-       └─────────┘  └─────┘  └─────────────┘
+       ┌────────▼┐  ┌──▼──┐  ┌▼────────────┐  ┌──────────────┐
+       │ lms-db  │  │redis│  │ lms-sandbox │  │ lms-livekit  │
+       │ pg16+pgv│  │     │  │ свой раннер │  │ SFU, 1.2 CPU │
+       └─────────┘  └─────┘  └─────────────┘  └──────────────┘
+                                                     ▲
+                              медиа идёт мимо backend ┘
+                              (WebRTC: UDP 7882-7883, TURN 3478)
 ```
 
-Все 7 контейнеров — на одном Hetzner CX22 (`/opt/lms`). Подробности
+Медиа-стрелка нарисована отдельно не для красоты: кадры и звук идут
+браузер ↔ LiveKit напрямую, backend в этом пути не стоит. Он только
+подписывает токен и решает, кому что можно, — поэтому его перезапуск
+урок не рвёт.
+
+Восемь контейнеров — на одном Hetzner CX22 (`/opt/lms`). Подробности
 production-хостинга — в корневом `CLAUDE.md`.
 
 Внешние сервисы (опциональные, включаются env-переменными):
@@ -36,10 +44,14 @@ production-хостинга — в корневом `CLAUDE.md`.
 - **S3-compatible** — file uploads (R2 / B2 / AWS), пока не используется,
   fallback на локальный диск
 
-## Backend модули (37)
+## Backend модули (37 основных)
 
 Feature-модульная организация. Каждый модуль обычно: `models.py`,
 `schemas.py`, `router.py`, `service.py`. Префиксы — в [`API_REFERENCE.md`](API_REFERENCE.md).
+
+Таблица покрывает основные модули; полный список — `ls backend/app/`.
+Если модуля нет в таблице, это пробел в документе, а не признак того,
+что его нет в коде.
 
 | Модуль | Что делает |
 |---|---|
@@ -55,19 +67,19 @@ Feature-модульная организация. Каждый модуль о�
 | **progress** | Enrollment, lesson completion, video progress, course % |
 | **gamification** | XP, leagues, badges, streaks, leaderboard |
 | **certificates** | Auto-генерация при завершении курса, public verify |
-| **discussions** | Комментарии к урокам, threading |
 | **notifications** | In-app уведомления + email-prefs |
 | **email** | SMTP-обёртка, Jinja-шаблоны |
 | **billing** | Stripe checkout/portal/webhook + Lemon Squeezy |
 | **metered_billing** | Usage-based pricing (P2-9) |
 | **calendar** | События, RRULE, iCal export |
-| **meetings** | Jitsi-комнаты, JWT-protected рекординги |
-| **recording** | Audio/video submissions (MediaRecorder API) |
+| **meetings** | Отдельные встречи и слоты расписания — Jitsi-ссылки |
+| **live_lessons** | Живой урок: комната, роль, доска, опросы, сигналы, SSE |
+| **live_media** | Видео и звук урока: подпись LiveKit-токена, модерация, брейкауты. Единственное место, где собираются права |
+| **recording** | Audio/video submissions и записи уроков (MediaRecorder в браузере), хранение и срок жизни |
+| **tutor** | AI-тьютор: подсказки, не решения. Провайдер модели внешний (`config.llm_base_url`) |
 | **learning_paths** | Цепочки курсов с unlock |
 | **skills** | Skill XP, радар-чарт |
 | **recommendations** | AI-рекомендации (rule-based + Claude API) |
-| **ai** | AI tutor (hints, не решения) |
-| **plagiarism** | Code similarity detection (admin-only) |
 | **peer_review** | Peer-grading с distribution и rubrics |
 | **team_projects** | Командные assignment'ы |
 | **knowledge** | RAG поверх pgvector + Voyage AI embeddings (см. ниже) |
@@ -141,18 +153,38 @@ lifespan и `tests/conftest.py`. Новые модели должны быть �
 In-process (не Celery, чтобы не плодить Redis-зависимости пока не
 понадобится). Конфигурация — `app/scheduler.py`. Текущие jobs:
 - `cleanup_expired_refresh_tokens` — daily 03:10 UTC
-- `send_deadline_reminders` — hourly :15 (stub, расширяется при
-  необходимости)
+- `send_deadline_reminders` — hourly :15
+- `send_crm_task_reminders` — напоминания по заявкам
+- `purge_inactive_students` — удаление неактивных по политике школы
+- `purge_unconfirmed_consent_accounts` — аккаунты без подтверждённого согласия
+- `sweep_stale_recording_uploads` — hourly :25; запись, зависшая в
+  `uploading` дольше четырёх часов, помечается `failed`, иначе интерфейс
+  обещает файл, которого не будет
+- `purge_expired_recordings` — daily 03:50 UTC, до бэкапа в 04:00.
+  Порядок выбран нарочно: после бэкапа истёкшее видео попадало бы в
+  каждую копию ещё на сутки
 
 Backup БД — отдельный cron на хосте, не в backend (`scripts/backup.sh`,
 запускается через crontab пользователя `root` на проде).
 
 ## Что НЕ автоматизировано
 
-- **Alembic миграции на старте** — НЕ запускаются (см. `backend/CLAUDE.md`,
-  раздел про async). Накатываются вручную перед деплоем или CI-шагом
-  до запуска контейнера.
-- **CI/CD деплой** — нет webhook'а на push в main. Деплой = ручной
-  `scp` + `docker compose up -d --build` (см. корневой `CLAUDE.md`).
-- **Staging** — нет (упомянуто в memory `project_staging_env.md` как
-  pending).
+Два пункта, которые стояли здесь до 2026-08-18, были уже неправдой, и
+неправдой опасной — по ним можно было пойти и сломать прод. Что на самом
+деле происходит:
+
+- **Alembic миграции на старте — запускаются.** С 2026-07-19 lifespan
+  гоняет `alembic upgrade head` (`backend/CLAUDE.md`, раздел про async).
+  Слоя `ALTER TABLE IF NOT EXISTS` больше нет: изменение схемы, не
+  оформленное миграцией, до прода не доедет.
+- **Деплой — это мерж в `main`, и он автоматический.** CI собирает образы,
+  кладёт их в GHCR, `deploy.yml` заходит на хост и делает `pull` + `up -d`.
+  Ручного шага между мержем и продом нет. **`scp` кодом на сервер —
+  запрещён** (корневой `CLAUDE.md`); строка про него жила здесь месяцами
+  и противоречила единственному правилу, которое стоит соблюдать буквально.
+
+Чего действительно нет:
+
+- **Staging** — состояние в memory `project_staging_env.md`.
+- **Медиа-контейнер в QA-стеке** — `docker-compose.qa.yml` без LiveKit,
+  пока нет e2e-сценария урока с видео.

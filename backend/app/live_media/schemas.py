@@ -17,6 +17,10 @@ class MediaTokenResponse(BaseModel):
     identity: str
     room: str
     can_publish_screen: bool
+    # Separate from the line above on purpose: a teacher may hand a pupil the
+    # screen, and that pupil must not then be offered a record button the
+    # server will refuse. Still only a hint — the server decides both.
+    can_record: bool
     expires_in: int
 
 

@@ -14,6 +14,7 @@ import { Track } from "livekit-client";
 import { Video, VideoOff } from "lucide-react";
 
 import { fetchBreakoutToken, fetchMediaToken, type MediaToken } from "@/lib/api/live";
+import { RecordingIndicator } from "@/components/live/recording-indicator";
 import { useTranslation } from "@/lib/i18n/context";
 
 import "@livekit/components-styles";
@@ -116,6 +117,9 @@ export function MediaStage({
             <Tiles />
           </div>
           <RoomAudioRenderer />
+          <div className="flex items-center justify-between gap-2 px-2 pt-1">
+            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />
+          </div>
           <ControlBar
             variation="minimal"
             controls={{

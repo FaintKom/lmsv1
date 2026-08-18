@@ -51,6 +51,13 @@ class Settings(BaseSettings):
     # straight back in (FR-003).
     media_grant_ttl_seconds: int = 120
 
+    # The largest lesson recording the server will take. A 45-minute lesson at
+    # the bitrate the browser is told to use lands near 120 MB, so this leaves
+    # room for a long one without letting a single request decide how much of
+    # a 3.7 GB host it may hold. nginx carries a matching limit; raise both or
+    # neither, or the refusal arrives as an unexplained 413 from the proxy.
+    max_recording_upload_mb: int = 300
+
     # Data retention (child-safety / GDPR storage limitation). Student accounts
     # dormant longer than this are purged by the scheduled retention job
     # (app/scheduler.py). 0 disables the purge. Default 24 months.

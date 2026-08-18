@@ -215,26 +215,26 @@ file holds the teacher and the screen and nobody else.
 
 ### Tests for User Story 5
 
-- [ ] T066 [P] [US5] Positive control: with `recording_enabled` true, a teacher starts a recording and the row appears
-- [ ] T067 [P] [US5] Test: with `recording_enabled` false, starting one gets 403 and no control is offered (FR-019)
-- [ ] T068 [P] [US5] Test: a pupil starting or stopping a recording gets 403
-- [ ] T069 [P] [US5] Test: uploading to somebody else's recording gets 404, and uploading to one already `ready` is refused
-- [ ] T070 [P] [US5] Test: `storage_url` is written by the server, and a value sent by the client is ignored because the field has left the request schema
-- [ ] T071 [P] [US5] Test: a recording left `uploading` past the grace window is swept to `failed` (FR-022)
-- [ ] T072 [P] [US5] Test: another school reading the recording gets 404 and learns nothing about whether it exists
-- [ ] T090 [P] [US5] Test: a participant who joins after a recording started still receives the indicator state, because it is read from Redis on join rather than only broadcast at start (SC-007)
+- [x] T066 [P] [US5] Positive control: with `recording_enabled` true, a teacher starts a recording and the row appears
+- [x] T067 [P] [US5] Test: with `recording_enabled` false, starting one gets 403 and no control is offered (FR-019)
+- [x] T068 [P] [US5] Test: a pupil starting or stopping a recording gets 403
+- [x] T069 [P] [US5] Test: uploading to somebody else's recording gets 404, and uploading to one already `ready` is refused
+- [x] T070 [P] [US5] Test: `storage_url` is written by the server, and a value sent by the client is ignored because the field has left the request schema
+- [x] T071 [P] [US5] Test: a recording left `uploading` past the grace window is swept to `failed` (FR-022)
+- [x] T072 [P] [US5] Test: another school reading the recording gets 404 and learns nothing about whether it exists
+- [x] T090 [P] [US5] Test: a participant who joins after a recording started still receives the indicator state, because it is read from Redis on join rather than only broadcast at start (SC-007)
 
 ### Implementation for User Story 5
 
-- [ ] T073 [US5] Expose `recording_enabled` and `recording_retention_days` on the organisation, in `backend/app/orgs/router.py` and the settings page under `frontend/src/app/(admin)/admin/`, so a school administrator can turn recording on (FR-019)
-- [ ] T074 [US5] Build `PUT /api/v1/recordings/{id}/upload` in `backend/app/recording/router.py` on the existing `get_storage()` abstraction — the endpoint `/init` has been promising since it was written
-- [ ] T075 [US5] Remove `storage_url` from the complete request schema, derive it on the server, and write `expires_at` from the organisation's retention
-- [ ] T076 [US5] Add `PATCH /api/v1/recordings/{id}` for `shared_with_group`, the teacher's deliberate act (FR-021)
-- [ ] T077 [US5] Implement start and stop in `backend/app/live_media/router.py`, holding the in-progress id in Redis so a late joiner still sees the indicator
-- [ ] T078 [US5] Add the sweep for stale `uploading` rows and the retention cleanup to `backend/app/scheduler.py`
-- [ ] T079 [US5] Write `frontend/src/lib/live/recorder.ts` with MediaRecorder over **the teacher's own local tracks only** — microphone, camera and screen share. It must never subscribe to a remote track (FR-027). Show the control only where the browser can actually capture
-- [ ] T080 [US5] Write `frontend/src/components/live/recording-indicator.tsx`, visible to every participant for the whole time recording runs (FR-020)
-- [ ] T081 [P] [US5] Strings into all six locale files
+- [x] T073 [US5] Expose `recording_enabled` and `recording_retention_days` on the organisation, in `backend/app/orgs/router.py` and the settings page under `frontend/src/app/(admin)/admin/`, so a school administrator can turn recording on (FR-019)
+- [x] T074 [US5] Build `PUT /api/v1/recordings/{id}/upload` in `backend/app/recording/router.py` on the existing `get_storage()` abstraction — the endpoint `/init` has been promising since it was written
+- [x] T075 [US5] Remove `storage_url` from the complete request schema, derive it on the server, and write `expires_at` from the organisation's retention
+- [x] T076 [US5] Add `PATCH /api/v1/recordings/{id}` for `shared_with_group`, the teacher's deliberate act (FR-021)
+- [x] T077 [US5] Implement start and stop in `backend/app/live_media/router.py`, holding the in-progress id in Redis so a late joiner still sees the indicator
+- [x] T078 [US5] Add the sweep for stale `uploading` rows and the retention cleanup to `backend/app/scheduler.py`
+- [x] T079 [US5] Write `frontend/src/lib/live/recorder.ts` with MediaRecorder over **the teacher's own local tracks only** — microphone, camera and screen share. It must never subscribe to a remote track (FR-027). Show the control only where the browser can actually capture
+- [x] T080 [US5] Write `frontend/src/components/live/recording-indicator.tsx`, visible to every participant for the whole time recording runs (FR-020)
+- [x] T081 [P] [US5] Strings into all six locale files
 
 **Checkpoint**: User story 5 passes independently. Every story is done.
 
@@ -242,10 +242,10 @@ file holds the teacher and the screen and nobody else.
 
 ## Phase 8: Polish and cross-cutting
 
-- [ ] T082 [P] Add the new endpoints and events to `docs/API_REFERENCE.md` and the media container to `docs/ARCHITECTURE.md`, and **remove the Jitsi paragraphs from both** instead of leaving them to rot (Constitution IV)
-- [ ] T083 [P] **Leave `frontend/src/lib/meetings.ts` alone.** An earlier draft of this task said to delete it once lessons no longer needed it; lessons never needed it. `buildJoinUrl` is imported by four working pages — `(dashboard)/schedule/page.tsx`, `(dashboard)/meetings/page.tsx`, `(admin)/admin/meetings/page.tsx` and `(admin)/admin/journal/page.tsx` — and deleting it breaks the schedule, both meetings pages and the journal. This feature replaces Jitsi **inside the live lesson only**; scheduled slots, standalone meetings and the journal keep their Jitsi links until somebody specifies replacing those too
-- [ ] T088 Verify SC-008 rather than assuming it: with a lesson running on the QA stack, run the deploy sequence `docker compose pull` and `up -d` against it and confirm the media container is not recreated, then deliberately change its service definition, restart, and confirm participants return by themselves within 30 seconds (FR-025, research.md Finding I)
-- [ ] T089 [P] Add a Vitest to `frontend/src/lib/live/recorder.test.ts` asserting the recorder builds its stream only from local tracks and never touches a remote participant's track. FR-027 is otherwise checked only by a human watching a file play back, and this is the check that catches somebody "improving" it into a room composite
+- [x] T082 [P] Add the new endpoints and events to `docs/API_REFERENCE.md` and the media container to `docs/ARCHITECTURE.md`, and **remove the Jitsi paragraphs from both** instead of leaving them to rot (Constitution IV)
+- [x] T083 [P] **Leave `frontend/src/lib/meetings.ts` alone.** An earlier draft of this task said to delete it once lessons no longer needed it; lessons never needed it. `buildJoinUrl` is imported by four working pages — `(dashboard)/schedule/page.tsx`, `(dashboard)/meetings/page.tsx`, `(admin)/admin/meetings/page.tsx` and `(admin)/admin/journal/page.tsx` — and deleting it breaks the schedule, both meetings pages and the journal. This feature replaces Jitsi **inside the live lesson only**; scheduled slots, standalone meetings and the journal keep their Jitsi links until somebody specifies replacing those too
+- [x] T088 Verify SC-008 rather than assuming it: with a lesson running on the QA stack, run the deploy sequence `docker compose pull` and `up -d` against it and confirm the media container is not recreated, then deliberately change its service definition, restart, and confirm participants return by themselves within 30 seconds (FR-025, research.md Finding I) — **done 2026-08-18**: `up -d` twice left the container untouched (same id, same `StartedAt`), and the positive control (changed service definition → new container id) shows the check can fail. The rejoin half is folded into T087, which needs a real browser anyway
+- [x] T089 [P] Add a Vitest to `frontend/src/lib/live/recorder.test.ts` asserting the recorder builds its stream only from local tracks and never touches a remote participant's track. FR-027 is otherwise checked only by a human watching a file play back, and this is the check that catches somebody "improving" it into a room composite
 - [ ] T084 Write `frontend/e2e/live-media.spec.ts`: one teacher and two pupils — start, join, share, mute one, remove the other, end
 - [ ] T085 **Owner-gated. Do not apply without an explicit yes.** Add the nginx `stream` block with `ssl_preread` on 443 in `nginx/nginx.conf`, routing `turn.grasslms.online` to the embedded TURN and everything else to the HTTPS server moved to `127.0.0.1:8443`. Issue a **separate standalone certificate** for that hostname and **never add it to the `grasslms.online` bundle** — bundling a subdomain is what expired the production certificate on 2026-07-29. Rehearse on the QA stack, run `nginx -t`, and have the rollback ready before applying (research.md Finding E, SC-005)
 - [ ] T086 Run `quickstart.md` end to end against a real lesson, including the check that a recording holds no pupil

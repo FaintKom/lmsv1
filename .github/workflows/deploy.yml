@@ -263,6 +263,18 @@ jobs:
           BILLING=$(curl -s https://grasslms.online/api/v1/billing/status)
           echo "billing/status: $BILLING"
 
+          # A live lesson needs a camera, and a security header can take that
+          # away without anything looking broken: pages load, the WebSocket
+          # connects, tokens are issued, and only the capture call fails. That
+          # is how `camera=()` shipped and survived three deploys. An empty
+          # allowlist means off for us too, not "same-origin only".
+          PP=$(curl -sSI https://grasslms.online/login | grep -i '^permissions-policy:' || true)
+          echo "$PP"
+          case "$PP" in
+            *"camera=(self)"*) echo "✓ camera allowed same-origin" ;;
+            *) echo "::error::Permissions-Policy does not allow the camera: $PP"; exit 1 ;;
+          esac
+
       - name: Stamp deploy marker
         run: |
           ssh -i ~/.ssh/id_ed25519 \
