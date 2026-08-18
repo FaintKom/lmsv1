@@ -1,6 +1,6 @@
 # 004 — Answer keys reach students through the exercise list
 
-**Status:** in progress · **Branch:** `fix/exercise-config-leak` · 2026-08-18
+**Status:** shipped (PR #323, merged 2026-08-17) · **Branch:** `fix/exercise-config-leak` · 2026-08-18
 
 ## What is wrong
 
@@ -102,3 +102,23 @@ key.
 - A teacher reading the same exercise sees both.
 - A parent is treated as a student (already true in `_may_see_answers`).
 - The new tests fail against the current code on the list endpoint.
+
+## Aftermath, 2026-08-18
+
+The four client-graded types were measured in production rather than assumed:
+nine exercises in all, every one of them demo, QA, or Kitchen Sink content, and
+not a single submission ever made through `/submit` — the 19 rows against
+`math_stepwise` all carried `{"demo_seed": true}` and were written into the
+table by the analytics seeder.
+
+All nine were deleted (dump kept at
+`/opt/lms/backups/client_graded_exercises_20260818.json`). Unpublishing was
+considered and rejected: exercises carry no publish flag, so the only lever is
+`courses.status`, and pulling the four affected courses would have hidden 49
+exercises to cover 9 — including both sales demo courses and the course feeding
+the analytics QA accounts.
+
+So neither hole is reachable today. Both return the moment someone authors a
+new exercise of any of these types, which is why the follow-up in
+`tasks/todo.md` is written as a gate on shipping them again rather than as a
+backlog item.
