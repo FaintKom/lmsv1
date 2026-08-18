@@ -813,3 +813,35 @@ async def test_message_creates_notification(client, db, org, teacher, student):
     # A non-ASCII body is the teacher's own text and must survive the round trip.
     assert any("Смотри на условие" in (n.body or "") for n in notes)
     assert any(n.title == "Hint from your teacher" for n in notes)
+
+
+async def test_media_scenes_are_scenes(client, db, org, teacher, student):
+    """The screen and the faces are things a teacher can put in front of the
+    class, the way a board is (FR-034).
+
+    The rejected garbage type at the end is the control: a schema that accepts
+    everything passes the two asserts above it without validating anything.
+    """
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+
+    for scene in ("screen", "faces"):
+        resp = await client.patch(
+            f"/api/v1/live-lessons/{lesson_id}/scene",
+            json={"type": scene, "payload": {}},
+            headers=auth_header(teacher),
+        )
+        assert resp.status_code == 200, resp.text
+        state = await client.get(f"/api/v1/live-lessons/{lesson_id}", headers=auth_header(student))
+        assert state.json()["lesson"]["current_scene"]["type"] == scene
+
+    refused = await client.patch(
+        f"/api/v1/live-lessons/{lesson_id}/scene",
+        json={"type": "interpretive_dance", "payload": {}},
+        headers=auth_header(teacher),
+    )
+    assert refused.status_code == 422

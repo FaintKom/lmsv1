@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BookOpen,
@@ -16,7 +16,9 @@ import {
   PenLine,
   Puzzle,
   SearchCheck,
+  MonitorUp,
   Square,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -55,7 +57,7 @@ import {
 import { useLessonChannel } from "@/hooks/use-lesson-channel";
 import { useTranslation } from "@/lib/i18n/context";
 
-type Rail = "blank" | "board" | "material" | "task" | "solution";
+type Rail = "blank" | "board" | "material" | "task" | "solution" | "screen" | "faces";
 
 /** One conductor programme step. `hidden` steps stay in the editor but are
  *  skipped by navigation and excluded from the n/m counter. */
@@ -90,7 +92,33 @@ export default function TeacherLivePage() {
   const previewBoardRef = useRef<BoardViewHandle | null>(null);
   const setSceneMut = useSetScene(lessonId);
 
+  // Share-drives-scene, on the EDGE and never the level. Tiles reports
+  // "somebody is sharing" on every mount as well as on change, so acting on
+  // the level made any re-render of the media panel stomp the teacher's later
+  // choice: pick Faces, panel re-renders, scene snaps back to Screen. The
+  // scene flapped between the two until the class was seasick.
+  const sharingRef = useRef<boolean | null>(null);
+  const sceneTypeRef = useRef<string | undefined>(undefined);
+  const onTeacherShare = useCallback(
+    (sharing: boolean) => {
+      const prev = sharingRef.current;
+      sharingRef.current = sharing;
+      if (prev === null || prev === sharing) return; // mount report or no edge
+      if (sharing) {
+        setRail("screen");
+        void setSceneMut.mutateAsync({ type: "screen", payload: {} });
+      } else if (sceneTypeRef.current === "screen") {
+        setRail("blank");
+        void setSceneMut.mutateAsync({ type: "blank", payload: {} });
+      }
+    },
+    [setSceneMut],
+  );
+
   const currentScene = lesson?.current_scene ?? null;
+  useEffect(() => {
+    sceneTypeRef.current = currentScene?.type;
+  }, [currentScene?.type]);
   // remember the last material/task so the task and review rails keep
   // working after the scene moves on (board, poll, blank...)
   const [lastMaterial, setLastMaterial] = useState<{
@@ -541,6 +569,18 @@ export default function TeacherLivePage() {
             setPickingTask(false);
           })}
           {railBtn("solution", SearchCheck, t("live.scene.solution"))}
+          {/* Media scenes (FR-034): the screen and the faces are things to put
+              in front of the class, the way a board is. The screen scene shows
+              whatever is being shared — pressing Share screen also sets it, so
+              one click both publishes and shows. */}
+          {railBtn("screen", MonitorUp, t("live.scene.screen"), () => {
+            setRail("screen");
+            void setSceneMut.mutateAsync({ type: "screen", payload: {} });
+          })}
+          {railBtn("faces", Users, t("live.scene.faces"), () => {
+            setRail("faces");
+            void setSceneMut.mutateAsync({ type: "faces", payload: {} });
+          })}
         </div>
 
         {/* stage */}
@@ -694,7 +734,7 @@ export default function TeacherLivePage() {
                     should line up by eye, which is why the media moved onto
                     this page at all. */}
                 <div className="mb-3 h-48 shrink-0">
-                  <MediaStage lessonId={lessonId} layout="roll" />
+                  <MediaStage lessonId={lessonId} layout="roll" onScreenShare={onTeacherShare} />
                 </div>
                 <div className="mb-3 shrink-0 border-b border-border pb-3">
                   <BreakoutPanel

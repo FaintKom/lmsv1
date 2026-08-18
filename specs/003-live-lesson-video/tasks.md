@@ -375,7 +375,13 @@ small, and every one of them broke the feature completely.
   survives navigation, and show it as a small floating tile once the person is
   no longer on the lesson page — which also gives them the way back T097 asks
   for
-- [ ] T103 Make the shared screen and the faces scenes the teacher can choose,
+- [x] T103 (approved by the owner 2026-08-18: "сцены экран и лица как доска";
+  design — two new scene types `screen` and `faces` beside board/material/task;
+  pressing Share screen sets the scene to `screen` so one click both publishes
+  and shows, stopping falls back to blank; a FACES rail button shows the grid;
+  the pupil page gives the stage to the media area whenever the scene is one of
+  the two, which retires the T100 idle-takeover special case) Make the shared
+  screen and the faces scenes the teacher can choose,
   alongside board, material, task and solution (FR-034). Today they live in a
   strip under whatever the scene is, which is why a shared screen is unreadable
   when the scene is idle. T100 buys space back from the idle placeholder only —

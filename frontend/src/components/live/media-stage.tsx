@@ -176,6 +176,16 @@ function RoomControls({
   );
 }
 
+function ScreenSceneEmpty() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+      <MonitorX className="h-6 w-6 text-text-muted" aria-hidden />
+      <p className="text-sm font-bold text-text">{t("live.media.screenSceneEmpty")}</p>
+    </div>
+  );
+}
+
 function Tiles({
   onScreenShare,
   layout = "grid",
@@ -186,9 +196,11 @@ function Tiles({
    * pupil's wide strip, wrong for the teacher's narrow panel, where pagination
    * meant a class of two showed one pupil and a class of fifteen showed the
    * panel's height (T107). "roll" is a scrollable band of every participant:
-   * nobody is on a page the teacher has not turned.
+   * nobody is on a page the teacher has not turned. "screen" is the shared
+   * screen alone, for the scene of the same name (FR-034): the stage shows the
+   * thing being taught, and the faces stay in the strip.
    */
-  layout?: "grid" | "roll";
+  layout?: "grid" | "roll" | "screen";
 }) {
   // Camera and screen share in one grid. A placeholder keeps a tile for
   // somebody whose camera is off, so the grid matches the roster beside it
@@ -209,6 +221,19 @@ function Tiles({
     onScreenShare?.(sharing);
   }, [sharing, onScreenShare]);
 
+  if (layout === "screen") {
+    const screens = tracks.filter((tr) => tr.source === Track.Source.ScreenShare);
+    if (screens.length === 0) {
+      // The teacher picked the screen scene and is not sharing yet. Saying so
+      // beats a black stage that looks like a broken camera.
+      return <ScreenSceneEmpty />;
+    }
+    return (
+      <GridLayout tracks={screens} className="h-full">
+        <ParticipantTile />
+      </GridLayout>
+    );
+  }
   if (layout === "roll") {
     return (
       <CarouselLayout tracks={tracks} orientation="vertical" className="h-full">
@@ -256,7 +281,7 @@ export function MediaStage({
    */
   onScreenShare?: (sharing: boolean) => void;
   /** Passed to the tile layout — see Tiles. The teacher's panel uses "roll". */
-  layout?: "grid" | "roll";
+  layout?: "grid" | "roll" | "screen";
   /** Server truth about a running recording — see RecordingIndicator. */
   liveRecordingId?: string | null;
 }) {

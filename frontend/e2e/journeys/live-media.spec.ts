@@ -59,6 +59,23 @@ test.describe("a lesson with video in it", () => {
     await new LoginPage(pupilA).loginViaUi("student");
     await new LoginPage(pupilB).loginViaUi("student2");
 
+    // A previous run's lesson survives the runner: starting again answers 409
+    // and the page walks into the OLD lesson, whose scene is whatever that run
+    // died holding. One flaked run then poisons every run after it, which is
+    // how a "screen" scene from a failed attempt broke test one of the next
+    // three. End it, then start clean.
+    await teacher.evaluate(async () => {
+      const active = await fetch("/api/v1/live-lessons/active", { credentials: "include" }).then(
+        (r) => r.json(),
+      );
+      if (active.lesson_id) {
+        await fetch(`/api/v1/live-lessons/${active.lesson_id}/end`, {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+    });
+
     await teacher.goto("/admin/groups");
     await teacher
       .getByRole("button", { name: /начать урок|start lesson/i })
@@ -90,7 +107,7 @@ test.describe("a lesson with video in it", () => {
     await expect(tileFor(teacher, /QA Student Two/i)).toHaveCount(1, { timeout: 30_000 });
   });
 
-  test("the class sees the teacher's screen", async () => {
+  test("the class sees the teacher's screen, on the stage", async () => {
     await teacher.getByRole("button", { name: /share screen|показать экран/i }).click();
 
     // The SDK names a screen tile after its owner, so this cannot be satisfied
@@ -98,6 +115,25 @@ test.describe("a lesson with video in it", () => {
     await expect(pupilA.locator(".lk-participant-tile", { hasText: /screen/i })).toHaveCount(1, {
       timeout: 30_000,
     });
+
+    // Sharing IS deciding to show (FR-034): the scene follows the share, and
+    // the pupil's media area takes the stage rather than a 224-pixel strip.
+    await expect(pupilA.getByTestId("media-on-stage")).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("the faces can be put on the stage like a board", async () => {
+    await teacher.getByRole("button", { name: /^faces|^лица/i }).click();
+
+    // Still the stage — a different scene, the same owner of the layout.
+    await expect(pupilA.getByTestId("media-on-stage")).toBeVisible({ timeout: 15_000 });
+    // And it is the grid, not the lone screen: the teacher's CAMERA is in it.
+    // The screen tile also carries the teacher's name — with the share still
+    // running there are two — so the camera is told apart by what it is not.
+    await expect(
+      pupilA
+        .getByTestId("media-on-stage")
+        .locator(".lk-participant-tile", { hasText: TEACHER_TILE, hasNotText: /screen/i }),
+    ).toHaveCount(1, { timeout: 15_000 });
   });
 
   test("muting one pupil leaves the other alone", async () => {

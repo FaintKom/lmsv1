@@ -50,14 +50,12 @@ export default function StudentLessonPage() {
     courseId: string;
   } | null>(null);
   const [materialOpen, setMaterialOpen] = useState(false);
-  const [sharedScreen, setSharedScreen] = useState(false);
   const [liveRecordingId, setLiveRecordingId] = useState<string | null | undefined>(undefined);
-  // What the teacher put in front of the class always keeps the room: a pupil
-  // solving a task must not have it shrunk to a strip because somebody started
-  // sharing. The only space a shared screen may take is the space the "waiting
-  // for the teacher" placeholder was wasting (FR-031).
-  const sceneIsWork = ["board", "material", "task", "solution"].includes(scene?.type ?? "");
-  const screenTakesOver = sharedScreen && !sceneIsWork;
+  // Media scenes give the stage to the media area (FR-034): the teacher chose
+  // to put the screen or the faces in front of the class, the way they choose
+  // a board. One owner for the layout — the scene — which is what retired the
+  // old special case that guessed from "somebody is sharing while idle".
+  const mediaOnStage = scene?.type === "screen" || scene?.type === "faces";
   const boardHandleRef = useRef<BoardViewHandle | null>(null);
   const prevSceneType = useRef<string | null>(null);
 
@@ -197,7 +195,7 @@ export default function StudentLessonPage() {
           the scene steps back to a strip. Otherwise a pupil reads a teacher's
           screen inside 224 pixels while "waiting for the teacher" holds the
           page (FR-031). */}
-      <div className={screenTakesOver ? "relative h-28 shrink-0 overflow-hidden" : "relative min-h-0 flex-1"}>
+      <div className={mediaOnStage ? "hidden" : "relative min-h-0 flex-1"}>
         {scene && (
           <SceneView
             lessonId={lessonId}
@@ -241,8 +239,9 @@ export default function StudentLessonPage() {
       {/* The faces sit under the scene rather than in a second window: the
           point of this feature is that a lesson is one page. */}
       <div
+        data-testid={mediaOnStage ? "media-on-stage" : undefined}
         className={
-          screenTakesOver
+          mediaOnStage
             ? "min-h-0 flex-1 border-t border-border p-2"
             : "h-56 shrink-0 border-t border-border p-2"
         }
@@ -250,7 +249,7 @@ export default function StudentLessonPage() {
         <MediaStage
           lessonId={lessonId}
           breakoutIndex={breakoutIndex}
-          onScreenShare={setSharedScreen}
+          layout={scene?.type === "screen" ? "screen" : "grid"}
           liveRecordingId={liveRecordingId}
         />
       </div>
