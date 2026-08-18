@@ -162,9 +162,11 @@ async def remove_participant(
     """Remove somebody from the room and keep them out (FR-003)."""
     lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
     target = await _participant_of(lesson, user_id, db)
-    await service.eject(lesson.id, target, grants.room_name(lesson.id))
+    applied = await service.eject(lesson.id, target, grants.room_name(lesson.id))
     await realtime.publish(lesson.id, "all", "media_participant_removed", {"user_id": str(target)})
-    return ModerationResponse()
+    # `applied` is false when they had not joined yet. They are still on the
+    # removed list, so the door stays shut when they try.
+    return ModerationResponse(applied=applied)
 
 
 @router.post("/{lesson_id}/media/floor", response_model=FloorResponse)
@@ -213,7 +215,7 @@ async def set_screen_share(
     """
     lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
     target = await _participant_of(lesson, user_id, db)
-    await service.set_screen_share(
+    applied = await service.set_screen_share(
         lesson.id, target, grants.room_name(lesson.id), allowed=body.allowed
     )
     await realtime.publish(
@@ -222,4 +224,6 @@ async def set_screen_share(
         "media_share_grant_changed",
         {"user_id": str(target), "allowed": body.allowed},
     )
-    return ModerationResponse()
+    # False when they are not in the room yet: the grant is recorded and takes
+    # effect the moment they join.
+    return ModerationResponse(applied=applied)
