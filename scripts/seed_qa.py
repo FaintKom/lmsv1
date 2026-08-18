@@ -99,6 +99,10 @@ QA_PASSWORD = "qa-test-not-for-prod"
 # dedicated UserRole enum value - see backend/app/auth/models.py).
 QA_USERS = [
     {"slug": "qa-student",   "email": "qa-student@qa.example.com",   "role": UserRole.student, "is_methodist": False, "name": "QA Student"},
+    # A second pupil, so a journey can check that removing one leaves the
+    # other alone. A removal that quietly clears the room passes every
+    # single-pupil test there is (FR-011, Constitution II).
+    {"slug": "qa-student2",  "email": "qa-student2@qa.example.com",  "role": UserRole.student, "is_methodist": False, "name": "QA Student Two"},
     {"slug": "qa-teacher",   "email": "qa-teacher@qa.example.com",   "role": UserRole.teacher, "is_methodist": False, "name": "QA Teacher"},
     {"slug": "qa-methodist", "email": "qa-methodist@qa.example.com", "role": UserRole.teacher, "is_methodist": True,  "name": "QA Methodist"},
     {"slug": "qa-admin",     "email": "qa-admin@qa.example.com",     "role": UserRole.admin,   "is_methodist": False, "name": "QA Admin"},
@@ -223,9 +227,13 @@ async def upsert_course_tree(
 
 
 async def upsert_group(
-    db: AsyncSession, org: Organization, course: Course, teacher: User, student: User
+    db: AsyncSession,
+    org: Organization,
+    course: Course,
+    teacher: User,
+    *students: User,
 ) -> StudentGroup:
-    """A group owned by qa-teacher containing qa-student.
+    """A group owned by qa-teacher containing both QA pupils.
 
     e2e/live-lesson.spec.ts states this as its precondition ("qa-teacher must
     own a group containing qa-student") but nothing created it — the spec has
@@ -247,17 +255,18 @@ async def upsert_group(
         group.course_id = course.id
         group.teacher_id = teacher.id
 
-    member = (
-        await db.execute(
-            select(StudentGroupMember).where(
-                StudentGroupMember.group_id == group.id,
-                StudentGroupMember.user_id == student.id,
+    for student in students:
+        member = (
+            await db.execute(
+                select(StudentGroupMember).where(
+                    StudentGroupMember.group_id == group.id,
+                    StudentGroupMember.user_id == student.id,
+                )
             )
-        )
-    ).scalar_one_or_none()
-    if not member:
-        db.add(StudentGroupMember(group_id=group.id, user_id=student.id))
-        await db.flush()
+        ).scalar_one_or_none()
+        if not member:
+            db.add(StudentGroupMember(group_id=group.id, user_id=student.id))
+    await db.flush()
     return group
 
 
@@ -382,8 +391,9 @@ async def main() -> int:
         users = await upsert_users(db, org)
         course, _module, lesson = await upsert_course_tree(db, org, users["qa-teacher"])
         await upsert_enrollment(db, course, users["qa-student"])
+        await upsert_enrollment(db, course, users["qa-student2"])
         group = await upsert_group(
-            db, org, course, users["qa-teacher"], users["qa-student"]
+            db, org, course, users["qa-teacher"], users["qa-student"], users["qa-student2"]
         )
         exercises = await upsert_exercises(db, org, lesson)
         await db.commit()

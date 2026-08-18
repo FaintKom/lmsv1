@@ -32,7 +32,7 @@ actually holds. No feature code is written in this phase.
 **Output**: a number. Nothing in Phase 3 starts until it exists.
 
 - [x] T001 [P] Add a `livekit` service to `docker-compose.yml` for local work: an ordinary bridge, the development key pair, and UDP mux on 7882–7883 per research.md Finding C as revised
-- [ ] T002 [P] ~~Add the same `livekit` service to `docker-compose.qa.yml`~~ — **deferred to slice 1.** Nothing in the QA stack exercises media until the e2e journey at T084 exists, and an unused container makes every PR's e2e gate slower for no return. Move it here when T084 is written
+- [x] T002 [P] Add the same `livekit` service to `docker-compose.qa.yml` — done 2026-08-18 with its own config (`livekit/livekit.qa.yaml`): CI has no route to a public STUN server, and external-IP discovery killed the server before a single test ran — **deferred to slice 1.** Nothing in the QA stack exercises media until the e2e journey at T084 exists, and an unused container makes every PR's e2e gate slower for no return. Move it here when T084 is written
 - [x] T003 Add the `livekit` service to `docker-compose.prod.yml` with the image **pinned to a version tag, never `:latest`** (research.md Finding I: `cloudflared` in the same file uses `:latest`, and copying that habit means a silent restart mid-lesson), plus `restart: unless-stopped` and `deploy.resources.limits` of `cpus: "1.2"` and `memory: 700M`, commented with the arithmetic the way the `sandbox` service comments its own
 - [x] T004 Add `livekit.yaml` at the repository root: UDP mux, TURN on 3478/udp with its relay range published (Finding M), and the audio selection from Finding G that decides whether a fifteen-person room fits
 - [x] T005 [P] Add the six media settings to `backend/app/config.py` per data-model.md, with `max_concurrent_media_participants` defaulting to **0**, meaning media is off until a measurement says otherwise
@@ -246,7 +246,7 @@ file holds the teacher and the screen and nobody else.
 - [x] T083 [P] **Leave `frontend/src/lib/meetings.ts` alone.** An earlier draft of this task said to delete it once lessons no longer needed it; lessons never needed it. `buildJoinUrl` is imported by four working pages — `(dashboard)/schedule/page.tsx`, `(dashboard)/meetings/page.tsx`, `(admin)/admin/meetings/page.tsx` and `(admin)/admin/journal/page.tsx` — and deleting it breaks the schedule, both meetings pages and the journal. This feature replaces Jitsi **inside the live lesson only**; scheduled slots, standalone meetings and the journal keep their Jitsi links until somebody specifies replacing those too
 - [x] T088 Verify SC-008 rather than assuming it: with a lesson running on the QA stack, run the deploy sequence `docker compose pull` and `up -d` against it and confirm the media container is not recreated, then deliberately change its service definition, restart, and confirm participants return by themselves within 30 seconds (FR-025, research.md Finding I) — **done 2026-08-18**: `up -d` twice left the container untouched (same id, same `StartedAt`), and the positive control (changed service definition → new container id) shows the check can fail. The rejoin half is folded into T087, which needs a real browser anyway
 - [x] T089 [P] Add a Vitest to `frontend/src/lib/live/recorder.test.ts` asserting the recorder builds its stream only from local tracks and never touches a remote participant's track. FR-027 is otherwise checked only by a human watching a file play back, and this is the check that catches somebody "improving" it into a room composite
-- [ ] T084 Write `frontend/e2e/live-media.spec.ts`: one teacher and two pupils — start, join, share, mute one, remove the other, end
+- [x] T084 Write the live-media browser journey (landed as `frontend/e2e/journeys/live-media.spec.ts`): one teacher and two pupils — start, join, share, mute one, remove the other, end
 - [x] T085 **Done 2026-08-18.** DNS record added, certificate issued for `turn.grasslms.online` alone (SAN holds that name and nothing else). Procedure and controls in [`turn-tls-runbook.md`](turn-tls-runbook.md). Add the nginx `stream` block with `ssl_preread` on 443 in `nginx/nginx.conf`, routing `turn.grasslms.online` to the embedded TURN and everything else to the HTTPS server moved to `127.0.0.1:8443`. Issue a **separate standalone certificate** for that hostname and **never add it to the `grasslms.online` bundle** — bundling a subdomain is what expired the production certificate on 2026-07-29. Rehearse on the QA stack, run `nginx -t`, and have the rollback ready before applying (research.md Finding E, SC-005)
 - [ ] T086 Run `quickstart.md` end to end against a real lesson, including the check that a recording holds no pupil — **blocked on people, not on code.** Needs two accounts with real cameras in the same lesson; the passwords live in the owner's password manager and the browser pane cannot capture devices. What can be asserted without them has been: the recorder reads only local publications (`recorder.test.ts`, demonstrated failing against a version that reaches for the room)
 - [x] T087 Verify in production after the deploy: poll both the CI run and the deploy run to completion, hold a real lesson with two accounts, and watch `docker stats` and `free -h` on the host while it runs. State in the pull request body which guard tests were demonstrated failing before their fix, which Constitution principle II requires and a green suite does not show — **done 2026-08-18** against `ffa8921`, each check paired with a control:
@@ -396,6 +396,23 @@ small, and every one of them broke the feature completely.
   `size_bytes` to `/complete`, so `duration_seconds` stays null on a row that
   is otherwise `ready` — the column exists, the interface will want it, and
   nothing fills it. The browser knows the length; it simply never says
+- [ ] T107 The teacher's media panel is about 150 pixels tall, and the tile
+  grid paginates: with a teacher and two pupils in the room, only one pupil is
+  in the page at all. Found by T084, which asserted the teacher could see both
+  and could not. A teacher who cannot see the class is the opposite of what
+  this feature is for, and it gets worse with every pupil (FR-031, FR-034)
+- [x] T109 No media_* event was ever delivered to any browser. The SSE hook
+  attaches listeners from a hand-kept EVENT_NAMES list, and every media event
+  was added to the dispatch map but never to the list — so the floor, breakout
+  moves, removal notices and the mute all published into a wire nobody had
+  plugged in. Found by T084 asserting a pupil is told they are muted; fixed by
+  deriving the listener list from the dispatch map so the list cannot forget
+  what the map knows
+- [x] T108 A muted pupil was never told. FR-012 says in as many words that a
+  participant muted by a teacher must be told so, and nothing said it: the
+  endpoint silenced the track and published no event, the channel had no
+  handler, and the pupil heard their own silence and guessed. Found by T084 on
+  its first real run — no unit test could, because every piece worked
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

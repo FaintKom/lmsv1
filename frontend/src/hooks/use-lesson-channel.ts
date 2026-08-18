@@ -39,6 +39,7 @@ export interface LessonChannelHandlers {
   onMediaBreakoutsChanged?: (d: { groups: { index: number; member_ids: string[] }[] }) => void;
   onMediaBreakoutMessage?: (d: { text: string }) => void;
   onMediaParticipantRemoved?: (d: { user_id: string }) => void;
+  onMediaMuted?: (d: { user_id: string }) => void;
   onMediaShareGrantChanged?: (d: { user_id: string; allowed: boolean }) => void;
   onMessage?: (m: { text: string; broadcast?: boolean }) => void;
   onLessonEnded?: () => void;
@@ -46,22 +47,6 @@ export interface LessonChannelHandlers {
    * "reconnecting" indicator so students know they may be behind. */
   onConnectionChange?: (connected: boolean) => void;
 }
-
-const EVENT_NAMES = [
-  "scene_changed",
-  "board_delta",
-  "settings_changed",
-  "poll_started",
-  "poll_closed",
-  "poll_progress",
-  "presence",
-  "signal",
-  "signals_cleared",
-  "student_question",
-  "submission",
-  "message",
-  "lesson_ended",
-] as const;
 
 /**
  * One EventSource per mounted screen. Cookies ride along (same-origin).
@@ -102,6 +87,7 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       media_breakouts_changed: (d) => handlersRef.current.onMediaBreakoutsChanged?.(d),
       media_breakout_message: (d) => handlersRef.current.onMediaBreakoutMessage?.(d),
       media_participant_removed: (d) => handlersRef.current.onMediaParticipantRemoved?.(d),
+      media_muted: (d) => handlersRef.current.onMediaMuted?.(d),
       media_share_grant_changed: (d) => handlersRef.current.onMediaShareGrantChanged?.(d),
       lesson_ended: () => {
         handlersRef.current.onLessonEnded?.();
@@ -135,7 +121,13 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
             if (!stopped) timer = setTimeout(connect, 2000);
           });
       };
-      for (const name of EVENT_NAMES) {
+      // Derived from the dispatch map, never a second list. There used to be a
+      // hand-kept EVENT_NAMES beside the map, and every media event was added
+      // to the map and forgotten in the list — so the floor, breakout moves,
+      // removal notices and mutes all published into a wire nobody had plugged
+      // in, and no browser ever received one (T109). A handler that exists is
+      // a subscription; the map is the only place that knows.
+      for (const name of Object.keys(dispatch)) {
         es.addEventListener(name, (e) => {
           dispatch[name](JSON.parse((e as MessageEvent).data) as never);
         });

@@ -113,6 +113,16 @@ services:
       SANDBOX_URL: http://sandbox:8001
       RATE_LIMIT_STORAGE_URI: redis://redis:6379/0
       REDIS_URL: redis://redis:6379/0
+      # Media, so the browser journey can actually hold a call (T084). There is
+      # no nginx in this stack, so the browser is given the media server's own
+      # address rather than a same-origin path — `/rtc` would 404 here, which
+      # is precisely the shape of the bug that shipped to production on
+      # 2026-08-18 and went unnoticed for four slices.
+      LIVEKIT_URL: http://livekit:7880
+      LIVEKIT_PUBLIC_URL: ws://localhost:7880
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: local-development-secret-not-for-production
+      MAX_CONCURRENT_MEDIA_PARTICIPANTS: 20
     volumes:
       # Project's scripts/ and qa/ live outside the built image; mount them
       # in read-only so the backend container can run seed_qa.py against the
@@ -141,6 +151,31 @@ services:
       timeout: 5s
       retries: 40
       start_period: 20s
+
+  livekit:
+    # Same version as production, and that is the point: a browser SDK newer
+    # than its server connects, reports the participant active, and then never
+    # negotiates. Pinning these apart is what made video silently dead in
+    # production (FR-028).
+    image: livekit/livekit-server:v1.13.5
+    # Its own configuration, not production's: this container has no route to
+    # a public STUN server, and external-IP discovery would kill it on start.
+    # livekit/livekit.qa.yaml says which lines differ and why.
+    command: --config /etc/livekit/livekit.qa.yaml
+    volumes:
+      - ./livekit:/etc/livekit:ro
+    environment:
+      # Development keys, worthless and identical for everyone.
+      LIVEKIT_KEYS: "devkey: local-development-secret-not-for-production"
+    ports:
+      # Published because the browser talks to it directly here — signalling on
+      # 7880, and the media itself on the multiplexed UDP pair.
+      - "7880:7880"
+      - "7881:7881"
+      - "7882-7883:7882-7883/udp"
+    depends_on:
+      redis:
+        condition: service_healthy
 
   frontend:
     build:

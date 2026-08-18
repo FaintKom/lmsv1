@@ -151,6 +151,12 @@ async def mute_participant(
     lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
     target = await _participant_of(lesson, user_id, db)
     applied = await service.mute_microphone(grants.room_name(lesson.id), target)
+    # Told, not merely silenced (FR-012). A microphone that goes quiet with no
+    # explanation is indistinguishable from a broken one, and the pupil's next
+    # move is to interrupt the lesson asking whether anybody can hear them.
+    await realtime.publish(
+        lesson.id, "all", "media_muted", {"user_id": str(target), "applied": applied}
+    )
     return ModerationResponse(applied=applied)
 
 
