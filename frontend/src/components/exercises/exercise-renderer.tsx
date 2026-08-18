@@ -486,7 +486,14 @@ function ResultDisplay({
  {attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining
  </p>
  )}
- {!passed && (
+ {/* No retry once the attempts are gone. The server stopped recording an
+ exhausted attempt as a pass, so this panel now reads "Not quite" in that
+ state, and a button back to the same wall would be the wrong half of an
+ honest verdict. */}
+ {maxReached && (
+ <p className="mt-1 text-xs text-text-subtle">No attempts left.</p>
+ )}
+ {!passed && !maxReached && (
  <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
  Try Again
  </Button>

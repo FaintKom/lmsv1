@@ -259,3 +259,84 @@ def test_grading_against_an_empty_answer_key_is_not_silent(caplog):
     assert (score, passed) == (1.0, True)
     # But no longer unrecorded.
     assert len(warnings_about_empty_keys()) >= 1
+
+
+@pytest.mark.asyncio
+async def test_exhausted_attempts_are_not_recorded_as_passing(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Running out of attempts is not the same as solving the exercise.
+
+    The exhaustion row is deliberate: a pupil stuck forever on one exercise is
+    worse than one shown the answer, so the server writes a row and lets them
+    move on. It carried `passed=True`, and the journal, the analytics mastery
+    figure and the student profile all read that field — so a class that ran out
+    of tries and a class that solved the work were the same number. Measured
+    2026-08-18 on all 26 types.
+
+    The positive control comes first: a genuinely correct answer must still be
+    recorded as passing, or this test would pass against a server that marks
+    nothing.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    solved = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.true_false,
+        config={"statement": "The sky is blue.", "correct_answer": True},
+        max_attempts=2,
+    )
+    limited = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.true_false,
+        config={"statement": "The sky is blue.", "correct_answer": True},
+        max_attempts=2,
+    )
+
+    # Control: the right answer passes, and stays passed.
+    good = await client.post(
+        f"/api/v1/exercises/{solved.id}/submit",
+        json={"interactive_answers": {"answer": True}},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["passed"] is True
+
+    for attempt in (1, 2):
+        wrong = await client.post(
+            f"/api/v1/exercises/{limited.id}/submit",
+            json={"interactive_answers": {"answer": False}},
+            headers=auth_header(student),
+        )
+        assert wrong.status_code == 200, wrong.text
+        assert wrong.json()["passed"] is False
+        assert wrong.json()["attempt_number"] == attempt
+
+    exhausted = await client.post(
+        f"/api/v1/exercises/{limited.id}/submit",
+        json={"interactive_answers": {"answer": False}},
+        headers=auth_header(student),
+    )
+    assert exhausted.status_code == 200, exhausted.text
+    body = exhausted.json()
+    assert body["passed"] is False, "running out of attempts is not passing"
+    assert body["score"] == 0
+    assert body["max_attempts_reached"] is True
+    assert body["attempts_remaining"] == 0
+    assert (body["answers"] or {}).get("max_attempts_exhausted") is True
+
+    # Pressing again returns the same row rather than writing another one.
+    again = await client.post(
+        f"/api/v1/exercises/{limited.id}/submit",
+        json={"interactive_answers": {"answer": False}},
+        headers=auth_header(student),
+    )
+    assert again.status_code == 200, again.text
+    assert again.json()["id"] == body["id"]
+    assert again.json()["passed"] is False
