@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import get_current_user, require_role
 from app.auth.models import User, UserRole
 from app.common.rate_limit import limiter
+from app.config import settings
 from app.db.session import get_db
 from app.exercises.models import ExerciseType
 from app.exercises.schemas import (
@@ -21,6 +22,8 @@ from app.exercises.schemas import (
     QuestionCreate,
     QuestionInExercise,
     QuestionUpdate,
+    RobotRunRequest,
+    RobotRunResponse,
     SubmissionListResponse,
     SubmitExerciseRequest,
     TestCaseCreate,
@@ -302,6 +305,47 @@ async def check_exercise_endpoint(
         exercise.config or {}, exercise.exercise_type.value, data.interactive_answers
     )
     return CheckExerciseResponse(score=round(score, 4), passed=passed, per_item=per_item)
+
+
+@router.post("/{exercise_id}/robot/run", response_model=RobotRunResponse)
+# The deferred form, as the sandbox demo route uses, so the limit can be
+# tightened by environment without shipping code.
+@limiter.limit(lambda: settings.robot_run_rate_limit)
+async def robot_run_endpoint(
+    request: Request,
+    response: Response,
+    exercise_id: uuid.UUID,
+    data: RobotRunRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Run a robot program. Persists nothing and consumes no attempt.
+
+    Pressing Run is how a child finds out what their program does, so it has to
+    be free — a quota here teaches them to fear the button. Attempts are spent
+    by submitting.
+
+    Note what the request cannot say: there is no `completed` and no `score`.
+    The server runs the program and reads the verdict off its own replay.
+    """
+    from app.exercises import robot_runner
+    from app.exercises.service import _get_exercise_with_relations
+
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
+    if exercise.exercise_type != ExerciseType.robot_2d:
+        # Not "wrong type" — an id that is not a robot level is, for this route,
+        # an id that does not exist. Same reasoning as cross-school reads.
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    try:
+        result = await robot_runner.run(exercise.config or {}, data.source)
+    except RuntimeError:
+        raise HTTPException(
+            status_code=503,
+            detail="The service that runs programs is unavailable. Try again.",
+        ) from None
+
+    return RobotRunResponse(**result)
 
 
 @router.post("/{exercise_id}/submit", response_model=ExerciseSubmissionResponse)

@@ -1086,6 +1086,78 @@ GAME_XP = {
 }
 
 
+async def _submit_robot(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    """Grade a robot level by running the program, here, ourselves.
+
+    Nothing the client says about the outcome is read. It used to be: this
+    endpoint stored ``completed`` and ``score`` straight off the request body, so
+    a pupil could post ``{"completed": true, "score": 1.0}`` without ever opening
+    the exercise. That is Constitution III — the server is the only judge of an
+    answer — and the half of `specs/004-exercise-answer-leak` that was deferred
+    rather than fixed.
+
+    A losing program is still recorded and still spends an attempt. The pupil
+    pressed Submit; that is what Submit means. Running is free.
+    """
+    from fastapi import HTTPException
+
+    from app.exercises import robot_runner
+
+    payload = data.get("robot")
+    if not isinstance(payload, dict):
+        raise BadRequestError("robot is required for robot levels")
+
+    source = (payload.get("source") or "").strip()
+    if not source:
+        raise BadRequestError("robot.source is required")
+
+    try:
+        run = await robot_runner.run(exercise.config or {}, source)
+    except RuntimeError:
+        # Nothing recorded, no attempt consumed — the pupil's work is intact and
+        # they can press Submit again once the runner is back.
+        raise HTTPException(
+            status_code=503,
+            detail="The service that runs programs is unavailable. Try again.",
+        ) from None
+
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers={
+            "robot": {
+                "source": source,
+                "mode": payload.get("mode", "python"),
+                # Everything below is the server's own figure, from the server's
+                # own replay.
+                "won": run["won"],
+                "steps": run["steps"],
+                "size": run["size"],
+                "stars": run["stars"],
+            }
+        },
+        score=run["stars"] / 3 * 100,
+        passed=run["won"],
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    _apply_timing(submission, data, now)
+    db.add(submission)
+    await db.flush()
+
+    if run["won"]:
+        await _award_xp(db, user.id, GAME_XP[ExerciseType.robot_2d], "robot_2d_completed")
+
+    return await _reload_submission(db, submission.id)
+
+
 async def _submit_game_level(
     db: AsyncSession,
     exercise: Exercise,
@@ -1093,6 +1165,12 @@ async def _submit_game_level(
     data: dict,
     now: datetime,
 ) -> ExerciseSubmission:
+    # robot_2d is graded server-side; the rest still post their own verdict.
+    # `math_interactive` and `world_3d` stay on this path deliberately — both are
+    # out of scope here, and both remain tracked by 004.
+    if exercise.exercise_type == ExerciseType.robot_2d:
+        return await _submit_robot(db, exercise, user, data, now)
+
     game_result = data.get("game_result")
     if not game_result or not isinstance(game_result, dict):
         raise BadRequestError("game_result is required for game level exercises")
