@@ -104,6 +104,19 @@ test("teacher paints the level by dragging, and Check answers", async ({ page })
   const to = page.locator('[data-cell="1,1"]');
   await from.waitFor({ state: "visible", timeout: 20_000 });
 
+  // The start has to be visible, and it has to follow the tool. It was drawn
+  // on a cell of type "start" long after the start stopped being a cell, so a
+  // teacher moved it, changed the level, and saw nothing happen.
+  await expect(page.locator('[data-start="0,0"]')).toBeVisible();
+  await page.getByRole("button", { name: /^start$/i }).click();
+  await to.click();
+  await expect(page.locator('[data-start="1,1"]')).toBeVisible();
+  await page.locator('[data-cell="0,0"]').click();
+  await expect(page.locator('[data-start="0,0"]')).toBeVisible();
+
+  // Back to walls for the drag below, rather than trusting the default tool.
+  await page.getByRole("button", { name: /^wall$/i }).click();
+
   // Drag across the bottom row. One press, two cells: the second only becomes
   // a wall if the drag is live, so this fails if painting needs a click each.
   await from.hover();
