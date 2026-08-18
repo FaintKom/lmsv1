@@ -50,7 +50,17 @@ turn:
   # Keeping the certificate out of this container is deliberate: one process
   # holds a private key, one certificate renews, and this file stays identical
   # on a laptop and in production.
-  tls_port: 5349
+  # 443, and this number is not free to choose. LiveKit **advertises whatever
+  # tls_port says** as the TURN/TLS candidate it hands browsers — its own
+  # documentation is explicit that with `external_tls` it "still advertise
+  # tls_port as a TURN/TLS candidate". Set to 5349 it would tell a pupil to
+  # reach the relay on 5349, a port closed from outside, and the one thing this
+  # feature exists to do would silently not happen.
+  #
+  # Nothing publishes it: this is 443 *inside the media container's own network
+  # namespace*, which nginx reaches as lms-livekit-1:443. The host's 443 belongs
+  # to nginx and is untouched.
+  tls_port: 443
   external_tls: true
   domain: turn.grasslms.online
   # 3478 only accepts the control connection. The relayed media itself leaves
