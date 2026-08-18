@@ -118,6 +118,19 @@ async def invalidate_capacity_cache() -> None:
     await realtime.get_redis().delete(capacity_key())
 
 
+def _absent(exc: Exception) -> bool:
+    """Whether the media server is telling us the participant is not there.
+
+    Not an error, and this is the difference between a working button and a red
+    toast: a teacher may allow a screen, or remove somebody, before that person
+    has joined. The intent is recorded either way and applies when they arrive.
+    Production found this — the fakes in the tests never raise, so every one of
+    them was green while the real server answered
+    `ServerError(code=not_found, message=participant not found)`.
+    """
+    return "not_found" in str(exc) or "not found" in str(exc).lower()
+
+
 # --- Removal ---
 
 
@@ -143,7 +156,7 @@ async def may_share_screen(lesson_id: uuid.UUID, user_id: uuid.UUID) -> bool:
 
 async def set_screen_share(
     lesson_id: uuid.UUID, user_id: uuid.UUID, room: str, *, allowed: bool
-) -> None:
+) -> bool:
     """Let a pupil share a screen, or stop them.
 
     Two things have to happen, and doing only the first is the bug worth naming:
@@ -170,18 +183,24 @@ async def set_screen_share(
             livekit_api.TrackSource.SCREEN_SHARE_AUDIO,
         ]
 
-    await get_livekit().room.update_participant(
-        livekit_api.UpdateParticipantRequest(
-            room=room,
-            identity=str(user_id),
-            permission=livekit_api.ParticipantPermission(
-                can_subscribe=True,
-                can_publish=True,
-                can_publish_data=True,
-                can_publish_sources=sources,
-            ),
+    try:
+        await get_livekit().room.update_participant(
+            livekit_api.UpdateParticipantRequest(
+                room=room,
+                identity=str(user_id),
+                permission=livekit_api.ParticipantPermission(
+                    can_subscribe=True,
+                    can_publish=True,
+                    can_publish_data=True,
+                    can_publish_sources=sources,
+                ),
+            )
         )
-    )
+        return True
+    except Exception as exc:  # noqa: BLE001 — re-raised unless it is absence
+        if _absent(exc):
+            return False
+        raise
 
 
 # --- Moderation ---
@@ -213,7 +232,7 @@ async def mute_microphone(room: str, user_id: uuid.UUID) -> bool:
     return False
 
 
-async def eject(lesson_id: uuid.UUID, user_id: uuid.UUID, room: str) -> None:
+async def eject(lesson_id: uuid.UUID, user_id: uuid.UUID, room: str) -> bool:
     """Remove somebody from the room, and keep them out.
 
     Disconnecting alone lasts exactly as long as it takes them to reload the
@@ -221,9 +240,16 @@ async def eject(lesson_id: uuid.UUID, user_id: uuid.UUID, room: str) -> None:
     disconnect follows.
     """
     await mark_removed(lesson_id, user_id)
-    await get_livekit().room.remove_participant(
-        livekit_api.RoomParticipantIdentity(room=room, identity=str(user_id))
-    )
+    try:
+        await get_livekit().room.remove_participant(
+            livekit_api.RoomParticipantIdentity(room=room, identity=str(user_id))
+        )
+        return True
+    except Exception as exc:  # noqa: BLE001 — re-raised unless it is absence
+        if _absent(exc):
+            # Marked removed above, so they stay out when they try to join.
+            return False
+        raise
 
 
 async def set_floor(lesson_id: uuid.UUID, user_id: uuid.UUID | None) -> None:

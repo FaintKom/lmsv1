@@ -64,6 +64,11 @@ class _FakeRoomService:
         self.updated: list[tuple] = []
         # Identity -> published tracks, so a mute has something to aim at.
         self.in_room: dict[str, list] = {}
+        # Off by default so the older tests stay about what they were about.
+        # Switched on where absence is the thing under test: a fake that never
+        # refuses cannot catch a caller that does not handle refusal, which is
+        # exactly how the 500s below reached production.
+        self.strict_presence = False
 
     async def list_rooms(self, _request):
         return _FakeRooms([_FakeRoom(self.participants)] if self.participants else [])
@@ -83,9 +88,13 @@ class _FakeRoomService:
         self.muted.append((request.room, request.identity, request.track_sid, request.muted))
 
     async def remove_participant(self, request):
+        if request.identity not in self.in_room and self.strict_presence:
+            raise RuntimeError("ServerError(code=not_found, message=participant not found)")
         self.removed.append((request.room, request.identity))
 
     async def update_participant(self, request):
+        if request.identity not in self.in_room and self.strict_presence:
+            raise RuntimeError("ServerError(code=not_found, message=participant not found)")
         sources = list(getattr(request.permission, "can_publish_sources", []) or [])
         self.updated.append((request.room, request.identity, sources))
 
@@ -525,3 +534,74 @@ async def test_pupil_cannot_grant_themselves_a_screen(
         headers=auth_header(student),
     )
     assert resp.status_code == 403
+
+
+# --- Acting on somebody who has not joined -----------------------------------
+
+
+async def test_allowing_a_screen_before_the_pupil_joins_is_not_an_error(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """Production returned 500 here, and the whole suite was green.
+
+    A teacher may allow a screen, or remove somebody, before that person has
+    joined the room. The media server answers `participant not found`; the
+    intent is still recorded and applies the moment they arrive. Every fake in
+    this file used to accept any identity, so nothing noticed.
+    """
+    lesson = await make_lesson(db, org, teacher, [student])
+    fake_livekit.room.strict_presence = True  # behave like the real server
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": True},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["applied"] is False
+
+    # Recorded regardless: the next grant carries the screen.
+    granted = (await client.post(token_url(lesson), headers=auth_header(student))).json()
+    assert granted["can_publish_screen"] is True
+
+
+async def test_removing_somebody_who_never_joined_still_keeps_them_out(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """The disconnect fails, the ban holds. That is the half that matters."""
+    lesson = await make_lesson(db, org, teacher, [student])
+    fake_livekit.room.strict_presence = True
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/remove",
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["applied"] is False
+
+    refused = await client.post(token_url(lesson), headers=auth_header(student))
+    assert refused.status_code == 403
+
+
+async def test_a_real_media_failure_is_still_an_error(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """Absence is tolerated; a broken media server is not.
+
+    Without this the fix would be indistinguishable from swallowing every
+    failure, and a media server that is down would look like a working button.
+    """
+
+    async def boom(_request):
+        raise RuntimeError("connection refused")
+
+    fake_livekit.room.remove_participant = boom
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    # The test transport re-raises rather than rendering a 500, which suits the
+    # assertion: what matters is that the failure is not swallowed.
+    with pytest.raises(RuntimeError, match="connection refused"):
+        await client.post(
+            f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/remove",
+            headers=auth_header(teacher),
+        )
