@@ -703,7 +703,7 @@ const uk: TranslationMap = {
  "game.collectAll": "Збери всі предмети!",
  "game.completeTask": "Виконай завдання!",
  "game.noCommands": "Немає команд. Додай блоки!",
- "game.noCommandsPython": "Команд не знайдено. Напиши robot.move_forward() тощо.",
+ "game.noCommandsPython": "Команд не знайдено. Напиши move_forward() тощо.",
  "game.goalNotReached": "Програму завершено, але мету не досягнуто.",
  "game.statements": "рядків",
  "game.blocksTab": "Блоки",

@@ -184,11 +184,11 @@ and names what blocks it. Remove one wall; the step count matches a hand count.
 - [x] T065 [P] Add every new key to all six locales in `frontend/src/lib/i18n/locales/` — `en`, `ru`, `de`, `es`, `tr`, `uk` — including the refusal keys in contracts/commands.md
 - [x] T066 Confirm `robot-2d-editor.tsx` and `robot-2d-exercise.tsx` are **absent** from `frontend/src/lib/i18n/i18n-allowlist.ts`, and remove `grid-renderer.tsx` from it if its strings are now translated (FR-023)
 - [x] T067 Show the win condition to the pupil in words in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` — it is their instructions, not a secret (FR-031)
-- [ ] T068 [P] Write the journey in `frontend/e2e/journeys/robot-2d.spec.ts` — teacher builds a level, Check reports a step count, saves; pupil solves it; the submission is passed
-- [ ] T069 [P] Register the journey with the QA stack alongside the eight existing ones in `frontend/e2e/`
+- [x] T068 [P] Write the journey in `frontend/e2e/journeys/robot-2d.spec.ts` — teacher builds a level, Check reports a step count, saves; pupil solves it; the submission is passed
+- [x] T069 [P] Register the journey with the QA stack alongside the eight existing ones in `frontend/e2e/` — the workflow already runs the whole `e2e` directory, so registering it meant making the QA data fit the new schema: `qa/exercise-fixtures.json` still described a level in the pre-rework shape, and `e2e/exercises/lifecycle.spec.ts` still posted the browser's verdict for `robot_2d`
 - [x] T070 Measure the Run round trip against the real sandbox per quickstart §7 and record the figure in `research.md` under Finding J, whether it passes SC-009 or not
 - [ ] T071 Delete `custom_win_js` from `backend/app/exercises/schemas.py` and confirm by grep that nothing in `backend/` or `frontend/src/` still reads it
-- [ ] T072 Run the whole of [quickstart.md](quickstart.md) and fix what it finds
+- [ ] T072 Run the whole of [quickstart.md](quickstart.md) and fix what it finds — §1–§4 and §7–§8 are covered by the suites and were run; §5–§6 were walked by hand as far as the browser allows, and found three things now fixed: painting a cell you press on (only the cells the drag *entered* were painted), the `robot.` prefix still taught by `game.noCommandsPython` in all six locales, and the step cap printing `StepsExhausted: steps_exhausted` at a child underneath the sentence meant for them. Still unwalked: the preset-then-one-tick check (§5.3), the unsolvable answer as rendered (§5.5, covered by `test_check_reports_an_unreachable_goal`), a marked cell with `all_marks_painted` (§5.6), autocompletion (§6.2), and pause/speed (§6.9)
 
 ---
 

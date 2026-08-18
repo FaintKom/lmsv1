@@ -150,9 +150,15 @@ def correct_answer(ex_type: str, fixture: dict, variant: str) -> dict | None:
             "css": cfg.get("starter_css", ""),
             "js": cfg.get("starter_js", ""),
         }}
-    if ex_type in ("robot_2d", "world_3d", "math_interactive"):
-        # The browser decides these and posts its verdict. Sending the verdict
-        # without opening the exercise is the measurement, not a shortcut.
+    if ex_type == "robot_2d":
+        # Since spec 005 the server runs the program and reads the outcome off
+        # its own trace, so the correct answer here is a correct program. The
+        # fixture level is three wide and the goal is two steps to the right.
+        return {"robot": {"source": "move_right()\nmove_right()\n"}}
+    if ex_type in ("world_3d", "math_interactive"):
+        # The browser still decides these and posts its verdict. Sending the
+        # verdict without opening the exercise is the measurement, not a
+        # shortcut — see specs/004-exercise-answer-leak.
         return {"game_result": {"completed": True, "score": 1.0}}
     if ex_type == "math_stepwise":
         return {"interactive_answers": {"final_answer": cfg["final_answer"]}}

@@ -208,6 +208,13 @@ async def run(level: dict, source: str) -> dict:
         # ran cleanly to the end of a list that simply stops early.
         stopped = "steps_exhausted" if error["type"] == "StepsExhausted" else "error"
 
+    if stopped == "steps_exhausted":
+        # Running out of the level's allowance is not a fault in the program.
+        # `stopped` already says so, in words a child reads; passing the
+        # simulator's own exception along as well printed
+        # "StepsExhausted: steps_exhausted" underneath the plain sentence.
+        error = None
+
     size = count_statements(source)
     return {
         "frames": replayed["frames"],

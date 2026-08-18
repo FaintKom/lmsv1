@@ -77,6 +77,14 @@ export default function Robot2DExercise({
   const frames = useRef<RobotRunResult["frames"]>([]);
   const won = useRef(false);
   const blocklyPython = useRef("");
+  /**
+   * The program the loaded trace came from.
+   *
+   * Without it, Step replayed whatever ran last: it only fetched a new trace
+   * when the player was empty, so a pupil who edited their code and pressed
+   * Step watched the old program walk again.
+   */
+  const ranSource = useRef<string | null>(null);
 
   const [mode, setMode] = useState<"blocks" | "python">("blocks");
   const [pythonCode, setPythonCode] = useState(starter);
@@ -159,6 +167,7 @@ export default function Robot2DExercise({
       setResult(data);
       frames.current = data.frames;
       won.current = data.won;
+      ranSource.current = source;
       playerRef.current?.load(data.frames);
       return data;
     } catch {
@@ -175,9 +184,18 @@ export default function Robot2DExercise({
   }, [handleReset, runProgram, speed]);
 
   const handleStep = useCallback(async () => {
-    if ((playerRef.current?.length ?? 0) === 0 && !(await runProgram())) return;
+    // Re-run whenever the program has changed since the loaded trace, not only
+    // when there is no trace at all. Otherwise editing the code and pressing
+    // Step walks the previous program.
+    const stale =
+      (playerRef.current?.length ?? 0) === 0 || ranSource.current !== currentSource().trim();
+
+    if (stale) {
+      handleReset();
+      if (!(await runProgram())) return;
+    }
     playerRef.current?.step();
-  }, [runProgram]);
+  }, [currentSource, handleReset, runProgram]);
 
   const handlePause = useCallback(() => {
     if (paused) {

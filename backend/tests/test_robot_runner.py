@@ -121,6 +121,41 @@ def test_an_endless_loop_ends_at_the_allowance(tmp_path):
     assert len(trace["commands"]) == 6
 
 
+async def test_running_out_of_steps_is_not_reported_as_an_error(tmp_path, monkeypatch):
+    """The allowance running out is the level's limit, not a fault to fix.
+
+    ``stopped`` already says so in a sentence a child reads. Passing the
+    simulator's own exception along as well printed
+    "StepsExhausted: steps_exhausted" underneath that sentence.
+    """
+    level = corridor(3, max_steps=6)
+
+    def sandbox_returning(source: str):
+        program = tmp_path / "generated.py"
+        program.write_text(robot_runner.build_program(level, source), encoding="utf-8")
+        done = subprocess.run(
+            [sys.executable, str(program)], capture_output=True, text=True, timeout=30
+        )
+
+        async def _sandbox(*_args, **_kwargs):
+            return {"status": "success", "stdout": done.stdout, "stderr": ""}
+
+        return _sandbox
+
+    runaway = "while True:\n    turn_right()\n"
+    monkeypatch.setattr(robot_runner, "execute_code_remote", sandbox_returning(runaway))
+    result = await robot_runner.run(level, runaway)
+    assert result["stopped"] == "steps_exhausted"
+    assert result["error"] is None
+
+    # Positive control: a program that really is broken still says so, or this
+    # test would pass just as well against a runner that never reports errors.
+    typo = "move_forwardd()\n"
+    monkeypatch.setattr(robot_runner, "execute_code_remote", sandbox_returning(typo))
+    broken = await robot_runner.run(level, typo)
+    assert broken["error"] is not None
+
+
 # ─── The pupil's own printing ────────────────────────────────────────
 
 

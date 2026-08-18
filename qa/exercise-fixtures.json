@@ -93,14 +93,18 @@
       "label": "Robot 2D",
       "config": {
         "grid_width": 3,
-        "grid_height": 3,
+        "grid_height": 2,
+        "start": {"x": 0, "y": 0, "facing": "right"},
         "cells": [
-          {"x": 0, "y": 0, "type": "start"},
-          {"x": 2, "y": 2, "type": "goal"}
+          {"x": 2, "y": 0, "type": "goal"},
+          {"x": 1, "y": 1, "type": "wall"}
         ],
-        "available_blocks": ["move_forward", "turn_right"],
-        "win_condition": "reach_goal",
-        "difficulty": "beginner",
+        "commands": ["move_right", "move_forward", "at_goal"],
+        "win": {"cond": "at_goal"},
+        "max_steps": 50,
+        "star_steps": 2,
+        "star_size": 2,
+        "preset": "beginner",
         "hints": []
       }
     },
