@@ -57,8 +57,8 @@ actually holds. No feature code is written in this phase.
 **⚠️ No user story work begins until this phase is complete.**
 
 - [x] T012 Create the `backend/app/live_media/` module with `__init__.py`, `schemas.py`, `router.py`, `service.py` and `grants.py`, following the layout its sibling modules already use
-- [ ] T013 ~~One additive migration~~ — **moved to slice 3, because slice 1 needs no schema change at all.** Grants are not stored, removal lives in Redis, and capacity is read from the media server, so there is nothing here to persist. The `recordings` and `organizations` columns belong to slice 4 for the same reason; writing them now would be dead schema for weeks
-- [ ] T014 ~~Import `app.live_media.models` in three places~~ — **moved to slice 3 with T013.** The breakout model was written and then removed on purpose: a model in `Base.metadata` with no migration is created by `create_all` in development and never reaches production, which is the divergence `backend/CLAUDE.md` warns about
+- [x] T013 One additive migration, hand-written after `--autogenerate` produced a migration that did not create the table and proposed dropping `uq_live_lessons_active_group` — the index keeping one active lesson per group. Original note: — **moved to slice 3, because slice 1 needs no schema change at all.** Grants are not stored, removal lives in Redis, and capacity is read from the media server, so there is nothing here to persist. The `recordings` and `organizations` columns belong to slice 4 for the same reason; writing them now would be dead schema for weeks
+- [x] T014 Imported `app.live_media.models` in `main.py`, `tests/conftest.py` and `alembic/env.py`. Original note: — **moved to slice 3 with T013.** The breakout model was written and then removed on purpose: a model in `Base.metadata` with no migration is created by `create_all` in development and never reaches production, which is the divergence `backend/CLAUDE.md` warns about
 - [x] T015 [P] Write `backend/app/live_media/grants.py`: the permission set per role in one function, teacher carrying `roomAdmin` and pupil not, per the table in contracts/api.md. Nothing else in the module may build a grant
 - [x] T016 Write the LiveKit server wrapper in `backend/app/live_media/service.py`: room listing and deletion, and a live participant count cached in Redis for two seconds. Read the count from the media server instead of keeping a counter, per research.md Finding F
 - [x] T017 [P] Add the media Redis key helpers to `backend/app/live_media/service.py`, named in one place the way `live_lessons/realtime.py` names its own
@@ -182,20 +182,20 @@ only itself, visit one, then gather.
 
 ### Tests for User Story 4
 
-- [ ] T055 [P] [US4] Positive control: a teacher splits a lesson and the group rows exist with the right members
-- [ ] T056 [P] [US4] Test: a pupil requesting a grant for a group they do not belong to gets 404
-- [ ] T057 [P] [US4] Test: ending the lesson deletes every group and closes every group room (FR-018)
-- [ ] T058 [P] [US4] Test: a pupil's authority in a group room equals their authority in the main room (FR-017)
+- [x] T055 [P] [US4] Positive control: a teacher splits a lesson and the group rows exist with the right members
+- [x] T056 [P] [US4] Test: a pupil requesting a grant for a group they do not belong to gets 404
+- [x] T057 [P] [US4] Test: ending the lesson deletes every group and closes every group room (FR-018)
+- [x] T058 [P] [US4] Test: a pupil's authority in a group room equals their authority in the main room (FR-017)
 
 ### Implementation for User Story 4
 
-- [ ] T059 [US4] Add the `LiveBreakoutGroup` model to `backend/app/live_media/models.py` per data-model.md
-- [ ] T060 [US4] Implement create, list, broadcast and gather in `backend/app/live_media/router.py`, counting group participants against the same ceiling
-- [ ] T061 [US4] Implement the breakout grant endpoint, deriving the room name from the lesson id and the group index
-- [ ] T062 [US4] Publish `media_breakouts_changed` and `media_breakout_message` from `backend/app/live_lessons/realtime.py`
-- [ ] T063 [US4] Write `frontend/src/components/live/breakout-panel.tsx` for the teacher
-- [ ] T064 [US4] Move a pupil's client between rooms on the event, fetching a fresh grant instead of reusing the old one
-- [ ] T065 [P] [US4] Strings into all six locale files
+- [x] T059 [US4] Add the `LiveBreakoutGroup` model to `backend/app/live_media/models.py` per data-model.md
+- [x] T060 [US4] Implement create, list, broadcast and gather in `backend/app/live_media/router.py`, counting group participants against the same ceiling
+- [x] T061 [US4] Implement the breakout grant endpoint, deriving the room name from the lesson id and the group index
+- [x] T062 [US4] Publish `media_breakouts_changed` and `media_breakout_message` from `backend/app/live_lessons/realtime.py`
+- [x] T063 [US4] Write `frontend/src/components/live/breakout-panel.tsx` for the teacher
+- [x] T064 [US4] Move a pupil's client between rooms on the event, fetching a fresh grant instead of reusing the old one
+- [x] T065 [P] [US4] Strings into all six locale files
 
 **Checkpoint**: User story 4 passes independently.
 

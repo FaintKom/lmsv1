@@ -318,6 +318,7 @@ async def lifespan(app: FastAPI):
     import app.learning_paths.models  # noqa
     import app.calendar.models  # noqa
     import app.live_lessons.models  # noqa
+    import app.live_media.models  # noqa
     import app.meetings.models  # noqa
     import app.skills.models  # noqa
     import app.exercises.models  # noqa

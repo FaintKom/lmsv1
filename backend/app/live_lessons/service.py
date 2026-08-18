@@ -200,6 +200,9 @@ async def finalize_lesson(db: AsyncSession, lesson: LiveLesson) -> LiveLesson:
     from app.live_media import grants as media_grants
     from app.live_media import service as media_service
 
+    # Breakout rooms first: they are children of this lesson and must not
+    # outlive it either (FR-018).
+    await media_service.delete_breakouts(db, lesson)
     await media_service.close_room(media_grants.room_name(lesson.id))
 
     await realtime.publish(lesson.id, "all", "lesson_ended", {})

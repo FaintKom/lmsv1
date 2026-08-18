@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
   ControlBar,
@@ -13,7 +13,7 @@ import {
 import { Track } from "livekit-client";
 import { Video, VideoOff } from "lucide-react";
 
-import { fetchMediaToken, type MediaToken } from "@/lib/api/live";
+import { fetchBreakoutToken, fetchMediaToken, type MediaToken } from "@/lib/api/live";
 import { useTranslation } from "@/lib/i18n/context";
 
 import "@livekit/components-styles";
@@ -57,14 +57,43 @@ function Tiles() {
  * opening a lesson should not reach for somebody's camera before they have
  * decided to be seen.
  */
-export function MediaStage({ lessonId }: { lessonId: string }) {
+export function MediaStage({
+  lessonId,
+  breakoutIndex = null,
+}: {
+  lessonId: string;
+  /**
+   * Which breakout room this viewer belongs in, or null for the main room.
+   *
+   * Changing it re-joins: a split that only relabelled the interface would
+   * leave the whole class in one room still hearing each other, which is the
+   * opposite of what a breakout is for.
+   */
+  breakoutIndex?: number | null;
+}) {
   const { t } = useTranslation();
   const [grant, setGrant] = useState<MediaToken | null>(null);
+  const joinedAs = useRef<number | null>(null);
 
   const join = useMutation({
-    mutationFn: () => fetchMediaToken(lessonId),
-    onSuccess: setGrant,
+    mutationFn: () =>
+      breakoutIndex === null
+        ? fetchMediaToken(lessonId)
+        : fetchBreakoutToken(lessonId, breakoutIndex),
+    onSuccess: (g) => {
+      joinedAs.current = breakoutIndex;
+      setGrant(g);
+    },
   });
+
+  // Follow the teacher between rooms, but only once already in one: somebody
+  // who has not pressed Join is not dragged into a call by a split.
+  useEffect(() => {
+    if (grant && joinedAs.current !== breakoutIndex) {
+      setGrant(null);
+      join.mutate();
+    }
+  }, [breakoutIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (grant) {
     return (

@@ -605,3 +605,164 @@ async def test_a_real_media_failure_is_still_an_error(
             f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/remove",
             headers=auth_header(teacher),
         )
+
+
+# --- Breakout groups ---------------------------------------------------------
+
+
+async def test_teacher_splits_the_class(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """Positive control: the groups exist, hold the right people, and get rooms."""
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 1},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+
+    groups = resp.json()["groups"]
+    assert len(groups) == 1
+    assert groups[0]["member_ids"] == [str(student.id)]
+    assert f"lesson-{lesson.id}-b1" in fake_livekit.room.created
+
+
+async def test_pupil_cannot_split_the_class(client: AsyncClient, db, org, teacher, student):
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 2},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403
+
+
+async def test_pupil_gets_a_grant_only_for_their_own_group(
+    client: AsyncClient, db, org, teacher, student
+):
+    """A group they are not in does not exist as far as they are concerned."""
+    lesson = await make_lesson(db, org, teacher, [student])
+    await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 1},
+        headers=auth_header(teacher),
+    )
+
+    mine = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/token/breakout/1", headers=auth_header(student)
+    )
+    assert mine.status_code == 200
+    assert mine.json()["room"] == f"lesson-{lesson.id}-b1"
+
+    theirs = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/token/breakout/2", headers=auth_header(student)
+    )
+    assert theirs.status_code == 404
+
+
+async def test_authority_in_a_breakout_matches_the_main_room(
+    client: AsyncClient, db, org, teacher, student
+):
+    """A small room is not a promotion (FR-017).
+
+    Splitting the class must not hand a pupil the controls just because there
+    are fewer people watching.
+    """
+    lesson = await make_lesson(db, org, teacher, [student])
+    await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 1},
+        headers=auth_header(teacher),
+    )
+
+    pupil = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson.id}/media/token/breakout/1",
+            headers=auth_header(student),
+        )
+    ).json()
+    assert claims(pupil["token"])["video"].get("roomAdmin") in (False, None)
+
+    boss = (
+        await client.post(
+            f"/api/v1/live-lessons/{lesson.id}/media/token/breakout/1",
+            headers=auth_header(teacher),
+        )
+    ).json()
+    assert claims(boss["token"])["video"]["roomAdmin"] is True
+
+
+async def test_gathering_deletes_the_groups_and_closes_their_rooms(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    lesson = await make_lesson(db, org, teacher, [student])
+    await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 1},
+        headers=auth_header(teacher),
+    )
+
+    resp = await client.delete(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts", headers=auth_header(teacher)
+    )
+    assert resp.status_code == 200
+
+    listed = await client.get(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts", headers=auth_header(teacher)
+    )
+    assert listed.json()["groups"] == []
+    assert f"lesson-{lesson.id}-b1" in fake_livekit.room.deleted
+
+
+async def test_ending_the_lesson_closes_every_group_room(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """No room outlives its lesson (FR-018)."""
+    lesson = await make_lesson(db, org, teacher, [student])
+    await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/breakouts",
+        json={"group_size": 1},
+        headers=auth_header(teacher),
+    )
+
+    ended = await client.post(f"/api/v1/live-lessons/{lesson.id}/end", headers=auth_header(teacher))
+    assert ended.status_code == 200
+
+    assert f"lesson-{lesson.id}" in fake_livekit.room.deleted
+    assert f"lesson-{lesson.id}-b1" in fake_livekit.room.deleted
+
+
+async def test_acting_on_a_room_that_emptied_and_was_reaped_is_not_an_error(
+    client: AsyncClient, db, org, teacher, student, fake_livekit
+):
+    """The second way the media server says nobody is there.
+
+    Production found this one *after* the participant-not-found fix shipped: a
+    room that empties is reaped, and the next moderation call gets
+    `unavailable: no response from servers` rather than `not_found`. Same
+    meaning, different word, another 500.
+    """
+
+    async def gone(_request):
+        raise RuntimeError(
+            "ServerError(code=unavailable, message=twirp error unknown: "
+            "no response from servers, status=503)"
+        )
+
+    fake_livekit.room.update_participant = gone
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    resp = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": True},
+        headers=auth_header(teacher),
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["applied"] is False
+
+    # Recorded regardless, so it applies when the room comes back.
+    granted = (await client.post(token_url(lesson), headers=auth_header(student))).json()
+    assert granted["can_publish_screen"] is True

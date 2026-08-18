@@ -36,6 +36,8 @@ export interface LessonChannelHandlers {
     score: number | null;
   }) => void;
   onMediaFloorChanged?: (d: { user_id: string | null }) => void;
+  onMediaBreakoutsChanged?: (d: { groups: { index: number; member_ids: string[] }[] }) => void;
+  onMediaBreakoutMessage?: (d: { text: string }) => void;
   onMediaParticipantRemoved?: (d: { user_id: string }) => void;
   onMediaShareGrantChanged?: (d: { user_id: string; allowed: boolean }) => void;
   onMessage?: (m: { text: string; broadcast?: boolean }) => void;
@@ -97,6 +99,8 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       // Media events ride this same stream on purpose. A second channel would
       // mean a second thing to reconnect and a second thing to get out of step.
       media_floor_changed: (d) => handlersRef.current.onMediaFloorChanged?.(d),
+      media_breakouts_changed: (d) => handlersRef.current.onMediaBreakoutsChanged?.(d),
+      media_breakout_message: (d) => handlersRef.current.onMediaBreakoutMessage?.(d),
       media_participant_removed: (d) => handlersRef.current.onMediaParticipantRemoved?.(d),
       media_share_grant_changed: (d) => handlersRef.current.onMediaShareGrantChanged?.(d),
       lesson_ended: () => {

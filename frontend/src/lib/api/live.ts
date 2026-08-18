@@ -387,3 +387,50 @@ export async function setScreenShare(
     allowed,
   });
 }
+
+export interface BreakoutGroup {
+  index: number;
+  member_ids: string[];
+}
+
+/** Split the class into groups of at most `groupSize`. Replaces any existing split. */
+export async function createBreakouts(
+  lessonId: string,
+  groupSize: number,
+): Promise<BreakoutGroup[]> {
+  const { data } = await apiClient.post<{ groups: BreakoutGroup[] }>(
+    `/live-lessons/${lessonId}/media/breakouts`,
+    { group_size: groupSize },
+  );
+  return data.groups;
+}
+
+export async function fetchBreakouts(lessonId: string): Promise<BreakoutGroup[]> {
+  const { data } = await apiClient.get<{ groups: BreakoutGroup[] }>(
+    `/live-lessons/${lessonId}/media/breakouts`,
+  );
+  return data.groups;
+}
+
+/** Bring everybody back to the main room. */
+export async function gatherBreakouts(lessonId: string): Promise<void> {
+  await apiClient.delete(`/live-lessons/${lessonId}/media/breakouts`);
+}
+
+/** One message to every group at once. */
+export async function messageBreakouts(lessonId: string, text: string): Promise<void> {
+  await apiClient.post(`/live-lessons/${lessonId}/media/breakouts/broadcast`, { text });
+}
+
+/**
+ * A grant for one breakout room.
+ *
+ * Authority is whatever it is in the main room: a smaller room is not a
+ * promotion.
+ */
+export async function fetchBreakoutToken(lessonId: string, index: number): Promise<MediaToken> {
+  const { data } = await apiClient.post<MediaToken>(
+    `/live-lessons/${lessonId}/media/token/breakout/${index}`,
+  );
+  return data;
+}

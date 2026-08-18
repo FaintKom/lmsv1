@@ -16,6 +16,7 @@ from livekit import api as livekit_api
 
 from app.config import settings
 from app.live_lessons import realtime
+from app.live_media import grants
 
 # How long a participant count may be reused. A class arrives together, so
 # fifteen browsers ask within a second or two of each other; without this, each
@@ -128,7 +129,17 @@ def _absent(exc: Exception) -> bool:
     them was green while the real server answered
     `ServerError(code=not_found, message=participant not found)`.
     """
-    return "not_found" in str(exc) or "not found" in str(exc).lower()
+    text = str(exc).lower()
+    # Two ways the media server says "there is nobody there to act on":
+    #   not_found   — the room exists, that participant is not in it
+    #   unavailable — no node is hosting that room at all, because it emptied
+    #                 and was reaped. Production hit this second one after the
+    #                 first was fixed: a teacher acting on a lesson whose room
+    #                 had timed out still got a 500.
+    #
+    # A media server that is actually down does not reach this code: that fails
+    # earlier, as a connection error from the HTTP client, and still raises.
+    return "not_found" in text or "not found" in text or "no response from servers" in text
 
 
 # --- Removal ---
@@ -302,3 +313,61 @@ async def close_room(room: str) -> None:
         await get_livekit().room.delete_room(livekit_api.DeleteRoomRequest(room=room))
     except Exception:  # noqa: BLE001 — a room that is already gone is the goal
         return
+
+
+# --- Breakout groups ---
+
+
+async def create_breakouts(db, lesson, member_ids: list, group_size: int) -> list:
+    """Split a lesson's pupils into groups of at most ``group_size``.
+
+    Subscriptions scale with the square of a room's population, so this makes
+    the media server's job *easier*, not harder: fifteen people all subscribed
+    to each other is 210 video subscriptions, the same fifteen in threes is 30.
+    Splitting a class is the cheapest thing a teacher can do to the host.
+
+    Existing groups are replaced rather than added to — a teacher who splits
+    twice means the second arrangement, not both at once.
+    """
+    from app.live_media.models import LiveBreakoutGroup
+
+    await delete_breakouts(db, lesson)
+
+    groups = []
+    for i in range(0, len(member_ids), max(1, group_size)):
+        chunk = member_ids[i : i + max(1, group_size)]
+        index = len(groups) + 1
+        row = LiveBreakoutGroup(
+            live_lesson_id=lesson.id,
+            org_id=lesson.org_id,
+            index=index,
+            member_ids=[str(m) for m in chunk],
+        )
+        db.add(row)
+        groups.append(row)
+    await db.flush()
+
+    for row in groups:
+        await ensure_room(grants.breakout_room_name(lesson.id, row.index))
+    return groups
+
+
+async def list_breakouts(db, lesson) -> list:
+    from sqlalchemy import select
+
+    from app.live_media.models import LiveBreakoutGroup
+
+    rows = await db.execute(
+        select(LiveBreakoutGroup)
+        .where(LiveBreakoutGroup.live_lesson_id == lesson.id)
+        .order_by(LiveBreakoutGroup.index)
+    )
+    return list(rows.scalars().all())
+
+
+async def delete_breakouts(db, lesson) -> None:
+    """Gather the class back: close every group room and forget the grouping."""
+    for row in await list_breakouts(db, lesson):
+        await close_room(grants.breakout_room_name(lesson.id, row.index))
+        await db.delete(row)
+    await db.flush()
