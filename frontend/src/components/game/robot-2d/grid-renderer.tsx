@@ -172,12 +172,6 @@ export default function GridRenderer({
  </g>
  )}
 
- {/* Start marker (edit mode only) */}
- {type === "start" && editMode && (
- <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
- fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">{t("game.start")}</text>
- )}
-
  {/* Edit hover */}
  {editMode && (
  <rect x={cx} y={cy} width={cw} height={cw} rx={5}
@@ -186,6 +180,29 @@ export default function GridRenderer({
  </g>
  );
  })
+ )}
+
+ {/* Where the robot begins.
+ *
+ * Drawn from the robot's own position, which the level's `start` sets. It
+ * used to be drawn on a cell of type "start", and the start stopped being a
+ * cell when the level schema changed — so a teacher pressing Start moved the
+ * start correctly and then watched nothing happen. There is no robot in edit
+ * mode either, and this stands in for it. */}
+ {editMode && (
+ <g data-start={`${robot.x},${robot.y}`}
+ transform={`translate(${pad + robot.x * cs + cs / 2}, ${pad + robot.y * cs + cs / 2})`}>
+ <circle r={cs * 0.3} fill="#059669" opacity={0.18} />
+ <circle r={cs * 0.3} fill="none" stroke="#059669" strokeWidth={1.5} opacity={0.7} />
+ {/* The facing the teacher chose, visible before anything runs. */}
+ <g transform={`rotate(${DIRECTION_ROTATION[robot.direction]})`}>
+ <path d={`M 0 ${-cs * 0.2} L ${cs * 0.11} ${cs * 0.03} L ${-cs * 0.11} ${cs * 0.03} Z`}
+ fill="#059669" />
+ </g>
+ <text y={cs * 0.3} textAnchor="middle" dominantBaseline="central"
+ fontSize={cs * 0.18} fill="#059669" fontWeight="bold"
+ className="select-none">{t("game.start")}</text>
+ </g>
  )}
 
  {/* Trail path */}
