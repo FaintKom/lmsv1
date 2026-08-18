@@ -95,7 +95,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   const setSlot = useCallback((el: HTMLElement | null, next: CallSlotUi | null) => {
     setSlotEl(el);
-    setUi(() => next);
+    // Only ever *gain* an interface, never lose one by giving back a place.
+    // A page that unmounts is saying "not here any more", not "stop drawing
+    // the call" — clearing both left the floating panel as an empty rectangle
+    // in the corner, which is how this read in production.
+    if (next) setUi(() => next);
   }, []);
 
   const value = useMemo<CallState>(

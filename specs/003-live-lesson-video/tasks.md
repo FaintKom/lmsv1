@@ -381,6 +381,11 @@ small, and every one of them broke the feature completely.
   when the scene is idle. T100 buys space back from the idle placeholder only —
   the real answer is that "what the class is looking at" is one decision with
   one owner, and video is one of its options
+- [x] T104 The floating call panel was an empty rectangle. A defect in T102's
+  own implementation: releasing the slot cleared both *where* to draw the call
+  and *what* to draw, so a teacher switching to the Task tab kept the
+  connection and lost the picture. Giving back a place is not the same as
+  saying stop
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)
