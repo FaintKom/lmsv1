@@ -109,9 +109,14 @@ services:
     # recreate this container on any unrelated deploy, which cuts off whatever
     # lesson is running (research.md Finding I).
     image: livekit/livekit-server:v1.8.4
-    command: --config /etc/livekit.yaml
+    command: --config /etc/livekit/livekit.yaml
     volumes:
-      - ./livekit.yaml:/etc/livekit.yaml:ro
+      # The directory, not the file — same reason as nginx below. `git reset
+      # --hard` gives a changed file a new inode and a single-file mount keeps
+      # serving the old one, so a config edit lands on disk and never reaches
+      # the process. This container is pinned and deliberately not recreated by
+      # ordinary deploys, which would have made that invisible for weeks.
+      - ./livekit:/etc/livekit:ro
     environment:
       # Development keys. Worthless, identical for everyone, and deliberately
       # in git — production reads real ones from its own environment.
