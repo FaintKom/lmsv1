@@ -251,6 +251,41 @@ export function startExerciseTimer(): ExerciseTimer {
  };
 }
 
+/**
+ * What the server saw when it ran a robot program.
+ *
+ * Every figure here is the server's own, from its own replay. The client sends
+ * a program and is told what happened; it never reports an outcome and is never
+ * asked for one.
+ */
+export interface RobotRunResult {
+ frames: RobotFrame[];
+ won: boolean;
+ steps: number;
+ /** Statements in the program that ran — the same rule for blocks and Python. */
+ size: number;
+ stars: number;
+ stopped: "end_of_program" | "steps_exhausted" | "error";
+ /** What the pupil printed, apart from what the robot did. */
+ output: string;
+ output_truncated: boolean;
+ error: { type: string; line: number | null; message: string } | null;
+}
+
+export interface RobotFrame {
+ i: number;
+ cmd: string;
+ ok: boolean;
+ x: number;
+ y: number;
+ facing: "up" | "right" | "down" | "left";
+ carrying: number;
+ items_left: number;
+ cells: { x: number; y: number; item?: boolean; painted?: boolean; value?: number }[];
+ /** A refusal key — `wall`, `edge`, `no_item`. Translated before display. */
+ msg: string | null;
+}
+
 export const exercisesApi = {
  list: (params?: {
  exercise_type?: ExerciseType;
@@ -277,6 +312,12 @@ export const exercisesApi = {
  apiClient.put<Exercise>(`/exercises/${id}`, data),
 
  delete: (id: string) => apiClient.delete(`/exercises/${id}`),
+
+ // Robot 2D. Note what goes up: the program, and nothing about how it went.
+ // The server runs it and reaches its own verdict — see
+ // `specs/005-robot-2d-rework/contracts/api.md`.
+ runRobot: (id: string, data: { source: string; mode: "python" | "blocks" }) =>
+ apiClient.post<RobotRunResult>(`/exercises/${id}/robot/run`, data),
 
  // Submissions
  submit: (id: string, data: Record<string, unknown>) =>

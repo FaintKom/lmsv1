@@ -48,6 +48,15 @@ const MIN_DELAY_MS = 30;
 const MAX_DELAY_MS = 1000;
 
 export class TracePlayer {
+  /**
+   * Assignable after construction, not only through the constructor, so a React
+   * caller can build the player in a lazy state initialiser and wire the
+   * callbacks up in an effect. Reading a ref inside a `useMemo` factory counts
+   * as reading it during render, and the lint rule is right to say so.
+   */
+  onFrame: TracePlayerOptions["onFrame"] | null = null;
+  onEnd: TracePlayerOptions["onEnd"] | null = null;
+
   private frames: Frame[] = [];
   private index = -1;
   private delayMs = 300;
@@ -56,7 +65,10 @@ export class TracePlayer {
   /** Bumped on every load and stop, so a sleeping play loop knows it is stale. */
   private generation = 0;
 
-  constructor(private readonly options: TracePlayerOptions = {}) {}
+  constructor(options: TracePlayerOptions = {}) {
+    this.onFrame = options.onFrame ?? null;
+    this.onEnd = options.onEnd ?? null;
+  }
 
   load(frames: Frame[]) {
     this.generation += 1;
@@ -64,7 +76,7 @@ export class TracePlayer {
     this.index = -1;
     this.playing = false;
     this.paused = false;
-    this.options.onFrame?.(null, -1);
+    this.onFrame?.(null, -1);
   }
 
   setSpeed(delayMs: number) {
@@ -76,7 +88,7 @@ export class TracePlayer {
     if (this.index >= this.frames.length - 1) return null;
     this.index += 1;
     const frame = this.frames[this.index];
-    this.options.onFrame?.(frame, this.index);
+    this.onFrame?.(frame, this.index);
     return frame;
   }
 
@@ -88,7 +100,7 @@ export class TracePlayer {
     const clamped = Math.max(-1, Math.min(this.frames.length - 1, index));
     this.index = clamped;
     const frame = clamped < 0 ? null : this.frames[clamped];
-    this.options.onFrame?.(frame, clamped);
+    this.onFrame?.(frame, clamped);
     return frame;
   }
 
@@ -110,7 +122,7 @@ export class TracePlayer {
 
     const reachedEnd = this.generation === mine && this.atEnd;
     this.playing = false;
-    if (this.generation === mine) this.options.onEnd?.(reachedEnd);
+    if (this.generation === mine) this.onEnd?.(reachedEnd);
   }
 
   pause() {
@@ -132,7 +144,7 @@ export class TracePlayer {
   reset() {
     this.stop();
     this.index = -1;
-    this.options.onFrame?.(null, -1);
+    this.onFrame?.(null, -1);
   }
 
   get currentIndex() {

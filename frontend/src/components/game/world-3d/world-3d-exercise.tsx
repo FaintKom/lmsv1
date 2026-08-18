@@ -19,7 +19,7 @@ import {
  StepExecutor,
  parseCommands,
  type GameCommand,
-} from "@/components/game/engine/step-executor";
+} from "./legacy-step-executor";
 import type { Difficulty } from "@/components/game/blockly/toolbox-configs";
 import { DIFFICULTY_3D_TOOLBOXES } from "@/components/game/blockly/toolbox-configs";
 
