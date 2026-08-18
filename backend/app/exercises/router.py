@@ -22,8 +22,11 @@ from app.exercises.schemas import (
     QuestionCreate,
     QuestionInExercise,
     QuestionUpdate,
+    RobotPreviewRequest,
     RobotRunRequest,
     RobotRunResponse,
+    RobotSolveRequest,
+    RobotSolveResponse,
     SubmissionListResponse,
     SubmitExerciseRequest,
     TestCaseCreate,
@@ -305,6 +308,69 @@ async def check_exercise_endpoint(
         exercise.config or {}, exercise.exercise_type.value, data.interactive_answers
     )
     return CheckExerciseResponse(score=round(score, 4), passed=passed, per_item=per_item)
+
+
+@router.post("/robot/preview", response_model=RobotRunResponse)
+async def robot_preview_endpoint(
+    data: RobotPreviewRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Run a program against a level that has not been saved.
+
+    Staff only, and not because the level is secret — the caller supplies it, so
+    a pupil reaching this route could author a one-cell level and win it.
+
+    Every blocker comes back together (FR-020). A teacher fixing one fault per
+    save is the failure this replaces.
+    """
+    from app.exercises import robot_runner, robot_validate
+
+    blockers = robot_validate.check(data.config)
+    if blockers:
+        raise HTTPException(status_code=400, detail={"blockers": blockers})
+
+    try:
+        result = await robot_runner.run(data.config, data.source)
+    except RuntimeError:
+        raise HTTPException(
+            status_code=503,
+            detail="The service that runs programs is unavailable. Try again.",
+        ) from None
+
+    return RobotRunResponse(**result)
+
+
+@router.post("/robot/solve", response_model=RobotSolveResponse)
+async def robot_solve_endpoint(
+    data: RobotSolveRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Can this level be finished, and in how few steps. The Check button.
+
+    Three answers, and it always says which. Where the search declines — a goal
+    over the numbers on the floor, or more targets than it can walk — the
+    figures come from the teacher's own solution instead, and `answer` stays
+    `reference_only` so the editor can never show them as an optimum (FR-035,
+    SC-011).
+    """
+    from app.exercises import robot_runner, robot_solver, robot_validate
+
+    blockers = robot_validate.check(data.config)
+
+    reference_run = None
+    solution = (data.config.get("solution_code") or "").strip()
+    if solution and not blockers:
+        try:
+            reference_run = await robot_runner.run(data.config, solution)
+        except RuntimeError:
+            raise HTTPException(
+                status_code=503,
+                detail="The service that runs programs is unavailable. Try again.",
+            ) from None
+
+    answer = robot_solver.solve(data.config, reference_run)
+    answer["blockers"] = [*blockers, *answer["blockers"]]
+    return RobotSolveResponse(**answer)
 
 
 @router.post("/{exercise_id}/robot/run", response_model=RobotRunResponse)

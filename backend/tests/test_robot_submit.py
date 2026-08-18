@@ -252,6 +252,94 @@ async def test_a_non_robot_exercise_is_not_found_on_the_robot_route(
 # ─── The reference solution is not the pupil's business ──────────────
 
 
+# ─── The editor's own routes ─────────────────────────────────────────
+
+
+async def test_only_staff_may_playtest_an_unsaved_level(client, org, teacher, student):
+    """The caller supplies the level, so a pupil reaching this could author a
+    one-cell level and win it. The teacher is the positive control."""
+    body = {"config": corridor(3), "source": WIN}
+
+    pupil = await client.post(
+        "/api/v1/exercises/robot/preview", json=body, headers=auth_header(student)
+    )
+    assert pupil.status_code == 403
+
+    staff = await client.post(
+        "/api/v1/exercises/robot/preview", json=body, headers=auth_header(teacher)
+    )
+    assert staff.status_code == 200
+    assert staff.json()["won"] is True
+
+
+async def test_a_playtest_refuses_a_level_and_names_every_fault(client, org, teacher):
+    broken = corridor(3)
+    broken["cells"] = []  # the win condition wants a goal; there is none
+    broken["commands"] = []
+
+    resp = await client.post(
+        "/api/v1/exercises/robot/preview",
+        json={"config": broken, "source": WIN},
+        headers=auth_header(teacher),
+    )
+
+    assert resp.status_code == 400
+    codes = {b["code"] for b in resp.json()["detail"]["blockers"]}
+    assert "win_needs_goal" in codes
+    assert "no_commands" in codes, "every fault at once, not the first one"
+
+
+async def test_check_answers_with_a_step_count_a_teacher_can_verify(client, org, teacher):
+    resp = await client.post(
+        "/api/v1/exercises/robot/solve",
+        json={"config": corridor(3)},
+        headers=auth_header(teacher),
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["answer"] == "shortest"
+    assert resp.json()["steps"] == 3
+
+
+async def test_check_says_when_it_did_not_search(client, org, teacher):
+    """SC-011. A level whose goal reads the numbers on the floor gets the
+    teacher's own solution's figures, never a count labelled shortest."""
+    valued = corridor(3)
+    valued["cells"].append({"x": 1, "y": 0, "type": "empty", "value": 4})
+    valued["win"] = {"cond": "all_values_read"}
+    valued["solution_code"] = "move_forward()\nread()\n"
+
+    resp = await client.post(
+        "/api/v1/exercises/robot/solve", json={"config": valued}, headers=auth_header(teacher)
+    )
+
+    body = resp.json()
+    assert body["answer"] == "reference_only"
+    assert body["reason"] == "win_uses_values"
+    assert body["steps"] == 2, "from the teacher's own run"
+
+
+async def test_check_reports_an_unreachable_goal(client, org, teacher):
+    walled = corridor(3)
+    walled["cells"].append({"x": 1, "y": 0, "type": "wall"})
+
+    resp = await client.post(
+        "/api/v1/exercises/robot/solve", json={"config": walled}, headers=auth_header(teacher)
+    )
+
+    assert resp.json()["answer"] == "unsolvable"
+    assert resp.json()["steps"] is None
+
+
+async def test_only_staff_may_press_check(client, org, student):
+    resp = await client.post(
+        "/api/v1/exercises/robot/solve",
+        json={"config": corridor(3)},
+        headers=auth_header(student),
+    )
+    assert resp.status_code == 403
+
+
 async def test_the_reference_solution_never_reaches_a_pupil(client, db, org, teacher, student):
     """Through every read path, with the teacher as the positive control."""
     exercise = await _robot_exercise(db, org, teacher, solution_code=WIN)
