@@ -231,11 +231,26 @@ The round trip is: request → sandbox container on the same host → `python3` 
 existing demo endpoint already pays and which the landing page runs
 interactively today.
 
-**Not measured yet.** The number to beat is in the spec; the first task after the
-runner exists is to measure it against the real container and record the figure
-here. If it misses, the fallback is to keep the previous frames on screen while
-the request is in flight — but that is a fix for a measured problem, not a thing
-to build first.
+**Measured.** Twenty runs of a one-command program against the real sandbox
+container, on the development machine:
+
+| | seconds |
+|---|---|
+| fastest | 0.11 |
+| median | 0.22 |
+| 19th of 20 | 0.37 |
+| slowest | 0.53 |
+
+SC-009 asks for three seconds in nineteen runs of twenty. The slowest run was
+about a fifth of that, so the round trip does not need hiding and the
+optimistic-replay fallback was not built — there is no measured problem for it
+to fix.
+
+Two caveats on the figure. It is a development machine, not the CX22, which has
+two vCPUs and runs a dozen other containers; and it is one program at a time,
+not a class of twenty pressing Run together. Neither is a reason to build
+against a guess now — the number to watch is the same one, measured again in
+production after the deploy.
 
 ---
 

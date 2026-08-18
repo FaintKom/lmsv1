@@ -34,9 +34,20 @@ import {
 import GridRenderer from "./grid-renderer";
 import { initialState, type Cell, type CellType, type Direction } from "./grid-engine";
 
+type Config = Record<string, unknown>;
+
 interface Robot2DEditorProps {
-  config: Record<string, unknown>;
-  onConfigChange: (config: Record<string, unknown>) => void;
+  config: Config;
+  /**
+   * Accepts an updater, not only a value.
+   *
+   * Two edits landing in one render batch both read the same `config` prop, so
+   * the second overwrites the first — twelve command toggles in one tick left
+   * eleven of them on. A human clicking cannot do that, but a fast typist in a
+   * text field can. The parent passes a `useState` setter, which has always
+   * supported this form.
+   */
+  onConfigChange: (next: Config | ((previous: Config) => Config)) => void;
 }
 
 type Translate = (key: string) => string;
@@ -101,7 +112,8 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
 
   const gridWidth = (config.grid_width as number) || 5;
   const gridHeight = (config.grid_height as number) || 5;
-  const cells = useMemo(() => (config.cells as Cell[]) || [], [config.cells]);
+  // Only for rendering. Nothing derives an edit from these — the handlers read
+  // the previous config, so an edit cannot be computed from a stale copy.
   const start = useMemo(
     () =>
       (config.start as { x: number; y: number; facing: Direction }) || {
@@ -127,15 +139,29 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
   const [playtest, setPlaytest] = useState<RobotRunResult | null>(null);
   const [busy, setBusy] = useState<"check" | "playtest" | null>(null);
 
-  const update = useCallback(
-    (patch: Record<string, unknown>) => {
+  /**
+   * Edit the level, deriving the change from whatever the config is *now*.
+   *
+   * `derive` receives the previous config rather than closing over it. Toggling
+   * a command means reading the command list and writing a new one, and reading
+   * it from the render's props loses every edit but the last when two land in
+   * one batch — twelve toggles in one tick left eleven of them on.
+   */
+  const updateWith = useCallback(
+    (derive: (previous: Config) => Config) => {
+      onConfigChange((previous) => ({ ...previous, ...derive(previous) }));
+      // Undo records the config this render saw. Two edits in one batch leave
+      // one entry instead of two — one extra step back, which is a fair price
+      // for never losing an edit.
       setHistory((h) => [...h, config].slice(-UNDO_LIMIT));
-      onConfigChange({ ...config, ...patch });
       // The level moved; the old answer describes one that no longer exists.
       setAnswer(null);
     },
     [config, onConfigChange],
   );
+
+  /** For edits that do not depend on the current value. */
+  const update = useCallback((patch: Config) => updateWith(() => patch), [updateWith]);
 
   const undo = useCallback(() => {
     setHistory((h) => {
@@ -148,59 +174,64 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
 
   const paint = useCallback(
     (x: number, y: number) => {
-      if (activeTool === "start") {
-        update({ start: { ...start, x, y } });
-        return;
-      }
+      // Derived from the previous config, not the render's: dragging fires this
+      // many times a second, and each one reads the cells the last one wrote.
+      updateWith((previous) => {
+        const current = (previous.cells as Cell[]) || [];
+        const startAt = (previous.start as { x: number; y: number; facing: Direction }) || start;
 
-      const at = cells.find((c) => c.x === x && c.y === y);
-      const without = cells.filter((c) => !(c.x === x && c.y === y));
+        if (activeTool === "start") return { start: { ...startAt, x, y } };
 
-      if (activeTool === "mark") {
-        update({ cells: [...without, { ...(at ?? { x, y, type: "empty" }), mark: !at?.mark }] });
-        return;
-      }
-      if (activeTool === "value") {
-        // 0–9, cycling, so one tool sets any digit.
-        const next = ((at?.value ?? -1) + 1) % 10;
-        update({ cells: [...without, { ...(at ?? { x, y, type: "empty" }), value: next }] });
-        return;
-      }
-      if (activeTool === "empty") {
-        update({ cells: without });
-        return;
-      }
-      if (activeTool === "goal") {
-        update({ cells: [...without.filter((c) => c.type !== "goal"), { x, y, type: "goal" }] });
-        return;
-      }
-      update({ cells: [...without, { x, y, type: activeTool }] });
+        const at = current.find((c) => c.x === x && c.y === y);
+        const without = current.filter((c) => !(c.x === x && c.y === y));
+
+        if (activeTool === "mark") {
+          return { cells: [...without, { ...(at ?? { x, y, type: "empty" }), mark: !at?.mark }] };
+        }
+        if (activeTool === "value") {
+          // 0–9, cycling, so one tool sets any digit.
+          const next = ((at?.value ?? -1) + 1) % 10;
+          return { cells: [...without, { ...(at ?? { x, y, type: "empty" }), value: next }] };
+        }
+        if (activeTool === "empty") return { cells: without };
+        if (activeTool === "goal") {
+          return { cells: [...without.filter((c) => c.type !== "goal"), { x, y, type: "goal" }] };
+        }
+        return { cells: [...without, { x, y, type: activeTool }] };
+      });
     },
-    [activeTool, cells, start, update],
+    [activeTool, start, updateWith],
   );
 
   const toggleCommand = useCallback(
     (command: string) =>
-      update({
-        commands: commands.includes(command)
-          ? commands.filter((c) => c !== command)
-          : [...commands, command],
+      updateWith((previous) => {
+        const current = (previous.commands as string[]) || [];
+        return {
+          commands: current.includes(command)
+            ? current.filter((c) => c !== command)
+            : [...current, command],
+        };
       }),
-    [commands, update],
+    [updateWith],
   );
 
   const resize = useCallback(
     (width: number, height: number) => {
       const w = clamp(width, 2, 10);
       const h = clamp(height, 2, 10);
-      update({
-        grid_width: w,
-        grid_height: h,
-        cells: cells.filter((c) => c.x < w && c.y < h),
-        start: { ...start, x: Math.min(start.x, w - 1), y: Math.min(start.y, h - 1) },
+      updateWith((previous) => {
+        const current = (previous.cells as Cell[]) || [];
+        const startAt = (previous.start as { x: number; y: number; facing: Direction }) || start;
+        return {
+          grid_width: w,
+          grid_height: h,
+          cells: current.filter((c) => c.x < w && c.y < h),
+          start: { ...startAt, x: Math.min(startAt.x, w - 1), y: Math.min(startAt.y, h - 1) },
+        };
       });
     },
-    [cells, start, update],
+    [start, updateWith],
   );
 
   const check = useCallback(async () => {
@@ -210,7 +241,11 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
       const { data } = await exercisesApi.solveRobotLevel({ config });
       setAnswer(data);
       if (data.steps !== null) {
-        onConfigChange({ ...config, star_steps: data.steps, star_size: data.size ?? undefined });
+        onConfigChange((previous) => ({
+          ...previous,
+          star_steps: data.steps,
+          star_size: data.size ?? undefined,
+        }));
       }
     } catch {
       setAnswer({
@@ -380,7 +415,13 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
       <div>
         <div className="mb-2 flex items-center justify-between">
           <label className="text-xs font-medium text-text-muted">{t("robot.hints")}</label>
-          <Button variant="ghost" size="sm" onClick={() => update({ hints: [...hints, ""] })}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              updateWith((p) => ({ hints: [...(((p.hints as string[]) || [])), ""] }))
+            }
+          >
             {t("robot.addHint")}
           </Button>
         </div>
@@ -389,14 +430,28 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
             <input
               value={hint}
               onChange={(e) => {
-                const next = [...hints];
-                next[i] = e.target.value;
-                update({ hints: next });
+                // Every keystroke rewrites the array, so it must be read from
+                // the previous config — two quick keys would otherwise land in
+                // one batch and the second would drop the first.
+                const typed = e.target.value;
+                updateWith((p) => {
+                  const next = [...(((p.hints as string[]) || []))];
+                  next[i] = typed;
+                  return { hints: next };
+                });
               }}
               placeholder={fill(t("robot.hintPlaceholder"), { n: i + 1 })}
               className="flex-1 rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
             />
-            <Button variant="ghost" size="sm" onClick={() => update({ hints: hints.filter((_, j) => j !== i) })}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                updateWith((p) => ({
+                  hints: (((p.hints as string[]) || [])).filter((_, j) => j !== i),
+                }))
+              }
+            >
               &times;
             </Button>
           </div>
