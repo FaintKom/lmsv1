@@ -50,8 +50,8 @@ sandbox program, the server's replay, the search, the editor's checks.
 > not merely error on a missing import.
 
 - [x] T004 [P] Failing tests for movement, refusals and the step allowance in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
-- [ ] T005 [P] Failing tests for items, paint and values in `backend/tests/test_robot_world.py` — `take` then `drop` restores the count (FR-024), painting twice counts once toward the goal and twice in steps (FR-033), `read` on a bare floor refuses rather than returning `0` (FR-034)
-- [ ] T006 [P] Failing tests for the win expression in `backend/tests/test_robot_win.py` — every leaf in data-model.md, and `and` / `or` / `not` over them, including a `not` given the wrong number of children
+- [x] T005 [P] Failing tests for items, paint and values in `backend/tests/test_robot_world.py` — `take` then `drop` restores the count (FR-024), painting twice counts once toward the goal and twice in steps (FR-033), `read` on a bare floor refuses rather than returning `0` (FR-034)
+- [x] T006 [P] Failing tests for the win expression in `backend/tests/test_robot_win.py` — every leaf in data-model.md, and `and` / `or` / `not` over them, including a `not` given the wrong number of children
 - [ ] T007 [P] Failing tests for level validation in `backend/tests/test_robot_validate.py` — every blocker in FR-020 reported **together**, not the first one only
 
 ### Implementation
@@ -63,8 +63,8 @@ sandbox program, the server's replay, the search, the editor's checks.
 - [x] T012 Add the win-expression evaluator to `backend/app/exercises/robot_sim.py` over the vocabulary in data-model.md, rejecting a node shape it does not know rather than defaulting to false
 - [x] T013 Add the command-not-offered refusal to `backend/app/exercises/robot_sim.py` — calling a command the level withholds refuses by name (FR-015) rather than raising `NameError`
 - [ ] T014 [P] Create `backend/app/exercises/robot_validate.py`, returning every blocker as a key and never a sentence (FR-020, contracts/api.md)
-- [ ] T015 Rewrite `Robot2DConfig` in `backend/app/exercises/schemas.py` to the shape in data-model.md, deleting `available_blocks`, `custom_win_js`, `win_condition`, `target_steps` and `optimal_blocks`
-- [ ] T016 Add the run, preview and solve request and response schemas to `backend/app/exercises/schemas.py`, matching contracts/api.md exactly — including `answer` and `reason` on the solve response
+- [x] T015 Rewrite `Robot2DConfig` in `backend/app/exercises/schemas.py` to the shape in data-model.md, deleting `available_blocks`, `custom_win_js`, `win_condition`, `target_steps` and `optimal_blocks`
+- [x] T016 Add the run, preview and solve request and response schemas to `backend/app/exercises/schemas.py`, matching contracts/api.md exactly — including `answer` and `reason` on the solve response
 
 **Checkpoint**: the rules exist, are tested, and nothing yet calls them.
 
@@ -81,27 +81,27 @@ losing program and watch it recorded as not passed.
 
 ### Tests for User Story 1
 
-- [ ] T017 [P] [US1] Failing tests for the program builder in `backend/tests/test_robot_runner.py` — a pupil's source embedded via `json.dumps` survives quotes and backslashes, and `compile(src, "program.py", "exec")` reports line numbers relative to the pupil's first line (research Finding A)
-- [ ] T018 [P] [US1] Failing tests for sentinel parsing in `backend/tests/test_robot_runner.py` — the command list is read from the **last** sentinel occurrence, so a pupil who prints the sentinel changes nothing (research Finding C)
-- [ ] T019 [P] [US1] Failing test for tamper resistance in `backend/tests/test_robot_submit.py` — a program that reaches into the simulator and sets the win flag is graded not passed, because the server replays rather than trusts (research Finding B)
-- [ ] T020 [P] [US1] Failing test for forgery in `backend/tests/test_robot_submit.py` — a submission carrying `game_result: {completed: true, score: 1.0}` beside a losing program is `passed: false`, **with the winning-program positive control in the same test** (Constitution II)
-- [ ] T021 [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that a pupil reading the exercise through all three read endpoints sees no `solution_code`, and a teacher reading the same one does (FR-010)
+- [x] T017 [P] [US1] Failing tests for the program builder in `backend/tests/test_robot_runner.py` — a pupil's source embedded via `json.dumps` survives quotes and backslashes, and `compile(src, "program.py", "exec")` reports line numbers relative to the pupil's first line (research Finding A)
+- [x] T018 [P] [US1] Failing tests for sentinel parsing in `backend/tests/test_robot_runner.py` — the command list is read from the **last** sentinel occurrence, so a pupil who prints the sentinel changes nothing (research Finding C)
+- [x] T019 [P] [US1] Failing test for tamper resistance in `backend/tests/test_robot_submit.py` — a program that reaches into the simulator and sets the win flag is graded not passed, because the server replays rather than trusts (research Finding B)
+- [x] T020 [P] [US1] Failing test for forgery in `backend/tests/test_robot_submit.py` — a submission carrying `game_result: {completed: true, score: 1.0}` beside a losing program is `passed: false`, **with the winning-program positive control in the same test** (Constitution II)
+- [x] T021 [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that a pupil reading the exercise through all three read endpoints sees no `solution_code`, and a teacher reading the same one does (FR-010)
 - [ ] T022 [P] [US1] Failing tests for the trace player in `frontend/src/components/game/engine/trace-player.test.ts` — play, pause, step, seek and speed over a fixed frame array
-- [ ] T022a [P] [US1] Failing tenant-isolation test in `backend/tests/test_robot_submit.py` — a pupil of another school posting to `/robot/run` for this exercise gets 404, **and a pupil of the owning school gets 200 in the same test** (Constitution I). Without the positive control the assertion passes before the route exists
-- [ ] T022b [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that twenty runs leave `attempts_remaining` unchanged, and that submitting once decrements it (FR-026, SC-010)
-- [ ] T022c [P] [US1] Failing tests for the star rules in `backend/tests/test_robot_stars.py` — the same program on the same level scores identically twice (SC-008), and each threshold is checked at its boundary, one either side (FR-028)
+- [x] T022a [P] [US1] Failing tenant-isolation test in `backend/tests/test_robot_submit.py` — a pupil of another school posting to `/robot/run` for this exercise gets 404, **and a pupil of the owning school gets 200 in the same test** (Constitution I). Without the positive control the assertion passes before the route exists
+- [x] T022b [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that twenty runs leave `attempts_remaining` unchanged, and that submitting once decrements it (FR-026, SC-010)
+- [x] T022c [P] [US1] Failing tests for the star rules in `backend/tests/test_robot_runner.py` — the same program on the same level scores identically twice (SC-008), and each threshold is checked at its boundary, one either side (FR-028). They live beside the runner rather than in a file of their own because `stars()` is a function of the runner's own output, and splitting them would mean building that output twice
 
 ### Implementation
 
-- [ ] T023 [US1] Create `backend/app/exercises/robot_runner.py` — read `robot_sim.py`'s own source, append the level and the pupil's program as JSON literals, append the sentinel print, and call the existing `execute_code_remote` with `language="python"`, 5 s, 128 MB (research Finding I)
-- [ ] T024 [US1] Add error capture to `backend/app/exercises/robot_runner.py` — catch `SyntaxError` and any runtime exception, walk the traceback to the last `program.py` frame, return `{type, line, message}`
-- [ ] T025 [US1] Add the caps to `backend/app/exercises/robot_runner.py` — command list at `max_steps`, printed output at 8 KB with `output_truncated`
-- [ ] T026 [US1] Add the server-side replay to `backend/app/exercises/robot_runner.py` — run the returned command list through `robot_sim` in-process and produce the frames, `won`, `steps` and `stopped` of data-model.md
-- [ ] T027 [US1] Add statement counting to `backend/app/exercises/robot_runner.py` using `ast`, so `size` comes from the program the system ran rather than from anything the client reports (FR-028)
-- [ ] T028 [US1] Add `POST /exercises/{exercise_id}/robot/run` to `backend/app/exercises/router.py`, resolved through the existing per-domain guard so another school's id reads 404 (Constitution I), rate-limited with the deferred form
-- [ ] T029 [US1] Return `503` from that route when the sandbox does not answer, recording nothing and consuming no attempt
-- [ ] T030 [US1] Change `_submit_game_level` in `backend/app/exercises/service.py` so `robot_2d` grades from its own replay and ignores `completed` and `score` from the body; leave `math_interactive` on the old path, still tracked by `specs/004-exercise-answer-leak`
-- [ ] T031 [US1] Store the submission as `answers.robot` per data-model.md, and award experience on the server's `won`
+- [x] T023 [US1] Create `backend/app/exercises/robot_runner.py` — read `robot_sim.py`'s own source, append the level and the pupil's program as JSON literals, append the sentinel print, and call the existing `execute_code_remote` with `language="python"`, 5 s, 128 MB (research Finding I)
+- [x] T024 [US1] Add error capture to `backend/app/exercises/robot_runner.py` — catch `SyntaxError` and any runtime exception, walk the traceback to the last `program.py` frame, return `{type, line, message}`
+- [x] T025 [US1] Add the caps to `backend/app/exercises/robot_runner.py` — command list at `max_steps`, printed output at 8 KB with `output_truncated`
+- [x] T026 [US1] Add the server-side replay to `backend/app/exercises/robot_runner.py` — run the returned command list through `robot_sim` in-process and produce the frames, `won`, `steps` and `stopped` of data-model.md
+- [x] T027 [US1] Add statement counting to `backend/app/exercises/robot_runner.py` using `ast`, so `size` comes from the program the system ran rather than from anything the client reports (FR-028)
+- [x] T028 [US1] Add `POST /exercises/{exercise_id}/robot/run` to `backend/app/exercises/router.py`, resolved through the existing per-domain guard so another school's id reads 404 (Constitution I), rate-limited with the deferred form
+- [x] T029 [US1] Return `503` from that route when the sandbox does not answer, recording nothing and consuming no attempt
+- [x] T030 [US1] Change `_submit_game_level` in `backend/app/exercises/service.py` so `robot_2d` grades from its own replay and ignores `completed` and `score` from the body; leave `math_interactive` on the old path, still tracked by `specs/004-exercise-answer-leak`
+- [x] T031 [US1] Store the submission as `answers.robot` per data-model.md, and award experience on the server's `won`
 - [ ] T032 [P] [US1] Create `frontend/src/components/game/engine/trace-player.ts` — play, pause, step, seek and speed over a frame array
 - [ ] T033 [US1] Move `step-executor.ts` into World 3D rather than deleting it — `frontend/src/components/game/world-3d/world-3d-exercise.tsx:22` imports `parseCommands` and calls it at line 113, so deleting the module stops World 3D compiling. Relocate it to `frontend/src/components/game/world-3d/legacy-step-executor.ts`, unreferenced by anything in `robot-2d/`, and delete it for real in `specs/006-world-3d-rework`
 - [ ] T033a [US1] Confirm by grep that nothing under `frontend/src/components/game/robot-2d/` imports the relocated executor, and that `npx tsc --noEmit` is clean — the `_while` machinery that never re-read its condition must be gone from the 2D path even though the file survives for 3D
