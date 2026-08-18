@@ -3000,6 +3000,8 @@ const en: TranslationMap = {
  "live.media.recordOpen": "Open",
  "live.media.recordFailed": "Could not record",
  "live.media.join": "Join video",
+ "live.media.notJoinedYet": "You are not in the call yet",
+ "live.media.joinExplains": "Join to turn on your camera and microphone. You can switch which ones from the controls afterwards.",
  "live.media.micOn": "Mic on",
  "live.media.micOff": "Mic off",
  "live.media.camOn": "Camera on",

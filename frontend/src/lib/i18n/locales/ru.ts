@@ -2948,6 +2948,8 @@ const ru: TranslationMap = {
  "live.media.recordOpen": "Открыть",
  "live.media.recordFailed": "Не удалось записать",
  "live.media.join": "Подключить видео",
+ "live.media.notJoinedYet": "Вы ещё не в звонке",
+ "live.media.joinExplains": "Войдите, чтобы включить камеру и микрофон. Поменять их можно потом в панели управления.",
  "live.media.micOn": "Микрофон включён",
  "live.media.micOff": "Микрофон выключен",
  "live.media.camOn": "Камера включена",

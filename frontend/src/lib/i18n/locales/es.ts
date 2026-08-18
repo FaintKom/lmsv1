@@ -2938,6 +2938,8 @@ const es: TranslationMap = {
  "live.media.recordOpen": "Abrir",
  "live.media.recordFailed": "No se pudo grabar",
  "live.media.join": "Unirse al vídeo",
+ "live.media.notJoinedYet": "Todavía no estás en la llamada",
+ "live.media.joinExplains": "Únete para activar tu cámara y tu micrófono. Después puedes cambiarlos desde los controles.",
  "live.media.micOn": "Micrófono activado",
  "live.media.micOff": "Micrófono apagado",
  "live.media.camOn": "Cámara activada",

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { fetchActiveLesson } from "@/lib/api/live";
+import { useAuthStore } from "@/stores/auth-store";
 import { useTranslation } from "@/lib/i18n/context";
 
 export function LiveLessonBanner() {
@@ -19,7 +20,15 @@ export function LiveLessonBanner() {
       .catch(() => {});
   }, [pathname]);
 
-  if (!lessonId || pathname.startsWith("/lesson/")) return null;
+  // Staff and pupils reach the same lesson by different routes, and each is
+  // barred from the other's: the dashboard layout bounces staff to /admin, so a
+  // teacher sent to /lesson/… lands anywhere but their own lesson (FR-030).
+  const role = useAuthStore((s) => s.user?.role);
+  const isStaff = role === "teacher" || role === "admin" || role === "super_admin";
+  const target = isStaff ? `/admin/live/${lessonId}` : `/lesson/${lessonId}`;
+  const alreadyThere = pathname.startsWith("/lesson/") || pathname.startsWith("/admin/live/");
+
+  if (!lessonId || alreadyThere) return null;
   return (
     <div className="mb-4 flex items-center justify-between gap-3 rounded-md bg-primary px-4 py-2.5 text-sm text-primary-fg shadow-pop">
       <span className="flex items-center gap-2 font-semibold">
@@ -27,7 +36,7 @@ export function LiveLessonBanner() {
         {t("live.joinBanner")}
       </span>
       <button
-        onClick={() => router.push(`/lesson/${lessonId}`)}
+        onClick={() => router.push(target)}
         className="rounded-pill bg-surface px-3.5 py-1 text-xs font-bold text-green-800 transition-transform hover:translate-y-px"
       >
         {t("live.join")}

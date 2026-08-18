@@ -2941,6 +2941,8 @@ const tr: TranslationMap = {
  "live.media.recordOpen": "Aç",
  "live.media.recordFailed": "Kaydedilemedi",
  "live.media.join": "Görüntülü katıl",
+ "live.media.notJoinedYet": "Henüz görüşmede değilsiniz",
+ "live.media.joinExplains": "Kameranızı ve mikrofonunuzu açmak için katılın. Hangisini kullanacağınızı sonra kontrollerden değiştirebilirsiniz.",
  "live.media.micOn": "Mikrofon açık",
  "live.media.micOff": "Mikrofon kapalı",
  "live.media.camOn": "Kamera açık",

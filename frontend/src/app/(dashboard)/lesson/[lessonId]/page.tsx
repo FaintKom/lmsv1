@@ -50,6 +50,13 @@ export default function StudentLessonPage() {
     courseId: string;
   } | null>(null);
   const [materialOpen, setMaterialOpen] = useState(false);
+  const [sharedScreen, setSharedScreen] = useState(false);
+  // What the teacher put in front of the class always keeps the room: a pupil
+  // solving a task must not have it shrunk to a strip because somebody started
+  // sharing. The only space a shared screen may take is the space the "waiting
+  // for the teacher" placeholder was wasting (FR-031).
+  const sceneIsWork = ["board", "material", "task", "solution"].includes(scene?.type ?? "");
+  const screenTakesOver = sharedScreen && !sceneIsWork;
   const boardHandleRef = useRef<BoardViewHandle | null>(null);
   const prevSceneType = useRef<string | null>(null);
 
@@ -174,7 +181,11 @@ export default function StudentLessonPage() {
           {t("live.followStrictBanner")}
         </div>
       )}
-      <div className="relative min-h-0 flex-1">
+      {/* A shared screen is the lesson while it lasts, so it takes the room and
+          the scene steps back to a strip. Otherwise a pupil reads a teacher's
+          screen inside 224 pixels while "waiting for the teacher" holds the
+          page (FR-031). */}
+      <div className={screenTakesOver ? "relative h-28 shrink-0 overflow-hidden" : "relative min-h-0 flex-1"}>
         {scene && (
           <SceneView
             lessonId={lessonId}
@@ -217,8 +228,18 @@ export default function StudentLessonPage() {
       </div>
       {/* The faces sit under the scene rather than in a second window: the
           point of this feature is that a lesson is one page. */}
-      <div className="h-56 shrink-0 border-t border-border p-2">
-        <MediaStage lessonId={lessonId} breakoutIndex={breakoutIndex} />
+      <div
+        className={
+          screenTakesOver
+            ? "min-h-0 flex-1 border-t border-border p-2"
+            : "h-56 shrink-0 border-t border-border p-2"
+        }
+      >
+        <MediaStage
+          lessonId={lessonId}
+          breakoutIndex={breakoutIndex}
+          onScreenShare={setSharedScreen}
+        />
       </div>
       <SignalBar
         key={signalEpoch}
