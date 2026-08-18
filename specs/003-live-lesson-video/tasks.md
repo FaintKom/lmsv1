@@ -325,3 +325,67 @@ own.
   applied migration is never edited
 - Commit per task or per logical group. Merging to `main` deploys within minutes,
   so verify in production instead of trusting a green build
+
+---
+
+## Phase 8: Defects found holding a real lesson (T086)
+
+Written down after the fact on 2026-08-18, because they were shipped as direct
+pull requests without passing through the specification first — the mistake is
+recorded in [`tasks/lessons.md`](../../tasks/lessons.md). Every one of them is
+small, and every one of them broke the feature completely.
+
+- [x] T092 The room dialled `/rtc/rtc`. `resolveServerUrl` named a path the SDK
+  appends itself, so every browser asked for a route the media server does not
+  serve and got `404`. The room had **never** connected in production. Fixed in
+  #333 with a unit test on the exact string, demonstrated failing first
+- [x] T093 The relay advertised port 5349, which is closed from outside.
+  `turn.tls_port` is not only where the server listens — it is the number handed
+  to the browser (FR-010). Fixed in #331
+- [x] T094 The media server was pinned five minor versions behind its client:
+  v1.8.4 against `livekit-client` protocol 17. Signalling connected, the peer
+  connection never negotiated, and the server logged `unsupported datachannel
+  added` then `removing participant without connection`. Fixed in #334, and
+  written into the spec as FR-028 so the pairing is a stated constraint rather
+  than a coincidence
+- [x] T095 The controls showed neither state nor affordance, and on the pupil's
+  dark page the stock bar was near-invisible — a participant pressed mute and
+  there was nothing there to press. Replaced with labelled, state-coloured
+  controls keeping the device menus (FR-029, FR-006). Fixed in #334
+- [x] T097 A teacher who navigates away cannot get back into their own lesson
+  (FR-030). Two faults compound: the rejoin banner is mounted only in the
+  dashboard layout, so staff — who live under `(admin)` — never see it; and its
+  button targets `/lesson/{id}`, the pupil route, which bounces staff to
+  `/admin`. Mount it for staff too and send each role to the page it can open
+- [x] T098 The screen-share control paints "not sharing" as an alarm. My own
+  regression from T095: I applied "off means clay" to every control, but a
+  screen nobody is sharing is the resting state, not a fault. Only the
+  microphone and the camera warn when off (FR-029)
+- [x] T099 The teacher's controls overlap the video tile and wrap unevenly — the
+  labels are wider than the stock icons the panel was sized for (FR-029)
+- [x] T100 A pupil watching a shared screen sees it in a 224px strip while the
+  idle "waiting for the teacher" placeholder holds the whole page. A shared
+  screen has to become the main stage (FR-031)
+- [x] T101 The pupil's pre-join state does not say it is a preview, or that
+  choosing a camera and a microphone and then joining is what connects them
+  (FR-032)
+- [x] T102 Clicking any link inside the lesson drops the teacher out of the
+  call: the room is mounted inside the page component, so a route change
+  unmounts it and disconnects (FR-033). Hoist it above the router so it
+  survives navigation, and show it as a small floating tile once the person is
+  no longer on the lesson page — which also gives them the way back T097 asks
+  for
+- [ ] T103 Make the shared screen and the faces scenes the teacher can choose,
+  alongside board, material, task and solution (FR-034). Today they live in a
+  strip under whatever the scene is, which is why a shared screen is unreadable
+  when the scene is idle. T100 buys space back from the idle placeholder only —
+  the real answer is that "what the class is looking at" is one decision with
+  one owner, and video is one of its options
+- [x] T104 The floating call panel was an empty rectangle. A defect in T102's
+  own implementation: releasing the slot cleared both *where* to draw the call
+  and *what* to draw, so a teacher switching to the Task tab kept the
+  connection and lost the picture. Giving back a place is not the same as
+  saying stop
+- [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
+  pupil, and the recording played back to confirm it holds the teacher and the
+  shared screen and nobody else (FR-027)

@@ -180,7 +180,15 @@ services:
     # straight past this container and a lesson in progress never notices.
     # `cloudflared` below uses `:latest`; copying that habit here would mean a
     # silent restart on any day the upstream image moved (research.md Finding I).
-    image: livekit/livekit-server:v1.8.4
+    # Pinned, and kept in step with `livekit-client` in frontend/package.json.
+    # v1.8.4 sat here while the browser SDK moved to protocol 17: signalling
+    # still connected on the legacy path, so every check passed, and then the
+    # peer connection never negotiated — "unsupported datachannel added", then
+    # "removing participant without connection". Nobody ever saw anybody.
+    #
+    # Bumping the SDK without bumping this brings that back. They are one
+    # decision, not two.
+    image: livekit/livekit-server:v1.13.5
     command: --config /etc/livekit/livekit.yaml
     volumes:
       # The directory, not the file — same reason as nginx below. `git reset
@@ -188,6 +196,11 @@ services:
       # serving the old one, so a config edit lands on disk and never reaches
       # the process. This container is pinned and deliberately not recreated by
       # ordinary deploys, which would have made that invisible for weeks.
+      # Editing the file inside changes what the container can see but not
+      # what it is running: the service definition is untouched, so `up -d`
+      # skips this container and the process keeps the config it read at
+      # startup. Restart it deliberately after a config change, and check
+      # nobody is in a lesson first (turn-tls-runbook.md).
       - ./livekit:/etc/livekit:ro
     environment:
       # Real keys come from .env on the box and never enter git. The backend

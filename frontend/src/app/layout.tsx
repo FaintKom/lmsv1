@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { CallProvider } from "@/components/live/call-provider";
 import CookieConsent from "@/components/cookie-consent";
 
 // Fonts are self-hosted via @font-face in globals.css — see the note there
@@ -59,9 +60,13 @@ export default function RootLayout({
  <QueryProvider>
  <I18nProvider>
  <ConfirmProvider>
+ {/* Above the router on purpose: a call mounted inside a page hangs up
+     the moment somebody opens a material or a task (FR-033). */}
+ <CallProvider>
  <ErrorBoundary>
  {children}
  </ErrorBoundary>
+ </CallProvider>
  <CookieConsent />
  </ConfirmProvider>
  </I18nProvider>

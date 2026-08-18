@@ -25,7 +25,7 @@ decrypting them:
                          │                                │
             127.0.0.1:8444 (TLS ends here)      127.0.0.1:8443 (the site)
                          │
-        plain TURN → lms-livekit-1:5349  (external_tls: true)
+        plain TURN → lms-livekit-1:443   (external_tls: true)
 ```
 
 The media server never sees a certificate. One process holds a private key, one
@@ -57,7 +57,7 @@ Check from anywhere:
 nslookup turn.grasslms.online
 ```
 
-## Step 2 — issue the certificate (prod box)
+## Step 2 — issue the certificate (prod box) — **done 2026-08-18**, valid to 16 Nov
 
 Its own certificate, for this hostname alone. **Never add `turn.` to the
 `grasslms.online` bundle.** On 2026-07-29 one bundled subdomain failed its
@@ -81,7 +81,7 @@ files exist:
 mkdir -p /opt/lms/nginx/ssl/turn && cat /etc/letsencrypt/live/turn.grasslms.online/fullchain.pem > /opt/lms/nginx/ssl/turn/cert.pem && cat /etc/letsencrypt/live/turn.grasslms.online/privkey.pem > /opt/lms/nginx/ssl/turn/key.pem && chmod 600 /opt/lms/nginx/ssl/turn/key.pem && ls -l /opt/lms/nginx/ssl/turn/
 ```
 
-## Step 3 — merge
+## Step 3 — merge — **done 2026-08-18** (#329, then #331 for the advertised port)
 
 Merging deploys. `deploy.yml` sees a change under `nginx/` and reloads, but
 this one also changes the nginx service's `command` and mounts, so
@@ -90,7 +90,7 @@ unlike an ordinary config reload. The media container is recreated too, because
 its config mount moves from a file to a directory; any lesson running at that
 moment reconnects by itself.
 
-## Step 4 — install the renewal hook (prod box, one time)
+## Step 4 — install the renewal hook (prod box, one time) — **done 2026-08-18**
 
 After the merge, not before: the script reaches `/opt/lms/scripts/` by git, the
 way every other file on that box does. The hook it replaces is hard-coded to one
@@ -116,7 +116,7 @@ same thing the hook would produce:
 RENEWED_LINEAGE=/etc/letsencrypt/live/turn.grasslms.online /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh && echo ok
 ```
 
-## Step 5 — verify, with controls
+## Step 5 — verify, with controls — **all done 2026-08-18**
 
 A check that cannot fail proves nothing, so each of these has one:
 
@@ -153,7 +153,44 @@ And the relay is reachable by the name it advertises:
 ssh root@204.168.165.41 "docker logs lms-livekit-1 2>&1 | grep 'Starting TURN server'"
 ```
 
-Expect `turn.portTLS: 5349` and `turn.externalTLS: true`.
+Expect `turn.portTLS: 443` and `turn.externalTLS: true`.
+
+**443 is not an arbitrary internal port.** LiveKit advertises whatever
+`tls_port` says as the candidate it hands browsers, so pointing it at 5349
+would tell a pupil to reach the relay on a port closed from outside — every
+part of this working, and the feature still not happening. Nothing publishes
+it: that is 443 inside the media container's own namespace, and the host's 443
+still belongs to nginx.
+
+## A deploy will not restart the media server, and that is on purpose
+
+Editing `livekit/livekit.yaml` changes the file the container already has
+mounted. It does **not** change the service definition, so `docker compose
+up -d` walks straight past the container and the process keeps running the
+configuration it read at startup. This is the same property that stops an
+ordinary release cutting a lesson in half — and it means a TURN setting can be
+correct on disk, correct in git, deployed, and still not in effect.
+
+It caught this feature on 2026-08-18: the port fix merged and deployed green
+while the media server went on advertising the old one. The log is the only
+place that tells the truth:
+
+```bash
+ssh root@204.168.165.41 "docker logs lms-livekit-1 2>&1 | grep 'Starting TURN server' | tail -1"
+```
+
+After any change to `livekit/livekit.yaml`, restart it deliberately — having
+first checked that nobody is in a lesson, because a restart does cut one:
+
+```bash
+ssh root@204.168.165.41 "docker stats --no-stream --format '{{.Name}} cpu={{.CPUPerc}} mem={{.MemUsage}}' lms-livekit-1; docker logs lms-livekit-1 --since 30m 2>&1 | grep -icE 'participant|room'"
+```
+
+Idle looks like ~0.1 % processor, about 30 MiB, and no participant lines.
+
+```bash
+ssh root@204.168.165.41 "docker restart lms-livekit-1"
+```
 
 ## Rolling back
 

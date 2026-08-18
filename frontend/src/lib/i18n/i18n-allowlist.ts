@@ -146,6 +146,10 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/submissions/file-uploader.tsx",
   "src/components/submissions/interactive-builder.tsx",
   "src/components/submissions/interactive-taker.tsx",
+  // Holds the call above the router and portals somebody else's interface into
+  // place. It renders one container and no words of its own — every string the
+  // participant reads comes from media-stage.tsx, which does translate.
+  "src/components/live/call-provider.tsx",
   "src/components/ui/bottom-sheet.tsx",
   "src/components/ui/button.tsx",
   "src/components/ui/card.tsx",

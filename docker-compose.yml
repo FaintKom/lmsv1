@@ -108,7 +108,7 @@ services:
     # Pinned, never `:latest`. A moving tag means `docker compose up -d` can
     # recreate this container on any unrelated deploy, which cuts off whatever
     # lesson is running (research.md Finding I).
-    image: livekit/livekit-server:v1.8.4
+    image: livekit/livekit-server:v1.13.5
     command: --config /etc/livekit/livekit.yaml
     volumes:
       # The directory, not the file — same reason as nginx below. `git reset
@@ -116,6 +116,11 @@ services:
       # serving the old one, so a config edit lands on disk and never reaches
       # the process. This container is pinned and deliberately not recreated by
       # ordinary deploys, which would have made that invisible for weeks.
+      # Editing the file inside changes what the container can see but not
+      # what it is running: the service definition is untouched, so `up -d`
+      # skips this container and the process keeps the config it read at
+      # startup. Restart it deliberately after a config change, and check
+      # nobody is in a lesson first (turn-tls-runbook.md).
       - ./livekit:/etc/livekit:ro
     environment:
       # Development keys. Worthless, identical for everyone, and deliberately
