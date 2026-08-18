@@ -9,6 +9,8 @@ interface GridRendererProps {
  editMode?: boolean;
  activeTool?: CellType;
  onCellClick?: (x: number, y: number) => void;
+ /** Fired as the pointer crosses a cell, so the editor can paint by dragging. */
+ onCellEnter?: (x: number, y: number) => void;
  className?: string;
 }
 
@@ -17,7 +19,7 @@ const DIRECTION_ROTATION: Record<Direction, number> = {
 };
 
 export default function GridRenderer({
- state, cellSize = 56, editMode = false, activeTool, onCellClick, className = "",
+ state, cellSize = 56, editMode = false, activeTool, onCellClick, onCellEnter, className = "",
 }: GridRendererProps) {
  const { width, height, cells, robot } = state;
  const pad = 8; // outer padding
@@ -80,6 +82,7 @@ export default function GridRenderer({
 
  return (
  <g key={`${x}-${y}`} onClick={() => onCellClick?.(x, y)}
+ onPointerEnter={() => onCellEnter?.(x, y)}
  className={editMode ? "cursor-pointer" : ""}>
 
  {type === "wall" ? (

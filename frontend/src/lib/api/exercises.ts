@@ -286,6 +286,28 @@ export interface RobotFrame {
  msg: string | null;
 }
 
+/** A reason a level is not ready. `code` is a key, rendered in the teacher's language. */
+export interface RobotBlocker {
+ code: string;
+ commands?: string[];
+}
+
+/**
+ * What the Check button learned.
+ *
+ * `answer` is the field that matters. A `shortest` count is an optimum; a
+ * `reference_only` count is what the teacher's own solution happened to take,
+ * and showing the second as the first is the thing the editor must never do.
+ */
+export interface RobotSolveAnswer {
+ answer: "shortest" | "reference_only" | "unsolvable";
+ steps: number | null;
+ size: number | null;
+ /** Why no search was run: `too_many_targets` or `win_uses_values`. */
+ reason: string | null;
+ blockers: RobotBlocker[];
+}
+
 export const exercisesApi = {
  list: (params?: {
  exercise_type?: ExerciseType;
@@ -318,6 +340,14 @@ export const exercisesApi = {
  // `specs/005-robot-2d-rework/contracts/api.md`.
  runRobot: (id: string, data: { source: string; mode: "python" | "blocks" }) =>
  apiClient.post<RobotRunResult>(`/exercises/${id}/robot/run`, data),
+
+ /** Playtest a level nobody has saved yet. Staff only. */
+ previewRobotLevel: (data: { config: Record<string, unknown>; source: string }) =>
+ apiClient.post<RobotRunResult>("/exercises/robot/preview", data),
+
+ /** Can this level be finished, and in how few steps. Staff only. */
+ solveRobotLevel: (data: { config: Record<string, unknown> }) =>
+ apiClient.post<RobotSolveAnswer>("/exercises/robot/solve", data),
 
  // Submissions
  submit: (id: string, data: Record<string, unknown>) =>
