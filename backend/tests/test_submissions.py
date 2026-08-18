@@ -614,3 +614,62 @@ async def test_math_stepwise_is_marked_by_the_server(
     assert wrong.status_code == 200, wrong.text
     assert wrong.json()["score"] == 0
     assert wrong.json()["passed"] is False, "the client's own verdict must not decide this"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "exercise_type,config",
+    [
+        (
+            ExerciseType.world_3d,
+            {"grid_width": 3, "grid_depth": 3, "cells": [], "win_condition": "reach_goal"},
+        ),
+        (
+            ExerciseType.math_interactive,
+            {"template_type": "coordinate_plane", "success_condition": {"kind": "click_origin"}},
+        ),
+    ],
+)
+async def test_a_game_verdict_from_the_client_is_recorded_not_believed(
+    client: AsyncClient, db, org, teacher, student, exercise_type, config
+):
+    """Posting "I finished it" must not be a pass.
+
+    `_submit_game_level` read `completed` and `score` straight off the request
+    body, so `{"completed": true, "score": 1.0}` scored 100 without the exercise
+    ever being opened. Measured on the QA stack 2026-08-18; it is the half of
+    004 that was deferred rather than fixed, and robot_2d closed it by having the
+    server replay the program (#343).
+
+    These two cannot be replayed yet, so the attempt is stored for the teacher
+    and marked by nobody. The report the browser sent is kept as the pupil's own
+    account of what they did.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(db, lesson.id, org.id, exercise_type=exercise_type, config=config)
+
+    # Positive control: the endpoint accepts a well-formed submission at all.
+    honest = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": False, "score": 0.0, "steps_used": 3}},
+        headers=auth_header(student),
+    )
+    assert honest.status_code == 200, honest.text
+    assert honest.json()["status"] == "submitted"
+    assert honest.json()["answers"]["game_result"]["steps_used"] == 3
+
+    forged = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert forged.status_code == 200, forged.text
+    body = forged.json()
+    assert body["passed"] is None, "a claim of completion is not a pass"
+    assert body["score"] is None, "a claim of a score is not a score"
+    assert body["status"] == "submitted"
+    # The claim itself is kept — a teacher marking this wants to see it.
+    assert body["answers"]["game_result"]["completed"] is True

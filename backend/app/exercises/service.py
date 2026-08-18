@@ -1146,10 +1146,12 @@ async def list_submissions(
 
 # ─── Game Level Submission ────────────────────────────────────────────
 
+# Only robot_2d pays out: it is the one game type the server marks. The
+# math_interactive and world_3d rates lived here too and were paid on the
+# browser's own claim of completion, so they went when the claim stopped
+# counting. They come back with the marking.
 GAME_XP = {
     ExerciseType.robot_2d: 30,
-    ExerciseType.math_interactive: 25,
-    ExerciseType.world_3d: 40,
 }
 
 
@@ -1242,39 +1244,40 @@ async def _submit_game_level(
     if not game_result or not isinstance(game_result, dict):
         raise BadRequestError("game_result is required for game level exercises")
 
-    completed = bool(game_result.get("completed", False))
-    score_raw = game_result.get("score", 0.0)
-    score = max(0.0, min(1.0, float(score_raw)))
-    score_percent = score * 100
+    # What the browser says happened. Kept as the pupil's own report — the steps
+    # they took, how long it took them, the code they had at the end — because a
+    # teacher marking this by hand wants exactly that.
+    reported = {
+        "completed": bool(game_result.get("completed", False)),
+        "score": game_result.get("score", 0.0),
+        "steps_used": game_result.get("steps_used", 0),
+        "time_seconds": game_result.get("time_seconds", 0),
+        "code_snapshot": game_result.get("code_snapshot"),
+        "replay_log": game_result.get("replay_log"),
+    }
 
+    # It is not a mark, and it never was evidence. `completed` and `score` came
+    # straight off the request body: posting {"completed": true, "score": 1.0}
+    # scored 100 without the exercise being opened at all — measured on the QA
+    # stack, 2026-08-18, and the half of specs/004-exercise-answer-leak that was
+    # deferred rather than fixed. robot_2d closed it by having the server replay
+    # the pupil's program (#343); these two cannot yet, so the attempt is
+    # recorded for the teacher and marked by nobody. An unmarked submission is
+    # honest; a forged pass is not.
     submission = ExerciseSubmission(
         exercise_id=exercise.id,
         student_id=user.id,
-        answers={
-            "game_result": {
-                "completed": completed,
-                "score": score,
-                "steps_used": game_result.get("steps_used", 0),
-                "time_seconds": game_result.get("time_seconds", 0),
-                "code_snapshot": game_result.get("code_snapshot"),
-                "replay_log": game_result.get("replay_log"),
-            }
-        },
-        score=score_percent,
-        passed=completed,
-        status="graded",
+        answers={"game_result": reported},
+        score=None,
+        passed=None,
+        status="submitted",
         submitted_at=now,
-        graded_at=now,
     )
     _apply_timing(submission, data, now)
     db.add(submission)
     await db.flush()
 
-    if completed:
-        xp = GAME_XP.get(exercise.exercise_type, 25)
-        reason = f"{exercise.exercise_type.value}_completed"
-        await _award_xp(db, user.id, xp, reason)
-
+    # No XP either: it was paid out on the same unverifiable claim.
     return await _reload_submission(db, submission.id)
 
 
