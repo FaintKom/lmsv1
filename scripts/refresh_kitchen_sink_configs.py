@@ -19,12 +19,16 @@ This script rewrites `config` on exercises the Kitchen Sink seeder owns, and
 nothing else: no other course, no submissions, no questions, no test cases. It
 reports what it would change and stops there unless `--apply` is passed.
 
+Production mounts neither scripts/ nor qa/ into the backend container, so both
+files travel in. The QA stack does mount them and needs no copying.
+
     # look
     docker compose -f docker-compose.prod.yml cp scripts/refresh_kitchen_sink_configs.py backend:/tmp/refresh.py
-    docker compose -f docker-compose.prod.yml exec -T backend python /tmp/refresh.py
+    docker compose -f docker-compose.prod.yml cp qa/exercise-fixtures.json backend:/tmp/fixtures.json
+    docker compose -f docker-compose.prod.yml exec -T backend python /tmp/refresh.py --fixtures /tmp/fixtures.json
 
     # do it
-    docker compose -f docker-compose.prod.yml exec -T backend python /tmp/refresh.py --apply
+    docker compose -f docker-compose.prod.yml exec -T backend python /tmp/refresh.py --fixtures /tmp/fixtures.json --apply
 """
 
 import argparse
@@ -50,17 +54,39 @@ for _candidate in (_REPO_ROOT, _REPO_ROOT / "backend", pathlib.Path("/app")):
 # script addresses rows that do not exist and reports a cheerful nothing to do.
 NAMESPACE_KS = uuid.UUID("9f1b7c2e-4d6a-5e8f-9a0b-1c2d3e4f5a6b")
 
-_FIXTURES = _REPO_ROOT / "qa" / "exercise-fixtures.json"
-if not _FIXTURES.exists():  # inside the container the repo root is /app
-    _FIXTURES = pathlib.Path("/app/qa/exercise-fixtures.json")
+# Where the fixtures are depends on the stack. The QA compose mounts ./qa into
+# the container; production mounts neither scripts/ nor qa/, so there the file is
+# copied in and named with --fixtures.
+_FIXTURE_CANDIDATES = (
+    _REPO_ROOT / "qa" / "exercise-fixtures.json",
+    pathlib.Path("/app/qa/exercise-fixtures.json"),
+    pathlib.Path("/tmp/fixtures.json"),
+)
 
 
 def ks_uuid(slug: str) -> uuid.UUID:
     return uuid.uuid5(NAMESPACE_KS, slug)
 
 
-def load_fixture_configs() -> dict[str, dict]:
-    data = json.loads(_FIXTURES.read_text(encoding="utf-8"))
+def find_fixtures(explicit: str | None) -> pathlib.Path:
+    """Where to read the fixtures from, said out loud rather than guessed at."""
+    if explicit:
+        path = pathlib.Path(explicit)
+        if not path.exists():
+            raise SystemExit(f"no fixtures at {path}")
+        return path
+    for candidate in _FIXTURE_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    raise SystemExit(
+        "no fixtures found in "
+        + ", ".join(str(c) for c in _FIXTURE_CANDIDATES)
+        + " — copy the file in and pass --fixtures"
+    )
+
+
+def load_fixture_configs(path: pathlib.Path) -> dict[str, dict]:
+    data = json.loads(path.read_text(encoding="utf-8"))
     return {f["type"]: (f.get("config") or {}) for f in data["fixtures"]}
 
 
@@ -86,6 +112,10 @@ async def main() -> int:
         action="store_true",
         help="write the changes; without it the script only reports",
     )
+    parser.add_argument(
+        "--fixtures",
+        help="path to exercise-fixtures.json; needed where qa/ is not mounted",
+    )
     args = parser.parse_args()
 
     # Imported here so --help works without a database or the app's environment.
@@ -103,7 +133,9 @@ async def main() -> int:
     from app.db.session import async_session_factory
     from app.exercises.models import Exercise
 
-    wanted_by_type = load_fixture_configs()
+    fixtures_path = find_fixtures(args.fixtures)
+    print(f"fixtures: {fixtures_path}")
+    wanted_by_type = load_fixture_configs(fixtures_path)
     ids = {ks_uuid(f"exercise-{t}"): t for t in wanted_by_type}
 
     async with async_session_factory() as db:
