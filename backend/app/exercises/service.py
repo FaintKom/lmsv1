@@ -607,7 +607,14 @@ async def submit_exercise(
             student_id=user.id,
             answers={"max_attempts_exhausted": True},
             score=0,
-            passed=True,  # Mark as passed so student can proceed
+            # Not passed. Running out of tries is not solving the exercise, and
+            # this row is what the journal, the analytics mastery figure and the
+            # student profile read: with True here, a class that gave up and a
+            # class that solved the work came out as the same number (measured
+            # across all 26 types, 2026-08-18). What lets the pupil move on is
+            # the answer reveal and the exercise refusing further submissions,
+            # not this field — nothing gates progression on it.
+            passed=False,
             status="graded",
             submitted_at=now,
             graded_at=now,
