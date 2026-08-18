@@ -9,6 +9,9 @@ const API_URL = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
  */
 const CREDS = {
   student:   { email: "qa-student@qa.example.com",   password: "qa-test-not-for-prod" },
+  // Second pupil, for checking that acting on one participant leaves the
+  // others alone — a removal that clears the room passes every one-pupil test.
+  student2:  { email: "qa-student2@qa.example.com",  password: "qa-test-not-for-prod" },
   teacher:   { email: "qa-teacher@qa.example.com",   password: "qa-test-not-for-prod" },
   methodist: { email: "qa-methodist@qa.example.com", password: "qa-test-not-for-prod" },
   admin:     { email: "qa-admin@qa.example.com",     password: "qa-test-not-for-prod" },

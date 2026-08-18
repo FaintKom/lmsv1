@@ -1,0 +1,45 @@
+# The media server as the QA stack runs it: on one machine, with no internet.
+#
+# Production's configuration is livekit.yaml beside this file, and the two are
+# deliberately close. The differences are only the ones a throwaway stack
+# forces, and each is spelled out — a QA server behaving differently for
+# unexplained reasons proves nothing about the one serving lessons.
+#
+# The version is pinned to the same tag as production in every compose file.
+# That is the part that must never drift: a browser SDK newer than its server
+# connects, reports the participant active, and then never negotiates, which is
+# how video was silently dead in production for four slices (FR-028).
+
+port: 7880
+
+rtc:
+  udp_port: 7882-7883
+  tcp_port: 7881
+  # False, and this is the whole reason this file exists. Discovery reaches out
+  # to a public STUN server, and a CI container has no route to one: the server
+  # logs "could not resolve external IP" and exits before a single test runs.
+  # On one machine the candidates it needs are local anyway.
+  use_external_ip: false
+
+# Off here. TURN exists for pupils on networks that permit one port, which
+# cannot happen between two browsers and a container on the same host. Leaving
+# it on would advertise a relay hostname that resolves nowhere, and every join
+# would wait for it to time out.
+turn:
+  enabled: false
+
+room:
+  # Same as production: a valid token must not be able to conjure a room. The
+  # backend creates it, having already decided the caller belongs there.
+  auto_create: false
+  empty_timeout: 300
+  max_participants: 0
+
+audio:
+  active_level: 30
+  min_percentile: 15
+  update_interval: 400
+  smooth_intervals: 4
+
+logging:
+  level: info

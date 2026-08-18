@@ -84,6 +84,16 @@ export default function StudentLessonPage() {
   }, [state]);
 
   useLessonChannel(ended ? null : lessonId, {
+    // Moderation aimed at this pupil, said to this pupil. Both of these used to
+    // be handled only on the teacher's page: a microphone went quiet and a room
+    // went away, and the person it happened to was left to work it out
+    // (FR-012, FR-011).
+    onMediaMuted: (d) => {
+      if (d.user_id === myId) toast.info(t("live.media.muted"));
+    },
+    onMediaParticipantRemoved: (d) => {
+      if (d.user_id === myId) toast.warning(t("live.media.removed"));
+    },
     onMediaBreakoutsChanged: (d) => {
       const mine = myId ? d.groups.find((g) => g.member_ids.includes(myId)) : undefined;
       setBreakoutIndex(mine ? mine.index : null);

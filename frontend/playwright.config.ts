@@ -54,7 +54,25 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // A camera and a microphone that exist without any hardware, and a
+        // permission prompt that answers itself. The fake camera is a moving
+        // pattern, which is better than a real face for the one check that
+        // matters about a recording: the pattern is either in the file or it
+        // is not, and "I don't see anybody" is not evidence (FR-027).
+        launchOptions: {
+          args: [
+            "--use-fake-device-for-media-stream",
+            // getDisplayMedia is not covered by the fake device flag; without
+            // this the picker blocks and screen sharing cannot be tested at all.
+            "--auto-select-desktop-capture-source=Entire screen",
+            "--use-fake-ui-for-media-stream",
+            "--autoplay-policy=no-user-gesture-required",
+          ],
+        },
+        permissions: ["camera", "microphone"],
+      },
     },
   ],
 });

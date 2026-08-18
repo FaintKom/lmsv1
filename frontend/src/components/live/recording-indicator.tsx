@@ -70,13 +70,13 @@ export function RecordingIndicator({
     if (!handle || !recordingId) return;
     setBusy(true);
     try {
-      const file = await handle.stop();
+      const recording = await handle.stop();
       await fetch(`/api/v1/live-lessons/${lessonId}/media/recording/stop`, {
         method: "POST",
         credentials: "include",
       });
       const saved = recordingId;
-      await uploadRecording(saved, file);
+      await uploadRecording(saved, recording);
       // Handed over straight away. Otherwise the teacher has a file they can
       // only reach by knowing its id, and there is no page that lists them yet.
       toast.success(t("live.media.recordSaved"), {
