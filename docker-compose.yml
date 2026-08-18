@@ -108,7 +108,7 @@ services:
     # Pinned, never `:latest`. A moving tag means `docker compose up -d` can
     # recreate this container on any unrelated deploy, which cuts off whatever
     # lesson is running (research.md Finding I).
-    image: livekit/livekit-server:v1.8.4
+    image: livekit/livekit-server:v1.13.5
     command: --config /etc/livekit/livekit.yaml
     volumes:
       # The directory, not the file — same reason as nginx below. `git reset

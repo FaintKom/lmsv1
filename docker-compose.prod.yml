@@ -180,7 +180,15 @@ services:
     # straight past this container and a lesson in progress never notices.
     # `cloudflared` below uses `:latest`; copying that habit here would mean a
     # silent restart on any day the upstream image moved (research.md Finding I).
-    image: livekit/livekit-server:v1.8.4
+    # Pinned, and kept in step with `livekit-client` in frontend/package.json.
+    # v1.8.4 sat here while the browser SDK moved to protocol 17: signalling
+    # still connected on the legacy path, so every check passed, and then the
+    # peer connection never negotiated — "unsupported datachannel added", then
+    # "removing participant without connection". Nobody ever saw anybody.
+    #
+    # Bumping the SDK without bumping this brings that back. They are one
+    # decision, not two.
+    image: livekit/livekit-server:v1.13.5
     command: --config /etc/livekit/livekit.yaml
     volumes:
       # The directory, not the file — same reason as nginx below. `git reset
