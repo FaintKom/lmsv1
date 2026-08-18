@@ -238,6 +238,7 @@ export function MediaStage({
   breakoutIndex = null,
   onScreenShare,
   layout = "grid",
+  liveRecordingId,
 }: {
   lessonId: string;
   /**
@@ -256,6 +257,8 @@ export function MediaStage({
   onScreenShare?: (sharing: boolean) => void;
   /** Passed to the tile layout — see Tiles. The teacher's panel uses "roll". */
   layout?: "grid" | "roll";
+  /** Server truth about a running recording — see RecordingIndicator. */
+  liveRecordingId?: string | null;
 }) {
   const { t } = useTranslation();
   const call = useCall();
@@ -274,12 +277,16 @@ export function MediaStage({
           <RoomControls
             canShareScreen={grant.can_publish_screen}
             onLeave={call.leave}
-            recording={<RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />}
+            recording={<RecordingIndicator
+              lessonId={lessonId}
+              canRecord={grant.can_record}
+              liveRecordingId={liveRecordingId}
+            />}
           />
         </div>
       ),
     }),
-    [lessonId, onScreenShare, layout, call.leave],
+    [lessonId, onScreenShare, layout, liveRecordingId, call.leave],
   );
 
   // Claim the space while this page is open, hand it back when it closes. The

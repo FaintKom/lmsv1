@@ -40,6 +40,7 @@ export interface LessonChannelHandlers {
   onMediaBreakoutMessage?: (d: { text: string }) => void;
   onMediaParticipantRemoved?: (d: { user_id: string }) => void;
   onMediaMuted?: (d: { user_id: string }) => void;
+  onMediaRecordingChanged?: (d: { recording_id: string | null }) => void;
   onMediaShareGrantChanged?: (d: { user_id: string; allowed: boolean }) => void;
   onMessage?: (m: { text: string; broadcast?: boolean }) => void;
   onLessonEnded?: () => void;
@@ -88,6 +89,12 @@ export function useLessonChannel(lessonId: string | null, handlers: LessonChanne
       media_breakout_message: (d) => handlersRef.current.onMediaBreakoutMessage?.(d),
       media_participant_removed: (d) => handlersRef.current.onMediaParticipantRemoved?.(d),
       media_muted: (d) => handlersRef.current.onMediaMuted?.(d),
+      // One handler for both edges: what the page needs to know is the current
+      // truth, not which verb produced it.
+      media_recording_started: (d: { recording_id: string }) =>
+        handlersRef.current.onMediaRecordingChanged?.(d),
+      media_recording_stopped: () =>
+        handlersRef.current.onMediaRecordingChanged?.({ recording_id: null }),
       media_share_grant_changed: (d) => handlersRef.current.onMediaShareGrantChanged?.(d),
       lesson_ended: () => {
         handlersRef.current.onLessonEnded?.();

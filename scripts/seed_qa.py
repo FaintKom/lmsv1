@@ -44,6 +44,7 @@ if str(_BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(_BACKEND_ROOT))
 
 from sqlalchemy import select
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Side-effect imports: load every model module so SQLAlchemy's class registry
@@ -123,14 +124,23 @@ def qa_uuid(slug: str) -> uuid.UUID:
 
 
 async def upsert_org(db: AsyncSession) -> Organization:
+    # Recording is off until a school turns it on (FR-019), so the QA school
+    # turns it on: the browser journey exercises the whole recording flow, and
+    # a stack where the feature is dark tests the refusal and nothing else.
+    settings = {"recording_enabled": True, "recording_retention_days": 30}
+
     existing = await db.get(Organization, QA_ORG_ID)
     if existing:
+        existing.settings = {**(existing.settings or {}), **settings}
+        flag_modified(existing, "settings")
+        await db.flush()
         return existing
     org = Organization(
         id=QA_ORG_ID,
         name="QA Organization",
         slug="qa-org",
         is_active=True,
+        settings=settings,
     )
     db.add(org)
     await db.flush()

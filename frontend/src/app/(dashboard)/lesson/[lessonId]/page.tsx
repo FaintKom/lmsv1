@@ -51,6 +51,7 @@ export default function StudentLessonPage() {
   } | null>(null);
   const [materialOpen, setMaterialOpen] = useState(false);
   const [sharedScreen, setSharedScreen] = useState(false);
+  const [liveRecordingId, setLiveRecordingId] = useState<string | null | undefined>(undefined);
   // What the teacher put in front of the class always keeps the room: a pupil
   // solving a task must not have it shrunk to a strip because somebody started
   // sharing. The only space a shared screen may take is the space the "waiting
@@ -88,6 +89,7 @@ export default function StudentLessonPage() {
     // be handled only on the teacher's page: a microphone went quiet and a room
     // went away, and the person it happened to was left to work it out
     // (FR-012, FR-011).
+    onMediaRecordingChanged: (d) => setLiveRecordingId(d.recording_id),
     onMediaMuted: (d) => {
       if (d.user_id === myId) toast.info(t("live.media.muted"));
     },
@@ -249,6 +251,7 @@ export default function StudentLessonPage() {
           lessonId={lessonId}
           breakoutIndex={breakoutIndex}
           onScreenShare={setSharedScreen}
+          liveRecordingId={liveRecordingId}
         />
       </div>
       <SignalBar
