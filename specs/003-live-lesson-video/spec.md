@@ -306,6 +306,14 @@ finished file arrives against that lesson and can be played back.
   any class uses the feature.
 - **FR-025**: A routine release MUST NOT end a lesson in progress. Where media
   services do restart, participants MUST return without teacher intervention.
+- **FR-028**: The media server and the browser client MUST be versions that
+  speak the same signalling protocol, and the pairing MUST be stated where the
+  version is pinned. Signalling connects across a mismatch, so a room reports a
+  participant as active and then drops it with no working connection; nothing
+  upstream of the peer connection reveals it.
+- **FR-029**: A control that switches something on or off MUST show which state
+  it is in, legibly against the page it sits on. A struck-through icon MUST mean
+  "off" and nothing else.
 - **FR-026**: Every string this feature adds to the interface MUST be present in
   all six supported locales.
 

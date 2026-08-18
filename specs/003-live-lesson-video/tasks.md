@@ -325,3 +325,33 @@ own.
   applied migration is never edited
 - Commit per task or per logical group. Merging to `main` deploys within minutes,
   so verify in production instead of trusting a green build
+
+---
+
+## Phase 8: Defects found holding a real lesson (T086)
+
+Written down after the fact on 2026-08-18, because they were shipped as direct
+pull requests without passing through the specification first — the mistake is
+recorded in [`tasks/lessons.md`](../../tasks/lessons.md). Every one of them is
+small, and every one of them broke the feature completely.
+
+- [x] T092 The room dialled `/rtc/rtc`. `resolveServerUrl` named a path the SDK
+  appends itself, so every browser asked for a route the media server does not
+  serve and got `404`. The room had **never** connected in production. Fixed in
+  #333 with a unit test on the exact string, demonstrated failing first
+- [x] T093 The relay advertised port 5349, which is closed from outside.
+  `turn.tls_port` is not only where the server listens — it is the number handed
+  to the browser (FR-010). Fixed in #331
+- [x] T094 The media server was pinned five minor versions behind its client:
+  v1.8.4 against `livekit-client` protocol 17. Signalling connected, the peer
+  connection never negotiated, and the server logged `unsupported datachannel
+  added` then `removing participant without connection`. Fixed in #334, and
+  written into the spec as FR-028 so the pairing is a stated constraint rather
+  than a coincidence
+- [x] T095 The controls showed neither state nor affordance, and on the pupil's
+  dark page the stock bar was near-invisible — a participant pressed mute and
+  there was nothing there to press. Replaced with labelled, state-coloured
+  controls keeping the device menus (FR-029, FR-006). Fixed in #334
+- [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
+  pupil, and the recording played back to confirm it holds the teacher and the
+  shared screen and nobody else (FR-027)
