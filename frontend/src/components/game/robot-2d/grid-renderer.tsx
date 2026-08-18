@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 import type { GridState, CellType, Direction } from "./grid-engine";
 
 interface GridRendererProps {
@@ -9,6 +10,8 @@ interface GridRendererProps {
  editMode?: boolean;
  activeTool?: CellType;
  onCellClick?: (x: number, y: number) => void;
+ /** Fired as the pointer crosses a cell, so the editor can paint by dragging. */
+ onCellEnter?: (x: number, y: number) => void;
  className?: string;
 }
 
@@ -17,8 +20,9 @@ const DIRECTION_ROTATION: Record<Direction, number> = {
 };
 
 export default function GridRenderer({
- state, cellSize = 56, editMode = false, activeTool, onCellClick, className = "",
+ state, cellSize = 56, editMode = false, activeTool, onCellClick, onCellEnter, className = "",
 }: GridRendererProps) {
+ const { t } = useTranslation();
  const { width, height, cells, robot } = state;
  const pad = 8; // outer padding
  const gap = 3;
@@ -33,6 +37,19 @@ export default function GridRenderer({
  }, [cells]);
 
  const getCellType = (x: number, y: number): CellType => cellMap.get(`${x},${y}`) || "empty";
+
+ // A second map, by position, for what a cell carries besides its type: a mark
+ // to be painted, the paint itself, a number. The frames have carried these
+ // since the runner shipped; the grid simply was not drawing them.
+ const detailMap = useMemo(() => {
+ const map = new Map<string, { mark?: boolean; painted?: boolean; value?: number }>();
+ for (const cell of cells) {
+ if (cell.mark || cell.painted || cell.value !== undefined) {
+ map.set(`${cell.x},${cell.y}`, { mark: cell.mark, painted: cell.painted, value: cell.value });
+ }
+ }
+ return map;
+ }, [cells]);
 
  return (
  <svg
@@ -80,6 +97,7 @@ export default function GridRenderer({
 
  return (
  <g key={`${x}-${y}`} onClick={() => onCellClick?.(x, y)}
+ onPointerEnter={() => onCellEnter?.(x, y)}
  className={editMode ? "cursor-pointer" : ""}>
 
  {type === "wall" ? (
@@ -103,6 +121,30 @@ export default function GridRenderer({
  fill="#fefcf7" stroke="#e8dfd2" strokeWidth={0.8} filter="url(#tileShd)"
  className=" " />
  )}
+
+ {/* Paint, and the squares asking for it */}
+ {(() => {
+ const detail = detailMap.get(`${x},${y}`);
+ if (!detail || type === "wall") return null;
+ return (
+ <g>
+ {detail.painted && (
+ <rect x={cx} y={cy} width={cw} height={cw} rx={5}
+ fill="#a78bfa" opacity={0.55} />
+ )}
+ {detail.mark && !detail.painted && (
+ <rect x={cx + 3} y={cy + 3} width={cw - 6} height={cw - 6} rx={4}
+ fill="none" stroke="#8b5cf6" strokeWidth={1.6} strokeDasharray="4 3" />
+ )}
+ {detail.value !== undefined && (
+ <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
+ fontSize={cs * 0.34} fontWeight="bold" fill="#0f766e" className="select-none">
+ {detail.value}
+ </text>
+ )}
+ </g>
+ );
+ })()}
 
  {/* Star collectible */}
  {type === "item" && (
@@ -132,7 +174,7 @@ export default function GridRenderer({
  {/* Start marker (edit mode only) */}
  {type === "start" && editMode && (
  <text x={center_x} y={center_y + 1} textAnchor="middle" dominantBaseline="central"
- fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">START</text>
+ fontSize={cs * 0.22} fill="#059669" fontWeight="bold" className="select-none">{t("game.start")}</text>
  )}
 
  {/* Edit hover */}

@@ -26,41 +26,41 @@ const ACTION = "#9966FF"; // 3D action blocks (purple)
 
 defineMovementBlock("move_up", MOTION);
 javascriptGenerator.forBlock["move_up"] = () => 'robot.moveUp();\n';
-pythonGenerator.forBlock["move_up"] = () => "robot.move_up()\n";
+pythonGenerator.forBlock["move_up"] = () => "move_up()\n";
 
 defineMovementBlock("move_down", MOTION);
 javascriptGenerator.forBlock["move_down"] = () => 'robot.moveDown();\n';
-pythonGenerator.forBlock["move_down"] = () => "robot.move_down()\n";
+pythonGenerator.forBlock["move_down"] = () => "move_down()\n";
 
 defineMovementBlock("move_left", MOTION);
 javascriptGenerator.forBlock["move_left"] = () => 'robot.moveLeft();\n';
-pythonGenerator.forBlock["move_left"] = () => "robot.move_left()\n";
+pythonGenerator.forBlock["move_left"] = () => "move_left()\n";
 
 defineMovementBlock("move_right", MOTION);
 javascriptGenerator.forBlock["move_right"] = () => 'robot.moveRight();\n';
-pythonGenerator.forBlock["move_right"] = () => "robot.move_right()\n";
+pythonGenerator.forBlock["move_right"] = () => "move_right()\n";
 
 // Legacy block
 defineMovementBlock("move_forward", MOTION);
 javascriptGenerator.forBlock["move_forward"] = () => 'robot.moveForward();\n';
-pythonGenerator.forBlock["move_forward"] = () => "robot.move_forward()\n";
+pythonGenerator.forBlock["move_forward"] = () => "move_forward()\n";
 
 defineMovementBlock("turn_left", MOTION);
 javascriptGenerator.forBlock["turn_left"] = () => 'robot.turnLeft();\n';
-pythonGenerator.forBlock["turn_left"] = () => "robot.turn_left()\n";
+pythonGenerator.forBlock["turn_left"] = () => "turn_left()\n";
 
 defineMovementBlock("turn_right", MOTION);
 javascriptGenerator.forBlock["turn_right"] = () => 'robot.turnRight();\n';
-pythonGenerator.forBlock["turn_right"] = () => "robot.turn_right()\n";
+pythonGenerator.forBlock["turn_right"] = () => "turn_right()\n";
 
 // ─── Item Interaction Blocks ────────────────────────────────────────
 defineMovementBlock("pick_up", ITEM);
 javascriptGenerator.forBlock["pick_up"] = () => 'robot.pickUp();\n';
-pythonGenerator.forBlock["pick_up"] = () => "robot.pick_up()\n";
+pythonGenerator.forBlock["pick_up"] = () => "take()\n";
 
 defineMovementBlock("place_item", ITEM);
 javascriptGenerator.forBlock["place_item"] = () => 'robot.placeItem();\n';
-pythonGenerator.forBlock["place_item"] = () => "robot.place_item()\n";
+pythonGenerator.forBlock["place_item"] = () => "drop()\n";
 
 // ─── Loop Blocks ────────────────────────────────────────────────────
 Blockly.Blocks["repeat_times"] = {
@@ -106,7 +106,7 @@ Blockly.Blocks["if_wall_ahead"] = {
  },
 };
 javascriptGenerator.forBlock["if_wall_ahead"] = () => ['robot.isWallAhead()', Order.FUNCTION_CALL];
-pythonGenerator.forBlock["if_wall_ahead"] = () => ["robot.is_wall_ahead()", PythonOrder.FUNCTION_CALL];
+pythonGenerator.forBlock["if_wall_ahead"] = () => ["wall_ahead()", PythonOrder.FUNCTION_CALL];
 
 Blockly.Blocks["if_item_here"] = {
  init(this: Blockly.Block) {
@@ -117,7 +117,7 @@ Blockly.Blocks["if_item_here"] = {
  },
 };
 javascriptGenerator.forBlock["if_item_here"] = () => ['robot.isItemHere()', Order.FUNCTION_CALL];
-pythonGenerator.forBlock["if_item_here"] = () => ["robot.is_item_here()", PythonOrder.FUNCTION_CALL];
+pythonGenerator.forBlock["if_item_here"] = () => ["item_here()", PythonOrder.FUNCTION_CALL];
 
 Blockly.Blocks["while_not_at_goal"] = {
  init(this: Blockly.Block) {
@@ -140,17 +140,17 @@ pythonGenerator.forBlock["while_not_at_goal"] = function (
  block: Blockly.Block, generator: typeof pythonGenerator
 ) {
  const branch = generator.statementToCode(block, "DO") || " pass\n";
- return `while not robot.is_at_goal():\n${branch}`;
+ return `while not at_goal():\n${branch}`;
 };
 
 // ─── 3D World Extra Blocks ──────────────────────────────────────────
 defineMovementBlock("jump", ACTION);
 javascriptGenerator.forBlock["jump"] = () => 'robot.jump();\n';
-pythonGenerator.forBlock["jump"] = () => "robot.jump()\n";
+pythonGenerator.forBlock["jump"] = () => "jump()\n";
 
 defineMovementBlock("interact", ACTION);
 javascriptGenerator.forBlock["interact"] = () => 'robot.interact();\n';
-pythonGenerator.forBlock["interact"] = () => "robot.interact()\n";
+pythonGenerator.forBlock["interact"] = () => "interact()\n";
 
 Blockly.Blocks["if_near_object"] = {
  init(this: Blockly.Block) {
@@ -161,7 +161,95 @@ Blockly.Blocks["if_near_object"] = {
  },
 };
 javascriptGenerator.forBlock["if_near_object"] = () => ['robot.isNearObject()', Order.FUNCTION_CALL];
-pythonGenerator.forBlock["if_near_object"] = () => ["robot.is_near_object()", PythonOrder.FUNCTION_CALL];
+pythonGenerator.forBlock["if_near_object"] = () => ["is_near_object()", PythonOrder.FUNCTION_CALL];
+
+// ─── Robot 2D vocabulary ────────────────────────────────────────────
+//
+// Block id == command name, deliberately. The level stores one list of
+// commands and the toolbox is filtered by that same list — if the ids drifted
+// from the names, a level offering `take` would show no block for it, which is
+// the class of bug this feature exists to remove.
+//
+// The older `pick_up` / `place_item` / `if_*` blocks above stay where they are:
+// World 3D's toolboxes name them, and its runner parses their JavaScript.
+
+const VALUE = "#59C059";
+
+defineMovementBlock("take", ITEM);
+javascriptGenerator.forBlock["take"] = () => "robot.pickUp();\n";
+pythonGenerator.forBlock["take"] = () => "take()\n";
+
+defineMovementBlock("drop", ITEM);
+javascriptGenerator.forBlock["drop"] = () => "robot.placeItem();\n";
+pythonGenerator.forBlock["drop"] = () => "drop()\n";
+
+defineMovementBlock("paint", ACTION);
+javascriptGenerator.forBlock["paint"] = () => "robot.paint();\n";
+pythonGenerator.forBlock["paint"] = () => "paint()\n";
+
+/** Returns the number on this floor. */
+Blockly.Blocks["read"] = {
+ init(this: Blockly.Block) {
+ this.appendDummyInput().appendField(getBlockLabel("read"));
+ this.setOutput(true, "Number");
+ this.setColour(VALUE);
+ this.setTooltip(getBlockTooltip("read"));
+ },
+};
+javascriptGenerator.forBlock["read"] = () => ["robot.read()", Order.FUNCTION_CALL];
+pythonGenerator.forBlock["read"] = () => ["read()", PythonOrder.FUNCTION_CALL];
+
+/** Puts a number on this floor. */
+Blockly.Blocks["write"] = {
+ init(this: Blockly.Block) {
+ this.appendValueInput("N").setCheck("Number").appendField(getBlockLabel("write"));
+ this.setPreviousStatement(true, null);
+ this.setNextStatement(true, null);
+ this.setColour(VALUE);
+ this.setTooltip(getBlockTooltip("write"));
+ },
+};
+javascriptGenerator.forBlock["write"] = function (
+ block: Blockly.Block,
+ generator: typeof javascriptGenerator
+) {
+ const n = generator.valueToCode(block, "N", Order.ATOMIC) || "0";
+ return `robot.write(${n});\n`;
+};
+pythonGenerator.forBlock["write"] = function (
+ block: Blockly.Block,
+ generator: typeof pythonGenerator
+) {
+ const n = generator.valueToCode(block, "N", PythonOrder.ATOMIC) || "0";
+ return `write(${n})\n`;
+};
+
+function defineSensor(id: string, jsCall: string, pyCall: string) {
+ Blockly.Blocks[id] = {
+ init(this: Blockly.Block) {
+ this.appendDummyInput().appendField(getBlockLabel(id));
+ this.setOutput(true, "Boolean");
+ this.setColour(SENSE);
+ this.setTooltip(getBlockTooltip(id));
+ },
+ };
+ javascriptGenerator.forBlock[id] = () => [jsCall, Order.FUNCTION_CALL];
+ pythonGenerator.forBlock[id] = () => [pyCall, PythonOrder.FUNCTION_CALL];
+}
+
+defineSensor("wall_ahead", "robot.isWallAhead()", "wall_ahead()");
+defineSensor("item_here", "robot.isItemHere()", "item_here()");
+defineSensor("at_goal", "robot.isAtGoal()", "at_goal()");
+defineSensor("painted", "robot.isPainted()", "painted()");
+defineSensor("value_here", "robot.hasValue()", "value_here()");
+
+/** Every command a Robot 2D level can offer, as block ids. */
+export const ALL_ROBOT_COMMANDS = [
+ "move_up", "move_down", "move_left", "move_right",
+ "move_forward", "turn_left", "turn_right",
+ "take", "drop", "paint", "read", "write",
+ "wall_ahead", "item_here", "at_goal", "painted", "value_here",
+] as const;
 
 // ─── All block types ────────────────────────────────────────────────
 

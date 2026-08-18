@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.exercises.models import ExerciseType
 
@@ -51,16 +51,41 @@ class FileUploadConfig(BaseModel):
 
 
 class Robot2DConfig(BaseModel):
+    """A level. See `specs/005-robot-2d-rework/data-model.md`.
+
+    Four fields are gone rather than deprecated:
+
+    - `available_blocks` — the editor wrote it and nothing ever read it, so the
+      teacher's choice of commands was discarded. `commands` replaces it and is
+      the single record of what a level offers.
+    - `custom_win_js` — arbitrary JavaScript stored on the level and shipped to
+      the pupil's browser: an answer key and an execution surface at once. `win`
+      replaces it with an expression over a fixed vocabulary.
+    - `win_condition` folds into `win`; `difficulty` becomes `preset`, a label.
+      Two records of one thing is how the two drift apart.
+    """
+
     grid_width: int = 5
     grid_height: int = 5
-    cells: list[dict] = []  # [{x, y, type: "wall"|"item"|"start"|"goal"|"empty"}]
-    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right"]
-    win_condition: str = "reach_goal"  # reach_goal | collect_all | custom
-    custom_win_js: str | None = None
-    max_blocks: int | None = None
-    difficulty: str = "beginner"  # beginner | intermediate | advanced
+    start: dict = {"x": 0, "y": 0, "facing": "right"}
+    #: Sparse: [{x, y, type: "empty"|"wall"|"item"|"goal", mark?: bool,
+    #: value?: int}]. A position absent here is bare floor.
+    cells: list[dict] = []
+    #: What this level offers. Drives the block palette, the Python
+    #: autocompletion and the starter header — all three from this one list.
+    commands: list[str] = ["move_forward", "turn_left", "turn_right", "at_goal"]
+    #: Expression over the vocabulary in data-model.md, joined by and/or/not.
+    win: dict = {"cond": "at_goal"}
+    max_steps: int = 500
+    #: Star thresholds, filled by the editor's Check button and left editable.
+    star_steps: int | None = None
+    star_size: int | None = None
+    #: The teacher's reference solution. Already stripped for non-staff readers
+    #: by `router.py::_strip_answers`, which keys on this exact name.
+    solution_code: str | None = None
     hints: list[str] = []
-    allow_python: bool = False
+    #: A label only. `commands` is what the level actually offers.
+    preset: str = "beginner"
 
 
 class MathInteractiveConfig(BaseModel):
@@ -205,10 +230,16 @@ class SubmitExerciseRequest(BaseModel):
     language: str | None = None
     # Interactive (matching, ordering, fill_blanks, true_false, categorize)
     interactive_answers: dict | None = None
-    # Game levels (robot_2d, math_interactive, world_3d)
+    # Game levels (math_interactive, world_3d). `robot_2d` no longer reads this:
+    # it carried the client's own verdict, which the server then recorded
+    # verbatim. A request that still sends it is accepted and the field ignored,
+    # so an old client cannot forge a pass — it simply gets graded on its code.
     game_result: dict | None = (
         None  # {completed, score, steps_used, time_seconds, code_snapshot, replay_log}
     )
+    # robot_2d. The program, and nothing about how it went — the server runs it
+    # and reaches its own verdict. {source, mode: "python"|"blocks"}
+    robot: dict | None = None
     # Web editor (HTML/CSS/JS)
     web_code: dict | None = None  # {html, css, js}
     # Time-on-task (Phase 1 analytics). Optional — older clients omit it and
@@ -254,6 +285,79 @@ class ExerciseSubmissionResponse(BaseModel):
     per_item: dict[str, bool] | list[bool] | None = None
 
     model_config = {"from_attributes": True}
+
+
+# ─── Robot 2D ────────────────────────────────────────────────────────
+#
+# Contract: `specs/005-robot-2d-rework/contracts/api.md`.
+#
+# Note what the request does not carry: no `completed`, no `score`, no step
+# count. The client has nothing to assert, because the server runs the program
+# itself and reads the verdict off its own replay.
+
+
+class RobotRunRequest(BaseModel):
+    source: str = Field(min_length=1, max_length=20_000)
+    mode: str = "python"  # python | blocks — recorded, does not change the run
+
+
+class RobotRunError(BaseModel):
+    """Where a program broke, counted from the pupil's own first line.
+
+    Named apart from `robot_sim.RobotError`, which is an exception the simulator
+    raises. The router imports both.
+    """
+
+    type: str
+    line: int | None = None
+    message: str = ""
+
+
+class RobotRunResponse(BaseModel):
+    #: One per attempted command; `cells` lists only what that command changed.
+    frames: list[dict] = []
+    won: bool = False
+    steps: int = 0
+    #: Statements in the program the system ran, counted with `ast`. One rule
+    #: for both editors, because block mode submits the Python its blocks wrote.
+    size: int = 0
+    stars: int = 0
+    stopped: str = "end_of_program"  # end_of_program | steps_exhausted | error
+    output: str = ""
+    output_truncated: bool = False
+    error: RobotRunError | None = None
+
+
+class RobotPreviewRequest(BaseModel):
+    """Run against a level that has not been saved — the editor's playtest."""
+
+    config: dict
+    source: str = Field(default="", max_length=20_000)
+
+
+class RobotSolveRequest(BaseModel):
+    config: dict
+
+
+class RobotBlocker(BaseModel):
+    """A reason a level is not ready. `code` is a key, never a sentence — the
+    editor renders it in the teacher's language."""
+
+    code: str
+    commands: list[str] = []
+
+
+class RobotSolveResponse(BaseModel):
+    #: shortest — searched exhaustively.
+    #: reference_only — not searched; these figures come from the teacher's own
+    #:   solution, and the editor must never present them as an optimum.
+    #: unsolvable — searched, and there is no path.
+    answer: str
+    steps: int | None = None
+    size: int | None = None
+    #: too_many_targets | win_uses_values | no_reference_solution
+    reason: str | None = None
+    blockers: list[RobotBlocker] = []
 
 
 class CheckExerciseRequest(BaseModel):

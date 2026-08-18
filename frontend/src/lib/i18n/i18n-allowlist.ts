@@ -109,8 +109,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/game/math/templates/two-way-table.tsx",
   "src/components/game/math/templates/venn-diagram.tsx",
   "src/components/game/math/templates/visual-fractions.tsx",
-  "src/components/game/robot-2d/grid-renderer.tsx",
-  "src/components/game/robot-2d/robot-2d-editor.tsx",
   "src/components/game/world-3d/scene-renderer.tsx",
   "src/components/game/world-3d/world-3d-editor.tsx",
   "src/components/game/world-3d/world-3d-exercise.tsx",

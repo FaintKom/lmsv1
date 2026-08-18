@@ -1,298 +1,132 @@
+/**
+ * The shape of a level as the renderer needs it — and nothing else.
+ *
+ * This file used to hold the rules: what a wall does, when an item counts as
+ * collected, whether the level was won. Those now live once, in
+ * `backend/app/exercises/robot_sim.py`, which runs both inside the sandbox and
+ * on the server. Keeping a second copy here is how the two came to disagree —
+ * the browser's `while` never re-read its condition, and the browser's idea of
+ * "collected" was a counter a program could drive back down by putting an item
+ * down again.
+ *
+ * What remains is a projection: given a level and the frames the server sent,
+ * what does the grid look like at frame N? No decisions, only arithmetic.
+ */
+
+import type { Frame } from "@/components/game/engine/trace-player";
+
 export type CellType = "empty" | "wall" | "item" | "start" | "goal";
 export type Direction = "up" | "right" | "down" | "left";
 
 export interface Cell {
- x: number;
- y: number;
- type: CellType;
+  x: number;
+  y: number;
+  type: CellType;
+  /** This floor is meant to be painted. */
+  mark?: boolean;
+  /** This floor carries a number `read()` returns. */
+  value?: number;
+  /** Run state, never stored on the level — a cell starts every run unpainted. */
+  painted?: boolean;
 }
 
 export interface RobotState {
- x: number;
- y: number;
- direction: Direction;
- collected: number;
- inventory: string[];
+  x: number;
+  y: number;
+  direction: Direction;
+  collected: number;
+  inventory: string[];
 }
 
 export interface TrailPoint {
- x: number;
- y: number;
- success: boolean; // false = collision happened here
+  x: number;
+  y: number;
+  /** False where the world refused — the trail shows where the robot bumped. */
+  success: boolean;
 }
 
 export interface GridState {
- width: number;
- height: number;
- cells: Cell[];
- robot: RobotState;
- totalItems: number;
- goalReached: boolean;
- stepsUsed: number;
- trail: TrailPoint[];
- lastCollision: boolean; // for shake animation
+  width: number;
+  height: number;
+  cells: Cell[];
+  robot: RobotState;
+  totalItems: number;
+  goalReached: boolean;
+  stepsUsed: number;
+  trail: TrailPoint[];
+  /** Drives the shake. True when the last command was refused. */
+  lastCollision: boolean;
 }
 
-export interface MoveResult {
- success: boolean;
- message?: string;
- newState: GridState;
+/** The level as the pupil finds it, before their program runs. */
+export function initialState(config: Record<string, unknown>): GridState {
+  const width = (config.grid_width as number) || 5;
+  const height = (config.grid_height as number) || 5;
+  const cells = ((config.cells as Cell[]) || []).map((c) => ({ ...c }));
+  const start = (config.start as { x?: number; y?: number; facing?: Direction }) || {};
+  const x = start.x ?? 0;
+  const y = start.y ?? 0;
+
+  return {
+    width,
+    height,
+    cells,
+    robot: {
+      x,
+      y,
+      direction: start.facing ?? "right",
+      collected: 0,
+      inventory: [],
+    },
+    totalItems: cells.filter((c) => c.type === "item").length,
+    goalReached: false,
+    stepsUsed: 0,
+    trail: [{ x, y, success: true }],
+    lastCollision: false,
+  };
 }
 
-const DIRECTION_ORDER: Direction[] = ["up", "right", "down", "left"];
-const DIRECTION_DELTA: Record<Direction, { dx: number; dy: number }> = {
- up: { dx: 0, dy: -1 },
- right: { dx: 1, dy: 0 },
- down: { dx: 0, dy: 1 },
- left: { dx: -1, dy: 0 },
-};
+/**
+ * The grid after the first `count` frames.
+ *
+ * Rebuilt from the level each time rather than mutated forward, so scrubbing
+ * backwards costs the same as scrubbing forwards and cannot drift. A level is at
+ * most ten by ten under a step cap; this is cheap enough not to be worth being
+ * clever about.
+ */
+export function stateAt(
+  config: Record<string, unknown>,
+  frames: Frame[],
+  count: number,
+  won = false,
+): GridState {
+  const state = initialState(config);
+  const shown = frames.slice(0, Math.max(0, count));
 
-export type WinCondition = "reach_goal" | "collect_all" | "custom";
+  for (const frame of shown) {
+    for (const change of frame.cells) {
+      applyChange(state, change);
+    }
 
-export class GridEngine {
- private state: GridState;
- private initialState: GridState;
- private winCondition: WinCondition;
+    state.robot.x = frame.x;
+    state.robot.y = frame.y;
+    state.robot.direction = frame.facing;
+    state.robot.collected = state.totalItems - frame.items_left;
+    state.stepsUsed = frame.i + 1;
+    state.lastCollision = !frame.ok;
+    state.trail.push({ x: frame.x, y: frame.y, success: frame.ok });
+  }
 
- constructor(
- width: number,
- height: number,
- cells: Cell[],
- winCondition: WinCondition = "reach_goal"
- ) {
- // Find start position
- const startCell = cells.find((c) => c.type === "start");
- const startX = startCell?.x ?? 0;
- const startY = startCell?.y ?? 0;
- const totalItems = cells.filter((c) => c.type === "item").length;
+  state.goalReached = won && frames.length > 0 && shown.length === frames.length;
+  return state;
+}
 
- this.state = {
- width,
- height,
- cells: cells.map((c) => ({ ...c })),
- robot: {
- x: startX,
- y: startY,
- direction: "right",
- collected: 0,
- inventory: [],
- },
- totalItems,
- goalReached: false,
- stepsUsed: 0,
- trail: [{ x: startX, y: startY, success: true }],
- lastCollision: false,
- };
- this.initialState = this.cloneState(this.state);
- this.winCondition = winCondition;
- }
+function applyChange(state: GridState, change: Frame["cells"][number]) {
+  const at = state.cells.find((c) => c.x === change.x && c.y === change.y);
+  const cell: Cell = at ?? { x: change.x, y: change.y, type: "empty" };
+  if (!at) state.cells.push(cell);
 
- getState(): GridState {
- return this.cloneState(this.state);
- }
-
- reset(): GridState {
- this.state = this.cloneState(this.initialState);
- return this.getState();
- }
-
- private cloneState(s: GridState): GridState {
- return {
- ...s,
- cells: s.cells.map((c) => ({ ...c })),
- robot: { ...s.robot, inventory: [...s.robot.inventory] },
- trail: s.trail.map((t) => ({ ...t })),
- };
- }
-
- private getCellAt(x: number, y: number): Cell | undefined {
- return this.state.cells.find((c) => c.x === x && c.y === y);
- }
-
- private isBlocked(x: number, y: number): boolean {
- if (x < 0 || x >= this.state.width || y < 0 || y >= this.state.height) {
- return true;
- }
- const cell = this.getCellAt(x, y);
- return cell?.type === "wall";
- }
-
- /** Move in the robot's current facing direction */
- moveForward(): MoveResult {
- const { dx, dy } = DIRECTION_DELTA[this.state.robot.direction];
- return this._moveBy(dx, dy);
- }
-
- /** Directional moves: face that direction + move one cell */
- moveUp(): MoveResult {
- this.state.robot.direction = "up";
- return this._moveBy(0, -1);
- }
-
- moveDown(): MoveResult {
- this.state.robot.direction = "down";
- return this._moveBy(0, 1);
- }
-
- moveLeft(): MoveResult {
- this.state.robot.direction = "left";
- return this._moveBy(-1, 0);
- }
-
- moveRight(): MoveResult {
- this.state.robot.direction = "right";
- return this._moveBy(1, 0);
- }
-
- private _moveBy(dx: number, dy: number): MoveResult {
- const newX = this.state.robot.x + dx;
- const newY = this.state.robot.y + dy;
-
- if (this.isBlocked(newX, newY)) {
- this.state.lastCollision = true;
- this.state.stepsUsed++;
- return {
- success: false,
- message: "Blocked by wall or boundary",
- newState: this.getState(),
- };
- }
-
- this.state.lastCollision = false;
- this.state.robot.x = newX;
- this.state.robot.y = newY;
- this.state.stepsUsed++;
- this.state.trail.push({ x: newX, y: newY, success: true });
-
- const cell = this.getCellAt(newX, newY);
- if (cell?.type === "goal") {
- this.state.goalReached = true;
- }
-
- return { success: true, newState: this.getState() };
- }
-
- turnLeft(): MoveResult {
- const idx = DIRECTION_ORDER.indexOf(this.state.robot.direction);
- this.state.robot.direction = DIRECTION_ORDER[(idx + 3) % 4];
- this.state.stepsUsed++;
- return { success: true, newState: this.getState() };
- }
-
- turnRight(): MoveResult {
- const idx = DIRECTION_ORDER.indexOf(this.state.robot.direction);
- this.state.robot.direction = DIRECTION_ORDER[(idx + 1) % 4];
- this.state.stepsUsed++;
- return { success: true, newState: this.getState() };
- }
-
- pickUp(): MoveResult {
- const cell = this.getCellAt(this.state.robot.x, this.state.robot.y);
- if (!cell || cell.type !== "item") {
- return {
- success: false,
- message: "No item here",
- newState: this.getState(),
- };
- }
-
- cell.type = "empty";
- this.state.robot.collected++;
- this.state.robot.inventory.push("item");
- this.state.stepsUsed++;
- return { success: true, newState: this.getState() };
- }
-
- placeItem(): MoveResult {
- if (this.state.robot.inventory.length === 0) {
- return {
- success: false,
- message: "No items in inventory",
- newState: this.getState(),
- };
- }
-
- const cell = this.getCellAt(this.state.robot.x, this.state.robot.y);
- if (cell && cell.type === "empty") {
- cell.type = "item";
- this.state.robot.inventory.pop();
- this.state.robot.collected--;
- }
- this.state.stepsUsed++;
- return { success: true, newState: this.getState() };
- }
-
- // ─── Condition checks (used by Blockly condition blocks) ──────────
-
- isWallAhead(): boolean {
- const { dx, dy } = DIRECTION_DELTA[this.state.robot.direction];
- return this.isBlocked(this.state.robot.x + dx, this.state.robot.y + dy);
- }
-
- isItemHere(): boolean {
- const cell = this.getCellAt(this.state.robot.x, this.state.robot.y);
- return cell?.type === "item";
- }
-
- isAtGoal(): boolean {
- return this.state.goalReached;
- }
-
- // ─── Win condition check ──────────────────────────────────────────
-
- checkWinCondition(): boolean {
- switch (this.winCondition) {
- case "reach_goal":
- return this.state.goalReached;
- case "collect_all":
- return this.state.robot.collected >= this.state.totalItems;
- case "custom":
- // Custom win conditions handled externally
- return false;
- default:
- return false;
- }
- }
-
- /** Execute a command by name (used by step executor) */
- executeCommand(type: string): MoveResult {
- switch (type) {
- case "moveForward":
- return this.moveForward();
- case "moveUp":
- return this.moveUp();
- case "moveDown":
- return this.moveDown();
- case "moveLeft":
- return this.moveLeft();
- case "moveRight":
- return this.moveRight();
- case "turnLeft":
- return this.turnLeft();
- case "turnRight":
- return this.turnRight();
- case "pickUp":
- return this.pickUp();
- case "placeItem":
- return this.placeItem();
- default:
- return {
- success: false,
- message: `Unknown command: ${type}`,
- newState: this.getState(),
- };
- }
- }
-
- /** Evaluate a condition string from Blockly-generated code */
- evaluateCondition(condition: string): boolean {
- if (condition.includes("isWallAhead")) return this.isWallAhead();
- if (condition.includes("isItemHere")) return this.isItemHere();
- if (condition.includes("isAtGoal")) {
- // Handle negation: !robot.isAtGoal()
- if (condition.includes("!")) return !this.isAtGoal();
- return this.isAtGoal();
- }
- return false;
- }
+  if (change.item !== undefined) cell.type = change.item ? "item" : "empty";
+  if (change.painted !== undefined) cell.painted = change.painted;
+  if (change.value !== undefined) cell.value = change.value;
 }

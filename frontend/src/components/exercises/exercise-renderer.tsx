@@ -600,9 +600,14 @@ function ExerciseBody({
  case "robot_2d":
  return (
  <Robot2DExercise
+ // Keyed on the level, so opening a different one is a fresh instance
+ // rather than five setState calls in an effect.
+ key={exercise.id}
  exerciseId={exercise.id}
  config={exercise.config}
- onSubmit={(result) => onSubmit({ game_result: result })}
+ // The program, not a verdict. The server runs it and grades its own
+ // replay — see specs/005-robot-2d-rework/contracts/api.md.
+ onSubmit={(robot) => onSubmit({ robot })}
  />
  );
 

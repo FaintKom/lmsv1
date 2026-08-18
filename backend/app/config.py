@@ -151,6 +151,11 @@ class Settings(BaseSettings):
     # where strangers spend our CPU — keep it stingy. Tunable via env so prod
     # can tighten it without shipping new code.
     sandbox_demo_rate_limit: str = "10/minute"
+    # Running a robot program. A child presses Run between edits, so this has to
+    # be generous enough never to interrupt that — twenty presses in a row is
+    # normal work, not abuse. It exists to stop a script, and it is deliberately
+    # not an attempt quota: attempts are spent by submitting, never by running.
+    robot_run_rate_limit: str = "60/minute"
     # A school's public enquiry form. Generous by the hour, because a family
     # sitting on one home connection may well send two — and stingy enough that
     # nobody fills an office's board overnight.
