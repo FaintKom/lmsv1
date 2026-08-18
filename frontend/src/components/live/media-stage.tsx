@@ -118,7 +118,7 @@ export function MediaStage({
           </div>
           <RoomAudioRenderer />
           <div className="flex items-center justify-between gap-2 px-2 pt-1">
-            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_publish_screen} />
+            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />
           </div>
           <ControlBar
             variation="minimal"

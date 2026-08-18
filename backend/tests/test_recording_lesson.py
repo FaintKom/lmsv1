@@ -24,6 +24,7 @@ class _FakeRoomService:
     def __init__(self):
         self.created: list[str] = []
         self.deleted: list[str] = []
+        self.updated: list[str] = []
 
     async def list_rooms(self, _r):
         class _Empty:
@@ -36,6 +37,12 @@ class _FakeRoomService:
 
     async def delete_room(self, r):
         self.deleted.append(r.room)
+
+    async def update_participant(self, r):
+        # Thin on purpose: this file is about recording. Whether the media
+        # server is told correctly is asserted in test_live_media.py, against a
+        # fake that models presence.
+        self.updated.append(r.identity)
 
 
 class _FakeLiveKit:
@@ -525,3 +532,49 @@ async def test_a_recording_with_no_file_yet_is_absent_rather_than_broken(
     listed = await client.get("/api/v1/recordings", headers=auth_header(teacher))
     row = next(r for r in listed.json() if r["id"] == rid)
     assert row["download_url"] is None
+
+
+async def test_a_pupil_handed_the_screen_is_still_not_offered_recording(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Two permissions, not one.
+
+    The interface used to read "may record" off "may share the screen", which
+    is the same person right up until a teacher hands a pupil the screen — and
+    then offers them a button the server refuses.
+    """
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    granted = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/participants/{student.id}/screen-share",
+        json={"allowed": True},
+        headers=auth_header(teacher),
+    )
+    assert granted.status_code == 200, granted.text
+
+    grant = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/token", headers=auth_header(student)
+    )
+    assert grant.status_code == 200, grant.text
+    body = grant.json()
+    assert body["can_publish_screen"] is True  # positive control: the grant did widen
+    assert body["can_record"] is False
+
+    refused = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/recording", headers=auth_header(student)
+    )
+    assert refused.status_code == 403
+
+
+async def test_the_teacher_is_offered_recording(client: AsyncClient, db, org, teacher, student):
+    """Positive control for the flag itself."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+
+    grant = await client.post(
+        f"/api/v1/live-lessons/{lesson.id}/media/token", headers=auth_header(teacher)
+    )
+    assert grant.json()["can_record"] is True

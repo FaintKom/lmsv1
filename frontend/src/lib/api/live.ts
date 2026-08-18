@@ -336,6 +336,9 @@ export interface MediaToken {
   identity: string;
   room: string;
   can_publish_screen: boolean;
+  /** Kept apart from the screen flag: a pupil handed the screen is still not
+   * allowed to record, and offering them the button only earns a refusal. */
+  can_record: boolean;
   expires_in: number;
 }
 

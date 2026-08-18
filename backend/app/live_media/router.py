@@ -128,6 +128,7 @@ async def issue_token(
         identity=str(user.id),
         room=room,
         can_publish_screen=may_share,
+        can_record=is_teacher,
         expires_in=settings.media_grant_ttl_seconds,
     )
 
@@ -365,6 +366,7 @@ async def issue_breakout_token(
         identity=str(user.id),
         room=room,
         can_publish_screen=may_share,
+        can_record=is_teacher,
         expires_in=settings.media_grant_ttl_seconds,
     )
 
