@@ -127,9 +127,9 @@ Four blocks, four commands in the starter, no turning command anywhere.
 
 ### Tests for User Story 2
 
-- [ ] T041 [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that a command outside the level's offered set refuses with `not_offered` and names the line (FR-015)
-- [ ] T042 [P] [US2] Failing test in `frontend/src/components/game/blockly/toolbox-configs.test.ts` that the toolbox is built from an explicit command list, and that a list naming no loop yields no loop category
-- [ ] T042a [P] [US2] Failing test in `backend/tests/test_robot_runner.py` that block-generated Python and hand-written Python expressing the same solution produce identical frames and step counts on one level (SC-007) — the only assertion that catches the two editors drifting apart
+- [x] T041 [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that a command outside the level's offered set refuses with `not_offered` and names the line (FR-015)
+- [x] T042 [P] [US2] Failing test in `frontend/src/components/game/blockly/toolbox-configs.test.ts` that the toolbox is built from an explicit command list, and that a list naming no loop yields no loop category
+- [x] T042a [P] [US2] Failing test in `backend/tests/test_robot_runner.py` that block-generated Python and hand-written Python expressing the same solution produce identical frames and step counts on one level (SC-007) — the only assertion that catches the two editors drifting apart
 - [x] T042b [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that no command name in the vocabulary exceeds fourteen characters and none carries an object prefix (FR-011, SC-006) — one line, and it holds the contract the day someone adds `move_diagonally`
 
 ### Implementation
@@ -141,7 +141,7 @@ Four blocks, four commands in the starter, no turning command anywhere.
 - [x] T046 [US2] Submit the generated Python in block mode from `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, so blocks and Python share one execution path (FR-003)
 - [x] T047 [US2] Generate the starter file's comment header from `config.commands` in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the hardcoded Russian block
 - [x] T048 [US2] Register a Monaco completion provider in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` offering exactly `config.commands`, disposed on unmount
-- [ ] T049 [US2] Add the grouped command palette to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` — checkboxes over contracts/commands.md, with presets that tick boxes and leave them editable (FR-021)
+- [x] T049 [US2] Add the grouped command palette to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` — checkboxes over contracts/commands.md, with presets that tick boxes and leave them editable (FR-021)
 
 **Checkpoint**: a course is a sequence of levels, not a pile of grids.
 
