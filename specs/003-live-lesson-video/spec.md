@@ -309,6 +309,16 @@ finished file arrives against that lesson and can be played back.
 - **FR-033**: A participant MUST stay in the call while moving around the
   platform. Opening a material, a task or any other page is part of taking a
   lesson, and today each one drops the person out of the room they are in.
+- **FR-035**: The pupil's lesson page is a stage and a rail. The stage holds
+  the one thing being taught — the teacher's screen, the board, the material,
+  the task, or the faces; the rail holds the cameras, the call controls and
+  the chat. On a phone the rail folds under the stage and the chat opens as a
+  sheet. Nothing on the page requires scrolling the page: every control is on
+  screen at every viewport, and only reading surfaces (chat log, material)
+  scroll within themselves.
+- **FR-036**: A pupil can follow and take part in the lesson conversation from
+  the page: the teacher's messages to the class and the pupil's own questions
+  are one visible thread, not a toast that vanishes and a prompt that forgets.
 - **FR-034**: Camera and screen sharing belong to the scene system, not beside
   it. The teacher decides what the class is looking at — a board, a material, a
   task, a shared screen, faces — and the pupil's page shows that one thing.
