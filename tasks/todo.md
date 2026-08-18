@@ -430,10 +430,13 @@ OpenRouter free-модели ($0, баланс не трогается). Про�
       `choices[].correct`, `cards[].category`), грейдят
       `components/game/math/templates/*.tsx`.
 - [ ] `robot_2d`, `world_3d` — `custom_win_js` исполняется в браузере.
-- [ ] Общее для всех четырёх: `_submit_game_level`
-      ([service.py:1089](../backend/app/exercises/service.py)) кладёт
-      `completed` и `score` прямо из тела запроса. Даже со срезанным конфигом
-      студент шлёт `{completed: true, score: 1.0}`, не открывая задание.
+- [x] Общее для всех четырёх: `_submit_game_level` клал `completed` и `score`
+      прямо из тела запроса — студент слал `{completed: true, score: 1.0}`, не
+      открывая задание. **Закрыто 2026-08-18 (PR #352):** вердикт клиента больше
+      не читается как оценка. `robot_2d` судит сервер (#343), а `world_3d` и
+      `math_interactive` записываются без оценки (`status: "submitted"`, без XP)
+      до появления серверной проверки — 3D-проигрывание и по проверке на каждый
+      из восьми шаблонов, два отдельных захода.
 
 ---
 

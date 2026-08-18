@@ -465,6 +465,22 @@ function ResultDisplay({
  return <AnswerReveal answer={revealedAnswer} />;
  }
 
+ // Nobody has marked this yet. Types the server cannot judge - the two game
+ // levels whose verdict used to come from the browser, and web_editor - come
+ // back with passed and score null. Reading that as "Not quite" would tell a
+ // pupil they got it wrong when nothing has looked at their work.
+ if (passed == null) {
+ return (
+ <div className="text-center py-6">
+ <CheckCircle className="mx-auto mb-2 h-10 w-10 text-text-muted" />
+ <p className="text-lg font-semibold text-text">Sent to your teacher</p>
+ <p className="text-sm text-text-muted">
+ This one is marked by a person, so there is no score yet.
+ </p>
+ </div>
+ );
+ }
+
  return (
  <div className="text-center py-6">
  {passed ? (
