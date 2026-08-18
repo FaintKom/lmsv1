@@ -145,6 +145,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    command: ["nginx", "-c", "/etc/nginx/main/nginx.conf", "-g", "daemon off;"]
     volumes:
       # The directory, not the file. `deploy.yml` runs `git reset --hard`, which
       # replaces a changed file with a **new inode**; a single-file bind mount
@@ -158,6 +159,11 @@ services:
       # A directory mount survives the swap: the directory keeps its inode when
       # a file inside it is replaced.
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      # Loaded by the `command` above. It exists because `stream {}` must sit at
+      # the top level and the image's own nginx.conf includes conf.d from inside
+      # `http {}` — see nginx/main/nginx.conf.
+      - ./nginx/main:/etc/nginx/main:ro
+      - ./nginx/stream.d:/etc/nginx/stream.d:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
       - backend
@@ -175,9 +181,14 @@ services:
     # `cloudflared` below uses `:latest`; copying that habit here would mean a
     # silent restart on any day the upstream image moved (research.md Finding I).
     image: livekit/livekit-server:v1.8.4
-    command: --config /etc/livekit.yaml
+    command: --config /etc/livekit/livekit.yaml
     volumes:
-      - ./livekit.yaml:/etc/livekit.yaml:ro
+      # The directory, not the file — same reason as nginx below. `git reset
+      # --hard` gives a changed file a new inode and a single-file mount keeps
+      # serving the old one, so a config edit lands on disk and never reaches
+      # the process. This container is pinned and deliberately not recreated by
+      # ordinary deploys, which would have made that invisible for weeks.
+      - ./livekit:/etc/livekit:ro
     environment:
       # Real keys come from .env on the box and never enter git. The backend
       # signs its grants with the same pair.
