@@ -4,7 +4,15 @@ import { toast } from "sonner";
 
 // ---------- types (mirror backend live_lessons schemas) ----------
 
-export type SceneType = "blank" | "board" | "material" | "task" | "solution";
+export type SceneType =
+  | "blank"
+  | "board"
+  | "material"
+  | "task"
+  | "solution"
+  // Media scenes (FR-034): the shared screen or the camera grid on the stage.
+  | "screen"
+  | "faces";
 export type FollowMode = "strict" | "free";
 export type SignalType = "hand" | "confused" | "done";
 

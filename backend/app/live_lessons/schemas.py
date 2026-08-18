@@ -14,7 +14,10 @@ class StartLessonRequest(BaseModel):
 
 
 class SceneRequest(BaseModel):
-    type: Literal["blank", "board", "material", "task", "solution"]
+    # `screen` and `faces` are media scenes (FR-034): the teacher's shared
+    # screen or the camera grid, given the stage the way a board is. They carry
+    # no payload — what to show is decided by who is publishing.
+    type: Literal["blank", "board", "material", "task", "solution", "screen", "faces"]
     payload: dict = Field(default_factory=dict)
 
 
