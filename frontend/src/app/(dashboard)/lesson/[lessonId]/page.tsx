@@ -23,6 +23,7 @@ import {
 } from "@/lib/api/live";
 import { useLessonChannel } from "@/hooks/use-lesson-channel";
 import { useTranslation } from "@/lib/i18n/context";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function StudentLessonPage() {
   const { t } = useTranslation();
@@ -33,6 +34,9 @@ export default function StudentLessonPage() {
 
   const { data: state, isLoading } = useLessonState(lessonId);
   const [scene, setScene] = useState<Scene | null>(null);
+  // Which breakout room this pupil belongs in, or null for the main room.
+  const [breakoutIndex, setBreakoutIndex] = useState<number | null>(null);
+  const myId = useAuthStore((s) => s.user?.id);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [pollResult, setPollResult] = useState<PollResult | null>(null);
   const [ended, setEnded] = useState(false);
@@ -73,6 +77,10 @@ export default function StudentLessonPage() {
   }, [state]);
 
   useLessonChannel(ended ? null : lessonId, {
+    onMediaBreakoutsChanged: (d) => {
+      const mine = myId ? d.groups.find((g) => g.member_ids.includes(myId)) : undefined;
+      setBreakoutIndex(mine ? mine.index : null);
+    },
     onSceneChanged: (s) => {
       setScene(s);
       if (s.type === "material" && s.payload.lesson_id && s.payload.course_id) {
@@ -210,7 +218,7 @@ export default function StudentLessonPage() {
       {/* The faces sit under the scene rather than in a second window: the
           point of this feature is that a lesson is one page. */}
       <div className="h-56 shrink-0 border-t border-border p-2">
-        <MediaStage lessonId={lessonId} />
+        <MediaStage lessonId={lessonId} breakoutIndex={breakoutIndex} />
       </div>
       <SignalBar
         key={signalEpoch}

@@ -24,6 +24,10 @@ from app.live_lessons import realtime
 from app.live_lessons import service as lesson_service
 from app.live_media import grants, service
 from app.live_media.schemas import (
+    BreakoutCreateRequest,
+    BreakoutGroupResponse,
+    BreakoutMessageRequest,
+    BreakoutsResponse,
     FloorRequest,
     FloorResponse,
     MediaTokenResponse,
@@ -227,3 +231,139 @@ async def set_screen_share(
     # False when they are not in the room yet: the grant is recorded and takes
     # effect the moment they join.
     return ModerationResponse(applied=applied)
+
+
+@router.post("/{lesson_id}/media/breakouts", response_model=BreakoutsResponse)
+@limiter.limit("30/minute")
+async def create_breakouts(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    body: BreakoutCreateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> BreakoutsResponse:
+    """Split the class into small rooms (FR-015).
+
+    Cheaper for the host than the plenary, not dearer: subscriptions scale with
+    the square of a room's population, so five threes cost a seventh of one
+    fifteen.
+    """
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    members = await lesson_service.group_member_ids(db, lesson.group_id)
+    rows = await service.create_breakouts(db, lesson, members, body.group_size)
+
+    groups = [BreakoutGroupResponse(index=r.index, member_ids=r.member_ids) for r in rows]
+    await realtime.publish(
+        lesson.id, "all", "media_breakouts_changed", {"groups": [g.model_dump() for g in groups]}
+    )
+    return BreakoutsResponse(groups=groups)
+
+
+@router.get("/{lesson_id}/media/breakouts", response_model=BreakoutsResponse)
+async def list_breakouts(
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> BreakoutsResponse:
+    """Who is in which group. Readable by any participant: a pupil needs to
+    know where they are going, and the grouping is no secret from the class."""
+    try:
+        lesson, _ = await lesson_service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    rows = await service.list_breakouts(db, lesson)
+    return BreakoutsResponse(
+        groups=[BreakoutGroupResponse(index=r.index, member_ids=r.member_ids) for r in rows]
+    )
+
+
+@router.delete("/{lesson_id}/media/breakouts", response_model=BreakoutsResponse)
+@limiter.limit("30/minute")
+async def gather_breakouts(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> BreakoutsResponse:
+    """Bring everybody back to the main room (FR-016)."""
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    await service.delete_breakouts(db, lesson)
+    await realtime.publish(lesson.id, "all", "media_breakouts_changed", {"groups": []})
+    return BreakoutsResponse(groups=[])
+
+
+@router.post("/{lesson_id}/media/breakouts/broadcast", response_model=ModerationResponse)
+@limiter.limit("30/minute")
+async def broadcast_to_breakouts(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    body: BreakoutMessageRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ModerationResponse:
+    """One message to every group at once (FR-016).
+
+    Rides the lesson's existing stream, so a pupil in a breakout receives it
+    without a second connection to keep alive.
+    """
+    lesson = await _lesson_a_teacher_runs(lesson_id, user, db)
+    await realtime.publish(lesson.id, "all", "media_breakout_message", {"text": body.text})
+    return ModerationResponse()
+
+
+@router.post("/{lesson_id}/media/token/breakout/{index}", response_model=MediaTokenResponse)
+@limiter.limit("30/minute")
+async def issue_breakout_token(
+    request: Request,
+    response: Response,
+    lesson_id: uuid.UUID,
+    index: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MediaTokenResponse:
+    """A grant for one breakout room.
+
+    Authority is whatever it is in the main room (FR-017): a smaller room is
+    not a promotion, and splitting a class must not hand a pupil the controls
+    just because fewer people are watching.
+    """
+    try:
+        lesson, is_teacher = await lesson_service.get_lesson_for_user(db, lesson_id, user)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="lesson not found")
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    if lesson.status != "active":
+        raise HTTPException(status_code=409, detail="lesson ended")
+    if await service.is_removed(lesson.id, user.id):
+        raise HTTPException(status_code=403, detail="removed from this lesson")
+
+    rows = {r.index: r for r in await service.list_breakouts(db, lesson)}
+    row = rows.get(index)
+    # A group they are not in does not exist as far as they are concerned. The
+    # teacher may enter any of them, which is how they visit.
+    if row is None or (not is_teacher and str(user.id) not in row.member_ids):
+        raise HTTPException(status_code=404, detail="breakout not found")
+
+    if not await service.has_capacity_for_one_more():
+        raise HTTPException(status_code=503, detail="media unavailable: host at capacity")
+
+    may_share = is_teacher or await service.may_share_screen(lesson.id, user.id)
+    room = grants.breakout_room_name(lesson.id, index)
+    await service.ensure_room(room)
+
+    return MediaTokenResponse(
+        url=settings.livekit_public_url,
+        token=grants.sign(user, room, is_teacher=is_teacher, may_share_screen=may_share),
+        identity=str(user.id),
+        room=room,
+        can_publish_screen=may_share,
+        expires_in=settings.media_grant_ttl_seconds,
+    )

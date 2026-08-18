@@ -48,3 +48,27 @@ class ModerationResponse(BaseModel):
 
     ok: bool = True
     applied: bool = True
+
+
+class BreakoutCreateRequest(BaseModel):
+    """How small the groups should be.
+
+    A size rather than an explicit assignment: a teacher splitting a class says
+    "in threes", not "these three, then those three". Naming people can come
+    later if anybody asks for it.
+    """
+
+    group_size: int = 3
+
+
+class BreakoutGroupResponse(BaseModel):
+    index: int
+    member_ids: list[str]
+
+
+class BreakoutsResponse(BaseModel):
+    groups: list[BreakoutGroupResponse]
+
+
+class BreakoutMessageRequest(BaseModel):
+    text: str

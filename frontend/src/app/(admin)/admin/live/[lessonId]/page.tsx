@@ -31,10 +31,12 @@ import { ReviewInspector } from "@/components/live/review-inspector";
 import { MaterialPicker } from "@/components/live/material-picker";
 import { PollPanel } from "@/components/live/poll-panel";
 import { ProgressGrid } from "@/components/live/progress-grid";
+import { BreakoutPanel } from "@/components/live/breakout-panel";
 import { MediaStage } from "@/components/live/media-stage";
 import { RosterPanel } from "@/components/live/roster-panel";
 import { SceneView } from "@/components/live/scene-view";
 import { StudentDrawer } from "@/components/live/student-drawer";
+import type { BreakoutGroup } from "@/lib/api/live";
 import type { BoardViewHandle } from "@/components/live/board-view";
 import {
   createBoard,
@@ -74,6 +76,7 @@ export default function TeacherLivePage() {
   // lesson's existing event stream rather than being polled.
   const [floorHolder, setFloorHolder] = useState<string | null>(null);
   const [sharers, setSharers] = useState<Set<string>>(new Set());
+  const [breakouts, setBreakouts] = useState<BreakoutGroup[]>([]);
   const [pollCounts, setPollCounts] = useState<number[] | null>(null);
   const [members, setMembers] = useState<RosterMember[]>([]);
   const [pickingMaterial, setPickingMaterial] = useState(false);
@@ -148,6 +151,7 @@ export default function TeacherLivePage() {
       ),
     onSignalsCleared: () => setMembers((ms) => ms.map((m) => ({ ...m, signal: null }))),
     onMediaFloorChanged: (d) => setFloorHolder(d.user_id),
+    onMediaBreakoutsChanged: (d) => setBreakouts(d.groups),
     onMediaParticipantRemoved: (d) =>
       setMembers((ms) => ms.filter((m) => m.id !== d.user_id)),
     onMediaShareGrantChanged: (d) =>
@@ -691,6 +695,13 @@ export default function TeacherLivePage() {
                     this page at all. */}
                 <div className="mb-3 h-48 shrink-0">
                   <MediaStage lessonId={lessonId} />
+                </div>
+                <div className="mb-3 shrink-0 border-b border-border pb-3">
+                  <BreakoutPanel
+                    lessonId={lessonId}
+                    groups={breakouts}
+                    onGroups={setBreakouts}
+                  />
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   <RosterPanel members={members} onPick={setPicked} />
