@@ -348,10 +348,27 @@ small, and every one of them broke the feature completely.
   added` then `removing participant without connection`. Fixed in #334, and
   written into the spec as FR-028 so the pairing is a stated constraint rather
   than a coincidence
-- [x] T095 The controls showed neither state nor affordance, and on the pupil's
+- [~] T095 The controls showed neither state nor affordance, and on the pupil's
   dark page the stock bar was near-invisible — a participant pressed mute and
   there was nothing there to press. Replaced with labelled, state-coloured
   controls keeping the device menus (FR-029, FR-006). Fixed in #334
+- [ ] T097 A teacher who navigates away cannot get back into their own lesson
+  (FR-030). Two faults compound: the rejoin banner is mounted only in the
+  dashboard layout, so staff — who live under `(admin)` — never see it; and its
+  button targets `/lesson/{id}`, the pupil route, which bounces staff to
+  `/admin`. Mount it for staff too and send each role to the page it can open
+- [ ] T098 The screen-share control paints "not sharing" as an alarm. My own
+  regression from T095: I applied "off means clay" to every control, but a
+  screen nobody is sharing is the resting state, not a fault. Only the
+  microphone and the camera warn when off (FR-029)
+- [ ] T099 The teacher's controls overlap the video tile and wrap unevenly — the
+  labels are wider than the stock icons the panel was sized for (FR-029)
+- [ ] T100 A pupil watching a shared screen sees it in a 224px strip while the
+  idle "waiting for the teacher" placeholder holds the whole page. A shared
+  screen has to become the main stage (FR-031)
+- [ ] T101 The pupil's pre-join state does not say it is a preview, or that
+  choosing a camera and a microphone and then joining is what connects them
+  (FR-032)
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)
