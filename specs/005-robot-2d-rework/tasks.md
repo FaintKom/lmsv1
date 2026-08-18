@@ -52,7 +52,7 @@ sandbox program, the server's replay, the search, the editor's checks.
 - [x] T004 [P] Failing tests for movement, refusals and the step allowance in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
 - [x] T005 [P] Failing tests for items, paint and values in `backend/tests/test_robot_world.py` — `take` then `drop` restores the count (FR-024), painting twice counts once toward the goal and twice in steps (FR-033), `read` on a bare floor refuses rather than returning `0` (FR-034)
 - [x] T006 [P] Failing tests for the win expression in `backend/tests/test_robot_win.py` — every leaf in data-model.md, and `and` / `or` / `not` over them, including a `not` given the wrong number of children
-- [ ] T007 [P] Failing tests for level validation in `backend/tests/test_robot_validate.py` — every blocker in FR-020 reported **together**, not the first one only
+- [x] T007 [P] Failing tests for level validation in `backend/tests/test_robot_validate.py` — every blocker in FR-020 reported **together**, not the first one only
 
 ### Implementation
 
@@ -62,7 +62,7 @@ sandbox program, the server's replay, the search, the editor's checks.
 - [x] T011 Add the sensors to `backend/app/exercises/robot_sim.py` — `wall_ahead`, `item_here`, `at_goal`, `painted`, `value_here`
 - [x] T012 Add the win-expression evaluator to `backend/app/exercises/robot_sim.py` over the vocabulary in data-model.md, rejecting a node shape it does not know rather than defaulting to false
 - [x] T013 Add the command-not-offered refusal to `backend/app/exercises/robot_sim.py` — calling a command the level withholds refuses by name (FR-015) rather than raising `NameError`
-- [ ] T014 [P] Create `backend/app/exercises/robot_validate.py`, returning every blocker as a key and never a sentence (FR-020, contracts/api.md)
+- [x] T014 [P] Create `backend/app/exercises/robot_validate.py`, returning every blocker as a key and never a sentence (FR-020, contracts/api.md)
 - [x] T015 Rewrite `Robot2DConfig` in `backend/app/exercises/schemas.py` to the shape in data-model.md, deleting `available_blocks`, `custom_win_js`, `win_condition`, `target_steps` and `optimal_blocks`
 - [x] T016 Add the run, preview and solve request and response schemas to `backend/app/exercises/schemas.py`, matching contracts/api.md exactly — including `answer` and `reason` on the solve response
 
@@ -106,7 +106,7 @@ losing program and watch it recorded as not passed.
 - [x] T033 [US1] Move `step-executor.ts` into World 3D rather than deleting it — `frontend/src/components/game/world-3d/world-3d-exercise.tsx:22` imports `parseCommands` and calls it at line 113, so deleting the module stops World 3D compiling. Relocate it to `frontend/src/components/game/world-3d/legacy-step-executor.ts`, unreferenced by anything in `robot-2d/`, and delete it for real in `specs/006-world-3d-rework`
 - [x] T033a [US1] Confirm by grep that nothing under `frontend/src/components/game/robot-2d/` imports the relocated executor, and that `npx tsc --noEmit` is clean — the `_while` machinery that never re-read its condition must be gone from the 2D path even though the file survives for 3D
 - [x] T034 [US1] Strip the rules from `frontend/src/components/game/robot-2d/grid-engine.ts`, keeping only the types the renderer needs
-- [ ] T035 [US1] Rewrite `frontend/src/components/game/robot-2d/grid-renderer.tsx` to draw a frame, including painted floors and values on cells
+- [x] T035 [US1] Rewrite `frontend/src/components/game/robot-2d/grid-renderer.tsx` to draw a frame, including painted floors and values on cells
 - [x] T036 [US1] Add `runRobot` to `frontend/src/lib/api/exercises.ts`, posting `{source, mode}` and returning the run result — no completion field in either direction
 - [x] T037 [US1] Rewrite the run path in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` to post the code, receive a trace and play it, **fixing the `[speed, handleReset]` dependency arrays** that made edited Python unrunnable
 - [x] T038 [US1] Show the error panel in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` and mark the reported line in Monaco (FR-005)
@@ -156,24 +156,24 @@ and names what blocks it. Remove one wall; the step count matches a hand count.
 
 ### Tests for User Story 3
 
-- [ ] T050 [P] [US3] Failing tests for the search in `backend/tests/test_robot_solver.py` — a corridor answers `shortest` with a hand-countable number, a walled goal answers `unsolvable`
-- [ ] T051 [P] [US3] Failing test in `backend/tests/test_robot_solver.py` that a level offering only absolute moves is answered for the commands it offers, not for the ones it withholds
-- [ ] T052 [P] [US3] Failing tests in `backend/tests/test_robot_solver.py` that thirteen targets answers `reference_only` with `reason: too_many_targets`, and a win condition mentioning values answers `reference_only` with `reason: win_uses_values` — **and never `shortest`** (SC-011)
+- [x] T050 [P] [US3] Failing tests for the search in `backend/tests/test_robot_solver.py` — a corridor answers `shortest` with a hand-countable number, a walled goal answers `unsolvable`
+- [x] T051 [P] [US3] Failing test in `backend/tests/test_robot_solver.py` that a level offering only absolute moves is answered for the commands it offers, not for the ones it withholds
+- [x] T052 [P] [US3] Failing tests in `backend/tests/test_robot_solver.py` that thirteen targets answers `reference_only` with `reason: too_many_targets`, and a win condition mentioning values answers `reference_only` with `reason: win_uses_values` — **and never `shortest`** (SC-011)
 
 ### Implementation
 
-- [ ] T053 [US3] Create `backend/app/exercises/robot_solver.py` — breadth-first over `(x, y, facing, items_mask, painted_mask)`, expanding only the offered commands, capped at 12 targets combined (research Finding D)
-- [ ] T054 [US3] Make `robot_solver.py` decline rather than guess — return `answer: "reference_only"` with the reason, and run the teacher's reference solution for the step and size figures
-- [ ] T055 [US3] Add `POST /exercises/robot/solve` and `POST /exercises/robot/preview` to `backend/app/exercises/router.py`, staff-only, returning every blocker at once per contracts/api.md
-- [ ] T056 [P] [US3] Add `solveRobotLevel` and `previewRobotLevel` to `frontend/src/lib/api/exercises.ts`
-- [ ] T057 [US3] Add the Check button to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, rendering the three answers distinctly so a reference-solution figure is never shown as an optimum (FR-035)
-- [ ] T058 [US3] Fill `star_steps` and `star_size` from Check in `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, labelled by which answer produced them, and leave both editable (FR-017)
-- [ ] T059 [US3] Add the playtest panel to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, running the unsaved config through preview (FR-018)
-- [ ] T060 [US3] Add the reference-solution field to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, refusing one that loses and showing where its run ended (FR-019)
-- [ ] T061 [US3] Add the blocker panel to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, rendering every key from `robot_validate.py` at once (FR-020)
-- [ ] T062 [US3] Add the win-condition builder to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` — leaves from data-model.md joined by `and` / `or` / `not`, with no free-text field anywhere (FR-029)
-- [ ] T063 [US3] Add drag-to-paint, undo bounded at 50, and numeric width and height to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` (FR-022)
-- [ ] T064 [US3] Add the mark and value tools to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, refusing both on a wall
+- [x] T053 [US3] Create `backend/app/exercises/robot_solver.py` — breadth-first over `(x, y, facing, items_mask, painted_mask)`, expanding only the offered commands, capped at 12 targets combined (research Finding D)
+- [x] T054 [US3] Make `robot_solver.py` decline rather than guess — return `answer: "reference_only"` with the reason, and run the teacher's reference solution for the step and size figures
+- [x] T055 [US3] Add `POST /exercises/robot/solve` and `POST /exercises/robot/preview` to `backend/app/exercises/router.py`, staff-only, returning every blocker at once per contracts/api.md
+- [x] T056 [P] [US3] Add `solveRobotLevel` and `previewRobotLevel` to `frontend/src/lib/api/exercises.ts`
+- [x] T057 [US3] Add the Check button to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, rendering the three answers distinctly so a reference-solution figure is never shown as an optimum (FR-035)
+- [x] T058 [US3] Fill `star_steps` and `star_size` from Check in `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, labelled by which answer produced them, and leave both editable (FR-017)
+- [x] T059 [US3] Add the playtest panel to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, running the unsaved config through preview (FR-018)
+- [x] T060 [US3] Add the reference-solution field to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, refusing one that loses and showing where its run ended (FR-019)
+- [x] T061 [US3] Add the blocker panel to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, rendering every key from `robot_validate.py` at once (FR-020)
+- [x] T062 [US3] Add the win-condition builder to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` — leaves from data-model.md joined by `and` / `or` / `not`, with no free-text field anywhere (FR-029)
+- [x] T063 [US3] Add drag-to-paint, undo bounded at 50, and numeric width and height to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx` (FR-022)
+- [x] T064 [US3] Add the mark and value tools to `frontend/src/components/game/robot-2d/robot-2d-editor.tsx`, refusing both on a wall
 
 **Checkpoint**: no teacher can ship a level they have not seen finished.
 
@@ -183,7 +183,7 @@ and names what blocks it. Remove one wall; the step count matches a hand count.
 
 - [ ] T065 [P] Add every new key to all six locales in `frontend/src/lib/i18n/locales/` — `en`, `ru`, `de`, `es`, `tr`, `uk` — including the refusal keys in contracts/commands.md
 - [ ] T066 Confirm `robot-2d-editor.tsx` and `robot-2d-exercise.tsx` are **absent** from `frontend/src/lib/i18n/i18n-allowlist.ts`, and remove `grid-renderer.tsx` from it if its strings are now translated (FR-023)
-- [ ] T067 Show the win condition to the pupil in words in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` — it is their instructions, not a secret (FR-031)
+- [x] T067 Show the win condition to the pupil in words in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` — it is their instructions, not a secret (FR-031)
 - [ ] T068 [P] Write the journey in `frontend/e2e/journeys/robot-2d.spec.ts` — teacher builds a level, Check reports a step count, saves; pupil solves it; the submission is passed
 - [ ] T069 [P] Register the journey with the QA stack alongside the eight existing ones in `frontend/e2e/`
 - [ ] T070 Measure the Run round trip against the real sandbox per quickstart §7 and record the figure in `research.md` under Finding J, whether it passes SC-009 or not
