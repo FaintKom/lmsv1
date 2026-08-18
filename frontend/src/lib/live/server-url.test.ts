@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveServerUrl } from "./media-stage";
+import { resolveServerUrl } from "@/lib/live/server-url";
 
 /**
  * The address the room dials.
