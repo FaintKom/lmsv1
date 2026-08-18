@@ -181,8 +181,8 @@ and names what blocks it. Remove one wall; the step count matches a hand count.
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T065 [P] Add every new key to all six locales in `frontend/src/lib/i18n/locales/` — `en`, `ru`, `de`, `es`, `tr`, `uk` — including the refusal keys in contracts/commands.md
-- [ ] T066 Confirm `robot-2d-editor.tsx` and `robot-2d-exercise.tsx` are **absent** from `frontend/src/lib/i18n/i18n-allowlist.ts`, and remove `grid-renderer.tsx` from it if its strings are now translated (FR-023)
+- [x] T065 [P] Add every new key to all six locales in `frontend/src/lib/i18n/locales/` — `en`, `ru`, `de`, `es`, `tr`, `uk` — including the refusal keys in contracts/commands.md
+- [x] T066 Confirm `robot-2d-editor.tsx` and `robot-2d-exercise.tsx` are **absent** from `frontend/src/lib/i18n/i18n-allowlist.ts`, and remove `grid-renderer.tsx` from it if its strings are now translated (FR-023)
 - [x] T067 Show the win condition to the pupil in words in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx` — it is their instructions, not a secret (FR-031)
 - [ ] T068 [P] Write the journey in `frontend/e2e/journeys/robot-2d.spec.ts` — teacher builds a level, Check reports a step count, saves; pupil solves it; the submission is passed
 - [ ] T069 [P] Register the journey with the QA stack alongside the eight existing ones in `frontend/e2e/`
