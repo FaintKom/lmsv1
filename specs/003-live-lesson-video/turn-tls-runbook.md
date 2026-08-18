@@ -7,7 +7,7 @@ networks, and they are live. The networks this is for permit exactly 443, do
 not care what else the media server offers, and their pupils simply never see
 anybody. That is the whole gap being closed.
 
-**Do not merge the change before step 3 finishes.** nginx refuses to start when
+**Do not merge the change before step 2 finishes.** nginx refuses to start when
 an `ssl_certificate` file is missing, so deploying the new configuration onto a
 box without `/opt/lms/nginx/ssl/turn/cert.pem` takes the site down rather than
 degrading. The steps below are ordered so that never happens.
@@ -38,7 +38,7 @@ attempts per address per minute — locks out everyone on earth after any five
 attempts. This was measured, not assumed: with the header the upstream logs the
 caller's address; with the two lines removed it logs `127.0.0.1`.
 
-## Step 1 — the DNS record (owner only)
+## Step 1 — the DNS record — **done 2026-08-18**
 
 At Hostinger, in the `grasslms.online` zone:
 
@@ -47,7 +47,9 @@ At Hostinger, in the `grasslms.online` zone:
 | A | `turn` | `204.168.165.41` | default |
 
 Nothing else can proceed until this resolves: Let's Encrypt validates by
-connecting to the name, and today it answers `NXDOMAIN`.
+connecting to the name, and until this record existed it answered `NXDOMAIN`.
+Added 2026-08-18 and confirmed at the authoritative server and at 8.8.8.8 and
+1.1.1.1 before going further.
 
 Check from anywhere:
 
@@ -55,25 +57,7 @@ Check from anywhere:
 nslookup turn.grasslms.online
 ```
 
-## Step 2 — install the renewal hook (prod box, one time)
-
-The hook that currently ships the site's certificate into nginx is hard-coded
-to one lineage. With a second certificate on the box it would renew the relay's
-certificate and never deliver it, and the failure would appear months later as
-an expiry.
-
-```bash
-install -m 755 /opt/lms/scripts/letsencrypt-deploy-hook.sh /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh
-```
-
-Prove it works before trusting it — this rewrites the site's own certificate
-files from the same source they already came from, so it is safe to run:
-
-```bash
-RENEWED_LINEAGE=/etc/letsencrypt/live/grasslms.online /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh && echo ok
-```
-
-## Step 3 — issue the certificate (prod box)
+## Step 2 — issue the certificate (prod box)
 
 Its own certificate, for this hostname alone. **Never add `turn.` to the
 `grasslms.online` bundle.** On 2026-07-29 one bundled subdomain failed its
@@ -89,14 +73,15 @@ those few seconds:
 docker stop lms-nginx-1 && certbot certonly --standalone -d turn.grasslms.online --non-interactive --agree-tos -m faintkom@gmail.com; docker start lms-nginx-1
 ```
 
-Then place the files where nginx will look, using the hook rather than copying
-by hand, so the path is exercised now instead of at the next renewal:
+Then place the files where nginx will look. By hand this once, because the hook
+that would do it arrives with the merge and the merge cannot happen until these
+files exist:
 
 ```bash
-RENEWED_LINEAGE=/etc/letsencrypt/live/turn.grasslms.online /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh && ls -l /opt/lms/nginx/ssl/turn/
+mkdir -p /opt/lms/nginx/ssl/turn && cat /etc/letsencrypt/live/turn.grasslms.online/fullchain.pem > /opt/lms/nginx/ssl/turn/cert.pem && cat /etc/letsencrypt/live/turn.grasslms.online/privkey.pem > /opt/lms/nginx/ssl/turn/key.pem && chmod 600 /opt/lms/nginx/ssl/turn/key.pem && ls -l /opt/lms/nginx/ssl/turn/
 ```
 
-## Step 4 — merge
+## Step 3 — merge
 
 Merging deploys. `deploy.yml` sees a change under `nginx/` and reloads, but
 this one also changes the nginx service's `command` and mounts, so
@@ -104,6 +89,32 @@ this one also changes the nginx service's `command` and mounts, so
 unlike an ordinary config reload. The media container is recreated too, because
 its config mount moves from a file to a directory; any lesson running at that
 moment reconnects by itself.
+
+## Step 4 — install the renewal hook (prod box, one time)
+
+After the merge, not before: the script reaches `/opt/lms/scripts/` by git, the
+way every other file on that box does. The hook it replaces is hard-coded to one
+lineage. With a second certificate on the box it would renew the relay's
+certificate and never deliver it, and the failure would appear months later as
+an expiry.
+
+```bash
+install -m 755 /opt/lms/scripts/letsencrypt-deploy-hook.sh /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh
+```
+
+Prove it works before trusting it — this rewrites the site's own certificate
+files from the same source they already came from, so it is safe to run:
+
+```bash
+RENEWED_LINEAGE=/etc/letsencrypt/live/grasslms.online /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh && echo ok
+```
+
+And once for the relay, which also proves the copy made by hand in step 2 is the
+same thing the hook would produce:
+
+```bash
+RENEWED_LINEAGE=/etc/letsencrypt/live/turn.grasslms.online /etc/letsencrypt/renewal-hooks/deploy/lms-reload.sh && echo ok
+```
 
 ## Step 5 — verify, with controls
 
@@ -149,7 +160,7 @@ Expect `turn.portTLS: 5349` and `turn.externalTLS: true`.
 The change is four files and one revert. `git revert` the merge commit and
 push: CI runs, `deploy.yml` recreates nginx with the stock main configuration,
 and 443 goes back to the HTTPS server directly. The certificate can stay where
-it is — it costs nothing and saves repeating step 3.
+it is — it costs nothing and saves repeating step 2.
 
 ## What was rehearsed before any of this
 
