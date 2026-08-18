@@ -369,7 +369,7 @@ small, and every one of them broke the feature completely.
 - [x] T101 The pupil's pre-join state does not say it is a preview, or that
   choosing a camera and a microphone and then joining is what connects them
   (FR-032)
-- [ ] T102 Clicking any link inside the lesson drops the teacher out of the
+- [x] T102 Clicking any link inside the lesson drops the teacher out of the
   call: the room is mounted inside the page component, so a route change
   unmounts it and disconnects (FR-033). Hoist it above the router so it
   survives navigation, and show it as a small floating tile once the person is

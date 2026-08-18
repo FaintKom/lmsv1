@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import {
   GridLayout,
-  LiveKitRoom,
   MediaDeviceMenu,
   ParticipantTile,
-  RoomAudioRenderer,
   useRoomContext,
   useTracks,
   useTrackToggle,
@@ -24,33 +21,13 @@ import {
   VideoOff,
 } from "lucide-react";
 
-import { fetchBreakoutToken, fetchMediaToken, type MediaToken } from "@/lib/api/live";
+import { type MediaToken } from "@/lib/api/live";
+import { useCall, type CallSlotUi } from "@/components/live/call-provider";
 import { RecordingIndicator } from "@/components/live/recording-indicator";
 import { useTranslation } from "@/lib/i18n/context";
 
 import "@livekit/components-styles";
 
-/**
- * Where the browser connects when the server did not name a host.
- *
- * An empty `url` means same origin: nginx proxies /rtc to the media server, so
- * the media rides the certificate and the port the platform already has, and
- * there is no second hostname for anybody to configure or get wrong.
- */
-export function resolveServerUrl(url: string, origin: string): string {
-  if (url) return url;
-  const scheme = origin.startsWith("https:") ? "wss" : "ws";
-  // The origin, and deliberately not `${origin}/rtc`. The SDK appends `/rtc`
-  // itself, so naming it here asked production for `/rtc/rtc` — a path the
-  // media server does not serve, answered `404`, and retried forever behind a
-  // tile that looked like a camera nobody had switched on.
-  //
-  // Every check this feature passed — the token, the grants, the proxy, the
-  // certificate — passes with the room never connecting. There is a test
-  // beside this file now, because the next person to touch it will have the
-  // same instinct.
-  return `${scheme}://${new URL(origin).host}`;
-}
 
 /**
  * The controls, saying what is happening rather than what would happen.
@@ -113,7 +90,13 @@ function ControlToggle({
   );
 }
 
-function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
+function RoomControls({
+  canShareScreen,
+  onLeave,
+}: {
+  canShareScreen: boolean;
+  onLeave: () => void;
+}) {
   const { t } = useTranslation();
   const room = useRoomContext();
 
@@ -158,7 +141,10 @@ function RoomControls({ canShareScreen }: { canShareScreen: boolean }) {
 
       <button
         type="button"
-        onClick={() => void room.disconnect()}
+        onClick={() => {
+          void room.disconnect();
+          onLeave();
+        }}
         className="btn-pop ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
       >
         <LogOut size={14} aria-hidden />
@@ -196,11 +182,14 @@ function Tiles({ onScreenShare }: { onScreenShare?: (sharing: boolean) => void }
 }
 
 /**
- * Audio and video for one live lesson, inside the lesson's own page.
+ * Where the call is drawn on a lesson page, and the way in when nobody is in
+ * one yet.
  *
- * Joining is a deliberate act rather than something that happens on load:
- * opening a lesson should not reach for somebody's camera before they have
- * decided to be seen.
+ * The room itself lives in `CallProvider`, above the router, so that clicking a
+ * link during a lesson does not hang up (FR-033). This component only claims a
+ * place on the page for it: a container the provider portals into while this
+ * page is open, and gives back — as a small floating panel — the moment it is
+ * not.
  */
 export function MediaStage({
   lessonId,
@@ -224,68 +213,52 @@ export function MediaStage({
   onScreenShare?: (sharing: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const [grant, setGrant] = useState<MediaToken | null>(null);
-  const joinedAs = useRef<number | null>(null);
+  const call = useCall();
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  const inThisLesson = call.lessonId === lessonId;
 
-  const join = useMutation({
-    mutationFn: () =>
-      breakoutIndex === null
-        ? fetchMediaToken(lessonId)
-        : fetchBreakoutToken(lessonId, breakoutIndex),
-    onSuccess: (g) => {
-      joinedAs.current = breakoutIndex;
-      setGrant(g);
-    },
-  });
+  const ui = useMemo<CallSlotUi>(
+    () => ({
+      render: (grant) => (
+        <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
+          <div className="min-h-0 flex-1">
+            <Tiles onScreenShare={onScreenShare} />
+          </div>
+          <div className="flex items-center justify-between gap-2 px-2 pt-1">
+            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />
+          </div>
+          <RoomControls canShareScreen={grant.can_publish_screen} onLeave={call.leave} />
+        </div>
+      ),
+    }),
+    [lessonId, onScreenShare, call.leave],
+  );
+
+  // Claim the space while this page is open, hand it back when it closes. The
+  // provider draws the floating panel the moment there is nowhere to portal to.
+  useEffect(() => {
+    if (!inThisLesson) return;
+    call.setSlot(box, ui);
+    return () => call.setSlot(null, null);
+  }, [box, ui, inThisLesson, call]);
 
   // Follow the teacher between rooms, but only once already in one: somebody
   // who has not pressed Join is not dragged into a call by a split.
   useEffect(() => {
-    if (grant && joinedAs.current !== breakoutIndex) {
-      setGrant(null);
-      join.mutate();
-    }
+    if (inThisLesson) call.join(lessonId, breakoutIndex);
   }, [breakoutIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (grant) {
-    return (
-      <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
-        <LiveKitRoom
-          serverUrl={resolveServerUrl(grant.url, window.location.href)}
-          token={grant.token}
-          connect
-          audio
-          video
-          // Forward only the qualities a tile is actually showing. With
-          // simulcast this is what lets a class-sized room run on two cores:
-          // fourteen thumbnails cost fourteen thumbnails, not fourteen full
-          // streams.
-          options={{ adaptiveStream: true, dynacast: true }}
-          onDisconnected={() => setGrant(null)}
-          className="flex h-full flex-col"
-        >
-          <div className="min-h-0 flex-1">
-            <Tiles onScreenShare={onScreenShare} />
-          </div>
-          <RoomAudioRenderer />
-          <div className="flex items-center justify-between gap-2 px-2 pt-1">
-            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />
-          </div>
-          <RoomControls canShareScreen={grant.can_publish_screen} />
-        </LiveKitRoom>
-      </div>
-    );
-  }
+  if (inThisLesson) return <div ref={setBox} className="h-full" />;
 
   // 503 is the host saying it has reached the ceiling a measurement gave it.
   // The lesson keeps its board, its tasks and its roster; only the video is
   // missing, and saying which is the difference between a limit and a fault.
+  const err = call.error;
   const atCapacity =
-    join.isError &&
-    typeof join.error === "object" &&
-    join.error !== null &&
-    "response" in join.error &&
-    (join.error as { response?: { status?: number } }).response?.status === 503;
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    (err as { response?: { status?: number } }).response?.status === 503;
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 rounded-md border border-border bg-surface-2 p-6 text-center">
@@ -302,13 +275,13 @@ export function MediaStage({
           <p className="max-w-xs text-xs text-text-muted">{t("live.media.joinExplains")}</p>
           <button
             type="button"
-            onClick={() => join.mutate()}
-            disabled={join.isPending}
+            onClick={() => call.join(lessonId, breakoutIndex)}
+            disabled={call.connecting}
             className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg disabled:opacity-60"
           >
-            {join.isPending ? t("live.media.connecting") : t("live.media.join")}
+            {call.connecting ? t("live.media.connecting") : t("live.media.join")}
           </button>
-          {join.isError && !atCapacity && (
+          {!!err && !atCapacity && (
             <p className="text-xs text-text-muted">{t("live.media.failed")}</p>
           )}
         </>
