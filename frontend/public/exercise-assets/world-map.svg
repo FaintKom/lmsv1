@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" role="img" aria-label="Schematic world map with a latitude and longitude grid">
+  <title>Schematic world map</title>
+  <desc>
+    Equirectangular, 1000x500, so a fractional pin maps straight onto it: x runs from
+    180 west to 180 east, y from 90 north down to 90 south. Coastlines are deliberately
+    coarse - this is something to drop a pin on, not a reference for teaching geography.
+    Paris sits near x 0.51, y 0.34, which is where the seeded exercise expects it.
+  </desc>
+
+  <rect width="1000" height="500" fill="#bcdcf5"/>
+
+  <g stroke="#9cc4e0" stroke-width="1" opacity="0.8">
+    <line x1="0" y1="125" x2="1000" y2="125"/>
+    <line x1="0" y1="250" x2="1000" y2="250"/>
+    <line x1="0" y1="375" x2="1000" y2="375"/>
+    <line x1="167" y1="0" x2="167" y2="500"/>
+    <line x1="333" y1="0" x2="333" y2="500"/>
+    <line x1="500" y1="0" x2="500" y2="500"/>
+    <line x1="667" y1="0" x2="667" y2="500"/>
+    <line x1="833" y1="0" x2="833" y2="500"/>
+  </g>
+
+  <g fill="#8fc08a" stroke="#6ea569" stroke-width="2" stroke-linejoin="round">
+    <!-- North America -->
+    <path d="M120 90 L250 70 L300 95 L295 140 L255 175 L235 215 L205 200 L180 160 L140 135 Z"/>
+    <!-- Greenland -->
+    <path d="M300 45 L360 40 L370 70 L330 85 L300 70 Z"/>
+    <!-- Central and South America -->
+    <path d="M245 215 L275 225 L300 265 L320 320 L300 380 L275 415 L262 380 L268 320 L250 275 L235 240 Z"/>
+    <!-- Europe: the pin target -->
+    <path d="M470 105 L540 95 L560 120 L545 150 L505 165 L478 145 Z"/>
+    <!-- Africa -->
+    <path d="M480 175 L560 170 L590 215 L580 285 L545 345 L512 375 L495 330 L478 265 L470 215 Z"/>
+    <!-- Asia -->
+    <path d="M560 90 L720 75 L820 105 L840 150 L790 185 L720 200 L650 185 L600 160 L565 130 Z"/>
+    <!-- India -->
+    <path d="M660 190 L700 190 L695 240 L672 265 L655 225 Z"/>
+    <!-- South-east Asia -->
+    <path d="M740 205 L800 215 L830 245 L790 265 L745 245 Z"/>
+    <!-- Australia -->
+    <path d="M790 300 L880 295 L905 330 L875 375 L810 370 L785 335 Z"/>
+    <!-- Antarctica -->
+    <path d="M60 470 L940 470 L940 495 L60 495 Z"/>
+  </g>
+</svg>

@@ -211,7 +211,8 @@
     {
       "type": "scorm_package",
       "label": "SCORM package",
-      "config": {"package_url": "/static/qa-fixtures/placeholder-scorm.zip"},
+      "$note": "No package on purpose. The previous /static/qa-fixtures/placeholder-scorm.zip was served by nobody, so the player fell back to 'ask your teacher to upload one' anyway - the same screen, reached by a 404 instead of by an empty field. Shipping a real package means authoring one that the CMI wiring can drive, which is its own piece of work.",
+      "config": {"package_url": ""},
       "skipReason": "Requires a real SCORM .zip uploaded via /api/v1/scorm-import; covered by manual smoke for now."
     },
     {
@@ -279,8 +280,9 @@
     {
       "type": "map_pin_drop",
       "label": "Map pin drop",
+      "$note": "The map is shipped with the frontend at public/exercise-assets/world-map.svg, so the path holds on every stack. The previous /static/qa-fixtures/world-map.png was served by nobody: production answered 404 and the widget drew a blank gradient, which left a pupil told to tap a map that was not there.",
       "config": {
-        "map_url": "/static/qa-fixtures/world-map.png",
+        "map_url": "/exercise-assets/world-map.svg",
         "pins": [
           {"label": "Paris", "x": 0.51, "y": 0.34, "tolerance": 0.05}
         ]
