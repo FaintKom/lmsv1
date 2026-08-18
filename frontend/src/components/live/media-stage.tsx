@@ -56,6 +56,8 @@ function ControlToggle({
    * people to ignore the colour that matters.
    */
   warnWhenOff = true,
+  /** Sits inside a bordered group with its device menu, so it draws no border. */
+  joined = false,
 }: {
   source: ToggleSource;
   onIcon: typeof Mic;
@@ -63,17 +65,21 @@ function ControlToggle({
   onLabel: string;
   offLabel: string;
   warnWhenOff?: boolean;
+  joined?: boolean;
 }) {
   const { toggle, enabled, pending } = useTrackToggle({ source });
   const Icon = enabled ? OnIcon : OffIcon;
 
   const tone = enabled
     ? warnWhenOff
-      ? "border-border bg-surface text-text"
-      : "border-primary bg-primary text-primary-fg"
+      ? "bg-surface text-text"
+      : "bg-primary text-primary-fg"
     : warnWhenOff
-      ? "border-clay-500 bg-clay-500 text-white"
-      : "border-border bg-surface text-text";
+      ? "bg-clay-500 text-white"
+      : "bg-surface text-text";
+  const shape = joined
+    ? "rounded-l-sm"
+    : "rounded-sm border " + (enabled && !warnWhenOff ? "border-primary" : enabled || !warnWhenOff ? "border-border" : "border-clay-500");
 
   return (
     <button
@@ -82,7 +88,7 @@ function ControlToggle({
       disabled={pending}
       aria-pressed={enabled}
       title={enabled ? offLabel : onLabel}
-      className={`btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-2.5 py-1.5 text-2xs font-bold disabled:opacity-50 ${tone}`}
+      className={`btn-pop inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 text-2xs font-bold disabled:opacity-50 ${shape} ${tone}`}
     >
       <Icon size={14} aria-hidden />
       {enabled ? onLabel : offLabel}
@@ -93,63 +99,78 @@ function ControlToggle({
 function RoomControls({
   canShareScreen,
   onLeave,
+  recording,
 }: {
   canShareScreen: boolean;
   onLeave: () => void;
+  /** The record control, kept in the same row so it stops sitting alone. */
+  recording: React.ReactNode;
 }) {
   const { t } = useTranslation();
   const room = useRoomContext();
 
   return (
-    // Its own row, wrapping onto more rows rather than over the faces. The
-    // labels are wider than the icons this panel was measured for, and a
-    // control that lands on top of somebody's video is worse than one that
-    // takes a second line.
-    <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-t border-border bg-surface-2 px-2 py-1.5">
-      <ControlToggle
-        source={Track.Source.Microphone}
-        onIcon={Mic}
-        offIcon={MicOff}
-        onLabel={t("live.media.micOn")}
-        offLabel={t("live.media.micOff")}
-      />
-      <span className="lk-button-group-menu shrink-0">
-        <MediaDeviceMenu kind="audioinput" />
-      </span>
+    // One row, two groups: what you are publishing on the left, what you do to
+    // the call on the right. Each toggle and its device menu are joined into a
+    // single control, because "camera" and "which camera" are one decision and
+    // reading them as two separate buttons is what made this panel look
+    // scattered (T105).
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-t border-border bg-surface-2 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="inline-flex shrink-0 items-center rounded-sm border border-border bg-surface">
+          <ControlToggle
+            source={Track.Source.Microphone}
+            onIcon={Mic}
+            offIcon={MicOff}
+            onLabel={t("live.media.micOn")}
+            offLabel={t("live.media.micOff")}
+            joined
+          />
+          <span className="lk-button-group-menu shrink-0 border-l border-border">
+            <MediaDeviceMenu kind="audioinput" />
+          </span>
+        </span>
 
-      <ControlToggle
-        source={Track.Source.Camera}
-        onIcon={Video}
-        offIcon={VideoOff}
-        onLabel={t("live.media.camOn")}
-        offLabel={t("live.media.camOff")}
-      />
-      <span className="lk-button-group-menu shrink-0">
-        <MediaDeviceMenu kind="videoinput" />
-      </span>
+        <span className="inline-flex shrink-0 items-center rounded-sm border border-border bg-surface">
+          <ControlToggle
+            source={Track.Source.Camera}
+            onIcon={Video}
+            offIcon={VideoOff}
+            onLabel={t("live.media.camOn")}
+            offLabel={t("live.media.camOff")}
+            joined
+          />
+          <span className="lk-button-group-menu shrink-0 border-l border-border">
+            <MediaDeviceMenu kind="videoinput" />
+          </span>
+        </span>
 
-      {canShareScreen && (
-        <ControlToggle
-          source={Track.Source.ScreenShare}
-          onIcon={MonitorUp}
-          offIcon={MonitorX}
-          onLabel={t("live.media.screenOn")}
-          offLabel={t("live.media.screenOff")}
-          warnWhenOff={false}
-        />
-      )}
+        {canShareScreen && (
+          <ControlToggle
+            source={Track.Source.ScreenShare}
+            onIcon={MonitorUp}
+            offIcon={MonitorX}
+            onLabel={t("live.media.screenOn")}
+            offLabel={t("live.media.screenOff")}
+            warnWhenOff={false}
+          />
+        )}
+      </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          void room.disconnect();
-          onLeave();
-        }}
-        className="btn-pop ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
-      >
-        <LogOut size={14} aria-hidden />
-        {t("live.media.leave")}
-      </button>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {recording}
+        <button
+          type="button"
+          onClick={() => {
+            void room.disconnect();
+            onLeave();
+          }}
+          className="btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
+        >
+          <LogOut size={14} aria-hidden />
+          {t("live.media.leave")}
+        </button>
+      </div>
     </div>
   );
 }
@@ -224,10 +245,11 @@ export function MediaStage({
           <div className="min-h-0 flex-1">
             <Tiles onScreenShare={onScreenShare} />
           </div>
-          <div className="flex items-center justify-between gap-2 px-2 pt-1">
-            <RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />
-          </div>
-          <RoomControls canShareScreen={grant.can_publish_screen} onLeave={call.leave} />
+          <RoomControls
+            canShareScreen={grant.can_publish_screen}
+            onLeave={call.leave}
+            recording={<RecordingIndicator lessonId={lessonId} canRecord={grant.can_record} />}
+          />
         </div>
       ),
     }),

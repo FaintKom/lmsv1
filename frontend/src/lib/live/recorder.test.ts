@@ -80,3 +80,64 @@ describe("localRecordingStream", () => {
     expect(localRecordingStream(local as never).getTracks()).toEqual([]);
   });
 });
+
+/**
+ * How long it is.
+ *
+ * The row said `ready` and nothing else: `duration_seconds` stayed null on
+ * every recording made in production, because the browser knew the length and
+ * never mentioned it (T106). It is the first thing anybody asks of a recording
+ * before deciding to watch it, and it fails silently — nothing errors, a
+ * column is simply empty forever.
+ */
+describe("startLessonRecording", () => {
+  class FakeRecorder {
+    onstop: (() => void) | null = null;
+    ondataavailable: ((e: { data: Blob }) => void) | null = null;
+    constructor(
+      public stream: unknown,
+      public opts: unknown,
+    ) {}
+    start() {}
+    stop() {
+      this.onstop?.();
+    }
+  }
+
+  it("reports the seconds it ran for", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("MediaRecorder", FakeRecorder);
+    vi.stubGlobal(
+      "Blob",
+      class {
+        constructor(
+          public parts: unknown[],
+          public opts: unknown,
+        ) {}
+        size = 0;
+      },
+    );
+
+    const { startLessonRecording } = await import("./recorder");
+    const local = participant({ camera: "cam", microphone: "mic" });
+
+    const handle = startLessonRecording(local as never);
+    vi.advanceTimersByTime(42_000);
+    const result = await handle.stop();
+
+    expect(result.seconds).toBe(42);
+    vi.useRealTimers();
+  });
+
+  it("never reports zero, because a recording that exists lasted some time", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("MediaRecorder", FakeRecorder);
+
+    const { startLessonRecording } = await import("./recorder");
+    const handle = startLessonRecording(participant({ camera: "cam" }) as never);
+    const result = await handle.stop();
+
+    expect(result.seconds).toBeGreaterThanOrEqual(1);
+    vi.useRealTimers();
+  });
+});

@@ -386,6 +386,16 @@ small, and every one of them broke the feature completely.
   and *what* to draw, so a teacher switching to the Task tab kept the
   connection and lost the picture. Giving back a place is not the same as
   saying stop
+- [x] T105 The teacher's controls are tidy individually and a mess together:
+  Record sits alone on one line, the two device chevrons break the rhythm
+  between the microphone and camera buttons, and `Leave` is pushed to the far
+  right leaving a hole in the middle. Owner's words, 2026-08-18: "адский
+  разброс". Deferred deliberately — the controls work and read correctly
+  (T095, T098), this is the pass that makes them look like one thing
+- [x] T106 A finished recording has no duration. `uploadRecording` sends only
+  `size_bytes` to `/complete`, so `duration_seconds` stays null on a row that
+  is otherwise `ready` — the column exists, the interface will want it, and
+  nothing fills it. The browser knows the length; it simply never says
 - [ ] T096 Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

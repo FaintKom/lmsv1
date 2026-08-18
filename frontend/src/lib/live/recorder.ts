@@ -31,8 +31,14 @@ const CHUNK_MS = 5000;
 const VIDEO_BITS_PER_SECOND = 300_000;
 const AUDIO_BITS_PER_SECOND = 48_000;
 
+export interface LessonRecording {
+  file: Blob;
+  /** Whole seconds of wall clock between start and stop. */
+  seconds: number;
+}
+
 export interface LessonRecorder {
-  stop: () => Promise<Blob>;
+  stop: () => Promise<LessonRecording>;
 }
 
 /**
@@ -69,6 +75,10 @@ export function startLessonRecording(local: LocalParticipant): LessonRecorder {
   }
 
   const chunks: Blob[] = [];
+  // Wall clock, because it is what a person means by "how long is it". The
+  // container's own duration is not written until the file is finalised, and
+  // reading it back would mean parsing the WebM we just made.
+  const startedAt = Date.now();
   const recorder = new MediaRecorder(stream, {
     mimeType: "video/webm",
     videoBitsPerSecond: VIDEO_BITS_PER_SECOND,
@@ -81,15 +91,23 @@ export function startLessonRecording(local: LocalParticipant): LessonRecorder {
 
   return {
     stop: () =>
-      new Promise<Blob>((resolve) => {
-        recorder.onstop = () => resolve(new Blob(chunks, { type: "video/webm" }));
+      new Promise<LessonRecording>((resolve) => {
+        recorder.onstop = () =>
+          resolve({
+            file: new Blob(chunks, { type: "video/webm" }),
+            seconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+          });
         recorder.stop();
       }),
   };
 }
 
 /** Send the finished file. Where it lands is the server's decision. */
-export async function uploadRecording(recordingId: string, file: Blob): Promise<void> {
+export async function uploadRecording(
+  recordingId: string,
+  recording: LessonRecording,
+): Promise<void> {
+  const { file, seconds } = recording;
   const res = await fetch(`/api/v1/recordings/${recordingId}/upload`, {
     method: "PUT",
     body: file,
@@ -102,6 +120,9 @@ export async function uploadRecording(recordingId: string, file: Blob): Promise<
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ size_bytes: file.size }),
+    // The length goes with it. Without this the row is `ready` and says
+    // nothing about how long it is, which is the first thing anybody asks of a
+    // recording before deciding to watch it.
+    body: JSON.stringify({ size_bytes: file.size, duration_seconds: seconds }),
   });
 }
