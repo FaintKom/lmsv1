@@ -158,10 +158,14 @@ _ANSWER_KEY_BY_TYPE = {
     "translation": "accepted_answers",
     "sentence_builder": "correct_order",
     "map_pin_drop": "pins",
+    # marked in exercises/service.py, not here — see _submit_math_stepwise
+    "math_stepwise": "final_answer",
 }
 
 
-def _warn_if_no_answer_key(content: dict, exercise_type: str) -> None:
+def warn_if_no_answer_key(content: dict, exercise_type: str) -> None:
+    """Public: `exercises/service.py` marks math_stepwise outside grade_interactive
+    and needs the same warning."""
     key = _ANSWER_KEY_BY_TYPE.get(exercise_type)
     if key and not (content or {}).get(key):
         _nothing_to_grade(exercise_type, key)
@@ -208,7 +212,7 @@ def grade_interactive_detail(
     """Like grade_interactive, but with per-item verdicts where the type
     supports them (integrity model B deferred feedback)."""
     answers = _as_answer_dict(answers)
-    _warn_if_no_answer_key(content, exercise_type)
+    warn_if_no_answer_key(content, exercise_type)
     if exercise_type == "translation":
         score, passed = _grade_translation(content, answers)
         return score, passed, None
@@ -237,7 +241,7 @@ def grade_interactive_detail(
 def grade_interactive(content: dict, exercise_type: str, answers: dict) -> tuple[float, bool]:
     """Grade interactive exercise. Returns (score 0.0-1.0, passed)."""
     answers = _as_answer_dict(answers)
-    _warn_if_no_answer_key(content, exercise_type)
+    warn_if_no_answer_key(content, exercise_type)
     if exercise_type == "matching":
         return _grade_matching(content, answers)
     elif exercise_type == "ordering":

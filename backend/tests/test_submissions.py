@@ -420,11 +420,17 @@ def test_every_watched_type_names_a_key_its_grader_reads():
         "translation": ["hola"],
         "sentence_builder": ["I", "am"],
         "map_pin_drop": [{"label": "Paris", "x": 0.5, "y": 0.3}],
+        # Watched here, marked in exercises/service.py by _submit_math_stepwise,
+        # so the grading loop below skips it: grade_interactive has no branch
+        # for this type and never will.
+        "math_stepwise": "3",
     }
     assert set(samples) == set(_ANSWER_KEY_BY_TYPE), (
         "a watched type has no sample here, or a sample names a type nobody watches"
     )
     for ex_type, key in _ANSWER_KEY_BY_TYPE.items():
+        if ex_type == "math_stepwise":
+            continue
         score, passed, _ = grade_interactive_detail({key: samples[ex_type]}, ex_type, {})
         assert score == 0.0, f"{ex_type}: empty answer against a real key should score 0"
 
@@ -552,3 +558,59 @@ async def test_game_and_web_payloads_are_refused_not_crashed(
         headers=auth_header(student),
     )
     assert junk.status_code == 422, junk.text
+
+
+@pytest.mark.asyncio
+async def test_math_stepwise_is_marked_by_the_server(
+    client: AsyncClient, db, org, teacher, student
+):
+    """A correct stepwise answer scores, and a claim of correctness does not.
+
+    This type had no branch in the submit dispatch and none in grade_interactive
+    either, so every submission scored 0 and read as failed - a student who solved
+    it was told they had not. Measured on all 26 types, 2026-08-18.
+
+    The client posts `correct` alongside the answer, computed through
+    /math-validation/check-answer while the student works. The last case here
+    sends a wrong answer with `correct: true` to prove the server ignores it.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_stepwise,
+        config={"problem": "Solve: x + 2 = 5", "variable": "x", "final_answer": "3"},
+    )
+
+    right = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={
+            "interactive_answers": {"final_answer": "3", "steps": ["x = 5 - 2"], "correct": False}
+        },
+        headers=auth_header(student),
+    )
+    assert right.status_code == 200, right.text
+    assert right.json()["score"] == 100
+    assert right.json()["passed"] is True
+
+    # "x = 3" says the same thing, and the parser is the one the endpoint uses.
+    named = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"final_answer": "x = 3", "steps": []}},
+        headers=auth_header(student),
+    )
+    assert named.status_code == 200, named.text
+    assert named.json()["passed"] is True
+
+    wrong = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"final_answer": "4", "steps": [], "correct": True}},
+        headers=auth_header(student),
+    )
+    assert wrong.status_code == 200, wrong.text
+    assert wrong.json()["score"] == 0
+    assert wrong.json()["passed"] is False, "the client's own verdict must not decide this"

@@ -187,3 +187,51 @@ def solutions_match(expected: dict, given: dict, variables: list[str]) -> bool:
         if not are_equivalent(a, b):
             return False
     return True
+
+
+_ALT_SEP = re.compile(r"\s*(?:or|или|,|;)\s*", re.IGNORECASE | re.UNICODE)
+_NAMED = re.compile(r"^[A-Za-z]\w*\s*=\s*(.*)$")
+
+
+def parse_answer_set(s: str) -> set:
+    """Parse a final answer that may list several solutions.
+
+    Accepts "2", "x = 2", "x = 2 or 3", "x = 2, x = 3", "x=2; x=3". A part that
+    does not parse is dropped rather than raising: a student who types one good
+    answer and one typo should be marked on what they did write, and the caller
+    sees the difference in the returned set.
+
+    Lived in the router as `_parse_answer_set` and served only the
+    /check-answer endpoint. It moved here when the submit path needed the same
+    comparison, so that a stepwise answer is marked exactly as the endpoint
+    marks it rather than by a second implementation that drifts.
+    """
+    s = (s or "").strip()
+    if not s:
+        return set()
+    out: set = set()
+    for part in _ALT_SEP.split(s):
+        part = part.strip()
+        if not part:
+            continue
+        named = _NAMED.match(part)
+        if named:
+            part = named.group(1).strip()
+        try:
+            out.add(parse_expression(part))
+        except MathParseError:
+            continue
+    return out
+
+
+def answers_match(student: str, expected: str) -> bool:
+    """Whether a student final answer says the same thing as the teacher's.
+
+    An empty expected answer never matches: with nothing to compare against,
+    "correct" would mean "unmarked", and that is the caller's decision to make
+    rather than this function's to fake.
+    """
+    wanted = parse_answer_set(expected)
+    if not wanted:
+        return False
+    return parse_answer_set(student) == wanted

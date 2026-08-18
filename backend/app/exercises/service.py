@@ -648,6 +648,8 @@ async def submit_exercise(
         return await _submit_math_system(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.stereometry:
         return await _submit_stereometry(db, exercise, user, data, now)
+    elif exercise.exercise_type == ExerciseType.math_stepwise:
+        return await _submit_math_stepwise(db, exercise, user, data, now)
     elif exercise.exercise_type in (
         ExerciseType.translation,
         ExerciseType.sentence_builder,
@@ -903,6 +905,64 @@ async def _submit_math_system(
         exercise_id=exercise.id,
         student_id=user.id,
         answers=given,
+        score=100.0 if passed else 0.0,
+        passed=passed,
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    _apply_timing(submission, data, now)
+    db.add(submission)
+    await db.flush()
+
+    if passed:
+        await _award_xp(db, user.id, 25, "exercise_passed")
+
+    return await _reload_submission(db, submission.id)
+
+
+async def _submit_math_stepwise(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    """Mark a step-by-step answer on the server.
+
+    This type had no branch here at all: it fell through to `_submit_interactive`,
+    and `grade_interactive` has no case for it either, so every submission scored
+    zero and read as "not passed" — a student who solved it correctly was told they
+    had failed. Measured across all 26 types on 2026-08-18.
+
+    The client does compare the final answer while the student works, through
+    /math-validation/check-answer, and posts its verdict as `correct`. That verdict
+    is ignored here. It is a hint for the pupil, not evidence: anyone can post
+    `correct: true`, and the server is the only judge of an answer.
+
+    Steps are stored but not marked. Marking them needs a per-step equivalence
+    check the product does not have yet; scoring a student down for a route the
+    server cannot follow would be worse than not scoring it.
+    """
+    from app.math_validation.service import answers_match
+    from app.submissions.service import warn_if_no_answer_key
+
+    config = exercise.config or {}
+    answer = data.get("interactive_answers") or {}
+    if not isinstance(answer, dict):
+        answer = {}
+    given = str(answer.get("final_answer") or "")
+    expected = str(config.get("final_answer") or "")
+
+    warn_if_no_answer_key(config, exercise.exercise_type.value)
+    # No expected answer: nothing to get wrong, which is what every other grader
+    # answers in this case. The warning above is what makes it findable.
+    passed = True if not expected.strip() else answers_match(given, expected)
+
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers={"final_answer": given, "steps": answer.get("steps") or []},
         score=100.0 if passed else 0.0,
         passed=passed,
         status="graded",
