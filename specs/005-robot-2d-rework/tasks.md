@@ -49,7 +49,7 @@ sandbox program, the server's replay, the search, the editor's checks.
 > Write these before the modules. They must fail against a wrong implementation,
 > not merely error on a missing import.
 
-- [ ] T004 [P] Failing tests for movement, refusals and the step cap in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
+- [ ] T004 [P] Failing tests for movement, refusals and the step allowance in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
 - [ ] T005 [P] Failing tests for items, paint and values in `backend/tests/test_robot_world.py` — `take` then `drop` restores the count (FR-024), painting twice counts once toward the goal and twice in steps (FR-033), `read` on a bare floor refuses rather than returning `0` (FR-034)
 - [ ] T006 [P] Failing tests for the win expression in `backend/tests/test_robot_win.py` — every leaf in data-model.md, and `and` / `or` / `not` over them, including a `not` given the wrong number of children
 - [ ] T007 [P] Failing tests for level validation in `backend/tests/test_robot_validate.py` — every blocker in FR-020 reported **together**, not the first one only
@@ -57,7 +57,7 @@ sandbox program, the server's replay, the search, the editor's checks.
 ### Implementation
 
 - [ ] T008 Create `backend/app/exercises/robot_sim.py` with the world state, grid loading from the level shape in data-model.md, facing, and the standard-library-only rule that lets its own source run inside the sandbox (research Finding E)
-- [ ] T009 Add the movement commands to `backend/app/exercises/robot_sim.py` — `move_up`, `move_down`, `move_left`, `move_right`, `move_forward`, `turn_left`, `turn_right`, per contracts/commands.md
+- [ ] T009 Add the movement commands to `backend/app/exercises/robot_sim.py` — `move_up`, `move_down`, `move_left`, `move_right`, `move_forward`, `turn_left`, `turn_right`, per contracts/commands.md — and the step allowance itself: every command increments the count, and reaching `max_steps` stops the run with `steps_exhausted` (FR-004). This is the simulator's own guard, distinct from the payload cap in T025
 - [ ] T010 Add items, paint and values to `backend/app/exercises/robot_sim.py` — `take`, `drop`, `paint`, `read`, `write`, with the refusal keys from contracts/commands.md
 - [ ] T011 Add the sensors to `backend/app/exercises/robot_sim.py` — `wall_ahead`, `item_here`, `at_goal`, `painted`, `value_here`
 - [ ] T012 Add the win-expression evaluator to `backend/app/exercises/robot_sim.py` over the vocabulary in data-model.md, rejecting a node shape it does not know rather than defaulting to false
@@ -87,6 +87,9 @@ losing program and watch it recorded as not passed.
 - [ ] T020 [P] [US1] Failing test for forgery in `backend/tests/test_robot_submit.py` — a submission carrying `game_result: {completed: true, score: 1.0}` beside a losing program is `passed: false`, **with the winning-program positive control in the same test** (Constitution II)
 - [ ] T021 [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that a pupil reading the exercise through all three read endpoints sees no `solution_code`, and a teacher reading the same one does (FR-010)
 - [ ] T022 [P] [US1] Failing tests for the trace player in `frontend/src/components/game/engine/trace-player.test.ts` — play, pause, step, seek and speed over a fixed frame array
+- [ ] T022a [P] [US1] Failing tenant-isolation test in `backend/tests/test_robot_submit.py` — a pupil of another school posting to `/robot/run` for this exercise gets 404, **and a pupil of the owning school gets 200 in the same test** (Constitution I). Without the positive control the assertion passes before the route exists
+- [ ] T022b [P] [US1] Failing test in `backend/tests/test_robot_submit.py` that twenty runs leave `attempts_remaining` unchanged, and that submitting once decrements it (FR-026, SC-010)
+- [ ] T022c [P] [US1] Failing tests for the star rules in `backend/tests/test_robot_stars.py` — the same program on the same level scores identically twice (SC-008), and each threshold is checked at its boundary, one either side (FR-028)
 
 ### Implementation
 
@@ -100,7 +103,8 @@ losing program and watch it recorded as not passed.
 - [ ] T030 [US1] Change `_submit_game_level` in `backend/app/exercises/service.py` so `robot_2d` grades from its own replay and ignores `completed` and `score` from the body; leave `math_interactive` on the old path, still tracked by `specs/004-exercise-answer-leak`
 - [ ] T031 [US1] Store the submission as `answers.robot` per data-model.md, and award experience on the server's `won`
 - [ ] T032 [P] [US1] Create `frontend/src/components/game/engine/trace-player.ts` — play, pause, step, seek and speed over a frame array
-- [ ] T033 [US1] Delete `frontend/src/components/game/engine/step-executor.ts`, with `parseCommands`, `parsePythonCommands` and the `_while` / `_if` machinery that never re-read its condition
+- [ ] T033 [US1] Move `step-executor.ts` into World 3D rather than deleting it — `frontend/src/components/game/world-3d/world-3d-exercise.tsx:22` imports `parseCommands` and calls it at line 113, so deleting the module stops World 3D compiling. Relocate it to `frontend/src/components/game/world-3d/legacy-step-executor.ts`, unreferenced by anything in `robot-2d/`, and delete it for real in `specs/006-world-3d-rework`
+- [ ] T033a [US1] Confirm by grep that nothing under `frontend/src/components/game/robot-2d/` imports the relocated executor, and that `npx tsc --noEmit` is clean — the `_while` machinery that never re-read its condition must be gone from the 2D path even though the file survives for 3D
 - [ ] T034 [US1] Strip the rules from `frontend/src/components/game/robot-2d/grid-engine.ts`, keeping only the types the renderer needs
 - [ ] T035 [US1] Rewrite `frontend/src/components/game/robot-2d/grid-renderer.tsx` to draw a frame, including painted floors and values on cells
 - [ ] T036 [US1] Add `runRobot` to `frontend/src/lib/api/exercises.ts`, posting `{source, mode}` and returning the run result — no completion field in either direction
@@ -125,11 +129,14 @@ Four blocks, four commands in the starter, no turning command anywhere.
 
 - [ ] T041 [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that a command outside the level's offered set refuses with `not_offered` and names the line (FR-015)
 - [ ] T042 [P] [US2] Failing test in `frontend/src/components/game/blockly/toolbox-configs.test.ts` that the toolbox is built from an explicit command list, and that a list naming no loop yields no loop category
+- [ ] T042a [P] [US2] Failing test in `backend/tests/test_robot_runner.py` that block-generated Python and hand-written Python expressing the same solution produce identical frames and step counts on one level (SC-007) — the only assertion that catches the two editors drifting apart
+- [ ] T042b [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that no command name in the vocabulary exceeds fourteen characters and none carries an object prefix (FR-011, SC-006) — one line, and it holds the contract the day someone adds `move_diagonally`
 
 ### Implementation
 
-- [ ] T043 [US2] Change `frontend/src/components/game/blockly/custom-blocks.ts` so the Python generators emit `move_up()` rather than `robot.move_up()`, and add blocks for `paint`, `read`, `write`, `painted` and `value_here`
-- [ ] T044 [US2] Rebuild `frontend/src/components/game/blockly/toolbox-configs.ts` around `buildToolboxFromBlocks`, demoting `DIFFICULTY_TOOLBOXES` and `DIFFICULTY_3D_TOOLBOXES` to presets that fill a list rather than being the list
+- [ ] T043 [US2] Change **only the Python generators** in `frontend/src/components/game/blockly/custom-blocks.ts` to emit `move_up()` rather than `robot.move_up()`, and add blocks for `paint`, `read`, `write`, `painted` and `value_here`. The JavaScript generators stay exactly as they are — `world-3d-exercise.tsx:113` parses their output with a regex expecting the `robot.` prefix, and this file is shared
+- [ ] T044 [US2] Rebuild `frontend/src/components/game/blockly/toolbox-configs.ts` around `buildToolboxFromBlocks`. Three consumers outside this feature import from it and must keep working: `blockly-workspace.tsx:7-8` (`ToolboxDef`, `Difficulty`, `DIFFICULTY_TOOLBOXES`), `world-3d-exercise.tsx:23-24` (`Difficulty`, `DIFFICULTY_3D_TOOLBOXES`) and `world-3d-editor.tsx:7` (`Difficulty`). Keep those exports; demote them from source of truth to preset, without removing them
+- [ ] T044a [US2] Open a World 3D level in the browser after T043 and T044 and confirm it still runs — this spec declares 3D out of scope, which protects it only if the tasks that touch shared files check
 - [ ] T045 [US2] Pass `config.commands` to the workspace in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the `difficulty` prop that made the teacher's choice unreachable
 - [ ] T046 [US2] Submit the generated Python in block mode from `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, so blocks and Python share one execution path (FR-003)
 - [ ] T047 [US2] Generate the starter file's comment header from `config.commands` in `frontend/src/components/game/robot-2d/robot-2d-exercise.tsx`, replacing the hardcoded Russian block
@@ -213,10 +220,23 @@ once conflict in that file. One person takes the editor, or they land in order.
 
 - T002 and T003 together
 - T004, T005, T006, T007 together — four separate test files
-- T017–T022 together — different files, no shared state
+- T017–T022c together — different files, no shared state
+- T042, T042a, T042b together
 - T050, T051, T052 together
 - T065, T068, T069 together
 - Once Phase 2 is green, US1 and US2 proceed side by side; US3 shares the editor with US2
+
+### Tasks that reach outside this feature
+
+Three tasks touch files World 3D depends on. Each names its consumers, and
+T044a checks the result in the browser — "3D is out of scope" protects nothing
+on its own when the shared file is edited here.
+
+| Task | Reaches | Consumer |
+|---|---|---|
+| T033 | `engine/step-executor.ts` | `world-3d-exercise.tsx:22`, called at :113 |
+| T043 | `blockly/custom-blocks.ts` | 3D reads the JavaScript generators, which stay untouched |
+| T044 | `blockly/toolbox-configs.ts` | `blockly-workspace.tsx:7-8`, `world-3d-exercise.tsx:23-24`, `world-3d-editor.tsx:7` |
 
 ---
 

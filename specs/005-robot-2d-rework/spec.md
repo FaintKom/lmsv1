@@ -23,6 +23,7 @@ Every part of that sentence is currently false in practice:
 | The level offers the commands the teacher chose | The teacher's choice is saved and never read; every pupil gets one of three preset lists |
 | A saved level is solvable | Nothing checks; a teacher can publish a level with no path to the goal and hear about it from pupils |
 | Finishing the level earns the stars | The star thresholds exist in the data and have no field in the editor, so they are never set |
+| The code editor follows the theme the pupil chose | It is pinned to a light theme. The player works out whether the pupil is in dark mode and then discards the answer |
 | A level can ask for something other than "reach the goal" | It can, through a field holding arbitrary JavaScript that is stored on the level, shipped to the pupil's browser, and run there — an answer key and an execution surface at once |
 | Finishing the level is what earns credit | The browser reports the verdict, and the server records it verbatim |
 
