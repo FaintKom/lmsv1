@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { BookOpen, X } from "lucide-react";
+import { BookOpen, MessageSquare, X } from "lucide-react";
 
+import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { ChatPanel, type ChatEntry } from "@/components/live/chat-panel";
 import { LessonReview } from "@/components/live/lesson-review";
 import { PollModal } from "@/components/live/poll-modal";
 import { MediaStage } from "@/components/live/media-stage";
@@ -14,6 +16,7 @@ import { MaterialPane, SceneView } from "@/components/live/scene-view";
 import { SignalBar } from "@/components/live/signal-bar";
 import type { BoardViewHandle } from "@/components/live/board-view";
 import {
+  askQuestion,
   sendHeartbeat,
   useLessonState,
   type FollowMode,
@@ -51,6 +54,26 @@ export default function StudentLessonPage() {
   } | null>(null);
   const [materialOpen, setMaterialOpen] = useState(false);
   const [liveRecordingId, setLiveRecordingId] = useState<string | null | undefined>(undefined);
+  // The conversation as a thread (FR-036). Teacher messages used to be toasts
+  // that vanished in fifteen seconds; a pupil's own questions vanished on send.
+  const [chat, setChat] = useState<ChatEntry[]>([]);
+  const chatSeq = useRef(0);
+  const [chatOpen, setChatOpen] = useState(false); // the phone's sheet
+  const [chatUnread, setChatUnread] = useState(0);
+  const chatOpenRef = useRef(false);
+  chatOpenRef.current = chatOpen;
+  // Where the stage draws the media scenes. State, not a ref: the portal has
+  // to re-render when the element appears.
+  const [stageEl, setStageEl] = useState<HTMLDivElement | null>(null);
+  // The phone's rail is a strip, so the camera roll runs sideways there.
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
   // Media scenes give the stage to the media area (FR-034): the teacher chose
   // to put the screen or the faces in front of the class, the way they choose
   // a board. One owner for the layout — the scene — which is what retired the
@@ -132,11 +155,12 @@ export default function StudentLessonPage() {
       setPoll(null);
       setPollResult(r);
     },
-    onMessage: (m) =>
-      toast(m.broadcast ? t("live.messageAll") : t("live.hint.received"), {
-        description: m.text,
-        duration: 15000,
-      }),
+    onMessage: (m) => {
+      setChat((c) => [...c, { id: ++chatSeq.current, from: "teacher", text: m.text }]);
+      // On a phone the thread lives behind a button; a message nobody can see
+      // is a message that did not arrive, so the button counts it.
+      if (!chatOpenRef.current) setChatUnread((n) => n + 1);
+    },
     onLessonEnded: () => {
       setEnded(true);
       // refetch so the review branch sees the final summary/boards, not
@@ -158,6 +182,11 @@ export default function StudentLessonPage() {
     return () => clearInterval(iv);
   }, [lessonId, scene, ended]);
 
+  const sendChat = async (text: string) => {
+    await askQuestion(lessonId, text);
+    setChat((c) => [...c, { id: ++chatSeq.current, from: "me", text }]);
+  };
+
   if (isLoading || !state) return null;
 
   if (ended) {
@@ -178,7 +207,7 @@ export default function StudentLessonPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {!connected && (
         <div className="fixed left-1/2 top-3 z-50 flex -translate-x-1/2 items-center gap-2 rounded-pill bg-clay-500 px-3.5 py-1.5 font-mono text-2xs font-bold uppercase tracking-wide text-white shadow-md">
           <span className="h-2 w-2 animate-pulse rounded-pill bg-white" />
@@ -191,73 +220,113 @@ export default function StudentLessonPage() {
           {t("live.followStrictBanner")}
         </div>
       )}
-      {/* A shared screen is the lesson while it lasts, so it takes the room and
-          the scene steps back to a strip. Otherwise a pupil reads a teacher's
-          screen inside 224 pixels while "waiting for the teacher" holds the
-          page (FR-031). */}
-      <div className={mediaOnStage ? "hidden" : "relative min-h-0 flex-1"}>
-        {scene && (
-          <SceneView
-            lessonId={lessonId}
-            scene={scene}
-            boardHandleRef={boardHandleRef}
-            interactive
-            canQuit={followMode !== "strict"}
-          />
-        )}
-        {/* free mode: reopen the last material from any scene (task has
-            its own button) */}
-        {followMode === "free" &&
-          lastMaterial &&
-          scene?.type !== "material" &&
-          scene?.type !== "task" && (
-            <button
-              onClick={() => setMaterialOpen(true)}
-              className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
-            >
-              <BookOpen size={14} /> {t("live.scene.material")}
-            </button>
+      {/* Stage + rail (FR-035): the one thing being taught holds the middle,
+          and everything about the people — cameras, controls, chat — lives in
+          a rail that never covers it. On a phone the rail folds underneath and
+          the chat opens as a sheet, so every control stays on screen without
+          scrolling the page. */}
+      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        {/* THE STAGE */}
+        <div className="relative min-h-0 min-w-0 flex-1">
+          {mediaOnStage ? (
+            <div ref={setStageEl} data-testid="media-on-stage" className="h-full p-2" />
+          ) : (
+            <>
+              {scene && (
+                <SceneView
+                  lessonId={lessonId}
+                  scene={scene}
+                  boardHandleRef={boardHandleRef}
+                  interactive
+                  canQuit={followMode !== "strict"}
+                />
+              )}
+              {/* free mode: reopen the last material from any scene (task has
+                  its own button) */}
+              {followMode === "free" &&
+                lastMaterial &&
+                scene?.type !== "material" &&
+                scene?.type !== "task" && (
+                  <button
+                    onClick={() => setMaterialOpen(true)}
+                    className="btn-pop btn-pop--secondary absolute left-1/2 top-4 z-30 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-sm border border-border bg-surface px-3.5 py-2 text-xs font-bold text-text"
+                  >
+                    <BookOpen size={14} /> {t("live.scene.material")}
+                  </button>
+                )}
+              {materialOpen && lastMaterial && (
+                <div className="absolute inset-0 z-40 bg-surface">
+                  <MaterialPane
+                    payload={{
+                      lesson_id: lastMaterial.lessonId,
+                      course_id: lastMaterial.courseId,
+                    }}
+                  />
+                  <button
+                    onClick={() => setMaterialOpen(false)}
+                    aria-label={t("common.close")}
+                    className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-surface-2"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
-        {materialOpen && lastMaterial && (
-          <div className="absolute inset-0 z-40 bg-surface">
-            <MaterialPane
-              payload={{
-                lesson_id: lastMaterial.lessonId,
-                course_id: lastMaterial.courseId,
-              }}
+        </div>
+
+        {/* THE RAIL */}
+        <div className="flex shrink-0 flex-col border-t border-border lg:w-80 lg:border-l lg:border-t-0">
+          {/* cameras + call controls */}
+          <div className={`min-h-0 p-1.5 ${mediaOnStage ? "lg:flex-1" : "h-36 lg:h-auto lg:flex-1"}`}>
+            <MediaStage
+              lessonId={lessonId}
+              breakoutIndex={breakoutIndex}
+              layout="roll"
+              rollOrientation={narrow ? "horizontal" : "vertical"}
+              stageEl={mediaOnStage ? stageEl : null}
+              stageScene={mediaOnStage ? (scene?.type as "screen" | "faces") : null}
+              liveRecordingId={liveRecordingId}
+            />
+          </div>
+          {/* the thread — a panel on a laptop, a sheet on a phone */}
+          <div className="hidden min-h-0 border-t border-border lg:flex lg:h-[36%] lg:flex-col">
+            <ChatPanel entries={chat} onSend={sendChat} />
+          </div>
+          {/* signals, one compact row that never scrolls away */}
+          <div className="flex shrink-0 items-center justify-center gap-1.5 border-t border-border p-1.5">
+            <SignalBar
+              key={signalEpoch}
+              lessonId={lessonId}
+              initial={signalEpoch === 0 ? state.my_signal : null}
+              variant="rail"
             />
             <button
-              onClick={() => setMaterialOpen(false)}
-              aria-label={t("common.close")}
-              className="absolute right-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-md bg-surface-2 text-text-muted shadow-sm transition-colors hover:bg-surface-2"
+              onClick={() => {
+                setChatOpen(true);
+                setChatUnread(0);
+              }}
+              aria-label={t("live.chat.title")}
+              className="relative inline-flex h-10 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-3 text-xs font-bold text-text lg:hidden"
             >
-              <X size={18} />
+              <MessageSquare size={15} aria-hidden />
+              {chatUnread > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-pill bg-clay-500 px-1 font-mono text-3xs font-bold text-white">
+                  {chatUnread}
+                </span>
+              )}
             </button>
           </div>
-        )}
+        </div>
       </div>
-      {/* The faces sit under the scene rather than in a second window: the
-          point of this feature is that a lesson is one page. */}
-      <div
-        data-testid={mediaOnStage ? "media-on-stage" : undefined}
-        className={
-          mediaOnStage
-            ? "min-h-0 flex-1 border-t border-border p-2"
-            : "h-56 shrink-0 border-t border-border p-2"
-        }
-      >
-        <MediaStage
-          lessonId={lessonId}
-          breakoutIndex={breakoutIndex}
-          layout={scene?.type === "screen" ? "screen" : "grid"}
-          liveRecordingId={liveRecordingId}
-        />
-      </div>
-      <SignalBar
-        key={signalEpoch}
-        lessonId={lessonId}
-        initial={signalEpoch === 0 ? state.my_signal : null}
-      />
+
+      {/* the phone's chat */}
+      <BottomSheet open={chatOpen} onClose={() => setChatOpen(false)} title={t("live.chat.title")}>
+        <div className="h-[50dvh]">
+          <ChatPanel entries={chat} onSend={sendChat} />
+        </div>
+      </BottomSheet>
+
       {poll && <PollModal lessonId={lessonId} poll={poll} onDone={() => setPoll(null)} />}
       {pollResult && (
         <div className="fixed bottom-20 left-1/2 z-40 min-w-64 -translate-x-1/2 rounded-lg border border-border bg-surface p-4 shadow-md">

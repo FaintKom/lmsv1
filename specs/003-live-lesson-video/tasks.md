@@ -425,6 +425,15 @@ small, and every one of them broke the feature completely.
   endpoint silenced the track and published no event, the channel had no
   handler, and the pupil heard their own silence and guessed. Found by T084 on
   its first real run — no unit test could, because every piece worked
+- [x] T111 Rebuild the pupil page as stage + rail (FR-035): the stage carries
+  the scene or the media scenes, the right rail carries cameras (roll),
+  controls and chat; on phones the rail folds under the stage and chat becomes
+  a sheet; no page scroll at any viewport (owner, 2026-08-19: "все элементы и
+  кнопки должны помещаться в экран без скролла")
+- [x] T112 A visible chat thread for the pupil (FR-036), built from what
+  already flows: teacher broadcasts arrive on the channel today and die as
+  toasts; pupil questions POST to an endpoint that already exists. One panel,
+  no backend change
 - [~] T096 (browser-provable part done 2026-08-18 — the journey records, tells everybody, uploads and hands back a real WebM with a duration; the source-attribution half stays with T086, because Chrome's fake cameras paint one identical pattern for every participant and no pixel can say whose it was) Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

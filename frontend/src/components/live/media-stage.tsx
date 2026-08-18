@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   CarouselLayout,
   GridLayout,
@@ -189,6 +190,8 @@ function ScreenSceneEmpty() {
 function Tiles({
   onScreenShare,
   layout = "grid",
+  rollOrientation = "vertical",
+  excludeScreens = false,
 }: {
   onScreenShare?: (sharing: boolean) => void;
   /**
@@ -201,6 +204,14 @@ function Tiles({
    * thing being taught, and the faces stay in the strip.
    */
   layout?: "grid" | "roll" | "screen";
+  /** Which way the roll runs. A phone's rail is a strip, not a column. */
+  rollOrientation?: "vertical" | "horizontal";
+  /**
+   * Leave screen-share tracks out. Set on the rail while the same screen is
+   * on the stage: showing it twice costs a second video decode to display the
+   * same pixels smaller.
+   */
+  excludeScreens?: boolean;
 }) {
   // Camera and screen share in one grid. A placeholder keeps a tile for
   // somebody whose camera is off, so the grid matches the roster beside it
@@ -217,6 +228,9 @@ function Tiles({
   // Only this side of the boundary knows a screen is being shared, and only the
   // page can decide what shrinks to make space (FR-031).
   const sharing = tracks.some((t) => t.source === Track.Source.ScreenShare);
+  const shown = excludeScreens
+    ? tracks.filter((tr) => tr.source !== Track.Source.ScreenShare)
+    : tracks;
   useEffect(() => {
     onScreenShare?.(sharing);
   }, [sharing, onScreenShare]);
@@ -236,13 +250,13 @@ function Tiles({
   }
   if (layout === "roll") {
     return (
-      <CarouselLayout tracks={tracks} orientation="vertical" className="h-full">
+      <CarouselLayout tracks={shown} orientation={rollOrientation} className="h-full">
         <ParticipantTile />
       </CarouselLayout>
     );
   }
   return (
-    <GridLayout tracks={tracks} className="h-full">
+    <GridLayout tracks={shown} className="h-full">
       <ParticipantTile />
     </GridLayout>
   );
@@ -263,6 +277,9 @@ export function MediaStage({
   breakoutIndex = null,
   onScreenShare,
   layout = "grid",
+  rollOrientation = "vertical",
+  stageEl = null,
+  stageScene = null,
   liveRecordingId,
 }: {
   lessonId: string;
@@ -282,6 +299,16 @@ export function MediaStage({
   onScreenShare?: (sharing: boolean) => void;
   /** Passed to the tile layout — see Tiles. The teacher's panel uses "roll". */
   layout?: "grid" | "roll" | "screen";
+  /** Which way the rail's roll runs — vertical column or phone strip. */
+  rollOrientation?: "vertical" | "horizontal";
+  /**
+   * Where to draw the media SCENE, when there is one (FR-035). The stage and
+   * the rail are two places, and the call is one React tree: the stage
+   * content is portalled out of the same room so the connection stays single.
+   */
+  stageEl?: HTMLElement | null;
+  /** Which media scene the stage is showing: the screen alone, or the grid. */
+  stageScene?: "screen" | "faces" | null;
   /** Server truth about a running recording — see RecordingIndicator. */
   liveRecordingId?: string | null;
 }) {
@@ -293,25 +320,45 @@ export function MediaStage({
   const ui = useMemo<CallSlotUi>(
     () => ({
       render: (grant) => (
-        <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
-          {/* overflow-hidden, or the roll of tiles grows past its box and a
-              video ends up on top of the controls, eating their clicks. */}
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <Tiles onScreenShare={onScreenShare} layout={layout} />
+        <>
+          <div className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-2">
+            {/* overflow-hidden, or the roll of tiles grows past its box and a
+                video ends up on top of the controls, eating their clicks.
+                When the faces are on the stage, the rail does not repeat them:
+                every duplicated tile is a second video decode on a pupil's
+                laptop, spent on showing the same person twice. */}
+            {stageScene !== "faces" && (
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <Tiles
+                  onScreenShare={onScreenShare}
+                  layout={layout}
+                  rollOrientation={rollOrientation}
+                  excludeScreens={stageScene === "screen"}
+                />
+              </div>
+            )}
+            <RoomControls
+              canShareScreen={grant.can_publish_screen}
+              onLeave={call.leave}
+              recording={<RecordingIndicator
+                lessonId={lessonId}
+                canRecord={grant.can_record}
+                liveRecordingId={liveRecordingId}
+              />}
+            />
           </div>
-          <RoomControls
-            canShareScreen={grant.can_publish_screen}
-            onLeave={call.leave}
-            recording={<RecordingIndicator
-              lessonId={lessonId}
-              canRecord={grant.can_record}
-              liveRecordingId={liveRecordingId}
-            />}
-          />
-        </div>
+          {stageEl &&
+            stageScene &&
+            createPortal(
+              <div className="h-full overflow-hidden">
+                <Tiles layout={stageScene === "screen" ? "screen" : "grid"} />
+              </div>,
+              stageEl,
+            )}
+        </>
       ),
     }),
-    [lessonId, onScreenShare, layout, liveRecordingId, call.leave],
+    [lessonId, onScreenShare, layout, rollOrientation, stageEl, stageScene, liveRecordingId, call.leave],
   );
 
   // Claim the space while this page is open, hand it back when it closes. The

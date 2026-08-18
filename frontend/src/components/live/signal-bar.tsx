@@ -10,9 +10,17 @@ import { useTranslation } from "@/lib/i18n/context";
 export function SignalBar({
   lessonId,
   initial,
+  variant = "bar",
 }: {
   lessonId: string;
   initial: SignalType | null;
+  /**
+   * "bar" is the original full-width strip with its own Ask modal. "rail" is
+   * one compact row of the three signals for the lesson rail (FR-035), where
+   * asking lives in the chat beside it and a second entrance would be one
+   * entrance too many.
+   */
+  variant?: "bar" | "rail";
 }) {
   const { t } = useTranslation();
   const [active, setActive] = useState<SignalType | null>(initial);
@@ -42,6 +50,33 @@ export function SignalBar({
       <Icon size={16} /> {label}
     </button>
   );
+
+  if (variant === "rail") {
+    const railBtn = (type: SignalType, label: string, Icon: LucideIcon) => (
+      <button
+        key={type}
+        onClick={() => void toggle(type)}
+        title={label}
+        aria-label={label}
+        aria-pressed={active === type}
+        className={`inline-flex h-10 items-center gap-1.5 rounded-pill px-3 text-xs font-bold transition-colors ${
+          active === type
+            ? "btn-pop bg-primary text-primary-fg"
+            : "border-2 border-border bg-surface text-text hover:border-green-300"
+        }`}
+      >
+        <Icon size={15} aria-hidden />
+        <span className="hidden xl:inline">{label}</span>
+      </button>
+    );
+    return (
+      <>
+        {railBtn("hand", t("live.signal.hand"), Hand)}
+        {railBtn("confused", t("live.signal.confused"), HelpCircle)}
+        {railBtn("done", t("live.signal.done"), Check)}
+      </>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-1.5 border-t border-border bg-surface p-3 pt-2">

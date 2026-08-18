@@ -238,6 +238,28 @@ test.describe("a lesson with video in it", () => {
       lessonId,
     );
     expect(allowed).toBe(200);
+
+    // Close what this act opened, like the mute test before it: the drawer
+    // otherwise sits over the panel and eats the next test's clicks. The
+    // success toast sits exactly over the close button first, so wait it out
+    // the way a person does.
+    await expect(teacher.locator("[data-sonner-toast]")).toHaveCount(0, { timeout: 20_000 });
+    await teacher.getByRole("button", { name: /close|закрыть/i }).first().click();
+  });
+
+  test("the conversation is a thread both sides can read", async () => {
+    // Teacher speaks to the class; the pupil reads it in the rail, not in a
+    // toast that dies in fifteen seconds (FR-036).
+    await teacher.getByLabel(/message the class|сообщение классу/i).fill("Открываем страницу 42");
+    await teacher.getByRole("button", { name: /message the class|отправить классу/i }).click();
+    await expect(pupilA.getByText("Открываем страницу 42")).toBeVisible({ timeout: 15_000 });
+
+    // The pupil asks back from the same panel, and the teacher sees it — the
+    // question rides the endpoint the attention panel already reads.
+    await pupilA.getByPlaceholder(/ask the teacher|спросить/i).fill("А номер задания какой?");
+    await pupilA.getByRole("button", { name: /^send|отправить/i }).click();
+    await expect(pupilA.getByText("А номер задания какой?")).toBeVisible();
+    await expect(teacher.getByText("А номер задания какой?")).toBeVisible({ timeout: 15_000 });
   });
 
   test("the call survives opening something else in the lesson", async () => {
