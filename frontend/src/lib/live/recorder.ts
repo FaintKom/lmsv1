@@ -16,6 +16,21 @@ import { Track, type LocalParticipant } from "livekit-client";
 /** Milliseconds between chunks. Small enough that a crash loses little. */
 const CHUNK_MS = 5000;
 
+/**
+ * Bitrates, chosen so a long lesson still fits the server's upload limit.
+ *
+ * At roughly 350 kbit/s a 45-minute lesson lands near 120 MB and a 90-minute
+ * one near 240 MB, both inside the 300 MB the server accepts. Left to itself
+ * the browser picks a rate for a video call, not for a file somebody has to
+ * upload over a school's connection.
+ *
+ * Screen content — slides, a code editor — is mostly static, and VP8 spends
+ * almost nothing on frames that do not change, so this is not the visible
+ * economy it looks like.
+ */
+const VIDEO_BITS_PER_SECOND = 300_000;
+const AUDIO_BITS_PER_SECOND = 48_000;
+
 export interface LessonRecorder {
   stop: () => Promise<Blob>;
 }
@@ -54,7 +69,11 @@ export function startLessonRecording(local: LocalParticipant): LessonRecorder {
   }
 
   const chunks: Blob[] = [];
-  const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm",
+    videoBitsPerSecond: VIDEO_BITS_PER_SECOND,
+    audioBitsPerSecond: AUDIO_BITS_PER_SECOND,
+  });
   recorder.ondataavailable = (e) => {
     if (e.data.size > 0) chunks.push(e.data);
   };

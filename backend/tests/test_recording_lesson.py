@@ -355,3 +355,87 @@ async def test_a_recording_inside_its_retention_survives(db, org, teacher):
 
     assert await purge_expired(db) == 0
     assert await db.scalar(select(Recording).where(Recording.id == rid)) is not None
+
+
+# --- The host has a disk, and the browser does not know how big it is --------
+
+
+async def test_an_oversized_recording_is_refused_before_the_host_holds_it(
+    client: AsyncClient, db, org, teacher, student
+):
+    """The cap is the point: a 40 GB disk shared with Postgres does not get to
+    find out how long somebody's lesson was."""
+    from app.recording import service as rec_service
+
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+
+    saved = settings.max_recording_upload_mb
+    settings.max_recording_upload_mb = 1
+    try:
+        assert rec_service.max_upload_bytes() == 1024 * 1024
+        resp = await client.put(
+            f"/api/v1/recordings/{rid}/upload",
+            content=b"x" * (1024 * 1024 + 512),
+            headers={**auth_header(teacher), "Content-Type": "video/webm"},
+        )
+    finally:
+        settings.max_recording_upload_mb = saved
+
+    assert resp.status_code == 413, resp.text
+
+
+async def test_a_recording_inside_the_cap_is_taken(client: AsyncClient, db, org, teacher, student):
+    """Positive control. The refusal above proves nothing if the endpoint
+    refuses everything — and the same payload passes once the cap allows it."""
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+
+    resp = await client.put(
+        f"/api/v1/recordings/{rid}/upload",
+        content=b"x" * (1024 * 1024 + 512),
+        headers={**auth_header(teacher), "Content-Type": "video/webm"},
+    )
+    assert resp.status_code == 200, resp.text
+
+
+async def test_a_full_disk_refuses_the_upload_rather_than_filling_up(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Postgres shares this disk. A lesson recording is worth less than the
+    school being able to log in tomorrow."""
+    from app.recording import service as rec_service
+
+    enable_recording(org)
+    await db.flush()
+    lesson = await make_lesson(db, org, teacher, [student])
+    rid = await start(client, lesson, teacher)
+
+    saved = rec_service.DISK_HEADROOM_BYTES
+    rec_service.DISK_HEADROOM_BYTES = 1 << 62  # more free space than any disk has
+    try:
+        resp = await client.put(
+            f"/api/v1/recordings/{rid}/upload",
+            content=b"still a video, honest",
+            headers={**auth_header(teacher), "Content-Type": "video/webm"},
+        )
+    finally:
+        rec_service.DISK_HEADROOM_BYTES = saved
+
+    assert resp.status_code == 507, resp.text
+
+
+async def test_the_disk_guard_says_yes_when_there_is_room(tmp_path):
+    """Positive control for the guard, so it cannot pass by refusing always."""
+    from app.recording import service as rec_service
+
+    saved = settings.upload_dir
+    settings.upload_dir = str(tmp_path)
+    try:
+        assert rec_service.room_for(1024) is True
+    finally:
+        settings.upload_dir = saved

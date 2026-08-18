@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
 from app.auth.models import User, UserRole
+from app.config import settings
 from app.db.session import get_db
 from app.recording import service as rec_service
 from app.recording.models import Recording, RecordingStatus, RecordingType
@@ -155,9 +156,37 @@ async def upload_recording(
             status_code=status.HTTP_409_CONFLICT, detail="this recording is already finished"
         )
 
-    data = await request.body()
+    # Read in chunks and stop at the limit rather than buffering whatever
+    # arrives and measuring afterwards. The point of a cap is that the host
+    # never has to hold the thing being refused.
+    limit = rec_service.max_upload_bytes()
+    chunks: list[bytes] = []
+    total = 0
+    async for chunk in request.stream():
+        total += len(chunk)
+        if total > limit:
+            # Deliberately not marked failed here. `get_db` rolls the session
+            # back on any exception, so the write would vanish and the comment
+            # claiming otherwise would be the only trace of it. Left at
+            # `uploading`, which also keeps a retry possible; the hourly sweep
+            # closes it out if nobody comes back.
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"recording is larger than {settings.max_recording_upload_mb} MB",
+            )
+        chunks.append(chunk)
+
+    data = b"".join(chunks)
     if not data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="empty upload")
+
+    # Postgres shares this disk. A recording is worth less than the school
+    # being able to log in tomorrow.
+    if not rec_service.room_for(len(data)):
+        raise HTTPException(
+            status_code=status.HTTP_507_INSUFFICIENT_STORAGE,
+            detail="not enough disk space to store this recording",
+        )
 
     recording.storage_url = rec_service.store_upload(
         recording, data, request.headers.get("content-type")

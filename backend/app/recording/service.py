@@ -7,14 +7,17 @@ Both are fixed here, alongside the two housekeeping jobs the feature needs.
 
 from __future__ import annotations
 
+import shutil
 import uuid
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import Organization
 from app.common.storage import get_storage
+from app.config import settings
 from app.recording.models import Recording, RecordingStatus
 
 # How long a recording may sit half-uploaded before it is called failed. Long
@@ -23,6 +26,27 @@ from app.recording.models import Recording, RecordingStatus
 STALE_UPLOAD_HOURS = 4
 
 DEFAULT_RETENTION_DAYS = 30
+
+# Keep this much free after writing. Postgres lives on the same disk, and a
+# full disk stops the school working, not just its recordings.
+DISK_HEADROOM_BYTES = 2 * 1024**3
+
+
+def max_upload_bytes() -> int:
+    return settings.max_recording_upload_mb * 1024 * 1024
+
+
+def room_for(nbytes: int) -> bool:
+    """Whether the disk can take this file and still have room to work.
+
+    Skipped when the upload directory is not there — that means either a
+    remote storage backend, where local free space says nothing, or a fresh
+    install with nothing to protect yet.
+    """
+    root = Path(settings.upload_dir)
+    if not root.exists():
+        return True
+    return shutil.disk_usage(root).free - nbytes > DISK_HEADROOM_BYTES
 
 
 def _org_setting(org: Organization | None, key: str, fallback):
