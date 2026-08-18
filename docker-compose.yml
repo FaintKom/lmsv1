@@ -116,6 +116,11 @@ services:
       # serving the old one, so a config edit lands on disk and never reaches
       # the process. This container is pinned and deliberately not recreated by
       # ordinary deploys, which would have made that invisible for weeks.
+      # Editing the file inside changes what the container can see but not
+      # what it is running: the service definition is untouched, so `up -d`
+      # skips this container and the process keeps the config it read at
+      # startup. Restart it deliberately after a config change, and check
+      # nobody is in a lesson first (turn-tls-runbook.md).
       - ./livekit:/etc/livekit:ro
     environment:
       # Development keys. Worthless, identical for everyone, and deliberately
