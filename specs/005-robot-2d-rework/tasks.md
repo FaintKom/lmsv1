@@ -32,8 +32,8 @@ Web application, per plan.md: `backend/app/`, `backend/tests/`, `frontend/src/`,
 **Purpose**: make the worktree runnable, and add the one new setting.
 
 - [ ] T001 Install frontend dependencies in the worktree with `npm ci --prefix frontend`, and copy `.env` and `.env.local` from the main checkout — neither is in git
-- [ ] T002 [P] Add `robot_run_rate_limit: str = "60/minute"` to `backend/app/config.py`, beside the existing `sandbox_demo_rate_limit`
-- [ ] T003 [P] Document `ROBOT_RUN_RATE_LIMIT` in `.env.example`
+- [x] T002 [P] Add `robot_run_rate_limit: str = "60/minute"` to `backend/app/config.py`, beside the existing `sandbox_demo_rate_limit`
+- [x] T003 [P] Document `ROBOT_RUN_RATE_LIMIT` in `.env.example`
 
 ---
 
@@ -49,19 +49,19 @@ sandbox program, the server's replay, the search, the editor's checks.
 > Write these before the modules. They must fail against a wrong implementation,
 > not merely error on a missing import.
 
-- [ ] T004 [P] Failing tests for movement, refusals and the step allowance in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
+- [x] T004 [P] Failing tests for movement, refusals and the step allowance in `backend/tests/test_robot_sim.py` — walls and edges refuse and still consume a step (FR-025), a turn costs a step (FR-027), `steps_exhausted` ends a runaway program (FR-004)
 - [ ] T005 [P] Failing tests for items, paint and values in `backend/tests/test_robot_world.py` — `take` then `drop` restores the count (FR-024), painting twice counts once toward the goal and twice in steps (FR-033), `read` on a bare floor refuses rather than returning `0` (FR-034)
 - [ ] T006 [P] Failing tests for the win expression in `backend/tests/test_robot_win.py` — every leaf in data-model.md, and `and` / `or` / `not` over them, including a `not` given the wrong number of children
 - [ ] T007 [P] Failing tests for level validation in `backend/tests/test_robot_validate.py` — every blocker in FR-020 reported **together**, not the first one only
 
 ### Implementation
 
-- [ ] T008 Create `backend/app/exercises/robot_sim.py` with the world state, grid loading from the level shape in data-model.md, facing, and the standard-library-only rule that lets its own source run inside the sandbox (research Finding E)
-- [ ] T009 Add the movement commands to `backend/app/exercises/robot_sim.py` — `move_up`, `move_down`, `move_left`, `move_right`, `move_forward`, `turn_left`, `turn_right`, per contracts/commands.md — and the step allowance itself: every command increments the count, and reaching `max_steps` stops the run with `steps_exhausted` (FR-004). This is the simulator's own guard, distinct from the payload cap in T025
-- [ ] T010 Add items, paint and values to `backend/app/exercises/robot_sim.py` — `take`, `drop`, `paint`, `read`, `write`, with the refusal keys from contracts/commands.md
-- [ ] T011 Add the sensors to `backend/app/exercises/robot_sim.py` — `wall_ahead`, `item_here`, `at_goal`, `painted`, `value_here`
-- [ ] T012 Add the win-expression evaluator to `backend/app/exercises/robot_sim.py` over the vocabulary in data-model.md, rejecting a node shape it does not know rather than defaulting to false
-- [ ] T013 Add the command-not-offered refusal to `backend/app/exercises/robot_sim.py` — calling a command the level withholds refuses by name (FR-015) rather than raising `NameError`
+- [x] T008 Create `backend/app/exercises/robot_sim.py` with the world state, grid loading from the level shape in data-model.md, facing, and the standard-library-only rule that lets its own source run inside the sandbox (research Finding E)
+- [x] T009 Add the movement commands to `backend/app/exercises/robot_sim.py` — `move_up`, `move_down`, `move_left`, `move_right`, `move_forward`, `turn_left`, `turn_right`, per contracts/commands.md — and the step allowance itself: every command increments the count, and reaching `max_steps` stops the run with `steps_exhausted` (FR-004). This is the simulator's own guard, distinct from the payload cap in T025
+- [x] T010 Add items, paint and values to `backend/app/exercises/robot_sim.py` — `take`, `drop`, `paint`, `read`, `write`, with the refusal keys from contracts/commands.md
+- [x] T011 Add the sensors to `backend/app/exercises/robot_sim.py` — `wall_ahead`, `item_here`, `at_goal`, `painted`, `value_here`
+- [x] T012 Add the win-expression evaluator to `backend/app/exercises/robot_sim.py` over the vocabulary in data-model.md, rejecting a node shape it does not know rather than defaulting to false
+- [x] T013 Add the command-not-offered refusal to `backend/app/exercises/robot_sim.py` — calling a command the level withholds refuses by name (FR-015) rather than raising `NameError`
 - [ ] T014 [P] Create `backend/app/exercises/robot_validate.py`, returning every blocker as a key and never a sentence (FR-020, contracts/api.md)
 - [ ] T015 Rewrite `Robot2DConfig` in `backend/app/exercises/schemas.py` to the shape in data-model.md, deleting `available_blocks`, `custom_win_js`, `win_condition`, `target_steps` and `optimal_blocks`
 - [ ] T016 Add the run, preview and solve request and response schemas to `backend/app/exercises/schemas.py`, matching contracts/api.md exactly — including `answer` and `reason` on the solve response
@@ -130,7 +130,7 @@ Four blocks, four commands in the starter, no turning command anywhere.
 - [ ] T041 [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that a command outside the level's offered set refuses with `not_offered` and names the line (FR-015)
 - [ ] T042 [P] [US2] Failing test in `frontend/src/components/game/blockly/toolbox-configs.test.ts` that the toolbox is built from an explicit command list, and that a list naming no loop yields no loop category
 - [ ] T042a [P] [US2] Failing test in `backend/tests/test_robot_runner.py` that block-generated Python and hand-written Python expressing the same solution produce identical frames and step counts on one level (SC-007) — the only assertion that catches the two editors drifting apart
-- [ ] T042b [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that no command name in the vocabulary exceeds fourteen characters and none carries an object prefix (FR-011, SC-006) — one line, and it holds the contract the day someone adds `move_diagonally`
+- [x] T042b [P] [US2] Failing test in `backend/tests/test_robot_sim.py` that no command name in the vocabulary exceeds fourteen characters and none carries an object prefix (FR-011, SC-006) — one line, and it holds the contract the day someone adds `move_diagonally`
 
 ### Implementation
 
