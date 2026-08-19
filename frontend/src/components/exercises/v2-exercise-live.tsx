@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { CheckCircle, XCircle } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { startExerciseTimer, type ExerciseTimer } from "@/lib/api/exercises";
 import { useTranslation } from "@/lib/i18n/context";
@@ -71,6 +72,8 @@ interface AttemptStatus {
   attempt_count: number;
   max_attempts: number;
   max_reached: boolean;
+  /** The verdict already on record, so a solved board stops playing dumb. */
+  last?: { score: number | null; passed: boolean | null } | null;
 }
 
 export function V2ExerciseLive({
@@ -81,6 +84,7 @@ export function V2ExerciseLive({
 }: V2ExerciseLiveProps) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<AttemptStatus | null>(null);
+  const [retrying, setRetrying] = useState(false);
   // Time-on-task clock — armed once when this live exercise mounts.
   const timerRef = useRef<ExerciseTimer>(startExerciseTimer());
 
@@ -94,6 +98,12 @@ export function V2ExerciseLive({
           attempt_count: data.attempt_count ?? 0,
           max_attempts: data.max_attempts ?? 100,
           max_reached: !!data.max_reached,
+          last: data.last_submission
+            ? {
+                score: data.last_submission.score ?? null,
+                passed: data.last_submission.passed ?? null,
+              }
+            : null,
         });
       })
       .catch(() => {
@@ -148,6 +158,41 @@ export function V2ExerciseLive({
   };
 
   if (!status) return null;
+
+  // A verdict already on record renders as itself, not as an untouched board.
+  // The renderer path got this in #319 (finding 5); every V2 type on the
+  // lesson page comes through here instead, and made the same broken promise.
+  if (status.last && status.last.passed != null && !retrying) {
+    const passed = !!status.last.passed;
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface p-6 text-center">
+        {passed ? (
+          <CheckCircle className="h-10 w-10 text-primary" aria-hidden />
+        ) : (
+          <XCircle className="h-10 w-10 text-warning-fg" aria-hidden />
+        )}
+        <p className="text-lg font-bold text-text">
+          {t(passed ? "exercise.restored.passed" : "exercise.restored.notPassed")}
+        </p>
+        {status.last.score != null && (
+          <p className="text-sm text-text-muted">
+            {t("exercise.restored.score")}: {Math.round(status.last.score)}%
+          </p>
+        )}
+        {status.max_reached ? (
+          <p className="text-xs text-text-muted">{t("exercise.restored.exhausted")}</p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setRetrying(true)}
+            className="btn-pop mt-1 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-fg pointer-coarse:min-h-11"
+          >
+            {t("exercise.restored.retry")}
+          </button>
+        )}
+      </div>
+    );
+  }
 
   // Remaining attempts seed the local heart pool; the component re-syncs to
   // the server's `attempts_remaining` after every submit.
