@@ -215,8 +215,9 @@
     {
       "type": "scorm_package",
       "label": "SCORM package",
-      "$note": "No package on purpose. The previous /static/qa-fixtures/placeholder-scorm.zip was served by nobody, so the player fell back to 'ask your teacher to upload one' anyway - the same screen, reached by a 404 instead of by an empty field. Shipping a real package means authoring one that the CMI wiring can drive, which is its own piece of work.",
-      "config": {"package_url": ""},
+      "$note": "No package on purpose, and the keys are the ones the player reads: package_id and launch_url. The earlier package_url was read by nobody - scorm-package-exercise.tsx asks /scorm-import/packages/{package_id}/launch-token and opens launch_url - and pointed at /static/qa-fixtures/placeholder-scorm.zip, which 404s. Both roads led to the same 'ask your teacher to upload one' screen; this one says so honestly. Authoring a package the CMI wiring can drive is its own work.",
+      "config": {"package_id": "",
+        "launch_url": ""},
       "skipReason": "Requires a real SCORM .zip uploaded via /api/v1/scorm-import; covered by manual smoke for now."
     },
     {
