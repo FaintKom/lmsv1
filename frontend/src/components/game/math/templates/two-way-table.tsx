@@ -51,10 +51,11 @@ export default function TwoWayTable({ config, onComplete }: MathTemplateProps) {
  setResults(res);
  setChecked(true);
  const score = total > 0 ? correct / total : 0;
+ const work = { cells: { ...userValues } };
  if (correct === total && total > 0) {
- onComplete(true, 1.0);
+ onComplete(true, 1.0, work);
  } else if (correct > 0) {
- onComplete(false, score);
+ onComplete(false, score, work);
  }
  };
 

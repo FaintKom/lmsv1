@@ -954,3 +954,89 @@ async def test_slice_three_templates_are_marked_here(
         headers=auth_header(student),
     )
     assert forged.json()["passed"] is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "template,template_config,perfect,partial,partial_score",
+    [
+        (
+            "table_pattern",
+            {
+                "x_values": [1, 2, 3],
+                "y_values": [3, None, 7],
+                "answers": {"1": 5},
+                "rule_label": "Rule",
+                "rule_answer": "2x + 1",
+                "tolerance": 0.01,
+            },
+            # The rule is compared with spaces and case removed, as the widget does.
+            {"cells": {"1": 5}, "rule": "2X+1"},
+            {"cells": {"1": 5}, "rule": "x + 1"},
+            50,
+        ),
+        (
+            "two_way_table",
+            {
+                "cells": [[4, None], [None, 6]],
+                "answers": {"r0c1": 5, "r1c0": 2},
+            },
+            {"cells": {"r0c1": 5, "r1c0": 2}},
+            {"cells": {"r0c1": 5, "r1c0": 9}},
+            50,
+        ),
+        (
+            "visual_fractions",
+            {"target_numerator": 3, "target_denominator": 8},
+            {"selected": [0, 1, 2]},
+            {"selected": [0, 1]},
+            0,
+        ),
+    ],
+)
+async def test_more_maths_templates_are_marked_here(
+    client: AsyncClient,
+    db,
+    org,
+    teacher,
+    student,
+    template,
+    template_config,
+    perfect,
+    partial,
+    partial_score,
+):
+    """Three templates whose rule is exact enough to state twice without drifting.
+
+    visual_fractions has no partial credit in the widget either - three eighths is
+    three eighths or it is not - so its "partial" case is worth zero, which is the
+    point of listing the expected score per case rather than assuming one.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": template, "template_config": template_config},
+    )
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": perfect},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+    assert good.json()["passed"] is True
+
+    worse = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": partial},
+        headers=auth_header(student),
+    )
+    assert worse.json()["score"] == partial_score
+    assert worse.json()["passed"] is False

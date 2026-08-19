@@ -1446,6 +1446,95 @@ def _mark_card_sort(template_config: dict, work: dict) -> tuple[float, bool] | N
     return correct / len(cards), correct == len(cards)
 
 
+def _mark_table_pattern(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blanks in a function table, and the rule if one is asked for.
+
+    `table-pattern.tsx` counts one point per blank cell, matched against
+    `answers[index]` within `tolerance` (0.01 by default), plus one for the rule
+    when `rule_label` and `rule_answer` are both set - compared with whitespace
+    and case removed, exactly as the widget compares it.
+    """
+    answers = template_config.get("answers")
+    if not isinstance(answers, dict) or not answers:
+        return None
+    cells = work.get("cells")
+    if not isinstance(cells, dict):
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.01
+    tolerance = abs(float(tolerance))
+
+    total = 0
+    correct = 0
+    for index, expected in answers.items():
+        total += 1
+        raw = cells.get(str(index), cells.get(index))
+        try:
+            if raw is not None and abs(float(raw) - float(expected)) <= tolerance:
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+
+    rule_answer = template_config.get("rule_answer")
+    if template_config.get("rule_label") and rule_answer:
+        total += 1
+        given = str(work.get("rule") or "")
+        if _squashed(given) == _squashed(str(rule_answer)):
+            correct += 1
+
+    if total == 0:
+        return None
+    return correct / total, correct == total
+
+
+def _squashed(text: str) -> str:
+    """Lower-case with every space removed, the way the widget compares a rule."""
+    return "".join(text.split()).lower()
+
+
+def _mark_two_way_table(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blanks of a two-way table against `answers["rNcM"]`.
+
+    Whole numbers, compared exactly - `two-way-table.tsx` parses with parseInt and
+    tests equality, and a frequency table has no business with tolerances.
+    """
+    answers = template_config.get("answers")
+    cells = work.get("cells")
+    if not isinstance(answers, dict) or not answers or not isinstance(cells, dict):
+        return None
+
+    correct = 0
+    for key, expected in answers.items():
+        raw = cells.get(str(key))
+        try:
+            if raw is not None and int(raw) == int(expected):
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(answers), correct == len(answers)
+
+
+def _mark_visual_fractions(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark how many parts were shaded against the target numerator.
+
+    `visual-fractions.tsx` asks for a fraction of a whole and checks the count of
+    selected parts, not which ones - shading any three eighths is three eighths.
+    """
+    target = template_config.get("target_numerator")
+    if not isinstance(target, int) or isinstance(target, bool):
+        return None
+    if "selected" not in work:
+        return None
+
+    selected = work.get("selected")
+    count = len(selected) if isinstance(selected, list) else selected
+    if not isinstance(count, int) or isinstance(count, bool):
+        return 0.0, False
+    return (1.0, True) if count == target else (0.0, False)
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1477,6 +1566,9 @@ async def _submit_math_interactive(
         "multiple_choice_math": _mark_multiple_choice_math,
         "number_line": _mark_number_line,
         "card_sort": _mark_card_sort,
+        "table_pattern": _mark_table_pattern,
+        "two_way_table": _mark_two_way_table,
+        "visual_fractions": _mark_visual_fractions,
     }
     marker = markers.get(str(config.get("template_type") or ""))
     marked = marker(template_config, work) if marker else None

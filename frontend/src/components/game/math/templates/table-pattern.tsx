@@ -54,8 +54,13 @@ export default function TablePattern({ config, onComplete }: MathTemplateProps) 
  setRuleCorrect(ruleOk);
  setChecked(true);
  const score = total > 0 ? correct / total : 0;
- if (correct === total) onComplete(true, 1.0);
- else if (correct > 0) onComplete(false, score);
+ // The blanks and the rule go up; the server marks them (specs/012).
+ const cellsFilled: Record<string, string> = {};
+ for (let i = 0; i < yValues.length; i++) {
+ if (yValues[i] === null && userValues[i] !== undefined) cellsFilled[String(i)] = userValues[i];
+ }
+ const work = { cells: cellsFilled, rule: userRule };
+ onComplete(correct === total, correct === total ? 1.0 : score, work);
  };
 
  return (

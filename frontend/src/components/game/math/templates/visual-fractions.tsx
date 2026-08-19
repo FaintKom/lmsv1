@@ -28,9 +28,10 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
 
  const handleCheck = () => {
  setChecked(true);
- if (selected.size === targetNumerator) {
- onComplete(true, 1.0);
- }
+ // How many parts were shaded - the server checks the count, as the widget does.
+ const work = { selected: [...selected] };
+ const right = selected.size === targetNumerator;
+ onComplete(right, right ? 1.0 : 0, work);
  };
 
  const handleReset = () => {
