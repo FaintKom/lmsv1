@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
+  ClipboardCheck,
   Eye,
   EyeOff,
   FileText,
@@ -62,13 +64,16 @@ import { VideoPlayer } from "@/components/video-player";
 import ExerciseRenderer from "@/components/exercises/exercise-renderer";
 import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-panel";
 import {
+  EXERCISE_GROUPS,
   EXERCISE_TYPES_META,
   EXERCISE_TYPE_LABELS,
   getExerciseIcon,
   type ExerciseType,
 } from "@/lib/api/exercises";
+import { TEMPLATE_LIST } from "@/components/game/math/template-registry";
 import type { LessonBlock } from "@/types/api";
 import { useTranslation } from "@/lib/i18n/context";
+import { adoptDetachedExercises } from "./adopt-exercises";
 
 const BlockEditor = dynamic(
   () => import("@/components/editor/block-editor").then((m) => ({ default: m.BlockEditor })),
@@ -82,7 +87,7 @@ const BlockEditor = dynamic(
   }
 );
 
-type BlockKind = "text" | "html" | "video" | "exercise";
+type BlockKind = "text" | "html" | "video" | "exercise" | "assignment";
 type SaveStatus = "idle" | "dirty" | "saving" | "saved" | "error";
 
 interface ExerciseSummary {
@@ -157,6 +162,11 @@ export default function LessonEditorPage() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [previewMode, setPreviewMode] = useState(false);
   const [courseTitle, setCourseTitle] = useState("");
+  // Legacy typed lessons (quiz/code/file/interactive/theory without v2
+  // blocks) are edited by their dedicated builders on the course page.
+  // Autosaving an empty container here would replace their content and blank
+  // the student view — refuse instead (specs/017 FR-003).
+  const [legacyType, setLegacyType] = useState<string | null>(null);
 
   const initialLoadRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -178,9 +188,25 @@ export default function LessonEditorPage() {
         ]);
         if (cancelled) return;
         const lesson = lessonRes.data;
+        if (
+          !["text", "video"].includes(lesson.content_type) &&
+          lesson.content?.version !== 2
+        ) {
+          setLegacyType(lesson.content_type);
+          setCourseTitle(courseRes.data?.title || "");
+          setLoading(false);
+          return; // initialLoadRef stays false → autosave never fires
+        }
         setTitle(lesson.title || "");
         setDuration(lesson.duration_minutes ? String(lesson.duration_minutes) : "");
-        setBlocks(extractBlocks(lesson.content, lesson.content_type));
+        // Exercises attached outside blocks become trailing blocks here, in
+        // by-lesson order — same order students already saw (specs/017 US2).
+        setBlocks(
+          adoptDetachedExercises(
+            extractBlocks(lesson.content, lesson.content_type),
+            ((exercisesRes.data || []) as ExerciseSummary[]).map((e) => e.id)
+          )
+        );
         setExercises(exercisesRes.data || []);
         setCourseTitle(courseRes.data?.title || "");
       } catch (err) {
@@ -201,7 +227,7 @@ export default function LessonEditorPage() {
 
   /* ── Debounced lesson auto-save (title / duration / blocks structure) ── */
   const triggerSave = useCallback(() => {
-    if (!initialLoadRef.current) return;
+    if (!initialLoadRef.current || legacyType) return;
     setSaveStatus("dirty");
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
@@ -219,7 +245,7 @@ export default function LessonEditorPage() {
         console.error("autosave failed", err);
       }
     }, 1200);
-  }, [blocks, courseId, duration, lessonId, moduleId, title]);
+  }, [blocks, courseId, duration, lessonId, legacyType, moduleId, title]);
 
   useEffect(() => {
     triggerSave();
@@ -232,8 +258,12 @@ export default function LessonEditorPage() {
 
   const deleteBlock = useCallback(
     async (block: LessonBlock) => {
+      // Assignment blocks carry submissions — the warning must say so (specs/017 FR-009).
+      const isAssignment = block.type === "assignment" && block.assignment_id;
       const ok = await confirm({
-        message: t("admin.lessonEditor.deleteBlockMsg"),
+        message: isAssignment
+          ? t("admin.lessonEditor.deleteAssignmentBlockMsg")
+          : t("admin.lessonEditor.deleteBlockMsg"),
         variant: "danger",
         confirmLabel: t("common.delete"),
       });
@@ -246,9 +276,18 @@ export default function LessonEditorPage() {
           console.warn("Failed to delete exercise from server (block removed locally):", err);
         }
       }
+      if (isAssignment) {
+        try {
+          await apiClient.delete(`/assignments/${block.assignment_id}`);
+        } catch (err) {
+          toast.error(t("admin.lessonEditor.failedDeleteAssignment"));
+          console.error(err);
+          return; // keep the block so the assignment stays reachable
+        }
+      }
       setBlocks((bs) => bs.filter((b) => b.id !== block.id));
     },
-    [confirm]
+    [confirm, t]
   );
 
   const addBlock = useCallback((kind: BlockKind, position: number) => {
@@ -269,6 +308,8 @@ export default function LessonEditorPage() {
         newBlock.url = "";
       } else if (kind === "exercise") {
         newBlock.exercise_id = "";
+      } else if (kind === "assignment") {
+        newBlock.assignment_id = "";
       }
       const next = [...bs];
       next.splice(position, 0, newBlock);
@@ -276,16 +317,17 @@ export default function LessonEditorPage() {
     });
   }, []);
 
-  /* ── Instantly create an exercise of a given type and attach to a block. */
+  /* ── Instantly create an exercise of a given type and attach to a block.
+     `config` lets the picker preset e.g. a math template (specs/017 US5). */
   const createAndAttachExercise = useCallback(
-    async (blockId: string, exerciseType: ExerciseType) => {
+    async (blockId: string, exerciseType: ExerciseType, config: Record<string, unknown> = {}) => {
       const defaultTitle = `New ${EXERCISE_TYPE_LABELS[exerciseType] || exerciseType}`;
       try {
         const { data } = await apiClient.post("/exercises", {
           lesson_id: lessonId,
           exercise_type: exerciseType,
           title: defaultTitle,
-          config: {},
+          config,
         });
         updateBlock(blockId, { exercise_id: data.id });
         // Refresh exercise list so the preview/renderer has it.
@@ -330,6 +372,23 @@ export default function LessonEditorPage() {
   }
 
   const backHref = courseId ? `/admin/courses/${courseId}/edit` : "/admin/courses";
+
+  if (legacyType) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-4 text-center">
+        <p className="max-w-md text-sm text-text-muted">
+          {t("admin.lessonEditor.legacyLessonNotice")}
+        </p>
+        <button
+          onClick={() => router.push(backHref)}
+          className="rounded-lg border border-border-strong px-3 py-1.5 text-sm text-text-muted hover:border-primary hover:text-primary"
+        >
+          <ArrowLeft className="mr-1.5 inline h-4 w-4" />
+          {courseTitle || t("admin.lessonEditor.backToCourse")}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
@@ -403,9 +462,10 @@ export default function LessonEditorPage() {
                       block={block}
                       exercises={exercises}
                       previewMode={previewMode}
+                      courseId={courseId}
                       onUpdate={(patch) => updateBlock(block.id, patch)}
                       onDelete={() => deleteBlock(block)}
-                      onPickExerciseType={(t) => createAndAttachExercise(block.id, t)}
+                      onPickExerciseType={(t, cfg) => createAndAttachExercise(block.id, t, cfg)}
                       onExerciseChanged={async () => {
                         try {
                           const { data } = await apiClient.get(`/exercises/by-lesson/${lessonId}`);
@@ -475,6 +535,7 @@ function AddZone({ onAdd }: { onAdd: (kind: BlockKind) => void }) {
           <BlockTypeChip icon={<Code className="h-3 w-3" />} label="HTML" onClick={() => { onAdd("html"); setOpen(false); }} />
           <BlockTypeChip icon={<PlayCircle className="h-3 w-3" />} label="Video" onClick={() => { onAdd("video"); setOpen(false); }} />
           <BlockTypeChip icon={<Puzzle className="h-3 w-3" />} label="Exercise" onClick={() => { onAdd("exercise"); setOpen(false); }} />
+          <BlockTypeChip icon={<ClipboardCheck className="h-3 w-3" />} label="Assignment" onClick={() => { onAdd("assignment"); setOpen(false); }} />
         </div>
       )}
     </div>
@@ -507,6 +568,7 @@ function SortableBlock({
   block,
   exercises,
   previewMode,
+  courseId,
   onUpdate,
   onDelete,
   onPickExerciseType,
@@ -515,9 +577,10 @@ function SortableBlock({
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
+  courseId: string;
   onUpdate: (patch: Partial<LessonBlock>) => void;
   onDelete: () => void;
-  onPickExerciseType: (type: ExerciseType) => void;
+  onPickExerciseType: (type: ExerciseType, config?: Record<string, unknown>) => void;
   onExerciseChanged: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
@@ -552,6 +615,7 @@ function SortableBlock({
         block={block}
         exercises={exercises}
         previewMode={previewMode}
+        courseId={courseId}
         onUpdate={onUpdate}
         onPickExerciseType={onPickExerciseType}
         onExerciseChanged={onExerciseChanged}
@@ -566,6 +630,7 @@ function BlockBody({
   block,
   exercises,
   previewMode,
+  courseId,
   onUpdate,
   onPickExerciseType,
   onExerciseChanged,
@@ -573,8 +638,9 @@ function BlockBody({
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
+  courseId: string;
   onUpdate: (patch: Partial<LessonBlock>) => void;
-  onPickExerciseType: (type: ExerciseType) => void;
+  onPickExerciseType: (type: ExerciseType, config?: Record<string, unknown>) => void;
   onExerciseChanged: () => void;
 }) {
   if (block.type === "text") {
@@ -594,6 +660,16 @@ function BlockBody({
         previewMode={previewMode}
         onPickExerciseType={onPickExerciseType}
         onExerciseChanged={onExerciseChanged}
+      />
+    );
+  }
+  if (block.type === "assignment") {
+    return (
+      <AssignmentBlockBody
+        block={block}
+        previewMode={previewMode}
+        courseId={courseId}
+        onUpdate={onUpdate}
       />
     );
   }
@@ -691,9 +767,11 @@ function ExerciseBlockBody({
   block: LessonBlock;
   exercises: ExerciseSummary[];
   previewMode: boolean;
-  onPickExerciseType: (type: ExerciseType) => void;
+  onPickExerciseType: (type: ExerciseType, config?: Record<string, unknown>) => void;
   onExerciseChanged: () => void;
 }) {
+  const { t } = useTranslation();
+  const [mathExpanded, setMathExpanded] = useState(false);
   const exercise = block.exercise_id ? exercises.find((e) => e.id === block.exercise_id) : null;
 
   if (previewMode) {
@@ -714,28 +792,69 @@ function ExerciseBlockBody({
     );
   }
 
-  // Edit mode, no exercise yet: show inline type picker grid right inside the block.
+  // Edit mode, no exercise yet: grouped type picker (specs/017 US4/US5).
   if (!exercise) {
+    const metaByValue = Object.fromEntries(EXERCISE_TYPES_META.map((m) => [m.value, m]));
     return (
       <div className="rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
           Pick exercise type — created instantly
         </p>
-        <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
-          {EXERCISE_TYPES_META.map((t) => {
-            const Icon = t.Icon;
-            return (
-              <button
-                key={t.value}
-                onClick={() => onPickExerciseType(t.value)}
-                className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
-                title={t.label}
-              >
-                <Icon className="h-5 w-5" strokeWidth={1.75} />
-                <span className="leading-tight">{t.label}</span>
-              </button>
-            );
-          })}
+        <div className="space-y-3">
+          {EXERCISE_GROUPS.map((group) => (
+            <div key={group.key}>
+              <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+                {t(group.labelKey)}
+              </p>
+              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+                {group.types.map((value) => {
+                  const meta = metaByValue[value];
+                  if (!meta) return null;
+                  const Icon = meta.Icon;
+                  const isMath = value === "math_interactive";
+                  return (
+                    <button
+                      key={value}
+                      onClick={() =>
+                        isMath ? setMathExpanded((x) => !x) : onPickExerciseType(value)
+                      }
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-bg px-2 py-2.5 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+                      title={meta.label}
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={1.75} />
+                      <span className="leading-tight">
+                        {meta.label}
+                        {isMath && (
+                          <ChevronDown
+                            className={`ml-0.5 inline h-3 w-3 transition-transform ${mathExpanded ? "rotate-180" : ""}`}
+                          />
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Math Interactive is a family of templates — show them here
+                  so "Number Line" is findable from the catalogue (US5). */}
+              {group.key === "math" && mathExpanded && (
+                <div className="mt-1.5 grid grid-cols-4 gap-1.5 rounded-lg border border-border-strong bg-surface p-2 sm:grid-cols-6">
+                  {TEMPLATE_LIST.map(({ type, label, Icon: TplIcon }) => (
+                    <button
+                      key={type}
+                      onClick={() =>
+                        onPickExerciseType("math_interactive", { template_type: type })
+                      }
+                      className="flex flex-col items-center gap-1.5 rounded-lg px-2 py-2 text-center text-2xs text-text-muted transition-colors hover:bg-primary-soft hover:text-primary"
+                      title={label}
+                    >
+                      <TplIcon className="h-4 w-4" strokeWidth={1.75} />
+                      <span className="leading-tight">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -752,6 +871,192 @@ function ExerciseBlockBody({
         </span>
       </div>
       <ExerciseConfigPanel exerciseId={exercise.id} onSaved={onExerciseChanged} />
+    </div>
+  );
+}
+
+/* ─── Assignment block (specs/017 US3) ───────────────────────────────── */
+
+interface AssignmentData {
+  id: string;
+  title: string;
+  description: string;
+  due_date: string;
+  max_score: number;
+  allow_late: boolean;
+}
+
+function AssignmentBlockBody({
+  block,
+  previewMode,
+  courseId,
+  onUpdate,
+}: {
+  block: LessonBlock;
+  previewMode: boolean;
+  courseId: string;
+  onUpdate: (patch: Partial<LessonBlock>) => void;
+}) {
+  const { t } = useTranslation();
+  const [assignment, setAssignment] = useState<AssignmentData | null>(null);
+  const [orphaned, setOrphaned] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", due_date: "", max_score: "100", allow_late: false });
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!block.assignment_id) return;
+    apiClient
+      .get(`/assignments/${block.assignment_id}`)
+      .then(({ data }) => {
+        if (cancelled) return;
+        setAssignment(data);
+        setForm({
+          title: data.title,
+          description: data.description || "",
+          due_date: data.due_date ? data.due_date.slice(0, 16) : "",
+          max_score: String(data.max_score ?? 100),
+          allow_late: !!data.allow_late,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setOrphaned(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [block.assignment_id]);
+
+  const save = async () => {
+    if (!form.title.trim() || !form.due_date) return;
+    setBusy(true);
+    const payload = {
+      course_id: courseId,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      due_date: new Date(form.due_date).toISOString(),
+      max_score: parseInt(form.max_score, 10) || 100,
+      allow_late: form.allow_late,
+    };
+    try {
+      if (block.assignment_id) {
+        const { data } = await apiClient.put(`/assignments/${block.assignment_id}`, payload);
+        setAssignment(data);
+        setEditing(false);
+      } else {
+        const { data } = await apiClient.post("/assignments", payload);
+        setAssignment(data);
+        onUpdate({ assignment_id: data.id });
+      }
+      toast.success(t("admin.lessonEditor.assignmentSaved"));
+    } catch (err) {
+      toast.error(t("admin.lessonEditor.failedSaveAssignment"));
+      console.error(err);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (orphaned) {
+    return (
+      <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-4 text-sm text-text-subtle">
+        {t("admin.lessonEditor.assignmentRemoved")}
+      </div>
+    );
+  }
+
+  // Summary card (preview mode, or saved and not editing)
+  if (assignment && (previewMode || !editing)) {
+    return (
+      <div className="rounded-lg border border-border-strong bg-surface-2 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2.5">
+            <ClipboardCheck className="mt-0.5 h-5 w-5 text-primary" strokeWidth={1.75} />
+            <div>
+              <p className="text-sm font-semibold text-text">{assignment.title}</p>
+              <p className="mt-0.5 text-xs text-text-muted">
+                {t("admin.lessonEditor.assignmentDue")}{" "}
+                {new Date(assignment.due_date).toLocaleString()} ·{" "}
+                {assignment.max_score} {t("admin.lessonEditor.assignmentPoints")}
+              </p>
+              {assignment.description && (
+                <p className="mt-1 text-xs text-text-subtle">{assignment.description}</p>
+              )}
+            </div>
+          </div>
+          {!previewMode && (
+            <button
+              onClick={() => setEditing(true)}
+              className="rounded-lg border border-border-strong px-2.5 py-1 text-xs text-text-muted hover:border-primary hover:text-primary"
+            >
+              {t("common.edit")}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (previewMode) {
+    return (
+      <div className="rounded-lg border border-dashed border-border-strong bg-surface-2 p-4 text-sm italic text-text-subtle">
+        {t("admin.lessonEditor.assignmentEmpty")}
+      </div>
+    );
+  }
+
+  // Create / edit form
+  return (
+    <div className="space-y-2 rounded-lg border-2 border-dashed border-primary-soft bg-primary-soft/20 p-4">
+      <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+        {t("admin.lessonEditor.assignmentBlockTitle")}
+      </p>
+      <input
+        type="text"
+        value={form.title}
+        onChange={(e) => setForm({ ...form, title: e.target.value })}
+        placeholder={t("admin.lessonEditor.assignmentTitlePlaceholder")}
+        className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
+      />
+      <textarea
+        value={form.description}
+        onChange={(e) => setForm({ ...form, description: e.target.value })}
+        placeholder={t("admin.lessonEditor.assignmentDescPlaceholder")}
+        rows={2}
+        className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-primary focus:outline-none"
+      />
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <input
+          type="datetime-local"
+          value={form.due_date}
+          onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+          className="rounded-lg border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+        />
+        <input
+          type="number"
+          value={form.max_score}
+          onChange={(e) => setForm({ ...form, max_score: e.target.value })}
+          min={1}
+          className="w-20 rounded-lg border border-border-strong px-2 py-1.5 text-sm focus:border-primary focus:outline-none"
+          title={t("admin.lessonEditor.assignmentPoints")}
+        />
+        <label className="flex items-center gap-1.5 text-xs text-text-muted">
+          <input
+            type="checkbox"
+            checked={form.allow_late}
+            onChange={(e) => setForm({ ...form, allow_late: e.target.checked })}
+          />
+          {t("admin.lessonEditor.assignmentAllowLate")}
+        </label>
+        <button
+          onClick={save}
+          disabled={busy || !form.title.trim() || !form.due_date}
+          className="ml-auto rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+        >
+          {busy ? t("common.saving") : t("common.save")}
+        </button>
+      </div>
     </div>
   );
 }

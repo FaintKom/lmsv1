@@ -191,40 +191,59 @@ export const EXERCISE_TYPE_COLORS: Record<ExerciseType, string> = {
 // library filter, course-editor "create exercise" picker, lesson WYSIWYG)
 // iterate this list. `Icon` is a lucide-react component — render as
 // `<meta.Icon className="..." />`. No emoji.
+export type ExerciseGroupKey = "basic" | "math" | "languages" | "programming" | "scorm";
+
 export interface ExerciseTypeMeta {
  value: ExerciseType;
  label: string;
  Icon: LucideIcon;
+ group: ExerciseGroupKey;
 }
 
 export const EXERCISE_TYPES_META: ExerciseTypeMeta[] = [
- { value: "quiz", label: "Quiz", Icon: ClipboardList },
- { value: "code_challenge", label: "Code Challenge", Icon: Code },
- { value: "matching", label: "Matching", Icon: Puzzle },
- { value: "ordering", label: "Ordering", Icon: ArrowUpDown },
- { value: "fill_blanks", label: "Fill Blanks", Icon: PenLine },
- { value: "true_false", label: "True/False", Icon: ToggleLeft },
- { value: "categorize", label: "Categorize", Icon: FolderOpen },
- { value: "file_upload", label: "File Upload", Icon: Upload },
- { value: "robot_2d", label: "2D Robot", Icon: Bot },
- { value: "math_interactive", label: "Math Interactive", Icon: Calculator },
- { value: "math_stepwise", label: "Math Step-by-Step", Icon: Sigma },
- { value: "math_system", label: "System of Equations", Icon: Sigma },
- { value: "stereometry", label: "Solids", Icon: Box },
- { value: "world_3d", label: "3D World", Icon: Box },
- { value: "translation", label: "Translation", Icon: Languages },
- { value: "sentence_builder", label: "Sentence Builder", Icon: Type },
- { value: "dialogue", label: "Dialogue", Icon: MessageCircle },
- { value: "conjugation", label: "Conjugation", Icon: Table },
- { value: "reading", label: "Reading", Icon: BookOpenText },
- { value: "web_editor", label: "Web Editor", Icon: Globe },
- { value: "scorm_package", label: "SCORM / xAPI", Icon: Package },
- { value: "srs_flashcard", label: "Flashcards (SRS)", Icon: Layers },
- { value: "crossword", label: "Crossword", Icon: Grid3x3 },
- { value: "word_search", label: "Word Search", Icon: Search },
- { value: "map_pin_drop", label: "Map Pin Drop", Icon: MapPin },
- { value: "bubble_sheet", label: "Bubble Sheet", Icon: CircleDot },
+ { value: "quiz", label: "Quiz", Icon: ClipboardList, group: "basic" },
+ { value: "code_challenge", label: "Code Challenge", Icon: Code, group: "programming" },
+ { value: "matching", label: "Matching", Icon: Puzzle, group: "basic" },
+ { value: "ordering", label: "Ordering", Icon: ArrowUpDown, group: "basic" },
+ { value: "fill_blanks", label: "Fill Blanks", Icon: PenLine, group: "basic" },
+ { value: "true_false", label: "True/False", Icon: ToggleLeft, group: "basic" },
+ { value: "categorize", label: "Categorize", Icon: FolderOpen, group: "basic" },
+ { value: "file_upload", label: "File Upload", Icon: Upload, group: "basic" },
+ { value: "robot_2d", label: "2D Robot", Icon: Bot, group: "programming" },
+ { value: "math_interactive", label: "Math Interactive", Icon: Calculator, group: "math" },
+ { value: "math_stepwise", label: "Math Step-by-Step", Icon: Sigma, group: "math" },
+ { value: "math_system", label: "System of Equations", Icon: Sigma, group: "math" },
+ { value: "stereometry", label: "Solids", Icon: Box, group: "math" },
+ { value: "world_3d", label: "3D World", Icon: Box, group: "programming" },
+ { value: "translation", label: "Translation", Icon: Languages, group: "languages" },
+ { value: "sentence_builder", label: "Sentence Builder", Icon: Type, group: "languages" },
+ { value: "dialogue", label: "Dialogue", Icon: MessageCircle, group: "languages" },
+ { value: "conjugation", label: "Conjugation", Icon: Table, group: "languages" },
+ { value: "reading", label: "Reading", Icon: BookOpenText, group: "languages" },
+ { value: "web_editor", label: "Web Editor", Icon: Globe, group: "programming" },
+ { value: "scorm_package", label: "SCORM / xAPI", Icon: Package, group: "scorm" },
+ { value: "srs_flashcard", label: "Flashcards (SRS)", Icon: Layers, group: "languages" },
+ { value: "crossword", label: "Crossword", Icon: Grid3x3, group: "languages" },
+ { value: "word_search", label: "Word Search", Icon: Search, group: "languages" },
+ { value: "map_pin_drop", label: "Map Pin Drop", Icon: MapPin, group: "basic" },
+ { value: "bubble_sheet", label: "Bubble Sheet", Icon: CircleDot, group: "basic" },
 ];
+
+// Subject groups for pickers/filters, derived from the meta so the two can
+// never drift (specs/017 US4). Label text comes from i18n via labelKey.
+export interface ExerciseGroup {
+ key: ExerciseGroupKey;
+ labelKey: string;
+ types: ExerciseType[];
+}
+
+const GROUP_ORDER: ExerciseGroupKey[] = ["basic", "math", "languages", "programming", "scorm"];
+
+export const EXERCISE_GROUPS: ExerciseGroup[] = GROUP_ORDER.map((key) => ({
+ key,
+ labelKey: `exerciseGroups.${key}`,
+ types: EXERCISE_TYPES_META.filter((m) => m.group === key).map((m) => m.value),
+}));
 
 /** Resolve a Lucide icon component for a given exercise type. */
 export function getExerciseIcon(type: ExerciseType): LucideIcon {

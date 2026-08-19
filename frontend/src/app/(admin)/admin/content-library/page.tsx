@@ -53,7 +53,7 @@ import {
  exercisesApi,
  EXERCISE_TYPE_LABELS,
  EXERCISE_TYPE_COLORS,
- ALL_EXERCISE_TYPES,
+ EXERCISE_GROUPS,
  type Exercise,
  type ExerciseType,
 } from "@/lib/api/exercises";
@@ -90,7 +90,6 @@ const TYPE_ICONS: Record<ExerciseType, typeof FileText> = {
  bubble_sheet: CircleDot,
 };
 
-const ALL_TYPES: ExerciseType[] = ALL_EXERCISE_TYPES;
 
 // ─── Types ───
 
@@ -563,7 +562,7 @@ function ExercisesTab() {
  </div>
  </div>
 
- <div className="mt-3 flex flex-wrap gap-2">
+ <div className="mt-3 space-y-2">
  <button
  onClick={() => { setActiveType("all"); setPage(1); }}
  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -574,7 +573,13 @@ function ExercisesTab() {
  >
  {t("admin.contentLibrary.allLabel")} ({total})
  </button>
- {ALL_TYPES.map((type) => {
+ {/* Same five subject groups as the exercise picker (specs/017 US4) */}
+ {EXERCISE_GROUPS.map((group) => (
+ <div key={group.key} className="flex flex-wrap items-center gap-2">
+ <span className="w-28 shrink-0 text-2xs font-semibold uppercase tracking-wider text-text-subtle">
+ {t(group.labelKey)}
+ </span>
+ {group.types.map((type) => {
  const Icon = TYPE_ICONS[type];
  return (
  <button
@@ -591,6 +596,8 @@ function ExercisesTab() {
  </button>
  );
  })}
+ </div>
+ ))}
  </div>
  </CardContent>
  </Card>
