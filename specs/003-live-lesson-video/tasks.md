@@ -445,6 +445,12 @@ small, and every one of them broke the feature completely.
 - [x] T116 Admin-only deletion of recordings (FR-040): endpoint that removes
   bytes and row together, refused to teachers — with the teacher refusal as
   the control — and a delete control on the recordings surfaces for admins
+- [x] T118 The density pass broke the design guide's touch rule: controls
+  shrank to ~26px while §8 requires 44×44 on touch, and two new inputs lost
+  the system focus ring (§14). Found by auditing against
+  docs/LMS_UX_DESIGN_GUIDE.md after the owner asked whether it had been used —
+  it had not; the lesson is in tasks/lessons.md. Fix: pointer-coarse sizing so
+  fingers get 44px while mice keep the density; focus rings restored
 - [x] T117 Compact the teacher's console (FR-041): measure what overflows at a
   laptop viewport, tighten the group tab — media panel, split row, roster,
   class message — so everything is on screen and only the roster scrolls

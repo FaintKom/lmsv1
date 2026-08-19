@@ -766,13 +766,13 @@ export default function TeacherLivePage() {
                     placeholder={t("live.messageAll")}
                     value={classMsg}
                     onChange={(e) => setClassMsg(e.target.value)}
-                    className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface px-2.5 text-xs text-text placeholder:text-text-subtle focus:border-border-focus focus:outline-none"
+                    className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface px-2.5 text-xs text-text placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft pointer-coarse:h-11"
                   />
                   <button
                     type="submit"
                     disabled={!classMsg.trim()}
                     aria-label={t("live.messageAll")}
-                    className="btn-pop flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50"
+                    className="btn-pop flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50 pointer-coarse:h-11 pointer-coarse:w-11"
                   >
                     <SendHorizonal size={15} aria-hidden />
                   </button>

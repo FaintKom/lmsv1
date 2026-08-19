@@ -307,7 +307,7 @@ export default function StudentLessonPage() {
                 setChatUnread(0);
               }}
               aria-label={t("live.chat.title")}
-              className="relative inline-flex h-10 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-3 text-xs font-bold text-text lg:hidden"
+              className="relative inline-flex h-10 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-3 text-xs font-bold text-text pointer-coarse:h-11 lg:hidden"
             >
               <MessageSquare size={15} aria-hidden />
               {chatUnread > 0 && (
@@ -333,7 +333,7 @@ export default function StudentLessonPage() {
           <button
             onClick={() => setPollResult(null)}
             aria-label={t("common.close")}
-            className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-2"
+            className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-2 pointer-coarse:h-11 pointer-coarse:w-11"
           >
             ✕
           </button>

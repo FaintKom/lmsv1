@@ -123,7 +123,7 @@ export function RecordingIndicator({
           type="button"
           onClick={() => (handle ? end() : begin())}
           disabled={busy}
-          className="btn-pop inline-flex items-center gap-1 rounded-sm border border-border bg-surface px-2 py-1 text-3xs font-bold text-text disabled:opacity-50"
+          className="btn-pop inline-flex items-center gap-1 rounded-sm border border-border bg-surface px-2 py-1 text-3xs font-bold text-text disabled:opacity-50 pointer-coarse:min-h-11 pointer-coarse:px-3 pointer-coarse:text-2xs"
         >
           {handle ? <Square size={13} aria-hidden /> : <Circle size={13} aria-hidden />}
           {handle ? t("live.media.recordStop") : t("live.media.recordStart")}

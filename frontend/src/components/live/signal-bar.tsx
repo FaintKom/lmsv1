@@ -41,7 +41,7 @@ export function SignalBar({
     <button
       key={type}
       onClick={() => void toggle(type)}
-      className={`inline-flex items-center gap-1.5 rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
+      className={`inline-flex min-h-11 items-center gap-1.5 rounded-pill px-4 py-2 text-sm font-bold transition-colors ${
         active === type
           ? "btn-pop bg-primary text-primary-fg"
           : "border-2 border-border bg-surface text-text hover:border-green-300"
@@ -59,7 +59,7 @@ export function SignalBar({
         title={label}
         aria-label={label}
         aria-pressed={active === type}
-        className={`inline-flex h-10 items-center gap-1.5 rounded-pill px-3 text-xs font-bold transition-colors ${
+        className={`inline-flex h-10 items-center gap-1.5 rounded-pill px-3 text-xs font-bold transition-colors pointer-coarse:h-11 ${
           active === type
             ? "btn-pop bg-primary text-primary-fg"
             : "border-2 border-border bg-surface text-text hover:border-green-300"
@@ -89,7 +89,7 @@ export function SignalBar({
         {btn("done", t("live.signal.done"), Check)}
         <button
           onClick={() => setAsking(true)}
-          className="inline-flex items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-pill border-2 border-border bg-surface px-4 py-2 text-sm font-bold text-text transition-colors hover:border-green-300"
         >
           <MessageCircleQuestion size={16} /> {t("live.ask")}
         </button>

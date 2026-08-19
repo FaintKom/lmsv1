@@ -124,7 +124,7 @@ export default function RecordingsPage() {
                   }}
                   disabled={destroy.isPending}
                   aria-label={t("recordings.delete")}
-                  className="btn-pop flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-surface text-clay-700 hover:bg-danger-soft disabled:opacity-40"
+                  className="btn-pop flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border bg-surface text-clay-700 hover:bg-danger-soft disabled:opacity-40 pointer-coarse:h-11 pointer-coarse:w-11"
                 >
                   <Trash2 size={14} aria-hidden />
                 </button>
