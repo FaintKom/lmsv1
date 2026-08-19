@@ -133,10 +133,17 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
 
+      # No --with-deps. On ubuntu-24.04 runners every Chromium library is
+      # already present, so the flag adds exactly nine font packages
+      # (fonts-ipafont-gothic, xfonts-cyrillic and friends) and one apt
+      # round-trip to azure.archive.ubuntu.com. That round-trip stalled twice
+      # on 2026-08-19 — 3.5 MB took five minutes and the step hit its ceiling,
+      # so the suite never ran. Nothing here asserts pixels, so the missing
+      # CJK and Thai glyphs cost us nothing.
       - name: Install Playwright browser
         working-directory: frontend
         timeout-minutes: 8
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Run Playwright E2E
         working-directory: frontend
