@@ -292,6 +292,43 @@ test("pupil solves it in Python, and their print reaches them", async ({ page })
 });
 
 /**
+ * The world says why it refused, in words.
+ *
+ * The character has always shuddered when a command was refused and never said
+ * why — a wall, a closed door, the edge of the board and a step too high looked
+ * identical. The reason has been on the frame all along; nothing translated it.
+ *
+ * Before the submit test, because submitting completes the exercise and takes
+ * the editor away.
+ */
+test("the pupil is told why the world refused", async ({ page }) => {
+  await authenticate(page.context(), STUDENT);
+  await page.goto(`${BASE_URL}/courses/${courseId}/lessons/${lessonId}`);
+
+  await page.getByRole("button", { name: /python/i }).first().click();
+  const editor = page.locator(".monaco-editor").first();
+  await editor.waitFor({ state: "visible", timeout: 20_000 });
+
+  const run = async (source: string) => {
+    await editor.click();
+    await page.keyboard.press("ControlOrMeta+a");
+    await page.keyboard.insertText(source);
+    await page.getByRole("button", { name: /^run$/i }).click();
+  };
+
+  // Facing north at the near edge; turning left faces west, and west is off the
+  // board.
+  await run("turn_left()\nmove_forward()\n");
+  await expect(page.getByText(/edge of the board/i)).toBeVisible({ timeout: 30_000 });
+
+  // The control: a program that is not refused says nothing about edges. Without
+  // it, a line showing the same text always would pass the assertion above.
+  await run(PYTHON_SOLUTION);
+  await expect(page.getByText(/level complete/i)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/edge of the board/i)).toHaveCount(0);
+});
+
+/**
  * Runs after the Python one on purpose: running is free and leaves the
  * exercise untouched, but submitting completes it, and a completed exercise
  * no longer offers the editor to open again.

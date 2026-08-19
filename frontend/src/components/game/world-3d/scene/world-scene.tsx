@@ -115,7 +115,7 @@ export default function WorldScene({ state, isRunning }: WorldSceneProps) {
         palette={palette}
         gradient={gradient}
         reducedMotion={reducedMotion}
-        refused={state.lastRefusal}
+        refused={state.refusal !== null}
       />
 
       {/* Grounding, without a shadow map: one soft pool under everything. */}

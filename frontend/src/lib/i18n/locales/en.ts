@@ -831,6 +831,10 @@ const en: TranslationMap = {
  "Nobody has finished this level yet. Write a solution below so it can be checked.",
  "robot.blocker.runner_unavailable": "Could not check the level just now. Try again.",
  // ─── The 3D level editor ──────────────────────────────────────────
+ "game.refused.wall": "A wall is in the way.",
+ "game.refused.edge": "That is the edge of the board.",
+ "game.refused.door_closed": "The door is shut. Find the button that opens it.",
+ "game.refused.too_high": "That step is too high. Walking climbs one floor, jumping two.",
  "world.climb.one": "climbs one floor",
  "world.climb.two": "climbs two floors",
  "world.climbHint": "Walking climbs one floor, jumping two. Neither goes higher.",

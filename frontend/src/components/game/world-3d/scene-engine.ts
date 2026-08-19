@@ -57,8 +57,15 @@ export interface WorldState {
   itemsLeft: number;
   goalReached: boolean;
   stepsUsed: number;
-  /** Drives the bump. True when the last command was refused. */
-  lastRefusal: boolean;
+  /**
+   * Why the last command was refused, or null when it was not.
+   *
+   * A code, never a sentence — `wall`, `edge`, `door_closed`, `too_high` — so
+   * each of the six locales says it its own way. It drives the character's bump
+   * and the line the pupil reads, and it clears the moment a command succeeds,
+   * which is what stops a stale complaint sitting under a moving character.
+   */
+  refusal: string | null;
 }
 
 /** Radians to rotate the character so it faces its direction. */
@@ -96,7 +103,7 @@ export function initialState(config: Record<string, unknown>): WorldState {
     itemsLeft: totalItems,
     goalReached: false,
     stepsUsed: 0,
-    lastRefusal: false,
+    refusal: null,
   };
 }
 
@@ -130,7 +137,7 @@ export function stateAt(
     state.player.motion = frame.motion;
     state.itemsLeft = frame.items_left;
     state.stepsUsed = frame.i + 1;
-    state.lastRefusal = !frame.ok;
+    state.refusal = frame.ok ? null : frame.msg;
   }
 
   state.goalReached = won && frames.length > 0 && shown.length === frames.length;

@@ -232,7 +232,7 @@ export default function GridRenderer({
  {/* Robot character */}
  {!editMode && (
  <g
- className={state.lastCollision ? "robot-shake" : ""}
+ className={state.collision !== null ? "robot-shake" : ""}
  style={{
  transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
  transform: `translate(${pad + robot.x * cs + cs / 2}px, ${pad + robot.y * cs + cs / 2}px)`,
@@ -247,13 +247,13 @@ export default function GridRenderer({
 
  {/* Body outer ring */}
  <circle r={cs * 0.34}
- fill={state.lastCollision ? "#ef4444" : "#4C97FF"}
+ fill={state.collision !== null ? "#ef4444" : "#4C97FF"}
  filter="url(#robotGlow)"
  style={{ transition: "fill 0.3s" }} />
 
  {/* Body inner (lighter) */}
  <circle r={cs * 0.28}
- fill={state.lastCollision ? "#f87171" : "#6bb3ff"} />
+ fill={state.collision !== null ? "#f87171" : "#6bb3ff"} />
 
  {/* Visor / face area */}
  <ellipse rx={cs * 0.22} ry={cs * 0.16} cy={-cs * 0.02}
@@ -270,7 +270,7 @@ export default function GridRenderer({
  {state.goalReached ? (
  <path d={`M ${-cs * 0.09} ${cs * 0.06} Q 0 ${cs * 0.16} ${cs * 0.09} ${cs * 0.06}`}
  fill="none" stroke="#1e3a5f" strokeWidth={2} strokeLinecap="round" />
- ) : state.lastCollision ? (
+ ) : state.collision !== null ? (
  <ellipse cy={cs * 0.08} rx={cs * 0.04} ry={cs * 0.05} fill="#1e3a5f" />
  ) : (
  <path d={`M ${-cs * 0.06} ${cs * 0.06} Q 0 ${cs * 0.11} ${cs * 0.06} ${cs * 0.06}`}

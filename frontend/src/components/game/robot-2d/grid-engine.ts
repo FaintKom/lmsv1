@@ -54,8 +54,15 @@ export interface GridState {
   goalReached: boolean;
   stepsUsed: number;
   trail: TrailPoint[];
-  /** Drives the shake. True when the last command was refused. */
-  lastCollision: boolean;
+  /**
+   * Why the last command was refused, or null when it was not.
+   *
+   * A code, never a sentence — `wall`, `edge` — so each of the six locales says
+   * it its own way. It drives the shake and the line the pupil reads, and it
+   * clears the moment a command succeeds, so a stale complaint cannot sit under
+   * a moving robot.
+   */
+  collision: string | null;
 }
 
 /** The level as the pupil finds it, before their program runs. */
@@ -82,7 +89,7 @@ export function initialState(config: Record<string, unknown>): GridState {
     goalReached: false,
     stepsUsed: 0,
     trail: [{ x, y, success: true }],
-    lastCollision: false,
+    collision: null,
   };
 }
 
@@ -113,7 +120,7 @@ export function stateAt(
     state.robot.direction = frame.facing;
     state.robot.collected = state.totalItems - frame.items_left;
     state.stepsUsed = frame.i + 1;
-    state.lastCollision = !frame.ok;
+    state.collision = frame.ok ? null : frame.msg;
     state.trail.push({ x: frame.x, y: frame.y, success: frame.ok });
   }
 
