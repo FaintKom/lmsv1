@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-19
 
-**Status**: Slices 1 and 2 shipped (#372, #376); slice 3 in progress (#378)
+**Status**: Thirteen of sixteen templates marked; three left to a person, each with its reason
 
 **Input**: The follow-up named in `specs/010-game-verdict-not-from-client/spec.md` and in the corner-case audit.
 
@@ -101,7 +101,7 @@ current state is defensible — nothing can be forged, and the work reaches a hu
 
 ## Progress, 2026-08-19
 
-Ten of the sixteen templates are marked on the server:
+Thirteen of the sixteen templates are marked on the server:
 
 | Marked here | The rule, taken from its widget |
 |---|---|
@@ -115,16 +115,23 @@ Ten of the sixteen templates are marked on the server:
 | `visual_fractions` | the count of shaded parts against the numerator |
 | `graph_transform` | three parameters within tolerance (0.3), a third each |
 | `inequality_graph` | slope, intercept and shaded side, a third each |
+| `arithmetic_puzzle` | the blank in each equation against its own answer |
+| `venn_diagram` | each blank region, exactly, with `both` read as `intersection` |
+| `equation_balance` | the two pans come out equal, or they do not |
 
-Still unmarked, and recorded for the teacher instead:
+Three stay unmarked, recorded for the teacher instead, and each has a reason
+rather than a backlog entry:
 
 - **`equation_solver`** — its score counts hints taken and wrong turns made in the
   page. The server sees none of that, and inventing a number is worse than saying
   a person should look.
-- **`equation_balance`**, **`arithmetic_puzzle`**, **`venn_diagram`**,
-  **`function_graph`**, **`scatter_plot`** — each needs its own reading before
-  anything is claimed about it. `scatter_plot` has three modes, only one of which
-  has a numeric key; `function_graph` matches a curve rather than a value.
+- **`scatter_plot`** — three modes behind one template type. Only `best_fit` has a
+  numeric key; `read_value` and `correlation` are judged against the shape of the
+  data, and marking one mode while silently failing the others is worse than
+  marking none.
+- **`function_graph`** — the pupil matches a curve, not a value. What counts as
+  close enough is a teaching decision nobody has made yet, and the widget's own
+  answer is a tolerance somebody picked while building the widget.
 
 The forgery stays closed for all sixteen either way: a `game_result` with no work
 behind it is recorded unmarked, which every marked template's test asserts.

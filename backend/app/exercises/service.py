@@ -1596,6 +1596,90 @@ def _mark_inequality_graph(template_config: dict, work: dict) -> tuple[float, bo
     return hits / 3, hits == 3
 
 
+def _mark_arithmetic_puzzle(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blank in each equation against its own `answer`.
+
+    `arithmetic-puzzle.tsx` parses each entry as a whole number and compares it
+    with `equations[i].answer`, and only calls the puzzle solved when every row
+    is right. The legacy `rows` shape is converted in the widget before this key
+    exists, so a config carrying only `rows` is declined rather than guessed at.
+    """
+    equations = template_config.get("equations")
+    values = work.get("values")
+    if not isinstance(equations, list) or not equations or not isinstance(values, dict):
+        return None
+
+    correct = 0
+    for i, equation in enumerate(equations):
+        if not isinstance(equation, dict):
+            continue
+        raw = values.get(str(i), values.get(i))
+        try:
+            if raw is not None and int(raw) == int(equation.get("answer")):
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(equations), correct == len(equations)
+
+
+def _mark_venn_diagram(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the blank regions against `answers[region]`, whole numbers, exactly.
+
+    `venn-diagram.tsx` accepts `both` as an alias for `intersection`, so the same
+    aliasing happens here or a pupil answering a legacy exercise is marked wrong
+    for the config's spelling.
+    """
+    answers = template_config.get("answers")
+    regions = work.get("regions")
+    if not isinstance(answers, dict) or not answers or not isinstance(regions, dict):
+        return None
+
+    def alias(key: str) -> str:
+        return "intersection" if key == "both" else key
+
+    given = {alias(str(k)): v for k, v in regions.items()}
+    correct = 0
+    for key, expected in answers.items():
+        raw = given.get(alias(str(key)))
+        try:
+            if raw is not None and int(raw) == int(expected):
+                correct += 1
+        except (TypeError, ValueError):
+            continue
+    return correct / len(answers), correct == len(answers)
+
+
+def _mark_equation_balance(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark a balanced scale: the two sides have to come out equal.
+
+    `equation-balance.tsx` sums the fixed terms with whatever the pupil added to
+    each side and calls it solved when the sums match. It scores nothing partial,
+    and neither does this - a scale is level or it is not.
+    """
+    left_fixed = template_config.get("left_fixed")
+    right_fixed = template_config.get("right_fixed")
+    if not isinstance(left_fixed, list) or not isinstance(right_fixed, list):
+        return None
+    if "left_added" not in work and "right_added" not in work:
+        return None
+
+    def total(fixed: list, added: object) -> float | None:
+        out = 0.0
+        for value in list(fixed) + (added if isinstance(added, list) else []):
+            try:
+                out += float(value)
+            except (TypeError, ValueError):
+                return None
+        return out
+
+    left = total(left_fixed, work.get("left_added"))
+    right = total(right_fixed, work.get("right_added"))
+    if left is None or right is None:
+        return 0.0, False
+    balanced = abs(left - right) < 1e-9
+    return (1.0, True) if balanced else (0.0, False)
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1632,6 +1716,9 @@ async def _submit_math_interactive(
         "visual_fractions": _mark_visual_fractions,
         "graph_transform": _mark_graph_transform,
         "inequality_graph": _mark_inequality_graph,
+        "arithmetic_puzzle": _mark_arithmetic_puzzle,
+        "venn_diagram": _mark_venn_diagram,
+        "equation_balance": _mark_equation_balance,
     }
     marker = markers.get(str(config.get("template_type") or ""))
     marked = marker(template_config, work) if marker else None

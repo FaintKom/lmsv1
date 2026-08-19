@@ -79,8 +79,12 @@ export default function VennDiagram({ config, onComplete }: MathTemplateProps) {
  }
  setResults(res);
  setChecked(true);
- if (correct === total_blanks) onComplete(true, 1.0);
- else if (correct > 0) onComplete(false, correct / total_blanks);
+ const work = { regions: { ...userValues } };
+ onComplete(
+ correct === total_blanks,
+ total_blanks > 0 ? correct / total_blanks : 0,
+ work
+ );
  };
 
  const regionKeys = (

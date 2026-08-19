@@ -58,9 +58,12 @@ export default function EquationBalance({ config, onComplete }: MathTemplateProp
 
  const handleCheck = () => {
  setChecked(true);
- if (isBalanced) {
- onComplete(true, 1.0);
- }
+ // What was put on each pan, for the server to weigh (specs/012).
+ const work = {
+ left_added: leftAdded.map((t) => t.value),
+ right_added: rightAdded.map((t) => t.value),
+ };
+ onComplete(isBalanced, isBalanced ? 1.0 : 0, work);
  };
 
  const handleReset = () => {
