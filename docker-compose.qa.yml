@@ -23,7 +23,10 @@
 # in compose YAML and broke DB auth in the first attempt. env_file: .env.qa
 # still applies to container env vars (different mechanism, not shadowed).
 
-name: lms-qa
+# One project name per worktree, so two chats can each hold a stack. Defaults to
+# the historical name, which is what CI and any existing shell still get.
+# See "Параллельные чаты" in CLAUDE.md for the .env.qa.local recipe.
+name: ${QA_PROJECT:-lms-qa}
 
 services:
   db:
@@ -60,7 +63,7 @@ services:
     # Production and staging deliberately have no mapping: there the sandbox is
     # reachable only over sandbox-net, and only by the backend.
     ports:
-      - "8101:8001"
+      - "${QA_SANDBOX_PORT:-8101}:8001"
     # PID 1 here is uvicorn, and uvicorn does not reap orphans. A fork bomb's
     # children are re-parented to it when their own parent dies, and a killed
     # orphan stays a zombie — still occupying a slot in the pids cgroup.
@@ -119,7 +122,7 @@ services:
       # is precisely the shape of the bug that shipped to production on
       # 2026-08-18 and went unnoticed for four slices.
       LIVEKIT_URL: http://livekit:7880
-      LIVEKIT_PUBLIC_URL: ws://localhost:7880
+      LIVEKIT_PUBLIC_URL: ws://localhost:${QA_LIVEKIT_PORT:-7880}
       LIVEKIT_API_KEY: devkey
       LIVEKIT_API_SECRET: local-development-secret-not-for-production
       MAX_CONCURRENT_MEDIA_PARTICIPANTS: 20
@@ -139,7 +142,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${QA_BACKEND_PORT:-8000}:8000"
     healthcheck:
       # /health returns {"status": "ok", "ready": <bool>}. We require ready=true
       # so the QA stack is genuinely usable before tests start — a 200 with
@@ -170,9 +173,9 @@ services:
     ports:
       # Published because the browser talks to it directly here — signalling on
       # 7880, and the media itself on the multiplexed UDP pair.
-      - "7880:7880"
-      - "7881:7881"
-      - "7882-7883:7882-7883/udp"
+      - "${QA_LIVEKIT_PORT:-7880}:7880"
+      - "${QA_LIVEKIT_TCP_PORT:-7881}:7881"
+      - "${QA_LIVEKIT_UDP_RANGE:-7882-7883}:7882-7883/udp"
     depends_on:
       redis:
         condition: service_healthy
@@ -186,7 +189,11 @@ services:
       context: .
       dockerfile: frontend/Dockerfile.qa
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8000
+        # Baked at build time, so it must follow QA_BACKEND_PORT: a second
+        # stack built with the default would send every UI request to the
+        # first stack's backend, which is the 2026-08-11 failure with a new
+        # cause and just as silent.
+        NEXT_PUBLIC_API_URL: http://localhost:${QA_BACKEND_PORT:-8000}
         # Build-time, not runtime — see the comment in frontend/Dockerfile.qa.
         # Without it the /api/:path* rewrite never reaches routes-manifest.json
         # and the whole authenticated app 404s inside the QA stack.
@@ -196,7 +203,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "${QA_FRONTEND_PORT:-3000}:3000"
     healthcheck:
       # node:22-alpine ships busybox wget. Use 127.0.0.1 explicitly because
       # busybox resolves `localhost` to IPv6 ::1 but Next.js binds IPv4 only.
