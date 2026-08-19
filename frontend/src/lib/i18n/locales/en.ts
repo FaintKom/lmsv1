@@ -716,6 +716,15 @@ const en: TranslationMap = {
  "game.goalAnd": "and",
  "game.goalOr": "or",
  "game.goalNot": "not",
+
+ // World 3D — the goal, in words. It is the pupil's instructions, not a secret.
+ "world.goal.atGoal": "🏁 Get to the flag",
+ "world.goal.allItems": "⭐ Collect everything",
+ "world.goal.allButtons": "🔴 Press every button",
+ "world.goal.allDoors": "🚪 Open every door",
+ "world.goal.at": "📍 Stand on",
+ "world.goal.height": "🪜 Climb to height",
+ "world.goal.steps": "👣 Finish within steps:",
  "game.goal.at_goal": "🏁 Get the robot to the flag",
  "game.goal.all_items_taken": "⭐ Pick up everything",
  "game.goal.all_marks_painted": "🎨 Paint every marked square",

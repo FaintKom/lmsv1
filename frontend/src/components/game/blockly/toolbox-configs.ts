@@ -200,6 +200,64 @@ export function buildToolboxFromBlocks(commands: string[]): ToolboxDef {
  return { kind: "categoryToolbox", contents };
 }
 
+/**
+ * Build a World 3D toolbox from the commands a level offers.
+ *
+ * The 3D twin of `buildToolboxFromBlocks`, and the same rule: block ids equal
+ * command names, so this is a plain filter. `DIFFICULTY_3D_TOOLBOXES` stops
+ * being a source of truth — it offered `move_up` and `pick_up`, which the 3D
+ * engine never understood, so half the palette did nothing.
+ *
+ * Control flow is not filtered. `for`, `while` and `if` are Python, not commands
+ * the world grants: a level withholds `jump`, never `if`.
+ */
+export function buildWorldToolbox(commands: string[]): ToolboxDef {
+ const offered = new Set(commands);
+ const only = (...names: string[]) =>
+ names.filter((n) => offered.has(n)).map((type) => ({ kind: "block" as const, type }));
+
+ const contents: ToolboxCategory[] = [];
+
+ const moves = only("move_forward", "turn_left", "turn_right", "jump");
+ if (moves.length > 0) contents.push(makeCategory("movement", MOTION, moves));
+
+ const handling = only("take", "drop", "press");
+ if (handling.length > 0) contents.push(makeCategory("items", ITEM, handling));
+
+ const sensing = only(
+ "wall_ahead",
+ "gap_ahead",
+ "step_ahead",
+ "item_here",
+ "at_goal",
+ "button_ahead",
+ "door_ahead",
+ );
+ contents.push(
+ makeCategory("conditions", SENSE, [
+ { kind: "block", type: "controls_if" },
+ ...sensing,
+ ...(sensing.length > 0 ? [{ kind: "block" as const, type: "logic_negate" }] : []),
+ ]),
+ );
+
+ // Always present: this is the language, not the level's gift.
+ contents.push(
+ makeCategory("loops", LOOP, [
+ {
+ kind: "block",
+ type: "repeat_times",
+ inputs: { TIMES: { shadow: { type: "math_number", fields: { NUM: 3 } } } },
+ },
+ ...(offered.has("at_goal") ? [{ kind: "block" as const, type: "while_not_at_goal" }] : []),
+ ]),
+ );
+
+ contents.push(mathCategory());
+
+ return { kind: "categoryToolbox", contents };
+}
+
 export const DIFFICULTY_BLOCKS: Record<Difficulty, string[]> = {
  beginner: ["move_up", "move_down", "move_left", "move_right"],
  intermediate: [

@@ -716,6 +716,15 @@ const uk: TranslationMap = {
  "game.goalAnd": "і",
  "game.goalOr": "або",
  "game.goalNot": "не",
+
+ // World 3D — ціль словами. Це інструкція учневі, а не таємниця.
+ "world.goal.atGoal": "🏁 Дійти до прапорця",
+ "world.goal.allItems": "⭐ Зібрати все",
+ "world.goal.allButtons": "🔴 Натиснути всі кнопки",
+ "world.goal.allDoors": "🚪 Відчинити всі двері",
+ "world.goal.at": "📍 Стати на",
+ "world.goal.height": "🪜 Піднятися на висоту",
+ "world.goal.steps": "👣 Укластися в кроків:",
  "game.goal.at_goal": "🏁 Приведи робота до прапорця",
  "game.goal.all_items_taken": "⭐ Збери все",
  "game.goal.all_marks_painted": "🎨 Зафарбуй кожну позначену клітинку",

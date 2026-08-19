@@ -14,7 +14,7 @@ interface World3DEditorProps {
 const CELL_TYPES: { type: CellType3D; label: string; color: string; desc: string }[] = [
  { type: "wall", label: "Wall", color: "#475569", desc: "Blocks movement" },
  { type: "platform", label: "Platform", color: "#64748b", desc: "Elevated surface (set Y > 0)" },
- { type: "collectible", label: "Collectible", color: "#f59e0b", desc: "Item to pick up" },
+ { type: "item", label: "Item", color: "#f59e0b", desc: "Item to pick up" },
  { type: "button", label: "Button", color: "#ef4444", desc: "Opens linked door" },
  { type: "door", label: "Door", color: "#8b5cf6", desc: "Blocks until button pressed" },
  { type: "goal", label: "Goal", color: "#22c55e", desc: "Finish point" },
@@ -79,7 +79,6 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  y: placeY,
  type: activeTool,
  id: `${activeTool}_${x}_${z}_${Date.now()}`,
- color: CELL_TYPES.find((t) => t.type === activeTool)?.color,
  };
  newCells.push(newCell);
  }
@@ -196,7 +195,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  const cellsHere = cells.filter((c) => c.x === x && c.z === z);
  const topCell = cellsHere.length > 0 ? cellsHere[cellsHere.length - 1] : null;
  const isPlayerStart = (playerStart.x as number) === x && (playerStart.z as number) === z;
- const bgColor = topCell ? (topCell.color || CELL_TYPES.find((t) => t.type === topCell.type)?.color || "#94a3b8") : "#f1f5f9";
+ const bgColor = topCell ? (CELL_TYPES.find((t) => t.type === topCell.type)?.color || "#94a3b8") : "#f1f5f9";
 
  return (
  <button key={`${x}-${z}`} onClick={() => handleCellClick(x, z)}
@@ -206,7 +205,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  >
  {isPlayerStart && <span className="text-white drop-shadow">P</span>}
  {topCell?.type === "goal" && <span className="text-white drop-shadow">🏁</span>}
- {topCell?.type === "collectible" && <span className="drop-shadow">⭐</span>}
+ {topCell?.type === "item" && <span className="drop-shadow">⭐</span>}
  {topCell?.type === "button" && <span className="text-white drop-shadow">B</span>}
  {topCell?.type === "door" && <span className="text-white drop-shadow">D</span>}
  {topCell?.type === "platform" && <span className="text-white drop-shadow text-[8px]">{topCell.y}</span>}
@@ -238,15 +237,15 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  <div className="max-h-[200px] space-y-1 overflow-y-auto">
  {cells.map((cell, i) => (
  <div key={cell.id || i} className="flex items-center gap-2 rounded-lg border border-border-strong bg-surface-2 px-2 py-1.5 text-xs ">
- <div className="h-3 w-3 rounded" style={{ backgroundColor: cell.color || CELL_TYPES.find((t) => t.type === cell.type)?.color }} />
+ <div className="h-3 w-3 rounded" style={{ backgroundColor: CELL_TYPES.find((t) => t.type === cell.type)?.color }} />
  <span className="w-16 font-medium text-text-muted ">{cell.type}</span>
  <span className="text-text-subtle">({cell.x}, {cell.z})</span>
  <span className="text-text-subtle">y={cell.y}</span>
  {cell.type === "button" && (
- <input placeholder="doorId" value={(cell.properties?.doorId as string) || ""}
+ <input placeholder="doorId" value={(cell.opens as string) || ""}
  onChange={(e) => {
  const nc = [...cells];
- nc[i] = { ...nc[i], properties: { ...nc[i].properties, doorId: e.target.value } };
+ nc[i] = { ...nc[i], opens: e.target.value };
  updateConfig({ cells: nc });
  }}
  className="w-24 rounded border border-border-strong px-1.5 py-0.5 text-xs " />
@@ -281,7 +280,7 @@ export default function World3DEditor({ config, onConfigChange }: World3DEditorP
  {!cells.some((c) => c.type === "goal") && winCondition === "reach_goal" && (
  <p className="text-xs text-warning-fg ">Place a goal cell on the grid.</p>
  )}
- {!cells.some((c) => c.type === "collectible") && winCondition === "collect_all" && (
+ {!cells.some((c) => c.type === "item") && winCondition === "collect_all" && (
  <p className="text-xs text-warning-fg ">Place some collectible items on the grid.</p>
  )}
  </div>

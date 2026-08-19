@@ -679,6 +679,15 @@ const tr: TranslationMap = {
  "game.goalAnd": "ve",
  "game.goalOr": "veya",
  "game.goalNot": "değil",
+
+ // World 3D — hedef, kelimelerle. Bu öğrencinin yönergesi, sır değil.
+ "world.goal.atGoal": "🏁 Bayrağa ulaş",
+ "world.goal.allItems": "⭐ Hepsini topla",
+ "world.goal.allButtons": "🔴 Bütün düğmelere bas",
+ "world.goal.allDoors": "🚪 Bütün kapıları aç",
+ "world.goal.at": "📍 Şuraya çık:",
+ "world.goal.height": "🪜 Şu yüksekliğe tırman:",
+ "world.goal.steps": "👣 Şu adımda bitir:",
  "game.goal.at_goal": "🏁 Robotu bayrağa götür",
  "game.goal.all_items_taken": "⭐ Her şeyi topla",
  "game.goal.all_marks_painted": "🎨 İşaretli her kareyi boya",

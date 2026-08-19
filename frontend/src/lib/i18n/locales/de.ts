@@ -716,6 +716,15 @@ const de: TranslationMap = {
  "game.goalAnd": "und",
  "game.goalOr": "oder",
  "game.goalNot": "nicht",
+
+ // World 3D — das Ziel in Worten. Es ist die Anleitung, kein Geheimnis.
+ "world.goal.atGoal": "🏁 Erreiche die Flagge",
+ "world.goal.allItems": "⭐ Sammle alles ein",
+ "world.goal.allButtons": "🔴 Drücke jeden Knopf",
+ "world.goal.allDoors": "🚪 Öffne jede Tür",
+ "world.goal.at": "📍 Stell dich auf",
+ "world.goal.height": "🪜 Steig auf Höhe",
+ "world.goal.steps": "👣 Schaffe es in Schritten:",
  "game.goal.at_goal": "🏁 Bring den Roboter zur Fahne",
  "game.goal.all_items_taken": "⭐ Sammle alles ein",
  "game.goal.all_marks_painted": "🎨 Male jedes markierte Feld an",
