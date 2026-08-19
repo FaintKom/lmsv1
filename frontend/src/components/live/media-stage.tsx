@@ -90,7 +90,7 @@ function ControlToggle({
       disabled={pending}
       aria-pressed={enabled}
       title={enabled ? offLabel : onLabel}
-      className={`btn-pop inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 text-2xs font-bold disabled:opacity-50 ${shape} ${tone}`}
+      className={`btn-pop inline-flex shrink-0 items-center gap-1 px-2 py-1 text-3xs font-bold disabled:opacity-50 ${shape} ${tone}`}
     >
       <Icon size={14} aria-hidden />
       {enabled ? onLabel : offLabel}
@@ -117,7 +117,7 @@ function RoomControls({
     // single control, because "camera" and "which camera" are one decision and
     // reading them as two separate buttons is what made this panel look
     // scattered (T105).
-    <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-t border-border bg-surface-2 px-2 py-1.5">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-border bg-surface-2 px-1.5 py-1">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="inline-flex shrink-0 items-center rounded-sm border border-border bg-surface">
           <ControlToggle

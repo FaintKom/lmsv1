@@ -17,6 +17,7 @@ import {
   Puzzle,
   SearchCheck,
   MonitorUp,
+  SendHorizonal,
   Square,
   Users,
   type LucideIcon,
@@ -734,10 +735,10 @@ export default function TeacherLivePage() {
                 {/* Directly above the roster on purpose: a tile and a name
                     should line up by eye, which is why the media moved onto
                     this page at all. */}
-                <div className="mb-3 h-48 shrink-0">
+                <div className="mb-2 h-44 shrink-0">
                   <MediaStage lessonId={lessonId} layout="roll" onScreenShare={onTeacherShare} />
                 </div>
-                <div className="mb-3 shrink-0 border-b border-border pb-3">
+                <div className="mb-2 shrink-0 border-b border-border pb-2">
                   <BreakoutPanel
                     lessonId={lessonId}
                     groups={breakouts}
@@ -747,31 +748,35 @@ export default function TeacherLivePage() {
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   <RosterPanel members={members} onPick={setPicked} />
                 </div>
-                <div className="mt-3 border-t border-border pt-3">
-                  <label
-                    htmlFor="class-msg"
-                    className="mb-1.5 block font-mono text-3xs font-bold uppercase tracking-wide text-text"
-                  >
-                    {t("live.messageAll")}
-                  </label>
-                  <textarea
+                {/* One row, Enter sends. The old label + textarea + full-width
+                    button stack was 129px of the column spent on an input that
+                    holds six words (FR-041). */}
+                <form
+                  className="mt-2 flex shrink-0 items-center gap-1.5 border-t border-border pt-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!classMsg.trim()) return;
+                    await sendClassMessage(lessonId, classMsg.trim());
+                    setClassMsg("");
+                  }}
+                >
+                  <input
                     id="class-msg"
-                    rows={2}
+                    aria-label={t("live.messageAll")}
+                    placeholder={t("live.messageAll")}
                     value={classMsg}
                     onChange={(e) => setClassMsg(e.target.value)}
-                    className="w-full rounded-md border-2 border-border bg-surface px-3 py-2 text-sm transition-colors placeholder:text-text-subtle focus:border-border-focus focus:outline-none focus:ring-4 focus:ring-primary-soft"
+                    className="h-9 min-w-0 flex-1 rounded-md border border-border bg-surface px-2.5 text-xs text-text placeholder:text-text-subtle focus:border-border-focus focus:outline-none"
                   />
                   <button
+                    type="submit"
                     disabled={!classMsg.trim()}
-                    onClick={async () => {
-                      await sendClassMessage(lessonId, classMsg.trim());
-                      setClassMsg("");
-                    }}
-                    className="btn-pop mt-2 w-full rounded-md bg-primary p-2 text-xs font-bold text-primary-fg"
+                    aria-label={t("live.messageAll")}
+                    className="btn-pop flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-fg disabled:opacity-50"
                   >
-                    {t("live.messageAll")}
+                    <SendHorizonal size={15} aria-hidden />
                   </button>
-                </div>
+                </form>
               </div>
             )}
             {tab === "task" &&

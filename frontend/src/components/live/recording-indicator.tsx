@@ -113,7 +113,7 @@ export function RecordingIndicator({
   return (
     <div className="flex items-center gap-2">
       {recordingId && (
-        <span className="inline-flex items-center gap-1.5 rounded-pill bg-clay-500 px-2.5 py-1 font-mono text-3xs font-bold uppercase tracking-wide text-white">
+        <span className="inline-flex items-center gap-1 rounded-pill bg-clay-500 px-2 py-0.5 font-mono text-3xs font-bold uppercase tracking-wide text-white">
           <span className="h-1.5 w-1.5 animate-pulse rounded-pill bg-white" />
           {t("live.media.recording")}
         </span>
@@ -123,7 +123,7 @@ export function RecordingIndicator({
           type="button"
           onClick={() => (handle ? end() : begin())}
           disabled={busy}
-          className="btn-pop inline-flex items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text disabled:opacity-50"
+          className="btn-pop inline-flex items-center gap-1 rounded-sm border border-border bg-surface px-2 py-1 text-3xs font-bold text-text disabled:opacity-50"
         >
           {handle ? <Square size={13} aria-hidden /> : <Circle size={13} aria-hidden />}
           {handle ? t("live.media.recordStop") : t("live.media.recordStart")}
