@@ -9,6 +9,23 @@ from tests.conftest import auth_header
 from tests.test_live_lessons import make_group
 
 
+async def wait_subscribed(lesson_id: str, *, timeout: float = 5.0) -> None:
+    """Block until the SSE endpoint's pub/sub subscription is registered.
+
+    A fixed sleep guesses at scheduler timing and loses on a loaded CI
+    worker: the publishes fire before the stream subscribes, nothing ever
+    delivers lesson_ended, and the test dies on wait_for's timeout.
+    """
+    ch = realtime.channel(uuid.UUID(lesson_id))
+    deadline = asyncio.get_event_loop().time() + timeout
+    while asyncio.get_event_loop().time() < deadline:
+        counts = await realtime.get_redis().pubsub_numsub(ch)
+        if counts and counts[0][1] > 0:
+            return
+        await asyncio.sleep(0.02)
+    raise AssertionError("SSE stream never subscribed to the lesson channel")
+
+
 async def test_sse_delivers_scene_event_with_role_filter(
     client: AsyncClient, db, org, teacher, student
 ):
@@ -35,7 +52,7 @@ async def test_sse_delivers_scene_event_with_role_filter(
                 received.append(line)
 
     task = asyncio.create_task(listen())
-    await asyncio.sleep(0.2)  # let the stream subscribe
+    await wait_subscribed(lesson_id)
     await realtime.publish(uuid.UUID(lesson_id), "all", "scene_changed", {"type": "board"})
     # teacher-only event must NOT reach the student stream
     await realtime.publish(uuid.UUID(lesson_id), "teacher", "signal", {"student_id": "x"})
@@ -80,7 +97,8 @@ async def test_sse_stream_survives_ping_timeout(
                 received.append(line)
 
     task = asyncio.create_task(listen())
-    await asyncio.sleep(0.3)  # subscribe + at least one ping elapses
+    await wait_subscribed(lesson_id)
+    await asyncio.sleep(0.15)  # at least one 0.05s ping elapses
     # events published AFTER a ping must still arrive
     await realtime.publish(uuid.UUID(lesson_id), "all", "scene_changed", {"type": "board"})
     await asyncio.sleep(0.2)  # another ping between the two events

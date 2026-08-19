@@ -450,6 +450,12 @@ small, and every one of them broke the feature completely.
   ceiling and stalled two merges. The browser is now cached keyed on the
   lockfile, and the install step gets an 8-minute timeout so a bad mirror
   day fails fast instead of silently, in .github/workflows/e2e.yml
+- [x] T119 The SSE test guessed at scheduler timing: a 0.2s sleep stood in
+  for "the stream has subscribed", and on a loaded CI worker the publishes
+  fired first, nothing delivered lesson_ended, and the test died on a
+  timeout (1 failure in 1215, blocked #377's merge). The wait now polls
+  PUBSUB NUMSUB until the subscription is registered, in
+  backend/tests/test_live_sse.py
 - [x] T118 The density pass broke the design guide's touch rule: controls
   shrank to ~26px while §8 requires 44×44 on touch, and two new inputs lost
   the system focus ring (§14). Found by auditing against
