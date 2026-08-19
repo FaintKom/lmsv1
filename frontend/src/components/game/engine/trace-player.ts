@@ -18,6 +18,8 @@ export interface CellChange {
   y: number;
   item?: boolean;
   painted?: boolean;
+  /** The colour the paint went on in, when it had one. */
+  color?: string | null;
   value?: number;
 }
 

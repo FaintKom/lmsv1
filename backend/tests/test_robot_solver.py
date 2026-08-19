@@ -195,6 +195,19 @@ def test_a_total_over_values_is_not_searched_either():
     assert answer["reason"] == "win_uses_values"
 
 
+def test_a_coloured_mark_is_not_searched():
+    answer = robot_solver.solve(
+        level(
+            cells=[{"x": 1, "y": 0, "type": "empty", "mark": True, "mark_color": "red"}],
+            commands=[*FACING, "paint"],
+            win={"cond": "all_marks_painted"},
+        )
+    )
+
+    assert answer["answer"] == "reference_only"
+    assert answer["reason"] == "win_uses_colors"
+
+
 def test_too_many_targets_is_not_searched():
     answer = robot_solver.solve(
         level(

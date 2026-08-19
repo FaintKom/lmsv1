@@ -44,6 +44,73 @@ def test_a_start_inside_a_wall():
     )
 
 
+def test_a_colour_outside_the_palette():
+    assert "bad_mark_color" in codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "empty", "mark": True, "mark_color": "puce"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ]
+        )
+    )
+
+
+def test_a_colour_on_an_unmarked_cell():
+    assert "color_without_mark" in codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "empty", "mark_color": "red"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ]
+        )
+    )
+
+
+def test_a_coloured_mark_with_no_paint_offered():
+    faults = codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "empty", "mark": True, "mark_color": "red"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ]
+        )
+    )
+    assert "win_needs_paint_command" in faults
+
+    fine = codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "empty", "mark": True, "mark_color": "red"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ],
+            commands=["move_forward", "turn_left", "turn_right", "at_goal", "paint"],
+        )
+    )
+    assert "win_needs_paint_command" not in fine
+
+
+def test_an_item_kind_off_the_list():
+    assert "bad_item_kind" in codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "item", "kind": "sword"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ]
+        )
+    )
+
+
+def test_a_kind_on_a_cell_with_no_item():
+    assert "kind_without_item" in codes(
+        level(
+            cells=[
+                {"x": 1, "y": 0, "type": "empty", "kind": "gem"},
+                {"x": 3, "y": 0, "type": "goal"},
+            ]
+        )
+    )
+
+
 def test_a_start_outside_the_grid():
     assert "start_off_grid" in codes(level(start={"x": 9, "y": 0, "facing": "right"}))
 

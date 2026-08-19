@@ -110,7 +110,7 @@ def test_painting_twice_counts_once_but_costs_twice():
     world.perform("paint")
     world.perform("paint")
 
-    assert world.painted == {(1, 1)}
+    assert world.painted == {(1, 1): None}
     assert world.steps == 2, "the second paint is wasted, not free"
 
 

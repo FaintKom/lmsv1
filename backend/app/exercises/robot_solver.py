@@ -80,6 +80,10 @@ def _why_not_searchable(level: dict) -> str | None:
         return "win_uses_values"
 
     cells = level.get("cells") or []
+    if any(c.get("mark_color") for c in cells):
+        # Coloured marks would make the search enumerate a colour choice per
+        # paint — reference-only, like values.
+        return "win_uses_colors"
     targets = sum(1 for c in cells if c.get("type") == "item")
     targets += sum(1 for c in cells if c.get("mark"))
     if targets > MAX_TARGETS:

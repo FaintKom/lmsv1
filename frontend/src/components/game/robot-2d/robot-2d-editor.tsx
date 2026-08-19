@@ -99,6 +99,21 @@ const CONDITIONS: { cond: string; arg?: "dir" | "n" }[] = [
 
 const DIRECTIONS: Direction[] = ["up", "right", "down", "left"];
 
+/** Mirrors PAINT_COLORS in robot_sim.py — the sim is the authority. */
+const PAINT_COLORS = ["red", "green", "blue", "yellow"] as const;
+const COLOR_SWATCH: Record<string, string> = {
+  red: "#ef4444", green: "#22c55e", blue: "#3b82f6", yellow: "#eab308",
+};
+
+/** Mirrors ITEM_KINDS in robot_validate.py. Visual only. */
+const ITEM_KINDS = [
+  { kind: null, sprite: "⭐" },
+  { kind: "gem", sprite: "💎" },
+  { kind: "key", sprite: "🗝️" },
+  { kind: "apple", sprite: "🍎" },
+  { kind: "flag", sprite: "🚩" },
+] as const;
+
 const UNDO_LIMIT = 50;
 
 /** `t()` takes no parameters, and composing fragments breaks word order in
@@ -133,6 +148,8 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
   const solution = (config.solution_code as string) || "";
 
   const [activeTool, setActiveTool] = useState<Tool>("wall");
+  const [markColor, setMarkColor] = useState<string | null>(null);
+  const [itemKind, setItemKind] = useState<string | null>(null);
   const [painting, setPainting] = useState(false);
   const [history, setHistory] = useState<Record<string, unknown>[]>([]);
   const [answer, setAnswer] = useState<RobotSolveAnswer | null>(null);
@@ -186,7 +203,18 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
         const without = current.filter((c) => !(c.x === x && c.y === y));
 
         if (activeTool === "mark") {
-          return { cells: [...without, { ...(at ?? { x, y, type: "empty" }), mark: !at?.mark }] };
+          const marked = !at?.mark;
+          return {
+            cells: [
+              ...without,
+              {
+                ...(at ?? { x, y, type: "empty" }),
+                mark: marked,
+                // The colour follows the mark: chosen colour on, gone with it off.
+                mark_color: marked && markColor ? markColor : undefined,
+              },
+            ],
+          };
         }
         if (activeTool === "value") {
           // 0–9, cycling, so one tool sets any digit.
@@ -197,10 +225,13 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
         if (activeTool === "goal") {
           return { cells: [...without.filter((c) => c.type !== "goal"), { x, y, type: "goal" }] };
         }
+        if (activeTool === "item" && itemKind) {
+          return { cells: [...without, { x, y, type: "item", kind: itemKind }] };
+        }
         return { cells: [...without, { x, y, type: activeTool }] };
       });
     },
-    [activeTool, start, updateWith],
+    [activeTool, itemKind, markColor, start, updateWith],
   );
 
   const toggleCommand = useCallback(
@@ -345,6 +376,64 @@ export default function Robot2DEditor({ config, onConfigChange }: Robot2DEditorP
             );
           })}
 
+          {activeTool === "mark" && (
+            <div>
+              <label className="mt-2 block text-xs font-medium text-text-muted">
+                {t("robot.markColor")}
+              </label>
+              <div className="mt-1 flex gap-1">
+                <button
+                  onClick={() => setMarkColor(null)}
+                  title={t("robot.color.none")}
+                  aria-pressed={markColor === null}
+                  className={`h-6 w-6 rounded-full border-2 text-2xs ${
+                    markColor === null ? "border-text" : "border-border-strong"
+                  }`}
+                >
+                  &times;
+                </button>
+                {PAINT_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setMarkColor(color)}
+                    title={t(`robot.color.${color}`)}
+                    aria-pressed={markColor === color}
+                    className={`h-6 w-6 rounded-full border-2 ${
+                      markColor === color ? "border-text" : "border-transparent"
+                    }`}
+                    style={{ backgroundColor: COLOR_SWATCH[color] }}
+                  />
+                ))}
+              </div>
+              <p className="mt-1 max-w-32 text-3xs text-text-subtle">{t("robot.markColorHint")}</p>
+            </div>
+          )}
+
+          {activeTool === "item" && (
+            <div>
+              <label className="mt-2 block text-xs font-medium text-text-muted">
+                {t("robot.itemKind")}
+              </label>
+              <div className="mt-1 flex gap-1">
+                {ITEM_KINDS.map(({ kind, sprite }) => (
+                  <button
+                    key={kind ?? "star"}
+                    onClick={() => setItemKind(kind)}
+                    title={t(`robot.kind.${kind ?? "star"}`)}
+                    aria-pressed={itemKind === kind}
+                    className={`h-7 w-7 rounded-lg border text-sm ${
+                      itemKind === kind
+                        ? "border-text bg-primary-soft"
+                        : "border-border-strong bg-surface-2"
+                    }`}
+                  >
+                    {sprite}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <label className="mt-3 block text-xs font-medium text-text-muted">
             {t("robot.startFacing")}
           </label>
@@ -475,7 +564,11 @@ function AnswerLine({ answer, t }: { answer: RobotSolveAnswer; t: Translate }) {
   }
 
   const why =
-    answer.reason === "win_uses_values" ? t("robot.reasonValues") : t("robot.reasonTargets");
+    answer.reason === "win_uses_values"
+      ? t("robot.reasonValues")
+      : answer.reason === "win_uses_colors"
+        ? t("robot.reasonColors")
+        : t("robot.reasonTargets");
 
   return (
     <p className="text-sm text-text-muted">

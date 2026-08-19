@@ -53,6 +53,10 @@ SENSORS = ("wall_ahead", "item_here", "at_goal", "painted", "value_here")
 
 COMMANDS = ACTIONS + SENSORS
 
+#: The colours ``paint()`` accepts. A closed set, so a typo in a program is a
+#: RobotError on the line that made it, not a colour no mark will ever match.
+PAINT_COLORS = ("red", "green", "blue", "yellow")
+
 
 class RobotError(Exception):
     """A mistake the pupil must fix, reported against the line that made it.
@@ -110,7 +114,8 @@ class World:
         self.walls: set[tuple[int, int]] = set()
         self.items: set[tuple[int, int]] = set()
         self.goals: set[tuple[int, int]] = set()
-        self.marks: set[tuple[int, int]] = set()
+        # A mark maps to the colour it demands, or None for "any paint will do".
+        self.marks: dict[tuple[int, int], str | None] = {}
         self.values: dict[tuple[int, int], int] = {}
 
         for cell in level.get("cells") or []:
@@ -123,7 +128,7 @@ class World:
             elif kind == "goal":
                 self.goals.add(pos)
             if cell.get("mark"):
-                self.marks.add(pos)
+                self.marks[pos] = cell.get("mark_color") or None
             if cell.get("value") is not None:
                 self.values[pos] = int(cell["value"])
 
@@ -133,7 +138,8 @@ class World:
         self.win = level.get("win")
 
         self.carrying = 0
-        self.painted: set[tuple[int, int]] = set()
+        # Painted cell → its colour, or None when painted without one.
+        self.painted: dict[tuple[int, int], str | None] = {}
         self.values_read: set[tuple[int, int]] = set()
         self.steps = 0
 
@@ -160,7 +166,7 @@ class World:
 
     # ─── Performing one command ──────────────────────────────────────
 
-    def perform(self, name: str, arg: int | None = None) -> dict:
+    def perform(self, name: str, arg: int | str | None = None) -> dict:
         """Run one command and record a frame. Returns that frame.
 
         Every path through here appends exactly one frame and, for an action,
@@ -173,14 +179,29 @@ class World:
         if self.enforce_offered and name not in self.offered:
             raise RobotError("not_offered")
 
+        # Arguments are validated here, before a step is spent or anything is
+        # recorded, so a doctored ["write", "x"] in a replay is a losing run
+        # and never an unhandled ValueError.
+        if arg is not None:
+            if name == "write":
+                try:
+                    arg = int(arg)
+                except (TypeError, ValueError):
+                    raise RobotError("bad_value") from None
+            elif name == "paint":
+                if arg not in PAINT_COLORS:
+                    raise RobotError("bad_color")
+            else:
+                raise RobotError("not_offered")
+
         if name in ACTIONS:
             if self.steps >= self.max_steps:
                 raise StepsExhaustedError()
             self.steps += 1
 
-        # `write` is the one command a name alone does not describe, so it is
-        # recorded with its argument. Everything else records as a bare name.
-        self.commands.append(name if arg is None else [name, int(arg)])
+        # `write` and coloured `paint` are the commands a name alone does not
+        # describe, so they record with their argument; the rest as bare names.
+        self.commands.append(name if arg is None else [name, arg])
         changed: list[dict] = []
         refusal: str | None = None
 
@@ -218,11 +239,12 @@ class World:
                 changed.append({"x": self.x, "y": self.y, "item": True})
 
         elif name == "paint":
-            # One-way, and idempotent. Without that a program could satisfy
-            # "paint every marked cell" by covering one cell over and over.
+            # One-way, and idempotent — repainting in another colour is a
+            # no-op too. Without that a program could satisfy "paint every
+            # marked cell" by covering one cell over and over.
             if self.here not in self.painted:
-                self.painted.add(self.here)
-                changed.append({"x": self.x, "y": self.y, "painted": True})
+                self.painted[self.here] = arg
+                changed.append({"x": self.x, "y": self.y, "painted": True, "color": arg})
 
         elif name == "read":
             if self.here not in self.values:
@@ -289,7 +311,7 @@ class World:
             self.facing,
             self.carrying,
             frozenset(self.items),
-            frozenset(self.painted),
+            tuple(sorted(self.painted.items())),
             frozenset(self.values_read),
             tuple(sorted(self.values.items())),
             self.steps,
@@ -308,7 +330,7 @@ class World:
             self.steps,
         ) = snap
         self.items = set(items)
-        self.painted = set(painted)
+        self.painted = dict(painted)
         self.values_read = set(values_read)
         self.values = dict(values)
 
@@ -346,7 +368,12 @@ class World:
         if cond == "all_items_taken":
             return not self.items
         if cond == "all_marks_painted":
-            return self.marks <= self.painted
+            # A coloured mark is satisfied only by its colour; a colourless
+            # one by any paint at all.
+            return all(
+                pos in self.painted and (want is None or self.painted[pos] == want)
+                for pos, want in self.marks.items()
+            )
         if cond == "facing":
             return self.facing == node.get("dir")
         if cond == "steps_at_most":
@@ -398,7 +425,7 @@ def replay(level: dict, commands: list) -> dict:
 WORLD: World | None = None
 
 
-def _act(name: str, arg: int | None = None) -> None:
+def _act(name: str, arg: int | str | None = None) -> None:
     WORLD.perform(name, arg)
 
 
@@ -438,8 +465,8 @@ def drop() -> None:
     _act("drop")
 
 
-def paint() -> None:
-    _act("paint")
+def paint(color: str | None = None) -> None:
+    _act("paint", color)
 
 
 def read() -> int:
