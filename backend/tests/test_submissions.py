@@ -1040,3 +1040,76 @@ async def test_more_maths_templates_are_marked_here(
     )
     assert worse.json()["score"] == partial_score
     assert worse.json()["passed"] is False
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "template,template_config,perfect,partial,partial_score",
+    [
+        (
+            "graph_transform",
+            {
+                "parent_function": "x^2",
+                "target_h": 2,
+                "target_v": -1,
+                "target_a": 1,
+                "tolerance": 0.3,
+            },
+            {"h": 2, "v": -1, "a": 1},
+            {"h": 2, "v": 4, "a": 1},
+            66.67,
+        ),
+        (
+            "inequality_graph",
+            {"slope": 1, "intercept": 0, "operator": ">=", "tolerance": 0.4},
+            {"slope": 1, "intercept": 0, "side": "above"},
+            {"slope": 1, "intercept": 0, "side": "below"},
+            66.67,
+        ),
+    ],
+)
+async def test_parameter_matching_templates_are_marked_here(
+    client: AsyncClient,
+    db,
+    org,
+    teacher,
+    student,
+    template,
+    template_config,
+    perfect,
+    partial,
+    partial_score,
+):
+    """Sliders and a shaded half-plane, scored a third at a time as the widgets do.
+
+    The inequality's operator and dashed line are shown to the pupil but scored by
+    neither side, so the shaded side is what the third point rides on.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": template, "template_config": template_config},
+    )
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": perfect},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+    assert good.json()["passed"] is True
+
+    worse = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": partial},
+        headers=auth_header(student),
+    )
+    assert worse.json()["score"] == partial_score
+    assert worse.json()["passed"] is False

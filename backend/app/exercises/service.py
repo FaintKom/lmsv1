@@ -1535,6 +1535,67 @@ def _mark_visual_fractions(template_config: dict, work: dict) -> tuple[float, bo
     return (1.0, True) if count == target else (0.0, False)
 
 
+def _tolerant(template_config: dict, default: float) -> float:
+    raw = template_config.get("tolerance")
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raw = default
+    return abs(float(raw))
+
+
+def _mark_graph_transform(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the three sliders of a transformed parent function.
+
+    `graph-transform.tsx` scores one third per parameter within `tolerance`
+    (0.3 by default) and calls it solved only when all three land.
+    """
+    wanted = {k: template_config.get(f"target_{k}") for k in ("h", "v", "a")}
+    if all(v is None for v in wanted.values()):
+        return None
+    if not any(k in work for k in ("h", "v", "a")):
+        return None
+
+    tolerance = _tolerant(template_config, 0.3)
+    defaults = {"h": 2, "v": -1, "a": 1}
+    hits = 0
+    for key, target in wanted.items():
+        target = defaults[key] if target is None else target
+        try:
+            if abs(float(work.get(key, 0)) - float(target)) <= tolerance:
+                hits += 1
+        except (TypeError, ValueError):
+            continue
+    return hits / 3, hits == 3
+
+
+def _mark_inequality_graph(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark the line and the shaded half-plane.
+
+    `inequality-graph.tsx` scores slope, intercept and which side is shaded, one
+    third each, within `tolerance` (0.4 by default). The operator and the dashed
+    line are shown but not scored there, so they are not scored here either.
+    """
+    if not any(k in template_config for k in ("slope", "intercept", "operator")):
+        return None
+    if not any(k in work for k in ("slope", "intercept", "side")):
+        return None
+
+    tolerance = _tolerant(template_config, 0.4)
+    operator = str(template_config.get("operator") or ">=")
+    wanted_side = "above" if operator in (">", ">=") else "below"
+
+    hits = 0
+    for key, default in (("slope", 1), ("intercept", 0)):
+        target = template_config.get(key, default)
+        try:
+            if abs(float(work.get(key, 0)) - float(target)) <= tolerance:
+                hits += 1
+        except (TypeError, ValueError):
+            continue
+    if str(work.get("side") or "") == wanted_side:
+        hits += 1
+    return hits / 3, hits == 3
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1569,6 +1630,8 @@ async def _submit_math_interactive(
         "table_pattern": _mark_table_pattern,
         "two_way_table": _mark_two_way_table,
         "visual_fractions": _mark_visual_fractions,
+        "graph_transform": _mark_graph_transform,
+        "inequality_graph": _mark_inequality_graph,
     }
     marker = markers.get(str(config.get("template_type") or ""))
     marked = marker(template_config, work) if marker else None
