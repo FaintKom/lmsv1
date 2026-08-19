@@ -43,10 +43,13 @@ function coverFor(title: string) {
  * selected feedback while the scene mutation runs.
  */
 export function MaterialPicker({
+  lessonId,
   defaultCourseId,
   activeLessonId,
   onPick,
 }: {
+  /** Scopes the course list to this lesson's group (FR-037). */
+  lessonId: string;
   defaultCourseId: string | null;
   activeLessonId: string | null;
   onPick: (courseId: string, lessonId: string) => void;
@@ -63,7 +66,10 @@ export function MaterialPicker({
     let cancelled = false;
     setCourses(null);
     void apiClient
-      .get("/courses/")
+      // The lesson's group decides what may be offered: a course counts when
+      // every member is enrolled, so the teacher is never invited to open a
+      // page half the class cannot follow (FR-037).
+      .get(`/live-lessons/${lessonId}/courses`)
       .then(({ data }) => {
         if (!cancelled) setCourses((data.items ?? []) as CourseRow[]);
       })

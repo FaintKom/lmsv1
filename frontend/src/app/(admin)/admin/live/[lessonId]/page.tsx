@@ -607,6 +607,7 @@ export default function TeacherLivePage() {
               </div>
             ) : (
               <MaterialPicker
+                lessonId={lessonId}
                 defaultCourseId={lesson.course_id}
                 activeLessonId={materialLessonId}
                 onPick={(courseId, materialLesson) => {
