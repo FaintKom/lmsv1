@@ -284,6 +284,30 @@ function NumberLineConfig({ config, onChange }: { config: Record<string, unknown
 
 function FractionsConfig({ config, onChange }: { config: Record<string, unknown>; onChange: (c: Record<string, unknown>) => void }) {
  return (
+ <div className="space-y-3">
+ <div>
+ <label className="mb-1 block text-xs text-text-muted">
+ Prompt shown to the student (clear the field to show no prompt)
+ </label>
+ <input
+ type="text"
+ value={
+ config.prompt !== undefined
+ ? String(config.prompt)
+ : `Shade ${(config.target_numerator as number) || 3}/${(config.target_denominator as number) || 8} of the shape`
+ }
+ onChange={(e) => onChange({ ...config, prompt: e.target.value })}
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm"
+ />
+ </div>
+ <label className="flex items-center gap-2 text-xs text-text-muted">
+ <input
+ type="checkbox"
+ checked={config.show_count !== false}
+ onChange={(e) => onChange({ ...config, show_count: e.target.checked })}
+ />
+ Show the running count (e.g. 2/8) beside the shape
+ </label>
  <div className="grid grid-cols-3 gap-3">
  <div>
  <label className="mb-1 block text-xs text-text-muted">Numerator</label>
@@ -305,6 +329,7 @@ function FractionsConfig({ config, onChange }: { config: Record<string, unknown>
  <option value="pie">Pie</option>
  <option value="bar">Bar</option>
  </select>
+ </div>
  </div>
  </div>
  );
@@ -382,7 +407,8 @@ function EquationBalanceConfig({
  <div>
  <div className="mb-1.5 flex items-center justify-between">
  <label className="block text-xs text-text-muted">
- Available Terms ({terms.length}) — what the student can drag onto the scale
+ Available Terms ({terms.length}) — what the student can drag onto the
+ scale; a negative value subtracts (specs/020)
  </label>
  <button
  type="button"
@@ -798,6 +824,8 @@ function EquationSolverConfig({
  actionLabel: string;
  resultLeft: string;
  resultRight: string;
+ /** specs/020 US3: authored wrong-action options for this step. */
+ distractors?: string[];
  }
 
  // Renderer reads (config.equation_config || config) — so we mirror.
@@ -825,6 +853,7 @@ function EquationSolverConfig({
  actionLabel: o.actionLabel as string,
  resultLeft: (o.resultLeft as string) || "",
  resultRight: (o.resultRight as string) || "",
+ distractors: Array.isArray(o.distractors) ? (o.distractors as string[]) : undefined,
  };
  }
  // Legacy shape: { operation: 'subtract', operand: 4, result: '2x = 6' }
@@ -872,6 +901,7 @@ function EquationSolverConfig({
  actionLabel: s.actionLabel,
  resultLeft: s.resultLeft,
  resultRight: s.resultRight,
+ ...(s.distractors && s.distractors.length ? { distractors: s.distractors } : {}),
  })),
  final_answer: next?.finalAnswer ?? finalAnswerStr,
  };
@@ -970,6 +1000,23 @@ function EquationSolverConfig({
  onChange={(e) => updateStep(i, { resultRight: e.target.value })}
  placeholder="Resulting right"
  className={`w-32 ${inputCls}`}
+ />
+ </div>
+ {/* specs/020 US3: authored wrong options for this step */}
+ <div className="pl-10">
+ <input
+ type="text"
+ value={(s.distractors || []).join(", ")}
+ onChange={(e) =>
+ updateStep(i, {
+ distractors: e.target.value
+ .split(",")
+ .map((d) => d.trim())
+ .filter(Boolean),
+ })
+ }
+ placeholder="Wrong options for this step, comma-separated (empty = generic ones)"
+ className={`w-full ${inputCls}`}
  />
  </div>
  </div>
@@ -1105,7 +1152,9 @@ function NumericInputConfig({ config, onChange }: { config: Record<string, unkno
  return (
  <div className="space-y-3">
  <div>
- <label className="mb-1 block text-xs text-text-muted">Question</label>
+ <label className="mb-1 block text-xs text-text-muted">
+ Question — LaTeX supported, e.g. $x^2$ (specs/020)
+ </label>
  <textarea rows={2} value={(config.question as string) || ""} onChange={(e) => onChange({ ...config, question: e.target.value })}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm " />
  </div>
@@ -1172,6 +1221,14 @@ function ScatterPlotConfig({
  <option value="correlation">Identify Correlation</option>
  <option value="read_value">Read a Value</option>
  </select>
+ {/* specs/020 US5: say what each mode asks the student to do */}
+ <p className="mt-1 text-2xs text-text-subtle">
+ {((config.mode as string) || "best_fit") === "best_fit"
+ ? "Student draws the line of best fit through the points; graded against target slope and intercept."
+ : ((config.mode as string) || "best_fit") === "correlation"
+ ? "Student looks at the cloud of points and picks positive / negative / no correlation."
+ : "Student reads a value off the plot and types the number."}
+ </p>
  </div>
  <div>
  <label className="mb-1 block text-xs text-text-muted">Target Slope</label>

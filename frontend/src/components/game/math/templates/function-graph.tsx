@@ -155,7 +155,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  <div className="flex flex-col items-center gap-4">
  <p className="text-sm text-text-muted ">
  {mode === "match_graph"
- ? "Adjust the sliders to match the target graph (dashed line)"
+ ? "Enter the parameters to match the target graph (dashed line)"
  : `Find the parameters for: ${getFnString(function_type, target_params)}`}
  </p>
 
@@ -187,24 +187,30 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
  </span>
  </div>
 
- {/* Parameter sliders */}
+ {/* Parameter inputs — typed, not sliders: a slider lets the answer be
+     scrolled into place (specs/020 US1, owner decision) */}
  <div className="w-full max-w-sm space-y-3">
  {paramDefs.map((p) => (
  <div key={p.key} className="flex items-center gap-3">
- <label className="w-24 text-right text-xs font-medium text-text-muted">
- {p.label} = <span className="font-mono text-primary ">{userParams[p.key]}</span>
+ <label className="flex-1 text-right text-xs font-medium text-text-muted">
+ {p.label}
  </label>
  <input
- type="range"
+ type="number"
  min={p.min}
  max={p.max}
  step={p.step}
  value={userParams[p.key] ?? 0}
- onChange={(e) =>
- setUserParams((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) }))
- }
+ onChange={(e) => {
+ const v = parseFloat(e.target.value);
+ if (!Number.isNaN(v))
+ setUserParams((prev) => ({
+ ...prev,
+ [p.key]: Math.max(p.min, Math.min(p.max, v)),
+ }));
+ }}
  disabled={checked && isCorrect}
- className="flex-1 accent-green-500"
+ className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none"
  />
  </div>
  ))}
@@ -216,7 +222,7 @@ export default function FunctionGraph({ config, onComplete }: MathTemplateProps)
 
  {checked && !isCorrect && (
  <p className="text-xs text-danger-fg">
- Not quite. Adjust the sliders to better match the target graph.
+ Not quite. Adjust the parameters to better match the target graph.
  </p>
  )}
  </div>

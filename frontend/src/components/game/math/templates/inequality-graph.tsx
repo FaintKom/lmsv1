@@ -145,24 +145,20 @@ export default function InequalityGraph({ config, onComplete }: MathTemplateProp
  </span>
  </div>
 
- {/* Slope slider */}
+ {/* Typed parameters — sliders let the answer be scrolled into place
+     (specs/020 US1, owner decision) */}
  <div className="flex items-center gap-3">
- <label className="w-28 text-right text-xs font-medium text-text-muted">
- slope = <span className="font-mono text-primary ">{userSlope}</span>
- </label>
- <input type="range" min={-5} max={5} step={0.5} value={userSlope}
- onChange={(e) => { setUserSlope(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-green-500" />
+ <label className="w-28 text-right text-xs font-medium text-text-muted">slope</label>
+ <input type="number" min={-5} max={5} step={0.5} value={userSlope}
+ onChange={(e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { setUserSlope(Math.max(-5, Math.min(5, v))); setChecked(false); } }}
+ className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none" />
  </div>
 
- {/* Intercept slider */}
  <div className="flex items-center gap-3">
- <label className="w-28 text-right text-xs font-medium text-text-muted">
- intercept = <span className="font-mono text-primary ">{userIntercept}</span>
- </label>
- <input type="range" min={-5} max={5} step={0.5} value={userIntercept}
- onChange={(e) => { setUserIntercept(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-green-500" />
+ <label className="w-28 text-right text-xs font-medium text-text-muted">intercept</label>
+ <input type="number" min={-5} max={5} step={0.5} value={userIntercept}
+ onChange={(e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { setUserIntercept(Math.max(-5, Math.min(5, v))); setChecked(false); } }}
+ className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none" />
  </div>
 
  {/* Shade instruction */}

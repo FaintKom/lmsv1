@@ -120,32 +120,33 @@ export default function GraphTransform({ config, onComplete }: MathTemplateProps
  </span>
  </div>
 
- {/* Sliders */}
+ {/* Typed parameters — sliders let the answer be scrolled into place
+     (specs/020 US1, owner decision) */}
  <div className="w-full max-w-sm space-y-3">
- <div className="flex items-center gap-3">
- <label className="w-32 text-right text-xs font-medium text-text-muted">
- ↔ Horizontal = <span className="font-mono text-primary ">{h}</span>
- </label>
- <input type="range" min={-5} max={5} step={0.5} value={h}
- onChange={(e) => { setH(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-primary" />
+ {([
+ { label: "↔ Horizontal shift", value: h, set: setH, min: -5, max: 5, step: 0.5 },
+ { label: "↕ Vertical shift", value: v, set: setV, min: -5, max: 5, step: 0.5 },
+ { label: "↕ Stretch", value: a, set: setA, min: -3, max: 3, step: 0.25 },
+ ] as const).map((p) => (
+ <div key={p.label} className="flex items-center gap-3">
+ <label className="flex-1 text-right text-xs font-medium text-text-muted">{p.label}</label>
+ <input
+ type="number"
+ min={p.min}
+ max={p.max}
+ step={p.step}
+ value={p.value}
+ onChange={(e) => {
+ const n = parseFloat(e.target.value);
+ if (!Number.isNaN(n)) {
+ p.set(Math.max(p.min, Math.min(p.max, n)));
+ setChecked(false);
+ }
+ }}
+ className="w-24 rounded-lg border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-sm text-primary focus:border-primary focus:outline-none"
+ />
  </div>
- <div className="flex items-center gap-3">
- <label className="w-32 text-right text-xs font-medium text-text-muted">
- ↕ Vertical = <span className="font-mono text-primary ">{v}</span>
- </label>
- <input type="range" min={-5} max={5} step={0.5} value={v}
- onChange={(e) => { setV(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-primary" />
- </div>
- <div className="flex items-center gap-3">
- <label className="w-32 text-right text-xs font-medium text-text-muted">
- ↕ Stretch = <span className="font-mono text-primary ">{a}</span>
- </label>
- <input type="range" min={-3} max={3} step={0.25} value={a}
- onChange={(e) => { setA(parseFloat(e.target.value)); setChecked(false); }}
- className="flex-1 accent-primary" />
- </div>
+ ))}
  </div>
 
  <Button onClick={handleCheck} disabled={checked && isCorrect}>

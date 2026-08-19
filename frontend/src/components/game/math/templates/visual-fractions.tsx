@@ -8,6 +8,13 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  const targetNumerator = (config.target_numerator as number) || 3;
  const targetDenominator = (config.target_denominator as number) || 8;
  const displayType = (config.display_type as "pie" | "bar") || "pie";
+ // specs/020 US2: the instruction is authored — absent keeps today's default,
+ // an empty string removes the line entirely.
+ const prompt =
+ config.prompt !== undefined
+ ? String(config.prompt)
+ : `Shade ${targetNumerator}/${targetDenominator} of the shape`;
+ const showCount = config.show_count !== false;
 
  const [selected, setSelected] = useState<Set<number>>(new Set());
  const [checked, setChecked] = useState(false);
@@ -45,9 +52,7 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
 
  return (
  <div className="flex flex-col items-center gap-4">
- <p className="text-sm text-text-muted ">
- Shade <strong>{targetNumerator}/{targetDenominator}</strong> of the shape
- </p>
+ {prompt.trim() && <p className="text-sm text-text-muted ">{prompt}</p>}
 
  {displayType === "pie" ? (
  <svg viewBox={`0 0 ${svgSize} ${svgSize}`} width="100%" style={{ maxWidth: svgSize }}>
@@ -83,10 +88,6 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  );
  })}
 
- {/* Center label */}
- <text x={center} y={center + 5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="var(--color-text)" className="">
- {selected.size}/{targetDenominator}
- </text>
  </svg>
  ) : (
  /* Bar representation */
@@ -117,10 +118,14 @@ export default function VisualFractions({ config, onComplete }: MathTemplateProp
  />
  );
  })}
- <text x={200} y={78} textAnchor="middle" fontSize={14} fill="var(--color-text-muted)">
- {selected.size}/{targetDenominator}
- </text>
  </svg>
+ )}
+
+ {/* Count beside the shape, optional (specs/020 US2) */}
+ {showCount && (
+ <p className="text-lg font-bold text-text">
+ {selected.size}/{targetDenominator}
+ </p>
  )}
 
  <div className="flex gap-2">
