@@ -1113,3 +1113,111 @@ async def test_parameter_matching_templates_are_marked_here(
     )
     assert worse.json()["score"] == partial_score
     assert worse.json()["passed"] is False
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "template,template_config,perfect,partial,partial_score",
+    [
+        (
+            "arithmetic_puzzle",
+            {"equations": [{"answer": 4, "blankIndex": 0}, {"answer": 3, "blankIndex": 2}]},
+            {"values": {"0": 4, "1": 3}},
+            {"values": {"0": 4, "1": 9}},
+            50,
+        ),
+        (
+            "venn_diagram",
+            {
+                "regions": {"a_only": 12, "intersection": 8},
+                "answers": {"b_only": 10, "neither": 10},
+            },
+            {"regions": {"b_only": 10, "neither": 10}},
+            {"regions": {"b_only": 10, "neither": 3}},
+            50,
+        ),
+        (
+            "equation_balance",
+            {"left_fixed": [5], "right_fixed": [2], "available_terms": [{"value": 3}]},
+            {"left_added": [], "right_added": [3]},
+            {"left_added": [], "right_added": [1]},
+            0,
+        ),
+    ],
+)
+async def test_the_last_markable_maths_templates(
+    client: AsyncClient,
+    db,
+    org,
+    teacher,
+    student,
+    template,
+    template_config,
+    perfect,
+    partial,
+    partial_score,
+):
+    """Three more exact rules: a blank per equation, a number per Venn region, and
+    two pans that either balance or do not.
+
+    equation_balance has no partial credit in the widget, so its near-miss is
+    zero here too - written out per case rather than assumed.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": template, "template_config": template_config},
+    )
+
+    good = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": perfect},
+        headers=auth_header(student),
+    )
+    assert good.status_code == 200, good.text
+    assert good.json()["score"] == 100
+    assert good.json()["passed"] is True
+
+    worse = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": partial},
+        headers=auth_header(student),
+    )
+    assert worse.json()["score"] == partial_score
+    assert worse.json()["passed"] is False
+
+
+@pytest.mark.asyncio
+async def test_a_venn_config_spelled_the_old_way_still_marks(
+    client: AsyncClient, db, org, teacher, student
+):
+    """`both` is the legacy spelling of `intersection`, and the widget accepts it.
+
+    A pupil answering an older exercise must not be marked wrong for how its
+    config spells a region.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": "venn_diagram", "template_config": {"answers": {"both": 8}}},
+    )
+
+    answered = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"regions": {"intersection": 8}}},
+        headers=auth_header(student),
+    )
+    assert answered.status_code == 200, answered.text
+    assert answered.json()["passed"] is True

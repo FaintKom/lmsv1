@@ -115,9 +115,11 @@ export default function ArithmeticPuzzle({ config, onComplete }: MathTemplatePro
  });
  setResults(res);
  setChecked(true);
- if (res.every(Boolean)) {
- onComplete(true, 1.0);
- }
+ // The entered numbers go up; the server marks them (specs/012). Reporting a
+ // wrong attempt too, or a pupil who tried leaves no trace for their teacher.
+ const work = { values: { ...answers } };
+ const rightCount = res.filter(Boolean).length;
+ onComplete(res.every(Boolean), rightCount / res.length, work);
  };
 
  return (
