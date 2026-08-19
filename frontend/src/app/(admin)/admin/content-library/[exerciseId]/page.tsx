@@ -50,9 +50,7 @@ import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 import { useTranslation } from "@/lib/i18n/context";
 import { backTarget } from "./back-target";
-import ExerciseRenderer from "@/components/exercises/exercise-renderer";
-import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
-import { isV2LiveType } from "@/lib/exercises/v2-adapter";
+import { ExercisePreview } from "@/components/exercises/exercise-preview";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
@@ -453,11 +451,7 @@ function ExercisePreviewPanel({
  </p>
  {/* Remount on any config edit so type components can't hold stale state */}
  <div key={serialized}>
- {isV2LiveType(exercise.exercise_type) ? (
- <V2ExerciseLive exercise={previewExercise as never} previewMode />
- ) : (
- <ExerciseRenderer exercise={previewExercise as never} previewMode />
- )}
+ <ExercisePreview exercise={previewExercise as never} />
  </div>
  </CardContent>
  )}
