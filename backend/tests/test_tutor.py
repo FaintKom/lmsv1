@@ -192,6 +192,49 @@ class _FakeLesson:
         self.content_type = content_type
 
 
+# --- Golden answers ------------------------------------------------------
+#
+# One live call was made on 2026-08-19 against OpenRouter's
+# nvidia/nemotron-3-super-120b-a12b:free with the production SYSTEM_PROMPT and
+# a short German-greetings lesson. These strings are what the model actually
+# said; from here on they play the model's role so the suite never networks.
+
+GOLDEN_GROUNDED = (
+    "Use **du** when speaking to friends, family, children, or people your "
+    "own age. Use **Sie** (always capitalized) for everyone else; if you’re "
+    "unsure, default to **Sie** because it is polite and safe."
+)
+GOLDEN_REFUSAL = "This lesson does not cover the capital of Brazil."
+
+
+async def test_answer_reaches_the_student_verbatim(client, db, org, teacher, student, monkeypatch):
+    """The endpoint adds nothing and trims nothing: what the model said is
+    what the pupil reads. Uses the recorded live answer, not an invented one."""
+
+    async def _golden(system, user, **kw):
+        return GOLDEN_GROUNDED
+
+    monkeypatch.setattr("app.tutor.router.complete", _golden)
+    course, lesson = await _published_lesson(db, org, teacher)
+    await make_enrollment(db, course.id, student.id)
+    r = await client.post(
+        ASK.format(lesson_id=lesson.id),
+        json={"question": "When should I use du and when Sie?"},
+        headers=auth_header(student),
+    )
+    assert r.status_code == 200
+    assert r.json()["answer"] == GOLDEN_GROUNDED
+
+
+def test_live_refusal_names_the_gap_instead_of_guessing():
+    """The recorded off-topic answer is the shape the widget's honesty rests
+    on: the model says the lesson does not cover it, rather than answering
+    from the world. If a future model or prompt stops doing this, the golden
+    needs re-recording and the disclaimer copy a fresh look."""
+    assert "does not cover" in GOLDEN_REFUSAL
+    assert "Bras" not in GOLDEN_REFUSAL  # no smuggled real answer
+
+
 def test_lesson_text_strips_html_from_blocks():
     text = _lesson_text(_FakeLesson(LESSON_BLOCKS))
     assert "Floor division" in text
