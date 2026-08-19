@@ -2095,7 +2095,10 @@ function TemplatePreview({
  const TemplateComponent = template.component;
  return (
  <Suspense fallback={<div className="flex items-center justify-center py-8"><Loader2 className="h-4 w-4 animate-spin text-text-subtle" /></div>}>
- <TemplateComponent config={config} onComplete={() => {}} />
+ {/* Templates copy config into useState at mount and never re-sync —
+     remount on every config change so the preview can't go stale
+     (specs/018 FR-003). */}
+ <TemplateComponent key={JSON.stringify(config)} config={config} onComplete={() => {}} />
  </Suspense>
  );
 }

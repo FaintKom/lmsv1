@@ -66,6 +66,9 @@ export interface V2ExerciseLiveProps {
   /** Live-lesson draft capture — forwarded to the underlying V2 component. */
   onAnswersChange?: (answers: Record<string, unknown>) => void;
   onQuit?: () => void;
+  /** Teacher test run (specs/018): grade via the non-persisting /check path
+   *  only — no submission, no attempt spent, no stored verdict restored. */
+  previewMode?: boolean;
 }
 
 interface AttemptStatus {
@@ -81,6 +84,7 @@ export function V2ExerciseLive({
   onFinish,
   onAnswersChange,
   onQuit,
+  previewMode = false,
 }: V2ExerciseLiveProps) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<AttemptStatus | null>(null);
@@ -90,6 +94,13 @@ export function V2ExerciseLive({
 
   useEffect(() => {
     let alive = true;
+    if (previewMode) {
+      // Test run: fresh board every time, no attempt bookkeeping.
+      setStatus({ attempt_count: 0, max_attempts: 100, max_reached: false });
+      return () => {
+        alive = false;
+      };
+    }
     apiClient
       .get(`/exercises/${exercise.id}/attempts`)
       .then(({ data }) => {
@@ -112,7 +123,7 @@ export function V2ExerciseLive({
     return () => {
       alive = false;
     };
-  }, [exercise.id]);
+  }, [exercise.id, previewMode]);
 
   const formatCorrect = (correctAnswer: unknown): string | undefined => {
     if (!correctAnswer || typeof correctAnswer !== "object") return undefined;
@@ -130,6 +141,14 @@ export function V2ExerciseLive({
   };
 
   const onGrade: V2GradeFn = async (answers) => {
+    if (previewMode) {
+      // Never /submit from a test run (specs/018 FR-005/FR-006).
+      const res = await apiClient.post(`/exercises/${exercise.id}/check`, {
+        interactive_answers: answers,
+      });
+      const d = res.data ?? {};
+      return { correct: !!d.passed, perItem: d.per_item ?? undefined };
+    }
     const res = await apiClient.post(`/exercises/${exercise.id}/submit`, {
       interactive_answers: answers,
       elapsed_seconds: timerRef.current.elapsedSeconds(),

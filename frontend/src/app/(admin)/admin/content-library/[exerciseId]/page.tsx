@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,9 @@ import { SCORMConfigEditor } from "@/components/exercises/scorm-package-exercise
 import { MathStepwiseConfigEditor } from "@/components/exercises/math-stepwise-exercise";
 import { useTranslation } from "@/lib/i18n/context";
 import { backTarget } from "./back-target";
+import ExerciseRenderer from "@/components/exercises/exercise-renderer";
+import { V2ExerciseLive } from "@/components/exercises/v2-exercise-live";
+import { isV2LiveType } from "@/lib/exercises/v2-adapter";
 
 const JsonConfigPanel = dynamic(() => import("./json-config-panel"), {
  ssr: false,
@@ -389,7 +392,61 @@ export default function ExerciseEditorPage() {
  {exercise.exercise_type === "code_challenge" && (
  <TestCasesEditor exerciseId={exerciseId} testCases={exercise.test_cases || []} onRefresh={fetchExercise} />
  )}
+
+ {/* Live student-view preview + anonymous test mode (specs/018) */}
+ <ExercisePreviewPanel exercise={exercise} title={title} config={config} />
  </div>
+ );
+}
+
+// ─── Live preview / test mode (specs/018) ──────────────────────────
+// Renders the student view from the editor's CURRENT state (unsaved edits
+// included). previewMode keeps every verdict on non-persisting paths.
+
+function ExercisePreviewPanel({
+ exercise,
+ title,
+ config,
+}: {
+ exercise: Exercise;
+ title: string;
+ config: Record<string, unknown>;
+}) {
+ const { t } = useTranslation();
+ const [open, setOpen] = useState(false);
+ const serialized = JSON.stringify(config);
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ const previewExercise = useMemo(
+ () => ({ ...exercise, title, config }),
+ [exercise, title, serialized]
+ );
+ return (
+ <Card>
+ <CardHeader className="cursor-pointer" onClick={() => setOpen((o) => !o)}>
+ <CardTitle className="flex items-center gap-2 text-lg">
+ <Eye className="h-5 w-5 text-primary" />
+ {t("admin.exercisePreview.title")}
+ <span className="ml-auto text-xs font-normal text-text-muted">
+ {open ? "▾" : "▸"}
+ </span>
+ </CardTitle>
+ </CardHeader>
+ {open && (
+ <CardContent className="border-t pt-4">
+ <p className="mb-4 rounded-lg bg-surface-2 px-3 py-2 text-xs text-text-muted">
+ {t("admin.exercisePreview.banner")} {t("admin.exercisePreview.verdictsFollowSave")}
+ </p>
+ {/* Remount on any config edit so type components can't hold stale state */}
+ <div key={serialized}>
+ {isV2LiveType(exercise.exercise_type) ? (
+ <V2ExerciseLive exercise={previewExercise as never} previewMode />
+ ) : (
+ <ExerciseRenderer exercise={previewExercise as never} previewMode />
+ )}
+ </div>
+ </CardContent>
+ )}
+ </Card>
  );
 }
 
