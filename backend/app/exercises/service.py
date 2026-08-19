@@ -636,9 +636,10 @@ async def submit_exercise(
         return await _submit_code(db, exercise, user, data, now)
     elif exercise.exercise_type == ExerciseType.file_upload:
         raise BadRequestError("Use the /upload endpoint for file submissions")
+    elif exercise.exercise_type == ExerciseType.math_interactive:
+        return await _submit_math_interactive(db, exercise, user, data, now)
     elif exercise.exercise_type in (
         ExerciseType.robot_2d,
-        ExerciseType.math_interactive,
         ExerciseType.world_3d,
     ):
         return await _submit_game_level(db, exercise, user, data, now)
@@ -1298,6 +1299,91 @@ async def _submit_world(
 
     if run["won"]:
         await _award_xp(db, user.id, GAME_XP[ExerciseType.world_3d], "world_3d_completed")
+
+    return await _reload_submission(db, submission.id)
+
+
+def _mark_coordinate_plane(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark a coordinate plane the way its widget does, or decline.
+
+    The widget compares each placed point with the one the teacher named, within a
+    tolerance that defaults to 0.5, and calls it solved only when every point is
+    right (`coordinate-plane.tsx`). The same rule has to hold here, or a pupil is
+    marked one way while they work and another way when they submit.
+
+    Returns None when there is nothing to mark - no targets, or no points sent -
+    so the caller can record the attempt unmarked instead of inventing a verdict.
+    """
+    targets = template_config.get("target_points") or []
+    points = work.get("points")
+    if not targets or not isinstance(points, list):
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.5
+    tolerance = abs(float(tolerance))
+
+    correct = 0
+    for i, target in enumerate(targets):
+        if i >= len(points) or not isinstance(points[i], dict):
+            continue
+        try:
+            dx = abs(float(points[i].get("x", 0)) - float(target.get("x", 0)))
+            dy = abs(float(points[i].get("y", 0)) - float(target.get("y", 0)))
+        except (TypeError, ValueError):
+            continue
+        if dx <= tolerance and dy <= tolerance:
+            correct += 1
+
+    return correct / len(targets), correct == len(targets)
+
+
+async def _submit_math_interactive(
+    db: AsyncSession,
+    exercise: Exercise,
+    user: User,
+    data: dict,
+    now: datetime,
+) -> ExerciseSubmission:
+    """Mark a maths widget here, for the templates the server understands.
+
+    One template understands itself so far - the coordinate plane, the only one
+    with content behind it in production (spec 012 counted). Everything else keeps
+    the behaviour from #352: the attempt is recorded with the pupil's own report
+    and marked by nobody, because a verdict from the page the pupil controls is
+    not evidence.
+    """
+    config = exercise.config or {}
+    template_config = config.get("template_config") or {}
+    work = data.get("interactive_answers")
+    if not isinstance(work, dict):
+        work = {}
+
+    marked = None
+    if config.get("template_type") == "coordinate_plane":
+        marked = _mark_coordinate_plane(template_config, work)
+
+    if marked is None:
+        return await _submit_game_level(db, exercise, user, data, now)
+
+    score, passed = marked
+    submission = ExerciseSubmission(
+        exercise_id=exercise.id,
+        student_id=user.id,
+        answers=work,
+        score=round(score * 100, 2),
+        passed=passed,
+        status="graded",
+        submitted_at=now,
+        graded_at=now,
+    )
+    _apply_timing(submission, data, now)
+    db.add(submission)
+    await db.flush()
+
+    if passed:
+        await _award_xp(db, user.id, 25, "math_interactive_completed")
 
     return await _reload_submission(db, submission.id)
 

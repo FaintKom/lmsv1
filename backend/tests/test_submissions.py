@@ -675,3 +675,96 @@ async def test_a_game_verdict_from_the_client_is_recorded_not_believed(
     assert body["status"] == "submitted"
     # The claim itself is kept — a teacher marking this wants to see it.
     assert body["answers"]["game_result"]["completed"] is True
+
+
+@pytest.mark.asyncio
+async def test_coordinate_plane_is_marked_here_not_in_the_browser(
+    client: AsyncClient, db, org, teacher, student
+):
+    """The pupil sends where they put the points; the server decides.
+
+    math_interactive used to post its own verdict, and #352 stopped that being
+    believed - correctly, but it left the type unmarked. The coordinate plane is
+    the one template with content behind it, so it is the one that learns to be
+    marked here (spec 012).
+
+    The rule matches the widget: each point within tolerance of its target,
+    default 0.5, and solved only when every point is right.
+    """
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={
+            "template_type": "coordinate_plane",
+            "template_config": {"target_points": [{"x": 3, "y": 2}, {"x": -2, "y": 4}]},
+        },
+    )
+
+    exact = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"points": [{"x": 3, "y": 2}, {"x": -2, "y": 4}]}},
+        headers=auth_header(student),
+    )
+    assert exact.status_code == 200, exact.text
+    assert exact.json()["score"] == 100
+    assert exact.json()["passed"] is True
+
+    # Inside the default tolerance of 0.5, as the widget allows.
+    near = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"points": [{"x": 3.4, "y": 2}, {"x": -2, "y": 3.6}]}},
+        headers=auth_header(student),
+    )
+    assert near.json()["passed"] is True
+
+    half = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"interactive_answers": {"points": [{"x": 3, "y": 2}, {"x": 5, "y": 5}]}},
+        headers=auth_header(student),
+    )
+    assert half.json()["score"] == 50
+    assert half.json()["passed"] is False
+
+    # The old forgery: a verdict with no work behind it stays unmarked.
+    forged = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert forged.status_code == 200, forged.text
+    assert forged.json()["passed"] is None, "a claim without work is not a mark"
+    assert forged.json()["status"] == "submitted"
+
+
+@pytest.mark.asyncio
+async def test_an_unmarked_math_template_still_reaches_the_teacher(
+    client: AsyncClient, db, org, teacher, student
+):
+    """Templates the server cannot mark keep the honest interim rather than a guess."""
+    course = await make_course(db, org, teacher)
+    module = await make_module(db, course.id)
+    lesson = await make_lesson(db, module.id)
+    await make_enrollment(db, course.id, student.id)
+    ex = await make_exercise(
+        db,
+        lesson.id,
+        org.id,
+        exercise_type=ExerciseType.math_interactive,
+        config={"template_type": "number_line", "template_config": {"target": 4}},
+    )
+
+    sent = await client.post(
+        f"/api/v1/exercises/{ex.id}/submit",
+        json={"game_result": {"completed": True, "score": 1.0}},
+        headers=auth_header(student),
+    )
+    assert sent.status_code == 200, sent.text
+    assert sent.json()["passed"] is None
+    assert sent.json()["score"] is None
+    assert sent.json()["status"] == "submitted"

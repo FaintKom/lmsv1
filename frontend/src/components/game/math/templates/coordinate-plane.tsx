@@ -89,10 +89,13 @@ export default function CoordinatePlane({ config, onComplete }: MathTemplateProp
  setChecked(true);
  const correct = res.filter(Boolean).length;
  const score = correct / targetPoints.length;
+ // The points travel with the verdict: the server marks them itself and
+ // ignores the verdict, which is a claim the page could make up.
+ const work = { points: userPoints.map((p) => ({ x: p.x, y: p.y })) };
  if (correct === targetPoints.length) {
- onComplete(true, 1.0);
- } else if (correct > 0) {
- onComplete(false, score);
+ onComplete(true, 1.0, work);
+ } else {
+ onComplete(false, score, work);
  }
  };
 
