@@ -155,7 +155,7 @@ async def upsert_wave_lesson(
 
 async def upsert_variant(
     db: AsyncSession,
-    org,
+    course: Course,
     lesson: Lesson,
     fixture: dict,
     variant: str,
@@ -172,7 +172,11 @@ async def upsert_variant(
     ex = Exercise(
         id=ex_id,
         lesson_id=lesson.id,
-        org_id=org.id,
+        # From the course, not from whoever called: an exercise stamped with a
+        # different organisation than the course it sits in is invisible to that
+        # course's pupils, because reads scope by user.org_id. That happened to
+        # the Kitchen Sink seeder on 2026-08-19.
+        org_id=course.org_id,
         # QA seeds use the QA- prefix; display_id is unique across the table.
         display_id=f"CC-{ex_type[:10].upper()}-{variant}",
         exercise_type=ExerciseType(ex_type),
@@ -232,8 +236,7 @@ async def main() -> int:
             for ex_type in types:
                 for variant, max_attempts in VARIANTS:
                     await upsert_variant(
-                        db, org, lesson, fixtures[ex_type],
-                        variant, max_attempts, order,
+                        db, course, lesson, fixtures[ex_type], variant, max_attempts, order
                     )
                     order += 1
                     total += 1

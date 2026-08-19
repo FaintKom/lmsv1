@@ -405,8 +405,18 @@ async def upsert_lesson(
 
 
 async def upsert_exercise(
-    db, org: Organization, lesson: Lesson, fx: dict, order: int
+    db, course: Course, lesson: Lesson, fx: dict, order: int
 ) -> Exercise:
+    """Create one exercise, owned by the course it sits in.
+
+    The org comes from the course rather than from --org-slug on purpose. On
+    2026-08-19 this script was run with the wrong slug against an existing course:
+    it found the course by its deterministic id, kept going, and wrote four
+    exercises stamped with another organisation into it. Reads scope by
+    `user.org_id`, so the pupil could not see them, and they were somebody else's
+    rows sitting inside this course. Passing the course makes that impossible to
+    express.
+    """
     ex_type = fx["type"]
     ex_id = ks_uuid(f"exercise-{ex_type}")
     existing = await db.get(Exercise, ex_id)
@@ -416,7 +426,7 @@ async def upsert_exercise(
     ex = Exercise(
         id=ex_id,
         lesson_id=lesson.id,
-        org_id=org.id,
+        org_id=course.org_id,
         display_id=f"KS-{ex_type[:10].upper()}-{order:02d}",
         exercise_type=ExerciseType(ex_type),
         title=fx.get("label", ex_type),
@@ -469,6 +479,14 @@ async def main() -> int:
     async with async_session_factory() as db:
         org, teacher = await resolve_org_and_teacher(db, args.org_slug)
         course = await upsert_course(db, org, teacher)
+        if course.org_id != org.id:
+            owner = await db.get(Organization, course.org_id)
+            print(
+                f"note: this course already belongs to {owner.slug!r}, not "
+                f"{args.org_slug!r} — seeding into {owner.slug!r}, which is where "
+                "its lessons and pupils are"
+            )
+            org = owner
 
         order = 0
         content_module = await upsert_module(
@@ -525,7 +543,7 @@ async def main() -> int:
                 )
             ]
             for i, ex_type in enumerate(plan["types"]):
-                ex = await upsert_exercise(db, org, lesson, fixtures[ex_type], i)
+                ex = await upsert_exercise(db, course, lesson, fixtures[ex_type], i)
                 exercise_count += 1
                 blocks.append(
                     block(
