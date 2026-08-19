@@ -32,6 +32,8 @@ from app.exercises.schemas import (
     TestCaseCreate,
     TestCaseInExercise,
     TestCaseUpdate,
+    WorldRunRequest,
+    WorldRunResponse,
 )
 from app.exercises.service import (
     add_question_to_exercise,
@@ -412,6 +414,45 @@ async def robot_run_endpoint(
         ) from None
 
     return RobotRunResponse(**result)
+
+
+@router.post("/{exercise_id}/world/run", response_model=WorldRunResponse)
+# Same deferred limit as the 2D route: one allowance for "a child pressing Run",
+# whichever world they are in.
+@limiter.limit(lambda: settings.robot_run_rate_limit)
+async def world_run_endpoint(
+    request: Request,
+    response: Response,
+    exercise_id: uuid.UUID,
+    data: WorldRunRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Run a 3D program. Persists nothing and consumes no attempt.
+
+    The 2D twin of this endpoint is directly above, and the two differ by one
+    argument: which world to run in. Note what the request cannot say — there is
+    no `completed` and no `score`. The server runs the program and reads the
+    verdict off its own replay.
+    """
+    from app.exercises import robot_runner, world_sim
+    from app.exercises.service import _get_exercise_with_relations
+
+    exercise = await _get_exercise_with_relations(db, exercise_id, user)
+    if exercise.exercise_type != ExerciseType.world_3d:
+        # Not "wrong type" — an id that is not a 3D level is, for this route, an
+        # id that does not exist. Same reasoning as cross-school reads.
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    try:
+        result = await robot_runner.run(exercise.config or {}, data.source, sim=world_sim)
+    except RuntimeError:
+        raise HTTPException(
+            status_code=503,
+            detail="The service that runs programs is unavailable. Try again.",
+        ) from None
+
+    return WorldRunResponse(**result)
 
 
 @router.post("/{exercise_id}/submit", response_model=ExerciseSubmissionResponse)

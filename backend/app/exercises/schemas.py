@@ -103,16 +103,44 @@ class MathInteractiveConfig(BaseModel):
 
 
 class World3DConfig(BaseModel):
+    """A 3D level. See `specs/012-world-3d-rework/data-model.md`.
+
+    Rewritten rather than extended, because production held no `world_3d` rows
+    when this was written and nothing was owed to anybody. Six fields are gone:
+
+    - `available_blocks` — the editor wrote it and nothing ever read it, so the
+      teacher's choice of commands was discarded. `commands` replaces it.
+    - `custom_win_js` — arbitrary JavaScript stored on the level and shipped to
+      the pupil's browser: an answer key and an execution surface at once. `win`
+      replaces it with an expression over a fixed vocabulary.
+    - `win_condition` folds into `win`; `difficulty` becomes `preset`, a label;
+      `max_blocks` becomes `star_size`; `allow_python` goes because hiding half
+      the exercise behind a flag that defaults to off is not a feature.
+    - `player_start` becomes `start`, matching 2D so the two editors read alike.
+    """
+
     grid_width: int = 6
     grid_depth: int = 6
-    cells: list[dict] = []  # [{x, z, y, type, id?, color?, properties?}]
-    player_start: dict = {"x": 0, "y": 0, "z": 0, "direction": "east"}
-    available_blocks: list[str] = ["move_forward", "turn_left", "turn_right", "jump"]
-    win_condition: str = "reach_goal"
-    custom_win_js: str | None = None
-    difficulty: str = "beginner"
+    start: dict = {"x": 0, "z": 0, "y": 0, "facing": "north"}
+    #: Sparse: [{x, z, y, type: "wall"|"platform"|"item"|"button"|"door"|"goal",
+    #: id?: str (doors), opens?: str (buttons)}]. A square absent here is bare
+    #: floor at height 0.
+    cells: list[dict] = []
+    #: What this level offers. Drives the block palette, the Python
+    #: autocompletion and the starter comment — all three from this one list.
+    commands: list[str] = ["move_forward", "turn_left", "turn_right", "at_goal"]
+    #: Expression over the vocabulary in data-model.md, joined by and/or/not.
+    win: dict = {"cond": "at_goal"}
+    max_steps: int = 500
+    #: Star thresholds, filled by the editor's Check button and left editable.
+    star_steps: int | None = None
+    star_size: int | None = None
+    #: The teacher's reference solution. Stripped for non-staff readers by
+    #: `router.py::_strip_answers`, which keys on this exact name.
+    solution_code: str | None = None
     hints: list[str] = []
-    allow_python: bool = False
+    #: A label only. `commands` is what the level actually offers.
+    preset: str = "beginner"
 
 
 class TranslationConfig(BaseModel):
@@ -278,14 +306,17 @@ class SubmitExerciseRequest(BaseModel):
     language: str | None = None
     # Interactive (matching, ordering, fill_blanks, true_false, categorize)
     interactive_answers: dict | None = None
-    # Game levels (math_interactive, world_3d). `robot_2d` no longer reads this:
-    # it carried the client's own verdict, which the server then recorded
-    # verbatim. A request that still sends it is accepted and the field ignored,
-    # so an old client cannot forge a pass — it simply gets graded on its code.
+    # Game levels (math_interactive only, since spec 012). `robot_2d` and
+    # `world_3d` no longer read this: it carried the client's own verdict, which
+    # the server then recorded verbatim. A request that still sends it is
+    # accepted and the field ignored, so an old client cannot forge a pass — it
+    # simply gets graded on its code.
     game_result: GameResultPayload | None = None
     # robot_2d. The program, and nothing about how it went — the server runs it
     # and reaches its own verdict. {source, mode: "python"|"blocks"}
     robot: dict | None = None
+    # world_3d. The same shape, and the same reason.
+    world: dict | None = None
     # Web editor (HTML/CSS/JS)
     web_code: WebCodePayload | None = None
     # Time-on-task (Phase 1 analytics). Optional — older clients omit it and
@@ -404,6 +435,79 @@ class RobotSolveResponse(BaseModel):
     #: too_many_targets | win_uses_values | no_reference_solution
     reason: str | None = None
     blockers: list[RobotBlocker] = []
+
+
+# ─── World 3D ────────────────────────────────────────────────────────
+#
+# Deliberately the same shapes as the Robot ones above. The two exercise types
+# ask the sandbox the same two questions, and a reader who knows one route
+# knows the other. See `specs/012-world-3d-rework/contracts/api.md`.
+
+
+class WorldRunRequest(BaseModel):
+    source: str = Field(min_length=1, max_length=20_000)
+    mode: str = "python"  # python | blocks — recorded, does not change the run
+
+
+class WorldRunError(BaseModel):
+    """Where a program broke, counted from the pupil's own first line.
+
+    Named apart from `world_sim.WorldError`, which is an exception the simulator
+    raises. The router imports both.
+    """
+
+    type: str
+    line: int | None = None
+    message: str = ""
+
+
+class WorldRunResponse(BaseModel):
+    #: One per attempted command; `cells` lists only what that command changed.
+    #: `motion` says which of walk / climb / jump / fall / turn to animate, so
+    #: the scene never has to infer it from a pair of coordinates.
+    frames: list[dict] = []
+    won: bool = False
+    steps: int = 0
+    #: Statements in the program the system ran, counted with `ast`. One rule
+    #: for both editors, because block mode submits the Python its blocks wrote.
+    size: int = 0
+    stars: int = 0
+    stopped: str = "end_of_program"  # end_of_program | steps_exhausted | error
+    output: str = ""
+    output_truncated: bool = False
+    error: WorldRunError | None = None
+
+
+class WorldPreviewRequest(BaseModel):
+    """Run against a level that has not been saved — the editor's playtest."""
+
+    config: dict
+    source: str = Field(default="", max_length=20_000)
+
+
+class WorldSolveRequest(BaseModel):
+    config: dict
+
+
+class WorldBlocker(BaseModel):
+    """A reason a level is not ready. `code` is a key, never a sentence — the
+    editor renders it in the teacher's language."""
+
+    code: str
+    commands: list[str] = []
+
+
+class WorldSolveResponse(BaseModel):
+    #: shortest — searched exhaustively.
+    #: reference_only — not searched; these figures come from the teacher's own
+    #:   solution, and the editor must never present them as an optimum.
+    #: unsolvable — searched, and there is no path.
+    answer: str
+    steps: int | None = None
+    size: int | None = None
+    #: too_many_targets | win_uses_steps | no_reference_solution
+    reason: str | None = None
+    blockers: list[WorldBlocker] = []
 
 
 class CheckExerciseRequest(BaseModel):

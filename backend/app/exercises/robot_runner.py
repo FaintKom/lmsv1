@@ -50,7 +50,18 @@ MEMORY_LIMIT_MB = 128
 #: the step allowance stops it, but not before it has written.
 OUTPUT_LIMIT = 8192
 
-_SIM_SOURCE = Path(robot_sim.__file__).read_text(encoding="utf-8")
+#: Read once per simulator module. Both worlds ship their own source into the
+#: sandbox; everything else in this file is identical for either, which is why
+#: it is parameterised rather than copied.
+_SIM_SOURCES: dict[str, str] = {}
+
+
+def _sim_source(sim) -> str:
+    path = sim.__file__
+    if path not in _SIM_SOURCES:
+        _SIM_SOURCES[path] = Path(path).read_text(encoding="utf-8")
+    return _SIM_SOURCES[path]
+
 
 # The harness. Everything the pupil's program needs, and one print at the end.
 #
@@ -90,8 +101,12 @@ except SyntaxError as _exc:
     _error = {{"type": "SyntaxError", "line": _exc.lineno, "message": _exc.msg or ""}}
 except StepsExhaustedError:
     _error = {{"type": "StepsExhausted", "line": None, "message": "steps_exhausted"}}
-except RobotError as _exc:
-    _error = {{"type": "RobotError", "line": _line_in_program(_exc), "message": _exc.key}}
+except SimError as _exc:
+    _error = {{
+        "type": type(_exc).__name__,
+        "line": _line_in_program(_exc),
+        "message": _exc.key,
+    }}
 except BaseException as _exc:  # noqa: BLE001 — anything a pupil writes is fair game
     _error = {{
         "type": type(_exc).__name__,
@@ -104,13 +119,16 @@ _sys.stdout.write(_json.dumps({{"commands": WORLD.commands, "error": _error}}))
 '''
 
 
-def build_program(level: dict, source: str) -> str:
+def build_program(level: dict, source: str, *, sim=robot_sim) -> str:
     """The single Python file the sandbox will run.
 
     ``json.dumps`` produces only escapes Python also understands, so a program
     that is nothing but quotes and backslashes embeds safely.
+
+    ``sim`` chooses the world. It defaults to the 2D one so every existing call
+    site reads as it did; ``world_sim`` is passed for a 3D level.
     """
-    return _SIM_SOURCE + _HARNESS.format(
+    return _sim_source(sim) + _HARNESS.format(
         level=json.dumps(level),
         source=source,
         sentinel=SENTINEL,
@@ -181,15 +199,20 @@ def stars(
     return earned
 
 
-async def run(level: dict, source: str) -> dict:
+async def run(level: dict, source: str, *, sim=robot_sim) -> dict:
     """Run a program against a level, returning the result of `contracts/api.md`.
 
     Raises ``RuntimeError`` when the sandbox did not answer, which the router
     turns into a 503 — nothing recorded, no attempt consumed.
+
+    ``sim`` chooses the world: ``robot_sim`` for a 2D level, ``world_sim`` for a
+    3D one. Both are asked the same two questions — which commands were
+    attempted, and what happens when they are replayed — so everything from the
+    sentinel down is shared rather than written twice.
     """
     result = await execute_code_remote(
         "python",
-        build_program(level, source),
+        build_program(level, source, sim=sim),
         stdin="",
         timeout_seconds=TIMEOUT_SECONDS,
         memory_limit_mb=MEMORY_LIMIT_MB,
@@ -199,7 +222,7 @@ async def run(level: dict, source: str) -> dict:
         raise RuntimeError(result.get("stderr") or "sandbox unavailable")
 
     output, truncated, trace = parse_stdout(result.get("stdout") or "")
-    replayed = robot_sim.replay(level, trace["commands"])
+    replayed = sim.replay(level, trace["commands"])
 
     error = trace["error"]
     stopped = replayed["stopped"]

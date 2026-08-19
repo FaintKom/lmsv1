@@ -116,10 +116,10 @@ production → next. Nothing starts before the previous stage is live.
 
 | Stage | Lands | Proven by |
 |---|---|---|
-| **1. The rules** | `world_sim`, solver, validator, schema, endpoints, server-side grading | pytest against real Postgres; a claimed win refused, with the genuine win beside it |
+| **1. The rules** | `world_sim`, the schema, the run endpoint, server-side grading | pytest against real Postgres; a claimed win refused, with the genuine win beside it |
 | **2. The runtime** | Exercise view on the trace player; the two dead executors deleted | A loop run in blocks and in Python in the browser, taking identical paths |
 | **3. The look** | The whole `scene/` directory; `scene-renderer.tsx` retired | Screenshots at both themes and both widths; a reduced-motion pass; frame rate on a full 10×10 |
-| **4. The teacher** | Editor rebuilt to the 2D pattern, plus the live 3D preview | A level built from empty, checked, playtested, saved, then solved as a pupil |
+| **4. The teacher** | Solver, validator, the two staff endpoints, and the editor rebuilt to the 2D pattern with a live 3D preview | A level built from empty, checked, playtested, saved, then solved as a pupil |
 | **5. The proof** | Journey, QA fixture, probe, `custom_win_js` deleted, docs | The journey running in CI against the ephemeral QA stack |
 
 Stage 2 deliberately keeps the old scene rendering. It is the only way the
