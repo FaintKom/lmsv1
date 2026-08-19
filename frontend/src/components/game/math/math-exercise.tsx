@@ -13,6 +13,8 @@ interface MathExerciseProps {
  steps_used: number;
  time_seconds: number;
  code_snapshot: string | null;
+ /** What the pupil did, for the server to mark. Absent on templates that cannot say. */
+ work?: Record<string, unknown>;
  }) => void;
 }
 
@@ -30,7 +32,7 @@ export default function MathExercise({
  const submittedRef = useRef(false);
 
  const handleComplete = useCallback(
- (success: boolean, score: number) => {
+ (success: boolean, score: number, work?: Record<string, unknown>) => {
  if (submittedRef.current) return;
  submittedRef.current = true;
  const elapsed = (Date.now() - startTimeRef.current) / 1000;
@@ -40,6 +42,7 @@ export default function MathExercise({
  steps_used: 0,
  time_seconds: elapsed,
  code_snapshot: null,
+ work,
  });
  // Reset after short delay so the exercise can be retried
  setTimeout(() => {

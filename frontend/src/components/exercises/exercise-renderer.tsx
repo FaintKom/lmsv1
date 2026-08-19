@@ -632,7 +632,12 @@ function ExerciseBody({
  <MathExercise
  exerciseId={exercise.id}
  config={exercise.config}
- onSubmit={(result) => onSubmit({ game_result: result })}
+ // Where a template can say what the pupil did, that is what goes up and
+ // the server marks it. The rest still send their report, which is stored
+ // for the teacher and marked by nobody.
+ onSubmit={(result) =>
+ onSubmit(result.work ? { interactive_answers: result.work } : { game_result: result })
+ }
  />
  );
 

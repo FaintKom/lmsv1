@@ -31,7 +31,14 @@ export interface MathTemplateConfig {
 
 export interface MathTemplateProps {
  config: Record<string, unknown>;
- onComplete: (success: boolean, score: number) => void;
+ /**
+  * Report the attempt. `work` is what the pupil actually did - the points they
+  * placed, the value they typed - and is what the server marks; success and score
+  * stay for immediate feedback in the page. A template that cannot describe its
+  * work omits it, and its attempt is recorded for the teacher instead of marked
+  * (specs/012-math-interactive-server-marking).
+  */
+ onComplete: (success: boolean, score: number, work?: Record<string, unknown>) => void;
 }
 
 const CoordinatePlane = lazy(() => import("./templates/coordinate-plane"));
