@@ -109,7 +109,6 @@ export const I18N_ALLOWLIST: ReadonlySet<string> = new Set([
   "src/components/game/math/templates/two-way-table.tsx",
   "src/components/game/math/templates/venn-diagram.tsx",
   "src/components/game/math/templates/visual-fractions.tsx",
-  "src/components/game/world-3d/world-3d-editor.tsx",
   // The 3D scene: geometry, materials and a frame loop. These three files
   // contain no user-visible text of any kind — every word around the level
   // lives in world-3d-exercise.tsx, which came off this list when it was
