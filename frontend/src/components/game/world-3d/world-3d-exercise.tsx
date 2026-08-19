@@ -55,11 +55,23 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
   const hints = useMemo(() => (config.hints as string[]) || [], [config.hints]);
   const toolbox = useMemo(() => buildWorldToolbox(commands), [commands]);
 
-  /** Header and autocompletion read the same list, so they cannot disagree. */
-  const starter = useMemo(
-    () => `# ${t("game.starterHeader")}\n` + commands.map((c) => `#   ${c}()`).join("\n") + "\n\n",
-    [commands, t],
-  );
+  /**
+   * Header and autocompletion read the same list, so they cannot disagree.
+   *
+   * The movement commands say how far they climb. The rule has always been
+   * there — walking takes one floor, jumping two — and it was written down
+   * nowhere, so "how does it get up there" was a question with no answer on
+   * screen. The animation answers it after the first run; this answers it
+   * before, which is when a child staring at an empty editor asks.
+   */
+  const starter = useMemo(() => {
+    const climb: Record<string, string> = {
+      move_forward: t("world.climb.one"),
+      jump: t("world.climb.two"),
+    };
+    const lines = commands.map((c) => `#   ${c}()${climb[c] ? `  — ${climb[c]}` : ""}`);
+    return `# ${t("game.starterHeader")}\n${lines.join("\n")}\n\n`;
+  }, [commands, t]);
 
   // Held in refs so the player's callbacks never read a stale render's copy.
   const frames = useRef<WorldRunResult["frames"]>([]);

@@ -87,9 +87,15 @@ export function WorldProp({ cell, palette, gradient, reducedMotion }: PropProps)
       );
 
     case "platform":
+      // A platform occupies the floor it is recorded at and stands on it — the
+      // same as a wall, one floor tall. It used to be drawn hanging *below* its
+      // own number, because that number meant the height a character stood at
+      // rather than the floor the block sat on. The visible result: a platform
+      // on floor 0 lay entirely under the ground, so the first one a teacher
+      // placed could not be seen at all.
       return (
         <Solid
-          position={[cell.x, base - LEVEL * 0.5, cell.z]}
+          position={[cell.x, base + LEVEL * 0.5, cell.z]}
           size={[0.96, LEVEL, 0.96]}
           radius={0.06}
           color={palette.platform}

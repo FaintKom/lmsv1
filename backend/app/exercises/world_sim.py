@@ -13,10 +13,11 @@ reach in and set any flag it likes, so nothing the sandbox concludes is believed
 What comes back is a list of command names, and a list of names has nothing to
 forge.
 
-What 3D adds to 2D is height. A square has a *surface* — the top of the tallest
-platform standing on it, or the floor. Moving puts the character on that
-surface: up by one at most when walking, two when jumping, down by any amount.
-Every refusal below is a consequence of those two sentences.
+What 3D adds to 2D is height. A block occupies the floor it is recorded at,
+wall and platform alike. A square has a *surface* — one above the tallest
+platform standing on it, or the floor when there is none — and moving puts the
+character on that surface: up by one at most when walking, two when jumping,
+down by any amount. Every refusal below is a consequence of those two sentences.
 
 Because its own source is shipped into the sandbox, this module imports nothing
 but the standard library. Adding an application import breaks the sandbox at
@@ -164,11 +165,22 @@ class World:
     def surface(self, x: int, z: int) -> int:
         """The height a character stands at on this square.
 
-        The top of the tallest platform there, or the floor. Walls are not
-        walkable and so contribute nothing.
+        One above the tallest platform there, or the floor when there is none.
+
+        That "one above" is the whole of `specs/013-world-3d-climb`. A block
+        occupies the floor it is recorded at, wall and platform alike, so
+        standing on a platform means standing on top of it. Before, a
+        platform's floor was the height a character stood *at*, which put the
+        platform itself a floor below its own number: the two kinds of block
+        counted differently, the editor's one floor control meant two things,
+        and a platform placed on floor 0 raised the surface to 0, where it
+        already was. The teacher's first click did nothing and drew nothing.
+
+        Walls are not walkable and contribute nothing here; they block in
+        ``_walled`` instead.
         """
         tops = [y for (px, pz, y) in self.platforms if px == x and pz == z]
-        return max(tops) if tops else 0
+        return max(tops) + 1 if tops else 0
 
     def _door_at(self, x: int, z: int) -> str | None:
         """The id of a closed door on this square, or None."""

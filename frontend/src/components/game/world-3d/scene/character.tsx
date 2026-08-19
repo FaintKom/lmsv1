@@ -46,10 +46,13 @@ const TURN_CHASE = 10;
 export function Character({ player, palette, gradient, reducedMotion, refused }: CharacterProps) {
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
+  const flames = useRef<THREE.Group>(null);
 
   // Allocated once. `new Vector3()` inside the loop is a GC spike every frame.
   const target = useRef(new THREE.Vector3(player.x, player.y * LEVEL, player.z));
   const arrival = useRef(0);
+  /** How hard the jetpack is firing, 0 to 1. Eased, so it lights and dies. */
+  const thrust = useRef(0);
 
   useFrame((state, delta) => {
     const g = group.current;
@@ -64,6 +67,10 @@ export function Character({ player, palette, gradient, reducedMotion, refused }:
       g.rotation.y = angle;
       b.scale.set(1, 1, 1);
       b.position.y = 0;
+      // The pack stays on its back; the flame never lights. There is no lift to
+      // narrate when the character simply is at its new height.
+      thrust.current = 0;
+      flames.current?.scale.setScalar(0);
       return;
     }
 
@@ -112,6 +119,19 @@ export function Character({ player, palette, gradient, reducedMotion, refused }:
     // Volume is preserved: what is lost in height is gained around the middle.
     b.scale.set(1 + squash * 0.6, 1 - squash, 1 + squash * 0.6);
     b.position.y = lift + breath;
+
+    // The jetpack fires on the way up and on nothing else. A fall drops with
+    // the pack cold, a walk never lights it, and that is what tells the three
+    // apart at a glance — the frame already says which of them this is, so no
+    // extra field is needed to ask.
+    const climbing = travelling && (player.motion === "climb" || player.motion === "jump");
+    thrust.current += ((climbing ? 1 : 0) - thrust.current) * (1 - Math.exp(-16 * delta));
+    if (flames.current) {
+      // Flicker, so it reads as fire rather than a cone that grew.
+      const flare = thrust.current * (0.82 + Math.sin(t * 34) * 0.18);
+      flames.current.scale.set(1, Math.max(0, flare), 1);
+      flames.current.visible = thrust.current > 0.02;
+    }
   });
 
   return (
@@ -146,6 +166,40 @@ export function Character({ player, palette, gradient, reducedMotion, refused }:
           outline={palette.outline}
           gradient={gradient}
         />
+
+        {/*
+          The jetpack: two tanks on its back, and this is why it is drawn even
+          when cold. A child who sees the pack while the character stands still
+          can guess what it is for; a flame that appeared from nowhere at the
+          moment of a climb would decorate the climb without explaining it.
+
+          The visor faces −z, so the back is +z.
+        */}
+        {[-0.14, 0.14].map((x) => (
+          <ToonBox
+            key={x}
+            position={[x, 0.34, 0.24]}
+            size={[0.12, 0.3, 0.12]}
+            radius={0.05}
+            color={palette.visor}
+            outline={palette.outline}
+            gradient={gradient}
+          />
+        ))}
+
+        {/*
+          The flame. Scaled from nothing by the frame loop, and unlit on purpose
+          — `meshBasicMaterial` ignores the scene's lights, so it reads as
+          something giving light rather than catching it.
+        */}
+        <group ref={flames} visible={false}>
+          {[-0.14, 0.14].map((x) => (
+            <mesh key={x} position={[x, 0.05, 0.24]} rotation={[Math.PI, 0, 0]}>
+              <coneGeometry args={[0.07, 0.26, 10]} />
+              <meshBasicMaterial color={palette.item} />
+            </mesh>
+          ))}
+        </group>
 
         {/* Two feet, which is what makes the squash read as a squash. */}
         <ToonBox

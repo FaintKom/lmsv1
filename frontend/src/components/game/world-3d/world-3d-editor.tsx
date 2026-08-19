@@ -733,6 +733,12 @@ function CommandPalette({
         {COMMAND_GROUPS.map((group) => (
           <div key={group.id}>
             <p className="text-xs font-semibold text-text-muted">{t(`world.group.${group.id}`)}</p>
+            {/* How far each movement command climbs, where the teacher decides
+                whether to offer it — otherwise the choice between walking and
+                jumping is made without knowing what it buys. */}
+            {group.id === "movement" && (
+              <p className="text-3xs text-text-subtle">{t("world.climbHint")}</p>
+            )}
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {group.commands.map((command) => {
                 const on = commands.includes(command);

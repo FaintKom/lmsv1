@@ -76,13 +76,29 @@ def test_two_goals():
 
 
 def test_a_goal_buried_under_a_platform():
-    faulty = level(
+    """Any platform on the goal's square buries it, floor 0 included.
+
+    Floor 0 is where the editor opens, so it is the case a teacher reaches
+    first. It used to be the one that slipped through, back when a platform
+    there changed nothing.
+    """
+    for floor in (0, 1):
+        faulty = level(
+            cells=[
+                {"x": 2, "z": 0, "type": "goal"},
+                {"x": 2, "z": 0, "y": floor, "type": "platform"},
+            ]
+        )
+        assert "goal_under_platform" in codes(world_validate.check(faulty)), floor
+
+    # The control: the same platform one square over leaves the goal reachable.
+    sound = level(
         cells=[
             {"x": 2, "z": 0, "type": "goal"},
-            {"x": 2, "z": 0, "y": 1, "type": "platform"},
+            {"x": 1, "z": 0, "y": 0, "type": "platform"},
         ]
     )
-    assert "goal_under_platform" in codes(world_validate.check(faulty))
+    assert "goal_under_platform" not in codes(world_validate.check(sound))
 
 
 # ─── Items ───────────────────────────────────────────────────────────

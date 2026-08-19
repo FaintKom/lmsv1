@@ -76,13 +76,37 @@ def test_a_level_already_won_costs_no_steps():
 # ─── Height ──────────────────────────────────────────────────────────
 
 
+def test_a_step_of_one_floor_is_walked_and_counted():
+    """A platform on floor 0 raises its square to height 1, so walking climbs it.
+
+    Counted by hand: one move onto the step, where the goal is. The corridor
+    test above is the control for the arithmetic — three bare squares still cost
+    three moves, so a climb is neither free nor forbidden.
+    """
+    level = {
+        "grid_width": 1,
+        "grid_depth": 2,
+        "start": {"x": 0, "z": 1, "y": 0, "facing": "north"},
+        "cells": [
+            {"x": 0, "z": 0, "y": 0, "type": "platform"},
+            {"x": 0, "z": 0, "type": "goal"},
+        ],
+        "commands": ["move_forward", "at_goal"],
+        "win": {"cond": "at_goal"},
+        "max_steps": 50,
+    }
+    answer = world_solver.solve(level)
+    assert answer["answer"] == "shortest"
+    assert answer["steps"] == 1
+
+
 def test_a_climb_that_needs_a_jump_is_found_only_when_jump_is_offered():
     level = {
         "grid_width": 1,
         "grid_depth": 2,
         "start": {"x": 0, "z": 1, "y": 0, "facing": "north"},
         "cells": [
-            {"x": 0, "z": 0, "y": 2, "type": "platform"},
+            {"x": 0, "z": 0, "y": 1, "type": "platform"},
             {"x": 0, "z": 0, "type": "goal"},
         ],
         "commands": ["move_forward", "jump", "at_goal"],

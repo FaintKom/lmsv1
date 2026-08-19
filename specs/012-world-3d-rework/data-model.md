@@ -49,7 +49,14 @@ Rules the editor enforces and the validator repeats:
 - **Door** blocks movement until opened. Once open, it stays open for the run.
 - **Goal** sits on the surface. One per level.
 
-A square's *surface height* is the height of the tallest platform on it, or 0.
+A square's *surface height* is **one above** the tallest platform on it, or 0
+when there is none — a block occupies the floor it is recorded at, so standing
+on a platform means standing on top of it.
+
+> Corrected by `specs/013-world-3d-climb`. This line originally said the surface
+> *was* the tallest platform's floor, which put a platform a floor below its own
+> number and made a wall and a platform count differently from the same control.
+> `specs/013-world-3d-climb/contracts/height.md` has the rules in full.
 
 ## Expression — the win condition
 

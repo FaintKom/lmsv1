@@ -794,6 +794,9 @@ const tr: TranslationMap = {
  "Bu bölümü henüz kimse bitirmedi. Kontrol edilebilmesi için aşağıya bir çözüm yaz.",
  "robot.blocker.runner_unavailable": "Bölüm şu anda kontrol edilemedi. Tekrar dene.",
  // ─── Üç boyutlu bölüm düzenleyici ─────────────────────────────────
+ "world.climb.one": "bir kat çıkar",
+ "world.climb.two": "iki kat çıkar",
+ "world.climbHint": "Yürümek bir kat çıkar, zıplamak iki. İkisi de daha yükseğe çıkmaz.",
  "world.depth": "Derinlik",
  "world.level": "Kat",
  "world.levelHint": "Duvarlar ve platformlar bu kata çizilir. Geri kalan her şey zeminde durur.",
