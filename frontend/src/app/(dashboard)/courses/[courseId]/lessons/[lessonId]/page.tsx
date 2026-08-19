@@ -10,6 +10,7 @@ import {
  ArrowLeft,
  ArrowRight,
  CheckCircle,
+ ClipboardCheck,
  FileText,
  PlayCircle,
  Code,
@@ -810,9 +811,56 @@ function BlockRenderer({
    );
   }
 
+  case "assignment":
+   return block.assignment_id ? <AssignmentBlockCard assignmentId={block.assignment_id} /> : null;
+
   default:
    return null;
  }
+}
+
+/* Homework authored inside the lesson (specs/017 US3): a card linking to the
+   normal assignment page. A deleted assignment hides the block entirely. */
+function AssignmentBlockCard({ assignmentId }: { assignmentId: string }) {
+ const { t } = useTranslation();
+ const [assignment, setAssignment] = useState<{
+  title: string;
+  due_date: string;
+  max_score: number;
+ } | null>(null);
+ const [gone, setGone] = useState(false);
+
+ useEffect(() => {
+  let cancelled = false;
+  apiClient
+   .get(`/assignments/${assignmentId}`)
+   .then(({ data }) => !cancelled && setAssignment(data))
+   .catch(() => !cancelled && setGone(true));
+  return () => {
+   cancelled = true;
+  };
+ }, [assignmentId]);
+
+ if (gone || !assignment) return null;
+
+ return (
+  <Link
+   href={`/assignments/${assignmentId}`}
+   className="block rounded-lg border border-border-strong bg-surface p-4 transition hover:border-primary hover:shadow-sm"
+  >
+   <div className="flex items-start gap-3">
+    <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+    <div className="min-w-0">
+     <p className="text-sm font-semibold text-text">{assignment.title}</p>
+     <p className="mt-0.5 text-xs text-text-muted">
+      {t("lesson.assignmentDue")} {new Date(assignment.due_date).toLocaleString()} ·{" "}
+      {assignment.max_score} {t("lesson.assignmentPoints")}
+     </p>
+    </div>
+    <ArrowRight className="ml-auto mt-1 h-4 w-4 shrink-0 text-text-subtle" />
+   </div>
+  </Link>
+ );
 }
 
 function PageNav({

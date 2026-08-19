@@ -29,12 +29,11 @@ MAX_FILE_MB = 50
 logger = logging.getLogger(__name__)
 
 
-async def create_assignment(
-    db: AsyncSession, user: User, data: dict
-) -> Assignment:
+async def create_assignment(db: AsyncSession, user: User, data: dict) -> Assignment:
     course = await _get_course(db, data["course_id"])
+    # Another school's course reads as absent (constitution I), not forbidden.
     if course.org_id != user.org_id:
-        raise ForbiddenError("Course belongs to another organization")
+        raise NotFoundError("Course not found")
 
     assignment = Assignment(
         org_id=user.org_id,
@@ -53,6 +52,7 @@ async def create_assignment(
     # Email enrolled students about the new assignment (off-thread)
     try:
         from app.email.service import queue_email, send_assignment_notification
+
         enrolled = await db.execute(
             select(User)
             .join(Enrollment, Enrollment.student_id == User.id)
@@ -63,8 +63,10 @@ async def create_assignment(
             if prefs.get("assignments", True):
                 queue_email(
                     send_assignment_notification,
-                    student.email, student.full_name,
-                    data["title"], str(data["due_date"]),
+                    student.email,
+                    student.full_name,
+                    data["title"],
+                    str(data["due_date"]),
                 )
     except Exception:
         # Don't fail assignment creation if emails fail — but record it.
@@ -73,9 +75,7 @@ async def create_assignment(
     return assignment
 
 
-async def list_assignments(
-    db: AsyncSession, user: User
-) -> list[dict]:
+async def list_assignments(db: AsyncSession, user: User) -> list[dict]:
     if user.role in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
         # Teachers/admins see assignments they created (or all in org for admin)
         query = (
@@ -88,10 +88,7 @@ async def list_assignments(
         query = query.order_by(Assignment.due_date.desc())
     else:
         # Students see assignments for courses they're enrolled in
-        enrolled_course_ids = (
-            select(Enrollment.course_id)
-            .where(Enrollment.student_id == user.id)
-        )
+        enrolled_course_ids = select(Enrollment.course_id).where(Enrollment.student_id == user.id)
         query = (
             select(Assignment, Course.title.label("course_title"))
             .join(Course, Course.id == Assignment.course_id)
@@ -113,8 +110,7 @@ async def list_assignments(
         score = None
         if user.role == UserRole.student:
             sub_result = await db.execute(
-                select(AssignmentSubmission)
-                .where(
+                select(AssignmentSubmission).where(
                     AssignmentSubmission.assignment_id == assignment.id,
                     AssignmentSubmission.student_id == user.id,
                 )
@@ -128,25 +124,25 @@ async def list_assignments(
             else:
                 status = "pending"
 
-        items.append({
-            "id": assignment.id,
-            "course_id": assignment.course_id,
-            "title": assignment.title,
-            "due_date": assignment.due_date,
-            "max_score": assignment.max_score,
-            "allow_late": assignment.allow_late,
-            "created_at": assignment.created_at,
-            "course_title": course_title,
-            "status": status,
-            "score": score,
-        })
+        items.append(
+            {
+                "id": assignment.id,
+                "course_id": assignment.course_id,
+                "title": assignment.title,
+                "due_date": assignment.due_date,
+                "max_score": assignment.max_score,
+                "allow_late": assignment.allow_late,
+                "created_at": assignment.created_at,
+                "course_title": course_title,
+                "status": status,
+                "score": score,
+            }
+        )
 
     return items
 
 
-async def get_assignment(
-    db: AsyncSession, assignment_id: uuid.UUID, user: User
-) -> dict:
+async def get_assignment(db: AsyncSession, assignment_id: uuid.UUID, user: User) -> dict:
     result = await db.execute(
         select(Assignment, Course.title.label("course_title"))
         .join(Course, Course.id == Assignment.course_id)
@@ -159,15 +155,17 @@ async def get_assignment(
     assignment = row[0]
     course_title = row[1]
 
+    # Another school's assignment reads as absent (constitution I).
     if assignment.org_id != user.org_id:
-        raise ForbiddenError("Access denied")
+        raise NotFoundError("Assignment not found")
 
     # Count submissions for teachers
     sub_count = 0
     if user.role in (UserRole.teacher, UserRole.admin, UserRole.super_admin):
         count_result = await db.execute(
-            select(func.count(AssignmentSubmission.id))
-            .where(AssignmentSubmission.assignment_id == assignment.id)
+            select(func.count(AssignmentSubmission.id)).where(
+                AssignmentSubmission.assignment_id == assignment.id
+            )
         )
         sub_count = count_result.scalar() or 0
 
@@ -199,9 +197,7 @@ async def update_assignment(
     return assignment
 
 
-async def delete_assignment(
-    db: AsyncSession, assignment_id: uuid.UUID, user: User
-) -> None:
+async def delete_assignment(db: AsyncSession, assignment_id: uuid.UUID, user: User) -> None:
     assignment = await _get_assignment_with_ownership(db, assignment_id, user)
     await db.delete(assignment)
     await db.flush()
@@ -216,14 +212,13 @@ async def submit_assignment(
     elapsed_seconds: int | None = None,
 ) -> AssignmentSubmission:
     # Get assignment
-    result = await db.execute(
-        select(Assignment).where(Assignment.id == assignment_id)
-    )
+    result = await db.execute(select(Assignment).where(Assignment.id == assignment_id))
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise NotFoundError("Assignment not found")
+    # Another school's assignment reads as absent (constitution I).
     if assignment.org_id != user.org_id:
-        raise ForbiddenError("Access denied")
+        raise NotFoundError("Assignment not found")
 
     now = datetime.now(timezone.utc)
     is_late = now > assignment.due_date
@@ -259,7 +254,9 @@ async def submit_assignment(
 
         original_filename = file.filename or validated.safe_name
 
-        upload_dir = Path(settings.upload_dir) / str(assignment.org_id) / "assignments" / str(assignment_id)
+        upload_dir = (
+            Path(settings.upload_dir) / str(assignment.org_id) / "assignments" / str(assignment_id)
+        )
         upload_dir.mkdir(parents=True, exist_ok=True)
 
         dest = upload_dir / validated.safe_name
@@ -321,9 +318,7 @@ async def get_my_submission(
     return result.scalar_one_or_none()
 
 
-async def list_submissions(
-    db: AsyncSession, assignment_id: uuid.UUID, user: User
-) -> list[dict]:
+async def list_submissions(db: AsyncSession, assignment_id: uuid.UUID, user: User) -> list[dict]:
     # Verify assignment exists and user has access
     assignment = await _get_assignment_with_ownership(db, assignment_id, user)
 
@@ -403,17 +398,20 @@ async def grade_submission(
     # Send email notification (off-thread)
     try:
         from app.email.service import queue_email, send_grade_notification
-        student_result = await db.execute(
-            select(User).where(User.id == submission.student_id)
-        )
+
+        student_result = await db.execute(select(User).where(User.id == submission.student_id))
         student = student_result.scalar_one_or_none()
         if student:
             prefs = student.email_preferences or {}
             if prefs.get("grades", True):
                 queue_email(
                     send_grade_notification,
-                    student.email, student.full_name, assignment.title,
-                    score, assignment.max_score, feedback or None,
+                    student.email,
+                    student.full_name,
+                    assignment.title,
+                    score,
+                    assignment.max_score,
+                    feedback or None,
                 )
     except Exception:
         # Don't fail grading if email fails — but record it.
@@ -423,6 +421,7 @@ async def grade_submission(
 
 
 # --- helpers ---
+
 
 async def _get_course(db: AsyncSession, course_id: uuid.UUID) -> Course:
     result = await db.execute(select(Course).where(Course.id == course_id))
@@ -435,17 +434,17 @@ async def _get_course(db: AsyncSession, course_id: uuid.UUID) -> Course:
 async def _get_assignment_with_ownership(
     db: AsyncSession, assignment_id: uuid.UUID, user: User
 ) -> Assignment:
-    result = await db.execute(
-        select(Assignment).where(Assignment.id == assignment_id)
-    )
+    result = await db.execute(select(Assignment).where(Assignment.id == assignment_id))
     assignment = result.scalar_one_or_none()
     if not assignment:
         raise NotFoundError("Assignment not found")
     # super_admin is cross-org by design (mirrors require_role).
     if user.role == UserRole.super_admin:
         return assignment
+    # Cross-org reads as absent; within the school a teacher who doesn't own
+    # it gets a plain forbidden — existence isn't a secret inside one school.
     if assignment.org_id != user.org_id:
-        raise ForbiddenError("Access denied")
+        raise NotFoundError("Assignment not found")
     if user.role == UserRole.teacher and assignment.created_by != user.id:
         raise ForbiddenError("You don't own this assignment")
     return assignment

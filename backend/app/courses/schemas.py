@@ -61,7 +61,7 @@ class ReorderRequest(BaseModel):
 
 class LessonBlock(BaseModel):
     id: str
-    type: str  # "text", "video", "exercise"
+    type: str  # "text", "html", "video", "exercise", "assignment"
     sort_order: int = 0
     page: int = 1
     # Text block fields
@@ -71,6 +71,8 @@ class LessonBlock(BaseModel):
     url: str | None = None
     # Exercise block fields
     exercise_id: str | None = None
+    # Assignment block fields (specs/017): references app.assignments
+    assignment_id: str | None = None
 
 
 class LessonCreate(BaseModel):

@@ -36,13 +36,14 @@ export interface Module {
 
 export interface LessonBlock {
  id: string;
- type: "text" | "html" | "video" | "exercise";
+ type: "text" | "html" | "video" | "exercise" | "assignment";
  sort_order: number;
  page: number;
  body?: string | Record<string, unknown>;
  format?: string;
  url?: string;
  exercise_id?: string;
+ assignment_id?: string;
 }
 
 export interface Lesson {
