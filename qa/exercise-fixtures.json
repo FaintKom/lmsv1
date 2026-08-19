@@ -280,9 +280,9 @@
     {
       "type": "map_pin_drop",
       "label": "Map pin drop",
-      "$note": "The map is shipped with the frontend at public/exercise-assets/world-map.svg, so the path holds on every stack. The previous /static/qa-fixtures/world-map.png was served by nobody: production answered 404 and the widget drew a blank gradient, which left a pupil told to tap a map that was not there.",
+      "$note": "image_url, not map_url: the config panel and both widgets read image_url, and map_url was read by nobody - so the map never appeared even when the file existed. The file itself ships with the frontend at public/exercise-assets/world-map.svg; the earlier /static/qa-fixtures/world-map.png was served by nobody and answered 404 in production.",
       "config": {
-        "map_url": "/exercise-assets/world-map.svg",
+        "image_url": "/exercise-assets/world-map.svg",
         "pins": [
           {"label": "Paris", "x": 0.51, "y": 0.34, "tolerance": 0.05}
         ]

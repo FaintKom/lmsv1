@@ -148,6 +148,19 @@ class ReadingConfig(BaseModel):
     questions: list[dict] = []  # [{question, type, options?, correct_answer?}]
 
 
+class MapPinDropConfig(BaseModel):
+    """Written after the fixture spent months naming this field `map_url`.
+
+    Nothing read that key: the config panel and both widgets read `image_url`, so
+    the map never drew even once the file existed. Declaring the shape is what lets
+    the fixture guard in tests/test_qa_fixtures.py catch the next such typo.
+    """
+
+    image_url: str = ""
+    instructions: str = ""
+    pins: list[dict] = []  # [{label, x, y, tolerance}]
+
+
 class WebEditorConfig(BaseModel):
     description: str = ""
     starter_html: str = ""
