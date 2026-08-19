@@ -259,6 +259,57 @@ async def test_a_non_3d_exercise_is_not_found_on_the_world_route(client, db, org
     assert refused.status_code == 404
 
 
+# ─── Only staff may check or playtest a level ────────────────────────
+
+
+async def test_only_staff_may_press_check(client, org, teacher, student):
+    """A pupil supplying their own level could author a one-square one and win it."""
+    body = {"config": corridor(3)}
+
+    pupil = await client.post(
+        "/api/v1/exercises/world/solve", json=body, headers=auth_header(student)
+    )
+    assert pupil.status_code == 403
+
+    staff = await client.post(
+        "/api/v1/exercises/world/solve", json=body, headers=auth_header(teacher)
+    )
+    assert staff.status_code == 200
+    assert staff.json()["answer"] == "shortest"
+    assert staff.json()["steps"] == 3
+
+
+async def test_only_staff_may_playtest(client, org, teacher, student):
+    body = {"config": corridor(3), "source": WIN}
+
+    pupil = await client.post(
+        "/api/v1/exercises/world/preview", json=body, headers=auth_header(student)
+    )
+    assert pupil.status_code == 403
+
+    staff = await client.post(
+        "/api/v1/exercises/world/preview", json=body, headers=auth_header(teacher)
+    )
+    assert staff.status_code == 200
+    assert staff.json()["won"] is True
+
+
+async def test_a_playtest_refuses_a_faulty_level_and_names_every_fault(client, org, teacher):
+    """The teacher gets the whole list, not the first thing that failed."""
+    broken = corridor(3)
+    broken["cells"] = [{"x": 0, "z": 1, "type": "button", "opens": "missing"}]
+    broken["commands"] = []
+
+    refused = await client.post(
+        "/api/v1/exercises/world/preview",
+        json={"config": broken, "source": WIN},
+        headers=auth_header(teacher),
+    )
+    assert refused.status_code == 400
+    codes = {b["code"] for b in refused.json()["detail"]["blockers"]}
+    assert {"no_goal", "button_without_door", "no_commands"} <= codes
+
+
 # ─── The reference solution is not a pupil's to read ─────────────────
 
 
