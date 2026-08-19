@@ -14,7 +14,10 @@ What is *not* here: whether the goal can actually be reached. That is a search,
 it lives in ``robot_solver``, and it costs far more than any of these.
 """
 
-from app.exercises.robot_sim import COMMANDS
+from app.exercises.robot_sim import COMMANDS, PAINT_COLORS
+
+#: Item looks the renderer knows how to draw. Visual only — no rule reads them.
+ITEM_KINDS = frozenset({"gem", "key", "apple", "flag"})
 
 FACING_COMMANDS = frozenset({"move_forward", "turn_left", "turn_right"})
 SENSORS = frozenset({"wall_ahead", "item_here", "at_goal", "painted", "value_here"})
@@ -84,6 +87,20 @@ def check(level: dict) -> list[dict]:
             if cell.get("value") is not None:
                 add("value_on_wall")
 
+        color = cell.get("mark_color")
+        if color:
+            if color not in PAINT_COLORS:
+                add("bad_mark_color", colors=sorted(PAINT_COLORS))
+            if not cell.get("mark"):
+                add("color_without_mark")
+
+        look = cell.get("kind")
+        if look:
+            if look not in ITEM_KINDS:
+                add("bad_item_kind", kinds=sorted(ITEM_KINDS))
+            if kind != "item":
+                add("kind_without_item")
+
     if sum(1 for c in cells if c.get("type") == "goal") > 1:
         add("two_goals")
 
@@ -99,6 +116,10 @@ def check(level: dict) -> list[dict]:
     offered_sensors = [c for c in commands if c in SENSORS]
     if offered_sensors and not any(c in FACING_COMMANDS for c in commands):
         add("sensor_without_facing", commands=offered_sensors)
+
+    # A coloured mark nothing can paint is a level nobody can win.
+    if any(c.get("mark_color") for c in cells) and "paint" not in commands:
+        add("win_needs_paint_command")
 
     # ─── A goal nothing on the grid can satisfy (FR-032) ─────────────
 

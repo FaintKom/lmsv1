@@ -24,10 +24,16 @@ export interface Cell {
   type: CellType;
   /** This floor is meant to be painted. */
   mark?: boolean;
+  /** The colour that mark demands; absent means any paint satisfies it. */
+  mark_color?: string;
+  /** What an item cell looks like — gem, key, apple, flag. Visual only. */
+  kind?: string;
   /** This floor carries a number `read()` returns. */
   value?: number;
   /** Run state, never stored on the level — a cell starts every run unpainted. */
   painted?: boolean;
+  /** The colour it was painted in, when the paint had one. */
+  paintColor?: string | null;
 }
 
 export interface RobotState {
@@ -133,7 +139,14 @@ function applyChange(state: GridState, change: Frame["cells"][number]) {
   const cell: Cell = at ?? { x: change.x, y: change.y, type: "empty" };
   if (!at) state.cells.push(cell);
 
-  if (change.item !== undefined) cell.type = change.item ? "item" : "empty";
-  if (change.painted !== undefined) cell.painted = change.painted;
+  if (change.item !== undefined) {
+    cell.type = change.item ? "item" : "empty";
+    // A dropped item is a plain one — `take` removes whatever look was drawn.
+    if (!change.item) delete cell.kind;
+  }
+  if (change.painted !== undefined) {
+    cell.painted = change.painted;
+    cell.paintColor = change.color ?? null;
+  }
   if (change.value !== undefined) cell.value = change.value;
 }

@@ -61,13 +61,25 @@ export default function Robot2DExercise({
   const hints = useMemo(() => (config.hints as string[]) || [], [config.hints]);
   const toolbox = useMemo(() => buildToolboxFromBlocks(commands), [commands]);
 
+  /** Coloured marks change what `paint` means, so the header must say so. */
+  const paintColors = useMemo(() => {
+    const cells = (config.cells as { mark_color?: string }[]) || [];
+    return [...new Set(cells.map((c) => c.mark_color).filter(Boolean))] as string[];
+  }, [config.cells]);
+
   /** Header and autocompletion read the same list, so they cannot disagree. */
   const starter = useMemo(
     () =>
       `# ${t("game.starterHeader")}\n` +
-      commands.map((c) => `#   ${c}()`).join("\n") +
+      commands
+        .map((c) =>
+          c === "paint" && paintColors.length
+            ? `#   paint("${paintColors[0]}")  # ${paintColors.join(", ")}`
+            : `#   ${c}()`,
+        )
+        .join("\n") +
       "\n\n",
-    [commands, t],
+    [commands, paintColors, t],
   );
 
   // Held in refs so the player's callbacks never read a stale render's copy.
