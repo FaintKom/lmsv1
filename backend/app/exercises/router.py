@@ -730,9 +730,16 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
     """Remove correct answers from a response bound for a non-staff reader."""
     if resp.questions:
         for q in resp.questions:
-            if q.options:
+            if isinstance(q.options, list):
+                # Adaptive choice (specs/019): tell the student HOW to answer
+                # (checkboxes vs radio) without telling them WHAT is correct.
+                q.multi = sum(1 for opt in q.options if opt.get("is_correct")) > 1
                 for opt in q.options:
                     opt.pop("is_correct", None)
+            elif isinstance(q.options, dict):
+                # text-question checking rules carry `accepted` variants —
+                # answers. Students get none of it.
+                q.options = None
             q.correct_answer = None
     if resp.test_cases:
         resp.test_cases = [tc for tc in resp.test_cases if not tc.is_hidden]
@@ -815,8 +822,13 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
             resp.config["questions"] = [
                 {
                     # bubble_sheet keys off `correct`; reading off
-                    # `correct_answer` plus per-option `is_correct`
-                    **{k: v for k, v in q.items() if k not in ("correct", "correct_answer")},
+                    # `correct_answer` plus per-option `is_correct`;
+                    # `accepted` is the text-rules variant list — answers too
+                    **{
+                        k: v
+                        for k, v in q.items()
+                        if k not in ("correct", "correct_answer", "accepted")
+                    },
                     **(
                         {
                             "options": [
@@ -824,7 +836,14 @@ def _strip_answers(resp: ExerciseResponse) -> ExerciseResponse:
                                 if isinstance(o, dict)
                                 else o
                                 for o in q["options"]
-                            ]
+                            ],
+                            # adaptive choice: checkboxes when several correct
+                            "multi": sum(
+                                1
+                                for o in q["options"]
+                                if isinstance(o, dict) and o.get("is_correct")
+                            )
+                            > 1,
                         }
                         if isinstance(q.get("options"), list)
                         else {}

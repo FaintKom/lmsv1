@@ -308,9 +308,29 @@ export function TranslationConfigEditor({ config, onChange }: EditorProps) {
        <label className={labelCls}>Text to Translate</label>
        <textarea value={sourceText} onChange={(e) => onChange({ ...config, source_text: e.target.value })} placeholder="Enter the text students need to translate..." rows={2} className={inputCls} />
      </div>
+     {/* specs/019 US4: the checking rules, visible and switchable */}
+     <div className="rounded-lg border border-border-strong bg-surface-2 p-3 space-y-2">
+       <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">How answers are checked</p>
+       <label className="flex items-center gap-2 text-xs text-text-muted">
+         <input
+           type="checkbox"
+           checked={!!config.case_sensitive}
+           onChange={(e) => onChange({ ...config, case_sensitive: e.target.checked })}
+         />
+         Case sensitive (off: «bonjour» = «Bonjour»)
+       </label>
+       <label className="flex items-center gap-2 text-xs text-text-muted">
+         <input
+           type="checkbox"
+           checked={config.fuzzy_match !== false}
+           onChange={(e) => onChange({ ...config, fuzzy_match: e.target.checked })}
+         />
+         Accept close answers (small typos pass — roughly 4 of 5 characters in place; off: exact match only)
+       </label>
+     </div>
      <div>
        <label className={labelCls}>Accepted Answers</label>
-       <p className={hintCls}>Add all acceptable translations. Grading uses fuzzy matching (80%+ similarity passes).</p>
+       <p className={hintCls}>Every translation listed here counts as correct, checked by the rules above.</p>
        <div className="space-y-2 mt-2">
          {accepted.map((ans, i) => (
            <div key={i} className="flex items-center gap-2">
@@ -581,6 +601,10 @@ interface ReadingQuestion {
  type: "multiple_choice" | "text";
  options?: { id: string; text: string; is_correct: boolean }[];
  correct_answer?: string;
+ // specs/019: visible text-checking rules, same keys as quiz text questions
+ accepted?: string[];
+ case_sensitive?: boolean;
+ ignore_punctuation?: boolean;
 }
 
 export function ReadingConfigEditor({ config, onChange }: EditorProps) {
@@ -608,11 +632,26 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
    const next = questions.map((q, j) => {
      if (j !== qi || !q.options) return q;
      return { ...q, options: q.options.map((o, k) => {
-       if (field === "is_correct") return { ...o, is_correct: k === oi };
+       // Adaptive choice (specs/019): is_correct toggles independently —
+       // several correct options give the student checkboxes.
+       if (field === "is_correct") return k === oi ? { ...o, is_correct: !o.is_correct } : o;
        return k === oi ? { ...o, [field]: val } : o;
      }) };
    });
    onChange({ ...config, questions: next });
+ };
+
+ const uploadPassageImage = async (file: File) => {
+   const formData = new FormData();
+   formData.append("file", file);
+   try {
+     const { data } = await apiClient.post<{ url: string }>("/courses/upload-image", formData, {
+       headers: { "Content-Type": "multipart/form-data" },
+     });
+     onChange({ ...config, passage: `${passage}\n<img src="${data.url}" alt="" style="max-width:100%">` });
+   } catch {
+     /* toast handled globally on 5xx; 4xx just leaves the passage unchanged */
+   }
  };
 
  const addOption = (qi: number) => {
@@ -634,8 +673,25 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
  return (
    <div className="space-y-5">
      <div>
-       <label className={labelCls}>Reading Passage</label>
-       <textarea value={passage} onChange={(e) => onChange({ ...config, passage: e.target.value })} placeholder="Enter the reading passage that students will analyze..." rows={6} className={inputCls} />
+       <div className="flex items-center justify-between">
+         <label className={labelCls}>Reading Passage</label>
+         {/* specs/019 US3: inline images via the shared upload */}
+         <label className="cursor-pointer text-xs font-medium text-primary hover:underline">
+           <Upload className="mr-1 inline h-3.5 w-3.5" />
+           Insert image
+           <input
+             type="file"
+             accept="image/*"
+             className="hidden"
+             onChange={(e) => {
+               const f = e.target.files?.[0];
+               if (f) uploadPassageImage(f);
+               e.target.value = "";
+             }}
+           />
+         </label>
+       </div>
+       <textarea value={passage} onChange={(e) => onChange({ ...config, passage: e.target.value })} placeholder="Enter the reading passage that students will analyze... (HTML and images supported)" rows={6} className={inputCls} />
      </div>
 
      <div>
@@ -659,9 +715,12 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
 
              {q.type === "multiple_choice" && q.options && (
                <div className="pl-9 space-y-2">
+                 {q.options.filter((o) => o.is_correct).length > 1 && (
+                   <p className="text-xs text-primary">Several correct — the student gets checkboxes and must pick the exact set.</p>
+                 )}
                  {q.options.map((opt, oi) => (
                    <div key={oi} className="flex items-center gap-2">
-                     <input type="radio" name={`reading_correct_${qi}`} checked={opt.is_correct} onChange={() => updateOption(qi, oi, "is_correct", true)} className="accent-green-600" />
+                     <input type="checkbox" checked={opt.is_correct} onChange={() => updateOption(qi, oi, "is_correct", true)} className="accent-green-600" />
                      <input type="text" value={opt.text} onChange={(e) => updateOption(qi, oi, "text", e.target.value)} placeholder={`Option ${oi + 1}`} className={`flex-1 ${inputCls}`} />
                      {q.options!.length > 2 && (
                        <Button variant="ghost" size="sm" onClick={() => removeOption(qi, oi)} className="text-danger-fg"><Trash2 className="h-3.5 w-3.5" /></Button>
@@ -673,8 +732,26 @@ export function ReadingConfigEditor({ config, onChange }: EditorProps) {
              )}
 
              {q.type === "text" && (
-               <div className="pl-9">
-                 <input type="text" value={q.correct_answer || ""} onChange={(e) => updateQuestion(qi, "correct_answer", e.target.value)} placeholder="Correct answer (case-insensitive)" className={inputCls} />
+               <div className="pl-9 space-y-2">
+                 <input type="text" value={q.correct_answer || ""} onChange={(e) => updateQuestion(qi, "correct_answer", e.target.value)} placeholder="Correct answer" className={inputCls} />
+                 {/* specs/019: the same visible rules as quiz text questions */}
+                 <input
+                   type="text"
+                   value={Array.isArray(q.accepted) ? q.accepted.join(", ") : ""}
+                   onChange={(e) => updateQuestion(qi, "accepted", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                   placeholder="Also accepted (comma-separated variants)"
+                   className={inputCls}
+                 />
+                 <div className="flex gap-4">
+                   <label className="flex items-center gap-1.5 text-xs text-text-muted">
+                     <input type="checkbox" checked={!!q.case_sensitive} onChange={(e) => updateQuestion(qi, "case_sensitive", e.target.checked)} />
+                     Case sensitive
+                   </label>
+                   <label className="flex items-center gap-1.5 text-xs text-text-muted">
+                     <input type="checkbox" checked={!!q.ignore_punctuation} onChange={(e) => updateQuestion(qi, "ignore_punctuation", e.target.checked)} />
+                     Ignore punctuation
+                   </label>
+                 </div>
                </div>
              )}
            </div>

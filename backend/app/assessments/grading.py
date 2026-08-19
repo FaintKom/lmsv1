@@ -1,14 +1,60 @@
+import string
+
 from app.assessments.models import Question, QuestionType
+
+_PUNCT_TABLE = str.maketrans("", "", string.punctuation)
+
+
+def _correct_option_texts(question: Question) -> list[str]:
+    """Texts of every option marked correct."""
+    if not question.options:
+        return []
+    return [opt.get("text") for opt in question.options if opt.get("is_correct")]
 
 
 def _correct_option_text(question: Question) -> str | None:
     """Return the text of the correct option for a multiple-choice question."""
-    if not question.options:
-        return None
-    for opt in question.options:
-        if opt.get("is_correct"):
-            return opt.get("text")
-    return None
+    texts = _correct_option_texts(question)
+    return texts[0] if texts else None
+
+
+def normalize_text(
+    value: str,
+    *,
+    case_sensitive: bool = False,
+    trim: bool = True,
+    ignore_punctuation: bool = False,
+) -> str:
+    """Apply the author-visible text rules to one string (specs/019 US2)."""
+    if trim:
+        value = value.strip()
+    if not case_sensitive:
+        value = value.lower()
+    if ignore_punctuation:
+        value = value.translate(_PUNCT_TABLE)
+    return value
+
+
+def text_answer_matches(correct: str | None, student: str | None, rules: dict | None) -> bool:
+    """One text-answer judge for every grading path (specs/019 FR-004).
+
+    `rules` carries the author's checking settings: `case_sensitive`,
+    `trim`, `ignore_punctuation`, `accepted` (variant list). Absent rules
+    reproduce the pre-019 behaviour: trim + lowercase equality.
+    """
+    rules = rules or {}
+    kwargs = {
+        "case_sensitive": bool(rules.get("case_sensitive")),
+        "trim": rules.get("trim", True) is not False,
+        "ignore_punctuation": bool(rules.get("ignore_punctuation")),
+    }
+    accepted = [correct] + [
+        a for a in (rules.get("accepted") or []) if isinstance(a, str) and a.strip()
+    ]
+    student_norm = normalize_text(student or "", **kwargs)
+    if not student_norm:
+        return False
+    return any(a and student_norm == normalize_text(a, **kwargs) for a in accepted)
 
 
 def is_answer_correct(question: Question, answer: dict | None) -> bool:
@@ -16,22 +62,39 @@ def is_answer_correct(question: Question, answer: dict | None) -> bool:
 
     Mirrors the scoring in :func:`grade_quiz` exactly so the per-question
     breakdown stays consistent with the stored score.
+
+    Choice questions are adaptive (specs/019 US1): several correct options
+    make the question multi-choice, graded by set equality of
+    `selected_options`; exactly one correct option keeps the single
+    `selected_option` contract (a one-element `selected_options` list is
+    tolerated). A legacy single payload against a multi question grades
+    wrong rather than erroring — before 019 it wrongly passed on any one
+    correct option.
     """
     if not answer:
         return False
 
     if question.question_type == QuestionType.multiple_choice:
+        correct = {t for t in _correct_option_texts(question) if t}
+        if not correct:
+            return False
+        if len(correct) > 1:
+            selected = answer.get("selected_options")
+            if not isinstance(selected, list):
+                return False
+            return {s for s in selected if isinstance(s, str)} == correct
         selected = answer.get("selected_option")
-        if question.options:
-            for opt in question.options:
-                if opt.get("text") == selected and opt.get("is_correct"):
-                    return True
-        return False
+        if selected is None:
+            listed = answer.get("selected_options")
+            if isinstance(listed, list) and len(listed) == 1:
+                selected = listed[0]
+        return selected in correct
 
     if question.question_type == QuestionType.text_answer:
-        text = (answer.get("text") or "").strip().lower()
-        correct = (question.correct_answer or "").strip().lower()
-        return bool(correct) and text == correct
+        # For text questions the (otherwise unused) options JSONB holds the
+        # author's checking rules.
+        rules = question.options if isinstance(question.options, dict) else None
+        return text_answer_matches(question.correct_answer, answer.get("text"), rules)
 
     return False
 
@@ -41,6 +104,9 @@ def _student_answer_display(question: Question, answer: dict | None) -> str | No
     if not answer:
         return None
     if question.question_type == QuestionType.multiple_choice:
+        listed = answer.get("selected_options")
+        if isinstance(listed, list) and listed:
+            return " · ".join(str(s) for s in listed)
         return answer.get("selected_option")
     return answer.get("text")
 
@@ -48,7 +114,10 @@ def _student_answer_display(question: Question, answer: dict | None) -> str | No
 def correct_answer_display(question: Question) -> str | None:
     """Human-readable representation of the correct answer."""
     if question.question_type == QuestionType.multiple_choice:
-        return _correct_option_text(question)
+        texts = [t for t in _correct_option_texts(question) if t]
+        if not texts:
+            return None
+        return " · ".join(texts)
     return question.correct_answer
 
 

@@ -225,6 +225,33 @@ export function V2ExerciseLive({
     onQuit,
   } as const;
 
+  // Teacher's optional "what to do" note (specs/019 US5), shown above the task.
+  const instructionsNote =
+    typeof cfg.instructions === "string" && cfg.instructions.trim()
+      ? (cfg.instructions as string)
+      : null;
+  const body = renderV2Body();
+  if (!body) return null;
+  if (!instructionsNote) return body;
+  return (
+    <div>
+      <p
+        style={{
+          marginBottom: 12,
+          borderRadius: 10,
+          background: "var(--color-surface-2)",
+          padding: "8px 12px",
+          fontSize: 14,
+          color: "var(--color-text-muted)",
+        }}
+      >
+        {instructionsNote}
+      </p>
+      {body}
+    </div>
+  );
+
+  function renderV2Body() {
   switch (exercise.exercise_type as V2LiveType) {
     case "true_false":
       return (
@@ -335,10 +362,13 @@ export function V2ExerciseLive({
         question_text: q.question_text,
         answerMode:
           q.question_type === "text_answer" ? ("text" as const) : ("selected_option" as const),
-        options: (q.options ?? []).map((o) => ({
+        // text questions carry a rules DICT in options (specs/019) — only a
+        // list is renderable as tiles
+        options: (Array.isArray(q.options) ? q.options : []).map((o) => ({
           text: o.text ?? o.label ?? "",
           is_correct: o.is_correct,
         })),
+        multi: (q as { multi?: boolean }).multi,
       }));
       return <QuizV2 questions={qs} onCheck={onCheck} onGrade={onGrade} onQuit={onQuit} />;
     }
@@ -350,6 +380,7 @@ export function V2ExerciseLive({
         type?: string;
         options?: (string | { id?: string; text?: string; label?: string })[];
         hint?: string;
+        multi?: boolean;
       }[]) ?? [];
       const questions = raw.map((q) => {
         const opts = q.options ?? [];
@@ -362,6 +393,9 @@ export function V2ExerciseLive({
             typeof o === "string" ? o : (o.id ?? o.label ?? o.text ?? ""),
           ),
           hint: q.hint,
+          // specs/019: adaptive multi + free-text reading questions
+          multiSelect: q.multi,
+          textMode: q.type === "text",
         };
       });
       return (
@@ -514,5 +548,6 @@ export function V2ExerciseLive({
       );
     default:
       return null;
+  }
   }
 }

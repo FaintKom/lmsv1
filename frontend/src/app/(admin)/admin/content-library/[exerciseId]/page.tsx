@@ -231,13 +231,27 @@ export default function ExerciseEditorPage() {
  <CardHeader>
  <CardTitle>{t("admin.exerciseEditor.generalSettings")}</CardTitle>
  </CardHeader>
- <CardContent>
+ <CardContent className="space-y-3">
  <div>
  <label className="mb-1 block text-sm font-medium text-text">{t("common.title")}</label>
  <input
  type="text"
  value={title}
  onChange={(e) => setTitle(e.target.value)}
+ className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
+ />
+ </div>
+ {/* specs/019 US5: optional "what to do" note, off (empty) by default */}
+ <div>
+ <label className="mb-1 block text-sm font-medium text-text">
+ {t("admin.exerciseEditor.instructionsLabel")}
+ <span className="ml-1 text-xs font-normal text-text-subtle">{t("admin.exerciseEditor.instructionsOptional")}</span>
+ </label>
+ <textarea
+ value={(config.instructions as string) || ""}
+ onChange={(e) => setConfig({ ...config, instructions: e.target.value })}
+ rows={2}
+ placeholder={t("admin.exerciseEditor.instructionsPlaceholder")}
  className="w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-text outline-none focus:border-primary focus:ring-2 focus:ring-primary-soft"
  />
  </div>
@@ -599,24 +613,40 @@ function QuizQuestionsEditor({
  questions: ExerciseQuestion[];
  onRefresh: () => void;
 }) {
+ const { t } = useTranslation();
  const [showForm, setShowForm] = useState(false);
  const [editId, setEditId] = useState<string | null>(null);
- const [form, setForm] = useState({ question_text: "", question_type: "multiple_choice", options: [] as { id: number; text: string; is_correct: boolean }[], correct_answer: "", points: 1 });
+ const EMPTY_FORM = {
+ question_text: "",
+ question_type: "multiple_choice",
+ options: [] as { id: number; text: string; is_correct: boolean }[],
+ correct_answer: "",
+ points: 1,
+ // specs/019 US2: visible checking rules for text answers
+ caseSensitive: false,
+ ignorePunctuation: false,
+ accepted: "",
+ };
+ const [form, setForm] = useState(EMPTY_FORM);
  const [saving, setSaving] = useState(false);
 
  const resetForm = () => {
- setForm({ question_text: "", question_type: "multiple_choice", options: [{ id: 0, text: "", is_correct: true }, { id: 1, text: "", is_correct: false }], correct_answer: "", points: 1 });
+ setForm({ ...EMPTY_FORM, options: [{ id: 0, text: "", is_correct: true }, { id: 1, text: "", is_correct: false }] });
  setEditId(null);
  setShowForm(false);
  };
 
  const startEdit = (q: ExerciseQuestion) => {
+ const rules = !Array.isArray(q.options) && q.options ? (q.options as Record<string, unknown>) : {};
  setForm({
  question_text: q.question_text,
  question_type: q.question_type,
- options: (q.options || []).map((o, i) => ({ id: o.id ?? i, text: o.text, is_correct: !!o.is_correct })),
+ options: (Array.isArray(q.options) ? q.options : []).map((o, i) => ({ id: o.id ?? i, text: o.text, is_correct: !!o.is_correct })),
  correct_answer: q.correct_answer || "",
  points: q.points,
+ caseSensitive: !!rules.case_sensitive,
+ ignorePunctuation: !!rules.ignore_punctuation,
+ accepted: Array.isArray(rules.accepted) ? (rules.accepted as string[]).join(", ") : "",
  });
  setEditId(q.id);
  setShowForm(true);
@@ -637,6 +667,15 @@ function QuizQuestionsEditor({
  payload.correct_answer = String(correct >= 0 ? correct : 0);
  } else {
  payload.correct_answer = form.correct_answer;
+ // checking rules live in the (otherwise unused) options JSONB
+ payload.options = {
+ case_sensitive: form.caseSensitive,
+ ignore_punctuation: form.ignorePunctuation,
+ accepted: form.accepted
+ .split(",")
+ .map((s) => s.trim())
+ .filter(Boolean),
+ };
  }
 
  if (editId) {
@@ -686,7 +725,7 @@ function QuizQuestionsEditor({
  <span className="mr-2 text-text-subtle">#{idx + 1}</span>
  {q.question_text}
  </p>
- {q.options && (
+ {Array.isArray(q.options) && (
  <div className="mt-2 space-y-1">
  {q.options.map((opt, oi) => (
  <div
@@ -741,16 +780,22 @@ function QuizQuestionsEditor({
 
  {form.question_type === "multiple_choice" ? (
  <div className="space-y-2">
+ {/* Adaptive choice (specs/019): mark ANY number correct; the student
+ widget follows the key — one correct = radio, several = checkboxes */}
+ {form.options.filter((o) => o.is_correct).length > 1 && (
+ <p className="text-xs text-primary">{t("admin.exerciseEditor.multiChoiceHint")}</p>
+ )}
  {form.options.map((opt, i) => (
  <div key={i} className="flex items-center gap-2">
  <input
- type="radio"
- name="correct"
+ type="checkbox"
  checked={opt.is_correct}
  onChange={() =>
  setForm({
  ...form,
- options: form.options.map((o, j) => ({ ...o, is_correct: j === i })),
+ options: form.options.map((o, j) =>
+ j === i ? { ...o, is_correct: !o.is_correct } : o
+ ),
  })
  }
  className="accent-green-600"
@@ -793,6 +838,7 @@ function QuizQuestionsEditor({
  </Button>
  </div>
  ) : (
+ <div className="space-y-2">
  <input
  type="text"
  placeholder="Correct answer"
@@ -800,6 +846,39 @@ function QuizQuestionsEditor({
  onChange={(e) => setForm({ ...form, correct_answer: e.target.value })}
  className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm "
  />
+ {/* specs/019 US2: the checking rules, visible and editable */}
+ <div className="rounded-lg border border-border-strong bg-surface-2 p-3 space-y-2">
+ <p className="text-xs font-semibold uppercase tracking-wider text-text-subtle">
+ {t("admin.exerciseEditor.textRulesTitle")}
+ </p>
+ <input
+ type="text"
+ placeholder={t("admin.exerciseEditor.textRulesAcceptedPlaceholder")}
+ value={form.accepted}
+ onChange={(e) => setForm({ ...form, accepted: e.target.value })}
+ className="w-full rounded-lg border border-border-strong px-3 py-1.5 text-sm"
+ />
+ <label className="flex items-center gap-2 text-xs text-text-muted">
+ <input
+ type="checkbox"
+ checked={form.caseSensitive}
+ onChange={(e) => setForm({ ...form, caseSensitive: e.target.checked })}
+ />
+ {t("admin.exerciseEditor.textRulesCaseSensitive")}
+ </label>
+ <label className="flex items-center gap-2 text-xs text-text-muted">
+ <input
+ type="checkbox"
+ checked={form.ignorePunctuation}
+ onChange={(e) => setForm({ ...form, ignorePunctuation: e.target.checked })}
+ />
+ {t("admin.exerciseEditor.textRulesIgnorePunctuation")}
+ </label>
+ <p className="text-2xs text-text-subtle">
+ {t("admin.exerciseEditor.textRulesSummary")}
+ </p>
+ </div>
+ </div>
  )}
 
  <div className="flex justify-end gap-2">

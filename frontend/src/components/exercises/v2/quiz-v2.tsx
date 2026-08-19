@@ -42,8 +42,12 @@ export interface QuizV2Question {
   /** Live mode: the question's server id — the key /check verdicts use. */
   id?: string;
   /** Live mode: how the server expects this question answered.
-   *  "text" sends the option label, otherwise the selected option text. */
+   *  "text" renders a free-text input; otherwise option tiles. */
   answerMode?: "selected_option" | "text";
+  /** Adaptive choice (specs/019): several correct options ⇒ checkboxes,
+   *  answered as a `selected_options` set. Comes from the stripped payload;
+   *  derived locally when the key is present (teacher preview). */
+  multi?: boolean;
 }
 
 export interface QuizV2Props {
@@ -83,6 +87,9 @@ export function QuizV2({
 }: QuizV2Props) {
   const [idx, setIdx] = useState(0);
   const [pick, setPick] = useState<number | null>(null);
+  // Multi-choice picks (specs/019) and free-text input for text questions.
+  const [picks, setPicks] = useState<number[]>([]);
+  const [textInput, setTextInput] = useState("");
   const [feedback, setFeedback] = useState<LessonFeedback | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState(maxAttemptsPerTask);
   // QZ-01: indices of wrong picks already tried on this question — they stay
@@ -96,7 +103,12 @@ export function QuizV2({
   const serverGraded = !!onCheck;
   const [checking, setChecking] = useState(false);
   /** Answers gathered so far, in the shape the quiz grader expects. */
-  const answersRef = useRef<Record<string, { question_id: string; text?: string; selected_option?: string }>>({});
+  const answersRef = useRef<
+    Record<
+      string,
+      { question_id: string; text?: string; selected_option?: string; selected_options?: string[] }
+    >
+  >({});
   const { fire, layer } = useConfetti();
   const { t } = useTranslation();
 
@@ -118,7 +130,12 @@ export function QuizV2({
         return;
       const n = parseInt(e.key, 10);
       if (n >= 1 && n <= Math.min(q.options.length, 9) && !eliminated.includes(n - 1)) {
-        setPick(n - 1);
+        const i = n - 1;
+        if (q.multi) {
+          setPicks((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
+        } else {
+          setPick(i);
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -152,18 +169,28 @@ export function QuizV2({
   }
 
   const correctIdx = q.options.findIndex((o) => o.is_correct);
+  const correctIdxSet = q.options
+    .map((o, i) => (o.is_correct ? i : -1))
+    .filter((i) => i >= 0);
+  const isText = q.answerMode === "text";
+  // Stripped payloads say `multi`; unstripped (teacher preview) derive it.
+  const isMulti = !isText && (q.multi ?? correctIdxSet.length > 1);
+  const canCheck = isText ? textInput.trim().length > 0 : isMulti ? picks.length > 0 : pick !== null;
 
   const handleCheck = async () => {
-    if (pick === null || checking) return;
+    if (!canCheck || checking) return;
 
     let isCorrect: boolean;
     if (serverGraded) {
-      const label = q.options[pick]?.text ?? "";
       answersRef.current = {
         ...answersRef.current,
         [q.id ?? String(idx)]: {
           question_id: q.id ?? String(idx),
-          ...(q.answerMode === "text" ? { text: label } : { selected_option: label }),
+          ...(isText
+            ? { text: textInput }
+            : isMulti
+              ? { selected_options: picks.map((i) => q.options[i]?.text ?? "") }
+              : { selected_option: q.options[pick as number]?.text ?? "" }),
         },
       };
       const payload = { answers: Object.values(answersRef.current) };
@@ -182,6 +209,14 @@ export function QuizV2({
       } finally {
         setChecking(false);
       }
+    } else if (isText) {
+      // Local fallback (unstripped preview/landing): plain trim+lower match.
+      const expected = q.options.find((o) => o.is_correct)?.text ?? "";
+      isCorrect = textInput.trim().toLowerCase() === expected.trim().toLowerCase();
+    } else if (isMulti) {
+      const chosen = new Set(picks);
+      isCorrect =
+        chosen.size === correctIdxSet.length && correctIdxSet.every((i) => chosen.has(i));
     } else {
       isCorrect = pick === correctIdx;
     }
@@ -202,7 +237,9 @@ export function QuizV2({
     const remaining = attemptsLeft - 1;
     setAttemptsLeft(remaining);
     setUsedAttempts((u) => u + 1);
-    setEliminated((els) => [...els, pick]); // QZ-01
+    // QZ-01 elimination only makes sense for single choice — a wrong SET
+    // says nothing about individual options.
+    if (!isMulti && !isText && pick !== null) setEliminated((els) => [...els, pick]);
     setLostHeart(true);
     setTimeout(() => setLostHeart(false), 500);
 
@@ -212,7 +249,10 @@ export function QuizV2({
         kind: "no",
         msg: t("exercise.outOfAttempts"),
         // nothing to reveal live — the stripped question carries no key
-        correct: correctIdx >= 0 ? q.options[correctIdx]?.text : undefined,
+        correct:
+          correctIdxSet.length > 0
+            ? correctIdxSet.map((i) => q.options[i]?.text).join(" · ")
+            : undefined,
       });
       setStreak(0);
     } else {
@@ -227,11 +267,15 @@ export function QuizV2({
   const handleRetry = () => {
     setFeedback(null);
     setPick(null);
+    // multi keeps its picks so the student can adjust the set; text keeps
+    // the typed answer for the same reason
   };
 
   const handleContinue = () => {
     setFeedback(null);
     setPick(null);
+    setPicks([]);
+    setTextInput("");
     setEliminated([]); // QZ-01: eliminations are per-question
     setAttemptsLeft(maxAttemptsPerTask);
     setUsedAttempts(0);
@@ -263,14 +307,38 @@ export function QuizV2({
         eyebrow={eyebrow}
         title={title ? title : <MaybeMath text={q.question_text} />}
         feedback={feedback}
-        canCheck={pick !== null}
+        canCheck={canCheck}
         onCheck={handleCheck}
         onContinue={handleContinue}
         onRetry={canRetry ? handleRetry : undefined}
         onQuit={onQuit}
       >
+        {isText ? (
+          /* Free-text question (specs/019 US2): one input, server-checked. */
+          <div style={{ maxWidth: 460, margin: "0 auto", width: "100%" }}>
+            <input
+              type="text"
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              disabled={!!feedback}
+              placeholder={t("exercise.quiz.textAnswerPlaceholder")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canCheck && !feedback) handleCheck();
+              }}
+              style={{
+                width: "100%",
+                padding: "16px 20px",
+                fontSize: 16,
+                borderRadius: 12,
+                border: "2px solid var(--color-border-strong)",
+                background: "var(--color-surface)",
+                color: "var(--color-text)",
+              }}
+            />
+          </div>
+        ) : (
         <div
-          role="radiogroup"
+          role={isMulti ? "group" : "radiogroup"}
           aria-label={t("exercise.quiz.answerOptionsAria")}
           style={{
             display: "flex",
@@ -281,19 +349,26 @@ export function QuizV2({
             width: "100%",
           }}
         >
+          {isMulti && (
+            <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-muted)" }}>
+              {t("exercise.quiz.pickAllThatApply")}
+            </p>
+          )}
           {q.options.map((opt, i) => {
             // Feedback grammar (handoff 2026-06): reveal the correct tile only
             // on a correct pick OR once the task is fully failed — never leak
             // the answer while retries remain.
             const failedOut = feedback?.kind === "no" && attemptsLeft <= 0;
+            const chosen = isMulti ? picks.includes(i) : pick === i;
             let state = "";
             if (feedback) {
-              if (i === correctIdx && (feedback.kind === "ok" || failedOut)) state = "correct";
-              else if (i === pick && feedback.kind === "no") state = "wrong";
+              const isCorrectTile = isMulti ? correctIdxSet.includes(i) : i === correctIdx;
+              if (isCorrectTile && (feedback.kind === "ok" || failedOut)) state = "correct";
+              else if (chosen && feedback.kind === "no") state = "wrong";
               else if (eliminated.includes(i)) state = "eliminated"; // QZ-01
               else state = "locked";
             } else if (eliminated.includes(i)) state = "eliminated"; // QZ-01
-            else if (pick === i) state = "selected";
+            else if (chosen) state = "selected";
             const isElim = state === "eliminated";
             // QZ-05: prose reads in sans; mono is reserved for math/code-looking
             // options (operators or pure numbers).
@@ -303,8 +378,8 @@ export function QuizV2({
                 key={i}
                 className={"gp-tile " + state}
                 disabled={!!feedback || isElim}
-                role="radio"
-                aria-checked={pick === i}
+                role={isMulti ? "checkbox" : "radio"}
+                aria-checked={chosen}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -315,7 +390,14 @@ export function QuizV2({
                   fontFamily: mathy ? "var(--font-mono)" : "var(--font-sans)",
                   width: "100%",
                 }}
-                onClick={() => !feedback && !isElim && setPick(i)}
+                onClick={() => {
+                  if (feedback || isElim) return;
+                  if (isMulti) {
+                    setPicks((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
+                  } else {
+                    setPick(i);
+                  }
+                }}
               >
                 {/* QZ-03: selection = filled dot; ✓ appears only after grading. */}
                 <span className="tile-dot">
@@ -346,6 +428,7 @@ export function QuizV2({
             );
           })}
         </div>
+        )}
       </LessonShell>
     </div>
   );

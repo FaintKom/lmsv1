@@ -299,10 +299,14 @@ class QuestionInExercise(BaseModel):
     id: uuid.UUID
     question_text: str
     question_type: str
-    options: list[dict] | None = None
+    # list for choice options; dict for text-question checking rules (specs/019)
+    options: list[dict] | dict | None = None
     correct_answer: str | None = None
     points: int = 1
     sort_order: int = 0
+    # Derived for stripped student reads: multi-choice questions render as
+    # checkboxes. Never stored; set in _for_reader's strip pass.
+    multi: bool | None = None
 
     model_config = {"from_attributes": True}
 
@@ -615,7 +619,8 @@ class SubmissionListResponse(BaseModel):
 class QuestionCreate(BaseModel):
     question_text: str
     question_type: str = "multiple_choice"
-    options: list[dict] | None = None
+    # list for choice options; dict for text-question checking rules (specs/019)
+    options: list[dict] | dict | None = None
     correct_answer: str | None = None
     points: int = 1
 
@@ -623,7 +628,7 @@ class QuestionCreate(BaseModel):
 class QuestionUpdate(BaseModel):
     question_text: str | None = None
     question_type: str | None = None
-    options: list[dict] | None = None
+    options: list[dict] | dict | None = None
     correct_answer: str | None = None
     points: int | None = None
     sort_order: int | None = None
