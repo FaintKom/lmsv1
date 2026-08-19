@@ -165,11 +165,25 @@ interface ExerciseRendererProps {
  nextLesson?: LessonNavItem | null;
  /** Live-lesson draft capture (code/web types) — fires with the same shape submit uses. */
  onAnswersChange?: (answers: Record<string, unknown>) => void;
+ /** Teacher test run (specs/018): verdicts via the non-persisting /check
+  *  path; nothing is submitted, no attempt state is loaded or spent. */
+ previewMode?: boolean;
 }
 
 const FULLSCREEN_TYPES = new Set(["robot_2d", "math_interactive", "world_3d"]);
 
-export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson, onAnswersChange }: ExerciseRendererProps) {
+// Components that POST their own submissions and have no non-persisting
+// verdict path — in preview they render read-only (specs/018 FR-006).
+const SELF_PERSISTING_TYPES = new Set([
+ "robot_2d",
+ "world_3d",
+ "math_interactive",
+ "web_editor",
+ "scorm_package",
+ "math_stepwise",
+]);
+
+export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextLesson, onAnswersChange, previewMode = false }: ExerciseRendererProps) {
  const router = useRouter();
  const { t } = useTranslation();
  const [submitting, setSubmitting] = useState(false);
@@ -189,6 +203,7 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
  // Fetch attempt status on mount
  useEffect(() => {
+ if (previewMode) return; // test run: fresh board, no attempt bookkeeping
  apiClient.get(`/exercises/${exercise.id}/attempts`).then(({ data }) => {
  setAttemptCount(data.attempt_count ?? 0);
  setMaxAttempts(data.max_attempts ?? 100);
@@ -237,6 +252,21 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
 
  const handleSubmit = async (body: Record<string, unknown>) => {
  setSubmitting(true);
+ // Test run (specs/018): verdict via the non-persisting /check — never /submit.
+ if (previewMode) {
+ try {
+ const res = await apiClient.post(`/exercises/${exercise.id}/check`, {
+ interactive_answers: (body.interactive_answers as Record<string, unknown>) ?? body,
+ });
+ setResult({ score: res.data?.passed ? 100 : 0, passed: !!res.data?.passed });
+ toast.info(t("admin.exercisePreview.checkedNotSaved"));
+ } catch {
+ toast.info(t("admin.exercisePreview.verdictUnavailable"));
+ } finally {
+ setSubmitting(false);
+ }
+ return;
+ }
  try {
  const res = await apiClient.post(`/exercises/${exercise.id}/submit`, {
  ...body,
@@ -268,6 +298,11 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  };
 
  const handleFileUpload = async (file: File) => {
+ if (previewMode) {
+ // File uploads are graded by a human — nothing to check, nothing to store.
+ toast.info(t("admin.exercisePreview.verdictUnavailable"));
+ return;
+ }
  setSubmitting(true);
  try {
  const formData = new FormData();
@@ -310,12 +345,30 @@ export default function ExerciseRenderer({ exercise, courseId, prevLesson, nextL
  <Loader2 className="h-4 w-4 animate-spin" />
  Submitting...
  </div>
+ ) : previewMode && SELF_PERSISTING_TYPES.has(exercise.exercise_type) ? (
+ // These components submit to the server themselves and have no
+ // non-persisting path — show the student view read-only rather than
+ // silently recording a run (specs/018 FR-006).
+ <div>
+ <p className="mb-2 text-xs italic text-text-subtle">
+ {t("admin.exercisePreview.visualOnly")}
+ </p>
+ <div className="pointer-events-none select-none" aria-disabled>
+ <ExerciseBody
+ exercise={exercise}
+ onSubmit={() => {}}
+ onFileUpload={() => {}}
+ onAnswersChange={onAnswersChange}
+ />
+ </div>
+ </div>
  ) : (
  <ExerciseBody
  exercise={exercise}
  onSubmit={handleSubmit}
  onFileUpload={handleFileUpload}
  onAnswersChange={onAnswersChange}
+ previewMode={previewMode}
  />
  )}
  </>
@@ -526,11 +579,13 @@ function ExerciseBody({
  onSubmit,
  onFileUpload,
  onAnswersChange,
+ previewMode = false,
 }: {
  exercise: Exercise;
  onSubmit: (body: Record<string, unknown>) => void;
  onFileUpload: (file: File) => void;
  onAnswersChange?: (answers: Record<string, unknown>) => void;
+ previewMode?: boolean;
 }) {
  switch (exercise.exercise_type) {
  case "quiz":
@@ -602,6 +657,7 @@ function ExerciseBody({
  config={exercise.config as { language?: string; starter_code?: string }}
  testCases={exercise.test_cases || []}
  onAnswersChange={onAnswersChange}
+ previewMode={previewMode}
  onSubmit={(body) => {
  if (!(body as { _already_submitted?: boolean })._already_submitted) {
  onSubmit(body);
@@ -847,6 +903,7 @@ function CodeChallengeExercise({
  testCases,
  onSubmit,
  onAnswersChange,
+ previewMode = false,
 }: {
  exerciseId: string;
  config: {
@@ -858,6 +915,7 @@ function CodeChallengeExercise({
  testCases: TestCase[];
  onSubmit: (body: Record<string, unknown>) => void;
  onAnswersChange?: (answers: Record<string, unknown>) => void;
+ previewMode?: boolean;
 }) {
  const [code, setCode] = useState(config.starter_code || "");
  const [selectedLang, setSelectedLang] = useState(config.language || "python");
@@ -1021,10 +1079,13 @@ function CodeChallengeExercise({
  <Play className="h-3.5 w-3.5" />
  {isRunning ? "Running..." : "Run"}
  </Button>
+ {/* Test run: Run (stateless sandbox) stays; Submit would persist (specs/018) */}
+ {!previewMode && (
  <Button size="sm" onClick={handleSubmit} disabled={isSubmitting || !code.trim()}>
  <Send className="h-3.5 w-3.5" />
  {isSubmitting ? "Submitting..." : "Submit"}
  </Button>
+ )}
  </div>
  </div>
 

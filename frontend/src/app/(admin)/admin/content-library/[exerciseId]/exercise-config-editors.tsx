@@ -14,6 +14,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
  ),
 });
 import apiClient from "@/lib/api-client";
+import { useTranslation } from "@/lib/i18n/context";
 import { readSystem, solveSystem } from "@/lib/math/linear-system";
 import {
  computeSolid,
@@ -1234,6 +1235,7 @@ interface BubbleQuestion {
 }
 
 export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
+ const { t } = useTranslation();
  const questions = (config.questions as BubbleQuestion[]) || [];
  const numOptions = (config.num_options as number) || 4;
  const passingScore = (config.passing_score as number) || 70;
@@ -1262,6 +1264,10 @@ export function BubbleSheetConfigEditor({ config, onChange }: EditorProps) {
 
  return (
    <div className="space-y-4">
+     {/* The owner's #32: nobody could tell what this type is for (specs/018 US3) */}
+     <p className="rounded-lg bg-surface-2 px-3 py-2 text-xs text-text-muted">
+       {t("admin.exerciseEditor.bubbleSheetAbout")}
+     </p>
      <div className="grid grid-cols-2 gap-4">
        <div>
          <label className={labelCls}>Options per Question</label>
