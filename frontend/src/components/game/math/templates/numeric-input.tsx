@@ -61,7 +61,9 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  );
  setSubmitted(true);
  setIsCorrect(correct);
- if (correct) onComplete(true, 1.0);
+ // The typed value goes up whether it is right or not; the server marks it
+ // (specs/012), and a wrong attempt is still an attempt a teacher should see.
+ onComplete(correct, correct ? 1.0 : 0, { value: answer });
  };
 
  const handleKeyDown = (e: React.KeyboardEvent) => {

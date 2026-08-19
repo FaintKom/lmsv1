@@ -1,6 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
+from fractions import Fraction
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -1339,6 +1340,61 @@ def _mark_coordinate_plane(template_config: dict, work: dict) -> tuple[float, bo
     return correct / len(targets), correct == len(targets)
 
 
+def _mark_numeric_input(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark a typed number the way `numeric-input.tsx` does.
+
+    Any of `correct_answers` within `tolerance`, which defaults to 0.01 in the
+    widget. A fraction is accepted because the widget accepts one; anything that
+    is not a number at all is a wrong answer rather than a refusal, since the
+    pupil did answer.
+    """
+    accepted = template_config.get("correct_answers")
+    if not isinstance(accepted, list) or not accepted:
+        return None
+    if "value" not in work:
+        return None
+
+    tolerance = template_config.get("tolerance")
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        tolerance = 0.01
+    tolerance = abs(float(tolerance))
+
+    raw = str(work.get("value") or "").strip()
+    given: float | None = None
+    try:
+        given = float(Fraction(raw)) if "/" in raw else float(raw)
+    except (ValueError, ZeroDivisionError):
+        given = None
+    if given is None:
+        return 0.0, False
+
+    for candidate in accepted:
+        try:
+            if abs(given - float(candidate)) <= tolerance:
+                return 1.0, True
+        except (TypeError, ValueError):
+            continue
+    return 0.0, False
+
+
+def _mark_multiple_choice_math(template_config: dict, work: dict) -> tuple[float, bool] | None:
+    """Mark a picked option against `choices[].correct`, as the widget does."""
+    choices = template_config.get("choices")
+    if not isinstance(choices, list) or not choices:
+        return None
+    if "choice" not in work:
+        return None
+
+    picked = work.get("choice")
+    if not isinstance(picked, int) or isinstance(picked, bool):
+        return 0.0, False
+    if not 0 <= picked < len(choices):
+        return 0.0, False
+    chosen = choices[picked]
+    correct = bool(isinstance(chosen, dict) and chosen.get("correct"))
+    return (1.0, True) if correct else (0.0, False)
+
+
 async def _submit_math_interactive(
     db: AsyncSession,
     exercise: Exercise,
@@ -1360,9 +1416,17 @@ async def _submit_math_interactive(
     if not isinstance(work, dict):
         work = {}
 
-    marked = None
-    if config.get("template_type") == "coordinate_plane":
-        marked = _mark_coordinate_plane(template_config, work)
+    # Templates the server understands. The rest keep the honest interim from
+    # #352: recorded with the pupil's report, marked by nobody. `equation_solver`
+    # is deliberately absent — its score depends on hints taken and wrong turns
+    # made in the page, which the server cannot see and should not invent.
+    markers = {
+        "coordinate_plane": _mark_coordinate_plane,
+        "numeric_input": _mark_numeric_input,
+        "multiple_choice_math": _mark_multiple_choice_math,
+    }
+    marker = markers.get(str(config.get("template_type") or ""))
+    marked = marker(template_config, work) if marker else None
 
     if marked is None:
         return await _submit_game_level(db, exercise, user, data, now)
