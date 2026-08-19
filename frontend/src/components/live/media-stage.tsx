@@ -90,7 +90,7 @@ function ControlToggle({
       disabled={pending}
       aria-pressed={enabled}
       title={enabled ? offLabel : onLabel}
-      className={`btn-pop inline-flex shrink-0 items-center gap-1 px-2 py-1 text-3xs font-bold disabled:opacity-50 ${shape} ${tone}`}
+      className={`btn-pop inline-flex shrink-0 items-center gap-1 px-2 py-1 text-3xs font-bold disabled:opacity-50 pointer-coarse:min-h-11 pointer-coarse:px-3 pointer-coarse:text-2xs ${shape} ${tone}`}
     >
       <Icon size={14} aria-hidden />
       {enabled ? onLabel : offLabel}
@@ -167,7 +167,7 @@ function RoomControls({
             void room.disconnect();
             onLeave();
           }}
-          className="btn-pop inline-flex shrink-0 items-center gap-1.5 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-2xs font-bold text-text"
+          className="btn-pop inline-flex shrink-0 items-center gap-1 rounded-sm border border-border bg-surface px-2 py-1 text-3xs font-bold text-text pointer-coarse:min-h-11 pointer-coarse:px-3 pointer-coarse:text-2xs"
         >
           <LogOut size={14} aria-hidden />
           {t("live.media.leave")}
@@ -404,7 +404,7 @@ export function MediaStage({
             type="button"
             onClick={() => call.join(lessonId, breakoutIndex)}
             disabled={call.connecting}
-            className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg disabled:opacity-60"
+            className="btn-pop rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-primary-fg disabled:opacity-60 pointer-coarse:min-h-11"
           >
             {call.connecting ? t("live.media.connecting") : t("live.media.join")}
           </button>
