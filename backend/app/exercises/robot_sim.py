@@ -80,6 +80,12 @@ class StepsExhaustedError(Exception):
     """
 
 
+#: The name the sandbox harness catches. Each world names its error after
+#: itself — ``RobotError`` here, ``WorldError`` in ``world_sim`` — and this alias
+#: is what lets one harness serve both without either being renamed.
+SimError = RobotError
+
+
 class World:
     """One run of one level.
 

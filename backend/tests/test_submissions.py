@@ -504,8 +504,12 @@ async def test_answer_of_the_wrong_type_scores_zero_instead_of_crashing(
     "exercise_type,config,field,good_payload,junk_payload",
     [
         (
-            ExerciseType.world_3d,
-            {"grid_width": 3, "grid_depth": 3, "cells": [], "win_condition": "reach_goal"},
+            # `math_interactive` is the last type that still posts its own
+            # verdict. `world_3d` left this path in spec 012 and `robot_2d` in
+            # 005; both are covered by their own submit tests, where the server
+            # runs the program and the claim in the body is ignored.
+            ExerciseType.math_interactive,
+            {"template_type": "coordinate_plane", "success_condition": {"kind": "click_origin"}},
             "game_result",
             {"completed": True, "score": 1.0},
             {"completed": "yes", "score": "lots"},
@@ -621,10 +625,6 @@ async def test_math_stepwise_is_marked_by_the_server(
     "exercise_type,config",
     [
         (
-            ExerciseType.world_3d,
-            {"grid_width": 3, "grid_depth": 3, "cells": [], "win_condition": "reach_goal"},
-        ),
-        (
             ExerciseType.math_interactive,
             {"template_type": "coordinate_plane", "success_condition": {"kind": "click_origin"}},
         ),
@@ -638,12 +638,14 @@ async def test_a_game_verdict_from_the_client_is_recorded_not_believed(
     `_submit_game_level` read `completed` and `score` straight off the request
     body, so `{"completed": true, "score": 1.0}` scored 100 without the exercise
     ever being opened. Measured on the QA stack 2026-08-18; it is the half of
-    004 that was deferred rather than fixed, and robot_2d closed it by having the
-    server replay the program (#343).
+    004 that was deferred rather than fixed. `robot_2d` closed it by having the
+    server replay the program (#343), and `world_3d` did the same in spec 012 —
+    each now has its own submit test, where a claimed win beside a losing
+    program is graded `passed=False` with the genuine win alongside it.
 
-    These two cannot be replayed yet, so the attempt is stored for the teacher
-    and marked by nobody. The report the browser sent is kept as the pupil's own
-    account of what they did.
+    `math_interactive` is what is left: it cannot be replayed, so the attempt is
+    stored for the teacher and marked by nobody. The report the browser sent is
+    kept as the pupil's own account of what they did.
     """
     course = await make_course(db, org, teacher)
     module = await make_module(db, course.id)

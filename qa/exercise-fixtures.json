@@ -125,15 +125,19 @@
       "label": "World 3D",
       "config": {
         "grid_width": 3,
-        "grid_depth": 3,
+        "grid_depth": 2,
+        "start": {"x": 0, "z": 1, "y": 0, "facing": "north"},
         "cells": [
-          {"x": 0, "z": 0, "y": 0, "type": "start"},
-          {"x": 2, "z": 2, "y": 0, "type": "goal"}
+          {"x": 0, "z": 0, "type": "goal"},
+          {"x": 2, "z": 1, "y": 0, "type": "wall"}
         ],
-        "player_start": {"x": 0, "y": 0, "z": 0, "direction": "east"},
-        "available_blocks": ["move_forward", "turn_right"],
-        "win_condition": "reach_goal",
-        "difficulty": "beginner"
+        "commands": ["move_forward", "turn_left", "turn_right", "at_goal"],
+        "win": {"cond": "at_goal"},
+        "max_steps": 50,
+        "star_steps": 1,
+        "star_size": 1,
+        "preset": "beginner",
+        "hints": []
       }
     },
     {

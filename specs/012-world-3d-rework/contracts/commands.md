@@ -16,7 +16,7 @@ run and names the command and the line (FR-020).
 | `move_forward()` | walks one square the way the character faces | a wall, a closed door or the grid's edge is in the way, or the surface ahead is more than one level up |
 | `turn_left()` | turns a quarter, anticlockwise | never |
 | `turn_right()` | turns a quarter, clockwise | never |
-| `jump()` | leaps one square forward, over a wall no taller than the character | the surface ahead is more than two levels up, the wall is taller than the character, a closed door is in the way, or it is the grid's edge |
+| `jump()` | leaps one square forward, climbing up to **two** levels instead of one | the surface ahead is more than two levels up, a wall stands at or above the surface ahead, a closed door is in the way, or it is the grid's edge |
 | `take()` | picks up the item on this square | there is nothing here |
 | `drop()` | puts down what is held | nothing is held, or this square already holds an item |
 | `press()` | presses the button in front, opening the door it names | never — a press with nothing in front is allowed, does nothing, and still costs the step |

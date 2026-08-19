@@ -219,7 +219,8 @@ transition.
 - **FR-014**: Walking MUST succeed onto a surface at most one level higher, and
   MUST fall to any surface lower.
 - **FR-015**: Jumping MUST succeed onto a surface one level higher than walking
-  allows, and MUST clear a wall no taller than the character.
+  allows — two rather than one. It MUST NOT pass through a wall: a jump crosses
+  one square, so there is nothing to clear.
 - **FR-016**: A wall, a closed door and the edge of the grid MUST each refuse
   movement, consume a step, and be distinguishable to the pupil.
 - **FR-017**: `press()` MUST open the door linked to the button in front, and
