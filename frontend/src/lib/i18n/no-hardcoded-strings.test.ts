@@ -33,7 +33,10 @@ function walk(dir: string, out: string[] = []): string[] {
   const full = join(dir, entry);
   if (statSync(full).isDirectory()) {
    walk(full, out);
-  } else if (entry.endsWith(".tsx")) {
+  } else if (entry.endsWith(".tsx") && !entry.endsWith(".test.tsx")) {
+   // Test files speak to developers, not to pupils — their strings are
+   // fixtures, and demanding useTranslation of a fixture only teaches people
+   // to allowlist without reading.
    out.push(full);
   }
  }

@@ -50,6 +50,32 @@ interface CallState {
   setSlot: (el: HTMLElement | null, ui: CallSlotUi | null) => void;
 }
 
+/**
+ * The two decisions this provider makes, kept as functions a test can hold.
+ *
+ * Both have already been wrong in production once, and neither failure was
+ * visible to any check that existed:
+ * - re-join used to act on every report, so a panel re-render stomped the
+ *   teacher's scene choice (the flapping in T103's history);
+ * - releasing a slot used to clear the interface with it, so the floating
+ *   panel was an empty rectangle (T104).
+ */
+export function sameCall(
+  current: { lessonId: string | null; breakoutIndex: number | null },
+  next: { lessonId: string; breakoutIndex: number | null },
+): boolean {
+  return current.lessonId === next.lessonId && current.breakoutIndex === next.breakoutIndex;
+}
+
+/**
+ * A page giving back its place is not an instruction to stop drawing the call.
+ * The interface is only ever gained; leaving the call is what clears it, by
+ * unmounting the room around it.
+ */
+export function keepUi(current: CallSlotUi | null, next: CallSlotUi | null): CallSlotUi | null {
+  return next ?? current;
+}
+
 const CallCtx = createContext<CallState | null>(null);
 
 export function useCall(): CallState {
@@ -87,7 +113,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       // Asking for the room already held is not a request to reconnect. A
       // split moving somebody between rooms is, and that is the only case that
       // should tear a working connection down.
-      if (grant && lessonId === lesson && breakoutRef.current === breakoutIndex) return;
+      if (
+        grant &&
+        sameCall({ lessonId, breakoutIndex: breakoutRef.current }, { lessonId: lesson, breakoutIndex })
+      )
+        return;
       joinMutate({ lesson, index: breakoutIndex });
     },
     [grant, lessonId, joinMutate],
@@ -95,11 +125,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
   const setSlot = useCallback((el: HTMLElement | null, next: CallSlotUi | null) => {
     setSlotEl(el);
-    // Only ever *gain* an interface, never lose one by giving back a place.
-    // A page that unmounts is saying "not here any more", not "stop drawing
-    // the call" — clearing both left the floating panel as an empty rectangle
-    // in the corner, which is how this read in production.
-    if (next) setUi(() => next);
+    setUi((current) => keepUi(current, next));
   }, []);
 
   const value = useMemo<CallState>(
