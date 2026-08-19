@@ -197,7 +197,17 @@ export default function World3DExercise({ exerciseId, config, onSubmit }: World3
   const task = describeGoal(config.win, t);
   const stars = result?.stars ?? 0;
   const finished = Boolean(result?.won);
-  const problem = failure ?? describeStop(result, t);
+  /**
+   * Why the world said no, in the pupil's language.
+   *
+   * Ahead of the end-of-run message, because it is the more useful of the two:
+   * "a wall is in the way" names the square to look at, where "the goal was not
+   * reached" restates the score. The character has always shuddered at this
+   * moment and never said why — a wall, a closed door, the edge of the board
+   * and a step too high were four different problems that looked identical.
+   */
+  const refused = world.refusal ? t(`game.refused.${world.refusal}`) : null;
+  const problem = failure ?? refused ?? describeStop(result, t);
 
   return (
     <div className="flex h-full flex-col">

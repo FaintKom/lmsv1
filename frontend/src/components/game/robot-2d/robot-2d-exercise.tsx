@@ -214,7 +214,17 @@ export default function Robot2DExercise({
   const task = describeGoal(config.win, t);
   const stars = result?.stars ?? 0;
   const finished = Boolean(result?.won);
-  const problem = failure ?? describeStop(result, t);
+  /**
+   * Why the world said no, in the pupil's language. The 3D twin does the same
+   * with the same keys, because a wall means a wall in both.
+   *
+   * Ahead of the end-of-run message, because it is the more useful of the two:
+   * "a wall is in the way" names the square to look at, where "the goal was not
+   * reached" restates the score. The robot has always shaken at this moment and
+   * never said why.
+   */
+  const refused = gridState.collision ? t(`game.refused.${gridState.collision}`) : null;
+  const problem = failure ?? refused ?? describeStop(result, t);
   const cellSize = useCellSize(gridState.width, gridState.height);
 
   return (

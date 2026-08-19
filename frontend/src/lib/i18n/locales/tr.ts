@@ -794,6 +794,10 @@ const tr: TranslationMap = {
  "Bu bölümü henüz kimse bitirmedi. Kontrol edilebilmesi için aşağıya bir çözüm yaz.",
  "robot.blocker.runner_unavailable": "Bölüm şu anda kontrol edilemedi. Tekrar dene.",
  // ─── Üç boyutlu bölüm düzenleyici ─────────────────────────────────
+ "game.refused.wall": "Önünde duvar var.",
+ "game.refused.edge": "Orası tahtanın kenarı.",
+ "game.refused.door_closed": "Kapı kapalı. Onu açan düğmeyi bul.",
+ "game.refused.too_high": "Bu basamak çok yüksek. Yürümek bir kat çıkar, zıplamak iki.",
  "world.climb.one": "bir kat çıkar",
  "world.climb.two": "iki kat çıkar",
  "world.climbHint": "Yürümek bir kat çıkar, zıplamak iki. İkisi de daha yükseğe çıkmaz.",

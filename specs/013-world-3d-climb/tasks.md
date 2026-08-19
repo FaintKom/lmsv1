@@ -159,13 +159,17 @@ accident: under the old counting nothing in it could leave the ground. With the
 rule broken on purpose the journey goes red on the teacher's Check; restored, all
 four pass.
 
-**T020, partly.** The climb strings landed in all six locales. The refusal that
-names height as the reason **did not**, and deliberately: no refusal reaches the
-pupil as text today — a wall, a closed door and the edge of the board are all
-equally silent, and the character shudders instead. Adding words for one of the
-four would leave the other three unexplained, which is a worse state than the
-one we are in. FR-007 is satisfied in the data, where the four causes are
-already distinct; the screen half wants its own change and its own spec.
+**T020, in two goes.** The climb strings landed in all six locales. The refusal
+naming height did not, and the reason given was that no refusal reached the
+pupil as text at all — a wall, a closed door and the edge of the board were
+equally silent, and words for one of the four would leave three unexplained.
+
+The owner overruled that, and rightly: the answer was to give all four words,
+not to leave four silent. All four have them now, in 2D as well as 3D, since a
+wall means a wall in either. The engines carry the reason as a code rather than
+a boolean, each exercise reads it where the end-of-run message already sits, and
+the journey has a fifth test — the pupil walks off the board and reads why, with
+a successful run in the same test clearing the line.
 
 **T030, not done.** SC-003 and SC-004 need a person who has not read this spec —
 a child naming a walk, a climb and a fall from the animation alone. Nobody has
