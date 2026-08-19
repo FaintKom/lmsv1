@@ -434,6 +434,10 @@ small, and every one of them broke the feature completely.
   already flows: teacher broadcasts arrive on the channel today and die as
   toasts; pupil questions POST to an endpoint that already exists. One panel,
   no backend change
+- [x] T113 Scope the live lesson's material picker to the group (FR-037):
+  a lesson-scoped course list on the backend — every-member enrollment, plus
+  the group's own course — with the one-pupil-missing case as the control;
+  the picker asks it instead of the whole catalogue (owner, 2026-08-19)
 - [~] T096 (browser-provable part done 2026-08-18 — the journey records, tells everybody, uploads and hands back a real WebM with a duration; the source-attribution half stays with T086, because Chrome's fake cameras paint one identical pattern for every participant and no pixel can say whose it was) Finish T086 itself: a lesson held by two people, camera on for the
   pupil, and the recording played back to confirm it holds the teacher and the
   shared screen and nobody else (FR-027)

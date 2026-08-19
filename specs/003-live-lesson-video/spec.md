@@ -309,6 +309,11 @@ finished file arrives against that lesson and can be played back.
 - **FR-033**: A participant MUST stay in the call while moving around the
   platform. Opening a material, a task or any other page is part of taking a
   lesson, and today each one drops the person out of the room they are in.
+- **FR-037**: The material picker inside a live lesson MUST offer only courses
+  available to that lesson's group: a course counts as available when every
+  member of the group is enrolled in it, and the group's own course is always
+  available. Showing the whole catalogue invites the teacher to open a page
+  half the class cannot follow.
 - **FR-035**: The pupil's lesson page is a stage and a rail. The stage holds
   the one thing being taught — the teacher's screen, the board, the material,
   the task, or the faces; the rail holds the cameras, the call controls and

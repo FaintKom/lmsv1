@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.models import StudentGroupMember
@@ -196,6 +196,62 @@ async def heartbeat_endpoint(
         raise HTTPException(status_code=409, detail="lesson ended")
     await service.heartbeat(lesson, user, data.current_view, data.exercise_id)
     return Response(status_code=204)
+
+
+@router.get("/{lesson_id}/courses")
+async def lesson_courses_endpoint(
+    lesson_id: uuid.UUID,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+    db: AsyncSession = Depends(get_db),
+):
+    """Courses the material picker may offer for this lesson (FR-037).
+
+    A course counts as available when every member of the lesson's group is
+    enrolled in it; the group's own course is always available. The whole
+    catalogue invites the teacher to open a page half the class cannot follow,
+    and nobody discovers that until the lesson is already running.
+    """
+    from app.admin.models import StudentGroup
+    from app.courses.models import Course
+    from app.progress.models import Enrollment
+
+    lesson = await db.get(LiveLesson, lesson_id)
+    if not lesson or lesson.org_id != user.org_id:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    group = await db.get(StudentGroup, lesson.group_id)
+    member_ids = (
+        (
+            await db.execute(
+                select(StudentGroupMember.user_id).where(
+                    StudentGroupMember.group_id == lesson.group_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    rows = (await db.execute(select(Course).where(Course.org_id == user.org_id))).scalars().all()
+
+    available = []
+    if member_ids:
+        counts = dict(
+            (
+                await db.execute(
+                    select(Enrollment.course_id, func.count())
+                    .where(Enrollment.student_id.in_(member_ids))
+                    .group_by(Enrollment.course_id)
+                )
+            ).all()
+        )
+        available = [c for c in rows if counts.get(c.id, 0) == len(member_ids)]
+    if group and group.course_id and all(c.id != group.course_id for c in available):
+        own = next((c for c in rows if c.id == group.course_id), None)
+        if own:
+            available.append(own)
+
+    return {"items": [{"id": str(c.id), "title": c.title} for c in available]}
 
 
 @router.get("/{lesson_id}/roster")

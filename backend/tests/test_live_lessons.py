@@ -845,3 +845,80 @@ async def test_media_scenes_are_scenes(client, db, org, teacher, student):
         headers=auth_header(teacher),
     )
     assert refused.status_code == 422
+
+
+async def test_material_picker_offers_only_the_groups_courses(
+    client: AsyncClient, db, org, teacher, student
+):
+    """A course is available when EVERY member is enrolled (FR-037).
+
+    The course missing one pupil is the control: without it, an endpoint that
+    returns the whole catalogue passes the first assert and scopes nothing.
+    """
+    from datetime import datetime, timezone
+
+    from app.auth.models import User, UserRole
+    from app.courses.models import Course
+    from app.progress.models import Enrollment
+
+    other = User(
+        email="second-pupil@t.example",
+        hashed_password="x",
+        full_name="Second Pupil",
+        role=UserRole.student,
+        org_id=org.id,
+    )
+    db.add(other)
+    await db.flush()
+
+    everyone = Course(
+        org_id=org.id, title="For the whole group", slug="whole-group", teacher_id=teacher.id
+    )
+    partial = Course(
+        org_id=org.id, title="Half the class", slug="half-class", teacher_id=teacher.id
+    )
+    db.add_all([everyone, partial])
+    await db.flush()
+    now = datetime.now(timezone.utc)
+    db.add_all(
+        [
+            Enrollment(course_id=everyone.id, student_id=student.id, enrolled_at=now),
+            Enrollment(course_id=everyone.id, student_id=other.id, enrolled_at=now),
+            # `partial` deliberately misses `other`.
+            Enrollment(course_id=partial.id, student_id=student.id, enrolled_at=now),
+        ]
+    )
+    await db.flush()
+
+    g = await make_group(db, org, teacher, [student, other])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+
+    resp = await client.get(
+        f"/api/v1/live-lessons/{lesson_id}/courses", headers=auth_header(teacher)
+    )
+    assert resp.status_code == 200, resp.text
+    titles = {c["title"] for c in resp.json()["items"]}
+
+    assert "For the whole group" in titles
+    # The control: one pupil missing means the course is not offered.
+    assert "Half the class" not in titles
+
+
+async def test_lesson_courses_are_invisible_across_schools(
+    client: AsyncClient, db, org, teacher, student, admin2
+):
+    g = await make_group(db, org, teacher, [student])
+    lesson_id = (
+        await client.post(
+            "/api/v1/live-lessons", json={"group_id": str(g.id)}, headers=auth_header(teacher)
+        )
+    ).json()["id"]
+
+    resp = await client.get(
+        f"/api/v1/live-lessons/{lesson_id}/courses", headers=auth_header(admin2)
+    )
+    assert resp.status_code == 404
