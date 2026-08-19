@@ -152,3 +152,27 @@ Facts gathered on 2026-08-19 rather than recalled:
   `Sky` and `Environment` all present). Blockly 13.2.1.
 - **Not** installed, despite an earlier note of mine claiming otherwise:
   `motion` / `framer-motion`. Nothing here may assume them.
+
+## Finding J — SC-005, measured rather than asserted
+
+**Decision**: SC-005 is met with room to spare, and the number is written down
+here so the next person does not re-derive it from a feeling.
+
+Twenty presses of Run against the real sandbox container, 2026-08-19, on the
+development stack (backend on 8010, sandbox alongside it):
+
+| Program | steps | min | median | p95 | max |
+|---|---|---|---|---|---|
+| `move_forward()` twice — an ordinary pupil run | 2 | 48 ms | 53 ms | **98 ms** | 167 ms |
+| `while not at_goal(): move_forward()` — stopped by the step allowance | 200 | 47 ms | 53 ms | **77 ms** | 78 ms |
+
+**Rationale for measuring both**: the second is the worst a pupil can do, and it
+is the *faster* of the two at the tail. That is the useful finding. The cost is
+the container hop, not the simulation: two hundred steps of `world_sim` are
+noise beside starting a process and posting a result, so a runaway loop does not
+punish the child who wrote one.
+
+**What this does not measure**: production. That box is a CX22 sharing two vCPUs
+with the rest of the stack, so its figures will be worse. The margin is
+thirty-fold, which is the reason to record the measurement and move on rather
+than repeat it under load.

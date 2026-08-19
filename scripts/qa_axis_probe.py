@@ -155,8 +155,12 @@ def correct_answer(ex_type: str, fixture: dict, variant: str) -> dict | None:
         # its own trace, so the correct answer here is a correct program. The
         # fixture level is three wide and the goal is two steps to the right.
         return {"robot": {"source": "move_right()\nmove_right()\n"}}
-    if ex_type in ("world_3d", "math_interactive"):
-        # The browser still decides these and posts its verdict. Sending the
+    if ex_type == "world_3d":
+        # The same as robot_2d since spec 012. The fixture level starts at
+        # (0, 1) facing north and the goal is one step ahead at (0, 0).
+        return {"world": {"source": "move_forward()\n"}}
+    if ex_type == "math_interactive":
+        # The browser still decides this one and posts its verdict. Sending the
         # verdict without opening the exercise is the measurement, not a
         # shortcut — see specs/004-exercise-answer-leak.
         return {"game_result": {"completed": True, "score": 1.0}}
@@ -180,7 +184,11 @@ def empty_answer(ex_type: str) -> dict:
         return {"source_code": "", "language": "python"}
     if ex_type == "web_editor":
         return {"web_code": {}}
-    if ex_type in ("robot_2d", "world_3d", "math_interactive"):
+    if ex_type == "robot_2d":
+        return {"robot": {"source": ""}}
+    if ex_type == "world_3d":
+        return {"world": {"source": ""}}
+    if ex_type == "math_interactive":
         return {"game_result": {}}
     return {"interactive_answers": {}}
 
@@ -193,7 +201,11 @@ def wrong_shape(ex_type: str) -> dict:
         return {"source_code": 12345}
     if ex_type == "web_editor":
         return {"web_code": {"html": []}}
-    if ex_type in ("robot_2d", "world_3d", "math_interactive"):
+    if ex_type == "robot_2d":
+        return {"robot": {"source": 12345}}
+    if ex_type == "world_3d":
+        return {"world": {"source": 12345}}
+    if ex_type == "math_interactive":
         return {"game_result": {"completed": "yes", "score": "lots"}}
     return {"interactive_answers": {"pairs": "not-a-list", "order": "not-a-list",
                                     "blanks": "not-a-list", "words": "not-a-dict",
@@ -209,7 +221,12 @@ def wrong_answer(ex_type: str) -> dict:
         return {"source_code": "def add(a, b):\n    return 0", "language": "python"}
     if ex_type == "web_editor":
         return {"web_code": {"html": "<p>nope</p>", "css": "", "js": ""}}
-    if ex_type in ("robot_2d", "world_3d", "math_interactive"):
+    if ex_type == "robot_2d":
+        # Runs, does something, and never reaches the goal.
+        return {"robot": {"source": "turn_left()\n"}}
+    if ex_type == "world_3d":
+        return {"world": {"source": "turn_left()\n"}}
+    if ex_type == "math_interactive":
         return {"game_result": {"completed": False, "score": 0.0}}
     return {"interactive_answers": {"order": ["three", "two", "one"],
                                     "answer": False,

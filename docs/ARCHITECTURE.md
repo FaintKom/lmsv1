@@ -62,7 +62,7 @@ Feature-модульная организация. Каждый модуль о�
 | **assessments** | Quiz / quiz attempts / auto-grading |
 | **assignments** | Assignment CRUD, submissions, grading, deadline reminders |
 | **submissions** | Файловые submissions, общие upload-эндпоинты |
-| **exercises** | Унифицированные интерактивные упражнения (5+ типов) |
+| **exercises** | Унифицированные интерактивные упражнения (5+ типов). Уровни `robot_2d` и `world_3d` считает сервер: программа ученика исполняется в песочнице и возвращает список выполненных команд, который сервер проигрывает у себя через `robot_sim.py` / `world_sim.py` — оценка ставится по своему следу, а не по тому, что заявил браузер. Рядом `*_solver.py` (поиск в ширину: решаем ли уровень и за сколько шагов) и `*_validate.py` (что в уровне мешает), оба доступны только учителю и админу |
 | **sandbox** | Прокси к Judge0 для исполнения кода (Python/JS/Java/C++/Go) |
 | **progress** | Enrollment, lesson completion, video progress, course % |
 | **gamification** | XP, leagues, badges, streaks, leaderboard |

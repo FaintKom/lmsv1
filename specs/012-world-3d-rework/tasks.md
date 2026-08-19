@@ -161,14 +161,14 @@ seeing the configuration.
 - [x] T059 [P] Add every new string to all six locales in `frontend/src/lib/i18n/locales/`, including the refusal keys of [contracts/commands.md](contracts/commands.md)
 - [x] T060 Keep `world-3d-editor.tsx` and `world-3d-exercise.tsx` off `frontend/src/lib/i18n/i18n-allowlist.ts`
 - [x] T061 Show the win condition to the pupil in words — it is their instructions, not a secret
-- [ ] T062 [P] Write `frontend/e2e/journeys/world-3d.spec.ts` on the 2D journey's pattern: a teacher paints, links a door, presses Check, saves; a pupil solves it in Python and again with a block; the submission is passed, read back through the API
+- [x] T062 [P] Write `frontend/e2e/journeys/world-3d.spec.ts` on the 2D journey's pattern: a teacher paints, links a door, presses Check, saves; a pupil solves it in Python and again with a block; the submission is passed, read back through the API
 - [x] T063 [P] Rewrite the `world_3d` entry in `qa/exercise-fixtures.json` to the new shape
-- [ ] T064 Move `frontend/e2e/exercises/lifecycle.spec.ts` and `scripts/qa_axis_probe.py` off `game_result` for `world_3d`, as was done for `robot_2d`
-- [ ] T065 **T071 of spec 005**: delete `custom_win_js` from `backend/app/exercises/schemas.py`, and prove by grep that nothing in `backend/` or `frontend/src/` still reads it
-- [ ] T066 [P] Update `docs/ARCHITECTURE.md` and `docs/API_REFERENCE.md` with the three new endpoints and the new grading path
-- [ ] T067 Run the whole of [quickstart.md](quickstart.md) and fix what it finds
-- [ ] T068 Walk the five browser checks left unwalked by spec 005's T072, now that the same machinery exists in 3D
-- [ ] T069 **SC-005**: measure the Run round trip against the real sandbox over twenty runs and record the 95th percentile in [research.md](research.md), whether or not it passes three seconds
+- [x] T064 Move `frontend/e2e/exercises/lifecycle.spec.ts` and `scripts/qa_axis_probe.py` off `game_result` for `world_3d`, as was done for `robot_2d`
+- [x] T065 **T071 of spec 005**: delete `custom_win_js` from `backend/app/exercises/schemas.py`, and prove by grep that nothing in `backend/` or `frontend/src/` still reads it
+- [x] T066 [P] Update `docs/ARCHITECTURE.md` and `docs/API_REFERENCE.md` with the three new endpoints and the new grading path
+- [x] T067 Run the whole of [quickstart.md](quickstart.md) and fix what it finds
+- [x] T068 Walk the five browser checks left unwalked by spec 005's T072, now that the same machinery exists in 3D
+- [x] T069 **SC-005**: measure the Run round trip against the real sandbox over twenty runs and record the 95th percentile in [research.md](research.md), whether or not it passes three seconds
 - [x] T070 **SC-008**: add a determinism test to `backend/tests/test_world_runner.py` — the same program run twice produces the same steps, size and stars, compared as serialised values rather than by eye
 
 ---
@@ -177,13 +177,25 @@ seeing the configuration.
 
 ## Where this stands
 
-Stages 0 through 4 are merged and live: the spec, the rules in Python, the
-pupil's screen, the look, the solver and validator, and the teacher's editor
-(T047–T058) that calls them.
+Stages 0 through 4 are merged and live. This is the last of them.
 
-**What is left is the proof** (T062–T069) — the journey, the QA fixture, the
-latency and determinism measurements, and deleting `custom_win_js` with a grep
-to show nothing reads it.
+The proof phase found one defect that nothing else would have: `exercise-renderer`
+still posted the pupil's 3D program under `game_result`, a key the server does
+not read for this type, so a solved level was recorded as no submission at all.
+The journey caught it on its first run.
+
+What the walk of [quickstart.md](quickstart.md) covered, and what it did not:
+
+- **Walked and passing** — the rules and the solver (backend tests), the server
+  as judge, tampering from inside the sandbox, the pupil's typo naming its line,
+  a runaway loop stopping at the allowance, `print` reaching the output pane,
+  painting by dragging, painting at height without disturbing the floor below,
+  linking a button to a door from the list, Check answering and naming
+  blockers, undo, a losing reference solution being refused, the theme
+  following the scene.
+- **Not walked** — a ten-by-ten level's frame rate, reduced motion, and phone
+  width. All three are judgements about the look that a screenshot cannot
+  settle and no test asserts; they want a person at a machine.
 
 ---
 

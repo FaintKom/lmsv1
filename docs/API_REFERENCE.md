@@ -34,6 +34,8 @@
 | `/crm` | `app/crm/router.py` | Школьная воронка заявок: доска, история, напоминания, конверсия в ученика, отчёт по каналам. Admin-only |
 | `/crm/public` | `app/crm/public_router.py` | **Без аутентификации**: страница заявки школы и приём заявки с её сайта. Rate-limited |
 | `/exercises` | `app/exercises/router.py` | Унифицированные интерактивные упражнения |
+| `/exercises/{id}/robot/run`, `/exercises/{id}/world/run` | `app/exercises/router.py` | Прогон программы ученика без траты попытки: программа уходит в песочницу, сервер проигрывает её след у себя и возвращает кадры, шаги и вердикт. Победу объявляет сервер, не браузер |
+| `/exercises/robot/{preview,solve}`, `/exercises/world/{preview,solve}` | `app/exercises/router.py` | Только учителю и админу: сыграть несохранённый уровень и проверить его решаемость. `solve` отдаёт кратчайший путь либо причину, по которой не взялся считать, плюс список того, что в уровне мешает |
 | `/gamification` | `app/gamification/router.py` | XP, leagues, badges, streaks, leaderboard |
 | `/integrations` | `app/integrations/router.py` | Zoom/Google/Microsoft/YouTube OAuth |
 | `/learning-paths` | `app/learning_paths/router.py` | Path CRUD, enroll, progress |
