@@ -112,7 +112,7 @@ each other inside the lesson page, with no second window and no external domain.
 - [x] T032 [US1] Mount the same in `frontend/src/app/(admin)/admin/live/[lessonId]/page.tsx`, directly above the roster so a tile and a name line up by eye
 - [x] T033 [US1] Show the capacity refusal as a plain message when the grant returns 503, leaving board, tasks and roster working
 - [x] T034 [P] [US1] Add every new string to all six files in `frontend/src/lib/i18n/locales/`, or the parity test fails (FR-026)
-- [ ] T035 [P] [US1] ~~Vitest for the reconnect path~~ — **deferred to slice 2.** Reconnection belongs to the SDK, and the only branch worth asserting here is the 503 refusal, which the browser journey at T084 covers end to end. Revisit if `media-stage.tsx` grows logic of its own
+- [x] T035 [P] [US1] Vitest for the call's own decisions — revived 2026-08-19, the day the stated condition ("revisit if media-stage grows logic of its own") came true: `sameCall` and `keepUi` extracted from CallProvider and tested, the T104 empty-panel regression demonstrated failing (2 of 7 go red when the old behaviour is restored), plus two component tests through a mocked room — **deferred to slice 2.** Reconnection belongs to the SDK, and the only branch worth asserting here is the 503 refusal, which the browser journey at T084 covers end to end. Revisit if `media-stage.tsx` grows logic of its own
 - [x] T036 [US1] Close the media room when the lesson ends, in `backend/app/live_lessons/router.py`, and delete every breakout group belonging to it so no room outlives its lesson (FR-018; the test for the breakout half is T057)
 
 **Checkpoint**: SC-001, SC-004, SC-006 and SC-009 hold. This is the MVP and is deployable.
