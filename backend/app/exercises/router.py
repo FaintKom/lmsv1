@@ -32,8 +32,11 @@ from app.exercises.schemas import (
     TestCaseCreate,
     TestCaseInExercise,
     TestCaseUpdate,
+    WorldPreviewRequest,
     WorldRunRequest,
     WorldRunResponse,
+    WorldSolveRequest,
+    WorldSolveResponse,
 )
 from app.exercises.service import (
     add_question_to_exercise,
@@ -414,6 +417,68 @@ async def robot_run_endpoint(
         ) from None
 
     return RobotRunResponse(**result)
+
+
+@router.post("/world/preview", response_model=WorldRunResponse)
+async def world_preview_endpoint(
+    data: WorldPreviewRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Run a program against a 3D level that has not been saved.
+
+    Staff only, and not because the level is secret — the caller supplies it, so
+    a pupil reaching this route could author a one-square level and win it.
+
+    Every blocker comes back together (FR-027). A teacher fixing one fault per
+    save is the failure this replaces.
+    """
+    from app.exercises import robot_runner, world_sim, world_validate
+
+    blockers = world_validate.check(data.config)
+    if blockers:
+        raise HTTPException(status_code=400, detail={"blockers": blockers})
+
+    try:
+        result = await robot_runner.run(data.config, data.source, sim=world_sim)
+    except RuntimeError:
+        raise HTTPException(
+            status_code=503,
+            detail="The service that runs programs is unavailable. Try again.",
+        ) from None
+
+    return WorldRunResponse(**result)
+
+
+@router.post("/world/solve", response_model=WorldSolveResponse)
+async def world_solve_endpoint(
+    data: WorldSolveRequest,
+    user: User = Depends(require_role(UserRole.admin, UserRole.teacher)),
+):
+    """Can this 3D level be finished, and in how few steps. The Check button.
+
+    Three answers, and it always says which. Where the search declines — more
+    items and buttons than it can walk — the figures come from the teacher's own
+    solution instead, and `answer` stays `reference_only` so the editor can
+    never show them as an optimum (FR-026).
+    """
+    from app.exercises import robot_runner, world_sim, world_solver, world_validate
+
+    blockers = world_validate.check(data.config)
+
+    reference_run = None
+    solution = (data.config.get("solution_code") or "").strip()
+    if solution and not blockers:
+        try:
+            reference_run = await robot_runner.run(data.config, solution, sim=world_sim)
+        except RuntimeError:
+            raise HTTPException(
+                status_code=503,
+                detail="The service that runs programs is unavailable. Try again.",
+            ) from None
+
+    answer = world_solver.solve(data.config, reference_run)
+    answer["blockers"] = [*blockers, *answer["blockers"]]
+    return WorldSolveResponse(**answer)
 
 
 @router.post("/{exercise_id}/world/run", response_model=WorldRunResponse)
