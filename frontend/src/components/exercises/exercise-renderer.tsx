@@ -639,9 +639,16 @@ function ExerciseBody({
  case "world_3d":
  return (
  <World3DExercise
+ // Keyed on the level, as robot_2d is, so opening a different one is a
+ // fresh instance rather than five setState calls in an effect.
+ key={exercise.id}
  exerciseId={exercise.id}
  config={exercise.config}
- onSubmit={(result) => onSubmit({ game_result: result })}
+ // The program, not a verdict — see specs/012-world-3d-rework. This
+ // said `game_result` until the journey caught it: the pupil's source
+ // went up under a key the server does not read for this type, so a
+ // solved level was recorded as no submission at all.
+ onSubmit={(world) => onSubmit({ world })}
  />
  );
 
