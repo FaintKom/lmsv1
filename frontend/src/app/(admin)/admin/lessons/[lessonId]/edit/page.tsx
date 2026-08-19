@@ -61,7 +61,7 @@ import apiClient from "@/lib/api-client";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { ContentRenderer } from "@/components/common/content-renderer";
 import { VideoPlayer } from "@/components/video-player";
-import ExerciseRenderer from "@/components/exercises/exercise-renderer";
+import { ExercisePreview } from "@/components/exercises/exercise-preview";
 import { ExerciseConfigPanel } from "@/components/exercises/exercise-config-panel";
 import {
   EXERCISE_GROUPS,
@@ -782,14 +782,9 @@ function ExerciseBlockBody({
         </div>
       );
     }
-    return (
-      <ExerciseRenderer
-        exercise={exercise as never}
-        courseId=""
-        prevLesson={null}
-        nextLesson={null}
-      />
-    );
+    // The same component the exercise page previews with, so a matching
+    // task draws its connection lines here and an ordering task drags.
+    return <ExercisePreview exercise={exercise as never} />;
   }
 
   // Edit mode, no exercise yet: grouped type picker (specs/017 US4/US5).
