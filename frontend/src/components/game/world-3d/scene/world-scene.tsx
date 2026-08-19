@@ -50,15 +50,44 @@ export default function WorldScene({ state, isRunning }: WorldSceneProps) {
     <Canvas
       shadows={false}
       dpr={[1, 2]}
+      /*
+        `flat` turns off tone mapping, which a toon scene has to do.
+
+        The default is ACES filmic — a curve built to make photographic
+        highlights roll off pleasantly. Roll-off is the exact opposite of what
+        this scene wants: it takes the three flat bands the ramp produces and
+        squeezes the bright two into the same output, so a block's top and its
+        lit side came out one colour and the block read as a flat hexagon cut
+        from paper. Without the curve the bands stay where they were put, and
+        the light intensities below are the ordinary ones they look like.
+      */
+      flat
       camera={{ position: [midX + span, span * 1.1, midZ + span * 1.4], fov: 40 }}
       style={{
         background: `linear-gradient(180deg, ${palette.skyTop} 0%, ${palette.skyBottom} 100%)`,
       }}
     >
-      {/* Two lights and nothing else. Toon shading reads intensity, not
-          subtlety, so a third would cost frames and change no pixels. */}
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[midX + 7, 11, midZ + 5]} intensity={2.4} />
+      {/*
+        Two lights and nothing else. Toon shading reads intensity, not subtlety,
+        so a third would cost frames and change no pixels.
+
+        The key light's angle is the whole of whether a block looks like a block.
+        The camera sits front and right, so the faces that matter are the top,
+        the +x side and the +z front; this direction meets them at 0.80, 0.59
+        and 0.11, which the five-band ramp turns into three distinct tones.
+
+        The position is a fixed direction rather than one offset from the board,
+        which it was at first. A directional light aims from its position at the
+        origin, so offsetting it by the board's centre swung it towards the
+        diagonal as the level grew — and on the diagonal all three faces meet the
+        light at nearly the same angle and come out one colour.
+
+        Ambient stays low, and the two together must not exceed one. Ambient is
+        added outside the ramp, so a generous one lifts every face towards full
+        at once and undoes the angle; at 0.55 the scene was flat on that alone.
+      */}
+      <ambientLight intensity={0.25} />
+      <directionalLight position={[22, 30, 4]} intensity={0.75} />
 
       {/*
         `Bounds` frames the whole board and re-frames when it changes size.
@@ -67,7 +96,7 @@ export default function WorldScene({ state, isRunning }: WorldSceneProps) {
         wide box, and the first version of this scene lost a third of the level
         off the right-hand edge.
       */}
-      <Bounds fit clip observe margin={1.4}>
+      <Bounds fit clip observe margin={1.2}>
         <Ground state={state} palette={palette} gradient={gradient} />
 
         {state.cells.map((cell, i) => (

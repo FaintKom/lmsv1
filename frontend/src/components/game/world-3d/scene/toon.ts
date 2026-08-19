@@ -3,10 +3,17 @@
  * gradient with steps instead of a smooth falloff, and colours that come from
  * the design tokens.
  *
- * The ramp is three bytes. `MeshToonMaterial` samples it by light intensity, so
- * a three-step texture with nearest-neighbour filtering turns continuous
- * shading into three flat bands — the strongest single cue, and cheaper than
- * any shader we could write.
+ * The ramp is five bytes. `MeshToonMaterial` samples it by light angle, so a
+ * short texture with nearest-neighbour filtering turns continuous shading into
+ * flat bands — the strongest single cue, and cheaper than any shader we could
+ * write.
+ *
+ * Five rather than three, because of how three.js reads the ramp: it samples at
+ * `dot(normal, light) * 0.5 + 0.5`, so every face turned towards the light at
+ * all is crowded into the upper half of the texture. Three bands leave exactly
+ * one boundary above that halfway mark, and a block's top, lit side and front
+ * all sat on the same side of it — one flat colour, a hexagon cut from paper.
+ * Five puts a boundary between each of them.
  *
  * The palette has to be carried across from CSS by hand: WebGL cannot read a
  * custom property. Reading it at mount and again when the theme changes keeps
@@ -17,9 +24,9 @@
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 
-/** Three flat bands: shadow, mid, light. */
+/** Five flat bands, from deep shadow to full light. */
 export function makeToonGradient(): THREE.DataTexture {
-  const steps = new Uint8Array([90, 170, 255]);
+  const steps = new Uint8Array([110, 150, 190, 225, 255]);
   const texture = new THREE.DataTexture(steps, steps.length, 1, THREE.RedFormat);
   texture.minFilter = THREE.NearestFilter;
   texture.magFilter = THREE.NearestFilter;
@@ -61,13 +68,19 @@ export interface Palette {
  * the first version of this file read `--green-100` for the floor and
  * `--ink-900` for the outline, and the scene rendered pixel-identical in dark
  * mode, because those raw values are theme-invariant by design.
+ *
+ * The ground and sky have tokens of their own — `--color-ground` and friends,
+ * added for this scene. Borrowing the surface pair was the obvious next move
+ * and the wrong one: surfaces are paper, so the field came out white and its
+ * two tones differed by a hair, and the chequer that tells a child where one
+ * square ends could not be seen at all.
  */
 const TOKENS: Record<keyof Palette, string> = {
   // The room: follows the theme.
-  floor: "--color-surface",
-  floorAlt: "--color-surface-2",
-  skyTop: "--color-surface-2",
-  skyBottom: "--color-bg",
+  floor: "--color-ground",
+  floorAlt: "--color-ground-alt",
+  skyTop: "--color-sky-top",
+  skyBottom: "--color-sky-bottom",
   // Dark ink on a pale floor, pale ink on a dark one — the line has to stay
   // visible against whatever it is drawn on.
   outline: "--color-text",
@@ -86,8 +99,8 @@ const TOKENS: Record<keyof Palette, string> = {
 };
 
 const FALLBACK: Palette = {
-  floor: "#d4f1c4",
-  floorAlt: "#ecf9e7",
+  floor: "#b6e69e",
+  floorAlt: "#d4f1c4",
   wall: "#e2552f",
   platform: "#3aa0b5",
   item: "#ffd84d",
@@ -100,7 +113,7 @@ const FALLBACK: Palette = {
   visor: "#12798f",
   outline: "#0d150d",
   skyTop: "#b9d9e0",
-  skyBottom: "#fbfcf7",
+  skyBottom: "#f4fbef",
 };
 
 function readPalette(): Palette {
@@ -164,13 +177,15 @@ export function useReducedMotion(): boolean {
 
 /**
  * How far the dark shell is grown past the shape it outlines, in world units.
+ * Half of it shows on each side, so the drawn line is half this number.
  *
- * Measured rather than guessed, by photographing each attempt: at 0.02 the line
- * was there and invisible, a sub-pixel sliver at the distance a six-by-six
- * level puts the camera. 0.05 reads as a drawn edge on a one-unit prop without
- * swallowing the small ones.
+ * Measured rather than guessed, by photographing each attempt. At 0.02 the line
+ * was a sub-pixel sliver at the distance a six-by-six level puts the camera. At
+ * 0.1 it was a bar: on a one-unit block the line came to a tenth of the block,
+ * and where two blocks stood side by side the pair of shells met in a slab of
+ * black wide enough to lose the seam between them. 0.06 draws an edge.
  */
-export const OUTLINE_WIDTH = 0.1;
+export const OUTLINE_WIDTH = 0.06;
 
 /** One grid square, and the height of one level. Everything else is in these. */
 export const TILE = 1;

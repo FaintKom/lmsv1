@@ -138,18 +138,18 @@ blocks it.
 
 ### The editor
 
-- [ ] T047 [US3] Rebuild `frontend/src/components/game/world-3d/world-3d-editor.tsx` on the 2D editor's `updateWith(previous => …)` primitive, so a drag firing many times a second cannot lose edits
-- [ ] T048 [US3] Paint the grid at a chosen height, and **only** at that height — the defect that deletes the platform below the one being placed
-- [ ] T049 [US3] Paint by dragging, with undo reaching at least twenty steps back
-- [ ] T050 [P] [US3] Command palette: grouped tick boxes over the whole vocabulary, with presets that tick boxes rather than hiding a second list
-- [ ] T051 [P] [US3] Win builder: rows of conditions joined by all/any, each negatable, covering the vocabulary of [data-model.md](data-model.md)
-- [ ] T052 [US3] Link a button to a door by choosing from the doors that exist; no free-text identifier anywhere in the editor
-- [ ] T053 [US3] Check: call solve, show the answer in words, fill `star_steps` and `star_size`, and list every blocker
-- [ ] T054 [US3] Playtest the unsaved level through `/world/preview`
-- [ ] T055 [US3] Reference solution: run it, refuse it when it loses, store it when it wins
-- [ ] T056 [US3] Star thresholds editable as numbers, pre-filled by Check
-- [ ] T057 [US3] Show the level live in 3D beside the grid, updating as the teacher paints
-- [ ] T058 [US3] Numeric width and depth, replacing the four fixed sizes
+- [x] T047 [US3] Rebuild `frontend/src/components/game/world-3d/world-3d-editor.tsx` on the 2D editor's `updateWith(previous => …)` primitive, so a drag firing many times a second cannot lose edits
+- [x] T048 [US3] Paint the grid at a chosen height, and **only** at that height — the defect that deletes the platform below the one being placed
+- [x] T049 [US3] Paint by dragging, with undo reaching at least twenty steps back
+- [x] T050 [P] [US3] Command palette: grouped tick boxes over the whole vocabulary, with presets that tick boxes rather than hiding a second list
+- [x] T051 [P] [US3] Win builder: rows of conditions joined by all/any, each negatable, covering the vocabulary of [data-model.md](data-model.md)
+- [x] T052 [US3] Link a button to a door by choosing from the doors that exist; no free-text identifier anywhere in the editor
+- [x] T053 [US3] Check: call solve, show the answer in words, fill `star_steps` and `star_size`, and list every blocker
+- [x] T054 [US3] Playtest the unsaved level through `/world/preview`
+- [x] T055 [US3] Reference solution: run it, refuse it when it loses, store it when it wins
+- [x] T056 [US3] Star thresholds editable as numbers, pre-filled by Check
+- [x] T057 [US3] Show the level live in 3D beside the grid, updating as the teacher paints
+- [x] T058 [US3] Numeric width and depth, replacing the four fixed sizes
 
 **Checkpoint (PR 5 merges here)**: a teacher builds a working level without ever
 seeing the configuration.
@@ -177,15 +177,13 @@ seeing the configuration.
 
 ## Where this stands
 
-Stages 0 through 4a are merged and live: the spec, the rules in Python, the
-pupil's screen, the look, and the solver, validator and staff endpoints the
-editor calls.
+Stages 0 through 4 are merged and live: the spec, the rules in Python, the
+pupil's screen, the look, the solver and validator, and the teacher's editor
+(T047–T058) that calls them.
 
-**What is left is the editor interface itself** (T047–T058) and the proof
-(T062–T069). Until T047 lands, a teacher editing a 3D level still meets the old
-form: it compiles against the new schema but writes fields the schema no longer
-reads, so a level built there will not carry its command list or win condition.
-That is the single most important thing to do next.
+**What is left is the proof** (T062–T069) — the journey, the QA fixture, the
+latency and determinism measurements, and deleting `custom_win_js` with a grep
+to show nothing reads it.
 
 ---
 

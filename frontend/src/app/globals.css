@@ -121,6 +121,16 @@
  --color-surface: var(--paper-2);
  --color-surface-2: var(--ink-50);
 
+ /* The 3D world's room: the field it stands on, and the sky behind it.
+    These need tokens of their own rather than the surface pair, which is
+    paper and is meant to be. Painting the ground with paper gave a white
+    field whose two tones differ by a hair, so the chequer that tells a child
+    where one square ends disappeared. Grass and sky, and both flip. */
+ --color-ground: var(--green-200);
+ --color-ground-alt: var(--green-100);
+ --color-sky-top: var(--lagoon-200);
+ --color-sky-bottom: var(--green-25);
+
  --color-text: var(--ink-900);
  --color-text-muted: var(--ink-500);
  --color-text-subtle: var(--ink-400);
@@ -265,6 +275,13 @@
  --color-bg: #0b100c;
  --color-surface: #111713;
  --color-surface-2: #171f19;
+
+ /* Grass and sky after dark. Still two distinguishable tones, or the chequer
+    is gone again — the fault is the same one whichever end it happens at. */
+ --color-ground: #1b3626;
+ --color-ground-alt: #21402d;
+ --color-sky-top: #0d1a24;
+ --color-sky-bottom: #101a12;
 
  --color-text: #e9efe9;
  --color-text-muted: #9aa89b;
