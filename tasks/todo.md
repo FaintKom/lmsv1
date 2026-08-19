@@ -504,7 +504,10 @@ items, ≤3 iterations each, no check-ins.
 - [x] Fitting-room harness `/avatar-fitting` (public dev route, 1 GL context, contact sheet, dev-guarded)
 - [x] Refit hair (6) / hats (6) / glasses (5) / outfits (6) / back (5) / hand (6) / accessory (5) — all screenshot-verified
 - [x] detect-overlaps clean + tsc + lint + vitest (voxels, i18n) all green
-- [ ] Commit + PR (awaiting owner go — global rule: commit/push only when asked)
+- [x] Commit + PR — оказалось давно сделано: чиби ушёл на main коммитом
+      `1583435` (вместе с комнатой) и живёт в проде; проверено 2026-08-19 за
+      демо-ученика на `/achievements?tab=avatar` (рендерится WebGL-канвас,
+      `/my-avatar` — легальный редирект на таб). Бокс висел протухшим
 
 ### Review
 - Chibi rewrite of `frontend/src/lib/avatar/voxels.ts` against a shared `A` anchor
