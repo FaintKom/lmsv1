@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import type { MathTemplateProps } from "../template-registry";
+import { buildSolverChoices } from "./equation-solver-choices";
 
 interface Step {
  id: string;
@@ -10,6 +11,8 @@ interface Step {
  actionLabel: string; // display label
  resultLeft: string; // "2x"
  resultRight: string; // "12"
+ /** specs/020 US3: authored wrong options; absent = generic pool. */
+ distractors?: string[];
 }
 
 interface EquationConfig {
@@ -46,31 +49,10 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  const currentLeft = currentStep === 0 ? cfg.initial_left : cfg.steps[currentStep - 1].resultLeft;
  const currentRight = currentStep === 0 ? cfg.initial_right : cfg.steps[currentStep - 1].resultRight;
 
- // Generate choices for current step (correct + distractors)
+ // Generate choices for current step (correct + authored/generic distractors)
  const getChoices = useCallback((): { label: string; id: string; correct: boolean }[] => {
  if (currentStep >= totalSteps) return [];
- const correctStep = cfg.steps[currentStep];
-
- // Build distractors based on step type
- const distractors = [
- "Add 1 to both sides",
- "Multiply both sides by 2",
- "Subtract from left side only",
- "Add to right side only",
- "Multiply left side by x",
- "Divide both sides by x",
- ].filter((d) => d !== correctStep.actionLabel);
-
- // Pick 2 random distractors
- const shuffled = distractors.sort(() => Math.random() - 0.5);
- const choices = [
- { label: correctStep.actionLabel, id: correctStep.id, correct: true },
- { label: shuffled[0], id: "d1", correct: false },
- { label: shuffled[1], id: "d2", correct: false },
- ];
-
- // Shuffle choices
- return choices.sort(() => Math.random() - 0.5);
+ return buildSolverChoices(cfg.steps[currentStep]);
  }, [currentStep, cfg.steps, totalSteps]);
 
  const [choices] = useState(() => getChoices());
@@ -88,22 +70,8 @@ export default function EquationSolver({ config, onComplete }: MathTemplateProps
  const score = 1 - (selectedActions.length > totalSteps ? 0.2 : 0); // Penalize wrong attempts
  onComplete(true, Math.max(0.5, score));
  } else {
- // Generate new choices for next step
- const correctStep = cfg.steps[nextStep];
- const distractors = [
- "Add 1 to both sides",
- "Multiply both sides by 2",
- "Subtract from left side only",
- "Add to right side only",
- "Square both sides",
- "Take square root of both sides",
- ].filter((d) => d !== correctStep.actionLabel);
- const shuffled = distractors.sort(() => Math.random() - 0.5);
- setStepChoices([
- { label: correctStep.actionLabel, id: correctStep.id, correct: true },
- { label: shuffled[0], id: "d1", correct: false },
- { label: shuffled[1], id: "d2", correct: false },
- ].sort(() => Math.random() - 0.5));
+ // Generate new choices for the next step
+ setStepChoices(buildSolverChoices(cfg.steps[nextStep]));
  }
  } else {
  setWrongChoice(choiceId);

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { MathRenderer, containsMath } from "@/components/common/math-renderer";
+import { MathRenderer } from "@/components/common/math-renderer";
 import type { MathTemplateProps } from "../template-registry";
 
 interface NumericConfig {
@@ -75,7 +75,10 @@ export default function NumericInput({ config, onComplete }: MathTemplateProps) 
  {/* Question */}
  <div className="w-full max-w-lg rounded-lg border border-border-strong bg-surface-2 px-5 py-4 ">
  <div className="text-base font-medium text-text ">
- {containsMath(cfg.question) ? <MathRenderer content={cfg.question} /> : cfg.question}
+ {/* Always typeset (specs/020 US4): the containsMath heuristic missed
+     real formulas, printing raw LaTeX to students. Plain text passes
+     through the renderer unchanged. */}
+ <MathRenderer content={cfg.question} />
  </div>
  {false && cfg.standard && (
  <span className="mt-2 inline-block rounded bg-primary-soft px-2 py-0.5 text-3xs font-medium text-primary ">
